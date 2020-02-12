@@ -19,8 +19,8 @@ import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
-import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.HlsUrl;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
@@ -34,104 +34,115 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Helper class to download HLS streams.
+ * A downloader for HLS streams.
  *
- * <p>A subset of renditions can be downloaded by selecting them using {@link
- * #selectRepresentations(Object[])}. As key, string form of the rendition's url is used. The urls
- * can be absolute or relative to the master playlist url.
+ * <p>Example usage:
+ *
+ * <pre>{@code
+ * SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor(), databaseProvider);
+ * DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
+ * DownloaderConstructorHelper constructorHelper =
+ *     new DownloaderConstructorHelper(cache, factory);
+ * // Create a downloader for the first variant in a master playlist.
+ * HlsDownloader hlsDownloader =
+ *     new HlsDownloader(
+ *         playlistUri,
+ *         Collections.singletonList(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, 0)),
+ *         constructorHelper);
+ * // Perform the download.
+ * hlsDownloader.download(progressListener);
+ * // Access downloaded data using CacheDataSource
+ * CacheDataSource cacheDataSource =
+ *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
+ * }</pre>
  */
-public final class HlsDownloader extends SegmentDownloader<HlsMasterPlaylist, String> {
+public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
 
   /**
-   * @see SegmentDownloader#SegmentDownloader(Uri, DownloaderConstructorHelper)
+   * @param playlistUri The {@link Uri} of the playlist to be downloaded.
+   * @param streamKeys Keys defining which renditions in the playlist should be selected for
+   *     download. If empty, all renditions are downloaded.
+   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
    */
-  public HlsDownloader(Uri manifestUri, DownloaderConstructorHelper constructorHelper)  {
-    super(manifestUri, constructorHelper);
+  public HlsDownloader(
+      Uri playlistUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
+    super(playlistUri, streamKeys, constructorHelper);
   }
 
   @Override
-  public String[] getAllRepresentationKeys() throws IOException {
-    ArrayList<String> urls = new ArrayList<>();
-    HlsMasterPlaylist manifest = getManifest();
-    extractUrls(manifest.variants, urls);
-    extractUrls(manifest.audios, urls);
-    extractUrls(manifest.subtitles, urls);
-    return urls.toArray(new String[urls.size()]);
+  protected HlsPlaylist getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException {
+    return loadManifest(dataSource, dataSpec);
   }
 
   @Override
-  protected HlsMasterPlaylist getManifest(DataSource dataSource, Uri uri) throws IOException {
-    HlsPlaylist hlsPlaylist = loadManifest(dataSource, uri);
-    if (hlsPlaylist instanceof HlsMasterPlaylist) {
-      return (HlsMasterPlaylist) hlsPlaylist;
+  protected List<Segment> getSegments(
+      DataSource dataSource, HlsPlaylist playlist, boolean allowIncompleteList) throws IOException {
+    ArrayList<DataSpec> mediaPlaylistDataSpecs = new ArrayList<>();
+    if (playlist instanceof HlsMasterPlaylist) {
+      HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
+      addMediaPlaylistDataSpecs(masterPlaylist.mediaPlaylistUrls, mediaPlaylistDataSpecs);
     } else {
-      return HlsMasterPlaylist.createSingleVariantMasterPlaylist(hlsPlaylist.baseUri);
+      mediaPlaylistDataSpecs.add(
+          SegmentDownloader.getCompressibleDataSpec(Uri.parse(playlist.baseUri)));
     }
-  }
 
-  @Override
-  protected List<Segment> getSegments(DataSource dataSource, HlsMasterPlaylist manifest,
-      String[] keys, boolean allowIndexLoadErrors) throws InterruptedException, IOException {
-    HashSet<Uri> encryptionKeyUris = new HashSet<>();
     ArrayList<Segment> segments = new ArrayList<>();
-    for (String playlistUrl : keys) {
-      HlsMediaPlaylist mediaPlaylist = null;
-      Uri uri = UriUtil.resolveToUri(manifest.baseUri, playlistUrl);
+    HashSet<Uri> seenEncryptionKeyUris = new HashSet<>();
+    for (DataSpec mediaPlaylistDataSpec : mediaPlaylistDataSpecs) {
+      segments.add(new Segment(/* startTimeUs= */ 0, mediaPlaylistDataSpec));
+      HlsMediaPlaylist mediaPlaylist;
       try {
-        mediaPlaylist = (HlsMediaPlaylist) loadManifest(dataSource, uri);
+        mediaPlaylist = (HlsMediaPlaylist) loadManifest(dataSource, mediaPlaylistDataSpec);
       } catch (IOException e) {
-        if (!allowIndexLoadErrors) {
+        if (!allowIncompleteList) {
           throw e;
         }
-      }
-      segments.add(new Segment(mediaPlaylist != null ? mediaPlaylist.startTimeUs : Long.MIN_VALUE,
-          new DataSpec(uri)));
-      if (mediaPlaylist == null) {
+        // Generating an incomplete segment list is allowed. Advance to the next media playlist.
         continue;
       }
-
-      HlsMediaPlaylist.Segment initSegment = mediaPlaylist.initializationSegment;
-      if (initSegment != null) {
-        addSegment(segments, mediaPlaylist, initSegment, encryptionKeyUris);
-      }
-
+      HlsMediaPlaylist.Segment lastInitSegment = null;
       List<HlsMediaPlaylist.Segment> hlsSegments = mediaPlaylist.segments;
       for (int i = 0; i < hlsSegments.size(); i++) {
-        addSegment(segments, mediaPlaylist, hlsSegments.get(i), encryptionKeyUris);
+        HlsMediaPlaylist.Segment segment = hlsSegments.get(i);
+        HlsMediaPlaylist.Segment initSegment = segment.initializationSegment;
+        if (initSegment != null && initSegment != lastInitSegment) {
+          lastInitSegment = initSegment;
+          addSegment(mediaPlaylist, initSegment, seenEncryptionKeyUris, segments);
+        }
+        addSegment(mediaPlaylist, segment, seenEncryptionKeyUris, segments);
       }
     }
     return segments;
   }
 
-  private static HlsPlaylist loadManifest(DataSource dataSource, Uri uri) throws IOException {
-    ParsingLoadable<HlsPlaylist> loadable =
-        new ParsingLoadable<>(dataSource, uri, C.DATA_TYPE_MANIFEST, new HlsPlaylistParser());
-    loadable.load();
-    return loadable.getResult();
+  private void addMediaPlaylistDataSpecs(List<Uri> mediaPlaylistUrls, List<DataSpec> out) {
+    for (int i = 0; i < mediaPlaylistUrls.size(); i++) {
+      out.add(SegmentDownloader.getCompressibleDataSpec(mediaPlaylistUrls.get(i)));
+    }
   }
 
-  private static void addSegment(
-      ArrayList<Segment> segments,
+  private static HlsPlaylist loadManifest(DataSource dataSource, DataSpec dataSpec)
+      throws IOException {
+    return ParsingLoadable.load(
+        dataSource, new HlsPlaylistParser(), dataSpec, C.DATA_TYPE_MANIFEST);
+  }
+
+  private void addSegment(
       HlsMediaPlaylist mediaPlaylist,
-      HlsMediaPlaylist.Segment hlsSegment,
-      HashSet<Uri> encryptionKeyUris) {
-    long startTimeUs = mediaPlaylist.startTimeUs + hlsSegment.relativeStartTimeUs;
-    if (hlsSegment.fullSegmentEncryptionKeyUri != null) {
-      Uri keyUri = UriUtil.resolveToUri(mediaPlaylist.baseUri,
-          hlsSegment.fullSegmentEncryptionKeyUri);
-      if (encryptionKeyUris.add(keyUri)) {
-        segments.add(new Segment(startTimeUs, new DataSpec(keyUri)));
+      HlsMediaPlaylist.Segment segment,
+      HashSet<Uri> seenEncryptionKeyUris,
+      ArrayList<Segment> out) {
+    String baseUri = mediaPlaylist.baseUri;
+    long startTimeUs = mediaPlaylist.startTimeUs + segment.relativeStartTimeUs;
+    if (segment.fullSegmentEncryptionKeyUri != null) {
+      Uri keyUri = UriUtil.resolveToUri(baseUri, segment.fullSegmentEncryptionKeyUri);
+      if (seenEncryptionKeyUris.add(keyUri)) {
+        out.add(new Segment(startTimeUs, SegmentDownloader.getCompressibleDataSpec(keyUri)));
       }
     }
-    Uri resolvedUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, hlsSegment.url);
-    segments.add(new Segment(startTimeUs,
-        new DataSpec(resolvedUri, hlsSegment.byterangeOffset, hlsSegment.byterangeLength, null)));
+    Uri segmentUri = UriUtil.resolveToUri(baseUri, segment.url);
+    DataSpec dataSpec =
+        new DataSpec(segmentUri, segment.byterangeOffset, segment.byterangeLength, /* key= */ null);
+    out.add(new Segment(startTimeUs, dataSpec));
   }
-
-  private static void extractUrls(List<HlsUrl> hlsUrls, ArrayList<String> urls) {
-    for (int i = 0; i < hlsUrls.size(); i++) {
-      urls.add(hlsUrls.get(i).url);
-    }
-  }
-
 }

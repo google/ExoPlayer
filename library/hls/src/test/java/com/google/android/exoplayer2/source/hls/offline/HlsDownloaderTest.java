@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.source.hls.offline;
 
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.ENC_MEDIA_PLAYLIST_DATA;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.ENC_MEDIA_PLAYLIST_URI;
+import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_MEDIA_PLAYLIST_1_INDEX;
+import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_MEDIA_PLAYLIST_2_INDEX;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_PLAYLIST_DATA;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MASTER_PLAYLIST_URI;
 import static com.google.android.exoplayer2.source.hls.offline.HlsDownloadTestData.MEDIA_PLAYLIST_0_DIR;
@@ -33,35 +35,48 @@ import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedDa
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
+import com.google.android.exoplayer2.offline.DownloadRequest;
+import com.google.android.exoplayer2.offline.Downloader;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
+import com.google.android.exoplayer2.offline.DownloaderFactory;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
+import com.google.android.exoplayer2.testutil.CacheAsserts.RequestSet;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource.Factory;
+import com.google.android.exoplayer2.upstream.DummyDataSource;
+import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
+import org.mockito.Mockito;
 
 /** Unit tests for {@link HlsDownloader}. */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(AndroidJUnit4.class)
 public class HlsDownloaderTest {
 
   private SimpleCache cache;
   private File tempFolder;
+  private ProgressListener progressListener;
   private FakeDataSet fakeDataSet;
-  private HlsDownloader hlsDownloader;
 
   @Before
   public void setUp() throws Exception {
-    tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+    tempFolder =
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
-
+    progressListener = new ProgressListener();
     fakeDataSet =
         new FakeDataSet()
             .setData(MASTER_PLAYLIST_URI, MASTER_PLAYLIST_DATA)
@@ -73,83 +88,64 @@ public class HlsDownloaderTest {
             .setRandomData(MEDIA_PLAYLIST_2_DIR + "fileSequence0.ts", 13)
             .setRandomData(MEDIA_PLAYLIST_2_DIR + "fileSequence1.ts", 14)
             .setRandomData(MEDIA_PLAYLIST_2_DIR + "fileSequence2.ts", 15);
-    hlsDownloader = getHlsDownloader(MASTER_PLAYLIST_URI);
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     Util.recursiveDelete(tempFolder);
   }
 
   @Test
-  public void testDownloadManifest() throws Exception {
-    HlsMasterPlaylist manifest = hlsDownloader.getManifest();
+  public void testCreateWithDefaultDownloaderFactory() {
+    DownloaderConstructorHelper constructorHelper =
+        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
+    DownloaderFactory factory = new DefaultDownloaderFactory(constructorHelper);
 
-    assertThat(manifest).isNotNull();
-    assertCachedData(cache, fakeDataSet, MASTER_PLAYLIST_URI);
-  }
-
-  @Test
-  public void testSelectRepresentationsClearsPreviousSelection() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_2_URI});
-    hlsDownloader.download(null);
-
-    assertCachedData(
-        cache,
-        fakeDataSet,
-        MASTER_PLAYLIST_URI,
-        MEDIA_PLAYLIST_2_URI,
-        MEDIA_PLAYLIST_2_DIR + "fileSequence0.ts",
-        MEDIA_PLAYLIST_2_DIR + "fileSequence1.ts",
-        MEDIA_PLAYLIST_2_DIR + "fileSequence2.ts");
+    Downloader downloader =
+        factory.createDownloader(
+            new DownloadRequest(
+                "id",
+                DownloadRequest.TYPE_HLS,
+                Uri.parse("https://www.test.com/download"),
+                Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
+                /* customCacheKey= */ null,
+                /* data= */ null));
+    assertThat(downloader).isInstanceOf(HlsDownloader.class);
   }
 
   @Test
   public void testCounterMethods() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
-    hlsDownloader.download(null);
+    HlsDownloader downloader =
+        getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
+    downloader.download(progressListener);
 
-    assertThat(hlsDownloader.getTotalSegments()).isEqualTo(4);
-    assertThat(hlsDownloader.getDownloadedSegments()).isEqualTo(4);
-    assertThat(hlsDownloader.getDownloadedBytes())
-        .isEqualTo(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
-  }
-
-  @Test
-  public void testInitStatus() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
-    hlsDownloader.download(null);
-
-    HlsDownloader newHlsDownloader = getHlsDownloader(MASTER_PLAYLIST_URI);
-    newHlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
-    newHlsDownloader.init();
-
-    assertThat(newHlsDownloader.getTotalSegments()).isEqualTo(4);
-    assertThat(newHlsDownloader.getDownloadedSegments()).isEqualTo(4);
-    assertThat(newHlsDownloader.getDownloadedBytes())
-        .isEqualTo(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
+    progressListener.assertBytesDownloaded(MEDIA_PLAYLIST_DATA.length + 10 + 11 + 12);
   }
 
   @Test
   public void testDownloadRepresentation() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
-    hlsDownloader.download(null);
+    HlsDownloader downloader =
+        getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
+    downloader.download(progressListener);
 
     assertCachedData(
         cache,
-        fakeDataSet,
-        MASTER_PLAYLIST_URI,
-        MEDIA_PLAYLIST_1_URI,
-        MEDIA_PLAYLIST_1_DIR + "fileSequence0.ts",
-        MEDIA_PLAYLIST_1_DIR + "fileSequence1.ts",
-        MEDIA_PLAYLIST_1_DIR + "fileSequence2.ts");
+        new RequestSet(fakeDataSet)
+            .subset(
+                MASTER_PLAYLIST_URI,
+                MEDIA_PLAYLIST_1_URI,
+                MEDIA_PLAYLIST_1_DIR + "fileSequence0.ts",
+                MEDIA_PLAYLIST_1_DIR + "fileSequence1.ts",
+                MEDIA_PLAYLIST_1_DIR + "fileSequence2.ts"));
   }
 
   @Test
   public void testDownloadMultipleRepresentations() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI});
-    hlsDownloader.download(null);
+    HlsDownloader downloader =
+        getHlsDownloader(
+            MASTER_PLAYLIST_URI,
+            getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
+    downloader.download(progressListener);
 
     assertCachedData(cache, fakeDataSet);
   }
@@ -166,44 +162,38 @@ public class HlsDownloaderTest {
         .setRandomData(MEDIA_PLAYLIST_3_DIR + "fileSequence0.ts", 13)
         .setRandomData(MEDIA_PLAYLIST_3_DIR + "fileSequence1.ts", 14)
         .setRandomData(MEDIA_PLAYLIST_3_DIR + "fileSequence2.ts", 15);
-    hlsDownloader = getHlsDownloader(MASTER_PLAYLIST_URI);
 
-    // hlsDownloader.selectRepresentations() isn't called
-    hlsDownloader.download(null);
-    assertCachedData(cache, fakeDataSet);
-    hlsDownloader.remove();
+    HlsDownloader downloader = getHlsDownloader(MASTER_PLAYLIST_URI, getKeys());
+    downloader.download(progressListener);
 
-    // select something random
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
-    // clear selection
-    hlsDownloader.selectRepresentations(new String[0]);
-    hlsDownloader.download(null);
     assertCachedData(cache, fakeDataSet);
-    hlsDownloader.remove();
   }
 
   @Test
-  public void testRemoveAll() throws Exception {
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI, MEDIA_PLAYLIST_2_URI});
-    hlsDownloader.download(null);
-    hlsDownloader.remove();
+  public void testRemove() throws Exception {
+    HlsDownloader downloader =
+        getHlsDownloader(
+            MASTER_PLAYLIST_URI,
+            getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX, MASTER_MEDIA_PLAYLIST_2_INDEX));
+    downloader.download(progressListener);
+    downloader.remove();
 
     assertCacheEmpty(cache);
   }
 
   @Test
   public void testDownloadMediaPlaylist() throws Exception {
-    hlsDownloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI);
-    hlsDownloader.selectRepresentations(new String[] {MEDIA_PLAYLIST_1_URI});
-    hlsDownloader.download(null);
+    HlsDownloader downloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI, getKeys());
+    downloader.download(progressListener);
 
     assertCachedData(
         cache,
-        fakeDataSet,
-        MEDIA_PLAYLIST_1_URI,
-        MEDIA_PLAYLIST_1_DIR + "fileSequence0.ts",
-        MEDIA_PLAYLIST_1_DIR + "fileSequence1.ts",
-        MEDIA_PLAYLIST_1_DIR + "fileSequence2.ts");
+        new RequestSet(fakeDataSet)
+            .subset(
+                MEDIA_PLAYLIST_1_URI,
+                MEDIA_PLAYLIST_1_DIR + "fileSequence0.ts",
+                MEDIA_PLAYLIST_1_DIR + "fileSequence1.ts",
+                MEDIA_PLAYLIST_1_DIR + "fileSequence2.ts"));
   }
 
   @Test
@@ -216,16 +206,37 @@ public class HlsDownloaderTest {
             .setRandomData("fileSequence0.ts", 10)
             .setRandomData("fileSequence1.ts", 11)
             .setRandomData("fileSequence2.ts", 12);
-    hlsDownloader = getHlsDownloader(ENC_MEDIA_PLAYLIST_URI);
-    hlsDownloader.selectRepresentations(new String[] {ENC_MEDIA_PLAYLIST_URI});
-    hlsDownloader.download(null);
 
+    HlsDownloader downloader = getHlsDownloader(ENC_MEDIA_PLAYLIST_URI, getKeys());
+    downloader.download(progressListener);
     assertCachedData(cache, fakeDataSet);
   }
 
-  private HlsDownloader getHlsDownloader(String mediaPlaylistUri) {
-    Factory factory = new Factory(null).setFakeDataSet(fakeDataSet);
+  private HlsDownloader getHlsDownloader(String mediaPlaylistUri, List<StreamKey> keys) {
+    Factory factory = new Factory().setFakeDataSet(fakeDataSet);
     return new HlsDownloader(
-        Uri.parse(mediaPlaylistUri), new DownloaderConstructorHelper(cache, factory));
+        Uri.parse(mediaPlaylistUri), keys, new DownloaderConstructorHelper(cache, factory));
+  }
+
+  private static ArrayList<StreamKey> getKeys(int... variantIndices) {
+    ArrayList<StreamKey> streamKeys = new ArrayList<>();
+    for (int variantIndex : variantIndices) {
+      streamKeys.add(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, variantIndex));
+    }
+    return streamKeys;
+  }
+
+  private static final class ProgressListener implements Downloader.ProgressListener {
+
+    private long bytesDownloaded;
+
+    @Override
+    public void onProgress(long contentLength, long bytesDownloaded, float percentDownloaded) {
+      this.bytesDownloaded = bytesDownloaded;
+    }
+
+    public void assertBytesDownloaded(long bytesDownloaded) {
+      assertThat(this.bytesDownloaded).isEqualTo(bytesDownloaded);
+    }
   }
 }

@@ -18,17 +18,15 @@ package com.google.android.exoplayer2.source;
 import static com.google.android.exoplayer2.C.INDEX_UNSET;
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit test for {@link ShuffleOrder}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit test for {@link ShuffleOrder}. */
+@RunWith(AndroidJUnit4.class)
 public final class ShuffleOrderTest {
 
   public static final long RANDOM_SEED = 1234567890L;
@@ -45,10 +43,32 @@ public final class ShuffleOrderTest {
         testCloneAndInsert(new DefaultShuffleOrder(initialLength, RANDOM_SEED), insertionPoint, 5);
       }
     }
-    testCloneAndRemove(new DefaultShuffleOrder(5, RANDOM_SEED), 0);
-    testCloneAndRemove(new DefaultShuffleOrder(5, RANDOM_SEED), 2);
-    testCloneAndRemove(new DefaultShuffleOrder(5, RANDOM_SEED), 4);
-    testCloneAndRemove(new DefaultShuffleOrder(1, RANDOM_SEED), 0);
+    testCloneAndRemove(new DefaultShuffleOrder(5, RANDOM_SEED), 0, 1);
+    testCloneAndRemove(new DefaultShuffleOrder(5, RANDOM_SEED), 2, 3);
+    testCloneAndRemove(new DefaultShuffleOrder(5, RANDOM_SEED), 4, 5);
+    testCloneAndRemove(new DefaultShuffleOrder(1, RANDOM_SEED), 0, 1);
+    testCloneAndRemove(new DefaultShuffleOrder(1000, RANDOM_SEED), 0, 1000);
+    testCloneAndRemove(new DefaultShuffleOrder(1000, RANDOM_SEED), 0, 999);
+    testCloneAndRemove(new DefaultShuffleOrder(1000, RANDOM_SEED), 0, 500);
+    testCloneAndRemove(new DefaultShuffleOrder(1000, RANDOM_SEED), 100, 600);
+    testCloneAndRemove(new DefaultShuffleOrder(1000, RANDOM_SEED), 500, 1000);
+  }
+
+  @Test
+  public void testDefaultShuffleOrderSideloaded() {
+    int[] shuffledIndices = new int[] {2, 1, 0, 4, 3};
+    ShuffleOrder shuffleOrder = new DefaultShuffleOrder(shuffledIndices, RANDOM_SEED);
+    assertThat(shuffleOrder.getFirstIndex()).isEqualTo(2);
+    assertThat(shuffleOrder.getLastIndex()).isEqualTo(3);
+    for (int i = 0; i < 4; i++) {
+      assertThat(shuffleOrder.getNextIndex(shuffledIndices[i])).isEqualTo(shuffledIndices[i + 1]);
+    }
+    assertThat(shuffleOrder.getNextIndex(3)).isEqualTo(C.INDEX_UNSET);
+    for (int i = 4; i > 0; i--) {
+      assertThat(shuffleOrder.getPreviousIndex(shuffledIndices[i]))
+          .isEqualTo(shuffledIndices[i - 1]);
+    }
+    assertThat(shuffleOrder.getPreviousIndex(2)).isEqualTo(C.INDEX_UNSET);
   }
 
   @Test
@@ -63,10 +83,15 @@ public final class ShuffleOrderTest {
         testCloneAndInsert(new UnshuffledShuffleOrder(initialLength), insertionPoint, 5);
       }
     }
-    testCloneAndRemove(new UnshuffledShuffleOrder(5), 0);
-    testCloneAndRemove(new UnshuffledShuffleOrder(5), 2);
-    testCloneAndRemove(new UnshuffledShuffleOrder(5), 4);
-    testCloneAndRemove(new UnshuffledShuffleOrder(1), 0);
+    testCloneAndRemove(new UnshuffledShuffleOrder(5), 0, 1);
+    testCloneAndRemove(new UnshuffledShuffleOrder(5), 2, 3);
+    testCloneAndRemove(new UnshuffledShuffleOrder(5), 4, 5);
+    testCloneAndRemove(new UnshuffledShuffleOrder(1), 0, 1);
+    testCloneAndRemove(new UnshuffledShuffleOrder(1000), 0, 1000);
+    testCloneAndRemove(new UnshuffledShuffleOrder(1000), 0, 999);
+    testCloneAndRemove(new UnshuffledShuffleOrder(1000), 0, 500);
+    testCloneAndRemove(new UnshuffledShuffleOrder(1000), 100, 600);
+    testCloneAndRemove(new UnshuffledShuffleOrder(1000), 500, 1000);
   }
 
   @Test
@@ -98,7 +123,8 @@ public final class ShuffleOrderTest {
       assertThat(shuffleOrder.getLastIndex()).isEqualTo(indices[length - 1]);
       assertThat(shuffleOrder.getNextIndex(indices[length - 1])).isEqualTo(INDEX_UNSET);
       for (int i = 0; i < length; i++) {
-        assertThat(indices[i] >= 0 && indices[i] < length).isTrue();
+        assertThat(indices[i] >= 0).isTrue();
+        assertThat(indices[i] < length).isTrue();
       }
     }
   }
@@ -120,22 +146,24 @@ public final class ShuffleOrderTest {
     }
   }
 
-  private static void testCloneAndRemove(ShuffleOrder shuffleOrder, int position) {
-    ShuffleOrder newOrder = shuffleOrder.cloneAndRemove(position);
-    assertShuffleOrderCorrectness(newOrder, shuffleOrder.getLength() - 1);
+  private static void testCloneAndRemove(
+      ShuffleOrder shuffleOrder, int indexFrom, int indexToExclusive) {
+    int numberOfElementsToRemove = indexToExclusive - indexFrom;
+    ShuffleOrder newOrder = shuffleOrder.cloneAndRemove(indexFrom, indexToExclusive);
+    assertShuffleOrderCorrectness(newOrder, shuffleOrder.getLength() - numberOfElementsToRemove);
     // Assert all elements still have the relative same order
     for (int i = 0; i < shuffleOrder.getLength(); i++) {
-      if (i == position) {
+      if (i >= indexFrom && i < indexToExclusive) {
         continue;
       }
       int expectedNextIndex = shuffleOrder.getNextIndex(i);
-      if (expectedNextIndex == position) {
+      while (expectedNextIndex >= indexFrom && expectedNextIndex < indexToExclusive) {
         expectedNextIndex = shuffleOrder.getNextIndex(expectedNextIndex);
       }
-      if (expectedNextIndex != C.INDEX_UNSET && expectedNextIndex >= position) {
-        expectedNextIndex--;
+      if (expectedNextIndex != C.INDEX_UNSET && expectedNextIndex >= indexFrom) {
+        expectedNextIndex -= numberOfElementsToRemove;
       }
-      int newNextIndex = newOrder.getNextIndex(i < position ? i : i - 1);
+      int newNextIndex = newOrder.getNextIndex(i < indexFrom ? i : i - numberOfElementsToRemove);
       assertThat(newNextIndex).isEqualTo(expectedNextIndex);
     }
   }

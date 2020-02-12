@@ -22,6 +22,10 @@ import java.nio.charset.Charset;
 /* package */ interface HlsDownloadTestData {
 
   String MASTER_PLAYLIST_URI = "test.m3u8";
+  int MASTER_MEDIA_PLAYLIST_1_INDEX = 0;
+  int MASTER_MEDIA_PLAYLIST_2_INDEX = 1;
+  int MASTER_MEDIA_PLAYLIST_3_INDEX = 2;
+  int MASTER_MEDIA_PLAYLIST_0_INDEX = 3;
 
   String MEDIA_PLAYLIST_0_DIR = "gear0/";
   String MEDIA_PLAYLIST_0_URI = MEDIA_PLAYLIST_0_DIR + "prog_index.m3u8";

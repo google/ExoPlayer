@@ -172,6 +172,43 @@ void FLACParser::metadataCallback(const FLAC__StreamMetadata *metadata) {
     case FLAC__METADATA_TYPE_SEEKTABLE:
       mSeekTable = &metadata->data.seek_table;
       break;
+    case FLAC__METADATA_TYPE_VORBIS_COMMENT:
+      if (!mVorbisCommentsValid) {
+        FLAC__StreamMetadata_VorbisComment vorbisComment =
+            metadata->data.vorbis_comment;
+        for (FLAC__uint32 i = 0; i < vorbisComment.num_comments; ++i) {
+          FLAC__StreamMetadata_VorbisComment_Entry vorbisCommentEntry =
+              vorbisComment.comments[i];
+          if (vorbisCommentEntry.entry != NULL) {
+            std::string comment(
+                reinterpret_cast<char *>(vorbisCommentEntry.entry),
+                vorbisCommentEntry.length);
+            mVorbisComments.push_back(comment);
+          }
+        }
+        mVorbisCommentsValid = true;
+      } else {
+        ALOGE("FLACParser::metadataCallback unexpected VORBISCOMMENT");
+      }
+      break;
+    case FLAC__METADATA_TYPE_PICTURE: {
+      const FLAC__StreamMetadata_Picture *parsedPicture =
+          &metadata->data.picture;
+      FlacPicture picture;
+      picture.mimeType.assign(std::string(parsedPicture->mime_type));
+      picture.description.assign(
+          std::string((char *)parsedPicture->description));
+      picture.data.assign(parsedPicture->data,
+                          parsedPicture->data + parsedPicture->data_length);
+      picture.width = parsedPicture->width;
+      picture.height = parsedPicture->height;
+      picture.depth = parsedPicture->depth;
+      picture.colors = parsedPicture->colors;
+      picture.type = parsedPicture->type;
+      mPictures.push_back(picture);
+      mPicturesValid = true;
+      break;
+    }
     default:
       ALOGE("FLACParser::metadataCallback unexpected type %u", metadata->type);
       break;
@@ -228,11 +265,13 @@ FLACParser::FLACParser(DataSource *source)
     : mDataSource(source),
       mCopy(copyTrespass),
       mDecoder(NULL),
-      mSeekTable(NULL),
-      firstFrameOffset(0LL),
       mCurrentPos(0LL),
       mEOF(false),
       mStreamInfoValid(false),
+      mSeekTable(NULL),
+      firstFrameOffset(0LL),
+      mVorbisCommentsValid(false),
+      mPicturesValid(false),
       mWriteRequested(false),
       mWriteCompleted(false),
       mWriteBuffer(NULL),
@@ -266,6 +305,10 @@ bool FLACParser::init() {
                                             FLAC__METADATA_TYPE_STREAMINFO);
   FLAC__stream_decoder_set_metadata_respond(mDecoder,
                                             FLAC__METADATA_TYPE_SEEKTABLE);
+  FLAC__stream_decoder_set_metadata_respond(mDecoder,
+                                            FLAC__METADATA_TYPE_VORBIS_COMMENT);
+  FLAC__stream_decoder_set_metadata_respond(mDecoder,
+                                            FLAC__METADATA_TYPE_PICTURE);
   FLAC__StreamDecoderInitStatus initStatus;
   initStatus = FLAC__stream_decoder_init_stream(
       mDecoder, read_callback, seek_callback, tell_callback, length_callback,
@@ -304,24 +347,6 @@ bool FLACParser::decodeMetadata() {
         break;
       default:
         ALOGE("unsupported bits per sample %u", getBitsPerSample());
-        return false;
-    }
-    // check sample rate
-    switch (getSampleRate()) {
-      case 8000:
-      case 11025:
-      case 12000:
-      case 16000:
-      case 22050:
-      case 24000:
-      case 32000:
-      case 44100:
-      case 48000:
-      case 88200:
-      case 96000:
-        break;
-      default:
-        ALOGE("unsupported sample rate %u", getSampleRate());
         return false;
     }
     // configure the appropriate copy function based on device endianness.
@@ -393,22 +418,45 @@ size_t FLACParser::readBuffer(void *output, size_t output_size) {
   return bufferSize;
 }
 
-int64_t FLACParser::getSeekPosition(int64_t timeUs) {
+bool FLACParser::getSeekPositions(int64_t timeUs,
+                                  std::array<int64_t, 4> &result) {
   if (!mSeekTable) {
-    return -1;
+    return false;
   }
 
-  int64_t sample = (timeUs * getSampleRate()) / 1000000LL;
-  if (sample >= getTotalSamples()) {
-      sample = getTotalSamples();
+  unsigned sampleRate = getSampleRate();
+  int64_t totalSamples = getTotalSamples();
+  int64_t targetSampleNumber = (timeUs * sampleRate) / 1000000LL;
+  if (targetSampleNumber >= totalSamples) {
+    targetSampleNumber = totalSamples - 1;
   }
 
   FLAC__StreamMetadata_SeekPoint* points = mSeekTable->points;
-  for (unsigned i = mSeekTable->num_points; i > 0; ) {
-    i--;
-    if (points[i].sample_number <= sample) {
-      return firstFrameOffset + points[i].stream_offset;
+  unsigned length = mSeekTable->num_points;
+
+  for (unsigned i = length; i != 0; i--) {
+    int64_t sampleNumber = points[i - 1].sample_number;
+    if (sampleNumber == -1) {  // placeholder
+      continue;
+    }
+    if (sampleNumber <= targetSampleNumber) {
+      result[0] = (sampleNumber * 1000000LL) / sampleRate;
+      result[1] = firstFrameOffset + points[i - 1].stream_offset;
+      if (sampleNumber == targetSampleNumber || i >= length ||
+          points[i].sample_number == -1) {  // placeholder
+        // exact seek, or no following non-placeholder seek point
+        result[2] = result[0];
+        result[3] = result[1];
+      } else {
+        result[2] = (points[i].sample_number * 1000000LL) / sampleRate;
+        result[3] = firstFrameOffset + points[i].stream_offset;
+      }
+      return true;
     }
   }
-  return firstFrameOffset;
+  result[0] = 0;
+  result[1] = firstFrameOffset;
+  result[2] = 0;
+  result[3] = firstFrameOffset;
+  return true;
 }

@@ -16,87 +16,63 @@
 package com.google.android.exoplayer2.audio;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.C.Encoding;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
-/**
- * Audio processor for trimming samples from the start/end of data.
- */
-/* package */ final class TrimmingAudioProcessor implements AudioProcessor {
+/** Audio processor for trimming samples from the start/end of data. */
+/* package */ final class TrimmingAudioProcessor extends BaseAudioProcessor {
 
-  private boolean isActive;
-  private int trimStartSamples;
-  private int trimEndSamples;
-  private int channelCount;
-  private int sampleRateHz;
+  @C.PcmEncoding private static final int OUTPUT_ENCODING = C.ENCODING_PCM_16BIT;
+
+  private int trimStartFrames;
+  private int trimEndFrames;
+  private boolean reconfigurationPending;
 
   private int pendingTrimStartBytes;
-  private ByteBuffer buffer;
-  private ByteBuffer outputBuffer;
   private byte[] endBuffer;
   private int endBufferSize;
-  private boolean inputEnded;
+  private long trimmedFrameCount;
 
-  /**
-   * Creates a new audio processor for trimming samples from the start/end of data.
-   */
+  /** Creates a new audio processor for trimming samples from the start/end of data. */
   public TrimmingAudioProcessor() {
-    buffer = EMPTY_BUFFER;
-    outputBuffer = EMPTY_BUFFER;
-    channelCount = Format.NO_VALUE;
+    endBuffer = Util.EMPTY_BYTE_ARRAY;
   }
 
   /**
-   * Sets the number of audio samples to trim from the start and end of audio passed to this
-   * processor. After calling this method, call {@link #configure(int, int, int)} to apply the new
-   * trimming sample counts.
+   * Sets the number of audio frames to trim from the start and end of audio passed to this
+   * processor. After calling this method, call {@link #configure(AudioFormat)} to apply the new
+   * trimming frame counts.
    *
-   * @param trimStartSamples The number of audio samples to trim from the start of audio.
-   * @param trimEndSamples The number of audio samples to trim from the end of audio.
+   * @param trimStartFrames The number of audio frames to trim from the start of audio.
+   * @param trimEndFrames The number of audio frames to trim from the end of audio.
    * @see AudioSink#configure(int, int, int, int, int[], int, int)
    */
-  public void setTrimSampleCount(int trimStartSamples, int trimEndSamples) {
-    this.trimStartSamples = trimStartSamples;
-    this.trimEndSamples = trimEndSamples;
+  public void setTrimFrameCount(int trimStartFrames, int trimEndFrames) {
+    this.trimStartFrames = trimStartFrames;
+    this.trimEndFrames = trimEndFrames;
+  }
+
+  /** Sets the trimmed frame count returned by {@link #getTrimmedFrameCount()} to zero. */
+  public void resetTrimmedFrameCount() {
+    trimmedFrameCount = 0;
+  }
+
+  /**
+   * Returns the number of audio frames trimmed since the last call to {@link
+   * #resetTrimmedFrameCount()}.
+   */
+  public long getTrimmedFrameCount() {
+    return trimmedFrameCount;
   }
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @Encoding int encoding)
-      throws UnhandledFormatException {
-    if (encoding != C.ENCODING_PCM_16BIT) {
-      throw new UnhandledFormatException(sampleRateHz, channelCount, encoding);
+  public AudioFormat onConfigure(AudioFormat inputAudioFormat)
+      throws UnhandledAudioFormatException {
+    if (inputAudioFormat.encoding != OUTPUT_ENCODING) {
+      throw new UnhandledAudioFormatException(inputAudioFormat);
     }
-    this.channelCount = channelCount;
-    this.sampleRateHz = sampleRateHz;
-    endBuffer = new byte[trimEndSamples * channelCount * 2];
-    endBufferSize = 0;
-    pendingTrimStartBytes = trimStartSamples * channelCount * 2;
-    boolean wasActive = isActive;
-    isActive = trimStartSamples != 0 || trimEndSamples != 0;
-    return wasActive != isActive;
-  }
-
-  @Override
-  public boolean isActive() {
-    return isActive;
-  }
-
-  @Override
-  public int getOutputChannelCount() {
-    return channelCount;
-  }
-
-  @Override
-  public int getOutputEncoding() {
-    return C.ENCODING_PCM_16BIT;
-  }
-
-  @Override
-  public int getOutputSampleRateHz() {
-    return sampleRateHz;
+    reconfigurationPending = true;
+    return trimStartFrames != 0 || trimEndFrames != 0 ? inputAudioFormat : AudioFormat.NOT_SET;
   }
 
   @Override
@@ -105,8 +81,13 @@ import java.nio.ByteOrder;
     int limit = inputBuffer.limit();
     int remaining = limit - position;
 
+    if (remaining == 0) {
+      return;
+    }
+
     // Trim any pending start bytes from the input buffer.
     int trimBytes = Math.min(remaining, pendingTrimStartBytes);
+    trimmedFrameCount += trimBytes / inputAudioFormat.bytesPerFrame;
     pendingTrimStartBytes -= trimBytes;
     inputBuffer.position(position + trimBytes);
     if (pendingTrimStartBytes > 0) {
@@ -120,11 +101,7 @@ import java.nio.ByteOrder;
     // endBuffer as full as possible, the output should be any surplus bytes currently in endBuffer
     // followed by any surplus bytes in the new inputBuffer.
     int remainingBytesToOutput = endBufferSize + remaining - endBuffer.length;
-    if (buffer.capacity() < remainingBytesToOutput) {
-      buffer = ByteBuffer.allocateDirect(remainingBytesToOutput).order(ByteOrder.nativeOrder());
-    } else {
-      buffer.clear();
-    }
+    ByteBuffer buffer = replaceOutputBuffer(remainingBytesToOutput);
 
     // Output from endBuffer.
     int endBufferBytesToOutput = Util.constrainValue(remainingBytesToOutput, 0, endBufferSize);
@@ -145,44 +122,56 @@ import java.nio.ByteOrder;
     endBufferSize += remaining;
 
     buffer.flip();
-    outputBuffer = buffer;
-  }
-
-  @Override
-  public void queueEndOfStream() {
-    inputEnded = true;
   }
 
   @Override
   public ByteBuffer getOutput() {
-    ByteBuffer outputBuffer = this.outputBuffer;
-    this.outputBuffer = EMPTY_BUFFER;
-    return outputBuffer;
+    if (super.isEnded() && endBufferSize > 0) {
+      // Because audio processors may be drained in the middle of the stream we assume that the
+      // contents of the end buffer need to be output. For gapless transitions, configure will
+      // always be called, so the end buffer is cleared in onQueueEndOfStream.
+      replaceOutputBuffer(endBufferSize).put(endBuffer, 0, endBufferSize).flip();
+      endBufferSize = 0;
+    }
+    return super.getOutput();
   }
 
-  @SuppressWarnings("ReferenceEquality")
   @Override
   public boolean isEnded() {
-    return inputEnded && outputBuffer == EMPTY_BUFFER;
+    return super.isEnded() && endBufferSize == 0;
   }
 
   @Override
-  public void flush() {
-    outputBuffer = EMPTY_BUFFER;
-    inputEnded = false;
-    // It's no longer necessary to trim any media from the start, but it is necessary to clear the
-    // end buffer and refill it.
-    pendingTrimStartBytes = 0;
+  protected void onQueueEndOfStream() {
+    if (reconfigurationPending) {
+      // Trim audio in the end buffer.
+      if (endBufferSize > 0) {
+        trimmedFrameCount += endBufferSize / inputAudioFormat.bytesPerFrame;
+      }
+      endBufferSize = 0;
+    }
+  }
+
+  @Override
+  protected void onFlush() {
+    if (reconfigurationPending) {
+      reconfigurationPending = false;
+      endBuffer = new byte[trimEndFrames * inputAudioFormat.bytesPerFrame];
+      pendingTrimStartBytes = trimStartFrames * inputAudioFormat.bytesPerFrame;
+    } else {
+      // Audio processors are flushed after initial configuration, so we leave the pending trim
+      // start byte count unmodified if the processor was just configured. Otherwise we (possibly
+      // incorrectly) assume that this is a seek to a non-zero position. We should instead check the
+      // timestamp of the first input buffer queued after flushing to decide whether to trim (see
+      // also [Internal: b/77292509]).
+      pendingTrimStartBytes = 0;
+    }
     endBufferSize = 0;
   }
 
   @Override
-  public void reset() {
-    flush();
-    buffer = EMPTY_BUFFER;
-    channelCount = Format.NO_VALUE;
-    sampleRateHz = Format.NO_VALUE;
-    endBuffer = null;
+  protected void onReset() {
+    endBuffer = Util.EMPTY_BYTE_ARRAY;
   }
 
 }

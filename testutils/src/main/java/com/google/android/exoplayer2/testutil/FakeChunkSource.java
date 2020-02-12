@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
@@ -23,14 +24,15 @@ import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -52,11 +54,17 @@ public final class FakeChunkSource implements ChunkSource {
       this.dataSourceFactory = dataSourceFactory;
     }
 
-    public FakeChunkSource createChunkSource(TrackSelection trackSelection, long durationUs) {
+    public FakeChunkSource createChunkSource(
+        TrackSelection trackSelection,
+        long durationUs,
+        @Nullable TransferListener transferListener) {
       FakeAdaptiveDataSet dataSet =
           dataSetFactory.createDataSet(trackSelection.getTrackGroup(), durationUs);
       dataSourceFactory.setFakeDataSet(dataSet);
       DataSource dataSource = dataSourceFactory.createDataSource();
+      if (transferListener != null) {
+        dataSource.addTransferListener(transferListener);
+      }
       return new FakeChunkSource(trackSelection, dataSource, dataSet);
     }
 
@@ -81,11 +89,11 @@ public final class FakeChunkSource implements ChunkSource {
         firstSyncUs < positionUs && chunkIndex < dataSet.getChunkCount() - 1
             ? dataSet.getStartTime(chunkIndex + 1)
             : firstSyncUs;
-    return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+    return seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
   }
 
   @Override
-  public void maybeThrowError() throws IOException {
+  public void maybeThrowError() {
     // Do nothing.
   }
 
@@ -95,14 +103,23 @@ public final class FakeChunkSource implements ChunkSource {
   }
 
   @Override
-  public void getNextChunk(MediaChunk previous, long playbackPositionUs, long loadPositionUs,
+  public void getNextChunk(
+      long playbackPositionUs,
+      long loadPositionUs,
+      List<? extends MediaChunk> queue,
       ChunkHolder out) {
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
-    trackSelection.updateSelectedTrack(playbackPositionUs, bufferedDurationUs, C.TIME_UNSET);
     int chunkIndex =
-        previous == null
+        queue.isEmpty()
             ? dataSet.getChunkIndexByPosition(playbackPositionUs)
-            : (int) previous.getNextChunkIndex();
+            : (int) queue.get(queue.size() - 1).getNextChunkIndex();
+    MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
+    for (int i = 0; i < chunkIterators.length; i++) {
+      int trackGroupIndex = trackSelection.getIndexInTrackGroup(i);
+      chunkIterators[i] = new FakeAdaptiveDataSet.Iterator(dataSet, trackGroupIndex, chunkIndex);
+    }
+    trackSelection.updateSelectedTrack(
+        playbackPositionUs, bufferedDurationUs, C.TIME_UNSET, queue, chunkIterators);
     if (chunkIndex >= dataSet.getChunkCount()) {
       out.endOfStream = true;
     } else {
@@ -111,7 +128,8 @@ public final class FakeChunkSource implements ChunkSource {
       long endTimeUs = startTimeUs + dataSet.getChunkDuration(chunkIndex);
       int trackGroupIndex = trackSelection.getIndexInTrackGroup(trackSelection.getSelectedIndex());
       String uri = dataSet.getUri(trackGroupIndex);
-      Segment fakeDataChunk = dataSet.getData(uri).getSegments().get(chunkIndex);
+      Segment fakeDataChunk =
+          Assertions.checkStateNotNull(dataSet.getData(uri)).getSegments().get(chunkIndex);
       DataSpec dataSpec = new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset,
           fakeDataChunk.length, null);
       int trackType = MimeTypes.getTrackType(selectedFormat.sampleMimeType);
@@ -127,7 +145,8 @@ public final class FakeChunkSource implements ChunkSource {
   }
 
   @Override
-  public boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e) {
+  public boolean onChunkLoadError(
+      Chunk chunk, boolean cancelable, Exception e, long blacklistDurationMs) {
     return false;
   }
 

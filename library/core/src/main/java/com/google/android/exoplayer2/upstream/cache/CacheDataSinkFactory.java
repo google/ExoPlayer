@@ -23,28 +23,23 @@ import com.google.android.exoplayer2.upstream.DataSink;
 public final class CacheDataSinkFactory implements DataSink.Factory {
 
   private final Cache cache;
-  private final long maxCacheFileSize;
+  private final long fragmentSize;
   private final int bufferSize;
 
-  /**
-   * @see CacheDataSink#CacheDataSink(Cache, long)
-   */
-  public CacheDataSinkFactory(Cache cache, long maxCacheFileSize) {
-    this(cache, maxCacheFileSize, CacheDataSink.DEFAULT_BUFFER_SIZE);
+  /** @see CacheDataSink#CacheDataSink(Cache, long) */
+  public CacheDataSinkFactory(Cache cache, long fragmentSize) {
+    this(cache, fragmentSize, CacheDataSink.DEFAULT_BUFFER_SIZE);
   }
 
-  /**
-   * @see CacheDataSink#CacheDataSink(Cache, long, int)
-   */
-  public CacheDataSinkFactory(Cache cache, long maxCacheFileSize, int bufferSize) {
+  /** @see CacheDataSink#CacheDataSink(Cache, long, int) */
+  public CacheDataSinkFactory(Cache cache, long fragmentSize, int bufferSize) {
     this.cache = cache;
-    this.maxCacheFileSize = maxCacheFileSize;
+    this.fragmentSize = fragmentSize;
     this.bufferSize = bufferSize;
   }
 
   @Override
   public DataSink createDataSink() {
-    return new CacheDataSink(cache, maxCacheFileSize, bufferSize);
+    return new CacheDataSink(cache, fragmentSize, bufferSize);
   }
-
 }

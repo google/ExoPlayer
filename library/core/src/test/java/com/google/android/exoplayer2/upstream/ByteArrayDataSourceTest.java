@@ -18,16 +18,14 @@ package com.google.android.exoplayer2.upstream;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-/**
- * Unit tests for {@link ByteArrayDataSource}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Unit tests for {@link ByteArrayDataSource}. */
+@RunWith(AndroidJUnit4.class)
 public final class ByteArrayDataSourceTest {
 
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};

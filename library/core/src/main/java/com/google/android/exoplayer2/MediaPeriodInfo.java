@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer2;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.util.Util;
 
 /** Stores the information required to load and play a {@link MediaPeriod}. */
 /* package */ final class MediaPeriodInfo {
@@ -26,19 +28,24 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
   /** The start position of the media to play within the media period, in microseconds. */
   public final long startPositionUs;
   /**
-   * The end position of the media to play within the media period, in microseconds, or {@link
-   * C#TIME_END_OF_SOURCE} if the end position is the end of the media period.
+   * The requested next start position for the current timeline period, in microseconds, or {@link
+   * C#TIME_UNSET} if the period was requested to start at its default position.
+   *
+   * <p>Note that if {@link #id} refers to an ad, this is the requested start position for the
+   * suspended content.
+   */
+  public final long requestedContentPositionUs;
+  /**
+   * The end position to which the media period's content is clipped in order to play a following ad
+   * group, in microseconds, or {@link C#TIME_UNSET} if there is no following ad group or if this
+   * media period is an ad. The value {@link C#TIME_END_OF_SOURCE} indicates that a postroll ad
+   * follows at the end of this content media period.
    */
   public final long endPositionUs;
   /**
-   * If this is an ad, the position to play in the next content media period. {@link C#TIME_UNSET}
-   * otherwise.
-   */
-  public final long contentPositionUs;
-  /**
    * The duration of the media period, like {@link #endPositionUs} but with {@link
-   * C#TIME_END_OF_SOURCE} resolved to the timeline period duration. May be {@link C#TIME_UNSET} if
-   * the end position is not known.
+   * C#TIME_END_OF_SOURCE} and {@link C#TIME_UNSET} resolved to the timeline period duration if
+   * known.
    */
   public final long durationUs;
   /**
@@ -55,44 +62,82 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
   MediaPeriodInfo(
       MediaPeriodId id,
       long startPositionUs,
+      long requestedContentPositionUs,
       long endPositionUs,
-      long contentPositionUs,
       long durationUs,
       boolean isLastInTimelinePeriod,
       boolean isFinal) {
     this.id = id;
     this.startPositionUs = startPositionUs;
+    this.requestedContentPositionUs = requestedContentPositionUs;
     this.endPositionUs = endPositionUs;
-    this.contentPositionUs = contentPositionUs;
     this.durationUs = durationUs;
     this.isLastInTimelinePeriod = isLastInTimelinePeriod;
     this.isFinal = isFinal;
   }
 
   /**
-   * Returns a copy of this instance with the period identifier's period index set to the specified
-   * value.
+   * Returns a copy of this instance with the start position set to the specified value. May return
+   * the same instance if nothing changed.
    */
-  public MediaPeriodInfo copyWithPeriodIndex(int periodIndex) {
-    return new MediaPeriodInfo(
-        id.copyWithPeriodIndex(periodIndex),
-        startPositionUs,
-        endPositionUs,
-        contentPositionUs,
-        durationUs,
-        isLastInTimelinePeriod,
-        isFinal);
+  public MediaPeriodInfo copyWithStartPositionUs(long startPositionUs) {
+    return startPositionUs == this.startPositionUs
+        ? this
+        : new MediaPeriodInfo(
+            id,
+            startPositionUs,
+            requestedContentPositionUs,
+            endPositionUs,
+            durationUs,
+            isLastInTimelinePeriod,
+            isFinal);
   }
 
-  /** Returns a copy of this instance with the start position set to the specified value. */
-  public MediaPeriodInfo copyWithStartPositionUs(long startPositionUs) {
-    return new MediaPeriodInfo(
-        id,
-        startPositionUs,
-        endPositionUs,
-        contentPositionUs,
-        durationUs,
-        isLastInTimelinePeriod,
-        isFinal);
+  /**
+   * Returns a copy of this instance with the requested content position set to the specified value.
+   * May return the same instance if nothing changed.
+   */
+  public MediaPeriodInfo copyWithRequestedContentPositionUs(long requestedContentPositionUs) {
+    return requestedContentPositionUs == this.requestedContentPositionUs
+        ? this
+        : new MediaPeriodInfo(
+            id,
+            startPositionUs,
+            requestedContentPositionUs,
+            endPositionUs,
+            durationUs,
+            isLastInTimelinePeriod,
+            isFinal);
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    MediaPeriodInfo that = (MediaPeriodInfo) o;
+    return startPositionUs == that.startPositionUs
+        && requestedContentPositionUs == that.requestedContentPositionUs
+        && endPositionUs == that.endPositionUs
+        && durationUs == that.durationUs
+        && isLastInTimelinePeriod == that.isLastInTimelinePeriod
+        && isFinal == that.isFinal
+        && Util.areEqual(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = 17;
+    result = 31 * result + id.hashCode();
+    result = 31 * result + (int) startPositionUs;
+    result = 31 * result + (int) requestedContentPositionUs;
+    result = 31 * result + (int) endPositionUs;
+    result = 31 * result + (int) durationUs;
+    result = 31 * result + (isLastInTimelinePeriod ? 1 : 0);
+    result = 31 * result + (isFinal ? 1 : 0);
+    return result;
   }
 }

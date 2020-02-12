@@ -21,6 +21,7 @@
   <item name="exo_artwork" type="id"/>
   <item name="exo_controller_placeholder" type="id"/>
   <item name="exo_controller" type="id"/>
+  <item name="exo_ad_overlay" type="id"/>
   <item name="exo_overlay" type="id"/>
   <item name="exo_play" type="id"/>
   <item name="exo_pause" type="id"/>
@@ -32,6 +33,10 @@
   <item name="exo_repeat_toggle" type="id"/>
   <item name="exo_duration" type="id"/>
   <item name="exo_position" type="id"/>
+  <item name="exo_progress_placeholder" type="id"/>
   <item name="exo_progress" type="id"/>
+  <item name="exo_buffering" type="id"/>
+  <item name="exo_error_message" type="id"/>
+  <item name="exo_vr" type="id"/>
 
 </resources>

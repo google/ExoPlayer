@@ -15,25 +15,34 @@
  */
 package com.google.android.exoplayer2.scheduler;
 
-/**
- * Implementer of this interface schedules one implementation specific job to be run when some
- * requirements are met even if the app isn't running.
- */
+import android.app.Notification;
+import android.app.Service;
+import android.content.Intent;
+
+/** Schedules a service to be started in the foreground when some {@link Requirements} are met. */
 public interface Scheduler {
 
-  /*package*/ boolean DEBUG = false;
-
   /**
-   * Schedules the job to be run when the requirements are met.
+   * Schedules a service to be started in the foreground when some {@link Requirements} are met.
+   * Anything that was previously scheduled will be canceled.
    *
-   * @return Whether the job scheduled successfully.
+   * <p>The service to be started must be declared in the manifest of {@code servicePackage} with an
+   * intent filter containing {@code serviceAction}. Note that when started with {@code
+   * serviceAction}, the service must call {@link Service#startForeground(int, Notification)} to
+   * make itself a foreground service, as documented by {@link
+   * Service#startForegroundService(Intent)}.
+   *
+   * @param requirements The requirements.
+   * @param servicePackage The package name.
+   * @param serviceAction The action with which the service will be started.
+   * @return Whether scheduling was successful.
    */
-  boolean schedule();
+  boolean schedule(Requirements requirements, String servicePackage, String serviceAction);
 
   /**
-   * Cancels any previous schedule.
+   * Cancels anything that was previously scheduled, or else does nothing.
    *
-   * @return Whether the job cancelled successfully.
+   * @return Whether cancellation was successful.
    */
   boolean cancel();
 }

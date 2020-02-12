@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -30,7 +28,7 @@ import java.io.OutputStream;
  * has successfully completed.
  *
  * <p>Atomic file guarantees file integrity by ensuring that a file has been completely written and
- * sync'd to disk before removing its backup. As long as the backup file exists, the original file
+ * synced to disk before removing its backup. As long as the backup file exists, the original file
  * is considered to be invalid (left over from a previous attempt to write the file).
  *
  * <p>Atomic file does not confer any file locking semantics. Do not use this class when the file
@@ -51,6 +49,11 @@ public final class AtomicFile {
   public AtomicFile(File baseName) {
     this.baseName = baseName;
     backupName = new File(baseName.getPath() + ".bak");
+  }
+
+  /** Returns whether the file or its backup exists. */
+  public boolean exists() {
+    return baseName.exists() || backupName.exists();
   }
 
   /** Delete the atomic file. This deletes both the base and backup files. */
@@ -103,9 +106,10 @@ public final class AtomicFile {
       str = new AtomicFileOutputStream(baseName);
     } catch (FileNotFoundException e) {
       File parent = baseName.getParentFile();
-      if (!parent.mkdirs()) {
-        throw new IOException("Couldn't create directory " + baseName, e);
+      if (parent == null || !parent.mkdirs()) {
+        throw new IOException("Couldn't create " + baseName, e);
       }
+      // Try again now that we've created the parent directory.
       try {
         str = new AtomicFileOutputStream(baseName);
       } catch (FileNotFoundException e2) {
@@ -185,12 +189,12 @@ public final class AtomicFile {
     }
 
     @Override
-    public void write(@NonNull byte[] b) throws IOException {
+    public void write(byte[] b) throws IOException {
       fileOutputStream.write(b);
     }
 
     @Override
-    public void write(@NonNull byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) throws IOException {
       fileOutputStream.write(b, off, len);
     }
   }

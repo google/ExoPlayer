@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -26,7 +27,7 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 public abstract class MediaChunk extends Chunk {
 
-  /** The chunk index. */
+  /** The chunk index, or {@link C#INDEX_UNSET} if it is not known. */
   public final long chunkIndex;
 
   /**
@@ -37,14 +38,14 @@ public abstract class MediaChunk extends Chunk {
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param startTimeUs The start time of the media contained by the chunk, in microseconds.
    * @param endTimeUs The end time of the media contained by the chunk, in microseconds.
-   * @param chunkIndex The index of the chunk.
+   * @param chunkIndex The index of the chunk, or {@link C#INDEX_UNSET} if it is not known.
    */
   public MediaChunk(
       DataSource dataSource,
       DataSpec dataSpec,
       Format trackFormat,
       int trackSelectionReason,
-      Object trackSelectionData,
+      @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs,
       long chunkIndex) {
@@ -54,9 +55,9 @@ public abstract class MediaChunk extends Chunk {
     this.chunkIndex = chunkIndex;
   }
 
-  /** Returns the next chunk index. */
+  /** Returns the next chunk index or {@link C#INDEX_UNSET} if it is not known. */
   public long getNextChunkIndex() {
-    return chunkIndex + 1;
+    return chunkIndex != C.INDEX_UNSET ? chunkIndex + 1 : C.INDEX_UNSET;
   }
 
   /**

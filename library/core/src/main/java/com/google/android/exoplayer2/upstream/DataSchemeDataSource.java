@@ -15,34 +15,43 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
 import android.util.Base64;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.net.URLDecoder;
 
-/**
- * A {@link DataSource} for reading data URLs, as defined by RFC 2397.
- */
-public final class DataSchemeDataSource implements DataSource {
+/** A {@link DataSource} for reading data URLs, as defined by RFC 2397. */
+public final class DataSchemeDataSource extends BaseDataSource {
 
   public static final String SCHEME_DATA = "data";
 
-  private DataSpec dataSpec;
-  private int bytesRead;
-  private byte[] data;
+  @Nullable private DataSpec dataSpec;
+  @Nullable private byte[] data;
+  private int endPosition;
+  private int readPosition;
+
+  public DataSchemeDataSource() {
+    super(/* isNetwork= */ false);
+  }
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
+    transferInitializing(dataSpec);
     this.dataSpec = dataSpec;
+    readPosition = (int) dataSpec.position;
     Uri uri = dataSpec.uri;
     String scheme = uri.getScheme();
     if (!SCHEME_DATA.equals(scheme)) {
       throw new ParserException("Unsupported scheme: " + scheme);
     }
-    String[] uriParts = uri.getSchemeSpecificPart().split(",");
-    if (uriParts.length > 2) {
+    String[] uriParts = Util.split(uri.getSchemeSpecificPart(), ",");
+    if (uriParts.length != 2) {
       throw new ParserException("Unexpected URI format: " + uri);
     }
     String dataString = uriParts[1];
@@ -54,9 +63,16 @@ public final class DataSchemeDataSource implements DataSource {
       }
     } else {
       // TODO: Add support for other charsets.
-      data = URLDecoder.decode(dataString, C.ASCII_NAME).getBytes();
+      data = Util.getUtf8Bytes(URLDecoder.decode(dataString, C.ASCII_NAME));
     }
-    return data.length;
+    endPosition =
+        dataSpec.length != C.LENGTH_UNSET ? (int) dataSpec.length + readPosition : data.length;
+    if (endPosition > data.length || readPosition > endPosition) {
+      data = null;
+      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+    }
+    transferStarted(dataSpec);
+    return (long) endPosition - readPosition;
   }
 
   @Override
@@ -64,25 +80,29 @@ public final class DataSchemeDataSource implements DataSource {
     if (readLength == 0) {
       return 0;
     }
-    int remainingBytes = data.length - bytesRead;
+    int remainingBytes = endPosition - readPosition;
     if (remainingBytes == 0) {
       return C.RESULT_END_OF_INPUT;
     }
     readLength = Math.min(readLength, remainingBytes);
-    System.arraycopy(data, bytesRead, buffer, offset, readLength);
-    bytesRead += readLength;
+    System.arraycopy(castNonNull(data), readPosition, buffer, offset, readLength);
+    readPosition += readLength;
+    bytesTransferred(readLength);
     return readLength;
   }
 
   @Override
+  @Nullable
   public Uri getUri() {
     return dataSpec != null ? dataSpec.uri : null;
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
+    if (data != null) {
+      data = null;
+      transferEnded();
+    }
     dataSpec = null;
-    data = null;
   }
-
 }

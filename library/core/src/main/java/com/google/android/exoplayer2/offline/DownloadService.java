@@ -15,381 +15,1030 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import static com.google.android.exoplayer2.offline.Download.STOP_REASON_NONE;
+
 import android.app.Notification;
-import android.app.Notification.Builder;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.support.annotation.CallSuper;
-import android.support.annotation.Nullable;
-import android.util.Log;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadManager.DownloadState;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import com.google.android.exoplayer2.scheduler.Requirements;
-import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
 import com.google.android.exoplayer2.scheduler.Scheduler;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.NotificationUtil;
 import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * A {@link Service} that downloads streams in the background.
- *
- * <p>To start the service, create an instance of one of the subclasses of {@link DownloadAction}
- * and call {@link #addDownloadAction(Context, Class, DownloadAction)} with it.
- */
-public abstract class DownloadService extends Service implements DownloadManager.DownloadListener {
+/** A {@link Service} for downloading media. */
+public abstract class DownloadService extends Service {
 
-  /** Use this action to initialize {@link DownloadManager}. */
+  /**
+   * Starts a download service to resume any ongoing downloads. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
   public static final String ACTION_INIT =
       "com.google.android.exoplayer.downloadService.action.INIT";
 
-  /** Use this action to add a {@link DownloadAction} to {@link DownloadManager} action queue. */
-  public static final String ACTION_ADD = "com.google.android.exoplayer.downloadService.action.ADD";
+  /** Like {@link #ACTION_INIT}, but with {@link #KEY_FOREGROUND} implicitly set to true. */
+  private static final String ACTION_RESTART =
+      "com.google.android.exoplayer.downloadService.action.RESTART";
 
-  /** Use this action to make {@link DownloadManager} stop download tasks. */
-  private static final String ACTION_STOP =
-      "com.google.android.exoplayer.downloadService.action.STOP";
+  /**
+   * Adds a new download. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_DOWNLOAD_REQUEST} - A {@link DownloadRequest} defining the download to be
+   *       added.
+   *   <li>{@link #KEY_STOP_REASON} - An initial stop reason for the download. If omitted {@link
+   *       Download#STOP_REASON_NONE} is used.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_ADD_DOWNLOAD =
+      "com.google.android.exoplayer.downloadService.action.ADD_DOWNLOAD";
 
-  /** Use this action to make {@link DownloadManager} start download tasks. */
-  private static final String ACTION_START =
-      "com.google.android.exoplayer.downloadService.action.START";
+  /**
+   * Removes a download. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_CONTENT_ID} - The content id of a download to remove.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_REMOVE_DOWNLOAD =
+      "com.google.android.exoplayer.downloadService.action.REMOVE_DOWNLOAD";
 
-  /** A {@link DownloadAction} to be executed. */
-  public static final String DOWNLOAD_ACTION = "DownloadAction";
+  /**
+   * Removes all downloads. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_REMOVE_ALL_DOWNLOADS =
+      "com.google.android.exoplayer.downloadService.action.REMOVE_ALL_DOWNLOADS";
 
-  /** Default progress update interval in milliseconds. */
-  public static final long DEFAULT_PROGRESS_UPDATE_INTERVAL_MILLIS = 1000;
+  /**
+   * Resumes all downloads except those that have a non-zero {@link Download#stopReason}. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_RESUME_DOWNLOADS =
+      "com.google.android.exoplayer.downloadService.action.RESUME_DOWNLOADS";
+
+  /**
+   * Pauses all downloads. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_PAUSE_DOWNLOADS =
+      "com.google.android.exoplayer.downloadService.action.PAUSE_DOWNLOADS";
+
+  /**
+   * Sets the stop reason for one or all downloads. To clear the stop reason, pass {@link
+   * Download#STOP_REASON_NONE}. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_CONTENT_ID} - The content id of a single download to update with the stop
+   *       reason. If omitted, all downloads will be updated.
+   *   <li>{@link #KEY_STOP_REASON} - An application provided reason for stopping the download or
+   *       downloads, or {@link Download#STOP_REASON_NONE} to clear the stop reason.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_SET_STOP_REASON =
+      "com.google.android.exoplayer.downloadService.action.SET_STOP_REASON";
+
+  /**
+   * Sets the requirements that need to be met for downloads to progress. Extras:
+   *
+   * <ul>
+   *   <li>{@link #KEY_REQUIREMENTS} - A {@link Requirements}.
+   *   <li>{@link #KEY_FOREGROUND} - See {@link #KEY_FOREGROUND}.
+   * </ul>
+   */
+  public static final String ACTION_SET_REQUIREMENTS =
+      "com.google.android.exoplayer.downloadService.action.SET_REQUIREMENTS";
+
+  /** Key for the {@link DownloadRequest} in {@link #ACTION_ADD_DOWNLOAD} intents. */
+  public static final String KEY_DOWNLOAD_REQUEST = "download_request";
+
+  /**
+   * Key for the {@link String} content id in {@link #ACTION_SET_STOP_REASON} and {@link
+   * #ACTION_REMOVE_DOWNLOAD} intents.
+   */
+  public static final String KEY_CONTENT_ID = "content_id";
+
+  /**
+   * Key for the integer stop reason in {@link #ACTION_SET_STOP_REASON} and {@link
+   * #ACTION_ADD_DOWNLOAD} intents.
+   */
+  public static final String KEY_STOP_REASON = "stop_reason";
+
+  /** Key for the {@link Requirements} in {@link #ACTION_SET_REQUIREMENTS} intents. */
+  public static final String KEY_REQUIREMENTS = "requirements";
+
+  /**
+   * Key for a boolean extra that can be set on any intent to indicate whether the service was
+   * started in the foreground. If set, the service is guaranteed to call {@link
+   * #startForeground(int, Notification)}.
+   */
+  public static final String KEY_FOREGROUND = "foreground";
+
+  /** Invalid foreground notification id that can be used to run the service in the background. */
+  public static final int FOREGROUND_NOTIFICATION_ID_NONE = 0;
+
+  /** Default foreground notification update interval in milliseconds. */
+  public static final long DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL = 1000;
 
   private static final String TAG = "DownloadService";
-  private static final boolean DEBUG = false;
 
-  // Keep requirementsWatcher and scheduler alive beyond DownloadService life span (until the app is
-  // killed) because it may take long time for Scheduler to start the service.
-  private static RequirementsWatcher requirementsWatcher;
-  private static Scheduler scheduler;
+  // Keep a DownloadManagerHelper for each DownloadService as long as the process is running. The
+  // helper is needed to restart the DownloadService when there's no scheduler. Even when there is a
+  // scheduler, the DownloadManagerHelper is typically able to restart the DownloadService faster.
+  private static final HashMap<Class<? extends DownloadService>, DownloadManagerHelper>
+      downloadManagerHelpers = new HashMap<>();
 
-  private final int notificationIdOffset;
-  private final long progressUpdateIntervalMillis;
+  @Nullable private final ForegroundNotificationUpdater foregroundNotificationUpdater;
+  @Nullable private final String channelId;
+  @StringRes private final int channelNameResourceId;
+  @StringRes private final int channelDescriptionResourceId;
 
-  private DownloadManager downloadManager;
-  private ProgressUpdater progressUpdater;
+  private @MonotonicNonNull DownloadManager downloadManager;
   private int lastStartId;
-
-  /** @param notificationIdOffset Value to offset notification ids. Must be greater than 0. */
-  protected DownloadService(int notificationIdOffset) {
-    this(notificationIdOffset, DEFAULT_PROGRESS_UPDATE_INTERVAL_MILLIS);
-  }
-
-  /**
-   * @param notificationIdOffset Value to offset notification ids. Must be greater than 0.
-   * @param progressUpdateIntervalMillis {@link #onProgressUpdate(DownloadState[])} is called using
-   *     this interval. If it's {@link C#TIME_UNSET}, then {@link
-   *     #onProgressUpdate(DownloadState[])} isn't called.
-   */
-  protected DownloadService(int notificationIdOffset, long progressUpdateIntervalMillis) {
-    this.notificationIdOffset = notificationIdOffset;
-    this.progressUpdateIntervalMillis = progressUpdateIntervalMillis;
-  }
+  private boolean startedInForeground;
+  private boolean taskRemoved;
+  private boolean isStopped;
+  private boolean isDestroyed;
 
   /**
-   * Creates an {@link Intent} to be used to start this service and adds the {@link DownloadAction}
-   * to the {@link DownloadManager}.
+   * Creates a DownloadService.
    *
-   * @param context A {@link Context} of the application calling this service.
-   * @param clazz Class object of DownloadService or subclass.
-   * @param downloadAction A {@link DownloadAction} to be executed.
-   * @return Created Intent.
+   * <p>If {@code foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE} then the
+   * service will only ever run in the background. No foreground notification will be displayed and
+   * {@link #getScheduler()} will not be called.
+   *
+   * <p>If {@code foregroundNotificationId} is not {@link #FOREGROUND_NOTIFICATION_ID_NONE} then the
+   * service will run in the foreground. The foreground notification will be updated at least as
+   * often as the interval specified by {@link #DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL}.
+   *
+   * @param foregroundNotificationId The notification id for the foreground notification, or {@link
+   *     #FOREGROUND_NOTIFICATION_ID_NONE} if the service should only ever run in the background.
    */
-  public static Intent createAddDownloadActionIntent(
-      Context context, Class<? extends DownloadService> clazz, DownloadAction downloadAction) {
-    return new Intent(context, clazz)
-        .setAction(ACTION_ADD)
-        .putExtra(DOWNLOAD_ACTION, downloadAction.toByteArray());
+  protected DownloadService(int foregroundNotificationId) {
+    this(foregroundNotificationId, DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL);
   }
 
   /**
-   * Adds a {@link DownloadAction} to the {@link DownloadManager}. This will start the download
-   * service if it was not running.
+   * Creates a DownloadService.
    *
-   * @param context A {@link Context} of the application calling this service.
-   * @param clazz Class object of DownloadService or subclass.
-   * @param downloadAction A {@link DownloadAction} to be executed.
-   * @see #createAddDownloadActionIntent(Context, Class, DownloadAction)
+   * @param foregroundNotificationId The notification id for the foreground notification, or {@link
+   *     #FOREGROUND_NOTIFICATION_ID_NONE} if the service should only ever run in the background.
+   * @param foregroundNotificationUpdateInterval The maximum interval between updates to the
+   *     foreground notification, in milliseconds. Ignored if {@code foregroundNotificationId} is
+   *     {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
    */
-  public static void addDownloadAction(
-      Context context, Class<? extends DownloadService> clazz, DownloadAction downloadAction) {
-    context.startService(createAddDownloadActionIntent(context, clazz, downloadAction));
+  protected DownloadService(
+      int foregroundNotificationId, long foregroundNotificationUpdateInterval) {
+    this(
+        foregroundNotificationId,
+        foregroundNotificationUpdateInterval,
+        /* channelId= */ null,
+        /* channelNameResourceId= */ 0,
+        /* channelDescriptionResourceId= */ 0);
+  }
+
+  /** @deprecated Use {@link #DownloadService(int, long, String, int, int)}. */
+  @Deprecated
+  protected DownloadService(
+      int foregroundNotificationId,
+      long foregroundNotificationUpdateInterval,
+      @Nullable String channelId,
+      @StringRes int channelNameResourceId) {
+    this(
+        foregroundNotificationId,
+        foregroundNotificationUpdateInterval,
+        channelId,
+        channelNameResourceId,
+        /* channelDescriptionResourceId= */ 0);
+  }
+
+  /**
+   * Creates a DownloadService.
+   *
+   * @param foregroundNotificationId The notification id for the foreground notification, or {@link
+   *     #FOREGROUND_NOTIFICATION_ID_NONE} if the service should only ever run in the background.
+   * @param foregroundNotificationUpdateInterval The maximum interval between updates to the
+   *     foreground notification, in milliseconds. Ignored if {@code foregroundNotificationId} is
+   *     {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   * @param channelId An id for a low priority notification channel to create, or {@code null} if
+   *     the app will take care of creating a notification channel if needed. If specified, must be
+   *     unique per package. The value may be truncated if it's too long. Ignored if {@code
+   *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   * @param channelNameResourceId A string resource identifier for the user visible name of the
+   *     notification channel. The recommended maximum length is 40 characters. The value may be
+   *     truncated if it's too long. Ignored if {@code channelId} is null or if {@code
+   *     foregroundNotificationId} is {@link #FOREGROUND_NOTIFICATION_ID_NONE}.
+   * @param channelDescriptionResourceId A string resource identifier for the user visible
+   *     description of the notification channel, or 0 if no description is provided. The
+   *     recommended maximum length is 300 characters. The value may be truncated if it is too long.
+   *     Ignored if {@code channelId} is null or if {@code foregroundNotificationId} is {@link
+   *     #FOREGROUND_NOTIFICATION_ID_NONE}.
+   */
+  protected DownloadService(
+      int foregroundNotificationId,
+      long foregroundNotificationUpdateInterval,
+      @Nullable String channelId,
+      @StringRes int channelNameResourceId,
+      @StringRes int channelDescriptionResourceId) {
+    if (foregroundNotificationId == FOREGROUND_NOTIFICATION_ID_NONE) {
+      this.foregroundNotificationUpdater = null;
+      this.channelId = null;
+      this.channelNameResourceId = 0;
+      this.channelDescriptionResourceId = 0;
+    } else {
+      this.foregroundNotificationUpdater =
+          new ForegroundNotificationUpdater(
+              foregroundNotificationId, foregroundNotificationUpdateInterval);
+      this.channelId = channelId;
+      this.channelNameResourceId = channelNameResourceId;
+      this.channelDescriptionResourceId = channelDescriptionResourceId;
+    }
+  }
+
+  /**
+   * Builds an {@link Intent} for adding a new download.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param downloadRequest The request to be executed.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildAddDownloadIntent(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      DownloadRequest downloadRequest,
+      boolean foreground) {
+    return buildAddDownloadIntent(context, clazz, downloadRequest, STOP_REASON_NONE, foreground);
+  }
+
+  /**
+   * Builds an {@link Intent} for adding a new download.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param downloadRequest The request to be executed.
+   * @param stopReason An initial stop reason for the download, or {@link Download#STOP_REASON_NONE}
+   *     if the download should be started.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildAddDownloadIntent(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      DownloadRequest downloadRequest,
+      int stopReason,
+      boolean foreground) {
+    return getIntent(context, clazz, ACTION_ADD_DOWNLOAD, foreground)
+        .putExtra(KEY_DOWNLOAD_REQUEST, downloadRequest)
+        .putExtra(KEY_STOP_REASON, stopReason);
+  }
+
+  /**
+   * Builds an {@link Intent} for removing the download with the {@code id}.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param id The content id.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildRemoveDownloadIntent(
+      Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
+    return getIntent(context, clazz, ACTION_REMOVE_DOWNLOAD, foreground)
+        .putExtra(KEY_CONTENT_ID, id);
+  }
+
+  /**
+   * Builds an {@link Intent} for removing all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildRemoveAllDownloadsIntent(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    return getIntent(context, clazz, ACTION_REMOVE_ALL_DOWNLOADS, foreground);
+  }
+
+  /**
+   * Builds an {@link Intent} for resuming all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildResumeDownloadsIntent(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    return getIntent(context, clazz, ACTION_RESUME_DOWNLOADS, foreground);
+  }
+
+  /**
+   * Builds an {@link Intent} to pause all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildPauseDownloadsIntent(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    return getIntent(context, clazz, ACTION_PAUSE_DOWNLOADS, foreground);
+  }
+
+  /**
+   * Builds an {@link Intent} for setting the stop reason for one or all downloads. To clear the
+   * stop reason, pass {@link Download#STOP_REASON_NONE}.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param id The content id, or {@code null} to set the stop reason for all downloads.
+   * @param stopReason An application defined stop reason.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildSetStopReasonIntent(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      @Nullable String id,
+      int stopReason,
+      boolean foreground) {
+    return getIntent(context, clazz, ACTION_SET_STOP_REASON, foreground)
+        .putExtra(KEY_CONTENT_ID, id)
+        .putExtra(KEY_STOP_REASON, stopReason);
+  }
+
+  /**
+   * Builds an {@link Intent} for setting the requirements that need to be met for downloads to
+   * progress.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service being targeted by the intent.
+   * @param requirements A {@link Requirements}.
+   * @param foreground Whether this intent will be used to start the service in the foreground.
+   * @return The created intent.
+   */
+  public static Intent buildSetRequirementsIntent(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      Requirements requirements,
+      boolean foreground) {
+    return getIntent(context, clazz, ACTION_SET_REQUIREMENTS, foreground)
+        .putExtra(KEY_REQUIREMENTS, requirements);
+  }
+
+  /**
+   * Starts the service if not started already and adds a new download.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param downloadRequest The request to be executed.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendAddDownload(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      DownloadRequest downloadRequest,
+      boolean foreground) {
+    Intent intent = buildAddDownloadIntent(context, clazz, downloadRequest, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and adds a new download.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param downloadRequest The request to be executed.
+   * @param stopReason An initial stop reason for the download, or {@link Download#STOP_REASON_NONE}
+   *     if the download should be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendAddDownload(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      DownloadRequest downloadRequest,
+      int stopReason,
+      boolean foreground) {
+    Intent intent = buildAddDownloadIntent(context, clazz, downloadRequest, stopReason, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and removes a download.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param id The content id.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendRemoveDownload(
+      Context context, Class<? extends DownloadService> clazz, String id, boolean foreground) {
+    Intent intent = buildRemoveDownloadIntent(context, clazz, id, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and removes all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendRemoveAllDownloads(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    Intent intent = buildRemoveAllDownloadsIntent(context, clazz, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and resumes all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendResumeDownloads(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    Intent intent = buildResumeDownloadsIntent(context, clazz, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and pauses all downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendPauseDownloads(
+      Context context, Class<? extends DownloadService> clazz, boolean foreground) {
+    Intent intent = buildPauseDownloadsIntent(context, clazz, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and sets the stop reason for one or all downloads. To
+   * clear stop reason, pass {@link Download#STOP_REASON_NONE}.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param id The content id, or {@code null} to set the stop reason for all downloads.
+   * @param stopReason An application defined stop reason.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendSetStopReason(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      @Nullable String id,
+      int stopReason,
+      boolean foreground) {
+    Intent intent = buildSetStopReasonIntent(context, clazz, id, stopReason, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts the service if not started already and sets the requirements that need to be met for
+   * downloads to progress.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @param requirements A {@link Requirements}.
+   * @param foreground Whether the service is started in the foreground.
+   */
+  public static void sendSetRequirements(
+      Context context,
+      Class<? extends DownloadService> clazz,
+      Requirements requirements,
+      boolean foreground) {
+    Intent intent = buildSetRequirementsIntent(context, clazz, requirements, foreground);
+    startService(context, intent, foreground);
+  }
+
+  /**
+   * Starts a download service to resume any ongoing downloads.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @see #startForeground(Context, Class)
+   */
+  public static void start(Context context, Class<? extends DownloadService> clazz) {
+    context.startService(getIntent(context, clazz, ACTION_INIT));
+  }
+
+  /**
+   * Starts the service in the foreground without adding a new download request. If there are any
+   * not finished downloads and the requirements are met, the service resumes downloading. Otherwise
+   * it stops immediately.
+   *
+   * @param context A {@link Context}.
+   * @param clazz The concrete download service to be started.
+   * @see #start(Context, Class)
+   */
+  public static void startForeground(Context context, Class<? extends DownloadService> clazz) {
+    Intent intent = getIntent(context, clazz, ACTION_INIT, true);
+    Util.startForegroundService(context, intent);
   }
 
   @Override
   public void onCreate() {
-    logd("onCreate");
-    downloadManager = getDownloadManager();
-    downloadManager.addListener(this);
-
-    if (requirementsWatcher == null) {
-      Requirements requirements = getRequirements();
-      if (requirements != null) {
-        scheduler = getScheduler();
-        RequirementsListener listener =
-            new RequirementsListener(getApplicationContext(), getClass(), scheduler);
-        requirementsWatcher =
-            new RequirementsWatcher(getApplicationContext(), listener, requirements);
-        requirementsWatcher.start();
-      }
+    if (channelId != null) {
+      NotificationUtil.createNotificationChannel(
+          this,
+          channelId,
+          channelNameResourceId,
+          channelDescriptionResourceId,
+          NotificationUtil.IMPORTANCE_LOW);
     }
-
-    progressUpdater = new ProgressUpdater(this, progressUpdateIntervalMillis);
-  }
-
-  @Override
-  public void onDestroy() {
-    logd("onDestroy");
-    progressUpdater.stop();
-    downloadManager.removeListener(this);
-    if (downloadManager.getTaskCount() == 0) {
-      if (requirementsWatcher != null) {
-        requirementsWatcher.stop();
-        requirementsWatcher = null;
-      }
-      if (scheduler != null) {
-        scheduler.cancel();
-        scheduler = null;
-      }
+    Class<? extends DownloadService> clazz = getClass();
+    @Nullable DownloadManagerHelper downloadManagerHelper = downloadManagerHelpers.get(clazz);
+    if (downloadManagerHelper == null) {
+      boolean foregroundAllowed = foregroundNotificationUpdater != null;
+      @Nullable Scheduler scheduler = foregroundAllowed ? getScheduler() : null;
+      downloadManager = getDownloadManager();
+      downloadManager.resumeDownloads();
+      downloadManagerHelper =
+          new DownloadManagerHelper(
+              getApplicationContext(), downloadManager, foregroundAllowed, scheduler, clazz);
+      downloadManagerHelpers.put(clazz, downloadManagerHelper);
+    } else {
+      downloadManager = downloadManagerHelper.downloadManager;
     }
-  }
-
-  @Nullable
-  @Override
-  public IBinder onBind(Intent intent) {
-    return null;
+    downloadManagerHelper.attachService(this);
   }
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-    this.lastStartId = startId;
-    String intentAction = intent != null ? intent.getAction() : null;
+    lastStartId = startId;
+    taskRemoved = false;
+    @Nullable String intentAction = null;
+    @Nullable String contentId = null;
+    if (intent != null) {
+      intentAction = intent.getAction();
+      contentId = intent.getStringExtra(KEY_CONTENT_ID);
+      startedInForeground |=
+          intent.getBooleanExtra(KEY_FOREGROUND, false) || ACTION_RESTART.equals(intentAction);
+    }
+    // intentAction is null if the service is restarted or no action is specified.
     if (intentAction == null) {
       intentAction = ACTION_INIT;
     }
-    logd("onStartCommand action: " + intentAction + " startId: " + startId);
+    DownloadManager downloadManager = Assertions.checkNotNull(this.downloadManager);
     switch (intentAction) {
       case ACTION_INIT:
-        // Do nothing. DownloadManager and RequirementsWatcher is initialized. If there are download
-        // or remove tasks loaded from file, they will start if the requirements are met.
+      case ACTION_RESTART:
+        // Do nothing.
         break;
-      case ACTION_ADD:
-        byte[] actionData = intent.getByteArrayExtra(DOWNLOAD_ACTION);
-        if (actionData == null) {
-          onCommandError(intent, new IllegalArgumentException("DownloadAction is missing."));
+      case ACTION_ADD_DOWNLOAD:
+        @Nullable DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
+        if (downloadRequest == null) {
+          Log.e(TAG, "Ignored ADD_DOWNLOAD: Missing " + KEY_DOWNLOAD_REQUEST + " extra");
         } else {
-          try {
-            onNewTask(intent, downloadManager.handleAction(actionData));
-          } catch (IOException e) {
-            onCommandError(intent, e);
-          }
+          int stopReason = intent.getIntExtra(KEY_STOP_REASON, Download.STOP_REASON_NONE);
+          downloadManager.addDownload(downloadRequest, stopReason);
         }
         break;
-      case ACTION_STOP:
-        downloadManager.stopDownloads();
+      case ACTION_REMOVE_DOWNLOAD:
+        if (contentId == null) {
+          Log.e(TAG, "Ignored REMOVE_DOWNLOAD: Missing " + KEY_CONTENT_ID + " extra");
+        } else {
+          downloadManager.removeDownload(contentId);
+        }
         break;
-      case ACTION_START:
-        downloadManager.startDownloads();
+      case ACTION_REMOVE_ALL_DOWNLOADS:
+        downloadManager.removeAllDownloads();
+        break;
+      case ACTION_RESUME_DOWNLOADS:
+        downloadManager.resumeDownloads();
+        break;
+      case ACTION_PAUSE_DOWNLOADS:
+        downloadManager.pauseDownloads();
+        break;
+      case ACTION_SET_STOP_REASON:
+        if (!intent.hasExtra(KEY_STOP_REASON)) {
+          Log.e(TAG, "Ignored SET_STOP_REASON: Missing " + KEY_STOP_REASON + " extra");
+        } else {
+          int stopReason = intent.getIntExtra(KEY_STOP_REASON, /* defaultValue= */ 0);
+          downloadManager.setStopReason(contentId, stopReason);
+        }
+        break;
+      case ACTION_SET_REQUIREMENTS:
+        @Nullable Requirements requirements = intent.getParcelableExtra(KEY_REQUIREMENTS);
+        if (requirements == null) {
+          Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
+        } else {
+          downloadManager.setRequirements(requirements);
+        }
         break;
       default:
-        onCommandError(intent, new IllegalArgumentException("Unknown action: " + intentAction));
+        Log.e(TAG, "Ignored unrecognized action: " + intentAction);
         break;
     }
+
+    if (Util.SDK_INT >= 26 && startedInForeground && foregroundNotificationUpdater != null) {
+      // From API level 26, services started in the foreground are required to show a notification.
+      foregroundNotificationUpdater.showNotificationIfNotAlready();
+    }
+
+    isStopped = false;
     if (downloadManager.isIdle()) {
-      onIdle(null);
+      stop();
     }
     return START_STICKY;
   }
 
+  @Override
+  public void onTaskRemoved(Intent rootIntent) {
+    taskRemoved = true;
+  }
+
+  @Override
+  public void onDestroy() {
+    isDestroyed = true;
+    DownloadManagerHelper downloadManagerHelper =
+        Assertions.checkNotNull(downloadManagerHelpers.get(getClass()));
+    downloadManagerHelper.detachService(this);
+    if (foregroundNotificationUpdater != null) {
+      foregroundNotificationUpdater.stopPeriodicUpdates();
+    }
+  }
+
+  /**
+   * Throws {@link UnsupportedOperationException} because this service is not designed to be bound.
+   */
+  @Nullable
+  @Override
+  public final IBinder onBind(Intent intent) {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Returns a {@link DownloadManager} to be used to downloaded content. Called only once in the
-   * life cycle of the service.
+   * life cycle of the process.
    */
   protected abstract DownloadManager getDownloadManager();
 
   /**
-   * Returns a {@link Scheduler} which contains a job to initialize {@link DownloadService} when the
-   * requirements are met, or null. If not null, scheduler is used to start downloads even when the
-   * app isn't running.
+   * Returns a {@link Scheduler} to restart the service when requirements allowing downloads to take
+   * place are met. If {@code null}, the service will only be restarted if the process is still in
+   * memory when the requirements are met.
+   *
+   * <p>This method is not called for services whose {@code foregroundNotificationId} is set to
+   * {@link #FOREGROUND_NOTIFICATION_ID_NONE}. Such services will only be restarted if the process
+   * is still in memory and considered non-idle, meaning that it's either in the foreground or was
+   * backgrounded within the last few minutes.
    */
-  protected abstract @Nullable Scheduler getScheduler();
+  @Nullable
+  protected abstract Scheduler getScheduler();
 
-  /** Returns requirements for downloads to take place, or null. */
-  protected abstract @Nullable Requirements getRequirements();
+  /**
+   * Returns a notification to be displayed when this service running in the foreground.
+   *
+   * <p>Download services that do not wish to run in the foreground should be created by setting the
+   * {@code foregroundNotificationId} constructor argument to {@link
+   * #FOREGROUND_NOTIFICATION_ID_NONE}. This method is not called for such services, meaning it can
+   * be implemented to throw {@link UnsupportedOperationException}.
+   *
+   * @param downloads The current downloads.
+   * @return The foreground notification to display.
+   */
+  protected abstract Notification getForegroundNotification(List<Download> downloads);
 
-  /** Called on error in start command. */
-  protected void onCommandError(Intent intent, Exception error) {
+  /**
+   * Invalidates the current foreground notification and causes {@link
+   * #getForegroundNotification(List)} to be invoked again if the service isn't stopped.
+   */
+  protected final void invalidateForegroundNotification() {
+    if (foregroundNotificationUpdater != null && !isDestroyed) {
+      foregroundNotificationUpdater.invalidate();
+    }
+  }
+
+  /**
+   * @deprecated Some state change events may not be delivered to this method. Instead, use {@link
+   *     DownloadManager#addListener(DownloadManager.Listener)} to register a listener directly to
+   *     the {@link DownloadManager} that you return through {@link #getDownloadManager()}.
+   */
+  @Deprecated
+  protected void onDownloadChanged(Download download) {
     // Do nothing.
   }
 
-  /** Called when a new task is added to the {@link DownloadManager}. */
-  protected void onNewTask(Intent intent, int taskId) {
+  /**
+   * @deprecated Some download removal events may not be delivered to this method. Instead, use
+   *     {@link DownloadManager#addListener(DownloadManager.Listener)} to register a listener
+   *     directly to the {@link DownloadManager} that you return through {@link
+   *     #getDownloadManager()}.
+   */
+  @Deprecated
+  protected void onDownloadRemoved(Download download) {
     // Do nothing.
   }
 
-  /** Returns a notification channelId. See {@link NotificationChannel}. */
-  protected abstract String getNotificationChannelId();
-
   /**
-   * Helper method which calls {@link #startForeground(int, Notification)} with {@code
-   * notificationIdOffset} and {@code foregroundNotification}.
-   */
-  public void startForeground(Notification foregroundNotification) {
-    // logd("start foreground");
-    startForeground(notificationIdOffset, foregroundNotification);
-  }
-
-  /**
-   * Sets/replaces or cancels the notification for the given id.
+   * Called after the service is created, once the downloads are known.
    *
-   * @param id A unique id for the notification. This value is offset by {@code
-   *     notificationIdOffset}.
-   * @param notification If not null, it's showed, replacing any previous notification. Otherwise
-   *     any previous notification is canceled.
+   * @param downloads The current downloads.
    */
-  public void setNotification(int id, @Nullable Notification notification) {
-    NotificationManager notificationManager =
-        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-    if (notification != null) {
-      notificationManager.notify(notificationIdOffset + 1 + id, notification);
-    } else {
-      notificationManager.cancel(notificationIdOffset + 1 + id);
-    }
-  }
-
-  /**
-   * Override this method to get notified.
-   *
-   * <p>{@inheritDoc}
-   */
-  @CallSuper
-  @Override
-  public void onStateChange(DownloadManager downloadManager, DownloadState downloadState) {
-    if (downloadState.state == DownloadState.STATE_STARTED) {
-      progressUpdater.start();
-    }
-  }
-
-  /**
-   * Override this method to get notified.
-   *
-   * <p>{@inheritDoc}
-   */
-  @CallSuper
-  @Override
-  public void onIdle(DownloadManager downloadManager) {
-    // Make sure startForeground is called before stopping.
-    if (Util.SDK_INT >= 26) {
-      Builder notificationBuilder = new Builder(this, getNotificationChannelId());
-      Notification foregroundNotification = notificationBuilder.build();
-      startForeground(foregroundNotification);
-    }
-    boolean stopSelfResult = stopSelfResult(lastStartId);
-    logd("stopSelf(" + lastStartId + ") result: " + stopSelfResult);
-  }
-
-  /** Override this method to get notified on every second while there are active downloads. */
-  protected void onProgressUpdate(DownloadState[] activeDownloadTasks) {
-    // Do nothing.
-  }
-
-  private void logd(String message) {
-    if (DEBUG) {
-      Log.d(TAG, message);
-    }
-  }
-
-  private static final class ProgressUpdater implements Runnable {
-
-    private final DownloadService downloadService;
-    private final long progressUpdateIntervalMillis;
-    private final Handler handler;
-    private boolean stopped;
-
-    public ProgressUpdater(DownloadService downloadService, long progressUpdateIntervalMillis) {
-      this.downloadService = downloadService;
-      this.progressUpdateIntervalMillis = progressUpdateIntervalMillis;
-      this.handler = new Handler(Looper.getMainLooper());
-      stopped = true;
-    }
-
-    @Override
-    public void run() {
-      DownloadState[] activeDownloadTasks =
-          downloadService.downloadManager.getActiveDownloadStates();
-      if (activeDownloadTasks.length > 0) {
-        downloadService.onProgressUpdate(activeDownloadTasks);
-        if (progressUpdateIntervalMillis != C.TIME_UNSET) {
-          handler.postDelayed(this, progressUpdateIntervalMillis);
+  private void notifyDownloads(List<Download> downloads) {
+    if (foregroundNotificationUpdater != null) {
+      for (int i = 0; i < downloads.size(); i++) {
+        if (needsStartedService(downloads.get(i).state)) {
+          foregroundNotificationUpdater.startPeriodicUpdates();
+          break;
         }
+      }
+    }
+  }
+
+  /**
+   * Called when the state of a download changes.
+   *
+   * @param download The state of the download.
+   */
+  @SuppressWarnings("deprecation")
+  private void notifyDownloadChanged(Download download) {
+    onDownloadChanged(download);
+    if (foregroundNotificationUpdater != null) {
+      if (needsStartedService(download.state)) {
+        foregroundNotificationUpdater.startPeriodicUpdates();
       } else {
-        stop();
+        foregroundNotificationUpdater.invalidate();
       }
     }
-
-    public void stop() {
-      stopped = true;
-      handler.removeCallbacks(this);
-    }
-
-    public void start() {
-      if (stopped) {
-        stopped = false;
-        if (progressUpdateIntervalMillis != C.TIME_UNSET) {
-          handler.post(this);
-        }
-      }
-    }
-
   }
 
-  private static final class RequirementsListener implements RequirementsWatcher.Listener {
+  /**
+   * Called when a download is removed.
+   *
+   * @param download The last state of the download before it was removed.
+   */
+  @SuppressWarnings("deprecation")
+  private void notifyDownloadRemoved(Download download) {
+    onDownloadRemoved(download);
+    if (foregroundNotificationUpdater != null) {
+      foregroundNotificationUpdater.invalidate();
+    }
+  }
+
+  /** Returns whether the service is stopped. */
+  private boolean isStopped() {
+    return isStopped;
+  }
+
+  private void stop() {
+    if (foregroundNotificationUpdater != null) {
+      foregroundNotificationUpdater.stopPeriodicUpdates();
+    }
+    if (Util.SDK_INT < 28 && taskRemoved) { // See [Internal: b/74248644].
+      stopSelf();
+      isStopped = true;
+    } else {
+      isStopped |= stopSelfResult(lastStartId);
+    }
+  }
+
+  private static boolean needsStartedService(@Download.State int state) {
+    return state == Download.STATE_DOWNLOADING
+        || state == Download.STATE_REMOVING
+        || state == Download.STATE_RESTARTING;
+  }
+
+  private static Intent getIntent(
+      Context context, Class<? extends DownloadService> clazz, String action, boolean foreground) {
+    return getIntent(context, clazz, action).putExtra(KEY_FOREGROUND, foreground);
+  }
+
+  private static Intent getIntent(
+      Context context, Class<? extends DownloadService> clazz, String action) {
+    return new Intent(context, clazz).setAction(action);
+  }
+
+  private static void startService(Context context, Intent intent, boolean foreground) {
+    if (foreground) {
+      Util.startForegroundService(context, intent);
+    } else {
+      context.startService(intent);
+    }
+  }
+
+  private final class ForegroundNotificationUpdater {
+
+    private final int notificationId;
+    private final long updateInterval;
+    private final Handler handler;
+
+    private boolean periodicUpdatesStarted;
+    private boolean notificationDisplayed;
+
+    public ForegroundNotificationUpdater(int notificationId, long updateInterval) {
+      this.notificationId = notificationId;
+      this.updateInterval = updateInterval;
+      this.handler = new Handler(Looper.getMainLooper());
+    }
+
+    public void startPeriodicUpdates() {
+      periodicUpdatesStarted = true;
+      update();
+    }
+
+    public void stopPeriodicUpdates() {
+      periodicUpdatesStarted = false;
+      handler.removeCallbacksAndMessages(null);
+    }
+
+    public void showNotificationIfNotAlready() {
+      if (!notificationDisplayed) {
+        update();
+      }
+    }
+
+    public void invalidate() {
+      if (notificationDisplayed) {
+        update();
+      }
+    }
+
+    private void update() {
+      List<Download> downloads = Assertions.checkNotNull(downloadManager).getCurrentDownloads();
+      startForeground(notificationId, getForegroundNotification(downloads));
+      notificationDisplayed = true;
+      if (periodicUpdatesStarted) {
+        handler.removeCallbacksAndMessages(null);
+        handler.postDelayed(this::update, updateInterval);
+      }
+    }
+  }
+
+  private static final class DownloadManagerHelper implements DownloadManager.Listener {
 
     private final Context context;
+    private final DownloadManager downloadManager;
+    private final boolean foregroundAllowed;
+    @Nullable private final Scheduler scheduler;
     private final Class<? extends DownloadService> serviceClass;
-    private final Scheduler scheduler;
+    @Nullable private DownloadService downloadService;
 
-    private RequirementsListener(
-        Context context, Class<? extends DownloadService> serviceClass, Scheduler scheduler) {
+    private DownloadManagerHelper(
+        Context context,
+        DownloadManager downloadManager,
+        boolean foregroundAllowed,
+        @Nullable Scheduler scheduler,
+        Class<? extends DownloadService> serviceClass) {
       this.context = context;
-      this.serviceClass = serviceClass;
+      this.downloadManager = downloadManager;
+      this.foregroundAllowed = foregroundAllowed;
       this.scheduler = scheduler;
+      this.serviceClass = serviceClass;
+      downloadManager.addListener(this);
+      updateScheduler();
     }
 
-    @Override
-    public void requirementsMet(RequirementsWatcher requirementsWatcher) {
-      startServiceWithAction(DownloadService.ACTION_START);
-      if (scheduler != null) {
+    public void attachService(DownloadService downloadService) {
+      Assertions.checkState(this.downloadService == null);
+      this.downloadService = downloadService;
+      if (downloadManager.isInitialized()) {
+        // The call to DownloadService.notifyDownloads is posted to avoid it being called directly
+        // from DownloadService.onCreate. This is a good idea because it may in turn call
+        // DownloadService.getForegroundNotification, and concrete subclass implementations may
+        // not anticipate the possibility of this method being called before their onCreate
+        // implementation has finished executing.
+        Util.createHandler()
+            .postAtFrontOfQueue(
+                () -> downloadService.notifyDownloads(downloadManager.getCurrentDownloads()));
+      }
+    }
+
+    public void detachService(DownloadService downloadService) {
+      Assertions.checkState(this.downloadService == downloadService);
+      this.downloadService = null;
+      if (scheduler != null && !downloadManager.isWaitingForRequirements()) {
         scheduler.cancel();
       }
     }
 
+    // DownloadManager.Listener implementation.
+
     @Override
-    public void requirementsNotMet(RequirementsWatcher requirementsWatcher) {
-      startServiceWithAction(DownloadService.ACTION_STOP);
-      if (scheduler != null) {
-        if (!scheduler.schedule()) {
-          Log.e(TAG, "Scheduling downloads failed.");
+    public void onInitialized(DownloadManager downloadManager) {
+      if (downloadService != null) {
+        downloadService.notifyDownloads(downloadManager.getCurrentDownloads());
+      }
+    }
+
+    @Override
+    public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+      if (downloadService != null) {
+        downloadService.notifyDownloadChanged(download);
+      }
+      if (serviceMayNeedRestart() && needsStartedService(download.state)) {
+        // This shouldn't happen unless (a) application code is changing the downloads by calling
+        // the DownloadManager directly rather than sending actions through the service, or (b) if
+        // the service is background only and a previous attempt to start it was prevented. Try and
+        // restart the service to robust against such cases.
+        Log.w(TAG, "DownloadService wasn't running. Restarting.");
+        restartService();
+      }
+    }
+
+    @Override
+    public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
+      if (downloadService != null) {
+        downloadService.notifyDownloadRemoved(download);
+      }
+    }
+
+    @Override
+    public final void onIdle(DownloadManager downloadManager) {
+      if (downloadService != null) {
+        downloadService.stop();
+      }
+    }
+
+    @Override
+    public void onWaitingForRequirementsChanged(
+        DownloadManager downloadManager, boolean waitingForRequirements) {
+      if (!waitingForRequirements
+          && !downloadManager.getDownloadsPaused()
+          && serviceMayNeedRestart()) {
+        // We're no longer waiting for requirements and downloads aren't paused, meaning the manager
+        // will be able to resume downloads that are currently queued. If there exist queued
+        // downloads then we should ensure the service is started.
+        List<Download> downloads = downloadManager.getCurrentDownloads();
+        for (int i = 0; i < downloads.size(); i++) {
+          if (downloads.get(i).state == Download.STATE_QUEUED) {
+            restartService();
+            break;
+          }
+        }
+      }
+      updateScheduler();
+    }
+
+    // Internal methods.
+
+    private boolean serviceMayNeedRestart() {
+      return downloadService == null || downloadService.isStopped();
+    }
+
+    private void restartService() {
+      if (foregroundAllowed) {
+        Intent intent = getIntent(context, serviceClass, DownloadService.ACTION_RESTART);
+        Util.startForegroundService(context, intent);
+      } else {
+        // The service is background only. Use ACTION_INIT rather than ACTION_RESTART because
+        // ACTION_RESTART is handled as though KEY_FOREGROUND is set to true.
+        try {
+          Intent intent = getIntent(context, serviceClass, DownloadService.ACTION_INIT);
+          context.startService(intent);
+        } catch (IllegalArgumentException e) {
+          // The process is classed as idle by the platform. Starting a background service is not
+          // allowed in this state.
+          Log.w(TAG, "Failed to restart DownloadService (process is idle).");
         }
       }
     }
 
-    private void startServiceWithAction(String action) {
-      Intent intent = new Intent(context, serviceClass).setAction(action);
-      if (Util.SDK_INT >= 26) {
-        context.startForegroundService(intent);
+    private void updateScheduler() {
+      if (scheduler == null) {
+        return;
+      }
+      if (downloadManager.isWaitingForRequirements()) {
+        String servicePackage = context.getPackageName();
+        Requirements requirements = downloadManager.getRequirements();
+        boolean success = scheduler.schedule(requirements, servicePackage, ACTION_RESTART);
+        if (!success) {
+          Log.e(TAG, "Scheduling downloads failed.");
+        }
       } else {
-        context.startService(intent);
+        scheduler.cancel();
       }
     }
   }

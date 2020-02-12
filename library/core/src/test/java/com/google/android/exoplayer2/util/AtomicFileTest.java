@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +27,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 
-/**
- * Tests {@link AtomicFile}.
- */
-@RunWith(RobolectricTestRunner.class)
+/** Tests {@link AtomicFile}. */
+@RunWith(AndroidJUnit4.class)
 public final class AtomicFileTest {
 
   private File tempFolder;
@@ -40,7 +38,8 @@ public final class AtomicFileTest {
 
   @Before
   public void setUp() throws Exception {
-    tempFolder = Util.createTempDirectory(RuntimeEnvironment.application, "ExoPlayerTest");
+    tempFolder =
+        Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     file = new File(tempFolder, "atomicFile");
     atomicFile = new AtomicFile(file);
   }
