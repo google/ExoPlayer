@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.util.SparseArray;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -28,6 +29,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -36,13 +40,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpable {
 
   /**
-   * If true, makes {@link #assertOutput(Context, String)} method write the output to the dump file,
-   * rather than validating that the output matches what the dump file already contains.
+   * Possible actions to take with the dumps generated from this {@code FakeExtractorOutput} in
+   * {@link #assertOutput(Context, String)}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef(
+      flag = true,
+      value = {COMPARE_WITH_EXISTING, WRITE_TO_LOCAL, WRITE_TO_DEVICE})
+  private @interface DumpFilesAction {}
+  /** Compare output with existing dump file. */
+  private static final int COMPARE_WITH_EXISTING = 0;
+  /**
+   * Write output to the project folder {@code testdata/src/test/assets}.
    *
    * <p>Enabling this option works when tests are run in Android Studio. It may not work when the
    * tests are run in another environment.
    */
-  private static final boolean WRITE_DUMP = false;
+  private static final int WRITE_TO_LOCAL = 1;
+  /** Write output to folder {@code /storage/emulated/0/Android/data} of device. */
+  private static final int WRITE_TO_DEVICE = 2;
+
+  @DumpFilesAction private static final int DUMP_FILE_ACTION = COMPARE_WITH_EXISTING;
 
   public final SparseArray<FakeTrackOutput> trackOutputs;
 
@@ -119,23 +138,27 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
    * from {@code dumpFile}.
    *
    * <p>If assertion fails because of an intended change in the output or a new dump file needs to
-   * be created, set {@link #WRITE_DUMP} flag to true and run the test again. Instead of assertion,
-   * actual dump will be written to {@code dumpFile}. This new dump file needs to be copied to the
-   * project, {@code library/src/androidTest/assets} folder manually.
+   * be created, set {@link #DUMP_FILE_ACTION} to {@link #WRITE_TO_LOCAL} for local tests and to
+   * {@link #WRITE_TO_DEVICE} for instrumentation tests, and run the test again. Instead of
+   * assertion, actual dump will be written to {@code dumpFile}. For instrumentation tests, this new
+   * dump file needs to be copied to the project {@code testdata/src/test/assets} folder manually.
    */
   public void assertOutput(Context context, String dumpFile) throws IOException {
     String actual = new Dumper().add(this).toString();
 
-    if (WRITE_DUMP) {
-      File file = new File(System.getProperty("user.dir"), "../../testdata/src/test/assets");
+    if (DUMP_FILE_ACTION == COMPARE_WITH_EXISTING) {
+      String expected = TestUtil.getString(context, dumpFile);
+      assertWithMessage(dumpFile).that(actual).isEqualTo(expected);
+    } else {
+      File file =
+          DUMP_FILE_ACTION == WRITE_TO_LOCAL
+              ? new File(System.getProperty("user.dir"), "../../testdata/src/test/assets")
+              : context.getExternalFilesDir(null);
       file = new File(file, dumpFile);
       Assertions.checkStateNotNull(file.getParentFile()).mkdirs();
       PrintWriter out = new PrintWriter(file);
       out.print(actual);
       out.close();
-    } else {
-      String expected = TestUtil.getString(context, dumpFile);
-      assertWithMessage(dumpFile).that(actual).isEqualTo(expected);
     }
   }
 
