@@ -20,6 +20,7 @@
   * Move player message-related constants from `C` to `Renderer`, to avoid
     having the constants class depend on player/renderer classes.
   * Split out `common` and `extractor` submodules.
+  * Allow to explicitly send `PlayerMessage`s at the end of a stream.
   * Add `DataSpec.Builder` and deprecate most `DataSpec` constructors.
   * Add `DataSpec.customData` to allow applications to pass custom data through
     `DataSource` chains.
