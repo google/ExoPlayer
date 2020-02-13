@@ -285,7 +285,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
      * The {@link UUID} of the DRM scheme, or {@link C#UUID_NIL} if the data is universal (i.e.
      * applies to all schemes).
      */
-    private final UUID uuid;
+    public final UUID uuid;
     /** The URL of the server to which license requests should be made. May be null if unknown. */
     @Nullable public final String licenseServerUrl;
     /** The mimeType of {@link #data}. */
