@@ -140,6 +140,7 @@ public final class WebvttCueParser {
   private static final String TAG = "WebvttCueParser";
 
   private static final Map<String, Integer> DEFAULT_COLORS;
+  private static final Map<String, Integer> DEFAULT_BACKGROUND_COLORS;
 
   static {
     DEFAULT_COLORS = new HashMap<>();
@@ -151,6 +152,16 @@ public final class WebvttCueParser {
     DEFAULT_COLORS.put("red", 0xFFFF0000);
     DEFAULT_COLORS.put("white", 0xFFFFFFFF);
     DEFAULT_COLORS.put("yellow", 0xFFFFFF00);
+
+    DEFAULT_BACKGROUND_COLORS = new HashMap<>();
+    DEFAULT_BACKGROUND_COLORS.put("bg_black", 0xFF000000);
+    DEFAULT_BACKGROUND_COLORS.put("bg_blue", 0xFF0000FF);
+    DEFAULT_BACKGROUND_COLORS.put("bg_cyan", 0xFF00FFFF);
+    DEFAULT_BACKGROUND_COLORS.put("bg_lime", 0xFF00FF00);
+    DEFAULT_BACKGROUND_COLORS.put("bg_magenta", 0xFFFF00FF);
+    DEFAULT_BACKGROUND_COLORS.put("bg_red", 0xFFFF0000);
+    DEFAULT_BACKGROUND_COLORS.put("bg_white", 0xFFFFFFFF);
+    DEFAULT_BACKGROUND_COLORS.put("bg_yellow", 0xFFFFFF00);
   }
 
   /**
@@ -551,8 +562,12 @@ public final class WebvttCueParser {
       int start, int end) {
     for (String className : classes) {
       if (DEFAULT_COLORS.containsKey(className)) {
-        int color = DEFAULT_COLORS.get(Util.toLowerInvariant(className));
+        int color = DEFAULT_COLORS.get(className);
         text.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      if (DEFAULT_BACKGROUND_COLORS.containsKey(className)) {
+        int color = DEFAULT_BACKGROUND_COLORS.get(className);
+        text.setSpan(new BackgroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
       }
     }
   }
