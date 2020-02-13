@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -274,6 +275,65 @@ public final class CodecSpecificDataUtil {
   }
 
   /**
+   * Builds a H.265 configuration information, as defined in RFC 7798 and ISO/IEC 23008-2
+   *
+   * @param vps A representation of an octet string that expresses the H.265 Video Parameter Set
+   * @param sps A representation of an octet string that expresses the H.265 Sequence Parameter Set
+   * @param pps A representation of an octet string that expresses the H.265 Picture Parameter Set
+   * @return The H.265 configuration information
+   */
+  public static List<byte[]> buildH265SpecificConfig(String vps, String sps, String pps)
+      throws IllegalArgumentException {
+    /* For H.265, the CodecPrivateData field must contain VPS, SPS and PPS in the following
+      form, base16-encoded: [start code][VPS][start code][SPS][start code][PPS], where [start code]
+      is the following four bytes: 0x00, 0x00, 0x00, 0x01 */
+    byte[] vpsDec = Base64.decode(vps, Base64.DEFAULT);
+    byte[] nalVps = buildNalUnit(vpsDec, 0, vpsDec.length);
+
+    byte[] spsDec = Base64.decode(sps, Base64.DEFAULT);
+    byte[] nalSps = buildNalUnit(spsDec, 0, spsDec.length);
+
+    byte[] ppsDec = Base64.decode(pps, Base64.DEFAULT);
+    byte[] nalPps = buildNalUnit(ppsDec, 0, ppsDec.length);
+
+    byte[] codecSpecificData = new byte[nalVps.length + nalSps.length + nalPps.length];
+
+    System.arraycopy(nalVps, 0, codecSpecificData, 0, nalVps.length);
+    System.arraycopy(nalSps, 0, codecSpecificData, nalVps.length, nalSps.length);
+    System.arraycopy(nalPps, 0, codecSpecificData, nalVps.length + nalSps.length,
+        nalPps.length);
+
+    return Collections.singletonList(codecSpecificData);
+  }
+
+  /**
+   * Builds a H.265 configuration information, as defined in RFC 7798 and ISO/IEC 23008-2
+   *
+   * @param vps A byte array containing the H.265 Video Parameter Set
+   * @param sps A byte array containing the H.265 Sequence Parameter Set
+   * @param pps A byte array containing the H.265 Picture Parameter Set
+   * @return The H.265 configuration information
+   */
+  public static List<byte[]> buildH265SpecificConfig(byte[] vps, byte[] sps, byte[] pps)
+      throws IllegalArgumentException {
+    /* For H.265, the CodecPrivateData field must contain VPS, SPS and PPS in the following
+      form, base16-encoded: [start code][VPS][start code][SPS][start code][PPS], where [start code]
+      is the following four bytes: 0x00, 0x00, 0x00, 0x01 */
+    byte[] nalVps = buildNalUnit(vps, 0, vps.length);
+    byte[] nalSps = buildNalUnit(sps, 0, sps.length);
+    byte[] nalPps = buildNalUnit(pps, 0, pps.length);
+
+    byte[] codecSpecificData = new byte[nalVps.length + nalSps.length + nalPps.length];
+
+    System.arraycopy(nalVps, 0, codecSpecificData, 0, nalVps.length);
+    System.arraycopy(nalSps, 0, codecSpecificData, nalVps.length, nalSps.length);
+    System.arraycopy(nalPps, 0, codecSpecificData, nalVps.length + nalSps.length,
+        nalPps.length);
+
+    return Collections.singletonList(codecSpecificData);
+  }
+
+  /**
    * Parses an H.264 configuration information, as defined in ISO/IEC 14496-10
    *
    * @param videoSpecificConfig A byte array list containing the H.264 configuration information to parse.
@@ -282,7 +342,7 @@ public final class CodecSpecificDataUtil {
    *                         supported.
    */
   public static Pair<Float, Pair<Integer, Integer>> parseH264SpecificConfig(
-          List<byte[]> videoSpecificConfig) throws ParserException {
+      List<byte[]> videoSpecificConfig) throws ParserException {
 
     try {
       byte[] sps = videoSpecificConfig.get(0);

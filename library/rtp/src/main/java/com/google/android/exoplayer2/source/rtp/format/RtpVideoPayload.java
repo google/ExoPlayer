@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer2.source.rtp.format;
 
+import android.util.Base64;
 import android.util.Pair;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.Util;
 
 import java.util.Collections;
@@ -73,6 +75,8 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
                 //  2c:  CAVLC 4:4:4
                 codecs = "avc1." + parameters.value(FormatSpecificParameter.PROFILE_LEVEL_ID);
             }
+        } else if (MimeTypes.VIDEO_H265.equals(sampleMimeType)) {
+                //codecs = "hvc1";
         } else if (MimeTypes.VIDEO_MP4V.equals(sampleMimeType)) {
             if (parameters.contains(FormatSpecificParameter.PROFILE_LEVEL_ID)) {
                 codecs = "mp4v.20." + parameters.value(FormatSpecificParameter.PROFILE_LEVEL_ID);
@@ -92,14 +96,14 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
                 if (parameters.contains(FormatSpecificParameter.SPROP_PARAMETER_SETS)) {
 
                     String spropParamSets = parameters.value(
-                            FormatSpecificParameter.SPROP_PARAMETER_SETS);
+                        FormatSpecificParameter.SPROP_PARAMETER_SETS);
                     if (spropParamSets != null && spropParamSets.length() > 0) {
                         codecSpecificData = CodecSpecificDataUtil.
-                                buildH264SpecificConfig(spropParamSets);
+                            buildH264SpecificConfig(spropParamSets);
 
                         try {
                             Pair<Float, Pair<Integer, Integer>> h264Config = CodecSpecificDataUtil
-                                    .parseH264SpecificConfig(codecSpecificData);
+                                .parseH264SpecificConfig(codecSpecificData);
 
                             pixelWidthAspectRatio = h264Config.first;
 
@@ -107,8 +111,10 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
                                 width = h264Config.second.first;
                                 height = h264Config.second.second;
 
-                            } else if ((width != Format.NO_VALUE && h264Config.second.first != width) ||
-                                    (height != Format.NO_VALUE && h264Config.second.second != height)) {
+                            } else if (
+                                (width != Format.NO_VALUE && h264Config.second.first != width) ||
+                                    (height != Format.NO_VALUE
+                                        && h264Config.second.second != height)) {
                                 codecSpecificData.clear();
                                 codecSpecificData = null;
                             }
@@ -117,6 +123,32 @@ public final class RtpVideoPayload extends RtpPayloadFormat {
                             codecSpecificData.clear();
                             codecSpecificData = null;
                         }
+                    }
+                }
+
+            } else if (MimeTypes.VIDEO_H265.equals(sampleMimeType)) {
+                String vps = parameters.value(FormatSpecificParameter.SPROP_VPS);
+                String sps = parameters.value(FormatSpecificParameter.SPROP_SPS);
+                String pps = parameters.value(FormatSpecificParameter.SPROP_PPS);
+
+                if (vps != null && sps != null && pps != null) {
+                    codecSpecificData = CodecSpecificDataUtil.buildH265SpecificConfig(vps, sps, pps);
+
+                    byte[] spsDec = Base64.decode(sps, Base64.DEFAULT);
+                    NalUnitUtil.H265SpsData spsData = NalUnitUtil.parseH265SpsNalUnit(spsDec,0,
+                        spsDec.length);
+
+                    pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
+
+                    if (width == Format.NO_VALUE && height == Format.NO_VALUE) {
+                        width = spsData.width;
+                        height = spsData.height;
+
+                    } else if (
+                        (width != Format.NO_VALUE && spsData.width != width) ||
+                            (height != Format.NO_VALUE && spsData.height != height)) {
+                        codecSpecificData.clear();
+                        codecSpecificData = null;
                     }
                 }
 

@@ -33,6 +33,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
   public RtpPayloadReader createPayloadReader(RtpPayloadFormat format) {
     if (MimeTypes.VIDEO_H264.equals(format.sampleMimeType())) {
       return new RtpH264PayloadReader((RtpVideoPayload) format);
+    } else if (MimeTypes.VIDEO_H265.equals(format.sampleMimeType())) {
+      return new RtpH265PayloadReader((RtpVideoPayload)format);
     } else if (MimeTypes.VIDEO_MP4V.equals(format.sampleMimeType())) {
       return new RtpMp4vPayloadReader((RtpVideoPayload)format);
     } else if (MimeTypes.VIDEO_VP8.equals(format.sampleMimeType())) {

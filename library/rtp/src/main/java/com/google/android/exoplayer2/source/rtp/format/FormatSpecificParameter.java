@@ -24,19 +24,28 @@ public class FormatSpecificParameter {
     private static final Pattern regexMediaAttribute = Pattern.compile("([a-zA-Z-]+)=\\s*(.+)|(\\w+)",
             Pattern.CASE_INSENSITIVE);
 
-    public final static String LEVER_ASYMMETRY_ALLOWED = "level-asymmetry-allowed";
+    public final static String LEVEL_ASYMMETRY_ALLOWED = "level-asymmetry-allowed";
+    public final static String LEVEL_ID = "level-id";
+    public final static String INTEROP_CONSTRAINTS = "interop-constraints";
     public final static String IN_BAND_PARAMETER_SETS = "in-band-parameter-sets";
     public final static String PACKETIZATION_MODE = "packetization-mode";
+    public final static String PROFILE_ID = "profile-id";
     public final static String PROFILE_LEVEL_ID = "profile-level-id";
+    public final static String PROFILE_SPACE = "profile-space";
+    public final static String PROFILE_COMPATIBILITY_INDICATOR = "profile-compatibility-indicator";
     public final static String SPROP_PARAMETER_SETS = "sprop-parameter-sets";
     public final static String SPROP_INTERLEAVING_DEPTH = "sprop-interleaving-depth";
     public final static String SPROP_DEINT_BUF_REQ = "sprop-deint-buf-req";
+    public final static String SPROP_PPS = "sprop-pps";
+    public final static String SPROP_SPS = "sprop-sps";
+    public final static String SPROP_VPS = "sprop-vps";
     public final static String DEINT_BUF_CAP = "deint-buf-cap";
     public final static String SPROP_INIT_BUF_TIME = "sprop-init-buf-time";
     public final static String SPROP_MAX_DON_DIFF = "sprop-max-don-diff";
     public final static String MAX_RCMD_NALU_SIZE = "max-rcmd-nalu-size";
     public final static String SAR_UNDERSTOOD = "sar-understood";
     public final static String SAR_SUPPORTED = "sar-supported";
+    public final static String TIER_FLAG = "tier-flag";
     public final static String EMPHASIS = "emphasis";
     public final static String CHANNEL_ORDER = "channel-order";
     public final static String CONFIG = "config";
@@ -48,6 +57,7 @@ public class FormatSpecificParameter {
     public final static String TYPE = "type";
     public final static String LAYER = "layer";
     public final static String MODE = "mode";
+    public final static String TX_MODE = "tx-mode";
 
     public final static String MODE_SET = "mode-set";
     public final static String MODE_CHANGE_PERIOD = "mode-change-period";

@@ -76,6 +76,21 @@ public final class NalUnitUtil {
   }
 
   /**
+   * Holds data parsed from a H265 sequence parameter set NAL unit.
+   */
+  public static final class H265SpsData {
+    public final int width;
+    public final int height;
+    public final float pixelWidthAspectRatio;
+
+    public H265SpsData(int width, int height, float pixelWidthAspectRatio) {
+      this.width = width;
+      this.height = height;
+      this.pixelWidthAspectRatio = pixelWidthAspectRatio;
+    }
+  }
+
+  /**
    * Holds data parsed from a picture parameter set NAL unit.
    */
   public static final class PpsData {
@@ -402,6 +417,117 @@ public final class NalUnitUtil {
   }
 
   /**
+   * Parses an SPS NAL unit using the syntax defined in ITU-T Recommendation H.265 (2014) subsection
+   * 7.3.2.2.1.
+   *
+   * @param nalData A buffer containing escaped H265 SPS data.
+   * @param nalOffset The offset of the NAL unit header in {@code nalData}.
+   * @param nalLimit The limit of the NAL unit in {@code nalData}.
+   * @return A parsed representation of the H265 SPS data.
+   */
+  public static H265SpsData parseH265SpsNalUnit(byte[] nalData, int nalOffset, int nalLimit) {
+    ParsableNalUnitBitArray bitArray = new ParsableNalUnitBitArray(nalData, nalOffset, nalLimit);
+    bitArray.skipBits(16); // NAL header - Don't support DON
+    bitArray.skipBits(4); // sps_video_parameter_set_id
+    int maxSubLayersMinus1 = bitArray.readBits(3);
+    bitArray.skipBit(); // sps_temporal_id_nesting_flag
+
+    // profile_tier_level(1, sps_max_sub_layers_minus1)
+    bitArray.skipBits(88); // if (profilePresentFlag) {...}
+    bitArray.skipBits(8); // general_level_idc
+    int toSkip = 0;
+    for (int i = 0; i < maxSubLayersMinus1; i++) {
+      if (bitArray.readBit()) { // sub_layer_profile_present_flag[i]
+        toSkip += 89;
+      }
+      if (bitArray.readBit()) { // sub_layer_level_present_flag[i]
+        toSkip += 8;
+      }
+    }
+    bitArray.skipBits(toSkip);
+    if (maxSubLayersMinus1 > 0) {
+      bitArray.skipBits(2 * (8 - maxSubLayersMinus1));
+    }
+
+    bitArray.readUnsignedExpGolombCodedInt(); // sps_seq_parameter_set_id
+    int chromaFormatIdc = bitArray.readUnsignedExpGolombCodedInt();
+    if (chromaFormatIdc == 3) {
+      bitArray.skipBit(); // separate_colour_plane_flag
+    }
+    int picWidthInLumaSamples = bitArray.readUnsignedExpGolombCodedInt();
+    int picHeightInLumaSamples = bitArray.readUnsignedExpGolombCodedInt();
+    if (bitArray.readBit()) { // conformance_window_flag
+      int confWinLeftOffset = bitArray.readUnsignedExpGolombCodedInt();
+      int confWinRightOffset = bitArray.readUnsignedExpGolombCodedInt();
+      int confWinTopOffset = bitArray.readUnsignedExpGolombCodedInt();
+      int confWinBottomOffset = bitArray.readUnsignedExpGolombCodedInt();
+      // H.265/HEVC (2014) Table 6-1
+      int subWidthC = chromaFormatIdc == 1 || chromaFormatIdc == 2 ? 2 : 1;
+      int subHeightC = chromaFormatIdc == 1 ? 2 : 1;
+      picWidthInLumaSamples -= subWidthC * (confWinLeftOffset + confWinRightOffset);
+      picHeightInLumaSamples -= subHeightC * (confWinTopOffset + confWinBottomOffset);
+    }
+    bitArray.readUnsignedExpGolombCodedInt(); // bit_depth_luma_minus8
+    bitArray.readUnsignedExpGolombCodedInt(); // bit_depth_chroma_minus8
+    int log2MaxPicOrderCntLsbMinus4 = bitArray.readUnsignedExpGolombCodedInt();
+    // for (i = sps_sub_layer_ordering_info_present_flag ? 0 : sps_max_sub_layers_minus1; ...)
+    for (int i = bitArray.readBit() ? 0 : maxSubLayersMinus1; i <= maxSubLayersMinus1; i++) {
+      bitArray.readUnsignedExpGolombCodedInt(); // sps_max_dec_pic_buffering_minus1[i]
+      bitArray.readUnsignedExpGolombCodedInt(); // sps_max_num_reorder_pics[i]
+      bitArray.readUnsignedExpGolombCodedInt(); // sps_max_latency_increase_plus1[i]
+    }
+    bitArray.readUnsignedExpGolombCodedInt(); // log2_min_luma_coding_block_size_minus3
+    bitArray.readUnsignedExpGolombCodedInt(); // log2_diff_max_min_luma_coding_block_size
+    bitArray.readUnsignedExpGolombCodedInt(); // log2_min_luma_transform_block_size_minus2
+    bitArray.readUnsignedExpGolombCodedInt(); // log2_diff_max_min_luma_transform_block_size
+    bitArray.readUnsignedExpGolombCodedInt(); // max_transform_hierarchy_depth_inter
+    bitArray.readUnsignedExpGolombCodedInt(); // max_transform_hierarchy_depth_intra
+    // if (scaling_list_enabled_flag) { if (sps_scaling_list_data_present_flag) {...}}
+    boolean scalingListEnabled = bitArray.readBit();
+    if (scalingListEnabled && bitArray.readBit()) {
+      skipH265ScalingList(bitArray);
+    }
+    bitArray.skipBits(2); // amp_enabled_flag (1), sample_adaptive_offset_enabled_flag (1)
+    if (bitArray.readBit()) { // pcm_enabled_flag
+      // pcm_sample_bit_depth_luma_minus1 (4), pcm_sample_bit_depth_chroma_minus1 (4)
+      bitArray.skipBits(8);
+      bitArray.readUnsignedExpGolombCodedInt(); // log2_min_pcm_luma_coding_block_size_minus3
+      bitArray.readUnsignedExpGolombCodedInt(); // log2_diff_max_min_pcm_luma_coding_block_size
+      bitArray.skipBit(); // pcm_loop_filter_disabled_flag
+    }
+    // Skips all short term reference picture sets.
+    skipShortTermRefPicSets(bitArray);
+    if (bitArray.readBit()) { // long_term_ref_pics_present_flag
+      // num_long_term_ref_pics_sps
+      for (int i = 0; i < bitArray.readUnsignedExpGolombCodedInt(); i++) {
+        int ltRefPicPocLsbSpsLength = log2MaxPicOrderCntLsbMinus4 + 4;
+        // lt_ref_pic_poc_lsb_sps[i], used_by_curr_pic_lt_sps_flag[i]
+        bitArray.skipBits(ltRefPicPocLsbSpsLength + 1);
+      }
+    }
+    bitArray.skipBits(2); // sps_temporal_mvp_enabled_flag, strong_intra_smoothing_enabled_flag
+    float pixelWidthHeightRatio = 1;
+    if (bitArray.readBit()) { // vui_parameters_present_flag
+      if (bitArray.readBit()) { // aspect_ratio_info_present_flag
+        int aspectRatioIdc = bitArray.readBits(8);
+        if (aspectRatioIdc == NalUnitUtil.EXTENDED_SAR) {
+          int sarWidth = bitArray.readBits(16);
+          int sarHeight = bitArray.readBits(16);
+          if (sarWidth != 0 && sarHeight != 0) {
+            pixelWidthHeightRatio = (float) sarWidth / sarHeight;
+          }
+        } else if (aspectRatioIdc < NalUnitUtil.ASPECT_RATIO_IDC_VALUES.length) {
+          pixelWidthHeightRatio = NalUnitUtil.ASPECT_RATIO_IDC_VALUES[aspectRatioIdc];
+        } else {
+          Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
+        }
+      }
+    }
+
+    return new H265SpsData(picWidthInLumaSamples, picHeightInLumaSamples, pixelWidthHeightRatio);
+  }
+
+  /**
    * Finds the first NAL unit in {@code data}.
    * <p>
    * If {@code prefixFlags} is null then the first three bytes of a NAL unit must be entirely
@@ -509,6 +635,70 @@ public final class NalUnitUtil {
         nextScale = (lastScale + deltaScale + 256) % 256;
       }
       lastScale = (nextScale == 0) ? lastScale : nextScale;
+    }
+  }
+
+  /**
+   * Skips scaling_list_data(). See H.265/HEVC (2014) 7.3.4.
+   */
+  private static void skipH265ScalingList(ParsableNalUnitBitArray bitArray) {
+    for (int sizeId = 0; sizeId < 4; sizeId++) {
+      for (int matrixId = 0; matrixId < 6; matrixId += sizeId == 3 ? 3 : 1) {
+        if (!bitArray.readBit()) { // scaling_list_pred_mode_flag[sizeId][matrixId]
+          // scaling_list_pred_matrix_id_delta[sizeId][matrixId]
+          bitArray.readUnsignedExpGolombCodedInt();
+        } else {
+          int coefNum = Math.min(64, 1 << (4 + (sizeId << 1)));
+          if (sizeId > 1) {
+            // scaling_list_dc_coef_minus8[sizeId - 2][matrixId]
+            bitArray.readSignedExpGolombCodedInt();
+          }
+          for (int i = 0; i < coefNum; i++) {
+            bitArray.readSignedExpGolombCodedInt(); // scaling_list_delta_coef
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Reads the number of short term reference picture sets in a SPS as ue(v), then skips all of
+   * them. See H.265/HEVC (2014) 7.3.7.
+   */
+  private static void skipShortTermRefPicSets(ParsableNalUnitBitArray bitArray) {
+    int numShortTermRefPicSets = bitArray.readUnsignedExpGolombCodedInt();
+    boolean interRefPicSetPredictionFlag = false;
+    int numNegativePics;
+    int numPositivePics;
+    // As this method applies in a SPS, the only element of NumDeltaPocs accessed is the previous
+    // one, so we just keep track of that rather than storing the whole array.
+    // RefRpsIdx = stRpsIdx - (delta_idx_minus1 + 1) and delta_idx_minus1 is always zero in SPS.
+    int previousNumDeltaPocs = 0;
+    for (int stRpsIdx = 0; stRpsIdx < numShortTermRefPicSets; stRpsIdx++) {
+      if (stRpsIdx != 0) {
+        interRefPicSetPredictionFlag = bitArray.readBit();
+      }
+      if (interRefPicSetPredictionFlag) {
+        bitArray.skipBit(); // delta_rps_sign
+        bitArray.readUnsignedExpGolombCodedInt(); // abs_delta_rps_minus1
+        for (int j = 0; j <= previousNumDeltaPocs; j++) {
+          if (bitArray.readBit()) { // used_by_curr_pic_flag[j]
+            bitArray.skipBit(); // use_delta_flag[j]
+          }
+        }
+      } else {
+        numNegativePics = bitArray.readUnsignedExpGolombCodedInt();
+        numPositivePics = bitArray.readUnsignedExpGolombCodedInt();
+        previousNumDeltaPocs = numNegativePics + numPositivePics;
+        for (int i = 0; i < numNegativePics; i++) {
+          bitArray.readUnsignedExpGolombCodedInt(); // delta_poc_s0_minus1[i]
+          bitArray.skipBit(); // used_by_curr_pic_s0_flag[i]
+        }
+        for (int i = 0; i < numPositivePics; i++) {
+          bitArray.readUnsignedExpGolombCodedInt(); // delta_poc_s1_minus1[i]
+          bitArray.skipBit(); // used_by_curr_pic_s1_flag[i]
+        }
+      }
     }
   }
 
