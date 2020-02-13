@@ -153,15 +153,6 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
     return Collections.unmodifiableList(sampleTimesUs);
   }
 
-  public void assertEquals(FakeTrackOutput expected) {
-    assertThat(lastFormat).isEqualTo(expected.lastFormat);
-    assertThat(sampleData).isEqualTo(expected.sampleData);
-    assertThat(dumpables).hasSize(expected.dumpables.size());
-    for (int i = 0; i < dumpables.size(); i++) {
-      assertThat(dumpables.get(i)).isEqualTo(expected.dumpables.get(i));
-    }
-  }
-
   @Override
   public void dump(Dumper dumper) {
     dumper.add("total output bytes", sampleData.length);
