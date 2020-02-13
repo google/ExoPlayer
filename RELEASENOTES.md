@@ -27,6 +27,9 @@
   * Add `DataSpec.Builder` and deprecate most `DataSpec` constructors.
   * Add `DataSpec.customData` to allow applications to pass custom data through
     `DataSource` chains.
+  * Move the handling of encoded buffers in audio passthrough from
+    `AudioSink.handleBuffer` to `AudioSink.handleEncodedBuffer` to allow
+    passing multiple encoded frames in one buffer.
 * Text:
   * Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
     later).

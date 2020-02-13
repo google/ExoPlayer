@@ -260,6 +260,7 @@ public final class DefaultAudioSink implements AudioSink {
   private ByteBuffer[] outputBuffers;
   @Nullable private ByteBuffer inputBuffer;
   @Nullable private ByteBuffer outputBuffer;
+  int outputBufferEncodedAccessUnitCount;
   private byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
   private int drainingAudioProcessorIndex;
@@ -559,13 +560,28 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  @SuppressWarnings("ReferenceEquality")
   public boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
+      throws InitializationException, WriteException {
+    Assertions.checkArgument(configuration.isInputPcm);
+    return handleBufferInternal(buffer, presentationTimeUs, /* encodedAccessUnitCount= */ 0);
+  }
+
+  @Override
+  public boolean handleEncodedBuffer(
+      ByteBuffer buffer, long presentationTimeUs, int accessUnitCount)
+      throws InitializationException, WriteException {
+    Assertions.checkArgument(!configuration.isInputPcm);
+    return handleBufferInternal(buffer, presentationTimeUs, accessUnitCount);
+  }
+
+  @SuppressWarnings("ReferenceEquality")
+  private boolean handleBufferInternal(
+      ByteBuffer buffer, long presentationTimeUs, int encodedAccessUnitCount)
       throws InitializationException, WriteException {
     Assertions.checkArgument(inputBuffer == null || buffer == inputBuffer);
 
     if (pendingConfiguration != null) {
-      if (!drainAudioProcessorsToEndOfStream()) {
+      if (!drainToEndOfStream()) {
         // There's still pending data in audio processors to write to the track.
         return false;
       } else if (!pendingConfiguration.canReuseAudioTrack(configuration)) {
@@ -615,7 +631,7 @@ public final class DefaultAudioSink implements AudioSink {
       }
 
       if (afterDrainPlaybackParameters != null) {
-        if (!drainAudioProcessorsToEndOfStream()) {
+        if (!drainToEndOfStream()) {
           // Don't process any more input until draining completes.
           return false;
         }
@@ -641,7 +657,7 @@ public final class DefaultAudioSink implements AudioSink {
         startMediaTimeUsNeedsSync = true;
       }
       if (startMediaTimeUsNeedsSync) {
-        if (!drainAudioProcessorsToEndOfStream()) {
+        if (!drainToEndOfStream()) {
           // Don't update timing until pending AudioProcessor buffers are completely drained.
           return false;
         }
@@ -660,16 +676,16 @@ public final class DefaultAudioSink implements AudioSink {
       if (configuration.isInputPcm) {
         submittedPcmBytes += buffer.remaining();
       } else {
-        submittedEncodedFrames += framesPerEncodedSample;
+        submittedEncodedFrames += framesPerEncodedSample * encodedAccessUnitCount;
       }
 
       inputBuffer = buffer;
     }
 
     if (configuration.processingEnabled) {
-      processBuffers(presentationTimeUs);
+      processBuffers(presentationTimeUs, encodedAccessUnitCount);
     } else {
-      writeBuffer(inputBuffer, presentationTimeUs);
+      writeBuffer(inputBuffer, presentationTimeUs, encodedAccessUnitCount);
     }
 
     if (!inputBuffer.hasRemaining()) {
@@ -686,14 +702,15 @@ public final class DefaultAudioSink implements AudioSink {
     return false;
   }
 
-  private void processBuffers(long avSyncPresentationTimeUs) throws WriteException {
+  private void processBuffers(long avSyncPresentationTimeUs, int encodedAccessUnitCount)
+      throws WriteException {
     int count = activeAudioProcessors.length;
     int index = count;
     while (index >= 0) {
       ByteBuffer input = index > 0 ? outputBuffers[index - 1]
           : (inputBuffer != null ? inputBuffer : AudioProcessor.EMPTY_BUFFER);
       if (index == count) {
-        writeBuffer(input, avSyncPresentationTimeUs);
+        writeBuffer(input, avSyncPresentationTimeUs, encodedAccessUnitCount);
       } else {
         AudioProcessor audioProcessor = activeAudioProcessors[index];
         audioProcessor.queueInput(input);
@@ -717,7 +734,9 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @SuppressWarnings("ReferenceEquality")
-  private void writeBuffer(ByteBuffer buffer, long avSyncPresentationTimeUs) throws WriteException {
+  private void writeBuffer(
+      ByteBuffer buffer, long avSyncPresentationTimeUs, int encodedAccessUnitCount)
+      throws WriteException {
     if (!buffer.hasRemaining()) {
       return;
     }
@@ -725,6 +744,7 @@ public final class DefaultAudioSink implements AudioSink {
       Assertions.checkArgument(outputBuffer == buffer);
     } else {
       outputBuffer = buffer;
+      outputBufferEncodedAccessUnitCount = encodedAccessUnitCount;
       if (Util.SDK_INT < 21) {
         int bytesRemaining = buffer.remaining();
         if (preV21OutputBuffer == null || preV21OutputBuffer.length < bytesRemaining) {
@@ -768,21 +788,22 @@ public final class DefaultAudioSink implements AudioSink {
     }
     if (bytesWritten == bytesRemaining) {
       if (!configuration.isInputPcm) {
-        writtenEncodedFrames += framesPerEncodedSample;
+        writtenEncodedFrames += framesPerEncodedSample * encodedAccessUnitCount;
       }
       outputBuffer = null;
+      outputBufferEncodedAccessUnitCount = 0;
     }
   }
 
   @Override
   public void playToEndOfStream() throws WriteException {
-    if (!handledEndOfStream && isInitialized() && drainAudioProcessorsToEndOfStream()) {
+    if (!handledEndOfStream && isInitialized() && drainToEndOfStream()) {
       playPendingData();
       handledEndOfStream = true;
     }
   }
 
-  private boolean drainAudioProcessorsToEndOfStream() throws WriteException {
+  private boolean drainToEndOfStream() throws WriteException {
     boolean audioProcessorNeedsEndOfStream = false;
     if (drainingAudioProcessorIndex == C.INDEX_UNSET) {
       drainingAudioProcessorIndex =
@@ -794,7 +815,8 @@ public final class DefaultAudioSink implements AudioSink {
       if (audioProcessorNeedsEndOfStream) {
         audioProcessor.queueEndOfStream();
       }
-      processBuffers(C.TIME_UNSET);
+      // audio is always PCM in audio processors, thus there is no encoded access unit count
+      processBuffers(C.TIME_UNSET, /* encodedAccessUnitCount= */ 0);
       if (!audioProcessor.isEnded()) {
         return false;
       }
@@ -804,7 +826,7 @@ public final class DefaultAudioSink implements AudioSink {
 
     // Finish writing any remaining output to the track.
     if (outputBuffer != null) {
-      writeBuffer(outputBuffer, C.TIME_UNSET);
+      writeBuffer(outputBuffer, C.TIME_UNSET, outputBufferEncodedAccessUnitCount);
       if (outputBuffer != null) {
         return false;
       }
@@ -957,6 +979,7 @@ public final class DefaultAudioSink implements AudioSink {
       flushAudioProcessors();
       inputBuffer = null;
       outputBuffer = null;
+      outputBufferEncodedAccessUnitCount = 0;
       stoppedAudioTrack = false;
       handledEndOfStream = false;
       drainingAudioProcessorIndex = C.INDEX_UNSET;

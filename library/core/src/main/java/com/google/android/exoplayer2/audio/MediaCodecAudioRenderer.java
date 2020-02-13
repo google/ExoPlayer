@@ -90,6 +90,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
 
+  @C.Encoding private int audioSinkEncoding;
+
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
@@ -588,6 +590,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       // TODO(internal: b/145658993) Use outputFormat instead.
       throw createRendererException(e, inputFormat);
     }
+    audioSinkEncoding = encoding;
   }
 
   /**
@@ -751,6 +754,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,
+      int sampleCount,
       long bufferPresentationTimeUs,
       boolean isDecodeOnlyBuffer,
       boolean isLastBuffer,
@@ -776,16 +780,25 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return true;
     }
 
+    boolean fullyConsumed;
     try {
-      if (audioSink.handleBuffer(buffer, bufferPresentationTimeUs)) {
-        codec.releaseOutputBuffer(bufferIndex, false);
-        decoderCounters.renderedOutputBufferCount++;
-        return true;
+      if (Util.isEncodingLinearPcm(audioSinkEncoding)) {
+        fullyConsumed = audioSink.handleBuffer(buffer, bufferPresentationTimeUs);
+      } else {
+        fullyConsumed =
+            audioSink.handleEncodedBuffer(buffer, bufferPresentationTimeUs, sampleCount);
       }
     } catch (AudioSink.InitializationException | AudioSink.WriteException e) {
       // TODO(internal: b/145658993) Use outputFormat instead.
       throw createRendererException(e, inputFormat);
     }
+
+    if (fullyConsumed) {
+      codec.releaseOutputBuffer(bufferIndex, false);
+      decoderCounters.renderedOutputBufferCount++;
+      return true;
+    }
+
     return false;
   }
 
