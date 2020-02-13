@@ -150,8 +150,8 @@ public class EventLogger implements AnalyticsListener {
         eventTime,
         "playbackParameters",
         Util.formatInvariant(
-            "speed=%.2f, pitch=%.2f, skipSilence=%s",
-            playbackParameters.speed, playbackParameters.pitch, playbackParameters.skipSilence));
+            "speed=%.2f, skipSilence=%s",
+            playbackParameters.speed, playbackParameters.skipSilence));
   }
 
   @Override
