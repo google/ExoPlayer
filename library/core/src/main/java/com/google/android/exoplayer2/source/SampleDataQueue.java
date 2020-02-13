@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.source;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.SampleDataReader;
 import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
 import com.google.android.exoplayer2.source.SampleQueue.SampleExtrasHolder;
 import com.google.android.exoplayer2.upstream.Allocation;
@@ -174,7 +174,7 @@ import java.nio.ByteBuffer;
     return totalBytesWritten;
   }
 
-  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+  public int sampleData(SampleDataReader input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     length = preAppend(length);
     int bytesAppended =

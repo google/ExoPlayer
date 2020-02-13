@@ -63,7 +63,7 @@ import java.io.InputStream;
  *       (regardless of {@code allowEndOfInput}).
  * </ul>
  */
-public interface ExtractorInput {
+public interface ExtractorInput extends SampleDataReader {
 
   /**
    * Reads up to {@code length} bytes from the input and resets the peek position.

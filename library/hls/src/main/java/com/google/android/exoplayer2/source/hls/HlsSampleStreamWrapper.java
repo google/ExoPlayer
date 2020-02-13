@@ -29,8 +29,8 @@ import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.SampleDataReader;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -1443,7 +1443,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     @Override
-    public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+    public int sampleData(SampleDataReader input, int length, boolean allowEndOfInput)
         throws IOException, InterruptedException {
       ensureBufferCapacity(bufferPosition + length);
       int numBytesRead = input.read(buffer, bufferPosition, length);

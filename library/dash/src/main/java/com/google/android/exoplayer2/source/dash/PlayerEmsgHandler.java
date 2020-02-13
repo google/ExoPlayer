@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.SampleDataReader;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
@@ -295,7 +295,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     }
 
     @Override
-    public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+    public int sampleData(SampleDataReader input, int length, boolean allowEndOfInput)
         throws IOException, InterruptedException {
       return sampleQueue.sampleData(input, length, allowEndOfInput);
     }
