@@ -40,7 +40,6 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -49,7 +48,9 @@ import java.lang.annotation.Retention;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -137,6 +138,20 @@ public final class WebvttCueParser {
   /* package */ static final float DEFAULT_POSITION = 0.5f;
 
   private static final String TAG = "WebvttCueParser";
+
+  private static final Map<String, Integer> DEFAULT_COLORS;
+
+  static {
+    DEFAULT_COLORS = new HashMap<>();
+    DEFAULT_COLORS.put("black", 0xFF000000);
+    DEFAULT_COLORS.put("blue", 0xFF0000FF);
+    DEFAULT_COLORS.put("cyan", 0xFF00FFFF);
+    DEFAULT_COLORS.put("lime", 0xFF00FF00);
+    DEFAULT_COLORS.put("magenta", 0xFFFF00FF);
+    DEFAULT_COLORS.put("red", 0xFFFF0000);
+    DEFAULT_COLORS.put("white", 0xFFFFFFFF);
+    DEFAULT_COLORS.put("yellow", 0xFFFFFF00);
+  }
 
   /**
    * Parses the next valid WebVTT cue in a parsable array, including timestamps, settings and text.
@@ -535,9 +550,9 @@ public final class WebvttCueParser {
   private static void applySupportedClasses(SpannableStringBuilder text, String[] classes,
       int start, int end) {
     for (String className : classes) {
-      if (ColorParser.isNamedColor(className)) {
-        int color = ColorParser.parseCssColor(className);
-        text.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      if (DEFAULT_COLORS.containsKey(className)) {
+        int color = DEFAULT_COLORS.get(Util.toLowerInvariant(className));
+        text.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
       }
     }
   }
