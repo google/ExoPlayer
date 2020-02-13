@@ -43,10 +43,6 @@ public final class ColorParser {
 
   private static final Map<String, Integer> COLOR_MAP;
 
-  public static boolean isNamedColor(String expression) {
-    return COLOR_MAP.containsKey(expression);
-  }
-
   /**
    * Parses a TTML color expression.
    *
