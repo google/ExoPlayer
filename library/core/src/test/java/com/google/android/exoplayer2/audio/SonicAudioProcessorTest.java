@@ -86,14 +86,6 @@ public final class SonicAudioProcessorTest {
   }
 
   @Test
-  public void testIsActiveWithPitchChange() throws Exception {
-    sonicAudioProcessor.setPitch(1.5f);
-    sonicAudioProcessor.configure(AUDIO_FORMAT_44100_HZ);
-    sonicAudioProcessor.flush();
-    assertThat(sonicAudioProcessor.isActive()).isTrue();
-  }
-
-  @Test
   public void testIsNotActiveWithNoChange() throws Exception {
     sonicAudioProcessor.configure(AUDIO_FORMAT_44100_HZ);
     assertThat(sonicAudioProcessor.isActive()).isFalse();

@@ -624,11 +624,7 @@ public abstract class Action {
           "SetPlaybackParameters:"
               + (playbackParameters == null
                   ? "null"
-                  : +playbackParameters.speed
-                      + ":"
-                      + playbackParameters.pitch
-                      + ":"
-                      + playbackParameters.skipSilence));
+                  : playbackParameters.speed + ":" + playbackParameters.skipSilence));
       this.playbackParameters = playbackParameters;
     }
 

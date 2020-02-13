@@ -143,7 +143,6 @@ public final class DefaultAudioSink implements AudioSink {
       silenceSkippingAudioProcessor.setEnabled(playbackParameters.skipSilence);
       return new PlaybackParameters(
           sonicAudioProcessor.setSpeed(playbackParameters.speed),
-          sonicAudioProcessor.setPitch(playbackParameters.pitch),
           playbackParameters.skipSilence);
     }
 
@@ -295,8 +294,8 @@ public final class DefaultAudioSink implements AudioSink {
    *     output. May be empty.
    * @param enableConvertHighResIntPcmToFloat Whether to enable conversion of high resolution
    *     integer PCM to 32-bit float for output, if possible. Functionality that uses 16-bit integer
-   *     audio processing (for example, speed and pitch adjustment) will not be available when float
-   *     output is in use.
+   *     audio processing (for example, speed adjustment) will not be available when float output is
+   *     in use.
    */
   public DefaultAudioSink(
       @Nullable AudioCapabilities audioCapabilities,
@@ -318,8 +317,8 @@ public final class DefaultAudioSink implements AudioSink {
    *     parameters adjustments. The instance passed in must not be reused in other sinks.
    * @param enableConvertHighResIntPcmToFloat Whether to enable conversion of high resolution
    *     integer PCM to 32-bit float for output, if possible. Functionality that uses 16-bit integer
-   *     audio processing (for example, speed and pitch adjustment) will not be available when float
-   *     output is in use.
+   *     audio processing (for example, speed adjustment) will not be available when float output is
+   *     in use.
    */
   public DefaultAudioSink(
       @Nullable AudioCapabilities audioCapabilities,
