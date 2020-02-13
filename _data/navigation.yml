@@ -37,6 +37,8 @@ en:
         url:    ui-components.html
       - title:  Downloading media
         url:    downloading-media.html
+      - title:  Ad insertion
+        url:    ad-insertion.html
   - title:      Media types
     children:
       - title:  DASH

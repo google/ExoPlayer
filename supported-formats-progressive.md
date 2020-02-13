@@ -16,7 +16,7 @@ The contained audio and video sample formats must also be supported (see the
 | MPEG-PS | YES ||
 | FLV | YES | Not seekable* |
 | ADTS (AAC) | YES | Only seekable using constant bitrate seeking** |
-| FLAC | YES | Using the [FLAC extension][] only |
+| FLAC | YES | Using the [FLAC extension][] or the FLAC extractor in the [core library][]*** |
 | AMR | YES | Only seekable using constant bitrate seeking** |
 
 \* Seeking is unsupported because the container does not provide metadata (e.g.,
@@ -30,4 +30,14 @@ functionality for all extractors that support it is to use
 `DefaultExtractorsFactory.setConstantBitrateSeekingEnabled`, as described
 [here](progressive.html#enabling-constant-bitrate-seeking).
 
+\*\*\* The [FLAC extension][] extractor outputs raw audio, which can be handled
+by the framework on all API levels. The [core library][] FLAC extractor outputs
+FLAC audio frames and so relies on having a FLAC decoder (e.g., a `MediaCodec`
+decoder that handles FLAC (required from API level 27), or the
+[FFmpeg extension][] with FLAC enabled). The `DefaultExtractorsFactory` uses the
+extension extractor if the application was built with the [FLAC extension][].
+Otherwise, it uses the [core library][] extractor.
+
 [FLAC extension]: {{ site.release_v2 }}/extensions/flac
+[core library]: {{ site.release_v2 }}/library/core
+[FFmpeg extension]: {{ site.release_v2 }}/extensions/ffmpeg

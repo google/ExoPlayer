@@ -5,6 +5,10 @@ redirect_from:
   - /guide-v1.html
 ---
 
+Another way to get started is to work through
+[the ExoPlayer codelab](https://codelabs.developers.google.com/codelabs/exoplayer-intro/).
+{:.info}
+
 For simple use cases, getting started with `ExoPlayer` consists of implementing
 the following steps:
 
