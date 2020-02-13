@@ -114,25 +114,6 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
     }
   }
 
-  public void assertEquals(FakeExtractorOutput expected) {
-    assertThat(numberOfTracks).isEqualTo(expected.numberOfTracks);
-    assertThat(tracksEnded).isEqualTo(expected.tracksEnded);
-    if (expected.seekMap == null) {
-      assertThat(seekMap).isNull();
-    } else {
-      // TODO: Bulk up this check if possible.
-      SeekMap expectedSeekMap = Assertions.checkNotNull(expected.seekMap);
-      SeekMap seekMap = Assertions.checkNotNull(this.seekMap);
-      assertThat(seekMap.getClass()).isEqualTo(expectedSeekMap.getClass());
-      assertThat(seekMap.isSeekable()).isEqualTo(expectedSeekMap.isSeekable());
-      assertThat(seekMap.getSeekPoints(0)).isEqualTo(expectedSeekMap.getSeekPoints(0));
-    }
-    for (int i = 0; i < numberOfTracks; i++) {
-      assertThat(trackOutputs.keyAt(i)).isEqualTo(expected.trackOutputs.keyAt(i));
-      trackOutputs.valueAt(i).assertEquals(expected.trackOutputs.valueAt(i));
-    }
-  }
-
   /**
    * Asserts that dump of this {@link FakeExtractorOutput} is equal to expected dump which is read
    * from {@code dumpFile}.
