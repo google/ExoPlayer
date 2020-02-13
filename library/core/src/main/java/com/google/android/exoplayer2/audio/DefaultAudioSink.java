@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
+import com.google.android.exoplayer2.extractor.MpegAudioHeader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -1148,9 +1149,7 @@ public final class DefaultAudioSink implements AudioSink {
       case C.ENCODING_PCM_24BIT:
       case C.ENCODING_PCM_32BIT:
       case C.ENCODING_PCM_8BIT:
-      case C.ENCODING_PCM_A_LAW:
       case C.ENCODING_PCM_FLOAT:
-      case C.ENCODING_PCM_MU_LAW:
       case Format.NO_VALUE:
       default:
         throw new IllegalArgumentException();
@@ -1158,22 +1157,26 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private static int getFramesPerEncodedSample(@C.Encoding int encoding, ByteBuffer buffer) {
-    if (encoding == C.ENCODING_DTS || encoding == C.ENCODING_DTS_HD) {
-      return DtsUtil.parseDtsAudioSampleCount(buffer);
-    } else if (encoding == C.ENCODING_AC3) {
-      return Ac3Util.getAc3SyncframeAudioSampleCount();
-    } else if (encoding == C.ENCODING_E_AC3 || encoding == C.ENCODING_E_AC3_JOC) {
-      return Ac3Util.parseEAc3SyncframeAudioSampleCount(buffer);
-    } else if (encoding == C.ENCODING_AC4) {
-      return Ac4Util.parseAc4SyncframeAudioSampleCount(buffer);
-    } else if (encoding == C.ENCODING_DOLBY_TRUEHD) {
-      int syncframeOffset = Ac3Util.findTrueHdSyncframeOffset(buffer);
-      return syncframeOffset == C.INDEX_UNSET
-          ? 0
-          : (Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer, syncframeOffset)
-              * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT);
-    } else {
-      throw new IllegalStateException("Unexpected audio encoding: " + encoding);
+    switch (encoding) {
+      case C.ENCODING_MP3:
+        return MpegAudioHeader.getFrameSampleCount(buffer.get(buffer.position()));
+      case C.ENCODING_DTS:
+      case C.ENCODING_DTS_HD:
+        return DtsUtil.parseDtsAudioSampleCount(buffer);
+      case C.ENCODING_AC3:
+      case C.ENCODING_E_AC3:
+      case C.ENCODING_E_AC3_JOC:
+        return Ac3Util.parseAc3SyncframeAudioSampleCount(buffer);
+      case C.ENCODING_AC4:
+        return Ac4Util.parseAc4SyncframeAudioSampleCount(buffer);
+      case C.ENCODING_DOLBY_TRUEHD:
+        int syncframeOffset = Ac3Util.findTrueHdSyncframeOffset(buffer);
+        return syncframeOffset == C.INDEX_UNSET
+            ? 0
+            : (Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer, syncframeOffset)
+                * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT);
+      default:
+        throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }
   }
 

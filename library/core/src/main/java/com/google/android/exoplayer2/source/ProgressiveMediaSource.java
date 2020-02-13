@@ -111,7 +111,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      * @return This factory, for convenience.
      * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      */
-    public Factory setCustomCacheKey(String customCacheKey) {
+    public Factory setCustomCacheKey(@Nullable String customCacheKey) {
       Assertions.checkState(!isCreateCalled);
       this.customCacheKey = customCacheKey;
       return this;
@@ -129,20 +129,6 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     public Factory setTag(Object tag) {
       Assertions.checkState(!isCreateCalled);
       this.tag = tag;
-      return this;
-    }
-
-    /**
-     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
-     * default value is {@link DrmSessionManager#DUMMY}.
-     *
-     * @param drmSessionManager The {@link DrmSessionManager}.
-     * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
-     */
-    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
-      Assertions.checkState(!isCreateCalled);
-      this.drmSessionManager = drmSessionManager;
       return this;
     }
 
@@ -174,6 +160,21 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     public Factory setContinueLoadingCheckIntervalBytes(int continueLoadingCheckIntervalBytes) {
       Assertions.checkState(!isCreateCalled);
       this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
+      return this;
+    }
+
+    /**
+     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
+     * default value is {@link DrmSessionManager#DUMMY}.
+     *
+     * @param drmSessionManager The {@link DrmSessionManager}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    @Override
+    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+      Assertions.checkState(!isCreateCalled);
+      this.drmSessionManager = drmSessionManager;
       return this;
     }
 

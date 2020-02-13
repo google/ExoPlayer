@@ -432,6 +432,11 @@ public class PlayerActivity extends AppCompatActivity
       mediaSources[i] = createLeafMediaSource(samples[i]);
       Sample.SubtitleInfo subtitleInfo = samples[i].subtitleInfo;
       if (subtitleInfo != null) {
+        if (Util.maybeRequestReadExternalStoragePermission(
+            /* activity= */ this, subtitleInfo.uri)) {
+          // The player will be reinitialized if the permission is granted.
+          return null;
+        }
         Format subtitleFormat =
             Format.createTextSampleFormat(
                 /* id= */ null,
@@ -507,7 +512,7 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private MediaSource createLeafMediaSource(
-      Uri uri, String extension, DrmSessionManager<ExoMediaCrypto> drmSessionManager) {
+      Uri uri, String extension, DrmSessionManager<?> drmSessionManager) {
     @ContentType int type = Util.inferContentType(uri, extension);
     switch (type) {
       case C.TYPE_DASH:
@@ -615,10 +620,20 @@ public class PlayerActivity extends AppCompatActivity
       }
       MediaSourceFactory adMediaSourceFactory =
           new MediaSourceFactory() {
+
+            private DrmSessionManager<?> drmSessionManager =
+                DrmSessionManager.getDummyDrmSessionManager();
+
+            @Override
+            public MediaSourceFactory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+              this.drmSessionManager = drmSessionManager;
+              return this;
+            }
+
             @Override
             public MediaSource createMediaSource(Uri uri) {
               return PlayerActivity.this.createLeafMediaSource(
-                  uri, /* extension=*/ null, DrmSessionManager.getDummyDrmSessionManager());
+                  uri, /* extension=*/ null, drmSessionManager);
             }
 
             @Override

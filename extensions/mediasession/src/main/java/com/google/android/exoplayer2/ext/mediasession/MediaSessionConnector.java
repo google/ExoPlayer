@@ -178,8 +178,8 @@ public final class MediaSessionConnector {
         Player player,
         ControlDispatcher controlDispatcher,
         String command,
-        Bundle extras,
-        ResultReceiver cb);
+        @Nullable Bundle extras,
+        @Nullable ResultReceiver cb);
   }
 
   /** Interface to which playback preparation and play actions are delegated. */
@@ -394,6 +394,7 @@ public final class MediaSessionConnector {
      * @param player The player connected to the media session.
      * @return The custom action to be included in the session playback state or {@code null}.
      */
+    @Nullable
     PlaybackStateCompat.CustomAction getCustomAction(Player player);
   }
 
@@ -1293,7 +1294,7 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onCommand(String command, Bundle extras, ResultReceiver cb) {
+    public void onCommand(String command, @Nullable Bundle extras, @Nullable ResultReceiver cb) {
       if (player != null) {
         for (int i = 0; i < commandReceivers.size(); i++) {
           if (commandReceivers.get(i).onCommand(player, controlDispatcher, command, extras, cb)) {

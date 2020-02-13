@@ -13,17 +13,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.extractor.ogg;
+package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.Arrays;
 
-/**
- * Utility methods for parsing vorbis streams.
- */
-/* package */ final class VorbisUtil {
+/** Utility methods for parsing Vorbis streams. */
+public final class VorbisUtil {
+
+  /** Vorbis comment header. */
+  public static final class CommentHeader {
+
+    public final String vendor;
+    public final String[] comments;
+    public final int length;
+
+    public CommentHeader(String vendor, String[] comments, int length) {
+      this.vendor = vendor;
+      this.comments = comments;
+      this.length = length;
+    }
+  }
+
+  /** Vorbis identification header. */
+  public static final class VorbisIdHeader {
+
+    public final long version;
+    public final int channels;
+    public final long sampleRate;
+    public final int bitrateMax;
+    public final int bitrateNominal;
+    public final int bitrateMin;
+    public final int blockSize0;
+    public final int blockSize1;
+    public final boolean framingFlag;
+    public final byte[] data;
+
+    public VorbisIdHeader(
+        long version,
+        int channels,
+        long sampleRate,
+        int bitrateMax,
+        int bitrateNominal,
+        int bitrateMin,
+        int blockSize0,
+        int blockSize1,
+        boolean framingFlag,
+        byte[] data) {
+      this.version = version;
+      this.channels = channels;
+      this.sampleRate = sampleRate;
+      this.bitrateMax = bitrateMax;
+      this.bitrateNominal = bitrateNominal;
+      this.bitrateMin = bitrateMin;
+      this.blockSize0 = blockSize0;
+      this.blockSize1 = blockSize1;
+      this.framingFlag = framingFlag;
+      this.data = data;
+    }
+
+    public int getApproximateBitrate() {
+      return bitrateNominal == 0 ? (bitrateMin + bitrateMax) / 2 : bitrateNominal;
+    }
+  }
+
+  /** Vorbis setup header modes. */
+  public static final class Mode {
+
+    public final boolean blockFlag;
+    public final int windowType;
+    public final int transformType;
+    public final int mapping;
+
+    public Mode(boolean blockFlag, int windowType, int transformType, int mapping) {
+      this.blockFlag = blockFlag;
+      this.windowType = windowType;
+      this.transformType = transformType;
+      this.mapping = mapping;
+    }
+  }
 
   private static final String TAG = "VorbisUtil";
 
@@ -45,7 +115,7 @@ import java.util.Arrays;
   }
 
   /**
-   * Reads a vorbis identification header from {@code headerData}.
+   * Reads a Vorbis identification header from {@code headerData}.
    *
    * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
    *     spec/Identification header</a>
@@ -70,7 +140,7 @@ import java.util.Arrays;
     int blockSize1 = (int) Math.pow(2, (blockSize & 0xF0) >> 4);
 
     boolean framingFlag = (headerData.readUnsignedByte() & 0x01) > 0;
-    // raw data of vorbis setup header has to be passed to decoder as CSD buffer #1
+    // raw data of Vorbis setup header has to be passed to decoder as CSD buffer #1
     byte[] data = Arrays.copyOf(headerData.data, headerData.limit());
 
     return new VorbisIdHeader(version, channels, sampleRate, bitrateMax, bitrateNominal, bitrateMin,
@@ -78,18 +148,41 @@ import java.util.Arrays;
   }
 
   /**
-   * Reads a vorbis comment header.
+   * Reads a Vorbis comment header.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">
-   *     Vorbis spec/Comment header</a>
-   * @param headerData a {@link ParsableByteArray} wrapping the header data.
-   * @return a {@link VorbisUtil.CommentHeader} with all the comments.
-   * @throws ParserException thrown if invalid capture pattern is detected.
+   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
+   *     spec/Comment header</a>
+   * @param headerData A {@link ParsableByteArray} wrapping the header data.
+   * @return A {@link VorbisUtil.CommentHeader} with all the comments.
+   * @throws ParserException If an error occurs parsing the comment header.
    */
   public static CommentHeader readVorbisCommentHeader(ParsableByteArray headerData)
       throws ParserException {
+    return readVorbisCommentHeader(
+        headerData, /* hasMetadataHeader= */ true, /* hasFramingBit= */ true);
+  }
 
-    verifyVorbisHeaderCapturePattern(0x03, headerData, false);
+  /**
+   * Reads a Vorbis comment header.
+   *
+   * <p>The data provided may not contain the Vorbis metadata common header and the framing bit.
+   *
+   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-640004.2.3">Vorbis
+   *     spec/Comment header</a>
+   * @param headerData A {@link ParsableByteArray} wrapping the header data.
+   * @param hasMetadataHeader Whether the {@code headerData} contains a Vorbis metadata common
+   *     header preceding the comment header.
+   * @param hasFramingBit Whether the {@code headerData} contains a framing bit.
+   * @return A {@link VorbisUtil.CommentHeader} with all the comments.
+   * @throws ParserException If an error occurs parsing the comment header.
+   */
+  public static CommentHeader readVorbisCommentHeader(
+      ParsableByteArray headerData, boolean hasMetadataHeader, boolean hasFramingBit)
+      throws ParserException {
+
+    if (hasMetadataHeader) {
+      verifyVorbisHeaderCapturePattern(/* headerType= */ 0x03, headerData, /* quiet= */ false);
+    }
     int length = 7;
 
     int len = (int) headerData.readLittleEndianUnsignedInt();
@@ -106,7 +199,7 @@ import java.util.Arrays;
       comments[i] = headerData.readString(len);
       length += comments[i].length();
     }
-    if ((headerData.readUnsignedByte() & 0x01) == 0) {
+    if (hasFramingBit && (headerData.readUnsignedByte() & 0x01) == 0) {
       throw new ParserException("framing bit expected to be set");
     }
     length += 1;
@@ -114,8 +207,8 @@ import java.util.Arrays;
   }
 
   /**
-   * Verifies whether the next bytes in {@code header} are a vorbis header of the given
-   * {@code headerType}.
+   * Verifies whether the next bytes in {@code header} are a Vorbis header of the given {@code
+   * headerType}.
    *
    * @param headerType the type of the header expected.
    * @param header the alleged header bytes.
@@ -123,9 +216,8 @@ import java.util.Arrays;
    * @return the number of bytes read.
    * @throws ParserException thrown if header type or capture pattern is not as expected.
    */
-  public static boolean verifyVorbisHeaderCapturePattern(int headerType, ParsableByteArray header,
-      boolean quiet)
-      throws ParserException {
+  public static boolean verifyVorbisHeaderCapturePattern(
+      int headerType, ParsableByteArray header, boolean quiet) throws ParserException {
     if (header.bytesLeft() < 7) {
       if (quiet) {
         return false;
@@ -158,12 +250,12 @@ import java.util.Arrays;
   }
 
   /**
-   * This method reads the modes which are located at the very end of the vorbis setup header.
-   * That's why we need to partially decode or at least read the entire setup header to know
-   * where to start reading the modes.
+   * This method reads the modes which are located at the very end of the Vorbis setup header.
+   * That's why we need to partially decode or at least read the entire setup header to know where
+   * to start reading the modes.
    *
-   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-650004.2.4">
-   *     Vorbis spec/Setup header</a>
+   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-650004.2.4">Vorbis
+   *     spec/Setup header</a>
    * @param headerData a {@link ParsableByteArray} containing setup header data.
    * @param channels the number of channels.
    * @return an array of {@link Mode}s.
@@ -409,7 +501,7 @@ import java.util.Arrays;
     // Prevent instantiation.
   }
 
-  public static final class CodeBook {
+  private static final class CodeBook {
 
     public final int dimensions;
     public final int entries;
@@ -427,69 +519,4 @@ import java.util.Arrays;
     }
 
   }
-
-  public static final class CommentHeader {
-
-    public final String vendor;
-    public final String[] comments;
-    public final int length;
-
-    public CommentHeader(String vendor, String[] comments, int length) {
-      this.vendor = vendor;
-      this.comments = comments;
-      this.length = length;
-    }
-
-  }
-
-  public static final class VorbisIdHeader {
-
-    public final long version;
-    public final int channels;
-    public final long sampleRate;
-    public final int bitrateMax;
-    public final int bitrateNominal;
-    public final int bitrateMin;
-    public final int blockSize0;
-    public final int blockSize1;
-    public final boolean framingFlag;
-    public final byte[] data;
-
-    public VorbisIdHeader(long version, int channels, long sampleRate, int bitrateMax,
-        int bitrateNominal, int bitrateMin, int blockSize0, int blockSize1, boolean framingFlag,
-        byte[] data) {
-      this.version = version;
-      this.channels = channels;
-      this.sampleRate = sampleRate;
-      this.bitrateMax = bitrateMax;
-      this.bitrateNominal = bitrateNominal;
-      this.bitrateMin = bitrateMin;
-      this.blockSize0 = blockSize0;
-      this.blockSize1 = blockSize1;
-      this.framingFlag = framingFlag;
-      this.data = data;
-    }
-
-    public int getApproximateBitrate() {
-      return bitrateNominal == 0 ? (bitrateMin + bitrateMax) / 2 : bitrateNominal;
-    }
-
-  }
-
-  public static final class Mode {
-
-    public final boolean blockFlag;
-    public final int windowType;
-    public final int transformType;
-    public final int mapping;
-
-    public Mode(boolean blockFlag, int windowType, int transformType, int mapping) {
-      this.blockFlag = blockFlag;
-      this.windowType = windowType;
-      this.transformType = transformType;
-      this.mapping = mapping;
-    }
-
-  }
-
 }

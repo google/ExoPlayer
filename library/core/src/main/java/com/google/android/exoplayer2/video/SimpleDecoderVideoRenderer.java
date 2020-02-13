@@ -77,6 +77,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   private final DecoderInputBuffer flagsOnlyBuffer;
   private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
 
+  private boolean drmResourcesAcquired;
   private Format inputFormat;
   private Format outputFormat;
   private SimpleDecoder<
@@ -237,6 +238,10 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    if (drmSessionManager != null && !drmResourcesAcquired) {
+      drmResourcesAcquired = true;
+      drmSessionManager.prepare();
+    }
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
   }
@@ -283,6 +288,14 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       releaseDecoder();
     } finally {
       eventDispatcher.disabled(decoderCounters);
+    }
+  }
+
+  @Override
+  protected void onReset() {
+    if (drmSessionManager != null && drmResourcesAcquired) {
+      drmResourcesAcquired = false;
+      drmSessionManager.release();
     }
   }
 

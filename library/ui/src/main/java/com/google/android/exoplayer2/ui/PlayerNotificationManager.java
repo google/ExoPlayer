@@ -55,28 +55,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A notification manager to start, update and cancel a media style notification reflecting the
- * player state.
+ * Starts, updates and cancels a media style notification reflecting the player state. The actions
+ * displayed and the drawables used can both be customized, as described below.
  *
  * <p>The notification is cancelled when {@code null} is passed to {@link #setPlayer(Player)} or
  * when the notification is dismissed by the user.
  *
  * <p>If the player is released it must be removed from the manager by calling {@code
- * setPlayer(null)} which will cancel the notification.
+ * setPlayer(null)}.
  *
  * <h3>Action customization</h3>
  *
- * Standard playback actions can be shown or omitted as follows:
+ * Playback actions can be displayed or omitted as follows:
  *
  * <ul>
- *   <li><b>{@code useNavigationActions}</b> - Sets whether the navigation previous and next actions
- *       are displayed.
+ *   <li><b>{@code useNavigationActions}</b> - Sets whether the previous and next actions are
+ *       displayed.
  *       <ul>
  *         <li>Corresponding setter: {@link #setUseNavigationActions(boolean)}
  *         <li>Default: {@code true}
  *       </ul>
- *   <li><b>{@code useNavigationActionsInCompactView}</b> - Sets whether the navigation previous and
- *       next actions should are displayed in compact view (including the lock screen notification).
+ *   <li><b>{@code useNavigationActionsInCompactView}</b> - Sets whether the previous and next
+ *       actions are displayed in compact view (including the lock screen notification).
  *       <ul>
  *         <li>Corresponding setter: {@link #setUseNavigationActionsInCompactView(boolean)}
  *         <li>Default: {@code false}
@@ -98,12 +98,35 @@ import java.util.Map;
  *         <li>Default: {@link #DEFAULT_REWIND_MS} (5000)
  *       </ul>
  *   <li><b>{@code fastForwardIncrementMs}</b> - Sets the fast forward increment. If set to zero the
- *       fast forward action is not included in the notification.
+ *       fast forward action is not displayed.
  *       <ul>
  *         <li>Corresponding setter: {@link #setFastForwardIncrementMs(long)}
- *         <li>Default: {@link #DEFAULT_FAST_FORWARD_MS} (5000)
+ *         <li>Default: {@link #DEFAULT_FAST_FORWARD_MS} (15000)
  *       </ul>
  * </ul>
+ *
+ * <h3>Overriding drawables</h3>
+ *
+ * The drawables used by PlayerNotificationManager can be overridden by drawables with the same
+ * names defined in your application. The drawables that can be overridden are:
+ *
+ * <ul>
+ *   <li><b>{@code exo_notification_small_icon}</b> - The icon passed by default to {@link
+ *       NotificationCompat.Builder#setSmallIcon(int)}. A different icon can also be specified
+ *       programmatically by calling {@link #setSmallIcon(int)}.
+ *   <li><b>{@code exo_notification_play}</b> - The play icon.
+ *   <li><b>{@code exo_notification_pause}</b> - The pause icon.
+ *   <li><b>{@code exo_notification_rewind}</b> - The rewind icon.
+ *   <li><b>{@code exo_notification_fastforward}</b> - The fast forward icon.
+ *   <li><b>{@code exo_notification_previous}</b> - The previous icon.
+ *   <li><b>{@code exo_notification_next}</b> - The next icon.
+ *   <li><b>{@code exo_notification_stop}</b> - The stop icon.
+ * </ul>
+ *
+ * Unlike the drawables above, the large icon (i.e. the icon passed to {@link
+ * NotificationCompat.Builder#setLargeIcon(Bitmap)} cannot be overridden in this way. Instead, the
+ * large icon is obtained from the {@link MediaDescriptionAdapter} injected when creating the
+ * PlayerNotificationManager.
  */
 public class PlayerNotificationManager {
 
@@ -154,11 +177,10 @@ public class PlayerNotificationManager {
     /**
      * Gets the large icon for the current media item.
      *
-     * <p>When a bitmap initially needs to be asynchronously loaded, a placeholder (or null) can be
-     * returned and the bitmap asynchronously passed to the {@link BitmapCallback} once it is
-     * loaded. Because the adapter may be called multiple times for the same media item, the bitmap
-     * should be cached by the app and whenever possible be returned synchronously at subsequent
-     * calls for the same media item.
+     * <p>When a bitmap needs to be loaded asynchronously, a placeholder bitmap (or null) should be
+     * returned. The actual bitmap should be passed to the {@link BitmapCallback} once it has been
+     * loaded. Because the adapter may be called multiple times for the same media item, bitmaps
+     * should be cached by the app and returned synchronously when possible.
      *
      * <p>See {@link NotificationCompat.Builder#setLargeIcon(Bitmap)}.
      *
@@ -905,7 +927,18 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Sets whether the elapsed time of the media playback should be displayed
+   * Sets whether the elapsed time of the media playback should be displayed.
+   *
+   * <p>Note that this setting only works if all of the following are true:
+   *
+   * <ul>
+   *   <li>The media is {@link Player#isPlaying() actively playing}.
+   *   <li>The media is not {@link Player#isCurrentWindowDynamic() dynamically changing its
+   *       duration} (like for example a live stream).
+   *   <li>The media is not {@link Player#isPlayingAd() interrupted by an ad}.
+   *   <li>The media is played at {@link Player#getPlaybackParameters() regular speed}.
+   *   <li>The device is running at least API 21 (Lollipop).
+   * </ul>
    *
    * <p>See {@link NotificationCompat.Builder#setUsesChronometer(boolean)}.
    *
@@ -1062,7 +1095,8 @@ public class PlayerNotificationManager {
         && useChronometer
         && player.isPlaying()
         && !player.isPlayingAd()
-        && !player.isCurrentWindowDynamic()) {
+        && !player.isCurrentWindowDynamic()
+        && player.getPlaybackParameters().speed == 1f) {
       builder
           .setWhen(System.currentTimeMillis() - player.getContentPosition())
           .setShowWhen(true)

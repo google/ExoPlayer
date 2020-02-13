@@ -186,8 +186,8 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
       Player player,
       ControlDispatcher controlDispatcher,
       String command,
-      Bundle extras,
-      ResultReceiver cb) {
+      @Nullable Bundle extras,
+      @Nullable ResultReceiver cb) {
     return false;
   }
 

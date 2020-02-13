@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.extractor.ogg;
+package com.google.android.exoplayer2.extractor;
 
-import static com.google.android.exoplayer2.extractor.ogg.VorbisUtil.iLog;
-import static com.google.android.exoplayer2.extractor.ogg.VorbisUtil.verifyVorbisHeaderCapturePattern;
+import static com.google.android.exoplayer2.extractor.VorbisUtil.iLog;
+import static com.google.android.exoplayer2.extractor.VorbisUtil.verifyVorbisHeaderCapturePattern;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,7 +48,9 @@ public final class VorbisUtilTest {
 
   @Test
   public void testReadIdHeader() throws Exception {
-    byte[] data = OggTestData.getIdentificationHeaderData();
+    byte[] data =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), "binary/vorbis/id_header");
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
     VorbisUtil.VorbisIdHeader vorbisIdHeader =
         VorbisUtil.readVorbisIdentificationHeader(headerData);
@@ -63,8 +68,10 @@ public final class VorbisUtilTest {
   }
 
   @Test
-  public void testReadCommentHeader() throws ParserException {
-    byte[] data = OggTestData.getCommentHeaderDataUTF8();
+  public void testReadCommentHeader() throws IOException {
+    byte[] data =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), "binary/vorbis/comment_header");
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
     VorbisUtil.CommentHeader commentHeader = VorbisUtil.readVorbisCommentHeader(headerData);
 
@@ -76,8 +83,10 @@ public final class VorbisUtilTest {
   }
 
   @Test
-  public void testReadVorbisModes() throws ParserException {
-    byte[] data = OggTestData.getSetupHeaderData();
+  public void testReadVorbisModes() throws IOException {
+    byte[] data =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), "binary/vorbis/setup_header");
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
     VorbisUtil.Mode[] modes = VorbisUtil.readVorbisModes(headerData, 2);
 

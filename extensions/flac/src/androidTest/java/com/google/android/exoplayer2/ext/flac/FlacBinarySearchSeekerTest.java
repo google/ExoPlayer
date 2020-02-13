@@ -20,10 +20,12 @@ import static org.junit.Assert.fail;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.ext.flac.FlacBinarySearchSeeker.OutputFrameHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,19 +49,20 @@ public final class FlacBinarySearchSeekerTest {
       throws IOException, FlacDecoderException, InterruptedException {
     byte[] data =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NOSEEKTABLE_FLAC);
-
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     FlacDecoderJni decoderJni = new FlacDecoderJni();
     decoderJni.setData(input);
+    OutputFrameHolder outputFrameHolder = new OutputFrameHolder(ByteBuffer.allocateDirect(0));
 
     FlacBinarySearchSeeker seeker =
         new FlacBinarySearchSeeker(
             decoderJni.decodeStreamMetadata(),
             /* firstFramePosition= */ 0,
             data.length,
-            decoderJni);
-
+            decoderJni,
+            outputFrameHolder);
     SeekMap seekMap = seeker.getSeekMap();
+
     assertThat(seekMap).isNotNull();
     assertThat(seekMap.getDurationUs()).isEqualTo(DURATION_US);
     assertThat(seekMap.isSeekable()).isTrue();
@@ -70,18 +73,20 @@ public final class FlacBinarySearchSeekerTest {
       throws IOException, FlacDecoderException, InterruptedException {
     byte[] data =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NOSEEKTABLE_FLAC);
-
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     FlacDecoderJni decoderJni = new FlacDecoderJni();
     decoderJni.setData(input);
+    OutputFrameHolder outputFrameHolder = new OutputFrameHolder(ByteBuffer.allocateDirect(0));
+
     FlacBinarySearchSeeker seeker =
         new FlacBinarySearchSeeker(
             decoderJni.decodeStreamMetadata(),
             /* firstFramePosition= */ 0,
             data.length,
-            decoderJni);
-
+            decoderJni,
+            outputFrameHolder);
     seeker.setSeekTargetUs(/* timeUs= */ 1000);
+
     assertThat(seeker.isSeeking()).isTrue();
   }
 }

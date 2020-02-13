@@ -377,14 +377,15 @@ public class TestUtil {
    * input until we can extract at least one sample following the seek position, or until
    * end-of-input is reached.
    *
-   * @param extractor The {@link Extractor} to extractor from input.
+   * @param extractor The {@link Extractor} to extract from input.
    * @param seekMap The {@link SeekMap} of the stream from the given input.
    * @param seekTimeUs The seek time, in micro-seconds.
    * @param trackOutput The {@link FakeTrackOutput} to store the extracted samples.
    * @param dataSource The {@link DataSource} that will be used to read from the input.
    * @param uri The Uri of the input.
    * @return The index of the first extracted sample written to the given {@code trackOutput} after
-   *     the seek is completed, or -1 if the seek is completed without any extracted sample.
+   *     the seek is completed, or {@link C#INDEX_UNSET} if the seek is completed without any
+   *     extracted sample.
    */
   public static int seekToTimeUs(
       Extractor extractor,
@@ -420,8 +421,9 @@ public class TestUtil {
         extractorInput =
             TestUtil.getExtractorInputFromPosition(dataSource, positionHolder.position, uri);
         extractorReadResult = Extractor.RESULT_CONTINUE;
-      } else if (extractorReadResult == Extractor.RESULT_END_OF_INPUT) {
-        return -1;
+      } else if (extractorReadResult == Extractor.RESULT_END_OF_INPUT
+          && trackOutput.getSampleCount() == numSampleBeforeSeek) {
+        return C.INDEX_UNSET;
       } else if (trackOutput.getSampleCount() > numSampleBeforeSeek) {
         // First index after seek = num sample before seek.
         return numSampleBeforeSeek;

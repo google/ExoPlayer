@@ -268,10 +268,11 @@ public final class SilenceSkippingAudioProcessorTest {
     Pcm16BitAudioBuilder audioBuilder = new Pcm16BitAudioBuilder(channelCount, totalFrameCount);
     while (!audioBuilder.isFull()) {
       int silenceDurationFrames = (silenceDurationMs * sampleRate) / 1000;
-      audioBuilder.appendFrames(/* count= */ silenceDurationFrames, /* channelLevels= */ (short) 0);
+      audioBuilder.appendFrames(
+          /* count= */ silenceDurationFrames, /* channelLevels...= */ (short) 0);
       int noiseDurationFrames = (noiseDurationMs * sampleRate) / 1000;
       audioBuilder.appendFrames(
-          /* count= */ noiseDurationFrames, /* channelLevels= */ Short.MAX_VALUE);
+          /* count= */ noiseDurationFrames, /* channelLevels...= */ Short.MAX_VALUE);
     }
     return new InputBufferProvider(audioBuilder.build());
   }

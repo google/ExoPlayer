@@ -43,6 +43,7 @@ import android.security.NetworkSecurityPolicy;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.Display;
+import android.view.SurfaceView;
 import android.view.WindowManager;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -54,8 +55,6 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.ByteArrayOutputStream;
@@ -136,9 +135,8 @@ public final class Util {
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
-  // Android standardizes to ISO 639-1 2-letter codes and provides no way to map a 3-letter
-  // ISO 639-2 code back to the corresponding 2-letter code.
-  @Nullable private static HashMap<String, String> languageTagIso3ToIso2;
+  // Replacement map of ISO language codes used for normalization.
+  @Nullable private static HashMap<String, String> languageTagReplacementMap;
 
   private Util() {}
 
@@ -499,26 +497,23 @@ public final class Util {
     // Locale data (especially for API < 21) may produce tags with '_' instead of the
     // standard-conformant '-'.
     String normalizedTag = language.replace('_', '-');
-    if (Util.SDK_INT >= 21) {
-      // Filters out ill-formed sub-tags, replaces deprecated tags and normalizes all valid tags.
-      normalizedTag = normalizeLanguageCodeSyntaxV21(normalizedTag);
-    }
     if (normalizedTag.isEmpty() || "und".equals(normalizedTag)) {
       // Tag isn't valid, keep using the original.
       normalizedTag = language;
     }
     normalizedTag = Util.toLowerInvariant(normalizedTag);
     String mainLanguage = Util.splitAtFirst(normalizedTag, "-")[0];
-    if (mainLanguage.length() == 3) {
-      // 3-letter ISO 639-2/B or ISO 639-2/T language codes will not be converted to 2-letter ISO
-      // 639-1 codes automatically.
-      if (languageTagIso3ToIso2 == null) {
-        languageTagIso3ToIso2 = createIso3ToIso2Map();
-      }
-      String iso2Language = languageTagIso3ToIso2.get(mainLanguage);
-      if (iso2Language != null) {
-        normalizedTag = iso2Language + normalizedTag.substring(/* beginIndex= */ 3);
-      }
+    if (languageTagReplacementMap == null) {
+      languageTagReplacementMap = createIsoLanguageReplacementMap();
+    }
+    @Nullable String replacedLanguage = languageTagReplacementMap.get(mainLanguage);
+    if (replacedLanguage != null) {
+      normalizedTag =
+          replacedLanguage + normalizedTag.substring(/* beginIndex= */ mainLanguage.length());
+      mainLanguage = replacedLanguage;
+    }
+    if ("no".equals(mainLanguage) || "i".equals(mainLanguage) || "zh".equals(mainLanguage)) {
+      normalizedTag = maybeReplaceGrandfatheredLanguageTags(normalizedTag);
     }
     return normalizedTag;
   }
@@ -1221,6 +1216,18 @@ public final class Util {
   }
 
   /**
+   * Return the long that is composed of the bits of the 2 specified integers.
+   *
+   * @param mostSignificantBits The 32 most significant bits of the long to return.
+   * @param leastSignificantBits The 32 least significant bits of the long to return.
+   * @return a long where its 32 most significant bits are {@code mostSignificantBits} bits and its
+   *     32 least significant bits are {@code leastSignificantBits}.
+   */
+  public static long toLong(int mostSignificantBits, int leastSignificantBits) {
+    return (toUnsignedLong(mostSignificantBits) << 32) | toUnsignedLong(leastSignificantBits);
+  }
+
+  /**
    * Returns a byte array containing values parsed from the hex string provided.
    *
    * @param hexString The hex string to convert to bytes.
@@ -1346,6 +1353,7 @@ public final class Util {
   public static boolean isEncodingLinearPcm(@C.Encoding int encoding) {
     return encoding == C.ENCODING_PCM_8BIT
         || encoding == C.ENCODING_PCM_16BIT
+        || encoding == C.ENCODING_PCM_16BIT_BIG_ENDIAN
         || encoding == C.ENCODING_PCM_24BIT
         || encoding == C.ENCODING_PCM_32BIT
         || encoding == C.ENCODING_PCM_FLOAT;
@@ -1414,14 +1422,13 @@ public final class Util {
       case C.ENCODING_PCM_8BIT:
         return channelCount;
       case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
         return channelCount * 2;
       case C.ENCODING_PCM_24BIT:
         return channelCount * 3;
       case C.ENCODING_PCM_32BIT:
       case C.ENCODING_PCM_FLOAT:
         return channelCount * 4;
-      case C.ENCODING_PCM_A_LAW:
-      case C.ENCODING_PCM_MU_LAW:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:
@@ -1909,24 +1916,36 @@ public final class Util {
   }
 
   /**
-   * Gets the physical size of the default display, in pixels.
+   * Gets the size of the current mode of the default display, in pixels.
+   *
+   * <p>Note that due to application UI scaling, the number of pixels made available to applications
+   * (as reported by {@link Display#getSize(Point)} may differ from the mode's actual resolution (as
+   * reported by this function). For example, applications running on a display configured with a 4K
+   * mode may have their UI laid out and rendered in 1080p and then scaled up. Applications can take
+   * advantage of the full mode resolution through a {@link SurfaceView} using full size buffers.
    *
    * @param context Any context.
-   * @return The physical display size, in pixels.
+   * @return The size of the current mode, in pixels.
    */
-  public static Point getPhysicalDisplaySize(Context context) {
+  public static Point getCurrentDisplayModeSize(Context context) {
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    return getPhysicalDisplaySize(context, windowManager.getDefaultDisplay());
+    return getCurrentDisplayModeSize(context, windowManager.getDefaultDisplay());
   }
 
   /**
-   * Gets the physical size of the specified display, in pixels.
+   * Gets the size of the current mode of the specified display, in pixels.
+   *
+   * <p>Note that due to application UI scaling, the number of pixels made available to applications
+   * (as reported by {@link Display#getSize(Point)} may differ from the mode's actual resolution (as
+   * reported by this function). For example, applications running on a display configured with a 4K
+   * mode may have their UI laid out and rendered in 1080p and then scaled up. Applications can take
+   * advantage of the full mode resolution through a {@link SurfaceView} using full size buffers.
    *
    * @param context Any context.
    * @param display The display whose size is to be returned.
-   * @return The physical display size, in pixels.
+   * @return The size of the current mode, in pixels.
    */
-  public static Point getPhysicalDisplaySize(Context context, Display display) {
+  public static Point getCurrentDisplayModeSize(Context context, Display display) {
     if (Util.SDK_INT <= 29 && display.getDisplayId() == Display.DEFAULT_DISPLAY && isTv(context)) {
       // On Android TVs it is common for the UI to be configured for a lower resolution than
       // SurfaceViews can output. Before API 26 the Display object does not provide a way to
@@ -1979,13 +1998,10 @@ public final class Util {
    * Extract renderer capabilities for the renderers created by the provided renderers factory.
    *
    * @param renderersFactory A {@link RenderersFactory}.
-   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers.
    * @return The {@link RendererCapabilities} for each renderer created by the {@code
    *     renderersFactory}.
    */
-  public static RendererCapabilities[] getRendererCapabilities(
-      RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+  public static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {
     Renderer[] renderers =
         renderersFactory.createRenderers(
             new Handler(),
@@ -1993,7 +2009,7 @@ public final class Util {
             new AudioRendererEventListener() {},
             (cues) -> {},
             (metadata) -> {},
-            drmSessionManager);
+            /* drmSessionManager= */ null);
     RendererCapabilities[] capabilities = new RendererCapabilities[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
       capabilities[i] = renderers[i].getCapabilities();
@@ -2074,11 +2090,6 @@ public final class Util {
     return locale.toLanguageTag();
   }
 
-  @TargetApi(21)
-  private static String normalizeLanguageCodeSyntaxV21(String languageTag) {
-    return Locale.forLanguageTag(languageTag).toLanguageTag();
-  }
-
   private static @C.NetworkType int getMobileNetworkType(NetworkInfo networkInfo) {
     switch (networkInfo.getSubtype()) {
       case TelephonyManager.NETWORK_TYPE_EDGE:
@@ -2100,6 +2111,8 @@ public final class Util {
         return C.NETWORK_TYPE_3G;
       case TelephonyManager.NETWORK_TYPE_LTE:
         return C.NETWORK_TYPE_4G;
+      case TelephonyManager.NETWORK_TYPE_NR:
+        return C.NETWORK_TYPE_5G;
       case TelephonyManager.NETWORK_TYPE_IWLAN:
         return C.NETWORK_TYPE_WIFI;
       case TelephonyManager.NETWORK_TYPE_GSM:
@@ -2109,32 +2122,45 @@ public final class Util {
     }
   }
 
-  private static HashMap<String, String> createIso3ToIso2Map() {
+  private static HashMap<String, String> createIsoLanguageReplacementMap() {
     String[] iso2Languages = Locale.getISOLanguages();
-    HashMap<String, String> iso3ToIso2 =
+    HashMap<String, String> replacedLanguages =
         new HashMap<>(
-            /* initialCapacity= */ iso2Languages.length + iso3BibliographicalToIso2.length);
+            /* initialCapacity= */ iso2Languages.length + additionalIsoLanguageReplacements.length);
     for (String iso2 : iso2Languages) {
       try {
         // This returns the ISO 639-2/T code for the language.
         String iso3 = new Locale(iso2).getISO3Language();
         if (!TextUtils.isEmpty(iso3)) {
-          iso3ToIso2.put(iso3, iso2);
+          replacedLanguages.put(iso3, iso2);
         }
       } catch (MissingResourceException e) {
         // Shouldn't happen for list of known languages, but we don't want to throw either.
       }
     }
-    // Add additional ISO 639-2/B codes to mapping.
-    for (int i = 0; i < iso3BibliographicalToIso2.length; i += 2) {
-      iso3ToIso2.put(iso3BibliographicalToIso2[i], iso3BibliographicalToIso2[i + 1]);
+    // Add additional replacement mappings.
+    for (int i = 0; i < additionalIsoLanguageReplacements.length; i += 2) {
+      replacedLanguages.put(
+          additionalIsoLanguageReplacements[i], additionalIsoLanguageReplacements[i + 1]);
     }
-    return iso3ToIso2;
+    return replacedLanguages;
   }
 
-  // See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
-  private static final String[] iso3BibliographicalToIso2 =
+  private static String maybeReplaceGrandfatheredLanguageTags(String languageTag) {
+    for (int i = 0; i < isoGrandfatheredTagReplacements.length; i += 2) {
+      if (languageTag.startsWith(isoGrandfatheredTagReplacements[i])) {
+        return isoGrandfatheredTagReplacements[i + 1]
+            + languageTag.substring(/* beginIndex= */ isoGrandfatheredTagReplacements[i].length());
+      }
+    }
+    return languageTag;
+  }
+
+  // Additional mapping from ISO3 to ISO2 language codes.
+  private static final String[] additionalIsoLanguageReplacements =
       new String[] {
+        // Bibliographical codes defined in ISO 639-2/B, replaced by terminological code defined in
+        // ISO 639-2/T. See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
         "alb", "sq",
         "arm", "hy",
         "baq", "eu",
@@ -2153,8 +2179,50 @@ public final class Util {
         "may", "ms",
         "per", "fa",
         "rum", "ro",
+        "scc", "hbs-srp",
         "slo", "sk",
-        "wel", "cy"
+        "wel", "cy",
+        // Deprecated 2-letter codes, replaced by modern equivalent (including macrolanguage)
+        // See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, "ISO 639:1988"
+        "id", "ms-ind",
+        "iw", "he",
+        "heb", "he",
+        "ji", "yi",
+        // Individual macrolanguage codes mapped back to full macrolanguage code.
+        // See https://en.wikipedia.org/wiki/ISO_639_macrolanguage
+        "in", "ms-ind",
+        "ind", "ms-ind",
+        "nb", "no-nob",
+        "nob", "no-nob",
+        "nn", "no-nno",
+        "nno", "no-nno",
+        "tw", "ak-twi",
+        "twi", "ak-twi",
+        "bs", "hbs-bos",
+        "bos", "hbs-bos",
+        "hr", "hbs-hrv",
+        "hrv", "hbs-hrv",
+        "sr", "hbs-srp",
+        "srp", "hbs-srp",
+        "cmn", "zh-cmn",
+        "hak", "zh-hak",
+        "nan", "zh-nan",
+        "hsn", "zh-hsn"
+      };
+
+  // "Grandfathered tags", replaced by modern equivalents (including macrolanguage)
+  // See https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry.
+  private static final String[] isoGrandfatheredTagReplacements =
+      new String[] {
+        "i-lux", "lb",
+        "i-hak", "zh-hak",
+        "i-navajo", "nv",
+        "no-bok", "no-nob",
+        "no-nyn", "no-nno",
+        "zh-guoyu", "zh-cmn",
+        "zh-hakka", "zh-hak",
+        "zh-min-nan", "zh-nan",
+        "zh-xiang", "zh-hsn"
       };
 
   /**

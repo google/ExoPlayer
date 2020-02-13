@@ -97,6 +97,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private final AudioSink audioSink;
   private final DecoderInputBuffer flagsOnlyBuffer;
 
+  private boolean drmResourcesAcquired;
   private DecoderCounters decoderCounters;
   private Format inputFormat;
   private int encoderDelay;
@@ -351,15 +352,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   /**
    * Returns the format of audio buffers output by the decoder. Will not be called until the first
    * output buffer has been dequeued, so the decoder may use input data to determine the format.
-   * <p>
-   * The default implementation returns a 16-bit PCM format with the same channel count and sample
-   * rate as the input.
    */
-  protected Format getOutputFormat() {
-    return Format.createAudioSampleFormat(null, MimeTypes.AUDIO_RAW, null, Format.NO_VALUE,
-        Format.NO_VALUE, inputFormat.channelCount, inputFormat.sampleRate, C.ENCODING_PCM_16BIT,
-        null, null, 0, null);
-  }
+  protected abstract Format getOutputFormat();
 
   /**
    * Returns whether the existing decoder can be kept for a new format.
@@ -546,6 +540,10 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    if (drmSessionManager != null && !drmResourcesAcquired) {
+      drmResourcesAcquired = true;
+      drmSessionManager.prepare();
+    }
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
     int tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
@@ -591,6 +589,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       audioSink.reset();
     } finally {
       eventDispatcher.disabled(decoderCounters);
+    }
+  }
+
+  @Override
+  protected void onReset() {
+    if (drmSessionManager != null && drmResourcesAcquired) {
+      drmResourcesAcquired = false;
+      drmSessionManager.release();
     }
   }
 

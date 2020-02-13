@@ -143,6 +143,31 @@ public final class MimeTypes {
   }
 
   /**
+   * Returns true if it is known that all samples in a stream of the given sample MIME type are
+   * guaranteed to be sync samples (i.e., {@link C#BUFFER_FLAG_KEY_FRAME} is guaranteed to be set on
+   * every sample).
+   *
+   * @param mimeType The sample MIME type.
+   * @return True if it is known that all samples in a stream of the given sample MIME type are
+   *     guaranteed to be sync samples. False otherwise, including if {@code null} is passed.
+   */
+  public static boolean allSamplesAreSyncSamples(@Nullable String mimeType) {
+    if (mimeType == null) {
+      return false;
+    }
+    // TODO: Consider adding additional audio MIME types here.
+    switch (mimeType) {
+      case AUDIO_AAC:
+      case AUDIO_MPEG:
+      case AUDIO_MPEG_L1:
+      case AUDIO_MPEG_L2:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  /**
    * Derives a video sample mimeType from a codecs attribute.
    *
    * @param codecs The codecs attribute.
@@ -345,6 +370,8 @@ public final class MimeTypes {
    */
   public static @C.Encoding int getEncoding(String mimeType) {
     switch (mimeType) {
+      case MimeTypes.AUDIO_MPEG:
+        return C.ENCODING_MP3;
       case MimeTypes.AUDIO_AC3:
         return C.ENCODING_AC3;
       case MimeTypes.AUDIO_E_AC3:

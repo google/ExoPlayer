@@ -196,8 +196,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
   /** Returns a {@link TrackOutput} that emsg messages could be written to. */
   public PlayerTrackEmsgHandler newPlayerTrackEmsgHandler() {
-    return new PlayerTrackEmsgHandler(
-        new SampleQueue(allocator, DrmSessionManager.getDummyDrmSessionManager()));
+    return new PlayerTrackEmsgHandler(allocator);
   }
 
   /** Release this emsg handler. It should not be reused after this call. */
@@ -284,9 +283,8 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     private final FormatHolder formatHolder;
     private final MetadataInputBuffer buffer;
 
-    /* package */ PlayerTrackEmsgHandler(SampleQueue sampleQueue) {
-      this.sampleQueue = sampleQueue;
-
+    /* package */ PlayerTrackEmsgHandler(Allocator allocator) {
+      this.sampleQueue = new SampleQueue(allocator, DrmSessionManager.getDummyDrmSessionManager());
       formatHolder = new FormatHolder();
       buffer = new MetadataInputBuffer();
     }
@@ -349,7 +347,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
     /** Release this track emsg handler. It should not be reused after this call. */
     public void release() {
-      sampleQueue.reset();
+      sampleQueue.release();
     }
 
     // Internal methods.

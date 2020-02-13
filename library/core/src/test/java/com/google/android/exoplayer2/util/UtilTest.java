@@ -236,6 +236,31 @@ public class UtilTest {
   }
 
   @Test
+  public void testToLongZeroValue() {
+    assertThat(Util.toLong(0, 0)).isEqualTo(0);
+  }
+
+  @Test
+  public void testToLongValue() {
+    assertThat(Util.toLong(1, -4)).isEqualTo(0x1FFFFFFFCL);
+  }
+
+  @Test
+  public void testToLongBigValue() {
+    assertThat(Util.toLong(0x7ABCDEF, 0x12345678)).isEqualTo(0x7ABCDEF_12345678L);
+  }
+
+  @Test
+  public void testToLongMaxValue() {
+    assertThat(Util.toLong(0x0FFFFFFF, 0xFFFFFFFF)).isEqualTo(0x0FFFFFFF_FFFFFFFFL);
+  }
+
+  @Test
+  public void testToLongBigNegativeValue() {
+    assertThat(Util.toLong(0xFEDCBA, 0x87654321)).isEqualTo(0xFEDCBA_87654321L);
+  }
+
+  @Test
   public void testGetCodecsOfType() {
     assertThat(getCodecsOfType(null, C.TRACK_TYPE_VIDEO)).isNull();
     assertThat(getCodecsOfType("avc1.64001e,vp9.63.1", C.TRACK_TYPE_AUDIO)).isNull();
@@ -308,10 +333,17 @@ public class UtilTest {
   }
 
   @Test
-  @Config(sdk = 21)
-  public void testNormalizeLanguageCodeV21() {
+  @Config(sdk = Config.ALL_SDKS)
+  public void normalizeLanguageCode_keepsUndefinedTagsUnchanged() {
     assertThat(Util.normalizeLanguageCode(null)).isNull();
     assertThat(Util.normalizeLanguageCode("")).isEmpty();
+    assertThat(Util.normalizeLanguageCode("und")).isEqualTo("und");
+    assertThat(Util.normalizeLanguageCode("DoesNotExist")).isEqualTo("doesnotexist");
+  }
+
+  @Test
+  @Config(sdk = Config.ALL_SDKS)
+  public void normalizeLanguageCode_normalizesCodeToTwoLetterISOAndLowerCase_keepingAllSubtags() {
     assertThat(Util.normalizeLanguageCode("es")).isEqualTo("es");
     assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("es");
     assertThat(Util.normalizeLanguageCode("es-AR")).isEqualTo("es-ar");
@@ -319,37 +351,18 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("es_AR")).isEqualTo("es-ar");
     assertThat(Util.normalizeLanguageCode("spa_ar")).isEqualTo("es-ar");
     assertThat(Util.normalizeLanguageCode("es-AR-dialect")).isEqualTo("es-ar-dialect");
+    // Regional subtag (South America)
     assertThat(Util.normalizeLanguageCode("ES-419")).isEqualTo("es-419");
+    // Script subtag (Simplified Taiwanese)
     assertThat(Util.normalizeLanguageCode("zh-hans-tw")).isEqualTo("zh-hans-tw");
-    assertThat(Util.normalizeLanguageCode("zh-tw-hans")).isEqualTo("zh-tw");
     assertThat(Util.normalizeLanguageCode("zho-hans-tw")).isEqualTo("zh-hans-tw");
-    assertThat(Util.normalizeLanguageCode("und")).isEqualTo("und");
-    assertThat(Util.normalizeLanguageCode("DoesNotExist")).isEqualTo("doesnotexist");
+    // Non-spec compliant subtags.
+    assertThat(Util.normalizeLanguageCode("sv-illegalSubtag")).isEqualTo("sv-illegalsubtag");
   }
 
   @Test
-  @Config(sdk = 16)
-  public void testNormalizeLanguageCode() {
-    assertThat(Util.normalizeLanguageCode(null)).isNull();
-    assertThat(Util.normalizeLanguageCode("")).isEmpty();
-    assertThat(Util.normalizeLanguageCode("es")).isEqualTo("es");
-    assertThat(Util.normalizeLanguageCode("spa")).isEqualTo("es");
-    assertThat(Util.normalizeLanguageCode("es-AR")).isEqualTo("es-ar");
-    assertThat(Util.normalizeLanguageCode("SpA-ar")).isEqualTo("es-ar");
-    assertThat(Util.normalizeLanguageCode("es_AR")).isEqualTo("es-ar");
-    assertThat(Util.normalizeLanguageCode("spa_ar")).isEqualTo("es-ar");
-    assertThat(Util.normalizeLanguageCode("es-AR-dialect")).isEqualTo("es-ar-dialect");
-    assertThat(Util.normalizeLanguageCode("ES-419")).isEqualTo("es-419");
-    assertThat(Util.normalizeLanguageCode("zh-hans-tw")).isEqualTo("zh-hans-tw");
-    // Doesn't work on API < 21 because we can't use Locale syntax verification.
-    // assertThat(Util.normalizeLanguageCode("zh-tw-hans")).isEqualTo("zh-tw");
-    assertThat(Util.normalizeLanguageCode("zho-hans-tw")).isEqualTo("zh-hans-tw");
-    assertThat(Util.normalizeLanguageCode("und")).isEqualTo("und");
-    assertThat(Util.normalizeLanguageCode("DoesNotExist")).isEqualTo("doesnotexist");
-  }
-
-  @Test
-  public void testNormalizeIso6392BibliographicalAndTextualCodes() {
+  @Config(sdk = Config.ALL_SDKS)
+  public void normalizeLanguageCode_iso6392BibliographicalAndTextualCodes_areNormalizedToSameTag() {
     // See https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes.
     assertThat(Util.normalizeLanguageCode("alb")).isEqualTo(Util.normalizeLanguageCode("sqi"));
     assertThat(Util.normalizeLanguageCode("arm")).isEqualTo(Util.normalizeLanguageCode("hye"));
@@ -369,8 +382,77 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("per")).isEqualTo(Util.normalizeLanguageCode("fas"));
     assertThat(Util.normalizeLanguageCode("rum")).isEqualTo(Util.normalizeLanguageCode("ron"));
     assertThat(Util.normalizeLanguageCode("slo")).isEqualTo(Util.normalizeLanguageCode("slk"));
+    assertThat(Util.normalizeLanguageCode("scc")).isEqualTo(Util.normalizeLanguageCode("srp"));
     assertThat(Util.normalizeLanguageCode("tib")).isEqualTo(Util.normalizeLanguageCode("bod"));
     assertThat(Util.normalizeLanguageCode("wel")).isEqualTo(Util.normalizeLanguageCode("cym"));
+  }
+
+  @Test
+  @Config(sdk = Config.ALL_SDKS)
+  public void
+      normalizeLanguageCode_deprecatedLanguageTagsAndModernReplacement_areNormalizedToSameTag() {
+    // See https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes, "ISO 639:1988"
+    assertThat(Util.normalizeLanguageCode("in")).isEqualTo(Util.normalizeLanguageCode("id"));
+    assertThat(Util.normalizeLanguageCode("in")).isEqualTo(Util.normalizeLanguageCode("ind"));
+    assertThat(Util.normalizeLanguageCode("iw")).isEqualTo(Util.normalizeLanguageCode("he"));
+    assertThat(Util.normalizeLanguageCode("iw")).isEqualTo(Util.normalizeLanguageCode("heb"));
+    assertThat(Util.normalizeLanguageCode("ji")).isEqualTo(Util.normalizeLanguageCode("yi"));
+    assertThat(Util.normalizeLanguageCode("ji")).isEqualTo(Util.normalizeLanguageCode("yid"));
+
+    // Grandfathered tags
+    assertThat(Util.normalizeLanguageCode("i-lux")).isEqualTo(Util.normalizeLanguageCode("lb"));
+    assertThat(Util.normalizeLanguageCode("i-lux")).isEqualTo(Util.normalizeLanguageCode("ltz"));
+    assertThat(Util.normalizeLanguageCode("i-hak")).isEqualTo(Util.normalizeLanguageCode("hak"));
+    assertThat(Util.normalizeLanguageCode("i-hak")).isEqualTo(Util.normalizeLanguageCode("zh-hak"));
+    assertThat(Util.normalizeLanguageCode("i-navajo")).isEqualTo(Util.normalizeLanguageCode("nv"));
+    assertThat(Util.normalizeLanguageCode("i-navajo")).isEqualTo(Util.normalizeLanguageCode("nav"));
+    assertThat(Util.normalizeLanguageCode("no-bok")).isEqualTo(Util.normalizeLanguageCode("nb"));
+    assertThat(Util.normalizeLanguageCode("no-bok")).isEqualTo(Util.normalizeLanguageCode("nob"));
+    assertThat(Util.normalizeLanguageCode("no-nyn")).isEqualTo(Util.normalizeLanguageCode("nn"));
+    assertThat(Util.normalizeLanguageCode("no-nyn")).isEqualTo(Util.normalizeLanguageCode("nno"));
+    assertThat(Util.normalizeLanguageCode("zh-guoyu")).isEqualTo(Util.normalizeLanguageCode("cmn"));
+    assertThat(Util.normalizeLanguageCode("zh-guoyu"))
+        .isEqualTo(Util.normalizeLanguageCode("zh-cmn"));
+    assertThat(Util.normalizeLanguageCode("zh-hakka")).isEqualTo(Util.normalizeLanguageCode("hak"));
+    assertThat(Util.normalizeLanguageCode("zh-hakka"))
+        .isEqualTo(Util.normalizeLanguageCode("zh-hak"));
+    assertThat(Util.normalizeLanguageCode("zh-min-nan"))
+        .isEqualTo(Util.normalizeLanguageCode("nan"));
+    assertThat(Util.normalizeLanguageCode("zh-min-nan"))
+        .isEqualTo(Util.normalizeLanguageCode("zh-nan"));
+    assertThat(Util.normalizeLanguageCode("zh-xiang")).isEqualTo(Util.normalizeLanguageCode("hsn"));
+    assertThat(Util.normalizeLanguageCode("zh-xiang"))
+        .isEqualTo(Util.normalizeLanguageCode("zh-hsn"));
+  }
+
+  @Test
+  @Config(sdk = Config.ALL_SDKS)
+  public void normalizeLanguageCode_macrolanguageTags_areFullyMaintained() {
+    // See https://en.wikipedia.org/wiki/ISO_639_macrolanguage
+    assertThat(Util.normalizeLanguageCode("zh-cmn")).isEqualTo("zh-cmn");
+    assertThat(Util.normalizeLanguageCode("zho-cmn")).isEqualTo("zh-cmn");
+    assertThat(Util.normalizeLanguageCode("ar-ayl")).isEqualTo("ar-ayl");
+    assertThat(Util.normalizeLanguageCode("ara-ayl")).isEqualTo("ar-ayl");
+
+    // Special case of short codes that are actually part of a macrolanguage.
+    assertThat(Util.normalizeLanguageCode("nb")).isEqualTo("no-nob");
+    assertThat(Util.normalizeLanguageCode("nn")).isEqualTo("no-nno");
+    assertThat(Util.normalizeLanguageCode("nob")).isEqualTo("no-nob");
+    assertThat(Util.normalizeLanguageCode("nno")).isEqualTo("no-nno");
+    assertThat(Util.normalizeLanguageCode("tw")).isEqualTo("ak-twi");
+    assertThat(Util.normalizeLanguageCode("twi")).isEqualTo("ak-twi");
+    assertThat(Util.normalizeLanguageCode("bs")).isEqualTo("hbs-bos");
+    assertThat(Util.normalizeLanguageCode("bos")).isEqualTo("hbs-bos");
+    assertThat(Util.normalizeLanguageCode("hr")).isEqualTo("hbs-hrv");
+    assertThat(Util.normalizeLanguageCode("hrv")).isEqualTo("hbs-hrv");
+    assertThat(Util.normalizeLanguageCode("sr")).isEqualTo("hbs-srp");
+    assertThat(Util.normalizeLanguageCode("srp")).isEqualTo("hbs-srp");
+    assertThat(Util.normalizeLanguageCode("id")).isEqualTo("ms-ind");
+    assertThat(Util.normalizeLanguageCode("ind")).isEqualTo("ms-ind");
+    assertThat(Util.normalizeLanguageCode("cmn")).isEqualTo("zh-cmn");
+    assertThat(Util.normalizeLanguageCode("hak")).isEqualTo("zh-hak");
+    assertThat(Util.normalizeLanguageCode("nan")).isEqualTo("zh-nan");
+    assertThat(Util.normalizeLanguageCode("hsn")).isEqualTo("zh-hsn");
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {
