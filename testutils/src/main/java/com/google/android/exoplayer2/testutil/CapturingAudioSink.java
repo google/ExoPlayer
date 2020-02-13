@@ -80,9 +80,26 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
   }
 
   @Override
-  @SuppressWarnings("ReferenceEquality")
   public boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
       throws InitializationException, WriteException {
+    interceptBuffer(buffer, presentationTimeUs);
+    boolean fullyConsumed = super.handleBuffer(buffer, presentationTimeUs);
+    updateCurrentBuffer(fullyConsumed);
+    return fullyConsumed;
+  }
+
+  @Override
+  public boolean handleEncodedBuffer(
+      ByteBuffer buffer, long presentationTimeUs, int accessUnitCount)
+      throws InitializationException, WriteException {
+    interceptBuffer(buffer, presentationTimeUs);
+    boolean fullyConsumed = super.handleEncodedBuffer(buffer, presentationTimeUs, accessUnitCount);
+    updateCurrentBuffer(fullyConsumed);
+    return fullyConsumed;
+  }
+
+  @SuppressWarnings("ReferenceEquality")
+  private void interceptBuffer(ByteBuffer buffer, long presentationTimeUs) {
     // handleBuffer is called repeatedly with the same buffer until it's been fully consumed by the
     // sink. We only want to dump each buffer once, and we need to do so before the sink being
     // forwarded to has a chance to modify its position.
@@ -90,13 +107,13 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
       interceptedData.add(new DumpableBuffer(buffer, presentationTimeUs));
       currentBuffer = buffer;
     }
-    boolean fullyConsumed = super.handleBuffer(buffer, presentationTimeUs);
+  }
+
+  private void updateCurrentBuffer(boolean fullyConsumed) {
     if (fullyConsumed) {
       currentBuffer = null;
     }
-    return fullyConsumed;
   }
-
   @Override
   public void flush() {
     currentBuffer = null;

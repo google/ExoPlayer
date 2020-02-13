@@ -80,6 +80,13 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
+  public boolean handleEncodedBuffer(
+      ByteBuffer buffer, long presentationTimeUs, int accessUnitCount)
+      throws InitializationException, WriteException {
+    return sink.handleEncodedBuffer(buffer, presentationTimeUs, accessUnitCount);
+  }
+
+  @Override
   public void playToEndOfStream() throws WriteException {
     sink.playToEndOfStream();
   }
