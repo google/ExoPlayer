@@ -18,12 +18,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer2.core.test">
 
-  <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="24"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+  <uses-sdk/>
 
-  <application android:debuggable="true"
+  <application
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
-    <uses-library android:name="android.test.runner"/>
     <provider
       android:authorities="com.google.android.exoplayer2.core.test"
       android:name="com.google.android.exoplayer2.upstream.ContentDataSourceTest$TestContentProvider"/>
@@ -31,7 +31,6 @@
 
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.core.test"
-      android:name="android.test.InstrumentationTestRunner"
-      tools:replace="android:targetPackage"/>
+      android:name="androidx.test.runner.AndroidJUnitRunner"/>
 
 </manifest>

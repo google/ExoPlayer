@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer2.text;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
+import com.google.android.exoplayer2.util.Assertions;
 import java.nio.ByteBuffer;
 
 /**
@@ -28,9 +30,8 @@ public abstract class SimpleSubtitleDecoder extends
 
   private final String name;
 
-  /**
-   * @param name The name of the decoder.
-   */
+  /** @param name The name of the decoder. */
+  @SuppressWarnings("initialization:method.invocation.invalid")
   protected SimpleSubtitleDecoder(String name) {
     super(new SubtitleInputBuffer[2], new SubtitleOutputBuffer[2]);
     this.name = name;
@@ -58,15 +59,22 @@ public abstract class SimpleSubtitleDecoder extends
   }
 
   @Override
+  protected final SubtitleDecoderException createUnexpectedDecodeException(Throwable error) {
+    return new SubtitleDecoderException("Unexpected decode error", error);
+  }
+
+  @Override
   protected final void releaseOutputBuffer(SubtitleOutputBuffer buffer) {
     super.releaseOutputBuffer(buffer);
   }
 
+  @SuppressWarnings("ByteBufferBackingArray")
   @Override
-  protected final SubtitleDecoderException decode(SubtitleInputBuffer inputBuffer,
-      SubtitleOutputBuffer outputBuffer, boolean reset) {
+  @Nullable
+  protected final SubtitleDecoderException decode(
+      SubtitleInputBuffer inputBuffer, SubtitleOutputBuffer outputBuffer, boolean reset) {
     try {
-      ByteBuffer inputData = inputBuffer.data;
+      ByteBuffer inputData = Assertions.checkNotNull(inputBuffer.data);
       Subtitle subtitle = decode(inputData.array(), inputData.limit(), reset);
       outputBuffer.setContent(inputBuffer.timeUs, subtitle, inputBuffer.subsampleOffsetUs);
       // Clear BUFFER_FLAG_DECODE_ONLY (see [Internal: b/27893809]).

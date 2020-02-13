@@ -16,9 +16,12 @@
 package com.google.android.exoplayer2.text.ttml;
 
 import android.graphics.Typeface;
-import android.support.annotation.IntDef;
 import android.text.Layout;
-import com.google.android.exoplayer2.util.Assertions;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.Cue.VerticalType;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -29,29 +32,36 @@ import java.lang.annotation.RetentionPolicy;
 
   public static final int UNSPECIFIED = -1;
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(flag = true, value = {UNSPECIFIED, STYLE_NORMAL, STYLE_BOLD, STYLE_ITALIC,
-      STYLE_BOLD_ITALIC})
+  @IntDef(
+      flag = true,
+      value = {UNSPECIFIED, STYLE_NORMAL, STYLE_BOLD, STYLE_ITALIC, STYLE_BOLD_ITALIC})
   public @interface StyleFlags {}
+
   public static final int STYLE_NORMAL = Typeface.NORMAL;
   public static final int STYLE_BOLD = Typeface.BOLD;
   public static final int STYLE_ITALIC = Typeface.ITALIC;
   public static final int STYLE_BOLD_ITALIC = Typeface.BOLD_ITALIC;
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({UNSPECIFIED, FONT_SIZE_UNIT_PIXEL, FONT_SIZE_UNIT_EM, FONT_SIZE_UNIT_PERCENT})
   public @interface FontSizeUnit {}
+
   public static final int FONT_SIZE_UNIT_PIXEL = 1;
   public static final int FONT_SIZE_UNIT_EM = 2;
   public static final int FONT_SIZE_UNIT_PERCENT = 3;
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({UNSPECIFIED, OFF, ON})
   private @interface OptionalBoolean {}
+
   private static final int OFF = 0;
   private static final int ON = 1;
 
-  private String fontFamily;
+  @Nullable private String fontFamily;
   private int fontColor;
   private boolean hasFontColor;
   private int backgroundColor;
@@ -62,9 +72,10 @@ import java.lang.annotation.RetentionPolicy;
   @OptionalBoolean private int italic;
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
-  private String id;
-  private TtmlStyle inheritableStyle;
-  private Layout.Alignment textAlign;
+  @Nullable private String id;
+  @Nullable private Layout.Alignment textAlign;
+  @OptionalBoolean private int textCombine;
+  @Cue.VerticalType private int verticalType;
 
   public TtmlStyle() {
     linethrough = UNSPECIFIED;
@@ -72,6 +83,8 @@ import java.lang.annotation.RetentionPolicy;
     bold = UNSPECIFIED;
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
+    textCombine = UNSPECIFIED;
+    verticalType = Cue.TYPE_UNSET;
   }
 
   /**
@@ -93,7 +106,6 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   public TtmlStyle setLinethrough(boolean linethrough) {
-    Assertions.checkState(inheritableStyle == null);
     this.linethrough = linethrough ? ON : OFF;
     return this;
   }
@@ -103,29 +115,26 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   public TtmlStyle setUnderline(boolean underline) {
-    Assertions.checkState(inheritableStyle == null);
     this.underline = underline ? ON : OFF;
     return this;
   }
 
   public TtmlStyle setBold(boolean bold) {
-    Assertions.checkState(inheritableStyle == null);
     this.bold = bold ? ON : OFF;
     return this;
   }
 
   public TtmlStyle setItalic(boolean italic) {
-    Assertions.checkState(inheritableStyle == null);
     this.italic = italic ? ON : OFF;
     return this;
   }
 
+  @Nullable
   public String getFontFamily() {
     return fontFamily;
   }
 
-  public TtmlStyle setFontFamily(String fontFamily) {
-    Assertions.checkState(inheritableStyle == null);
+  public TtmlStyle setFontFamily(@Nullable String fontFamily) {
     this.fontFamily = fontFamily;
     return this;
   }
@@ -138,7 +147,6 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   public TtmlStyle setFontColor(int fontColor) {
-    Assertions.checkState(inheritableStyle == null);
     this.fontColor = fontColor;
     hasFontColor = true;
     return this;
@@ -166,27 +174,27 @@ import java.lang.annotation.RetentionPolicy;
   }
 
   /**
-   * Inherits from an ancestor style. Properties like <i>tts:backgroundColor</i> which
-   * are not inheritable are not inherited as well as properties which are already set locally
-   * are never overridden.
-   *
-   * @param ancestor the ancestor style to inherit from
-   */
-  public TtmlStyle inherit(TtmlStyle ancestor) {
-    return inherit(ancestor, false);
-  }
-
-  /**
-   * Chains this style to referential style. Local properties which are already set
-   * are never overridden.
+   * Chains this style to referential style. Local properties which are already set are never
+   * overridden.
    *
    * @param ancestor the referential style to inherit from
    */
-  public TtmlStyle chain(TtmlStyle ancestor) {
+  public TtmlStyle chain(@Nullable TtmlStyle ancestor) {
     return inherit(ancestor, true);
   }
 
-  private TtmlStyle inherit(TtmlStyle ancestor, boolean chaining) {
+  /**
+   * Inherits from an ancestor style. Properties like <i>tts:backgroundColor</i> which are not
+   * inheritable are not inherited as well as properties which are already set locally are never
+   * overridden.
+   *
+   * @param ancestor the ancestor style to inherit from
+   */
+  public TtmlStyle inherit(@Nullable TtmlStyle ancestor) {
+    return inherit(ancestor, false);
+  }
+
+  private TtmlStyle inherit(@Nullable TtmlStyle ancestor, boolean chaining) {
     if (ancestor != null) {
       if (!hasFontColor && ancestor.hasFontColor) {
         setFontColor(ancestor.fontColor);
@@ -197,7 +205,7 @@ import java.lang.annotation.RetentionPolicy;
       if (italic == UNSPECIFIED) {
         italic = ancestor.italic;
       }
-      if (fontFamily == null) {
+      if (fontFamily == null && ancestor.fontFamily != null) {
         fontFamily = ancestor.fontFamily;
       }
       if (linethrough == UNSPECIFIED) {
@@ -206,8 +214,11 @@ import java.lang.annotation.RetentionPolicy;
       if (underline == UNSPECIFIED) {
         underline = ancestor.underline;
       }
-      if (textAlign == null) {
+      if (textAlign == null && ancestor.textAlign != null) {
         textAlign = ancestor.textAlign;
+      }
+      if (textCombine == UNSPECIFIED) {
+        textCombine = ancestor.textCombine;
       }
       if (fontSizeUnit == UNSPECIFIED) {
         fontSizeUnit = ancestor.fontSizeUnit;
@@ -217,25 +228,40 @@ import java.lang.annotation.RetentionPolicy;
       if (chaining && !hasBackgroundColor && ancestor.hasBackgroundColor) {
         setBackgroundColor(ancestor.backgroundColor);
       }
+      if (chaining && verticalType == Cue.TYPE_UNSET) {
+        verticalType = ancestor.verticalType;
+      }
     }
     return this;
   }
 
-  public TtmlStyle setId(String id) {
+  public TtmlStyle setId(@Nullable String id) {
     this.id = id;
     return this;
   }
 
+  @Nullable
   public String getId() {
     return id;
   }
 
+  @Nullable
   public Layout.Alignment getTextAlign() {
     return textAlign;
   }
 
-  public TtmlStyle setTextAlign(Layout.Alignment textAlign) {
+  public TtmlStyle setTextAlign(@Nullable Layout.Alignment textAlign) {
     this.textAlign = textAlign;
+    return this;
+  }
+
+  /** Returns true if the source entity has {@code tts:textCombine=all}. */
+  public boolean getTextCombine() {
+    return textCombine == ON;
+  }
+
+  public TtmlStyle setTextCombine(boolean combine) {
+    this.textCombine = combine ? ON : OFF;
     return this;
   }
 
@@ -257,4 +283,13 @@ import java.lang.annotation.RetentionPolicy;
     return fontSize;
   }
 
+  public TtmlStyle setVerticalType(@VerticalType int verticalType) {
+    this.verticalType = verticalType;
+    return this;
+  }
+
+  @VerticalType
+  public int getVerticalType() {
+    return verticalType;
+  }
 }

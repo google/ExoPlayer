@@ -15,486 +15,546 @@
  */
 package com.google.android.exoplayer2;
 
+import android.content.Context;
 import android.os.Looper;
-import android.support.annotation.IntDef;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
+import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
+import java.util.List;
 
 /**
- * An extensible media player exposing traditional high-level media player functionality, such as
- * the ability to buffer media, play, pause and seek. Instances can be obtained from
- * {@link ExoPlayerFactory}.
+ * An extensible media player that plays {@link MediaSource}s. Instances can be obtained from {@link
+ * SimpleExoPlayer.Builder} or {@link ExoPlayer.Builder}.
  *
- * <h3>Player composition</h3>
+ * <h3>Player components</h3>
+ *
  * <p>ExoPlayer is designed to make few assumptions about (and hence impose few restrictions on) the
  * type of the media being played, how and where it is stored, and how it is rendered. Rather than
  * implementing the loading and rendering of media directly, ExoPlayer implementations delegate this
  * work to components that are injected when a player is created or when it's prepared for playback.
  * Components common to all ExoPlayer implementations are:
+ *
  * <ul>
  *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
- *   which the loaded media can be read. A MediaSource is injected via {@link #prepare} at the start
- *   of playback. The library modules provide default implementations for regular media files
- *   ({@link ExtractorMediaSource}), DASH (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS
- *   (HlsMediaSource), implementations for merging ({@link MergingMediaSource}) and concatenating
- *   ({@link ConcatenatingMediaSource}) other MediaSources, and an implementation for loading single
- *   samples ({@link SingleSampleMediaSource}) most often used for side-loaded subtitle and closed
- *   caption files.</li>
+ *       which the loaded media can be read. A MediaSource is injected via {@link
+ *       #prepare(MediaSource)} at the start of playback. The library modules provide default
+ *       implementations for progressive media files ({@link ProgressiveMediaSource}), DASH
+ *       (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS (HlsMediaSource), an
+ *       implementation for loading single media samples ({@link SingleSampleMediaSource}) that's
+ *       most often used for side-loaded subtitle files, and implementations for building more
+ *       complex MediaSources from simpler ones ({@link MergingMediaSource}, {@link
+ *       ConcatenatingMediaSource}, {@link LoopingMediaSource} and {@link ClippingMediaSource}).
  *   <li><b>{@link Renderer}</b>s that render individual components of the media. The library
- *   provides default implementations for common media types ({@link MediaCodecVideoRenderer},
- *   {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A Renderer
- *   consumes media of its corresponding type from the MediaSource being played. Renderers are
- *   injected when the player is created.</li>
+ *       provides default implementations for common media types ({@link MediaCodecVideoRenderer},
+ *       {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A
+ *       Renderer consumes media from the MediaSource being played. Renderers are injected when the
+ *       player is created.
  *   <li>A <b>{@link TrackSelector}</b> that selects tracks provided by the MediaSource to be
- *   consumed by each of the available Renderers. The library provides a default implementation
- *   ({@link DefaultTrackSelector}) suitable for most use cases. A TrackSelector is injected when
- *   the player is created.</li>
+ *       consumed by each of the available Renderers. The library provides a default implementation
+ *       ({@link DefaultTrackSelector}) suitable for most use cases. A TrackSelector is injected
+ *       when the player is created.
  *   <li>A <b>{@link LoadControl}</b> that controls when the MediaSource buffers more media, and how
- *   much media is buffered. The library provides a default implementation
- *   ({@link DefaultLoadControl}) suitable for most use cases. A LoadControl is injected when the
- *   player is created.</li>
+ *       much media is buffered. The library provides a default implementation ({@link
+ *       DefaultLoadControl}) suitable for most use cases. A LoadControl is injected when the player
+ *       is created.
  * </ul>
+ *
  * <p>An ExoPlayer can be built using the default components provided by the library, but may also
  * be built using custom implementations if non-standard behaviors are required. For example a
  * custom LoadControl could be injected to change the player's buffering strategy, or a custom
- * Renderer could be injected to use a video codec not supported natively by Android.
+ * Renderer could be injected to add support for a video codec not supported natively by Android.
  *
  * <p>The concept of injecting components that implement pieces of player functionality is present
  * throughout the library. The default component implementations listed above delegate work to
  * further injected components. This allows many sub-components to be individually replaced with
  * custom implementations. For example the default MediaSource implementations require one or more
  * {@link DataSource} factories to be injected via their constructors. By providing a custom factory
- * it's possible to load data from a non-standard source or through a different network stack.
+ * it's possible to load data from a non-standard source, or through a different network stack.
  *
  * <h3>Threading model</h3>
- * <p>The figure below shows ExoPlayer's threading model.</p>
- * <p align="center">
- *   <img src="doc-files/exoplayer-threading-model.svg" alt="ExoPlayer's threading model">
- * </p>
+ *
+ * <p>The figure below shows ExoPlayer's threading model.
+ *
+ * <p style="align:center"><img src="doc-files/exoplayer-threading-model.svg" alt="ExoPlayer's
+ * threading model">
  *
  * <ul>
- * <li>It is recommended that ExoPlayer instances are created and accessed from a single application
- * thread. The application's main thread is ideal. Accessing an instance from multiple threads is
- * discouraged, however if an application does wish to do this then it may do so provided that it
- * ensures accesses are synchronized.</li>
- * <li>Registered listeners are called on the thread that created the ExoPlayer instance, unless
- * the thread that created the ExoPlayer instance does not have a {@link Looper}. In that case,
- * registered listeners will be called on the application's main thread.</li>
- * <li>An internal playback thread is responsible for playback. Injected player components such as
- * Renderers, MediaSources, TrackSelectors and LoadControls are called by the player on this
- * thread.</li>
- * <li>When the application performs an operation on the player, for example a seek, a message is
- * delivered to the internal playback thread via a message queue. The internal playback thread
- * consumes messages from the queue and performs the corresponding operations. Similarly, when a
- * playback event occurs on the internal playback thread, a message is delivered to the application
- * thread via a second message queue. The application thread consumes messages from the queue,
- * updating the application visible state and calling corresponding listener methods.</li>
- * <li>Injected player components may use additional background threads. For example a MediaSource
- * may use a background thread to load data. These are implementation specific.</li>
+ *   <li>ExoPlayer instances must be accessed from a single application thread. For the vast
+ *       majority of cases this should be the application's main thread. Using the application's
+ *       main thread is also a requirement when using ExoPlayer's UI components or the IMA
+ *       extension. The thread on which an ExoPlayer instance must be accessed can be explicitly
+ *       specified by passing a `Looper` when creating the player. If no `Looper` is specified, then
+ *       the `Looper` of the thread that the player is created on is used, or if that thread does
+ *       not have a `Looper`, the `Looper` of the application's main thread is used. In all cases
+ *       the `Looper` of the thread from which the player must be accessed can be queried using
+ *       {@link #getApplicationLooper()}.
+ *   <li>Registered listeners are called on the thread associated with {@link
+ *       #getApplicationLooper()}. Note that this means registered listeners are called on the same
+ *       thread which must be used to access the player.
+ *   <li>An internal playback thread is responsible for playback. Injected player components such as
+ *       Renderers, MediaSources, TrackSelectors and LoadControls are called by the player on this
+ *       thread.
+ *   <li>When the application performs an operation on the player, for example a seek, a message is
+ *       delivered to the internal playback thread via a message queue. The internal playback thread
+ *       consumes messages from the queue and performs the corresponding operations. Similarly, when
+ *       a playback event occurs on the internal playback thread, a message is delivered to the
+ *       application thread via a second message queue. The application thread consumes messages
+ *       from the queue, updating the application visible state and calling corresponding listener
+ *       methods.
+ *   <li>Injected player components may use additional background threads. For example a MediaSource
+ *       may use background threads to load data. These are implementation specific.
  * </ul>
  */
-public interface ExoPlayer {
+public interface ExoPlayer extends Player {
 
   /**
-   * Listener of changes in player state.
+   * A builder for {@link ExoPlayer} instances.
+   *
+   * <p>See {@link #Builder(Context, Renderer...)} for the list of default values.
    */
-  interface EventListener {
+  final class Builder {
+
+    private final Renderer[] renderers;
+
+    private Clock clock;
+    private TrackSelector trackSelector;
+    private LoadControl loadControl;
+    private BandwidthMeter bandwidthMeter;
+    private Looper looper;
+    @Nullable private AnalyticsCollector analyticsCollector;
+    private boolean useLazyPreparation;
+    private boolean buildCalled;
+
+    private long releaseTimeoutMs;
 
     /**
-     * Called when the timeline and/or manifest has been refreshed.
-     * <p>
-     * Note that if the timeline has changed then a position discontinuity may also have occurred.
-     * For example, the current period index may have changed as a result of periods being added or
-     * removed from the timeline. This will <em>not</em> be reported via a separate call to
-     * {@link #onPositionDiscontinuity()}.
+     * Creates a builder with a list of {@link Renderer Renderers}.
      *
-     * @param timeline The latest timeline. Never null, but may be empty.
-     * @param manifest The latest manifest. May be null.
-     */
-    void onTimelineChanged(Timeline timeline, Object manifest);
-
-    /**
-     * Called when the available or selected tracks change.
+     * <p>The builder uses the following default values:
      *
-     * @param trackGroups The available tracks. Never null, but may be of length zero.
-     * @param trackSelections The track selections for each {@link Renderer}. Never null and always
-     *     of length {@link #getRendererCount()}, but may contain null elements.
-     */
-    void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections);
-
-    /**
-     * Called when the player starts or stops loading the source.
+     * <ul>
+     *   <li>{@link TrackSelector}: {@link DefaultTrackSelector}
+     *   <li>{@link LoadControl}: {@link DefaultLoadControl}
+     *   <li>{@link BandwidthMeter}: {@link DefaultBandwidthMeter#getSingletonInstance(Context)}
+     *   <li>{@link Looper}: The {@link Looper} associated with the current thread, or the {@link
+     *       Looper} of the application's main thread if the current thread doesn't have a {@link
+     *       Looper}
+     *   <li>{@link AnalyticsCollector}: {@link AnalyticsCollector} with {@link Clock#DEFAULT}
+     *   <li>{@code useLazyPreparation}: {@code true}
+     *   <li>{@link Clock}: {@link Clock#DEFAULT}
+     * </ul>
      *
-     * @param isLoading Whether the source is currently being loaded.
+     * @param context A {@link Context}.
+     * @param renderers The {@link Renderer Renderers} to be used by the player.
      */
-    void onLoadingChanged(boolean isLoading);
-
-    /**
-     * Called when the value returned from either {@link #getPlayWhenReady()} or
-     * {@link #getPlaybackState()} changes.
-     *
-     * @param playWhenReady Whether playback will proceed when ready.
-     * @param playbackState One of the {@code STATE} constants defined in the {@link ExoPlayer}
-     *     interface.
-     */
-    void onPlayerStateChanged(boolean playWhenReady, int playbackState);
-
-    /**
-     * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
-     * immediately after this method is called. The player instance can still be used, and
-     * {@link #release()} must still be called on the player should it no longer be required.
-     *
-     * @param error The error.
-     */
-    void onPlayerError(ExoPlaybackException error);
-
-    /**
-     * Called when a position discontinuity occurs without a change to the timeline. A position
-     * discontinuity occurs when the current window or period index changes (as a result of playback
-     * transitioning from one period in the timeline to the next), or when the playback position
-     * jumps within the period currently being played (as a result of a seek being performed, or
-     * when the source introduces a discontinuity internally).
-     * <p>
-     * When a position discontinuity occurs as a result of a change to the timeline this method is
-     * <em>not</em> called. {@link #onTimelineChanged(Timeline, Object)} is called in this case.
-     */
-    void onPositionDiscontinuity();
-
-    /**
-     * Called when the current playback parameters change. The playback parameters may change due to
-     * a call to {@link ExoPlayer#setPlaybackParameters(PlaybackParameters)}, or the player itself
-     * may change them (for example, if audio playback switches to passthrough mode, where speed
-     * adjustment is no longer possible).
-     *
-     * @param playbackParameters The playback parameters.
-     */
-    void onPlaybackParametersChanged(PlaybackParameters playbackParameters);
-
-  }
-
-  /**
-   * A component of an {@link ExoPlayer} that can receive messages on the playback thread.
-   * <p>
-   * Messages can be delivered to a component via {@link #sendMessages} and
-   * {@link #blockingSendMessages}.
-   */
-  interface ExoPlayerComponent {
-
-    /**
-     * Handles a message delivered to the component. Called on the playback thread.
-     *
-     * @param messageType The message type.
-     * @param message The message.
-     * @throws ExoPlaybackException If an error occurred whilst handling the message.
-     */
-    void handleMessage(int messageType, Object message) throws ExoPlaybackException;
-
-  }
-
-  /**
-   * Defines a message and a target {@link ExoPlayerComponent} to receive it.
-   */
-  final class ExoPlayerMessage {
-
-    /**
-     * The target to receive the message.
-     */
-    public final ExoPlayerComponent target;
-    /**
-     * The type of the message.
-     */
-    public final int messageType;
-    /**
-     * The message.
-     */
-    public final Object message;
-
-    /**
-     * @param target The target of the message.
-     * @param messageType The message type.
-     * @param message The message.
-     */
-    public ExoPlayerMessage(ExoPlayerComponent target, int messageType, Object message) {
-      this.target = target;
-      this.messageType = messageType;
-      this.message = message;
+    public Builder(Context context, Renderer... renderers) {
+      this(
+          renderers,
+          new DefaultTrackSelector(context),
+          new DefaultLoadControl(),
+          DefaultBandwidthMeter.getSingletonInstance(context),
+          Util.getLooper(),
+          /* analyticsCollector= */ null,
+          /* useLazyPreparation= */ true,
+          Clock.DEFAULT);
     }
 
+    /**
+     * Creates a builder with the specified custom components.
+     *
+     * <p>Note that this constructor is only useful if you try to ensure that ExoPlayer's default
+     * components can be removed by ProGuard or R8. For most components except renderers, there is
+     * only a marginal benefit of doing that.
+     *
+     * @param renderers The {@link Renderer Renderers} to be used by the player.
+     * @param trackSelector A {@link TrackSelector}.
+     * @param loadControl A {@link LoadControl}.
+     * @param bandwidthMeter A {@link BandwidthMeter}.
+     * @param looper A {@link Looper} that must be used for all calls to the player.
+     * @param analyticsCollector An {@link AnalyticsCollector}.
+     * @param useLazyPreparation Whether media sources should be initialized lazily.
+     * @param clock A {@link Clock}. Should always be {@link Clock#DEFAULT}.
+     */
+    public Builder(
+        Renderer[] renderers,
+        TrackSelector trackSelector,
+        LoadControl loadControl,
+        BandwidthMeter bandwidthMeter,
+        Looper looper,
+        @Nullable AnalyticsCollector analyticsCollector,
+        boolean useLazyPreparation,
+        Clock clock) {
+      Assertions.checkArgument(renderers.length > 0);
+      this.renderers = renderers;
+      this.trackSelector = trackSelector;
+      this.loadControl = loadControl;
+      this.bandwidthMeter = bandwidthMeter;
+      this.looper = looper;
+      this.analyticsCollector = analyticsCollector;
+      this.useLazyPreparation = useLazyPreparation;
+      this.clock = clock;
+    }
+
+    /**
+     * Set a limit on the time a call to {@link ExoPlayer#release()} can spend. If a call to {@link
+     * ExoPlayer#release()} takes more than {@code timeoutMs} milliseconds to complete, the player
+     * will raise an error via {@link Player.EventListener#onPlayerError}.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release. It should
+     * only be called before the player is used.
+     *
+     * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
+     */
+    public Builder experimental_setReleaseTimeoutMs(long timeoutMs) {
+      releaseTimeoutMs = timeoutMs;
+      return this;
+    }
+
+    /**
+     * Sets the {@link TrackSelector} that will be used by the player.
+     *
+     * @param trackSelector A {@link TrackSelector}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setTrackSelector(TrackSelector trackSelector) {
+      Assertions.checkState(!buildCalled);
+      this.trackSelector = trackSelector;
+      return this;
+    }
+
+    /**
+     * Sets the {@link LoadControl} that will be used by the player.
+     *
+     * @param loadControl A {@link LoadControl}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setLoadControl(LoadControl loadControl) {
+      Assertions.checkState(!buildCalled);
+      this.loadControl = loadControl;
+      return this;
+    }
+
+    /**
+     * Sets the {@link BandwidthMeter} that will be used by the player.
+     *
+     * @param bandwidthMeter A {@link BandwidthMeter}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
+      Assertions.checkState(!buildCalled);
+      this.bandwidthMeter = bandwidthMeter;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Looper} that must be used for all calls to the player and that is used to
+     * call listeners on.
+     *
+     * @param looper A {@link Looper}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setLooper(Looper looper) {
+      Assertions.checkState(!buildCalled);
+      this.looper = looper;
+      return this;
+    }
+
+    /**
+     * Sets the {@link AnalyticsCollector} that will collect and forward all player events.
+     *
+     * @param analyticsCollector An {@link AnalyticsCollector}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setAnalyticsCollector(AnalyticsCollector analyticsCollector) {
+      Assertions.checkState(!buildCalled);
+      this.analyticsCollector = analyticsCollector;
+      return this;
+    }
+
+    /**
+     * Sets whether media sources should be initialized lazily.
+     *
+     * <p>If false, all initial preparation steps (e.g., manifest loads) happen immediately. If
+     * true, these initial preparations are triggered only when the player starts buffering the
+     * media.
+     *
+     * @param useLazyPreparation Whether to use lazy preparation.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setUseLazyPreparation(boolean useLazyPreparation) {
+      Assertions.checkState(!buildCalled);
+      this.useLazyPreparation = useLazyPreparation;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Clock} that will be used by the player. Should only be set for testing
+     * purposes.
+     *
+     * @param clock A {@link Clock}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    @VisibleForTesting
+    public Builder setClock(Clock clock) {
+      Assertions.checkState(!buildCalled);
+      this.clock = clock;
+      return this;
+    }
+
+    /**
+     * Builds an {@link ExoPlayer} instance.
+     *
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public ExoPlayer build() {
+      Assertions.checkState(!buildCalled);
+      buildCalled = true;
+      ExoPlayerImpl player =
+          new ExoPlayerImpl(
+              renderers,
+              trackSelector,
+              loadControl,
+              bandwidthMeter,
+              analyticsCollector,
+              useLazyPreparation,
+              clock,
+              looper);
+
+      if (releaseTimeoutMs > 0) {
+        player.experimental_setReleaseTimeoutMs(releaseTimeoutMs);
+      }
+
+      return player;
+    }
   }
 
-  /**
-   * The player does not have a source to play, so it is neither buffering nor ready to play.
-   */
-  int STATE_IDLE = 1;
-  /**
-   * The player not able to immediately play from the current position. The cause is
-   * {@link Renderer} specific, but this state typically occurs when more data needs to be
-   * loaded to be ready to play, or more data needs to be buffered for playback to resume.
-   */
-  int STATE_BUFFERING = 2;
-  /**
-   * The player is able to immediately play from the current position. The player will be playing if
-   * {@link #getPlayWhenReady()} returns true, and paused otherwise.
-   */
-  int STATE_READY = 3;
-  /**
-   * The player has finished playing the media.
-   */
-  int STATE_ENDED = 4;
+  /** Returns the {@link Looper} associated with the playback thread. */
+  Looper getPlaybackLooper();
 
-  /**
-   * Register a listener to receive events from the player. The listener's methods will be called on
-   * the thread that was used to construct the player. However, if the thread used to construct the
-   * player does not have a {@link Looper}, then the listener will be called on the main thread.
-   *
-   * @param listener The listener to register.
-   */
-  void addListener(EventListener listener);
+  /** @deprecated Use {@link #prepare()} instead. */
+  @Deprecated
+  void retry();
 
-  /**
-   * Unregister a listener. The listener will no longer receive events from the player.
-   *
-   * @param listener The listener to unregister.
-   */
-  void removeListener(EventListener listener);
+  /** Prepares the player. */
+  void prepare();
 
-  /**
-   * Returns the current state of the player.
-   *
-   * @return One of the {@code STATE} constants defined in this interface.
-   */
-  int getPlaybackState();
-
-  /**
-   * Prepares the player to play the provided {@link MediaSource}. Equivalent to
-   * {@code prepare(mediaSource, true, true)}.
-   */
+  /** @deprecated Use {@link #setMediaSource(MediaSource)} and {@link #prepare()} instead. */
+  @Deprecated
   void prepare(MediaSource mediaSource);
 
   /**
-   * Prepares the player to play the provided {@link MediaSource}, optionally resetting the playback
-   * position the default position in the first {@link Timeline.Window}.
-   *
-   * @param mediaSource The {@link MediaSource} to play.
-   * @param resetPosition Whether the playback position should be reset to the default position in
-   *     the first {@link Timeline.Window}. If false, playback will start from the position defined
-   *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
-   * @param resetState Whether the timeline, manifest, tracks and track selections should be reset.
-   *     Should be true unless the player is being prepared to play the same media as it was playing
-   *     previously (e.g. if playback failed and is being retried).
+   * @deprecated Use {@link #setMediaSource(MediaSource, boolean)} and {@link #prepare()} instead.
    */
+  @Deprecated
   void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
 
   /**
-   * Sets whether playback should proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
-   * <p>
-   * If the player is already in the ready state then this method can be used to pause and resume
-   * playback.
+   * Clears the playlist, adds the specified {@link MediaSource MediaSources} and resets the
+   * position to the default position.
    *
-   * @param playWhenReady Whether playback should proceed when ready.
+   * @param mediaSources The new {@link MediaSource MediaSources}.
    */
-  void setPlayWhenReady(boolean playWhenReady);
+  void setMediaSources(List<MediaSource> mediaSources);
 
   /**
-   * Whether playback will proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
+   * Clears the playlist and adds the specified {@link MediaSource MediaSources}.
    *
-   * @return Whether playback will proceed when ready.
+   * @param mediaSources The new {@link MediaSource MediaSources}.
+   * @param resetPosition Whether the playback position should be reset to the default position in
+   *     the first {@link Timeline.Window}. If false, playback will start from the position defined
+   *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
    */
-  boolean getPlayWhenReady();
+  void setMediaSources(List<MediaSource> mediaSources, boolean resetPosition);
 
   /**
-   * Whether the player is currently loading the source.
+   * Clears the playlist and adds the specified {@link MediaSource MediaSources}.
    *
-   * @return Whether the player is currently loading the source.
+   * @param mediaSources The new {@link MediaSource MediaSources}.
+   * @param startWindowIndex The window index to start playback from. If {@link C#INDEX_UNSET} is
+   *     passed, the current position is not reset.
+   * @param startPositionMs The position in milliseconds to start playback from. If {@link
+   *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
+   *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
+   *     position is not reset at all.
    */
-  boolean isLoading();
+  void setMediaSources(List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs);
 
   /**
-   * Seeks to the default position associated with the current window. The position can depend on
-   * the type of source passed to {@link #prepare(MediaSource)}. For live streams it will typically
-   * be the live edge of the window. For other streams it will typically be the start of the window.
-   */
-  void seekToDefaultPosition();
-
-  /**
-   * Seeks to the default position associated with the specified window. The position can depend on
-   * the type of source passed to {@link #prepare(MediaSource)}. For live streams it will typically
-   * be the live edge of the window. For other streams it will typically be the start of the window.
+   * Clears the playlist, adds the specified {@link MediaSource} and resets the position to the
+   * default position.
    *
-   * @param windowIndex The index of the window whose associated default position should be seeked
-   *     to.
+   * @param mediaSource The new {@link MediaSource}.
    */
-  void seekToDefaultPosition(int windowIndex);
+  void setMediaSource(MediaSource mediaSource);
 
   /**
-   * Seeks to a position specified in milliseconds in the current window.
+   * Clears the playlist and adds the specified {@link MediaSource}.
    *
-   * @param positionMs The seek position in the current window, or {@link C#TIME_UNSET} to seek to
-   *     the window's default position.
+   * @param mediaSource The new {@link MediaSource}.
+   * @param startPositionMs The position in milliseconds to start playback from.
    */
-  void seekTo(long positionMs);
+  void setMediaSource(MediaSource mediaSource, long startPositionMs);
 
   /**
-   * Seeks to a position specified in milliseconds in the specified window.
+   * Clears the playlist and adds the specified {@link MediaSource}.
    *
-   * @param windowIndex The index of the window.
-   * @param positionMs The seek position in the specified window, or {@link C#TIME_UNSET} to seek to
-   *     the window's default position.
+   * @param mediaSource The new {@link MediaSource}.
+   * @param resetPosition Whether the playback position should be reset to the default position. If
+   *     false, playback will start from the position defined by {@link #getCurrentWindowIndex()}
+   *     and {@link #getCurrentPosition()}.
    */
-  void seekTo(int windowIndex, long positionMs);
+  void setMediaSource(MediaSource mediaSource, boolean resetPosition);
 
   /**
-   * Attempts to set the playback parameters. Passing {@code null} sets the parameters to the
-   * default, {@link PlaybackParameters#DEFAULT}, which means there is no speed or pitch adjustment.
-   * <p>
-   * Playback parameters changes may cause the player to buffer.
-   * {@link EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever
-   * the currently active playback parameters change. When that listener is called, the parameters
-   * passed to it may not match {@code playbackParameters}. For example, the chosen speed or pitch
-   * may be out of range, in which case they are constrained to a set of permitted values. If it is
-   * not possible to change the playback parameters, the listener will not be invoked.
+   * Adds a media source to the end of the playlist.
    *
-   * @param playbackParameters The playback parameters, or {@code null} to use the defaults.
+   * @param mediaSource The {@link MediaSource} to add.
    */
-  void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters);
+  void addMediaSource(MediaSource mediaSource);
 
   /**
-   * Returns the currently active playback parameters.
+   * Adds a media source at the given index of the playlist.
    *
-   * @see EventListener#onPlaybackParametersChanged(PlaybackParameters)
+   * @param index The index at which to add the source.
+   * @param mediaSource The {@link MediaSource} to add.
    */
-  PlaybackParameters getPlaybackParameters();
+  void addMediaSource(int index, MediaSource mediaSource);
 
   /**
-   * Stops playback. Use {@code setPlayWhenReady(false)} rather than this method if the intention
-   * is to pause playback.
-   * <p>
-   * Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
-   * player instance can still be used, and {@link #release()} must still be called on the player if
-   * it's no longer required.
-   * <p>
-   * Calling this method does not reset the playback position.
-   */
-  void stop();
-
-  /**
-   * Releases the player. This method must be called when the player is no longer required. The
-   * player must not be used after calling this method.
-   */
-  void release();
-
-  /**
-   * Sends messages to their target components. The messages are delivered on the playback thread.
-   * If a component throws an {@link ExoPlaybackException} then it is propagated out of the player
-   * as an error.
+   * Adds a list of media sources to the end of the playlist.
    *
-   * @param messages The messages to be sent.
+   * @param mediaSources The {@link MediaSource MediaSources} to add.
    */
-  void sendMessages(ExoPlayerMessage... messages);
+  void addMediaSources(List<MediaSource> mediaSources);
 
   /**
-   * Variant of {@link #sendMessages(ExoPlayerMessage...)} that blocks until after the messages have
-   * been delivered.
+   * Adds a list of media sources at the given index of the playlist.
    *
-   * @param messages The messages to be sent.
+   * @param index The index at which to add the media sources.
+   * @param mediaSources The {@link MediaSource MediaSources} to add.
    */
-  void blockingSendMessages(ExoPlayerMessage... messages);
+  void addMediaSources(int index, List<MediaSource> mediaSources);
 
   /**
-   * Returns the number of renderers.
-   */
-  int getRendererCount();
-
-  /**
-   * Returns the track type that the renderer at a given index handles.
+   * Moves the media item at the current index to the new index.
    *
-   * @see Renderer#getTrackType()
-   * @param index The index of the renderer.
-   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
+   * @param currentIndex The current index of the media item to move.
+   * @param newIndex The new index of the media item. If the new index is larger than the size of
+   *     the playlist the item is moved to the end of the playlist.
    */
-  int getRendererType(int index);
+  void moveMediaItem(int currentIndex, int newIndex);
 
   /**
-   * Returns the available track groups.
-   */
-  TrackGroupArray getCurrentTrackGroups();
-
-  /**
-   * Returns the current track selections for each renderer.
-   */
-  TrackSelectionArray getCurrentTrackSelections();
-
-  /**
-   * Returns the current manifest. The type depends on the {@link MediaSource} passed to
-   * {@link #prepare}. May be null.
-   */
-  Object getCurrentManifest();
-
-  /**
-   * Returns the current {@link Timeline}. Never null, but may be empty.
-   */
-  Timeline getCurrentTimeline();
-
-  /**
-   * Returns the index of the period currently being played.
-   */
-  int getCurrentPeriodIndex();
-
-  /**
-   * Returns the index of the window currently being played.
-   */
-  int getCurrentWindowIndex();
-
-  /**
-   * Returns the duration of the current window in milliseconds, or {@link C#TIME_UNSET} if the
-   * duration is not known.
-   */
-  long getDuration();
-
-  /**
-   * Returns the playback position in the current window, in milliseconds.
-   */
-  long getCurrentPosition();
-
-  /**
-   * Returns an estimate of the position in the current window up to which data is buffered, in
-   * milliseconds.
-   */
-  long getBufferedPosition();
-
-  /**
-   * Returns an estimate of the percentage in the current window up to which data is buffered, or 0
-   * if no estimate is available.
-   */
-  int getBufferedPercentage();
-
-  /**
-   * Returns whether the current window is dynamic, or {@code false} if the {@link Timeline} is
-   * empty.
+   * Moves the media item range to the new index.
    *
-   * @see Timeline.Window#isDynamic
+   * @param fromIndex The start of the range to move.
+   * @param toIndex The first item not to be included in the range (exclusive).
+   * @param newIndex The new index of the first media item of the range. If the new index is larger
+   *     than the size of the remaining playlist after removing the range, the range is moved to the
+   *     end of the playlist.
    */
-  boolean isCurrentWindowDynamic();
+  void moveMediaItems(int fromIndex, int toIndex, int newIndex);
 
   /**
-   * Returns whether the current window is seekable, or {@code false} if the {@link Timeline} is
-   * empty.
+   * Removes the media item at the given index of the playlist.
    *
-   * @see Timeline.Window#isSeekable
+   * @param index The index at which to remove the media item.
    */
-  boolean isCurrentWindowSeekable();
+  void removeMediaItem(int index);
 
+  /**
+   * Removes a range of media items from the playlist.
+   *
+   * @param fromIndex The index at which to start removing media items.
+   * @param toIndex The index of the first item to be kept (exclusive).
+   */
+  void removeMediaItems(int fromIndex, int toIndex);
+
+  /** Clears the playlist. */
+  void clearMediaItems();
+
+  /**
+   * Sets the shuffle order.
+   *
+   * @param shuffleOrder The shuffle order.
+   */
+  void setShuffleOrder(ShuffleOrder shuffleOrder);
+
+  /**
+   * Creates a message that can be sent to a {@link PlayerMessage.Target}. By default, the message
+   * will be delivered immediately without blocking on the playback thread. The default {@link
+   * PlayerMessage#getType()} is 0 and the default {@link PlayerMessage#getPayload()} is null. If a
+   * position is specified with {@link PlayerMessage#setPosition(long)}, the message will be
+   * delivered at this position in the current window defined by {@link #getCurrentWindowIndex()}.
+   * Alternatively, the message can be sent at a specific window using {@link
+   * PlayerMessage#setPosition(int, long)}.
+   */
+  PlayerMessage createMessage(PlayerMessage.Target target);
+
+  /**
+   * Sets the parameters that control how seek operations are performed.
+   *
+   * @param seekParameters The seek parameters, or {@code null} to use the defaults.
+   */
+  void setSeekParameters(@Nullable SeekParameters seekParameters);
+
+  /** Returns the currently active {@link SeekParameters} of the player. */
+  SeekParameters getSeekParameters();
+
+  /**
+   * Sets whether the player is allowed to keep holding limited resources such as video decoders,
+   * even when in the idle state. By doing so, the player may be able to reduce latency when
+   * starting to play another piece of content for which the same resources are required.
+   *
+   * <p>This mode should be used with caution, since holding limited resources may prevent other
+   * players of media components from acquiring them. It should only be enabled when <em>both</em>
+   * of the following conditions are true:
+   *
+   * <ul>
+   *   <li>The application that owns the player is in the foreground.
+   *   <li>The player is used in a way that may benefit from foreground mode. For this to be true,
+   *       the same player instance must be used to play multiple pieces of content, and there must
+   *       be gaps between the playbacks (i.e. {@link #stop} is called to halt one playback, and
+   *       {@link #prepare} is called some time later to start a new one).
+   * </ul>
+   *
+   * <p>Note that foreground mode is <em>not</em> useful for switching between content without gaps
+   * between the playbacks. For this use case {@link #stop} does not need to be called, and simply
+   * calling {@link #prepare} for the new media will cause limited resources to be retained even if
+   * foreground mode is not enabled.
+   *
+   * <p>If foreground mode is enabled, it's the application's responsibility to disable it when the
+   * conditions described above no longer hold.
+   *
+   * @param foregroundMode Whether the player is allowed to keep limited resources even when in the
+   *     idle state.
+   */
+  void setForegroundMode(boolean foregroundMode);
 }
