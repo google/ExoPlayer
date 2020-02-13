@@ -164,7 +164,9 @@ var activeTableTab = "activeTableTab";
 <pre>boolean&nbsp;onCommand(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                   <a href="../../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher,
                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;command,
+                  @Nullable
                   <a href="https://developer.android.com/reference/android/os/Bundle.html" target="_top" title="class or interface in android.os">Bundle</a>&nbsp;extras,
+                  @Nullable
                   <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" target="_top" title="class or interface in android.os">ResultReceiver</a>&nbsp;cb)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onCommand(String, Bundle, ResultReceiver)</code>. The
  receiver may handle the command, but is not required to do so. Changes to the player should

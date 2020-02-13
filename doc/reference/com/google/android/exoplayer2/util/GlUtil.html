@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/util/GlUtil.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -108,13 +108,40 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public final class <span class="typeNameLabel">GlUtil</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
-<div class="block">GL utility methods.</div>
+<div class="block">GL utilities.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html" title="class in com.google.android.exoplayer2.util">GlUtil.Attribute</a></span></code>
+<div class="block">GL attribute, which can be attached to a buffer with <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html#setBuffer-float:A-int-"><code>GlUtil.Attribute.setBuffer(float[], int)</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Uniform.html" title="class in com.google.android.exoplayer2.util">GlUtil.Uniform</a></span></code>
+<div class="block">GL uniform, which can be attached to a sampler using <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Uniform.html#setSamplerTexId-int-int-"><code>GlUtil.Uniform.setSamplerTexId(int, int)</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
@@ -166,6 +193,30 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  GL_CLAMP_TO_EDGE wrapping.</div>
 </td>
 </tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html" title="class in com.google.android.exoplayer2.util">GlUtil.Attribute</a>[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.html#getAttributes-int-">getAttributes</a></span>(int&nbsp;program)</code>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html" title="class in com.google.android.exoplayer2.util"><code>GlUtil.Attribute</code></a>s in the specified <code>program</code>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Uniform.html" title="class in com.google.android.exoplayer2.util">GlUtil.Uniform</a>[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.html#getUniforms-int-">getUniforms</a></span>(int&nbsp;program)</code>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Uniform.html" title="class in com.google.android.exoplayer2.util"><code>GlUtil.Uniform</code></a>s in the specified <code>program</code>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.html#isProtectedContentExtensionSupported-android.content.Context-">isProtectedContentExtensionSupported</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</code>
+<div class="block">Returns whether creating a GL context with  is possible.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.html#isSurfacelessContextExtensionSupported--">isSurfacelessContextExtensionSupported</a></span>()</code>
+<div class="block">Returns whether creating a GL context with  is possible.</div>
+</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -188,6 +239,27 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="isProtectedContentExtensionSupported-android.content.Context-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isProtectedContentExtensionSupported</h4>
+<pre>public static&nbsp;boolean&nbsp;isProtectedContentExtensionSupported(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context)</pre>
+<div class="block">Returns whether creating a GL context with  is possible. If
+ <code>true</code>, the device supports a protected output path for DRM content when using GL.</div>
+</li>
+</ul>
+<a name="isSurfacelessContextExtensionSupported--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSurfacelessContextExtensionSupported</h4>
+<pre>public static&nbsp;boolean&nbsp;isSurfacelessContextExtensionSupported()</pre>
+<div class="block">Returns whether creating a GL context with  is possible.</div>
+</li>
+</ul>
 <a name="checkGlError--">
 <!--   -->
 </a>
@@ -234,6 +306,26 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>GLES20 program id.</dd>
 </dl>
+</li>
+</ul>
+<a name="getAttributes-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAttributes</h4>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html" title="class in com.google.android.exoplayer2.util">GlUtil.Attribute</a>[]&nbsp;getAttributes(int&nbsp;program)</pre>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html" title="class in com.google.android.exoplayer2.util"><code>GlUtil.Attribute</code></a>s in the specified <code>program</code>.</div>
+</li>
+</ul>
+<a name="getUniforms-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getUniforms</h4>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Uniform.html" title="class in com.google.android.exoplayer2.util">GlUtil.Uniform</a>[]&nbsp;getUniforms(int&nbsp;program)</pre>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Uniform.html" title="class in com.google.android.exoplayer2.util"><code>GlUtil.Uniform</code></a>s in the specified <code>program</code>.</div>
 </li>
 </ul>
 <a name="createBuffer-float:A-">
@@ -302,8 +394,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/util/GlUtil.html" target="_top">Frames</a></li>
@@ -327,7 +419,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

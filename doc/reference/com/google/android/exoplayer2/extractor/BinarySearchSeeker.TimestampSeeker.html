@@ -130,9 +130,8 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html#searchForTimestamp-com.google.android.exoplayer2.extractor.ExtractorInput-long-com.google.android.exoplayer2.extractor.BinarySearchSeeker.OutputFrameHolder-">searchForTimestamp</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
-                  long&nbsp;targetTimestamp,
-                  <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.OutputFrameHolder</a>&nbsp;outputFrameHolder)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html#searchForTimestamp-com.google.android.exoplayer2.extractor.ExtractorInput-long-">searchForTimestamp</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                  long&nbsp;targetTimestamp)</code>
 <div class="block">Searches a limited window of the provided input for a target timestamp.</div>
 </td>
 </tr>
@@ -151,15 +150,14 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="searchForTimestamp-com.google.android.exoplayer2.extractor.ExtractorInput-long-com.google.android.exoplayer2.extractor.BinarySearchSeeker.OutputFrameHolder-">
+<a name="searchForTimestamp-com.google.android.exoplayer2.extractor.ExtractorInput-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>searchForTimestamp</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a>&nbsp;searchForTimestamp(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
-                                                            long&nbsp;targetTimestamp,
-                                                            <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.OutputFrameHolder</a>&nbsp;outputFrameHolder)
+                                                            long&nbsp;targetTimestamp)
                                                      throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                                                             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block">Searches a limited window of the provided input for a target timestamp. The size of the
@@ -169,9 +167,6 @@ var activeTableTab = "activeTableTab";
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>input</code> - The <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> from which data should be peeked.</dd>
 <dd><code>targetTimestamp</code> - The target timestamp.</dd>
-<dd><code>outputFrameHolder</code> - If <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html#TYPE_TARGET_TIMESTAMP_FOUND"><code>BinarySearchSeeker.TimestampSearchResult.TYPE_TARGET_TIMESTAMP_FOUND</code></a> is
-     returned, this holder may be updated to hold the extracted frame that contains the target
-     frame/sample associated with the target timestamp.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker.TimestampSearchResult</code></a> that describes the result of the search.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

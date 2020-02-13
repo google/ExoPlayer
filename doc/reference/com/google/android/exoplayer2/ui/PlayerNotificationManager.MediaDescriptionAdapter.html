@@ -246,11 +246,10 @@ default&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/
                                      <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.BitmapCallback.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.BitmapCallback</a>&nbsp;callback)</pre>
 <div class="block">Gets the large icon for the current media item.
 
- <p>When a bitmap initially needs to be asynchronously loaded, a placeholder (or null) can be
- returned and the bitmap asynchronously passed to the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.BitmapCallback.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.BitmapCallback</code></a> once it is
- loaded. Because the adapter may be called multiple times for the same media item, the bitmap
- should be cached by the app and whenever possible be returned synchronously at subsequent
- calls for the same media item.
+ <p>When a bitmap needs to be loaded asynchronously, a placeholder bitmap (or null) should be
+ returned. The actual bitmap should be passed to the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.BitmapCallback.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.BitmapCallback</code></a> once it has been
+ loaded. Because the adapter may be called multiple times for the same media item, bitmaps
+ should be cached by the app and returned synchronously when possible.
 
  <p>See <code>NotificationCompat.Builder#setLargeIcon(Bitmap)</code>.</div>
 <dl>

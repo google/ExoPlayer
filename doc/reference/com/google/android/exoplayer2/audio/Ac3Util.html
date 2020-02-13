@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -109,7 +109,7 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">Ac3Util</span>
 extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></pre>
 <div class="block">Utility methods for parsing Dolby TrueHD and (E-)AC-3 syncframes. (E-)AC-3 parsing follows the
- definition in ETSI TS 102 366 V1.2.1.</div>
+ definition in ETSI TS 102 366 V1.4.1.</div>
 </li>
 </ul>
 </div>
@@ -184,19 +184,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#getAc3SyncframeAudioSampleCount--">getAc3SyncframeAudioSampleCount</a></span>()</code>
-<div class="block">Returns the number of audio samples in an AC-3 syncframe.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3AnnexFFormat-com.google.android.exoplayer2.util.ParsableByteArray-java.lang.String-java.lang.String-com.google.android.exoplayer2.drm.DrmInitData-">parseAc3AnnexFFormat</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;trackId,
                     <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                     <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>
-<div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to ETSI TS
- 102 366 Annex F.</div>
+<div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to Annex F.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3SyncframeAudioSampleCount-java.nio.ByteBuffer-">parseAc3SyncframeAudioSampleCount</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer)</code>
+<div class="block">Reads the number of audio samples represented by the given (E-)AC-3 syncframe.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -217,24 +216,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;trackId,
                      <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                      <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>
-<div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to ETSI TS
- 102 366 Annex F.</div>
+<div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to Annex
+ F.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseEAc3SyncframeAudioSampleCount-java.nio.ByteBuffer-">parseEAc3SyncframeAudioSampleCount</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer)</code>
-<div class="block">Reads the number of audio samples represented by the given E-AC-3 syncframe.</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseTrueHdSyncframeAudioSampleCount-byte:A-">parseTrueHdSyncframeAudioSampleCount</a></span>(byte[]&nbsp;syncframe)</code>
 <div class="block">Returns the number of audio samples represented by the given TrueHD syncframe, or 0 if the
  buffer is not the start of a syncframe.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseTrueHdSyncframeAudioSampleCount-java.nio.ByteBuffer-int-">parseTrueHdSyncframeAudioSampleCount</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer,
                                     int&nbsp;offset)</code>
@@ -312,8 +305,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                                           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                                           @Nullable
                                           <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
-<div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to ETSI TS
- 102 366 Annex F. The reading position of <code>data</code> will be modified.</div>
+<div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to Annex F.
+ The reading position of <code>data</code> will be modified.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The AC3SpecificBox to parse.</dd>
@@ -336,8 +329,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
                                            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;language,
                                            @Nullable
                                            <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
-<div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to ETSI TS
- 102 366 Annex F. The reading position of <code>data</code> will be modified.</div>
+<div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to Annex
+ F. The reading position of <code>data</code> will be modified.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The EC3SpecificBox to parse.</dd>
@@ -382,24 +375,14 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </dl>
 </li>
 </ul>
-<a name="getAc3SyncframeAudioSampleCount--">
+<a name="parseAc3SyncframeAudioSampleCount-java.nio.ByteBuffer-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getAc3SyncframeAudioSampleCount</h4>
-<pre>public static&nbsp;int&nbsp;getAc3SyncframeAudioSampleCount()</pre>
-<div class="block">Returns the number of audio samples in an AC-3 syncframe.</div>
-</li>
-</ul>
-<a name="parseEAc3SyncframeAudioSampleCount-java.nio.ByteBuffer-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>parseEAc3SyncframeAudioSampleCount</h4>
-<pre>public static&nbsp;int&nbsp;parseEAc3SyncframeAudioSampleCount(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer)</pre>
-<div class="block">Reads the number of audio samples represented by the given E-AC-3 syncframe. The buffer's
+<h4>parseAc3SyncframeAudioSampleCount</h4>
+<pre>public static&nbsp;int&nbsp;parseAc3SyncframeAudioSampleCount(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer)</pre>
+<div class="block">Reads the number of audio samples represented by the given (E-)AC-3 syncframe. The buffer's
  position is not modified.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -180,6 +180,20 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-">assertOutput</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
+            <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;file,
+            byte[]&nbsp;data,
+            <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+            boolean&nbsp;sniffFirst,
+            boolean&nbsp;simulateIOErrors,
+            boolean&nbsp;simulateUnknownLength,
+            boolean&nbsp;simulatePartialReads)</code>
+<div class="block">Asserts that <code>extractor</code> consumes <code>sampleFile</code> successfully and its output equals
+ to a prerecorded output dump file with the name <code>sampleFile</code> + "".</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertSniff-com.google.android.exoplayer2.extractor.Extractor-com.google.android.exoplayer2.testutil.FakeExtractorInput-boolean-">assertSniff</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
            <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorInput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorInput</a>&nbsp;input,
@@ -188,7 +202,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  given <code>input</code>, retrying repeatedly when <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorInput.SimulatedIOException.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExtractorInput.SimulatedIOException</code></a> is thrown.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertThrows-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-android.content.Context-java.lang.Class-">assertThrows</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
             <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;sampleFile,
@@ -328,6 +342,43 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>file</code> - The path to the input sample.</dd>
 <dd><code>data</code> - Content of the input file.</dd>
 <dd><code>context</code> - To be used to load the sample file.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If reading from the input fails.</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If interrupted while reading from the input.</dd>
+</dl>
+</li>
+</ul>
+<a name="assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assertOutput</h4>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a>&nbsp;assertOutput(<a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
+                                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;file,
+                                               byte[]&nbsp;data,
+                                               <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+                                               boolean&nbsp;sniffFirst,
+                                               boolean&nbsp;simulateIOErrors,
+                                               boolean&nbsp;simulateUnknownLength,
+                                               boolean&nbsp;simulatePartialReads)
+                                        throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
+                                               <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
+<div class="block">Asserts that <code>extractor</code> consumes <code>sampleFile</code> successfully and its output equals
+ to a prerecorded output dump file with the name <code>sampleFile</code> + "". If <code>simulateUnknownLength</code> is true and <code>sampleFile</code> + "" exists, it's preferred.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>extractor</code> - The <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> to be tested.</dd>
+<dd><code>file</code> - The path to the input sample.</dd>
+<dd><code>data</code> - Content of the input file.</dd>
+<dd><code>context</code> - To be used to load the sample file.</dd>
+<dd><code>sniffFirst</code> - Whether to sniff the data by calling <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#sniff-com.google.android.exoplayer2.extractor.ExtractorInput-"><code>Extractor.sniff(ExtractorInput)</code></a>
+     prior to consuming it.</dd>
+<dd><code>simulateIOErrors</code> - Whether to simulate IO errors.</dd>
+<dd><code>simulateUnknownLength</code> - Whether to simulate unknown input length.</dd>
+<dd><code>simulatePartialReads</code> - Whether to simulate partial reads.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExtractorOutput</code></a> used in the test.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If reading from the input fails.</dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If interrupted while reading from the input.</dd>

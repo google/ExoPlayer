@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var methods = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -181,6 +181,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/InitializationChunk.html#init-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider-">init</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a>&nbsp;trackOutputProvider)</code>
+<div class="block">Initializes the chunk for loading, setting a <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a> for track outputs to
+ which formats will be written as they are loaded.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/InitializationChunk.html#load--">load</a></span>()</code>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
 </td>
@@ -246,6 +253,22 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="init-com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>init</h4>
+<pre>public&nbsp;void&nbsp;init(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a>&nbsp;trackOutputProvider)</pre>
+<div class="block">Initializes the chunk for loading, setting a <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a> for track outputs to
+ which formats will be written as they are loaded.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>trackOutputProvider</code> - The <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a> for track outputs to which formats
+     will be written as they are loaded.</dd>
+</dl>
+</li>
+</ul>
 <a name="cancelLoad--">
 <!--   -->
 </a>

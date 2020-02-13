@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":6,"i9":6,"i10":6,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":6,"i9":6,"i10":6,"i11":10,"i12":10,"i13":10,"i14":10,"i15":42,"i16":42,"i17":10,"i18":10,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -317,7 +317,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -436,13 +436,20 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onDownloadChanged-com.google.android.exoplayer2.offline.Download-">onDownloadChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code>
-<div class="block">Called when the state of a download changes.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Some state change events may not be delivered to this method. Instead, use <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#addListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-"><code>DownloadManager.addListener(DownloadManager.Listener)</code></a> to register a listener directly to
+     the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> that you return through <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#getDownloadManager--"><code>getDownloadManager()</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#onDownloadRemoved-com.google.android.exoplayer2.offline.Download-">onDownloadRemoved</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code>
-<div class="block">Called when a download is removed.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Some download removal events may not be delivered to this method. Instead, use
+     <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#addListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-"><code>DownloadManager.addListener(DownloadManager.Listener)</code></a> to register a listener
+     directly to the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> that you return through <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#getDownloadManager--"><code>getDownloadManager()</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
@@ -1410,7 +1417,12 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/os/IB
 protected abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler">Scheduler</a>&nbsp;getScheduler()</pre>
 <div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> to restart the service when requirements allowing downloads to take
  place are met. If <code>null</code>, the service will only be restarted if the process is still in
- memory when the requirements are met.</div>
+ memory when the requirements are met.
+
+ <p>This method is not called for services whose <code>foregroundNotificationId</code> is set to
+ <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#FOREGROUND_NOTIFICATION_ID_NONE"><code>FOREGROUND_NOTIFICATION_ID_NONE</code></a>. Such services will only be restarted if the process
+ is still in memory and considered non-idle, meaning that it's either in the foreground or was
+ backgrounded within the last few minutes.</div>
 </li>
 </ul>
 <a name="getForegroundNotification-java.util.List-">
@@ -1420,16 +1432,10 @@ protected abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/sc
 <li class="blockList">
 <h4>getForegroundNotification</h4>
 <pre>protected abstract&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" target="_top" title="class or interface in android.app">Notification</a>&nbsp;getForegroundNotification(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&gt;&nbsp;downloads)</pre>
-<div class="block">Returns a notification to be displayed when this service running in the foreground. This method
- is called when there is a download state change and periodically while there are active
- downloads. The periodic update interval can be set using <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#DownloadService-int-long-"><code>DownloadService(int, long)</code></a>.
-
- <p>On API level 26 and above, this method may also be called just before the service stops,
- with an empty <code>downloads</code> array. The returned notification is used to satisfy system
- requirements for foreground services.
+<div class="block">Returns a notification to be displayed when this service running in the foreground.
 
  <p>Download services that do not wish to run in the foreground should be created by setting the
- <code>foregroundNotificationId</code> constructor argument to <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#FOREGROUND_NOTIFICATION_ID_NONE"><code>FOREGROUND_NOTIFICATION_ID_NONE</code></a>. This method will not be called in this case, meaning it can
+ <code>foregroundNotificationId</code> constructor argument to <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#FOREGROUND_NOTIFICATION_ID_NONE"><code>FOREGROUND_NOTIFICATION_ID_NONE</code></a>. This method is not called for such services, meaning it can
  be implemented to throw <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/UnsupportedOperationException.html" target="_top" title="class or interface in java.lang"><code>UnsupportedOperationException</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1455,12 +1461,10 @@ protected abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/sc
 <ul class="blockList">
 <li class="blockList">
 <h4>onDownloadChanged</h4>
-<pre>protected&nbsp;void&nbsp;onDownloadChanged(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</pre>
-<div class="block">Called when the state of a download changes. The default implementation is a no-op.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>download</code> - The new state of the download.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+protected&nbsp;void&nbsp;onDownloadChanged(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Some state change events may not be delivered to this method. Instead, use <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#addListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-"><code>DownloadManager.addListener(DownloadManager.Listener)</code></a> to register a listener directly to
+     the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> that you return through <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#getDownloadManager--"><code>getDownloadManager()</code></a>.</span></div>
 </li>
 </ul>
 <a name="onDownloadRemoved-com.google.android.exoplayer2.offline.Download-">
@@ -1469,12 +1473,11 @@ protected abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/sc
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onDownloadRemoved</h4>
-<pre>protected&nbsp;void&nbsp;onDownloadRemoved(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</pre>
-<div class="block">Called when a download is removed. The default implementation is a no-op.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>download</code> - The last state of the download before it was removed.</dd>
-</dl>
+<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Deprecated.html" target="_top" title="class or interface in java.lang">@Deprecated</a>
+protected&nbsp;void&nbsp;onDownloadRemoved(<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Some download removal events may not be delivered to this method. Instead, use
+     <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#addListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-"><code>DownloadManager.addListener(DownloadManager.Listener)</code></a> to register a listener
+     directly to the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> that you return through <a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html#getDownloadManager--"><code>getDownloadManager()</code></a>.</span></div>
 </li>
 </ul>
 </li>

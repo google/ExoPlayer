@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -183,25 +183,32 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#peek-byte:A-int-int-">peek</a></span>(byte[]&nbsp;target,
+    int&nbsp;offset,
+    int&nbsp;length)</code>
+<div class="block">Peeks up to <code>length</code> bytes from the peek position.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#peekFully-byte:A-int-int-">peekFully</a></span>(byte[]&nbsp;target,
          int&nbsp;offset,
          int&nbsp;length)</code>
-<div class="block">Peeks <code>length</code> bytes from the peek position, writing them into <code>target</code> at index
- <code>offset</code>.</div>
+<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-"><code>peekFully(target, offset, length,
+ false)</code></a>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#peekFully-byte:A-int-int-boolean-">peekFully</a></span>(byte[]&nbsp;target,
          int&nbsp;offset,
          int&nbsp;length,
          boolean&nbsp;allowEndOfInput)</code>
-<div class="block">Peeks <code>length</code> bytes from the peek position, writing them into <code>target</code> at index
- <code>offset</code>.</div>
+<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-"><code>ExtractorInput.peek(byte[], int, int)</code></a>, but peeks the requested <code>length</code> in full.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;target,
     int&nbsp;offset,
@@ -209,15 +216,16 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <div class="block">Reads up to <code>length</code> bytes from the input and resets the peek position.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#readFully-byte:A-int-int-">readFully</a></span>(byte[]&nbsp;target,
          int&nbsp;offset,
          int&nbsp;length)</code>
-<div class="block">Equivalent to <code>readFully(target, offset, length, false)</code>.</div>
+<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-"><code>readFully(target, offset, length,
+ false)</code></a>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#readFully-byte:A-int-int-boolean-">readFully</a></span>(byte[]&nbsp;target,
          int&nbsp;offset,
@@ -226,32 +234,32 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#resetPeekPosition--">resetPeekPosition</a></span>()</code>
 <div class="block">Resets the peek position to equal the current read position.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>&lt;E extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Throwable.html" target="_top" title="class or interface in java.lang">Throwable</a>&gt;<br>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#setRetryPosition-long-E-">setRetryPosition</a></span>(long&nbsp;position,
                 E&nbsp;e)</code>
 <div class="block">Called when reading fails and the required retry position is different from the last position.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#skip-int-">skip</a></span>(int&nbsp;length)</code>
 <div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#skipFully-int-">skipFully</a></span>(int&nbsp;length)</code>
 <div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-"><code>ExtractorInput.readFully(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#skipFully-int-boolean-">skipFully</a></span>(int&nbsp;length,
          boolean&nbsp;allowEndOfInput)</code>
@@ -385,7 +393,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
                throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-">ExtractorInput</a></code></span></div>
-<div class="block">Equivalent to <code>readFully(target, offset, length, false)</code>.</div>
+<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-"><code>readFully(target, offset, length,
+ false)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-">readFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
@@ -483,6 +492,42 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 </dl>
 </li>
 </ul>
+<a name="peek-byte:A-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>peek</h4>
+<pre>public&nbsp;int&nbsp;peek(byte[]&nbsp;target,
+                int&nbsp;offset,
+                int&nbsp;length)
+         throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
+                <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-">ExtractorInput</a></code></span></div>
+<div class="block">Peeks up to <code>length</code> bytes from the peek position. The current read position is left
+ unchanged.
+
+ <p>This method blocks until at least one byte of data can be peeked, the end of the input is
+ detected, or an exception is thrown.
+
+ <p>Calling <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#resetPeekPosition--"><code>ExtractorInput.resetPeekPosition()</code></a> resets the peek position to equal the current read
+ position, so the caller can peek the same data again. Reading or skipping also resets the peek
+ position.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-">peek</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>target</code> - A target array into which data should be written.</dd>
+<dd><code>offset</code> - The offset into the target array at which to write.</dd>
+<dd><code>length</code> - The maximum number of bytes to peek from the input.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The number of bytes peeked, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs peeking from the input.</dd>
+<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code> - If the thread has been interrupted.</dd>
+</dl>
+</li>
+</ul>
 <a name="peekFully-byte:A-int-int-boolean-">
 <!--   -->
 </a>
@@ -496,12 +541,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
                   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                          <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-">ExtractorInput</a></code></span></div>
-<div class="block">Peeks <code>length</code> bytes from the peek position, writing them into <code>target</code> at index
- <code>offset</code>. The current read position is left unchanged.
-
- <p>Calling <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#resetPeekPosition--"><code>ExtractorInput.resetPeekPosition()</code></a> resets the peek position to equal the current read
- position, so the caller can peek the same data again. Reading or skipping also resets the peek
- position.</div>
+<div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-"><code>ExtractorInput.peek(byte[], int, int)</code></a>, but peeks the requested <code>length</code> in full.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-">peekFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
@@ -537,12 +577,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
                throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>,
                       <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-">ExtractorInput</a></code></span></div>
-<div class="block">Peeks <code>length</code> bytes from the peek position, writing them into <code>target</code> at index
- <code>offset</code>. The current read position is left unchanged.
- <p>
- Calling <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#resetPeekPosition--"><code>ExtractorInput.resetPeekPosition()</code></a> resets the peek position to equal the current read
- position, so the caller can peek the same data again. Reading and skipping also reset the peek
- position.</div>
+<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-"><code>peekFully(target, offset, length,
+ false)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-">peekFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>

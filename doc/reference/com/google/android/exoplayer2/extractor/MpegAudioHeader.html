@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9};
+var methods = {"i0":9,"i1":9,"i2":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -210,12 +210,18 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/MpegAudioHeader.html#getFrameSampleCount-int-">getFrameSampleCount</a></span>(int&nbsp;header)</code>
+<div class="block">Returns the number of samples per frame associated with <code>header</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is invalid.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/MpegAudioHeader.html#getFrameSize-int-">getFrameSize</a></span>(int&nbsp;header)</code>
 <div class="block">Returns the size of the frame associated with <code>header</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it
  is invalid.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/MpegAudioHeader.html#populateHeader-int-com.google.android.exoplayer2.extractor.MpegAudioHeader-">populateHeader</a></span>(int&nbsp;headerData,
               <a href="../../../../../com/google/android/exoplayer2/extractor/MpegAudioHeader.html" title="class in com.google.android.exoplayer2.extractor">MpegAudioHeader</a>&nbsp;header)</code>
@@ -366,6 +372,16 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/l
 <pre>public static&nbsp;int&nbsp;getFrameSize(int&nbsp;header)</pre>
 <div class="block">Returns the size of the frame associated with <code>header</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it
  is invalid.</div>
+</li>
+</ul>
+<a name="getFrameSampleCount-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getFrameSampleCount</h4>
+<pre>public static&nbsp;int&nbsp;getFrameSampleCount(int&nbsp;header)</pre>
+<div class="block">Returns the number of samples per frame associated with <code>header</code>, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is invalid.</div>
 </li>
 </ul>
 <a name="populateHeader-int-com.google.android.exoplayer2.extractor.MpegAudioHeader-">

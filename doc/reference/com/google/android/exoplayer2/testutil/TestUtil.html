@@ -644,7 +644,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
  end-of-input is reached.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>extractor</code> - The <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> to extractor from input.</dd>
+<dd><code>extractor</code> - The <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> to extract from input.</dd>
 <dd><code>seekMap</code> - The <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> of the stream from the given input.</dd>
 <dd><code>seekTimeUs</code> - The seek time, in micro-seconds.</dd>
 <dd><code>trackOutput</code> - The <a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTrackOutput</code></a> to store the extracted samples.</dd>
@@ -652,7 +652,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <dd><code>uri</code> - The Uri of the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The index of the first extracted sample written to the given <code>trackOutput</code> after
-     the seek is completed, or -1 if the seek is completed without any extracted sample.</dd>
+     the seek is completed, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the seek is completed without any
+     extracted sample.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code></dd>
 <dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a></code></dd>

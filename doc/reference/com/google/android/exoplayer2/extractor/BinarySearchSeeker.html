@@ -149,31 +149,24 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.OutputFrameHolder</a></span></code>
-<div class="block">Holds a frame extracted from a stream, together with the time stamp of the frame in
- microseconds.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>protected static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekOperationParams.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekOperationParams</a></span></code>
 <div class="block">Contains parameters for a pending seek operation by <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.SeekTimestampConverter.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.SeekTimestampConverter</a></span></code>
 <div class="block">A converter that converts seek time in stream time into target timestamp for the <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html" title="class in com.google.android.exoplayer2.extractor"><code>BinarySearchSeeker</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSearchResult.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSearchResult</a></span></code>
-<div class="block">Represents possible search results for <code>TimestampSeeker#searchForTimestamp(ExtractorInput, long, OutputFrameHolder)</code>.</div>
+<div class="block">Represents possible search results for <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html#searchForTimestamp-com.google.android.exoplayer2.extractor.ExtractorInput-long-"><code>BinarySearchSeeker.TimestampSeeker.searchForTimestamp(ExtractorInput, long)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.TimestampSeeker.html" title="interface in com.google.android.exoplayer2.extractor">BinarySearchSeeker.TimestampSeeker</a></span></code>
 <div class="block">A seeker that looks for a given timestamp from an input.</div>
@@ -262,9 +255,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html#handlePendingSeek-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-com.google.android.exoplayer2.extractor.BinarySearchSeeker.OutputFrameHolder-">handlePendingSeek</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
-                 <a href="../../../../../com/google/android/exoplayer2/extractor/PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPositionHolder,
-                 <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.OutputFrameHolder</a>&nbsp;outputFrameHolder)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html#handlePendingSeek-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-">handlePendingSeek</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+                 <a href="../../../../../com/google/android/exoplayer2/extractor/PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPositionHolder)</code>
 <div class="block">Continues to handle the pending seek operation.</div>
 </td>
 </tr>
@@ -437,15 +429,14 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/B
 <div class="block">Returns whether the last operation set by <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.html#setSeekTargetUs-long-"><code>setSeekTargetUs(long)</code></a> is still pending.</div>
 </li>
 </ul>
-<a name="handlePendingSeek-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-com.google.android.exoplayer2.extractor.BinarySearchSeeker.OutputFrameHolder-">
+<a name="handlePendingSeek-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>handlePendingSeek</h4>
 <pre>public&nbsp;int&nbsp;handlePendingSeek(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
-                             <a href="../../../../../com/google/android/exoplayer2/extractor/PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPositionHolder,
-                             <a href="../../../../../com/google/android/exoplayer2/extractor/BinarySearchSeeker.OutputFrameHolder.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.OutputFrameHolder</a>&nbsp;outputFrameHolder)
+                             <a href="../../../../../com/google/android/exoplayer2/extractor/PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPositionHolder)
                       throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/InterruptedException.html" target="_top" title="class or interface in java.lang">InterruptedException</a>,
                              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Continues to handle the pending seek operation. Returns one of the <code>RESULT_</code> values from
@@ -455,9 +446,6 @@ protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/B
 <dd><code>input</code> - The <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> from which data should be read.</dd>
 <dd><code>seekPositionHolder</code> - If <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#RESULT_SEEK"><code>Extractor.RESULT_SEEK</code></a> is returned, this holder is updated
      to hold the position of the required seek.</dd>
-<dd><code>outputFrameHolder</code> - If <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#RESULT_CONTINUE"><code>Extractor.RESULT_CONTINUE</code></a> is returned, this holder may be
-     updated to hold the extracted frame that contains the target sample. The caller needs to
-     check the byte buffer limit to see if an extracted frame is available.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>One of the <code>RESULT_</code> values defined in <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

@@ -541,7 +541,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseChronometer-boolean-">setUseChronometer</a></span>(boolean&nbsp;useChronometer)</code>
-<div class="block">Sets whether the elapsed time of the media playback should be displayed</div>
+<div class="block">Sets whether the elapsed time of the media playback should be displayed.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
@@ -1241,7 +1241,18 @@ public final&nbsp;void&nbsp;setNotificationListener(<a href="../../../../../com/
 <li class="blockList">
 <h4>setUseChronometer</h4>
 <pre>public final&nbsp;void&nbsp;setUseChronometer(boolean&nbsp;useChronometer)</pre>
-<div class="block">Sets whether the elapsed time of the media playback should be displayed
+<div class="block">Sets whether the elapsed time of the media playback should be displayed.
+
+ <p>Note that this setting only works if all of the following are true:
+
+ <ul>
+   <li>The media is <a href="../../../../../com/google/android/exoplayer2/Player.html#isPlaying--"><code>actively playing</code></a>.
+   <li>The media is not <a href="../../../../../com/google/android/exoplayer2/Player.html#isCurrentWindowDynamic--"><code>dynamically changing its
+       duration</code></a> (like for example a live stream).
+   <li>The media is not <a href="../../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--"><code>interrupted by an ad</code></a>.
+   <li>The media is played at <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackParameters--"><code>regular speed</code></a>.
+   <li>The device is running at least API 21 (Lollipop).
+ </ul>
 
  <p>See <code>NotificationCompat.Builder#setUsesChronometer(boolean)</code>.</div>
 <dl>

@@ -504,7 +504,13 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>isWaitingForRequirements</h4>
 <pre>public&nbsp;boolean&nbsp;isWaitingForRequirements()</pre>
 <div class="block">Returns whether this manager has one or more downloads that are not progressing for the sole
- reason that the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getRequirements--"><code>Requirements</code></a> are not met.</div>
+ reason that the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getRequirements--"><code>Requirements</code></a> are not met. This is true if:
+
+ <ul>
+   <li>The <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getRequirements--"><code>Requirements</code></a> are not met.
+   <li>The downloads are not paused (i.e. <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html#getDownloadsPaused--"><code>getDownloadsPaused()</code></a> is <code>false</code>).
+   <li>There are downloads in the <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_QUEUED"><code>queued state</code></a>.
+ </ul></div>
 </li>
 </ul>
 <a name="addListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-">
@@ -675,7 +681,7 @@ public&nbsp;int&nbsp;getNotMetRequirements()</pre>
 <li class="blockList">
 <h4>pauseDownloads</h4>
 <pre>public&nbsp;void&nbsp;pauseDownloads()</pre>
-<div class="block">Pauses downloads. Downloads that would otherwise be making progress transition to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.</div>
+<div class="block">Pauses downloads. Downloads that would otherwise be making progress will transition to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.</div>
 </li>
 </ul>
 <a name="setStopReason-java.lang.String-int-">
