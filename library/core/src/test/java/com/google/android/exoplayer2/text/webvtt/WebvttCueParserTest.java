@@ -96,6 +96,22 @@ public final class WebvttCueParserTest {
   }
 
   @Test
+  public void testBackgroundTextColorClass() throws Exception {
+    Spanned text = parseCueText("In this sentence <c.bg_red>this text</c> has a red background");
+
+    assertThat(text.toString()).isEqualTo("In this sentence this text has a red background");
+    assertThat(text).hasBackgroundColorSpanBetween("In this sentence ".length(), "In this sentence this text".length());
+  }
+
+  @Test
+  public void testUnsupportedColorForBackgroundTextColorClass() throws Exception {
+    Spanned text = parseCueText("In this sentence <c.bg_papayawhip>this text</c> doesn't have a papaya background");
+
+    assertThat(text.toString()).isEqualTo("In this sentence this text doesn't have a papaya background");
+    assertThat(text).hasNoSpans();
+  }
+
+  @Test
   public void testParseWellFormedUnclosedEndAtCueEnd() throws Exception {
     Spanned text = parseCueText("An <u some trailing stuff>unclosed u tag with "
         + "<i>italic</i> inside");
