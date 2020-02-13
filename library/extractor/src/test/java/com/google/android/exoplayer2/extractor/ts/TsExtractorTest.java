@@ -111,6 +111,16 @@ public final class TsExtractorTest {
     assertThat(factory.sdtReader.consumedSdts).isEqualTo(2);
   }
 
+  @Test
+  public void testSampleWithAc4() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac4.ts");
+  }
+
+  @Test
+  public void testSampleWithEac3() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3.ts");
+  }
+
   private static final class CustomTsPayloadReaderFactory implements TsPayloadReader.Factory {
 
     private final boolean provideSdtReader;
