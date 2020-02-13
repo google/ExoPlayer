@@ -101,7 +101,7 @@ not provide any integration with the DAI part of the IMA SDK.
 
 [VAST]: https://www.iab.com/wp-content/uploads/2015/06/VASTv3_0.pdf
 [VMAP]: https://www.iab.com/guidelines/digital-video-multiple-ad-playlist-vmap-1-0-1/
-[UI components]: {{ site.baseurl }}/ui-components.md
+[ExoPlayer UI components]: {{ site.baseurl }}/ui-components.md
 [ExoPlayer IMA extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ima
 [client-side IMA SDK]: https://developers.google.com/interactive-media-ads/docs/sdks/android
 [README]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ima
