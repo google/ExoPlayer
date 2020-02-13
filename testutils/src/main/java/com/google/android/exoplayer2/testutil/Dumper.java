@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.util.Arrays;
 import java.util.Locale;
@@ -44,7 +45,7 @@ public final class Dumper {
     sb = new StringBuilder();
   }
 
-  public Dumper add(String field, Object value) {
+  public Dumper add(String field, @Nullable Object value) {
     return addString(field + " = " + value + '\n');
   }
 
@@ -53,9 +54,14 @@ public final class Dumper {
     return this;
   }
 
-  public Dumper add(String field, byte[] value) {
-    String string = String.format(Locale.US, "%s = length %d, hash %X\n", field, value.length,
-        Arrays.hashCode(value));
+  public Dumper add(String field, @Nullable byte[] value) {
+    String string =
+        String.format(
+            Locale.US,
+            "%s = length %d, hash %X\n",
+            field,
+            value == null ? 0 : value.length,
+            Arrays.hashCode(value));
     return addString(string);
   }
 

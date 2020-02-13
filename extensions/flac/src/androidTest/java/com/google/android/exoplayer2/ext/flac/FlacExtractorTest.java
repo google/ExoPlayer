@@ -15,21 +15,37 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
-import android.test.InstrumentationTestCase;
-import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import static org.junit.Assert.fail;
 
-/**
- * Unit test for {@link FlacExtractor}.
- */
-public class FlacExtractorTest extends InstrumentationTestCase {
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-  public void testSample() throws Exception {
-    TestUtil.assertOutput(new TestUtil.ExtractorFactory() {
-      @Override
-      public Extractor create() {
-        return new FlacExtractor();
-      }
-    }, "bear.flac", getInstrumentation());
+/** Unit test for {@link FlacExtractor}. */
+@RunWith(AndroidJUnit4.class)
+public class FlacExtractorTest {
+
+  @Before
+  public void setUp() {
+    if (!FlacLibrary.isAvailable()) {
+      fail("Flac library not available.");
+    }
+  }
+
+  @Test
+  public void testExtractFlacSample() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        FlacExtractor::new, "flac/ext-bear.flac", ApplicationProvider.getApplicationContext());
+  }
+
+  @Test
+  public void testExtractFlacSampleWithId3Header() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        FlacExtractor::new,
+        "flac/ext-bear_with_id3.flac",
+        ApplicationProvider.getApplicationContext());
   }
 }

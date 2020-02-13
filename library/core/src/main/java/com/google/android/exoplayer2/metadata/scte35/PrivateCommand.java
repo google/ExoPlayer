@@ -18,14 +18,24 @@ package com.google.android.exoplayer2.metadata.scte35;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * Represents a private command as defined in SCTE35, Section 9.3.6.
  */
 public final class PrivateCommand extends SpliceCommand {
 
+  /**
+   * The {@code pts_adjustment} as defined in SCTE35, Section 9.2.
+   */
   public final long ptsAdjustment;
+  /**
+   * The identifier as defined in SCTE35, Section 9.3.6.
+   */
   public final long identifier;
+  /**
+   * The private bytes as defined in SCTE35, Section 9.3.6.
+   */
   public final byte[] commandBytes;
 
   private PrivateCommand(long identifier, byte[] commandBytes, long ptsAdjustment) {
@@ -37,8 +47,7 @@ public final class PrivateCommand extends SpliceCommand {
   private PrivateCommand(Parcel in) {
     ptsAdjustment = in.readLong();
     identifier = in.readLong();
-    commandBytes = new byte[in.readInt()];
-    in.readByteArray(commandBytes);
+    commandBytes = Util.castNonNull(in.createByteArray());
   }
 
   /* package */ static PrivateCommand parseFromSection(ParsableByteArray sectionData,
@@ -55,7 +64,6 @@ public final class PrivateCommand extends SpliceCommand {
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeLong(ptsAdjustment);
     dest.writeLong(identifier);
-    dest.writeInt(commandBytes.length);
     dest.writeByteArray(commandBytes);
   }
 
