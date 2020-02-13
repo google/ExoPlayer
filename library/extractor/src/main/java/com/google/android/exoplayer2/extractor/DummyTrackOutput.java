@@ -33,7 +33,7 @@ public final class DummyTrackOutput implements TrackOutput {
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+  public int sampleData(SampleDataReader input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     int bytesSkipped = input.skip(length);
     if (bytesSkipped == C.RESULT_END_OF_INPUT) {
