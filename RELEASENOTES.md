@@ -1,6 +1,6 @@
 # Release notes #
 
-### 2.11.2 (TBD) ###
+### 2.11.2 (2020-02-13) ###
 
 * Add Java FLAC extractor
   ([#6406](https://github.com/google/ExoPlayer/issues/6406)).
