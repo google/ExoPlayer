@@ -138,6 +138,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private int consecutiveDroppedFrameCount;
   private int buffersInCodecCount;
   private long lastRenderTimeUs;
+  private long totalVideoFrameProcessingOffsetUs;
+  private int videoFrameProcessingOffsetCount;
 
   private int pendingRotationDegrees;
   private float pendingPixelWidthHeightRatio;
@@ -510,12 +512,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     droppedFrames = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
     lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
+    totalVideoFrameProcessingOffsetUs = 0;
+    videoFrameProcessingOffsetCount = 0;
   }
 
   @Override
   protected void onStopped() {
     joiningDeadlineMs = C.TIME_UNSET;
     maybeNotifyDroppedFrames();
+    maybeNotifyVideoFrameProcessingOffset();
     super.onStopped();
   }
 
@@ -751,6 +756,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 + 1
             : outputMediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
     processOutputFormat(codec, mediaFormatWidth, mediaFormatHeight);
+    maybeNotifyVideoFrameProcessingOffset();
   }
 
   @Override
@@ -1213,6 +1219,22 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       eventDispatcher.droppedFrames(droppedFrames, elapsedMs);
       droppedFrames = 0;
       droppedFrameAccumulationStartTimeMs = now;
+    }
+  }
+
+  private void maybeNotifyVideoFrameProcessingOffset() {
+    Format outputFormat = getCurrentOutputFormat();
+    if (outputFormat != null) {
+      long totalOffsetDelta =
+          decoderCounters.totalVideoFrameProcessingOffsetUs - totalVideoFrameProcessingOffsetUs;
+      int countDelta =
+          decoderCounters.videoFrameProcessingOffsetCount - videoFrameProcessingOffsetCount;
+      if (countDelta != 0) {
+        eventDispatcher.reportVideoFrameProcessingOffset(
+            totalOffsetDelta, countDelta, outputFormat);
+        totalVideoFrameProcessingOffsetUs = decoderCounters.totalVideoFrameProcessingOffsetUs;
+        videoFrameProcessingOffsetCount = decoderCounters.videoFrameProcessingOffsetCount;
+      }
     }
   }
 

@@ -462,6 +462,30 @@ public interface AnalyticsListener {
   default void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
 
   /**
+   * Called when there is an update to the video frame processing offset reported by a video
+   * renderer.
+   *
+   * <p>Video processing offset represents how early a video frame is processed compared to the
+   * player's current position. For each video frame, the offset is calculated as <em>P<sub>vf</sub>
+   * - P<sub>pl</sub></em> where <em>P<sub>vf</sub></em> is the presentation timestamp of the video
+   * frame and <em>P<sub>pl</sub></em> is the current position of the player. Positive values
+   * indicate the frame was processed early enough whereas negative values indicate that the
+   * player's position had progressed beyond the frame's timestamp when the frame was processed (and
+   * the frame was probably dropped).
+   *
+   * <p>The renderer reports the sum of video processing offset samples (one sample per processed
+   * video frame: dropped, skipped or rendered) and the total number of samples (frames).
+   *
+   * @param eventTime The event time.
+   * @param totalProcessingOffsetUs The sum of video frame processing offset samples for all video
+   *     frames processed by the renderer in microseconds.
+   * @param frameCount The number to samples included in the {@code totalProcessingOffsetUs}.
+   * @param format The current output {@link Format} rendered by the video renderer.
+   */
+  default void onVideoFrameProcessingOffset(
+      EventTime eventTime, long totalProcessingOffsetUs, int frameCount, Format format) {}
+
+  /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
    * there's a change in the size or pixel aspect ratio of the video being rendered.
    *

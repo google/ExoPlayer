@@ -100,7 +100,7 @@ public final class DecoderCountersUtil {
 
   public static void assertVideoFrameProcessingOffsetSampleCount(
       String name, DecoderCounters counters, int minCount, int maxCount) {
-    int actual = counters.videoFrameProcessingOffsetUsCount;
+    int actual = counters.videoFrameProcessingOffsetCount;
     assertWithMessage(
             "Codec("
                 + name

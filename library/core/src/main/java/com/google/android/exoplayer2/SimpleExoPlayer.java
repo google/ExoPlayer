@@ -1775,6 +1775,15 @@ public class SimpleExoPlayer extends BasePlayer
       videoDecoderCounters = null;
     }
 
+    @Override
+    public void onVideoFrameProcessingOffset(
+        long totalProcessingOffsetUs, int frameCount, Format format) {
+      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
+        videoDebugListener.onVideoFrameProcessingOffset(
+            totalProcessingOffsetUs, frameCount, format);
+      }
+    }
+
     // AudioRendererEventListener implementation
 
     @Override
