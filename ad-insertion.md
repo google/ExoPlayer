@@ -50,7 +50,7 @@ SDK will show additional views on top of the player while an ad is playing
 (e.g., a 'more info' link and a skip button, if applicable)
 
 Since advertisers expect a consistent experience across apps, the IMA SDK does
-notc allow customization of these views.
+not allow customization of these views.
 {:.info}
 
 The IMA SDK may report whether ads are obscured by application provided views
