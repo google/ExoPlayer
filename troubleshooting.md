@@ -245,7 +245,7 @@ support a specific media sample format. This can be easily confirmed by adding
 an [`EventLogger`][] as a listener to your player, and looking for a line
 similar to this one in Logcat:
 ```
-[ ] Track:x, id=x, mimeType=mime/type, ... , supported=*NO_UNSUPPORTED_TYPE*
+[ ] Track:x, id=x, mimeType=mime/type, ... , supported=NO_UNSUPPORTED_TYPE
 ```
 `NO_UNSUPPORTED_TYPE` means that the device is not able to decode the media
 sample format specified by the `mimeType`. See the [Android media formats
