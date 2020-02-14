@@ -44,21 +44,23 @@ the sample list.
 
 #### UI considerations ####
 
-The IMA SDK will show additional views on top of the player while an ad is
-playing (e.g., a 'more info' link and a skip button, if applicable), and, since
-advertisers expect a consistent experience across apps, the IMA SDK does not
-currently allow customization of these views.
-
 `PlayerView` will hide controls during playback of ads by default, but apps can
-toggle this behavior via `PlayerView.setControllerHideDuringAds(false)`.
+toggle this behavior via `PlayerView.setControllerHideDuringAds(false)`. The IMA
+SDK will show additional views on top of the player while an ad is playing
+(e.g., a 'more info' link and a skip button, if applicable)
 
-The IMA SDK may report whether ads are obscured by views rendered on top of the
-player. Apps that need to overlay views that are essential for controlling
-playback must register them with the IMA SDK so that can be omitted from
-viewability calculations. To do that, implement the `AdsLoader.AdViewProvider`
-interface and pass the implementation when constructing the `AdsMediaSource`.
-`PlayerView` implements this interface to register its controls overlay. For
-more information, see [Open Measurement in the IMA SDK][].
+Since advertisers expect a consistent experience across apps, the IMA SDK does
+notc allow customization of these views.
+{:.info}
+
+The IMA SDK may report whether ads are obscured by application provided views
+rendered on top of the player. Apps that need to overlay views that are
+essential for controlling playback must register them with the IMA SDK so that
+they can be omitted from viewability calculations. To do that, implement the
+`AdsLoader.AdViewProvider` interface and pass the implementation when
+constructing the `AdsMediaSource`. `PlayerView` implements this interface to
+register its controls overlay. For more information, see [Open Measurement in
+the IMA SDK][].
 
 #### Companion ads ####
 
@@ -96,8 +98,9 @@ for information on what timed metadata formats are supported by ExoPlayer). Apps
 can listen for timed metadata events from the player, e.g., via
 `SimpleExoPlayer.addMetadataOutput`.
 
-Note: the IMA extension currently only handles client-side ad insertion. It does
-not provide any integration with the DAI part of the IMA SDK.
+The IMA extension currently only handles client-side ad insertion. It does not
+provide any integration with the DAI part of the IMA SDK.
+{:.info}
 
 [VAST]: https://www.iab.com/wp-content/uploads/2015/06/VASTv3_0.pdf
 [VMAP]: https://www.iab.com/guidelines/digital-video-multiple-ad-playlist-vmap-1-0-1/

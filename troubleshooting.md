@@ -107,8 +107,8 @@ of keyframes considered by ExoPlayer.
 
 ExoPlayer will appear to be stuck in the buffering state when asked to play an
 MPEG-TS file that lacks AUDs or IDR keyframes. If you need to play such files,
-you can do so using [FLAG_DETECT_ACCESS_UNITS][] and
-[FLAG_ALLOW_NON_IDR_KEYFRAMES][] respectively. These flags can be set on a
+you can do so using [`FLAG_DETECT_ACCESS_UNITS`][] and
+[`FLAG_ALLOW_NON_IDR_KEYFRAMES`][] respectively. These flags can be set on a
 `DefaultExtractorsFactory` using [`setTsExtractorFlags`][]. Use of
 `FLAG_DETECT_ACCESS_UNITS` has no side effects other than being computationally
 expensive relative to AUD based frame boundary detection. Use of
@@ -124,11 +124,11 @@ starting on a synchronization sample, but it does not truncate audio samples or
 preroll media for edits that don't start on a synchronization sample.
 
 If you are seeing that part of the media is unexpectedly missing or repeated,
-try setting [Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS][] or
-[FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS][], which will cause
+try setting [`Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS`][] or
+[`FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS`][], which will cause
 the extractor to ignore edit lists entirely. These can be set on a
-DefaultExtractorsFactory using [setMp4ExtractorFlags][] or
-[setFragmentedMp4ExtractorFlags][].
+DefaultExtractorsFactory using [`setMp4ExtractorFlags`][] or
+[`setFragmentedMp4ExtractorFlags`][].
 
 #### Why do some streams fail with HTTP response code 301 or 302? ####
 
@@ -175,7 +175,7 @@ you're trying to play DASH (mpd), HLS (m3u8) or SmoothStreaming (ism, isml)
 content using `ProgressiveMediaSource`. To play such streams you must use the
 correct `MediaSource` implementations, which are `DashMediaSource`,
 `HlsMediaSource` and `SsMediaSource` respectively. If you don't know the type of
-the media then [Util.inferContentType][] can often be used, as demonstrated by
+the media then [`Util.inferContentType`][] can often be used, as demonstrated by
 `PlayerActivity` in the ExoPlayer demo app.
 
 The second, less common cause, is that ExoPlayer does not support the container
@@ -188,9 +188,9 @@ Please search for an existing feature request before submitting a new one.
 
 When running a debug build of your app on Android M and earlier, you may
 experience choppy performance, audible artifacts and high CPU utilization when
-using the [setPlaybackParameters][] API. This is because an optimization that's
-important to this API is disabled for debug builds running on these versions of
-Android.
+using the [`setPlaybackParameters`][] API. This is because an optimization
+that's important to this API is disabled for debug builds running on these
+versions of Android.
 
 It's important to note that this issue affects debug builds only. It does *not*
 affect release builds, for which the optimization is always enabled. Hence the
@@ -215,8 +215,8 @@ status lines correctly.
 
 #### How can I query whether the stream being played is a live stream? ####
 
-You can query ExoPlayer's [isCurrentWindowLive][] method. In addition, you can
-check [isCurrentWindowDynamic][] to find out whether the window is dynamic
+You can query ExoPlayer's [`isCurrentWindowLive`][] method. In addition, you can
+check [`isCurrentWindowDynamic`][] to find out whether the window is dynamic
 (i.e., still updating over time).
 
 #### How do I keep audio playing when my app is backgrounded? ####
@@ -226,7 +226,7 @@ audio when your app is in the background:
 
 1. You need to have a running [foreground service][]. This prevents the system
    from killing your process to free up resources.
-1. You need to hold a [WifiLock][] and a [WakeLock][]. These ensure that the
+1. You need to hold a [`WifiLock`][] and a [`WakeLock`][]. These ensure that the
    system keeps the WiFi radio and CPU awake.
 
 It's important that you stop the service and release the locks as soon as audio
@@ -238,7 +238,21 @@ It's possible that the content that you are trying to play is not
 [CORS enabled][]. The [Cast framework][] requires content to be CORS enabled in
 order to play it.
 
-### How can I get a decoding extension to load and be used for playback? ###
+#### Why does content fail to play, but no error is surfaced? ####
+
+It's possible that the device on which you are playing the content does not
+support a specific media sample format. This can be easily confirmed by adding
+an [`EventLogger`][] as a listener to your player, and looking for a line
+similar to this one in Logcat:
+```
+[ ] Track:x, id=x, mimeType=mime/type, ... , supported=*NO_UNSUPPORTED_TYPE*
+```
+`NO_UNSUPPORTED_TYPE` means that the device is not able to decode the media
+sample format specified by the `mimeType`. See the [Android media formats
+documentation][] for information about supported sample formats. [How can I get
+a decoding extension to load and be used for playback?] may also be useful..
+
+#### How can I get a decoding extension to load and be used for playback? ####
 
 * Most extensions have manual steps to check out and build the dependencies, so
   make sure you've followed the steps in the README for the relevant extension.
@@ -253,13 +267,14 @@ order to play it.
 * To try out playback using the extension in the [demo application][], see
   [enabling extension decoders][]. See the README for the extension for
   instructions on using the extension from your own app.
-* If you're using [DefaultRenderersFactory][], you should see an info-level log
-  line like "Loaded FfmpegAudioRenderer" in logcat when the extension loads. If
-  that's missing, make sure the application has a dependency on the extension.
-* If you see warning-level logs from [LibraryLoader][] in logcat, this indicates
-  that loading the native component of the extension failed. If this happens,
-  check you've followed the steps in the extension's README correctly and that
-  no errors were output while following the instructions.
+* If you're using [`DefaultRenderersFactory`][], you should see an info-level
+  log line like "Loaded FfmpegAudioRenderer" in Logcat when the extension loads.
+  If that's missing, make sure the application has a dependency on the
+  extension.
+* If you see warning-level logs from [`LibraryLoader`][] in Logcat, this
+  indicates that loading the native component of the extension failed. If this
+  happens, check you've followed the steps in the extension's README correctly
+  and that no errors were output while following the instructions.
 
 If you're still experiencing problems using extensions, please check the
 ExoPlayer [issue tracker][] for any relevant recent issues. If you need to file
@@ -285,34 +300,34 @@ diagnose the issue.
 
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
-[setMp3ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
+[`setMp3ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
 [Issue #6787]: https://github.com/google/ExoPlayer/issues/6787
-[FLAG_DETECT_ACCESS_UNITS]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
-[FLAG_ALLOW_NON_IDR_KEYFRAMES]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
+[`FLAG_DETECT_ACCESS_UNITS`]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
+[`FLAG_ALLOW_NON_IDR_KEYFRAMES`]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
 [`setTsExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
-[Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: {{ site.exo_sdk }}/extractor/mp4/Mp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
-[FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS]: {{ site.exo_sdk }}/extractor/mp4/FragmentedMp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
-[setMp4ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp4ExtractorFlags-int-
-[setFragmentedMp4ExtractorFlags]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setFragmentedMp4ExtractorFlags-int-
+[`Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS`]: {{ site.exo_sdk }}/extractor/mp4/Mp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
+[`FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS`]: {{ site.exo_sdk }}/extractor/mp4/FragmentedMp4Extractor.html#FLAG_WORKAROUND_IGNORE_EDIT_LISTS
+[`setMp4ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp4ExtractorFlags-int-
+[`setFragmentedMp4ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setFragmentedMp4ExtractorFlags-int-
 [Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 [wget]: https://www.gnu.org/software/wget/manual/wget.html
 [`DefaultHttpDataSourceFactory`]: {{ site.exo_sdk }}/upstream/DefaultHttpDataSourceFactory.html
-[Util.inferContentType]: {{ site.exo_sdk }}/util/Util.html#inferContentType-android.net.Uri-
+[`Util.inferContentType`]: {{ site.exo_sdk }}/util/Util.html#inferContentType-android.net.Uri-
 [issue tracker]: https://github.com/google/ExoPlayer/issues
-[isCurrentWindowLive]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowLive--
-[isCurrentWindowDynamic]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowDynamic--
-[setPlaybackParameters]: {{ site.exo_sdk }}/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
-[Util.inferContentType]: {{ site.exo_sdk }}/util/Util.html#inferContentType-android.net.Uri-
+[`isCurrentWindowLive`]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowLive--
+[`isCurrentWindowDynamic`]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowDynamic--
+[`setPlaybackParameters`]: {{ site.exo_sdk }}/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-
 [foreground service]: https://developer.android.com/guide/components/services.html#Foreground
-[WifiLock]: {{ site.android_sdk }}/android/net/wifi/WifiManager.WifiLock.html
-[WakeLock]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
+[`WifiLock`]: {{ site.android_sdk }}/android/net/wifi/WifiManager.WifiLock.html
+[`WakeLock`]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
 ["Threading model" section of the ExoPlayer Javadoc]: {{ site.exo_sdk }}/ExoPlayer.html
 [OkHttp extension]: {{ site.release_v2 }}/extensions/okhttp
 [CORS enabled]: https://www.w3.org/wiki/CORS_Enabled
 [Cast framework]: {{ site.google_sdk }}/cast/docs/chrome_sender/advanced#cors_requirements
+[Android media formats documentation]: https://developer.android.com/guide/topics/media/media-formats#core
 [extensions/ffmpeg/README.md]: {{ site.release_v2 }}/extensions/ffmpeg/README.md
 [enable decoders]: {{ site.base_url }}/supported-formats.html#ffmpeg-extension
 [demo application]: {{ site.base_url }}/demo-application.html
 [enabling extension decoders]: {{ site.base_url }}/demo-application.html#enabling-extension-decoders
-[DefaultRenderersFactory]: {{ site.exo_sdk }}/DefaultRenderersFactory.html
-[LibraryLoader]: {{ site.exo_sdk }}/util/LibraryLoader.html
+[`DefaultRenderersFactory`]: {{ site.exo_sdk }}/DefaultRenderersFactory.html
+[`LibraryLoader`]: {{ site.exo_sdk }}/util/LibraryLoader.html
