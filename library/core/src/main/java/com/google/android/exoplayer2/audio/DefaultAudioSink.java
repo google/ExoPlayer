@@ -259,7 +259,7 @@ public final class DefaultAudioSink implements AudioSink {
   private ByteBuffer[] outputBuffers;
   @Nullable private ByteBuffer inputBuffer;
   @Nullable private ByteBuffer outputBuffer;
-  int outputBufferEncodedAccessUnitCount;
+  private int outputBufferEncodedAccessUnitCount;
   private byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
   private int drainingAudioProcessorIndex;
@@ -814,7 +814,7 @@ public final class DefaultAudioSink implements AudioSink {
       if (audioProcessorNeedsEndOfStream) {
         audioProcessor.queueEndOfStream();
       }
-      // audio is always PCM in audio processors, thus there is no encoded access unit count
+      // Audio is always PCM in audio processors, thus there is no encoded access unit count.
       processBuffers(C.TIME_UNSET, /* encodedAccessUnitCount= */ 0);
       if (!audioProcessor.isEnded()) {
         return false;
