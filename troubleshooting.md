@@ -250,7 +250,7 @@ similar to this one in Logcat:
 `NO_UNSUPPORTED_TYPE` means that the device is not able to decode the media
 sample format specified by the `mimeType`. See the [Android media formats
 documentation][] for information about supported sample formats. [How can I get
-a decoding extension to load and be used for playback?] may also be useful..
+a decoding extension to load and be used for playback?] may also be useful.
 
 #### How can I get a decoding extension to load and be used for playback? ####
 

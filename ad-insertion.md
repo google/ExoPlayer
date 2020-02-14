@@ -47,10 +47,10 @@ the sample list.
 `PlayerView` will hide controls during playback of ads by default, but apps can
 toggle this behavior via `PlayerView.setControllerHideDuringAds(false)`. The IMA
 SDK will show additional views on top of the player while an ad is playing
-(e.g., a 'more info' link and a skip button, if applicable)
+(e.g., a 'more info' link and a skip button, if applicable).
 
 Since advertisers expect a consistent experience across apps, the IMA SDK does
-not allow customization of these views.
+not allow customization of the views that it shows while an ad is playing.
 {:.info}
 
 The IMA SDK may report whether ads are obscured by application provided views
