@@ -27,6 +27,8 @@
 #endif  // CPU_FEATURES_COMPILED_ANY_ARM_NEON
 #include <jni.h>
 
+#include <cassert>
+#include <climits>
 #include <cstdint>
 #include <cstring>
 #include <mutex>  // NOLINT
@@ -443,8 +445,10 @@ int Libgav1GetFrameBuffer(void* callback_private_data, int bitdepth,
 void Libgav1ReleaseFrameBuffer(void* callback_private_data,
                                void* buffer_private_data) {
   JniContext* const context = static_cast<JniContext*>(callback_private_data);
-  const int buffer_id = reinterpret_cast<int>(buffer_private_data);
-  context->jni_status_code = context->buffer_manager.ReleaseBuffer(buffer_id);
+  const intptr_t buffer_id = reinterpret_cast<intptr_t>(buffer_private_data);
+  assert(buffer_id <= INT_MAX);
+  context->jni_status_code =
+      context->buffer_manager.ReleaseBuffer(static_cast<int>(buffer_id));
   if (context->jni_status_code != kJniStatusOk) {
     LOGE("%s", GetJniErrorMessage(context->jni_status_code));
   }
@@ -726,11 +730,12 @@ DECODER_FUNC(jint, gav1GetFrame, jlong jContext, jobject jOutputBuffer,
       return kStatusError;
     }
 
-    const int buffer_id =
-        reinterpret_cast<int>(decoder_buffer->buffer_private_data);
-    context->buffer_manager.AddBufferReference(buffer_id);
+    const intptr_t buffer_id =
+        reinterpret_cast<intptr_t>(decoder_buffer->buffer_private_data);
+    assert(buffer_id <= INT_MAX);
+    context->buffer_manager.AddBufferReference(static_cast<int>(buffer_id));
     JniFrameBuffer* const jni_buffer =
-        context->buffer_manager.GetBuffer(buffer_id);
+        context->buffer_manager.GetBuffer(static_cast<int>(buffer_id));
     jni_buffer->SetFrameData(*decoder_buffer);
     env->CallVoidMethod(jOutputBuffer, context->init_for_private_frame_method,
                         decoder_buffer->displayed_width[kPlaneY],
@@ -739,7 +744,8 @@ DECODER_FUNC(jint, gav1GetFrame, jlong jContext, jobject jOutputBuffer,
       // Exception is thrown in Java when returning from the native call.
       return kStatusError;
     }
-    env->SetIntField(jOutputBuffer, context->decoder_private_field, buffer_id);
+    env->SetIntField(jOutputBuffer, context->decoder_private_field,
+                     static_cast<int>(buffer_id));
   }
 
   return kStatusOk;
