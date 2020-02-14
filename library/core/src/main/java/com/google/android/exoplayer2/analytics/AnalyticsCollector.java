@@ -281,6 +281,15 @@ public class AnalyticsCollector
     }
   }
 
+  @Override
+  public final void onVideoFrameProcessingOffset(
+      long totalProcessingOffsetUs, int frameCount, Format format) {
+    EventTime eventTime = generatePlayingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onVideoFrameProcessingOffset(eventTime, totalProcessingOffsetUs, frameCount, format);
+    }
+  }
+
   // VideoListener implementation.
 
   @Override

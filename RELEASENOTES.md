@@ -3,6 +3,8 @@
 ### dev-v2 (not yet released) ###
 
 * Core library:
+  * Add API in `AnalyticsListener` to report video frame processing offset.
+    `MediaCodecVideoRenderer` reports the event.
   * Add fields `videoFrameProcessingOffsetUsSum` and
     `videoFrameProcessingOffsetUsCount` in `DecoderCounters` to compute
     the average video frame processing offset.
