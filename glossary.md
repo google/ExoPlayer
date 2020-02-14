@@ -20,12 +20,15 @@ piece of the compressed media bitstream that can be decoded and presented to the
 user (a video picture or fragment of playable audio).
 
 ###### AV1
-AOMedia Video 1 [codec](#codec). For more information, see the
+AOMedia Video 1 [codec](#codec).
+
+For more information, see the
 [Wikipedia page](https://en.wikipedia.org/wiki/AV1).
 
 ###### AVC
-Advanced Video Coding, also known as the H.264 video [codec](#codec). For more
-information, see the
+Advanced Video Coding, also known as the H.264 video [codec](#codec).
+
+For more information, see the
 [Wikipedia page](https://en.wikipedia.org/wiki/Advanced_Video_Coding).
 
 ###### Codec
@@ -49,19 +52,24 @@ on the
 [ISO Publicly Available Standards page](https://standards.iso.org/ittf/PubliclyAvailableStandards/).
 
 ###### DRM
-Digital Rights Management. For more information, see the
+Digital Rights Management.
+
+For more information, see the
 [Wikipedia page](https://en.wikipedia.org/wiki/Digital_rights_management).
 
 ###### Gapless playback
 Process by which the end of a [track](#track) and/or the beginning of the next
-track are skipped to avoid a silent gap between tracks. For more information,
-see the [Wikipedia page](https://en.wikipedia.org/wiki/Gapless_playback).
+track are skipped to avoid a silent gap between tracks.
+
+For more information, see the
+[Wikipedia page](https://en.wikipedia.org/wiki/Gapless_playback).
 
 ###### HEVC
 High Efficiency Video Coding, also known as the H.265 video [codec](#codec).
 
 ###### HLS
 HTTP Live Streaming. Apple’s [adaptive streaming](#adaptive-streaming) protocol.
+
 For more information, see the
 [Apple documentation](https://developer.apple.com/streaming/).
 
@@ -77,12 +85,15 @@ Media Presentation Description. The [manifest](#manifest) file format used in
 the [DASH](#dash) [adaptive streaming](#adaptive-streaming) protocol.
 
 ###### PCM
-Pulse-Code Modulation. For more information, see the
+Pulse-Code Modulation.
+
+For more information, see the
 [Wikipedia page](https://en.wikipedia.org/wiki/Pulse-code_modulation).
 
 ###### Smooth Streaming
-Microsoft’s [adaptive streaming](#adaptive-streaming) protocol. For more
-information, see the
+Microsoft’s [adaptive streaming](#adaptive-streaming) protocol.
+
+For more information, see the
 [Microsoft documentation](https://www.iis.net/downloads/microsoft/smooth-streaming).
 
 ###### Track
@@ -94,39 +105,51 @@ containing the same content at different bitrates.
 
 ## General - Android ##
 ###### AudioTrack
-An Android API for playing audio. For more information, see the
+An Android API for playing audio.
+
+For more information, see the
 [Javadoc](https://developer.android.com/reference/android/media/AudioTrack).
 
 ###### CDM
 Content Decryption Module. A component in the Android platform responsible for
 decrypting [DRM](#drm) protected content. CDMs are accessed via Android’s
-[`MediaDrm`](#mediadrm) API. For more information, see the
+[`MediaDrm`](#mediadrm) API.
+
+For more information, see the
 [Javadoc](https://developer.android.com/reference/android/media/MediaDrm).
 
 ###### IMA
 Interactive Media Ads. IMA is an SDK that makes it easy to integrate multimedia
-ads into an app. For more information, see the
+ads into an app.
+
+For more information, see the
 [IMA documentation](https://developers.google.com/interactive-media-ads).
 
 ###### MediaCodec
 An Android API for accessing media [codecs](#codec) (i.e. encoder and decoder
-components) in the platform. For more information, see the
+components) in the platform.
+
+For more information, see the
 [Javadoc](https://developer.android.com/reference/android/media/MediaCodec).
 
 ###### MediaDrm
-An Android API for accessing [CDMs](#cdm) in the platform. For more information,
-see the
+An Android API for accessing [CDMs](#cdm) in the platform.
+
+For more information, see the
 [Javadoc](https://developer.android.com/reference/android/media/MediaDrm).
 
 ###### Audio offload
 The ability to send compressed audio directly to a digital signal processor
 (DSP) provided by the device. Audio offload functionality is useful for low
-power audio playback. For more information, see the
+power audio playback.
+
+For more information, see the
 [Android interaction documentation](https://source.android.com/devices/tv/multimedia-tunneling).
 
 ###### Passthrough
 The ability to send compressed audio directly over HDMI, without decoding it
 first. This is for example used to play 5.1 surround sound on an Android TV.
+
 For more information, see the
 [Android interaction documentation](https://source.android.com/devices/tv/multimedia-tunneling).
 
@@ -141,7 +164,9 @@ compressed or [PCM](#pcm) audio data and assumes the responsibility for
 decoding, synchronizing and rendering it, taking over some tasks usually handled
 by the application. Tunneling may improve audio-to-video (AV) synchronization,
 may smooth video playback and can reduce the load on the application processor.
-It is mostly used on Android TVs. For more information, see the
+It is mostly used on Android TVs.
+
+For more information, see the
 [Android interaction documentation](https://source.android.com/devices/tv/multimedia-tunneling)
 and the
 [ExoPlayer article](https://medium.com/google-exoplayer/tunneled-video-playback-in-exoplayer-84f084a8094d).
@@ -156,31 +181,37 @@ and the
 Component that estimates the network bandwidth, for example by listening to data
 transfers. In [adaptive streaming](#adaptive-streaming), bandwidth estimates can
 be used to select between different bitrate [tracks](#track) during playback.
+
 For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/BandwidthMeter.html).
 
 ###### DataSource
-Component for requesting data (e.g. over HTTP, from a local file, etc). For more
-information, see the component
+Component for requesting data (e.g. over HTTP, from a local file, etc).
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/upstream/DataSource.html).
 
 ###### Extractor
 Component that parses a media [container](#container) format, outputting
 [track](#track) information and individual [access units](#access-unit)
-belonging to each track suitable for consumption by a decoder. For more
-information, see the component
+belonging to each track suitable for consumption by a decoder.
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/extractor/Extractor.html).
 
 ###### LoadControl
 Component that decides when to start and stop loading, and when to start
-playback. For more information, see the component
+playback.
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/LoadControl.html).
 
 ###### MediaSource
 Provides high-level information about the structure of media (as a
 [`Timeline`](#timeline)) and creates [`MediaPeriod`](#mediaperiod) instances
-(corresponding to periods of the `Timeline`) for playback. For more information,
-see the component
+(corresponding to periods of the `Timeline`) for playback.
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/source/MediaSource.html).
 
 ###### MediaPeriod
@@ -189,26 +220,33 @@ two ads, etc.), and allows the loaded media to be read (typically by
 [`Renderers`](#renderer)). The decisions about which [tracks](#track) within the
 media are loaded and when loading starts and stops are made by the
 [`TrackSelector`](#trackselector) and the [`LoadControl`](#loadcontrol)
-respectively. For more information, see the component
+respectively.
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/source/MediaPeriod.html).
 
 ###### Renderer
 Component that reads, decodes and renders media samples. [`Surface`](#surface)
 and [`AudioTrack`](#audiotrack) are the standard Android platform components to
-which video and audio data are rendered. For more information, see the component
+which video and audio data are rendered.
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Renderer.html).
 
 ###### Timeline
 Represents the structure of media, from simple cases like a single media file
 through to complex compositions of media such as playlists and streams with
-inserted ads. For more information, see the component
+inserted ads.
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Timeline.html).
 
 ###### TrackGroup
 Group containing one or more representations of the same video, audio or text
 content, normally at different bitrates for
-[adaptive streaming](#adaptive-streaming). For more information, see the
-component
+[adaptive streaming](#adaptive-streaming).
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/source/TrackGroup.html).
 
 ###### TrackSelection
@@ -216,13 +254,16 @@ A selection consisting of a static subset of [tracks](#track) from a
 [`TrackGroup`](#trackgroup), and a possibly varying selected track from the
 subset. For [adaptive streaming](#adaptive-streaming), the `TrackSelection` is
 responsible for selecting the appropriate track whenever a new media chunk
-starts being loaded. For more information, see the component
+starts being loaded.
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/trackselection/TrackSelection.html).
 
 ###### TrackSelector
 Selects [tracks](#track) for playback. Given track information for the
 [`MediaPeriod`](#mediaperiod) to be played, along with the capabilities of the
 player’s [`Renderers`](#renderer), a `TrackSelector` will generate a
-[`TrackSelection`](#trackselection) for each `Renderer`. For more information,
-see the component
+[`TrackSelection`](#trackselection) for each `Renderer`.
+
+For more information, see the component
 [Javadoc](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/trackselection/TrackSelector.html).

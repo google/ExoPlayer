@@ -331,3 +331,4 @@ diagnose the issue.
 [enabling extension decoders]: {{ site.base_url }}/demo-application.html#enabling-extension-decoders
 [`DefaultRenderersFactory`]: {{ site.exo_sdk }}/DefaultRenderersFactory.html
 [`LibraryLoader`]: {{ site.exo_sdk }}/util/LibraryLoader.html
+[`EventLogger`]: {{ site.baseurl }}/listening-to-player-events.html#using-eventlogger
