@@ -80,7 +80,6 @@ public final class DummySurface extends Surface {
    *     {@link #isSecureSupported(Context)} returns {@code false}.
    */
   public static DummySurface newInstanceV17(Context context, boolean secure) {
-    assertApiLevel17OrHigher();
     Assertions.checkState(!secure || isSecureSupported(context));
     DummySurfaceThread thread = new DummySurfaceThread();
     return thread.init(secure ? secureMode : SECURE_MODE_NONE);
@@ -104,12 +103,6 @@ public final class DummySurface extends Surface {
         thread.release();
         threadReleased = true;
       }
-    }
-  }
-
-  private static void assertApiLevel17OrHigher() {
-    if (Util.SDK_INT < 17) {
-      throw new UnsupportedOperationException("Unsupported prior to API level 17");
     }
   }
 
