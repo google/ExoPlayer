@@ -430,8 +430,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   /**
    * Returns whether encoded audio passthrough should be used for playing back the input format.
-   * This implementation returns true if the {@link AudioSink} indicates that encoded audio output
-   * is supported.
    *
    * @param channelCount The number of channels in the input media, or {@link Format#NO_VALUE} if
    *     not known.
@@ -599,6 +597,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    */
   @C.Encoding
   protected int getPassthroughEncoding(int channelCount, String mimeType) {
+    if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
+      // PCM passthrough is not supported.
+      return C.ENCODING_INVALID;
+    }
     if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
       // E-AC3 JOC is object-based so the output channel count is arbitrary.
       if (audioSink.supportsOutput(/* channelCount= */ Format.NO_VALUE, C.ENCODING_E_AC3_JOC)) {
