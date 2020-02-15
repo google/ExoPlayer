@@ -15,11 +15,14 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -60,6 +63,8 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
     private RtspSampleStreamWrapper[] sampleStreamWrappers;
     private RtspSampleStreamWrapper[] preparedSampleStreamWrappers;
 
+    private final long delayMs;
+    private final int bufferSize;
     private final ExoPlayer player;
     private final Allocator allocator;
     private final MediaSession session;
@@ -69,16 +74,23 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
     private final TransferListener  transferListener;
     private final IdentityHashMap<SampleStream, Integer> streamWrapperIndices;
 
+    private final DrmSessionManager<?> drmSessionManager;
+
+
     public RtspMediaPeriod(RtspMediaSource mediaSource, Client client,
                            TransferListener transferListener, EventDispatcher eventDispatcher,
-                           Allocator allocator) {
+                           Allocator allocator, DrmSessionManager<?> drmSessionManager) {
         this.transferListener = transferListener;
         this.eventDispatcher = eventDispatcher;
         this.mediaSource = mediaSource;
         this.allocator = allocator;
+        this.drmSessionManager = drmSessionManager;
 
         player = client.player();
         session = client.session();
+
+        delayMs = client.getMaxDelay();
+        bufferSize = client.getBufferSize();
 
         trackIdGenerator = new TrackIdGenerator(1, 1);
 
@@ -92,7 +104,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
     }
 
     public void release() {
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
             for (RtspSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
                 sampleStreamWrapper.release();
             }
@@ -112,7 +124,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
 
     @Override
     public void maybeThrowPrepareError() throws IOException {
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
             for (RtspSampleStreamWrapper sampleStreamWrapper : sampleStreamWrappers) {
                 sampleStreamWrapper.maybeThrowPrepareError();
             }
@@ -240,7 +252,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
     @Override
     public long getBufferedPositionUs() {
         long bufferedPositionUs = Long.MAX_VALUE;
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
             for (RtspSampleStreamWrapper sampleStreamWrapper : preparedSampleStreamWrappers) {
                 long loaderBufferedPositionUs = sampleStreamWrapper.getBufferedPositionUs();
                 if (loaderBufferedPositionUs != C.TIME_END_OF_SOURCE) {
@@ -255,7 +267,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
     @Override
     public long getNextLoadPositionUs() {
         long nextLoadPositionUs = Long.MAX_VALUE;
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
             for (RtspSampleStreamWrapper sampleStreamWrapper : preparedSampleStreamWrappers) {
                 long loaderNextLoadPositionUs = sampleStreamWrapper.getNextLoadPositionUs();
                 if (loaderNextLoadPositionUs != C.TIME_END_OF_SOURCE) {
@@ -270,7 +282,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
     @Override
     public boolean continueLoading(long positionUs) {
         boolean continuedLoading = false;
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
             for (RtspSampleStreamWrapper sampleStreamWrapper : preparedSampleStreamWrappers) {
                 continuedLoading |= sampleStreamWrapper.continueLoading(positionUs);
             }
@@ -304,7 +316,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
 
     @Override
     public void onMediaStreamPrepareFailure(RtspSampleStreamWrapper sampleStream) {
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
             if (--pendingPrepareCount > 0) {
                 return;
             }
@@ -325,7 +337,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
 
     @Override
     public void onMediaStreamPrepareSuccess(RtspSampleStreamWrapper sampleStream) {
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
             int streamCount = preparedSampleStreamWrappers.length;
             preparedSampleStreamWrappers = Arrays.copyOf(preparedSampleStreamWrappers, streamCount + 1);
             preparedSampleStreamWrappers[streamCount] = sampleStream;
@@ -342,7 +354,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
 
     @Override
     public void onMediaStreamPlaybackCancel(RtspSampleStreamWrapper sampleStream) {
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
             releaseAndCleanMediaStream(sampleStream);
 
             if (preparedSampleStreamWrappers.length == 0) {
@@ -357,7 +369,7 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
 
     @Override
     public void onMediaStreamPlaybackComplete(RtspSampleStreamWrapper sampleStream) {
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
             releaseAndCleanMediaStream(sampleStream);
 
             if (preparedSampleStreamWrappers.length == 0) {
@@ -373,7 +385,8 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
     @Override
     public void onMediaStreamPlaybackFailure(RtspSampleStreamWrapper sampleStream,
                                              @RtspSampleStreamWrapper.PlaybackError int error) {
-        synchronized (preparedSampleStreamWrappers) {
+        synchronized (this) {
+
             releaseAndCleanMediaStream(sampleStream);
 
             if (preparedSampleStreamWrappers.length == 0) {
@@ -385,7 +398,12 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
 
                 // if UDP timeout, retrying with TCP
                 if (RtspSampleStreamWrapper.NO_DATA_RECEIVED == error && !session.isInterleaved()) {
-                    player.prepare(mediaSource, false, false);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            player.prepare(mediaSource, false, false);
+                        }
+                    });
                 }
             }
         }
@@ -429,8 +447,8 @@ import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA_INITIALIZATION;
     }
 
     private RtspSampleStreamWrapper buildMediaSampleStream(MediaTrack track, long positionUs) {
-        return new RtspSampleStreamWrapper(session, track, trackIdGenerator, positionUs, this,
-                transferListener, allocator);
+        return new RtspSampleStreamWrapper(session, track, trackIdGenerator, positionUs, bufferSize,
+                delayMs,this, transferListener, allocator, drmSessionManager);
     }
 
     private void releaseAndCleanMediaStream(RtspSampleStreamWrapper sampleStream) {

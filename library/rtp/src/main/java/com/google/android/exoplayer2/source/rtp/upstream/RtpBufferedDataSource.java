@@ -84,7 +84,6 @@ public final class RtpBufferedDataSource extends UdpDataSource {
     }
 
     private Uri uri;
-    private long length;
     private boolean opened;
 
     private volatile boolean canceled;
@@ -92,24 +91,25 @@ public final class RtpBufferedDataSource extends UdpDataSource {
     private TimeoutMonitor timeoutMonitor;
 
     private RtcpInputReportDispatcher reportDispatcher;
-    private final RtpSamplesHolder samplesHolder;
 
-    private RtpStatistics statistics;
+    private RtpStats stats;
     private RtcpStatsFeedback statsFeedback;
 
-    public RtpBufferedDataSource(RtpSamplesHolder samplesHolder) {
+    private final RtpQueue queue;
+
+    public RtpBufferedDataSource(RtpQueueHolder samplesHolder) {
         this(samplesHolder, null, null);
     }
 
-    public RtpBufferedDataSource(RtpSamplesHolder samplesHolder,
+    public RtpBufferedDataSource(RtpQueueHolder queueHolder,
                                  RtcpInputReportDispatcher incomingReportDispatcher,
                                  RtcpOutputReportDispatcher outgoingReportDispatcher) {
-        this.samplesHolder = samplesHolder;
+        queue = queueHolder.queue();
         timeoutMonitor = new TimeoutMonitor();
 
         if (incomingReportDispatcher != null && outgoingReportDispatcher != null) {
-            statistics = new RtpStatistics();
-            statsFeedback = new RtcpStatsFeedback(statistics, outgoingReportDispatcher);
+            stats = new RtpStats();
+            statsFeedback = new RtcpStatsFeedback(stats, outgoingReportDispatcher);
 
             reportDispatcher = incomingReportDispatcher;
             reportDispatcher.addListener(statsFeedback);
@@ -119,7 +119,7 @@ public final class RtpBufferedDataSource extends UdpDataSource {
     @Override
     public long open(DataSpec dataSpec) throws IOException {
         uri = dataSpec.uri;
-        length = dataSpec.length;
+        long length = dataSpec.length;
 
         transferInitializing(dataSpec);
 
@@ -136,24 +136,19 @@ public final class RtpBufferedDataSource extends UdpDataSource {
     @Override
     public int read(byte[] buffer, int offset, int readLength) throws IOException {
         if (opened && !canceled) {
-            RtpSamplesQueue samples = samplesHolder.samples();
-
             /* There is no reordering on stream sockets */
-            RtpPacket packet = samples.pop();
+            RtpPacket packet = queue.pop();
             if (packet != null) {
 
-                if (statistics != null) {
+                if (stats != null) {
                     if (statsFeedback.getRemoteSsrc() == Long.MIN_VALUE) {
                         statsFeedback.setRemoteSsrc(packet.ssrc());
                     }
 
-                    statistics.update(samples.getStatsInfo());
+                    stats.update(queue.getStats());
                 }
 
                 byte[] bytes = packet.getBytes();
-                /*Log.v("RtpBufferedDataSource", "packet=[" + packet.sequenceNumber() +
-                        "], marker=[" + packet.marker() + "], elapsedTime=[" +
-                        SystemClock.elapsedRealtime() + "]");*/
                 System.arraycopy(bytes, 0, buffer, offset, bytes.length);
 
                 bytesTransferred(bytes.length);
@@ -181,10 +176,9 @@ public final class RtpBufferedDataSource extends UdpDataSource {
             opened = false;
             timeoutMonitor.stop();
 
-            if (statistics != null) {
+            if (stats != null) {
                 reportDispatcher.removeListener(statsFeedback);
                 statsFeedback.close();
-                statistics.clear();
             }
 
             transferEnded();

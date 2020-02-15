@@ -18,16 +18,14 @@ package com.google.android.exoplayer2.source.rtsp;
 import android.net.Uri;
 import android.os.Handler;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
@@ -39,11 +37,9 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import static com.google.android.exoplayer2.C.TCP;
 import static com.google.android.exoplayer2.source.rtsp.core.Client.RTSP_AUTO_DETECT;
-import static com.google.android.exoplayer2.source.rtsp.core.Client.RTSP_INTERLEAVED;
 
 public final class RtspMediaSource extends BaseMediaSource implements Client.EventListener {
 
@@ -54,6 +50,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
     /** Factory for {@link RtspMediaSource}. */
     public static final class Factory {
         private boolean isLive;
+        private boolean isCreateCalled =false;
 
         private final Client.Factory<? extends Client> factory;
 
@@ -150,7 +147,7 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
                 client,
                 transferListener,
                 eventDispatcher,
-                allocator);
+                allocator, null);
     }
 
     @Override
@@ -164,7 +161,6 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
 
         client = new Client.Builder(factory)
                 .setUri(uri)
-                .setMode((prepareCount++ > 0) ? RTSP_INTERLEAVED : RTSP_AUTO_DETECT)
                 .setListener(this)
                 .setPlayer(getPlayer())
                 .build();
@@ -172,7 +168,18 @@ public final class RtspMediaSource extends BaseMediaSource implements Client.Eve
         eventDispatcher = createEventDispatcher(null);
 
         try {
-            client.open();
+            if (factory.getMode() == RTSP_AUTO_DETECT) {
+                if (prepareCount++ > 0) {
+                    client.retry();
+                } else {
+                    client.open();
+                }
+
+            } else {
+                if (prepareCount == 0) {
+                    client.open();
+                }
+            }
         } catch (IOException e) {
             eventDispatcher.loadError(
                 new DataSpec(uri), uri, null, C.DATA_TYPE_MEDIA_INITIALIZATION,

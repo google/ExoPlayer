@@ -48,7 +48,7 @@ import java.io.IOException;
         this.dataSource = dataSource;
         this.listener = listener;
 
-        packetBuffer = new byte[UdpDataSource.DEFAULT_MAX_PACKET_SIZE];
+        packetBuffer = new byte[UdpDataSource.DEFAULT_PACKET_SIZE];
 
         thread = new HandlerThread("RtcpReportReceiver:HandlerThread",
                 Process.THREAD_PRIORITY_AUDIO);
@@ -83,7 +83,7 @@ import java.io.IOException;
                 while (!Thread.currentThread().isInterrupted() && enabled) {
                     try {
                         int bytesRead = dataSource.read(packetBuffer, 0,
-                                UdpDataSource.DEFAULT_MAX_PACKET_SIZE);
+                                UdpDataSource.DEFAULT_PACKET_SIZE);
 
                         RtcpPacket rtcpPacket = RtcpPacket.parse(packetBuffer, bytesRead);
 

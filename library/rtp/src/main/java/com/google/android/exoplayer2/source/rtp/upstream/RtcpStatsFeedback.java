@@ -54,7 +54,7 @@ import java.util.concurrent.RejectedExecutionException;
     private volatile long lastSrTimestamp;
     private volatile long arrivalSrTimestamp;
 
-    private final RtpStatistics statistics;
+    private final RtpStats statistics;
 
     /**
      * The packets expected in last interval.
@@ -77,7 +77,7 @@ import java.util.concurrent.RejectedExecutionException;
     private UdpDataSinkSource dataSinkSource;
     private RtcpOutputReportDispatcher reportDispatcher;
 
-    public RtcpStatsFeedback(RtpStatistics statistics) {
+    public RtcpStatsFeedback(RtpStats statistics) {
         this.statistics = statistics;
 
         dataSinkSource = new UdpDataSinkSource();
@@ -89,7 +89,7 @@ import java.util.concurrent.RejectedExecutionException;
         remoteSsrc = Long.MIN_VALUE;
     }
 
-    public RtcpStatsFeedback(RtpStatistics statistics, UdpDataSink dataSink) {
+    public RtcpStatsFeedback(RtpStats statistics, UdpDataSink dataSink) {
         this.statistics = statistics;
 
         sender = new RtcpReportSender(dataSink, this);
@@ -98,7 +98,7 @@ import java.util.concurrent.RejectedExecutionException;
         remoteSsrc = Long.MIN_VALUE;
     }
 
-    public RtcpStatsFeedback(RtpStatistics statistics,
+    public RtcpStatsFeedback(RtpStats statistics,
                              RtcpOutputReportDispatcher outgoingReportDispatcher) {
         this.statistics = statistics;
         this.reportDispatcher = outgoingReportDispatcher;
@@ -118,7 +118,7 @@ import java.util.concurrent.RejectedExecutionException;
     public void open() throws IllegalStateException {
         if (reportDispatcher == null && sender == null) {
             throw new IllegalStateException(
-                "None internal outgoing or data sink was found");
+                    "None internal outgoing or data sink was found");
         }
 
         if (!opened) {
@@ -220,7 +220,7 @@ import java.util.concurrent.RejectedExecutionException;
 
     @Nullable
     private RtcpPacket buildReportPacket() {
-        RtpStatistics.RtpStatsInfo statsInfo = statistics.getStatsInfo();
+        RtpStats statsInfo = statistics.clone();
         if (statsInfo != null) {
             int extendedMax = statsInfo.cycles + statsInfo.maxSequence;
             int expected = extendedMax - (statsInfo.baseSequence + 1);

@@ -18,12 +18,14 @@ package com.google.android.exoplayer2.source.rtsp;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import androidx.annotation.IntDef;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -48,7 +50,7 @@ import com.google.android.exoplayer2.source.rtp.upstream.RtcpInputReportDispatch
 import com.google.android.exoplayer2.source.rtp.upstream.RtcpOutputReportDispatcher;
 import com.google.android.exoplayer2.source.rtp.upstream.RtpBufferedDataSource;
 import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource;
-import com.google.android.exoplayer2.source.rtp.upstream.RtpSamplesHolder;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpQueueHolder;
 import com.google.android.exoplayer2.source.rtsp.message.InterleavedFrame;
 import com.google.android.exoplayer2.source.rtsp.message.Transport;
 import com.google.android.exoplayer2.source.rtsp.media.MediaFormat;
@@ -61,6 +63,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.UdpDataSinkSource;
+import com.google.android.exoplayer2.upstream.UdpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.InetUtil;
@@ -84,10 +87,9 @@ import static com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource.FL
 import static com.google.android.exoplayer2.upstream.UdpDataSource.DEFAULT_SOCKET_TIMEOUT_MILLIS;
 
 public final class RtspSampleStreamWrapper implements
-    Loader.Callback<RtspSampleStreamWrapper.MediaStreamLoadable>,
-    SequenceableLoader, ExtractorOutput,
-    SampleQueue.UpstreamFormatChangedListener, MediaSession.EventListener,
-    RtcpOutputReportDispatcher.EventListener {
+        Loader.Callback<RtspSampleStreamWrapper.MediaStreamLoadable>, SequenceableLoader,
+        ExtractorOutput, SampleQueue.UpstreamFormatChangedListener, MediaSession.EventListener,
+        RtcpOutputReportDispatcher.EventListener {
 
     public interface EventListener {
         void onMediaStreamPrepareStarted(RtspSampleStreamWrapper stream);
@@ -120,6 +122,8 @@ public final class RtspSampleStreamWrapper implements
 
     private final ConditionVariable loadCondition;
 
+    private final long delayMs;
+    private final int bufferSize;
     private final long positionUs;
     private final Allocator allocator;
     private final MediaSession session;
@@ -155,27 +159,33 @@ public final class RtspSampleStreamWrapper implements
     private int[] interleavedChannels;
     private MediaStreamLoadable loadable;
 
+    private Looper looper;
     private Handler handler;
     private HandlerThread handlerThread;
 
     private final TrackIdGenerator trackIdGenerator;
     private final DefaultExtractorsFactory defaultExtractorsFactory;
 
-    private final RtpSamplesHolder samplesHolder;
+    private final RtpQueueHolder samplesHolder;
     private final RtcpInputReportDispatcher inReportDispatcher;
     private final RtcpOutputReportDispatcher outReporDispatcher;
+    private final DrmSessionManager<?> drmSessionManager;
 
     public RtspSampleStreamWrapper(MediaSession session, MediaTrack track,
-                                   TrackIdGenerator trackIdGenerator, long positionUs,
-                                   EventListener listener, TransferListener transferListener,
-                                   Allocator allocator) {
-        this.session = session;
+                                   TrackIdGenerator trackIdGenerator, long positionUs, int bufferSize, long delayMs,
+                                   EventListener listener, TransferListener transferListener, Allocator allocator,
+                                   DrmSessionManager<?> drmSessionManager) {
+
         this.track = track;
-        this.trackIdGenerator = trackIdGenerator;
-        this.positionUs = positionUs;
+        this.delayMs = delayMs;
+        this.session = session;
         this.listener = listener;
-        this.transferListener = transferListener;
         this.allocator = allocator;
+        this.bufferSize = bufferSize;
+        this.positionUs = positionUs;
+        this.trackIdGenerator = trackIdGenerator;
+        this.transferListener = transferListener;
+        this.drmSessionManager = drmSessionManager;
 
         mainHandler = new Handler();
 
@@ -184,7 +194,8 @@ public final class RtspSampleStreamWrapper implements
                 THREAD_PRIORITY_AUDIO);
         handlerThread.start();
 
-        handler = new Handler(handlerThread.getLooper());
+        looper = handlerThread.getLooper();
+        handler = new Handler(looper);
 
         loadCondition = new ConditionVariable();
 
@@ -198,7 +209,7 @@ public final class RtspSampleStreamWrapper implements
 
         defaultExtractorsFactory = new DefaultExtractorsFactory();
 
-        samplesHolder = new RtpSamplesHolder();
+        samplesHolder = new RtpQueueHolder();
         inReportDispatcher = new RtcpInputReportDispatcher();
 
         outReporDispatcher = new RtcpOutputReportDispatcher();
@@ -235,7 +246,7 @@ public final class RtspSampleStreamWrapper implements
                             new UdpMediaStreamLoadable(this, handler, loadCondition) :
                             new TcpMediaStreamLoadable(this, handler, loadCondition);
 
-            loader.startLoading(loadable, this, handlerThread.getLooper(), 0);
+            loader.startLoading(loadable, this, looper, 0);
             prepared = true;
 
         } else {
@@ -265,8 +276,8 @@ public final class RtspSampleStreamWrapper implements
 
                 boolean isNatRtcpNeeded = Transport.RTP_PROTOCOL.equals(
                         transport.transportProtocol()) ? (session.isRtcpSupported() &&
-                                !session.isRtcpMuxed() && transport.serverPort().length == 2)
-                                ? true : false
+                        !session.isRtcpMuxed() && transport.serverPort().length == 2)
+                        ? true : false
                         : false;
 
                 for (int count = 0; count < NUM_TIMES_TO_SEND; count++) {
@@ -307,7 +318,7 @@ public final class RtspSampleStreamWrapper implements
                 samplesHolder.put(RtpPacket.parse(buffer, buffer.length));
 
             } else if (interleavedChannels.length > 1 &&
-                interleavedFrame.getChannel() == interleavedChannels[1]) {
+                    interleavedFrame.getChannel() == interleavedChannels[1]) {
                 inReportDispatcher.dispatch(RtcpPacket.parse(buffer, buffer.length));
             }
         }
@@ -565,8 +576,7 @@ public final class RtspSampleStreamWrapper implements
             if (Transport.TCP.equals(transport.lowerTransport())) {
                 this.loadable = new TcpMediaStreamLoadable(this, handler,
                         loadCondition, true);
-                loader.startLoading(this.loadable, this, handlerThread.getLooper(),
-                        0);
+                loader.startLoading(this.loadable, this, looper, 0);
             }
         }
     }
@@ -736,12 +746,6 @@ public final class RtspSampleStreamWrapper implements
     }
 
     /* package */ abstract class MediaStreamLoadable implements Loader.Loadable {
-        /**
-         * The maximum length of an datagram data packet size, in bytes.
-         * 65535 bytes minus IP header (20 bytes) and UDP header (8 bytes)
-         */
-        public static final int MAX_UDP_PACKET_SIZE = 65507;
-
         private boolean isOpened;
         private DataSource dataSource;
 
@@ -762,7 +766,7 @@ public final class RtspSampleStreamWrapper implements
         }
 
         public MediaStreamLoadable(ExtractorOutput extractorOutput, Handler handler,
-                                 ConditionVariable loadCondition, boolean isOpenedAlready) {
+                                   ConditionVariable loadCondition, boolean isOpenedAlready) {
             this.extractorOutput = extractorOutput;
             this.loadCondition = loadCondition;
             this.handler = handler;
@@ -860,7 +864,7 @@ public final class RtspSampleStreamWrapper implements
         }
 
         private Extractor createRawExtractor(ExtractorInput extractorInput)
-            throws IOException, InterruptedException {
+                throws IOException, InterruptedException {
             Extractor rawExtractor = null;
 
             for (Extractor extractor : defaultExtractorsFactory.createExtractors()) {
@@ -946,11 +950,11 @@ public final class RtspSampleStreamWrapper implements
     /**
      * Loads the media stream and extracts sample data from udp data source.
      */
-  /* package */ final class UdpMediaStreamLoadable extends MediaStreamLoadable {
+    /* package */ final class UdpMediaStreamLoadable extends MediaStreamLoadable {
         private UdpDataSinkSource dataSource;
 
         public UdpMediaStreamLoadable(ExtractorOutput extractorOutput, Handler handler,
-                                    ConditionVariable loadCondition) {
+                                      ConditionVariable loadCondition) {
             super(extractorOutput, handler, loadCondition);
         }
 
@@ -971,10 +975,10 @@ public final class RtspSampleStreamWrapper implements
                     flags |= FLAG_FORCE_RTCP_MULTIPLEXING;
                 }
 
-                dataSource = new RtpDataSource(payloadFormat.clockrate(), flags);
+                dataSource = new RtpDataSource(payloadFormat.clockrate(), flags, bufferSize, delayMs);
 
             } else {
-                dataSource = new UdpDataSinkSource(MAX_UDP_PACKET_SIZE);
+                dataSource = new UdpDataSinkSource(UdpDataSource.MAX_PACKET_SIZE, bufferSize);
                 isUdpSchema = true;
             }
 
@@ -1031,12 +1035,12 @@ public final class RtspSampleStreamWrapper implements
     /**
      * Loads the media stream and extracts sample data from tcp data source.
      */
-  /* package */ final class TcpMediaStreamLoadable extends MediaStreamLoadable {
+    /* package */ final class TcpMediaStreamLoadable extends MediaStreamLoadable {
 
         private DataSource dataSource;
 
         public TcpMediaStreamLoadable(ExtractorOutput extractorOutput, Handler handler,
-                                    ConditionVariable loadCondition) {
+                                      ConditionVariable loadCondition) {
             super(extractorOutput, handler, loadCondition, false);
         }
 

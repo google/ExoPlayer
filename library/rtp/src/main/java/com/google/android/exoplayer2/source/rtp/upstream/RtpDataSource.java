@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.rtp.upstream;
 
 import androidx.annotation.IntDef;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.rtp.RtpPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpCompoundPacket;
 import com.google.android.exoplayer2.source.rtp.rtcp.RtcpPacket;
@@ -31,6 +32,8 @@ import java.lang.annotation.RetentionPolicy;
 
 public final class RtpDataSource extends UdpDataSinkSource  {
 
+    public static final long DELAY_REORDER_MS = (C.MICROS_PER_SECOND / 40); // 25 msec
+
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, value = {FLAG_ENABLE_RTCP_FEEDBACK, FLAG_FORCE_RTCP_MULTIPLEXING})
     public @interface Flags {}
@@ -39,30 +42,38 @@ public final class RtpDataSource extends UdpDataSinkSource  {
 
     private final @Flags int flags;
     private final byte[] packetBuffer;
+    private final RtpQueue samplesQueue;
 
-    private final RtpSamplesPriorityQueue samplesQueue;
-
-    private RtpStatistics statistics;
+    private RtpStats statistics;
     private RtcpStatsFeedback statsFeedback;
 
     public RtpDataSource(int clockrate) {
-        this(clockrate, 0, RtpPacket.MAX_PACKET_SIZE);
+        this(clockrate, 0, DEFAULT_RECEIVE_BUFFER_SIZE, DELAY_REORDER_MS);
     }
 
     public RtpDataSource(int clockrate, @Flags int flags) {
-        this(clockrate, flags, RtpPacket.MAX_PACKET_SIZE);
+        this(clockrate, flags, DEFAULT_RECEIVE_BUFFER_SIZE, DELAY_REORDER_MS);
     }
 
-    public RtpDataSource(int clockrate, @Flags int flags, int maxPacketSize) {
-        super(maxPacketSize);
+    public RtpDataSource(int clockrate, long delayMs) {
+        this(clockrate, 0, DEFAULT_RECEIVE_BUFFER_SIZE, delayMs);
+    }
+
+    public RtpDataSource(int clockrate, @Flags int flags, int bufferSize) {
+        this(clockrate, flags, bufferSize, DELAY_REORDER_MS);
+    }
+
+    public RtpDataSource(int clockrate, @Flags int flags, int bufferSize, long delayMs) {
+        super(RtpPacket.MAX_PACKET_SIZE, bufferSize);
 
         this.flags = flags;
 
-        packetBuffer = new byte[maxPacketSize];
-        samplesQueue = new RtpSamplesPriorityQueue(clockrate);
+        packetBuffer = new byte[RtpPacket.MAX_PACKET_SIZE];
+        samplesQueue = (delayMs > 0) ? new RtpPriorityQueue(clockrate, delayMs) :
+                new RtpSimpleQueue(clockrate);
 
         if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
-            statistics = new RtpStatistics();
+            statistics = new RtpStats();
 
             if (isSet(FLAG_FORCE_RTCP_MULTIPLEXING)) {
                 statsFeedback = new RtcpStatsFeedback(statistics, this);
@@ -89,7 +100,7 @@ public final class RtpDataSource extends UdpDataSinkSource  {
 
             } else {
                 statsFeedback.open(dataSpec.uri.getHost(), getLocalPort() + 1,
-                    dataSpec.flags);
+                        dataSpec.flags);
             }
         }
 
@@ -117,7 +128,7 @@ public final class RtpDataSource extends UdpDataSinkSource  {
                             statsFeedback.setRemoteSsrc(packet.ssrc());
                         }
 
-                        statistics.update(samplesQueue.getStatsInfo());
+                        statistics.update(samplesQueue.getStats());
                     }
 
                     byte[] bytes = packet.getBytes();
@@ -173,7 +184,6 @@ public final class RtpDataSource extends UdpDataSinkSource  {
     public void close() {
         if (isSet(FLAG_ENABLE_RTCP_FEEDBACK)) {
             statsFeedback.close();
-            statistics.clear();
         }
 
         samplesQueue.clear();

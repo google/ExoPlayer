@@ -17,8 +17,6 @@ package com.google.android.exoplayer2.source.rtsp.core;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.util.Log;
 
 import androidx.annotation.IntDef;
 
@@ -53,8 +51,8 @@ import com.google.android.exoplayer2.source.sdp.SessionDescription;
 import com.google.android.exoplayer2.source.sdp.core.Attribute;
 import com.google.android.exoplayer2.source.sdp.core.Bandwidth;
 import com.google.android.exoplayer2.source.sdp.core.Media;
-import com.google.android.exoplayer2.util.InetUtil;
 
+import com.google.android.exoplayer2.upstream.UdpDataSource;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -66,9 +64,20 @@ import java.util.regex.Pattern;
 public abstract class Client implements Dispatcher.EventListener {
 
     public interface Factory<T> {
-        Factory<T> setFlags(@Flags int flags);
         Factory<T> setMode(@Mode int mode);
+        Factory<T> setMaxDelay(long delayMs);
+        Factory<T> setFlags(@Flags int flags);
+        Factory<T> setBufferSize(int bufferSize);
+        Factory<T> setAVOptions(@AVOptions int avOptions);
         Factory<T> setNatMethod(@NatMethod int natMethod);
+
+        long getMaxDelay();
+        int getBufferSize();
+        @Mode int getMode();
+        @Flags int getFlags();
+        @AVOptions int getAVOptions();
+        @NatMethod int getNatMethod();
+
         T create(Builder builder);
     }
 
@@ -117,6 +126,14 @@ public abstract class Client implements Dispatcher.EventListener {
             Pattern.CASE_INSENSITIVE);
 
     private static final int DEFAULT_PORT = 554;
+    protected static final int MIN_RECEIVE_BUFFER_SIZE = UdpDataSource.DEFAULT_RECEIVE_BUFFER_SIZE / 2;
+    protected static final int MAX_RECEIVE_BUFFER_SIZE = 500 * 1024;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true, value = {AV_OPT_FLAG_DISABLE_AUDIO, AV_OPT_FLAG_DISABLE_VIDEO})
+    public @interface AVOptions {}
+    public static final int AV_OPT_FLAG_DISABLE_AUDIO = 1;
+    public static final int AV_OPT_FLAG_DISABLE_VIDEO = 1 << 1;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, value = {FLAG_ENABLE_RTCP_SUPPORT, FLAG_FORCE_RTCP_MUXED})
@@ -138,16 +155,15 @@ public abstract class Client implements Dispatcher.EventListener {
     public static final int RTSP_NAT_DUMMY = 1;
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(flag = true, value = {IDLE, INIT, READY, PLAYING, RECORDING})
-    protected @interface ClientState {}
+    @IntDef(value = {IDLE, INIT, READY, PLAYING, RECORDING})
+    @interface ClientState {}
+    final static int IDLE = 0;
+    final static int INIT = 1;
+    final static int READY = 2;
+    final static int PLAYING = 3;
+    final static int RECORDING = 4;
 
-    protected final static int IDLE = 0;
-    protected final static int INIT = 1;
-    protected final static int READY = 2;
-    protected final static int PLAYING = 3;
-    protected final static int RECORDING = 4;
-
-    private final List<Method> serverMethods = new ArrayList();
+    private final List<Method> serverMethods;
 
     private final String userAgent;
 
@@ -157,12 +173,14 @@ public abstract class Client implements Dispatcher.EventListener {
     private @ClientState int state;
 
     private final Uri uri;
-    private final int retries;
     private ExoPlayer player;
     private @Flags int flags;
+    private final long delayMs;
+    private final int bufferSize;
     private final EventListener listener;
     private final @NatMethod int natMethod;
-    private final @Mode int mode;
+    private @Mode int mode;
+    private final @AVOptions int avOptions;
 
     private Credentials credentials;
 
@@ -171,13 +189,18 @@ public abstract class Client implements Dispatcher.EventListener {
 
     public Client(Builder builder) {
         uri = builder.uri;
-        mode = builder.mode;
-        flags = builder.flags;
         player = builder.player;
-        retries = builder.retries;
         listener = builder.listener;
-        natMethod = builder.natMethod;
         userAgent = builder.userAgent;
+
+        mode = builder.factory.getMode();
+        flags = builder.factory.getFlags();
+        delayMs = builder.factory.getMaxDelay();
+        avOptions = builder.factory.getAVOptions();
+        natMethod = builder.factory.getNatMethod();
+        bufferSize = builder.factory.getBufferSize();
+
+        serverMethods = new ArrayList<>();
 
         dispatcher = new Dispatcher.Builder(this)
                 .setUri(uri)
@@ -192,11 +215,25 @@ public abstract class Client implements Dispatcher.EventListener {
 
     public final ExoPlayer player() { return player; }
 
+    public final int getBufferSize() { return bufferSize; }
+
+    public final long getMaxDelay() { return delayMs; }
+
     protected final @ClientState int state() { return state; }
 
     public final void open() throws IOException, NullPointerException {
         if (!opened) {
-            Log.v("Client", "opening: elapsedRealtime=[" + SystemClock.elapsedRealtime() + "]");
+            dispatcher.connect();
+            sendOptionsRequest();
+
+            player.getVideoComponent().addVideoListener(session);
+            opened = true;
+        }
+    }
+
+    public final void retry() throws IOException, NullPointerException {
+        if (!opened) {
+            mode = RTSP_INTERLEAVED;
             dispatcher.connect();
             sendOptionsRequest();
 
@@ -230,6 +267,10 @@ public abstract class Client implements Dispatcher.EventListener {
 
     public boolean isFlagSet(@Flags int flag) {
         return (flags & flag) == flag;
+    }
+
+    private boolean isAVOptionSet(@AVOptions int option) {
+        return (avOptions & option) == option;
     }
 
     public boolean isInterleavedMode() {
@@ -421,8 +462,10 @@ public abstract class Client implements Dispatcher.EventListener {
                             Media media = mediaDescription.media();
 
                             // We only support audio o video
-                            if (Media.audio.equals(media.type()) ||
-                                    Media.video.equals(media.type())) {
+                            if ((Media.audio.equals(media.type()) && !isAVOptionSet(
+                                    AV_OPT_FLAG_DISABLE_AUDIO)) ||
+                                    (Media.video.equals(media.type())) & !isAVOptionSet(
+                                            AV_OPT_FLAG_DISABLE_VIDEO)) {
 
                                 RtpPayloadFormat.Builder payloadBuilder = null;
                                 MediaTrack.Builder trackBuilder = new MediaTrack.Builder();
@@ -518,7 +561,7 @@ public abstract class Client implements Dispatcher.EventListener {
                                                     }
                                                 }
                                             }
-                                        /* NOTE: fmtp is only supported AFTER the 'a=rtpmap:xxx' tag */
+                                            /* NOTE: fmtp is only supported AFTER the 'a=rtpmap:xxx' tag */
                                         } else if (Attribute.FMTP.equalsIgnoreCase(attrName)) {
                                             Matcher matcher = regexFmtp.matcher(attrValue);
                                             if (matcher.find()) {
@@ -755,9 +798,9 @@ public abstract class Client implements Dispatcher.EventListener {
             }
 
         } else if ((Method.SETUP.equals(request.getMethod())) &&
-            (Status.UnsupportedTransport.equals(response.getStatus()))) {
+                (Status.UnsupportedTransport.equals(response.getStatus()))) {
             sendSetupRequest(request.getUrl(), Transport.parse("RTP/AVP/TCP;interleaved=" +
-                session.nextTcpChannel()));
+                    session.nextTcpChannel()));
 
         } else {
             // any other unsuccessful response
@@ -857,13 +900,9 @@ public abstract class Client implements Dispatcher.EventListener {
 
     public static final class Builder {
         private Uri uri;
-        private int retries;
-        private @Flags int flags;
         private String userAgent;
         private ExoPlayer player;
         private EventListener listener;
-        private @NatMethod int natMethod;
-        public @Mode int mode;
 
         private final Factory<? extends Client> factory;
 
@@ -872,22 +911,6 @@ public abstract class Client implements Dispatcher.EventListener {
 
         public Builder(Factory<? extends Client> factory) {
             this.factory = factory;
-            this.mode = RTSP_AUTO_DETECT;
-        }
-
-        public Builder setFlags(@Flags int flags) {
-            this.flags = flags;
-            return this;
-        }
-
-        public Builder setMode(@Mode int mode) {
-            this.mode = mode;
-            return this;
-        }
-
-        public Builder setNatMethod(@NatMethod int natMethod) {
-            this.natMethod = natMethod;
-            return this;
         }
 
         public Builder setUserAgent(String userAgent) {
@@ -920,13 +943,6 @@ public abstract class Client implements Dispatcher.EventListener {
             if (player == null) throw new IllegalArgumentException("player is null");
 
             this.player = player;
-            return this;
-        }
-
-        public Builder setRetries(int retries) {
-            if (retries < 0) throw new IllegalArgumentException("retries is wrong");
-
-            this.retries = retries;
             return this;
         }
 
