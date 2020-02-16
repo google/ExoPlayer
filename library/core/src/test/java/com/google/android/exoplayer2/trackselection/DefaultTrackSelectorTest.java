@@ -346,6 +346,7 @@ public final class DefaultTrackSelectorTest {
   }
 
   /** Tests that adaptive audio track selections respect the maximum audio bitrate. */
+  @Test
   public void testSelectAdaptiveAudioTrackGroupWithMaxBitrate() throws ExoPlaybackException {
     Format format128k =
         Format.createAudioSampleFormat(
@@ -394,7 +395,7 @@ public final class DefaultTrackSelectorTest {
 
     TrackSelectorResult result =
         trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 0, 1, 2);
+    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 2, 0, 1);
 
     trackSelector.setParameters(
         trackSelector.buildUponParameters().setMaxAudioBitrate(256 * 1024 - 1));
@@ -408,11 +409,11 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector.buildUponParameters().setMaxAudioBitrate(192 * 1024 - 1));
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 1);
+    assertFixedSelection(result.selections.get(0), trackGroups.get(0), 1);
 
     trackSelector.setParameters(trackSelector.buildUponParameters().setMaxAudioBitrate(10));
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
-    assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 1);
+    assertFixedSelection(result.selections.get(0), trackGroups.get(0), 1);
   }
 
   /**
