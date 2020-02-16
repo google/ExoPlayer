@@ -174,7 +174,7 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   @Override
   public long seekToUs(long positionUs) {
     pendingInitialDiscontinuityPositionUs = C.TIME_UNSET;
-    for (ClippingSampleStream sampleStream : sampleStreams) {
+    for (@Nullable ClippingSampleStream sampleStream : sampleStreams) {
       if (sampleStream != null) {
         sampleStream.clearSentEos();
       }

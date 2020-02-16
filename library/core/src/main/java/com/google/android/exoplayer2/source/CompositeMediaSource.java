@@ -317,7 +317,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     /** Updates the event dispatcher and returns whether the event should be dispatched. */
     private boolean maybeUpdateEventDispatcher(
         int childWindowIndex, @Nullable MediaPeriodId childMediaPeriodId) {
-      MediaPeriodId mediaPeriodId = null;
+      @Nullable MediaPeriodId mediaPeriodId = null;
       if (childMediaPeriodId != null) {
         mediaPeriodId = getMediaPeriodIdForChildMediaPeriodId(id, childMediaPeriodId);
         if (mediaPeriodId == null) {

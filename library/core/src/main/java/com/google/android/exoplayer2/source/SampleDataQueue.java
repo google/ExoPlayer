@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.source.SampleQueue.SampleExtrasHolder;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -246,11 +247,11 @@ import java.nio.ByteBuffer;
     }
 
     // Write the clear and encrypted subsample sizes.
-    int[] clearDataSizes = buffer.cryptoInfo.numBytesOfClearData;
+    @Nullable int[] clearDataSizes = buffer.cryptoInfo.numBytesOfClearData;
     if (clearDataSizes == null || clearDataSizes.length < subsampleCount) {
       clearDataSizes = new int[subsampleCount];
     }
-    int[] encryptedDataSizes = buffer.cryptoInfo.numBytesOfEncryptedData;
+    @Nullable int[] encryptedDataSizes = buffer.cryptoInfo.numBytesOfEncryptedData;
     if (encryptedDataSizes == null || encryptedDataSizes.length < subsampleCount) {
       encryptedDataSizes = new int[subsampleCount];
     }
@@ -270,7 +271,7 @@ import java.nio.ByteBuffer;
     }
 
     // Populate the cryptoInfo.
-    CryptoData cryptoData = extrasHolder.cryptoData;
+    CryptoData cryptoData = Util.castNonNull(extrasHolder.cryptoData);
     buffer.cryptoInfo.set(
         subsampleCount,
         clearDataSizes,
