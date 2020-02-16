@@ -71,7 +71,7 @@ import java.util.Map;
   }
 
   @Override
-  public long open(DataSpec dataSpec) throws IOException {
+  public long open(DataSpec dataSpec) {
     throw new UnsupportedOperationException();
   }
 
@@ -103,7 +103,7 @@ import java.util.Map;
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     throw new UnsupportedOperationException();
   }
 

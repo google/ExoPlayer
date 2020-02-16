@@ -256,8 +256,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
       Format format,
       long durationUs,
       int minLoadableRetryCount,
-      Handler eventHandler,
-      EventListener eventListener,
+      @Nullable Handler eventHandler,
+      @Nullable EventListener eventListener,
       int eventSourceId,
       boolean treatLoadErrorsAsEndOfStream) {
     this(
@@ -313,7 +313,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
+  public void maybeThrowSourceInfoRefreshError() {
     // Do nothing.
   }
 

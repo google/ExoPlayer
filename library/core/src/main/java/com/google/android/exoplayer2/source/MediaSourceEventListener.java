@@ -221,7 +221,8 @@ public interface MediaSourceEventListener {
      * @param eventListener The listener to be added.
      */
     public void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
-      Assertions.checkArgument(handler != null && eventListener != null);
+      Assertions.checkNotNull(handler);
+      Assertions.checkNotNull(eventListener);
       listenerAndHandlers.add(new ListenerAndHandler(handler, eventListener));
     }
 
