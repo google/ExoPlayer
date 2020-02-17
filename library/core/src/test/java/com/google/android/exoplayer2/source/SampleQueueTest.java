@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.C.BUFFER_FLAG_ENCRYPTED;
 import static com.google.android.exoplayer2.C.BUFFER_FLAG_KEY_FRAME;
 import static com.google.android.exoplayer2.C.RESULT_BUFFER_READ;
 import static com.google.android.exoplayer2.C.RESULT_FORMAT_READ;
@@ -22,6 +23,7 @@ import static com.google.android.exoplayer2.C.RESULT_NOTHING_READ;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Long.MIN_VALUE;
 import static java.util.Arrays.copyOfRange;
+import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Mockito.when;
 
 import androidx.annotation.Nullable;
@@ -114,17 +116,13 @@ public final class SampleQueueTest {
         C.BUFFER_FLAG_KEY_FRAME, C.BUFFER_FLAG_ENCRYPTED, 0, C.BUFFER_FLAG_ENCRYPTED,
       };
   private static final long[] ENCRYPTED_SAMPLE_TIMESTAMPS = new long[] {0, 1000, 2000, 3000};
-  private static final Format[] ENCRYPTED_SAMPLES_FORMATS =
+  private static final Format[] ENCRYPTED_SAMPLE_FORMATS =
       new Format[] {FORMAT_ENCRYPTED, FORMAT_ENCRYPTED, FORMAT_1, FORMAT_ENCRYPTED};
   /** Encrypted samples require the encryption preamble. */
-  private static final int[] ENCRYPTED_SAMPLES_SIZES = new int[] {1, 3, 1, 3};
+  private static final int[] ENCRYPTED_SAMPLE_SIZES = new int[] {1, 3, 1, 3};
 
-  private static final int[] ENCRYPTED_SAMPLES_OFFSETS = new int[] {7, 4, 3, 0};
-  private static final byte[] ENCRYPTED_SAMPLES_DATA = new byte[8];
-
-  static {
-    Arrays.fill(ENCRYPTED_SAMPLES_DATA, (byte) 1);
-  }
+  private static final int[] ENCRYPTED_SAMPLE_OFFSETS = new int[] {7, 4, 3, 0};
+  private static final byte[] ENCRYPTED_SAMPLE_DATA = new byte[] {1, 1, 1, 1, 1, 1, 1, 1};
 
   private static final TrackOutput.CryptoData DUMMY_CRYPTO_DATA =
       new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, new byte[16], 0, 0);
@@ -461,6 +459,60 @@ public final class SampleQueueTest {
             /* decodeOnlyUntilUs= */ 0);
     assertThat(result).isEqualTo(RESULT_FORMAT_READ);
     assertThat(formatHolder.drmSession).isSameInstanceAs(mockDrmSession);
+    assertReadEncryptedSample(/* sampleIndex= */ 3);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void testTrailingCryptoInfoInitializationVectorBytesZeroed() {
+    when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    DrmSession<ExoMediaCrypto> mockPlaceholderDrmSession =
+        (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
+    when(mockPlaceholderDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
+    when(mockDrmSessionManager.acquirePlaceholderSession(
+            ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
+        .thenReturn(mockPlaceholderDrmSession);
+
+    writeFormat(ENCRYPTED_SAMPLE_FORMATS[0]);
+    byte[] sampleData = new byte[] {0, 1, 2};
+    byte[] initializationVector = new byte[] {7, 6, 5, 4, 3, 2, 1, 0};
+    byte[] encryptedSampleData =
+        TestUtil.joinByteArrays(
+            new byte[] {
+              0x08, // subsampleEncryption = false (1 bit), ivSize = 8 (7 bits).
+            },
+            initializationVector,
+            sampleData);
+    writeSample(
+        encryptedSampleData, /* timestampUs= */ 0, BUFFER_FLAG_KEY_FRAME | BUFFER_FLAG_ENCRYPTED);
+
+    int result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+
+    // Fill cryptoInfo.iv with non-zero data. When the 8 byte initialization vector is written into
+    // it, we expect the trailing 8 bytes to be zeroed.
+    inputBuffer.cryptoInfo.iv = new byte[16];
+    Arrays.fill(inputBuffer.cryptoInfo.iv, (byte) 1);
+
+    result =
+        sampleQueue.read(
+            formatHolder,
+            inputBuffer,
+            /* formatRequired= */ false,
+            /* loadingFinished= */ false,
+            /* decodeOnlyUntilUs= */ 0);
+    assertThat(result).isEqualTo(RESULT_BUFFER_READ);
+
+    // Assert cryptoInfo.iv contains the 8-byte initialization vector and that the trailing 8 bytes
+    // have been zeroed.
+    byte[] expectedInitializationVector = Arrays.copyOf(initializationVector, 16);
+    assertArrayEquals(expectedInitializationVector, inputBuffer.cryptoInfo.iv);
   }
 
   @Test
@@ -995,11 +1047,11 @@ public final class SampleQueueTest {
 
   private void writeTestDataWithEncryptedSections() {
     writeTestData(
-        ENCRYPTED_SAMPLES_DATA,
-        ENCRYPTED_SAMPLES_SIZES,
-        ENCRYPTED_SAMPLES_OFFSETS,
+        ENCRYPTED_SAMPLE_DATA,
+        ENCRYPTED_SAMPLE_SIZES,
+        ENCRYPTED_SAMPLE_OFFSETS,
         ENCRYPTED_SAMPLE_TIMESTAMPS,
-        ENCRYPTED_SAMPLES_FORMATS,
+        ENCRYPTED_SAMPLE_FORMATS,
         ENCRYPTED_SAMPLES_FLAGS);
   }
 
@@ -1033,7 +1085,12 @@ public final class SampleQueueTest {
   /** Writes a single sample to {@code sampleQueue}. */
   private void writeSample(byte[] data, long timestampUs, int sampleFlags) {
     sampleQueue.sampleData(new ParsableByteArray(data), data.length);
-    sampleQueue.sampleMetadata(timestampUs, sampleFlags, data.length, 0, null);
+    sampleQueue.sampleMetadata(
+        timestampUs,
+        sampleFlags,
+        data.length,
+        /* offset= */ 0,
+        (sampleFlags & C.BUFFER_FLAG_ENCRYPTED) != 0 ? DUMMY_CRYPTO_DATA : null);
   }
 
   /**
@@ -1206,7 +1263,7 @@ public final class SampleQueueTest {
   }
 
   private void assertReadEncryptedSample(int sampleIndex) {
-    byte[] sampleData = new byte[ENCRYPTED_SAMPLES_SIZES[sampleIndex]];
+    byte[] sampleData = new byte[ENCRYPTED_SAMPLE_SIZES[sampleIndex]];
     Arrays.fill(sampleData, (byte) 1);
     boolean isKeyFrame = (ENCRYPTED_SAMPLES_FLAGS[sampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0;
     boolean isEncrypted = (ENCRYPTED_SAMPLES_FLAGS[sampleIndex] & C.BUFFER_FLAG_ENCRYPTED) != 0;
@@ -1216,7 +1273,7 @@ public final class SampleQueueTest {
         isEncrypted,
         sampleData,
         /* offset= */ 0,
-        ENCRYPTED_SAMPLES_SIZES[sampleIndex] - (isEncrypted ? 2 : 0));
+        ENCRYPTED_SAMPLE_SIZES[sampleIndex] - (isEncrypted ? 2 : 0));
   }
 
   /**

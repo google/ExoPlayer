@@ -65,35 +65,4 @@ public class CryptoInfoTest {
     assertThat(cryptoInfo.numBytesOfClearData[0]).isEqualTo(6);
     assertThat(cryptoInfo.getFrameworkCryptoInfo().numBytesOfClearData[0]).isEqualTo(6);
   }
-
-  @Test
-  public void increaseClearDataFirstSubSampleBy_withDifferentClearDataArrays_setsValue() {
-    cryptoInfo.numBytesOfClearData = new int[] {1, 1, 1, 1};
-    cryptoInfo.getFrameworkCryptoInfo().numBytesOfClearData = new int[] {5, 5, 5, 5};
-
-    cryptoInfo.increaseClearDataFirstSubSampleBy(5);
-
-    assertThat(cryptoInfo.numBytesOfClearData[0]).isEqualTo(6);
-    assertThat(cryptoInfo.getFrameworkCryptoInfo().numBytesOfClearData[0]).isEqualTo(10);
-  }
-
-  @Test
-  public void increaseClearDataFirstSubSampleBy_withInternalClearDataArraysNull_setsValue() {
-    cryptoInfo.numBytesOfClearData = new int[] {10, 10, 10, 10};
-
-    cryptoInfo.increaseClearDataFirstSubSampleBy(5);
-
-    assertThat(cryptoInfo.numBytesOfClearData[0]).isEqualTo(15);
-    assertThat(cryptoInfo.getFrameworkCryptoInfo().numBytesOfClearData[0]).isEqualTo(15);
-  }
-
-  @Test
-  public void increaseClearDataFirstSubSampleBy_internalClearDataIsNotNull_setsValue() {
-    cryptoInfo.getFrameworkCryptoInfo().numBytesOfClearData = new int[] {5, 5, 5, 5};
-
-    cryptoInfo.increaseClearDataFirstSubSampleBy(5);
-
-    assertThat(cryptoInfo.numBytesOfClearData[0]).isEqualTo(5);
-    assertThat(cryptoInfo.getFrameworkCryptoInfo().numBytesOfClearData[0]).isEqualTo(10);
-  }
 }
