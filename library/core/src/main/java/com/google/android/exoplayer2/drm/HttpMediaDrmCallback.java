@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.drm;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
@@ -34,7 +33,6 @@ import java.util.Map;
 import java.util.UUID;
 
 /** A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances. */
-@RequiresApi(18)
 public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   private static final int MAX_MANUAL_REDIRECTS = 5;
@@ -50,7 +48,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
    */
   public HttpMediaDrmCallback(String defaultLicenseUrl, HttpDataSource.Factory dataSourceFactory) {
-    this(defaultLicenseUrl, false, dataSourceFactory);
+    this(defaultLicenseUrl, /* forceDefaultLicenseUrl= */ false, dataSourceFactory);
   }
 
   /**
