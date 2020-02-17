@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.rtsp;
 
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.source.rtp.upstream.RtpDataSource;
 import com.google.android.exoplayer2.source.rtsp.core.Client;
 import com.google.android.exoplayer2.source.rtsp.message.Header;
 import com.google.android.exoplayer2.source.rtsp.media.MediaType;
@@ -23,6 +24,7 @@ import com.google.android.exoplayer2.source.rtsp.message.Range;
 import com.google.android.exoplayer2.source.rtsp.message.Request;
 import com.google.android.exoplayer2.source.rtsp.message.Transport;
 import com.google.android.exoplayer2.source.rtsp.media.MediaTrack;
+import com.google.android.exoplayer2.upstream.UdpDataSource;
 
 public final class RtspDefaultClient extends Client {
 
@@ -31,9 +33,13 @@ public final class RtspDefaultClient extends Client {
 
     public static Factory<RtspDefaultClient> factory() {
         return new Factory<RtspDefaultClient>() {
+
             private @Flags int flags;
-            private @Mode int mode;
-            private @NatMethod int natMethod;
+            private @AVOptions int avOptions;
+            private @Mode int mode = RTSP_AUTO_DETECT;
+            private @NatMethod int natMethod = RTSP_NAT_NONE;
+            private long delayMs = RtpDataSource.DELAY_REORDER_MS;
+            private int bufferSize = UdpDataSource.DEFAULT_RECEIVE_BUFFER_SIZE;
 
             public Factory<RtspDefaultClient> setFlags(@Flags int flags) {
                 this.flags = flags;
@@ -45,23 +51,66 @@ public final class RtspDefaultClient extends Client {
                 return this;
             }
 
+            public Factory<RtspDefaultClient> setAVOptions(@AVOptions int avOptions) {
+                this.avOptions = avOptions;
+                return this;
+            }
+
+            public Factory<RtspDefaultClient> setBufferSize(int bufferSize) {
+                if (bufferSize < MIN_RECEIVE_BUFFER_SIZE || bufferSize > MAX_RECEIVE_BUFFER_SIZE) {
+                    throw new IllegalArgumentException("Invalid receive buffer size");
+                }
+
+                this.bufferSize = bufferSize;
+                return this;
+            }
+
+            public Factory<RtspDefaultClient> setMaxDelay(long delayMs) {
+                if (delayMs < 0) {
+                    throw new IllegalArgumentException("Invalid delay");
+                }
+
+                this.delayMs = delayMs;
+                return this;
+            }
+
             public Factory<RtspDefaultClient> setNatMethod(@NatMethod int natMethod) {
                 this.natMethod = natMethod;
                 return this;
             }
 
+            public @Mode int getMode() {
+                return mode;
+            }
+
+            public @Flags int getFlags() {
+                return flags;
+            }
+
+            public long getMaxDelay() {
+                return delayMs;
+            }
+
+            public int getBufferSize() {
+                return bufferSize;
+            }
+
+            public @NatMethod int getNatMethod() {
+                return natMethod;
+            }
+
+            public @AVOptions int getAVOptions() {
+                return avOptions;
+            }
+
             public RtspDefaultClient create(Builder builder) {
-                return new RtspDefaultClient(builder
-                        .setUserAgent(USER_AGENT)
-                        .setFlags(flags)
-                        .setMode((mode < builder.mode) ? builder.mode : mode)
-                        .setNatMethod(natMethod));
+                return new RtspDefaultClient(builder);
             }
         };
     }
 
 
-    RtspDefaultClient(Builder builder) {
+    private RtspDefaultClient(Builder builder) {
         super(builder);
     }
 
