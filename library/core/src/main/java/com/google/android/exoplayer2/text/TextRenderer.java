@@ -123,7 +123,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   public int supportsFormat(Format format) {
     if (decoderFactory.supportsFormat(format)) {
       return RendererCapabilities.create(
-          supportsFormatDrm(null, format.drmInitData) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM);
+          format.drmInitData == null ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM);
     } else if (MimeTypes.isText(format.sampleMimeType)) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
     } else {

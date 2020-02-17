@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -121,13 +120,7 @@ public class Libgav1VideoRenderer extends SimpleDecoderVideoRenderer {
       int threads,
       int numInputBuffers,
       int numOutputBuffers) {
-    super(
-        allowedJoiningTimeMs,
-        eventHandler,
-        eventListener,
-        maxDroppedFramesToNotify,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false);
+    super(allowedJoiningTimeMs, eventHandler, eventListener, maxDroppedFramesToNotify);
     this.threads = threads;
     this.numInputBuffers = numInputBuffers;
     this.numOutputBuffers = numOutputBuffers;
@@ -135,13 +128,12 @@ public class Libgav1VideoRenderer extends SimpleDecoderVideoRenderer {
 
   @Override
   @Capabilities
-  protected int supportsFormatInternal(
-      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
+  public final int supportsFormat(Format format) {
     if (!MimeTypes.VIDEO_AV1.equalsIgnoreCase(format.sampleMimeType)
         || !Gav1Library.isAvailable()) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
-    if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+    if (format.drmInitData != null && format.exoMediaCryptoType == null) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
     }
     return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED);

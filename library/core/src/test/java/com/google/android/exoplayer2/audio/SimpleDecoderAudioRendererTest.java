@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -56,11 +55,10 @@ public class SimpleDecoderAudioRendererTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     audioRenderer =
-        new SimpleDecoderAudioRenderer(null, null, null, false, mockAudioSink) {
+        new SimpleDecoderAudioRenderer(null, null, mockAudioSink) {
           @Override
           @FormatSupport
-          protected int supportsFormatInternal(
-              @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
+          protected int supportsFormatInternal(Format format) {
             return FORMAT_HANDLED;
           }
 

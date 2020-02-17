@@ -123,7 +123,7 @@ public class DownloadHelperTest {
     FakeRenderer audioRenderer = new FakeRenderer(audioFormatUs, audioFormatZh);
     FakeRenderer textRenderer = new FakeRenderer(textFormatUs, textFormatZh);
     RenderersFactory renderersFactory =
-        (handler, videoListener, audioListener, metadata, text, drm) ->
+        (handler, videoListener, audioListener, metadata, text) ->
             new Renderer[] {textRenderer, audioRenderer, videoRenderer};
 
     downloadHelper =

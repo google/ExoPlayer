@@ -46,7 +46,11 @@
     [background](https://www.w3.org/TR/webvtt1/#default-text-background) colors
     ([PR #4178](https://github.com/google/ExoPlayer/pull/4178),
     [issue #6581](https://github.com/google/ExoPlayer/issues/6581)).
-* DRM: Add support for attaching DRM sessions to clear content in the demo app.
+* DRM:
+  * Add support for attaching DRM sessions to clear content in the demo app.
+  * Remove `DrmSessionManager` references from all renderers.
+    `DrmSessionManager` must be injected into the MediaSources using the
+    MediaSources factories.
 * Downloads: Merge downloads in `SegmentDownloader` to improve overall download
   speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 * MP3: Add `IndexSeeker` for accurate seeks in VBR streams

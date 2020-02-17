@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -379,8 +378,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static final int ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT = 32;
 
   private final MediaCodecSelector mediaCodecSelector;
-  @Nullable private final DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
-  private final boolean playClearSamplesWithoutKeys;
   private final boolean enableDecoderFallback;
   private final float assumedMinimumCodecOperatingRate;
   private final DecoderInputBuffer buffer;
@@ -391,7 +388,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final long[] pendingOutputStreamOffsetsUs;
   private final long[] pendingOutputStreamSwitchTimesUs;
 
-  private boolean drmResourcesAcquired;
   @Nullable private Format inputFormat;
   private Format outputFormat;
   @Nullable private DrmSession<FrameworkMediaCrypto> codecDrmSession;
@@ -448,13 +444,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param trackType The track type that the renderer handles. One of the {@code C.TRACK_TYPE_*}
    *     constants defined in {@link C}.
    * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
-   *     media is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
    *     initialization fails. This may result in using a decoder that is less efficient or slower
    *     than the primary decoder.
@@ -465,14 +454,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   public MediaCodecRenderer(
       int trackType,
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       boolean enableDecoderFallback,
       float assumedMinimumCodecOperatingRate) {
     super(trackType);
     this.mediaCodecSelector = Assertions.checkNotNull(mediaCodecSelector);
-    this.drmSessionManager = drmSessionManager;
-    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     this.enableDecoderFallback = enableDecoderFallback;
     this.assumedMinimumCodecOperatingRate = assumedMinimumCodecOperatingRate;
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
@@ -550,7 +535,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Capabilities
   public final int supportsFormat(Format format) throws ExoPlaybackException {
     try {
-      return supportsFormat(mediaCodecSelector, drmSessionManager, format);
+      return supportsFormat(mediaCodecSelector, format);
     } catch (DecoderQueryException e) {
       throw createRendererException(e, format);
     }
@@ -560,7 +545,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * Returns the {@link Capabilities} for the given {@link Format}.
    *
    * @param mediaCodecSelector The decoder selector.
-   * @param drmSessionManager The renderer's {@link DrmSessionManager}.
    * @param format The {@link Format}.
    * @return The {@link Capabilities} for this {@link Format}.
    * @throws DecoderQueryException If there was an error querying decoders.
@@ -568,7 +552,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Capabilities
   protected abstract int supportsFormat(
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       Format format)
       throws DecoderQueryException;
 
@@ -696,10 +679,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
-    if (drmSessionManager != null && !drmResourcesAcquired) {
-      drmResourcesAcquired = true;
-      drmSessionManager.prepare();
-    }
     decoderCounters = new DecoderCounters();
   }
 
@@ -770,10 +749,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       releaseCodec();
     } finally {
       setSourceDrmSession(null);
-    }
-    if (drmSessionManager != null && drmResourcesAcquired) {
-      drmResourcesAcquired = false;
-      drmSessionManager.release();
     }
   }
 
@@ -1366,8 +1341,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
     if (codecDrmSession == null
-        || (!bufferEncrypted
-            && (playClearSamplesWithoutKeys || codecDrmSession.playClearSamplesWithoutKeys()))) {
+        || (!bufferEncrypted && codecDrmSession.playClearSamplesWithoutKeys())) {
       return false;
     }
     @DrmSession.State int drmSessionState = codecDrmSession.getState();
@@ -1402,12 +1376,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     waitingForFirstSampleInFormat = true;
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
-    if (formatHolder.includesDrmSession) {
-      setSourceDrmSession((DrmSession<FrameworkMediaCrypto>) formatHolder.drmSession);
-    } else {
-      sourceDrmSession =
-          getUpdatedSourceDrmSession(inputFormat, newFormat, drmSessionManager, sourceDrmSession);
-    }
+    setSourceDrmSession((DrmSession<FrameworkMediaCrypto>) formatHolder.drmSession);
     inputFormat = newFormat;
 
     if (codec == null) {
