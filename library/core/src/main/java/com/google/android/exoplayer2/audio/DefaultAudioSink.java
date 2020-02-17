@@ -258,8 +258,8 @@ public final class DefaultAudioSink implements AudioSink {
   private AudioProcessor[] activeAudioProcessors;
   private ByteBuffer[] outputBuffers;
   @Nullable private ByteBuffer inputBuffer;
+  private int inputBufferAccessUnitCount;
   @Nullable private ByteBuffer outputBuffer;
-  private int outputBufferEncodedAccessUnitCount;
   private byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
   private int drainingAudioProcessorIndex;
@@ -679,16 +679,14 @@ public final class DefaultAudioSink implements AudioSink {
       }
 
       inputBuffer = buffer;
+      inputBufferAccessUnitCount = encodedAccessUnitCount;
     }
 
-    if (configuration.processingEnabled) {
-      processBuffers(presentationTimeUs, encodedAccessUnitCount);
-    } else {
-      writeBuffer(inputBuffer, presentationTimeUs, encodedAccessUnitCount);
-    }
+    processBuffers(presentationTimeUs);
 
     if (!inputBuffer.hasRemaining()) {
       inputBuffer = null;
+      inputBufferAccessUnitCount = 0;
       return true;
     }
 
@@ -701,15 +699,14 @@ public final class DefaultAudioSink implements AudioSink {
     return false;
   }
 
-  private void processBuffers(long avSyncPresentationTimeUs, int encodedAccessUnitCount)
-      throws WriteException {
+  private void processBuffers(long avSyncPresentationTimeUs) throws WriteException {
     int count = activeAudioProcessors.length;
     int index = count;
     while (index >= 0) {
       ByteBuffer input = index > 0 ? outputBuffers[index - 1]
           : (inputBuffer != null ? inputBuffer : AudioProcessor.EMPTY_BUFFER);
       if (index == count) {
-        writeBuffer(input, avSyncPresentationTimeUs, encodedAccessUnitCount);
+        writeBuffer(input, avSyncPresentationTimeUs);
       } else {
         AudioProcessor audioProcessor = activeAudioProcessors[index];
         audioProcessor.queueInput(input);
@@ -733,9 +730,7 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @SuppressWarnings("ReferenceEquality")
-  private void writeBuffer(
-      ByteBuffer buffer, long avSyncPresentationTimeUs, int encodedAccessUnitCount)
-      throws WriteException {
+  private void writeBuffer(ByteBuffer buffer, long avSyncPresentationTimeUs) throws WriteException {
     if (!buffer.hasRemaining()) {
       return;
     }
@@ -743,7 +738,6 @@ public final class DefaultAudioSink implements AudioSink {
       Assertions.checkArgument(outputBuffer == buffer);
     } else {
       outputBuffer = buffer;
-      outputBufferEncodedAccessUnitCount = encodedAccessUnitCount;
       if (Util.SDK_INT < 21) {
         int bytesRemaining = buffer.remaining();
         if (preV21OutputBuffer == null || preV21OutputBuffer.length < bytesRemaining) {
@@ -787,10 +781,12 @@ public final class DefaultAudioSink implements AudioSink {
     }
     if (bytesWritten == bytesRemaining) {
       if (!configuration.isInputPcm) {
-        writtenEncodedFrames += framesPerEncodedSample * encodedAccessUnitCount;
+        // When playing non-PCM, the inputBuffer is never processed, thus the last inputBuffer
+        // must be the current input buffer.
+        Assertions.checkState(buffer == inputBuffer);
+        writtenEncodedFrames += framesPerEncodedSample * inputBufferAccessUnitCount;
       }
       outputBuffer = null;
-      outputBufferEncodedAccessUnitCount = 0;
     }
   }
 
@@ -814,8 +810,7 @@ public final class DefaultAudioSink implements AudioSink {
       if (audioProcessorNeedsEndOfStream) {
         audioProcessor.queueEndOfStream();
       }
-      // Audio is always PCM in audio processors, thus there is no encoded access unit count.
-      processBuffers(C.TIME_UNSET, /* encodedAccessUnitCount= */ 0);
+      processBuffers(C.TIME_UNSET);
       if (!audioProcessor.isEnded()) {
         return false;
       }
@@ -825,7 +820,7 @@ public final class DefaultAudioSink implements AudioSink {
 
     // Finish writing any remaining output to the track.
     if (outputBuffer != null) {
-      writeBuffer(outputBuffer, C.TIME_UNSET, outputBufferEncodedAccessUnitCount);
+      writeBuffer(outputBuffer, C.TIME_UNSET);
       if (outputBuffer != null) {
         return false;
       }
@@ -977,8 +972,8 @@ public final class DefaultAudioSink implements AudioSink {
       trimmingAudioProcessor.resetTrimmedFrameCount();
       flushAudioProcessors();
       inputBuffer = null;
+      inputBufferAccessUnitCount = 0;
       outputBuffer = null;
-      outputBufferEncodedAccessUnitCount = 0;
       stoppedAudioTrack = false;
       handledEndOfStream = false;
       drainingAudioProcessorIndex = C.INDEX_UNSET;
