@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.text.webvtt;
 import static com.google.android.exoplayer2.text.SpanUtil.addOrReplaceSpan;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
@@ -48,7 +49,9 @@ import java.lang.annotation.Retention;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -136,6 +139,44 @@ public final class WebvttCueParser {
   /* package */ static final float DEFAULT_POSITION = 0.5f;
 
   private static final String TAG = "WebvttCueParser";
+
+  /**
+   * See WebVTT's <a href="https://www.w3.org/TR/webvtt1/#default-text-color">default text
+   * colors</a>.
+   */
+  private static final Map<String, Integer> DEFAULT_TEXT_COLORS;
+
+  static {
+    Map<String, Integer> defaultColors = new HashMap<>();
+    defaultColors.put("white", Color.rgb(255, 255, 255));
+    defaultColors.put("lime", Color.rgb(0, 255, 0));
+    defaultColors.put("cyan", Color.rgb(0, 255, 255));
+    defaultColors.put("red", Color.rgb(255, 0, 0));
+    defaultColors.put("yellow", Color.rgb(255, 255, 0));
+    defaultColors.put("magenta", Color.rgb(255, 0, 255));
+    defaultColors.put("blue", Color.rgb(0, 0, 255));
+    defaultColors.put("black", Color.rgb(0, 0, 0));
+    DEFAULT_TEXT_COLORS = Collections.unmodifiableMap(defaultColors);
+  }
+
+  /**
+   * See WebVTT's <a href="https://www.w3.org/TR/webvtt1/#default-text-background">default text
+   * background colors</a>.
+   */
+  private static final Map<String, Integer> DEFAULT_BACKGROUND_COLORS;
+
+  static {
+    Map<String, Integer> defaultBackgroundColors = new HashMap<>();
+    defaultBackgroundColors.put("bg_white", Color.rgb(255, 255, 255));
+    defaultBackgroundColors.put("bg_lime", Color.rgb(0, 255, 0));
+    defaultBackgroundColors.put("bg_cyan", Color.rgb(0, 255, 255));
+    defaultBackgroundColors.put("bg_red", Color.rgb(255, 0, 0));
+    defaultBackgroundColors.put("bg_yellow", Color.rgb(255, 255, 0));
+    defaultBackgroundColors.put("bg_magenta", Color.rgb(255, 0, 255));
+    defaultBackgroundColors.put("bg_blue", Color.rgb(0, 0, 255));
+    defaultBackgroundColors.put("bg_black", Color.rgb(0, 0, 0));
+    DEFAULT_BACKGROUND_COLORS = Collections.unmodifiableMap(defaultBackgroundColors);
+  }
 
   /**
    * Parses the next valid WebVTT cue in a parsable array, including timestamps, settings and text.
@@ -514,6 +555,8 @@ public final class WebvttCueParser {
         text.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TAG_CLASS:
+        applyDefaultColors(text, startTag.classes, start, end);
+        break;
       case TAG_LANG:
       case TAG_VOICE:
       case "": // Case of the "whole cue" virtual tag.
@@ -526,6 +569,26 @@ public final class WebvttCueParser {
     int styleMatchesCount = scratchStyleMatches.size();
     for (int i = 0; i < styleMatchesCount; i++) {
       applyStyleToText(text, scratchStyleMatches.get(i).style, start, end);
+    }
+  }
+
+  /**
+   * Adds {@link ForegroundColorSpan}s and {@link BackgroundColorSpan}s to {@code text} for entries
+   * in {@code classes} that match WebVTT's <a
+   * href="https://www.w3.org/TR/webvtt1/#default-text-color">default text colors</a> or <a
+   * href="https://www.w3.org/TR/webvtt1/#default-text-background">default text background
+   * colors</a>.
+   */
+  private static void applyDefaultColors(
+      SpannableStringBuilder text, String[] classes, int start, int end) {
+    for (String className : classes) {
+      if (DEFAULT_TEXT_COLORS.containsKey(className)) {
+        int color = DEFAULT_TEXT_COLORS.get(className);
+        text.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      } else if (DEFAULT_BACKGROUND_COLORS.containsKey(className)) {
+        int color = DEFAULT_BACKGROUND_COLORS.get(className);
+        text.setSpan(new BackgroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
     }
   }
 

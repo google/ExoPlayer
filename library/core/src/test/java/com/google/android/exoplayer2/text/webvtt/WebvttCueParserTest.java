@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.text.webvtt;
 import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.graphics.Color;
 import android.text.Spanned;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.span.RubySpan;
@@ -77,6 +78,47 @@ public final class WebvttCueParserTest {
     assertThat(text)
         .hasRubySpanBetween("Some ".length(), "Some base text with".length())
         .withTextAndPosition("", RubySpan.POSITION_OVER);
+  }
+
+  @Test
+  public void testParseDefaultTextColor() throws Exception {
+    Spanned text = parseCueText("In this sentence <c.red>this text</c> is red");
+
+    assertThat(text.toString()).isEqualTo("In this sentence this text is red");
+    assertThat(text)
+        .hasForegroundColorSpanBetween(
+            "In this sentence ".length(), "In this sentence this text".length())
+        .withColor(Color.RED);
+  }
+
+  @Test
+  public void testParseUnsupportedDefaultTextColor() throws Exception {
+    Spanned text = parseCueText("In this sentence <c.papayawhip>this text</c> is not papaya");
+
+    assertThat(text.toString()).isEqualTo("In this sentence this text is not papaya");
+    assertThat(text).hasNoSpans();
+  }
+
+  @Test
+  public void testParseDefaultBackgroundColor() throws Exception {
+    Spanned text = parseCueText("In this sentence <c.bg_cyan>this text</c> has a cyan background");
+
+    assertThat(text.toString()).isEqualTo("In this sentence this text has a cyan background");
+    assertThat(text)
+        .hasBackgroundColorSpanBetween(
+            "In this sentence ".length(), "In this sentence this text".length())
+        .withColor(Color.CYAN);
+  }
+
+  @Test
+  public void testParseUnsupportedDefaultBackgroundColor() throws Exception {
+    Spanned text =
+        parseCueText(
+            "In this sentence <c.bg_papayawhip>this text</c> doesn't have a papaya background");
+
+    assertThat(text.toString())
+        .isEqualTo("In this sentence this text doesn't have a papaya background");
+    assertThat(text).hasNoSpans();
   }
 
   @Test
