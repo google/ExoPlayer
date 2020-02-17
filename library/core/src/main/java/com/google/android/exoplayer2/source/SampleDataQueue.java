@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.extractor.SampleDataReader;
 import com.google.android.exoplayer2.extractor.TrackOutput.CryptoData;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /** A queue of media sample data. */
 /* package */ class SampleDataQueue {
@@ -229,10 +231,14 @@ import java.nio.ByteBuffer;
     int ivSize = signalByte & 0x7F;
 
     // Read the initialization vector.
-    if (buffer.cryptoInfo.iv == null) {
-      buffer.cryptoInfo.iv = new byte[16];
+    CryptoInfo cryptoInfo = buffer.cryptoInfo;
+    if (cryptoInfo.iv == null) {
+      cryptoInfo.iv = new byte[16];
+    } else {
+      // Zero out cryptoInfo.iv so that if ivSize < 16, the remaining bytes are correctly set to 0.
+      Arrays.fill(cryptoInfo.iv, (byte) 0);
     }
-    readData(offset, buffer.cryptoInfo.iv, ivSize);
+    readData(offset, cryptoInfo.iv, ivSize);
     offset += ivSize;
 
     // Read the subsample count, if present.
@@ -247,11 +253,11 @@ import java.nio.ByteBuffer;
     }
 
     // Write the clear and encrypted subsample sizes.
-    @Nullable int[] clearDataSizes = buffer.cryptoInfo.numBytesOfClearData;
+    @Nullable int[] clearDataSizes = cryptoInfo.numBytesOfClearData;
     if (clearDataSizes == null || clearDataSizes.length < subsampleCount) {
       clearDataSizes = new int[subsampleCount];
     }
-    @Nullable int[] encryptedDataSizes = buffer.cryptoInfo.numBytesOfEncryptedData;
+    @Nullable int[] encryptedDataSizes = cryptoInfo.numBytesOfEncryptedData;
     if (encryptedDataSizes == null || encryptedDataSizes.length < subsampleCount) {
       encryptedDataSizes = new int[subsampleCount];
     }
@@ -272,12 +278,12 @@ import java.nio.ByteBuffer;
 
     // Populate the cryptoInfo.
     CryptoData cryptoData = Util.castNonNull(extrasHolder.cryptoData);
-    buffer.cryptoInfo.set(
+    cryptoInfo.set(
         subsampleCount,
         clearDataSizes,
         encryptedDataSizes,
         cryptoData.encryptionKey,
-        buffer.cryptoInfo.iv,
+        cryptoInfo.iv,
         cryptoData.cryptoMode,
         cryptoData.encryptedBlocks,
         cryptoData.clearBlocks);

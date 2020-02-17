@@ -27,27 +27,41 @@ import java.util.Arrays;
 public final class CryptoInfo {
 
   /**
+   * The 16 byte initialization vector. If the initialization vector of the content is shorter than
+   * 16 bytes, 0 byte padding is appended to extend the vector to the required 16 byte length.
+   *
    * @see android.media.MediaCodec.CryptoInfo#iv
    */
   public byte[] iv;
   /**
+   * The 16 byte key id.
+   *
    * @see android.media.MediaCodec.CryptoInfo#key
    */
   public byte[] key;
   /**
+   * The type of encryption that has been applied. Must be one of the {@link C.CryptoMode} values.
+   *
    * @see android.media.MediaCodec.CryptoInfo#mode
    */
-  @C.CryptoMode
-  public int mode;
+  @C.CryptoMode public int mode;
   /**
+   * The number of leading unencrypted bytes in each sub-sample. If null, all bytes are treated as
+   * encrypted and {@link #numBytesOfEncryptedData} must be specified.
+   *
    * @see android.media.MediaCodec.CryptoInfo#numBytesOfClearData
    */
   public int[] numBytesOfClearData;
   /**
+   * The number of trailing encrypted bytes in each sub-sample. If null, all bytes are treated as
+   * clear and {@link #numBytesOfClearData} must be specified.
+   *
    * @see android.media.MediaCodec.CryptoInfo#numBytesOfEncryptedData
    */
   public int[] numBytesOfEncryptedData;
   /**
+   * The number of subSamples that make up the buffer's contents.
+   *
    * @see android.media.MediaCodec.CryptoInfo#numSubSamples
    */
   public int numSubSamples;
@@ -112,10 +126,10 @@ public final class CryptoInfo {
     // Update cryptoInfo fields directly because CryptoInfo.set performs an unnecessary
     // object allocation on Android N.
     cryptoInfo.numSubSamples = numSubSamples;
-    cryptoInfo.numBytesOfClearData = copyOrNull(frameworkCryptoInfo.numBytesOfClearData);
-    cryptoInfo.numBytesOfEncryptedData = copyOrNull(frameworkCryptoInfo.numBytesOfEncryptedData);
-    cryptoInfo.key = copyOrNull(frameworkCryptoInfo.key);
-    cryptoInfo.iv = copyOrNull(frameworkCryptoInfo.iv);
+    cryptoInfo.numBytesOfClearData = copyOrNull(numBytesOfClearData);
+    cryptoInfo.numBytesOfEncryptedData = copyOrNull(numBytesOfEncryptedData);
+    cryptoInfo.key = copyOrNull(key);
+    cryptoInfo.iv = copyOrNull(iv);
     cryptoInfo.mode = mode;
     if (Util.SDK_INT >= 24) {
       android.media.MediaCodec.CryptoInfo.Pattern pattern = patternHolder.pattern;
@@ -148,31 +162,19 @@ public final class CryptoInfo {
     if (count == 0) {
       return;
     }
-
     if (numBytesOfClearData == null) {
       numBytesOfClearData = new int[1];
-    }
-    numBytesOfClearData[0] += count;
-
-    // It is OK to have numBytesOfClearData and frameworkCryptoInfo.numBytesOfClearData  point to
-    // the same array, see set().
-    if (frameworkCryptoInfo.numBytesOfClearData == null) {
       frameworkCryptoInfo.numBytesOfClearData = numBytesOfClearData;
     }
-
-    // Update frameworkCryptoInfo.numBytesOfClearData only if it points to a different array than
-    // numBytesOfClearData (all fields are public and non-final, therefore they can set be set
-    // directly without calling set()). Otherwise, the array has been updated already in the steps
-    // above.
-    if (frameworkCryptoInfo.numBytesOfClearData != numBytesOfClearData) {
-      frameworkCryptoInfo.numBytesOfClearData[0] += count;
-    }
+    numBytesOfClearData[0] += count;
   }
 
+  @Nullable
   private static int[] copyOrNull(@Nullable int[] array) {
     return array != null ? Arrays.copyOf(array, array.length) : null;
   }
 
+  @Nullable
   private static byte[] copyOrNull(@Nullable byte[] array) {
     return array != null ? Arrays.copyOf(array, array.length) : null;
   }
