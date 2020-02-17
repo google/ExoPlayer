@@ -28,8 +28,8 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.text.SpanUtil;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
+import com.google.android.exoplayer2.text.span.SpanUtil;
 import java.util.Map;
 
 /**

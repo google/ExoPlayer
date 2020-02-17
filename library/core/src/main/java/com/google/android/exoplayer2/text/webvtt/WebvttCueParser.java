@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
-import static com.google.android.exoplayer2.text.SpanUtil.addOrReplaceSpan;
+import static com.google.android.exoplayer2.text.span.SpanUtil.addOrReplaceSpan;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Color;
