@@ -318,19 +318,6 @@ struct JniContext {
   JniStatusCode jni_status_code = kJniStatusOk;
 };
 
-// Aligns |value| to the desired |alignment|. |alignment| must be a power of 2.
-template <typename T>
-constexpr T Align(T value, T alignment) {
-  const T alignment_mask = alignment - 1;
-  return (value + alignment_mask) & ~alignment_mask;
-}
-
-// Aligns |addr| to the desired |alignment|. |alignment| must be a power of 2.
-uint8_t* AlignAddr(uint8_t* const addr, const size_t alignment) {
-  const auto value = reinterpret_cast<size_t>(addr);
-  return reinterpret_cast<uint8_t*>(Align(value, alignment));
-}
-
 // Libgav1 frame buffer callbacks return 0 on success, -1 on failure.
 
 int Libgav1OnFrameBufferSizeChanged(void* /*callback_private_data*/,
@@ -351,95 +338,31 @@ int Libgav1GetFrameBuffer(void* callback_private_data, int bitdepth,
                           int top_border, int bottom_border,
                           int stride_alignment,
                           libgav1::FrameBuffer2* frame_buffer) {
-  bool is_monochrome = false;
-  int8_t subsampling_x = 1;
-  int8_t subsampling_y = 1;
-  switch (image_format) {
-    case libgav1::kImageFormatYuv420:
-      break;
-    case libgav1::kImageFormatYuv422:
-      subsampling_y = 0;
-      break;
-    case libgav1::kImageFormatYuv444:
-      subsampling_x = subsampling_y = 0;
-      break;
-    default:
-      // image_format is libgav1::kImageFormatMonochrome400. (AV1 has only four
-      // image formats, hardcoded in the spec).
-      is_monochrome = true;
-      break;
-  }
-
-  // Calculate y_stride (in bytes). It is padded to a multiple of
-  // |stride_alignment| bytes.
-  int y_stride = width + left_border + right_border;
-  if (bitdepth > 8) y_stride *= sizeof(uint16_t);
-  y_stride = Align(y_stride, stride_alignment);
-  // Size of the Y plane in bytes.
-  const uint64_t y_plane_size =
-      (height + top_border + bottom_border) * static_cast<uint64_t>(y_stride) +
-      (stride_alignment - 1);
-
-  const int uv_width = is_monochrome ? 0 : width >> subsampling_x;
-  const int uv_height = is_monochrome ? 0 : height >> subsampling_y;
-  const int uv_left_border = is_monochrome ? 0 : left_border >> subsampling_x;
-  const int uv_right_border = is_monochrome ? 0 : right_border >> subsampling_x;
-  const int uv_top_border = is_monochrome ? 0 : top_border >> subsampling_y;
-  const int uv_bottom_border =
-      is_monochrome ? 0 : bottom_border >> subsampling_y;
-
-  // Calculate uv_stride (in bytes). It is padded to a multiple of
-  // |stride_alignment| bytes.
-  int uv_stride = uv_width + uv_left_border + uv_right_border;
-  if (bitdepth > 8) uv_stride *= sizeof(uint16_t);
-  uv_stride = Align(uv_stride, stride_alignment);
-  // Size of the U or V plane in bytes.
-  const uint64_t uv_plane_size =
-      is_monochrome ? 0
-                    : (uv_height + uv_top_border + uv_bottom_border) *
-                              static_cast<uint64_t>(uv_stride) +
-                          (stride_alignment - 1);
-
-  // Check if it is safe to cast y_plane_size and uv_plane_size to size_t.
-  if (y_plane_size > SIZE_MAX || uv_plane_size > SIZE_MAX) {
-    return -1;
-  }
+  libgav1::FrameBufferInfo info;
+  Libgav1StatusCode status = libgav1::ComputeFrameBufferInfo(
+      bitdepth, image_format, width, height, left_border, right_border,
+      top_border, bottom_border, stride_alignment, &info);
+  if (status != kLibgav1StatusOk) return -1;
 
   JniContext* const context = static_cast<JniContext*>(callback_private_data);
   JniFrameBuffer* jni_buffer;
   context->jni_status_code = context->buffer_manager.GetBuffer(
-      static_cast<size_t>(y_plane_size), static_cast<size_t>(uv_plane_size),
-      &jni_buffer);
+      info.y_buffer_size, info.uv_buffer_size, &jni_buffer);
   if (context->jni_status_code != kJniStatusOk) {
     LOGE("%s", GetJniErrorMessage(context->jni_status_code));
     return -1;
   }
 
   uint8_t* const y_buffer = jni_buffer->RawBuffer(0);
-  uint8_t* const u_buffer = !is_monochrome ? jni_buffer->RawBuffer(1) : nullptr;
-  uint8_t* const v_buffer = !is_monochrome ? jni_buffer->RawBuffer(2) : nullptr;
+  uint8_t* const u_buffer =
+      (info.uv_buffer_size != 0) ? jni_buffer->RawBuffer(1) : nullptr;
+  uint8_t* const v_buffer =
+      (info.uv_buffer_size != 0) ? jni_buffer->RawBuffer(2) : nullptr;
 
-  int left_border_bytes = left_border;
-  int uv_left_border_bytes = uv_left_border;
-  if (bitdepth > 8) {
-    left_border_bytes *= sizeof(uint16_t);
-    uv_left_border_bytes *= sizeof(uint16_t);
-  }
-  frame_buffer->plane[0] = AlignAddr(
-      y_buffer + (top_border * y_stride) + left_border_bytes, stride_alignment);
-  frame_buffer->plane[1] =
-      AlignAddr(u_buffer + (uv_top_border * uv_stride) + uv_left_border_bytes,
-                stride_alignment);
-  frame_buffer->plane[2] =
-      AlignAddr(v_buffer + (uv_top_border * uv_stride) + uv_left_border_bytes,
-                stride_alignment);
-
-  frame_buffer->stride[0] = y_stride;
-  frame_buffer->stride[1] = frame_buffer->stride[2] = uv_stride;
-
-  frame_buffer->private_data = reinterpret_cast<void*>(jni_buffer->Id());
-
-  return 0;
+  status = libgav1::SetFrameBuffer(&info, y_buffer, u_buffer, v_buffer,
+                                   reinterpret_cast<void*>(jni_buffer->Id()),
+                                   frame_buffer);
+  return (status == kLibgav1StatusOk) ? 0 : -1;
 }
 
 void Libgav1ReleaseFrameBuffer(void* callback_private_data,
@@ -453,6 +376,8 @@ void Libgav1ReleaseFrameBuffer(void* callback_private_data,
     LOGE("%s", GetJniErrorMessage(context->jni_status_code));
   }
 }
+
+constexpr int AlignTo16(int value) { return (value + 15) & (~15); }
 
 void CopyPlane(const uint8_t* source, int source_stride, uint8_t* destination,
                int destination_stride, int width, int height) {
@@ -794,7 +719,7 @@ DECODER_FUNC(jint, gav1RenderFrame, jlong jContext, jobject jSurface,
   const int32_t native_window_buffer_uv_height =
       (native_window_buffer.height + 1) / 2;
   const int native_window_buffer_uv_stride =
-      Align(native_window_buffer.stride / 2, 16);
+      AlignTo16(native_window_buffer.stride / 2);
 
   // TODO(b/140606738): Handle monochrome videos.
 
