@@ -36,9 +36,6 @@ import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -370,42 +367,11 @@ public class SimpleExoPlayer extends BasePlayer
    * @param looper The {@link Looper} which must be used for all calls to the player and which is
    *     used to call listeners on.
    */
-  @SuppressWarnings("deprecation")
   protected SimpleExoPlayer(
       Context context,
       RenderersFactory renderersFactory,
       TrackSelector trackSelector,
       LoadControl loadControl,
-      BandwidthMeter bandwidthMeter,
-      AnalyticsCollector analyticsCollector,
-      boolean useLazyPreparation,
-      Clock clock,
-      Looper looper) {
-    this(
-        context,
-        renderersFactory,
-        trackSelector,
-        loadControl,
-        DrmSessionManager.getDummyDrmSessionManager(),
-        bandwidthMeter,
-        analyticsCollector,
-        useLazyPreparation,
-        clock,
-        looper);
-  }
-
-  /**
-   * @deprecated Use {@link #SimpleExoPlayer(Context, RenderersFactory, TrackSelector, LoadControl,
-   *     BandwidthMeter, AnalyticsCollector, boolean, Clock, Looper)} instead, and pass the {@link
-   *     DrmSessionManager} to the {@link MediaSource} factories.
-   */
-  @Deprecated
-  protected SimpleExoPlayer(
-      Context context,
-      RenderersFactory renderersFactory,
-      TrackSelector trackSelector,
-      LoadControl loadControl,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       BandwidthMeter bandwidthMeter,
       AnalyticsCollector analyticsCollector,
       boolean useLazyPreparation,
@@ -427,8 +393,7 @@ public class SimpleExoPlayer extends BasePlayer
             componentListener,
             componentListener,
             componentListener,
-            componentListener,
-            drmSessionManager);
+            componentListener);
 
     // Set initial values.
     audioVolume = 1;
@@ -457,9 +422,6 @@ public class SimpleExoPlayer extends BasePlayer
     audioListeners.add(analyticsCollector);
     addMetadataOutput(analyticsCollector);
     bandwidthMeter.addEventListener(eventHandler, analyticsCollector);
-    if (drmSessionManager instanceof DefaultDrmSessionManager) {
-      ((DefaultDrmSessionManager) drmSessionManager).addListener(eventHandler, analyticsCollector);
-    }
     audioBecomingNoisyManager =
         new AudioBecomingNoisyManager(context, eventHandler, componentListener);
     audioFocusManager = new AudioFocusManager(context, eventHandler, componentListener);

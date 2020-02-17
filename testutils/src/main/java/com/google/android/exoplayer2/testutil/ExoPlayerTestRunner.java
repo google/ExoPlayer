@@ -371,8 +371,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
                 videoRendererEventListener,
                 audioRendererEventListener,
                 textRendererOutput,
-                metadataRendererOutput,
-                drmSessionManager) -> renderers;
+                metadataRendererOutput) -> renderers;
       }
       if (loadControl == null) {
         loadControl = new DefaultLoadControl();

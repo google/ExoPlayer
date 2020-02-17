@@ -171,8 +171,7 @@ public final class DownloadHelper {
             new VideoRendererEventListener() {},
             new AudioRendererEventListener() {},
             (cues) -> {},
-            (metadata) -> {},
-            /* drmSessionManager= */ null);
+            (metadata) -> {});
     RendererCapabilities[] capabilities = new RendererCapabilities[renderers.length];
     for (int i = 0; i < renderers.length; i++) {
       capabilities[i] = renderers[i].getCapabilities();

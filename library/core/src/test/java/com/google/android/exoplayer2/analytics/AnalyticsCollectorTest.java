@@ -1167,8 +1167,7 @@ public final class AnalyticsCollectorTest {
             videoRendererEventListener,
             audioRendererEventListener,
             textRendererOutput,
-            metadataRendererOutput,
-            drmSessionManager) ->
+            metadataRendererOutput) ->
             new Renderer[] {
               new FakeVideoRenderer(eventHandler, videoRendererEventListener),
               new FakeAudioRenderer(eventHandler, audioRendererEventListener)

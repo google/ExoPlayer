@@ -270,7 +270,7 @@ import java.util.List;
                 C.WIDEVINE_UUID,
                 frameworkMediaDrm,
                 drmCallback,
-                /* optionalKeyRequestParameters= */ null,
+                /* keyRequestParameters= */ null,
                 /* multiSession= */ false,
                 DefaultDrmSessionManager.INITIAL_DRM_REQUEST_RETRY_COUNT);
         if (!useL1Widevine) {

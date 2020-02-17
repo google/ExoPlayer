@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
@@ -41,7 +40,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -96,41 +94,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
    */
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(Context context, MediaCodecSelector mediaCodecSelector) {
     this(
         context,
         mediaCodecSelector,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false);
-  }
-
-  /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public MediaCodecAudioRenderer(
-      Context context,
-      MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys) {
-    this(
-        context,
-        mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         /* eventHandler= */ null,
         /* eventListener= */ null);
   }
@@ -142,7 +109,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
@@ -151,43 +117,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     this(
         context,
         mediaCodecSelector,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false,
-        eventHandler,
-        eventListener);
-  }
-
-  /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public MediaCodecAudioRenderer(
-      Context context,
-      MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
-      @Nullable Handler eventHandler,
-      @Nullable AudioRendererEventListener eventListener) {
-    this(
-        context,
-        mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         eventHandler,
         eventListener,
         (AudioCapabilities) null);
@@ -196,13 +125,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -210,17 +132,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     default capabilities (no encoded audio passthrough support) should be assumed.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process PCM audio before
    *     output.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
    */
-  @Deprecated
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       @Nullable AudioCapabilities audioCapabilities,
@@ -228,8 +143,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     this(
         context,
         mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         eventHandler,
         eventListener,
         new DefaultAudioSink(audioCapabilities, audioProcessors));
@@ -238,36 +151,20 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioSink The sink to which audio will be output.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
    */
-  @Deprecated
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioSink audioSink) {
     this(
         context,
         mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         /* enableDecoderFallback= */ false,
         eventHandler,
         eventListener,
@@ -285,52 +182,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioSink The sink to which audio will be output.
    */
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
-      boolean enableDecoderFallback,
-      @Nullable Handler eventHandler,
-      @Nullable AudioRendererEventListener eventListener,
-      AudioSink audioSink) {
-    this(
-        context,
-        mediaCodecSelector,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false,
-        enableDecoderFallback,
-        eventHandler,
-        eventListener,
-        audioSink);
-  }
-
-  /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
-   *     initialization fails. This may result in using a decoder that is slower/less efficient than
-   *     the primary decoder.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioSink The sink to which audio will be output.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
-   */
-  @Deprecated
-  public MediaCodecAudioRenderer(
-      Context context,
-      MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       boolean enableDecoderFallback,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
@@ -338,8 +192,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     super(
         C.TRACK_TYPE_AUDIO,
         mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         enableDecoderFallback,
         /* assumedMinimumCodecOperatingRate= */ 44100);
     this.context = context.getApplicationContext();
@@ -352,7 +204,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Capabilities
   protected int supportsFormat(
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
@@ -362,10 +213,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     boolean supportsFormatDrm =
-        format.drmInitData == null
-            || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType)
-            || (format.exoMediaCryptoType == null
-                && supportsFormatDrm(drmSessionManager, format.drmInitData));
+        format.drmInitData == null || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType);
     if (supportsFormatDrm
         && allowPassthrough(format.channelCount, mimeType)
         && mediaCodecSelector.getPassthroughDecoderInfo() != null) {

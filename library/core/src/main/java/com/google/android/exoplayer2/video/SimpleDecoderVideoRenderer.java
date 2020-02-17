@@ -26,13 +26,11 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TimedValueQueue;
@@ -71,13 +69,10 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
 
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
-  private final boolean playClearSamplesWithoutKeys;
   private final EventDispatcher eventDispatcher;
   private final TimedValueQueue<Format> formatQueue;
   private final DecoderInputBuffer flagsOnlyBuffer;
-  private final DrmSessionManager<ExoMediaCrypto> drmSessionManager;
 
-  private boolean drmResourcesAcquired;
   private Format inputFormat;
   private Format outputFormat;
   private SimpleDecoder<
@@ -126,26 +121,15 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
-   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
-   *     media is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
    */
   protected SimpleDecoderVideoRenderer(
       long allowedJoiningTimeMs,
       @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener,
-      int maxDroppedFramesToNotify,
-      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys) {
+      int maxDroppedFramesToNotify) {
     super(C.TRACK_TYPE_VIDEO);
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
-    this.drmSessionManager = drmSessionManager;
-    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
     formatQueue = new TimedValueQueue<>();
@@ -156,12 +140,6 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   }
 
   // BaseRenderer implementation.
-
-  @Override
-  @Capabilities
-  public final int supportsFormat(Format format) {
-    return supportsFormatInternal(drmSessionManager, format);
-  }
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
@@ -238,10 +216,6 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
-    if (drmSessionManager != null && !drmResourcesAcquired) {
-      drmResourcesAcquired = true;
-      drmSessionManager.prepare();
-    }
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
   }
@@ -288,14 +262,6 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       releaseDecoder();
     } finally {
       eventDispatcher.disabled(decoderCounters);
-    }
-  }
-
-  @Override
-  protected void onReset() {
-    if (drmSessionManager != null && drmResourcesAcquired) {
-      drmResourcesAcquired = false;
-      drmSessionManager.release();
     }
   }
 
@@ -371,12 +337,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     waitingForFirstSampleInFormat = true;
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
-    if (formatHolder.includesDrmSession) {
-      setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
-    } else {
-      sourceDrmSession =
-          getUpdatedSourceDrmSession(inputFormat, newFormat, drmSessionManager, sourceDrmSession);
-    }
+    setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
     inputFormat = newFormat;
 
     if (sourceDrmSession != decoderDrmSession) {
@@ -510,18 +471,6 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       maybeNotifyDroppedFrames();
     }
   }
-
-  /**
-   * Returns the {@link Capabilities} for the given {@link Format}.
-   *
-   * @param drmSessionManager The renderer's {@link DrmSessionManager}.
-   * @param format The format, which has a video {@link Format#sampleMimeType}.
-   * @return The {@link Capabilities} for this {@link Format}.
-   * @see RendererCapabilities#supportsFormat(Format)
-   */
-  @Capabilities
-  protected abstract int supportsFormatInternal(
-      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format);
 
   /**
    * Creates a decoder for the given format.
@@ -893,9 +842,9 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
+    DrmSession<ExoMediaCrypto> decoderDrmSession = this.decoderDrmSession;
     if (decoderDrmSession == null
-        || (!bufferEncrypted
-            && (playClearSamplesWithoutKeys || decoderDrmSession.playClearSamplesWithoutKeys()))) {
+        || (!bufferEncrypted && decoderDrmSession.playClearSamplesWithoutKeys())) {
       return false;
     }
     @DrmSession.State int drmSessionState = decoderDrmSession.getState();
