@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp3;
 
 import static com.google.android.exoplayer2.extractor.mp3.Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING;
+import static com.google.android.exoplayer2.testutil.TestUtil.extractAllSamplesFromFile;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -39,7 +40,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class IndexSeekerTest {
 
-  private static final String TEST_FILE = "mp3/bear-vbr-xing-header.mp3";
+  private static final String TEST_FILE_NO_SEEK_TABLE = "mp3/bear-vbr-no-seek-table.mp3";
+  private static final int TEST_FILE_NO_SEEK_TABLE_DURATION = 2_808_000;
 
   private Mp3Extractor extractor;
   private FakeExtractorOutput extractorOutput;
@@ -55,18 +57,28 @@ public class IndexSeekerTest {
   }
 
   @Test
-  public void mp3ExtractorReads_returnSeekableSeekMap() throws Exception {
-    Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
+  public void mp3ExtractorReads_returnsSeekableSeekMap() throws Exception {
+    Uri fileUri = TestUtil.buildAssetUri(TEST_FILE_NO_SEEK_TABLE);
 
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
 
-    assertThat(seekMap.getDurationUs()).isEqualTo(2_808_000);
     assertThat(seekMap.isSeekable()).isTrue();
   }
 
   @Test
+  public void mp3ExtractorReads_correctsInexactDuration() throws Exception {
+    FakeExtractorOutput extractorOutput =
+        TestUtil.extractAllSamplesFromFile(
+            extractor, ApplicationProvider.getApplicationContext(), TEST_FILE_NO_SEEK_TABLE);
+
+    SeekMap seekMap = extractorOutput.seekMap;
+
+    assertThat(seekMap.getDurationUs()).isEqualTo(TEST_FILE_NO_SEEK_TABLE_DURATION);
+  }
+
+  @Test
   public void seeking_handlesSeekToZero() throws Exception {
-    String fileName = TEST_FILE;
+    String fileName = TEST_FILE_NO_SEEK_TABLE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
@@ -84,12 +96,12 @@ public class IndexSeekerTest {
 
   @Test
   public void seeking_handlesSeekToEof() throws Exception {
-    String fileName = TEST_FILE;
+    String fileName = TEST_FILE_NO_SEEK_TABLE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
 
-    long targetSeekTimeUs = seekMap.getDurationUs();
+    long targetSeekTimeUs = TEST_FILE_NO_SEEK_TABLE_DURATION;
     int extractedFrameIndex =
         TestUtil.seekToTimeUs(
             extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);
@@ -102,7 +114,7 @@ public class IndexSeekerTest {
 
   @Test
   public void seeking_handlesSeekingBackward() throws Exception {
-    String fileName = TEST_FILE;
+    String fileName = TEST_FILE_NO_SEEK_TABLE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
@@ -122,7 +134,7 @@ public class IndexSeekerTest {
 
   @Test
   public void seeking_handlesSeekingForward() throws Exception {
-    String fileName = TEST_FILE;
+    String fileName = TEST_FILE_NO_SEEK_TABLE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
@@ -171,7 +183,7 @@ public class IndexSeekerTest {
 
   private static FakeTrackOutput getExpectedTrackOutput(String fileName)
       throws IOException, InterruptedException {
-    return TestUtil.extractAllSamplesFromFile(
+    return extractAllSamplesFromFile(
             new Mp3Extractor(FLAG_ENABLE_INDEX_SEEKING),
             ApplicationProvider.getApplicationContext(),
             fileName)
