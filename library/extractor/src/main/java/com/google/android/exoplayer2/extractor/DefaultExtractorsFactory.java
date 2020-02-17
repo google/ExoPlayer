@@ -52,7 +52,13 @@ import java.lang.reflect.Constructor;
  *   <li>AC3 ({@link Ac3Extractor})
  *   <li>AC4 ({@link Ac4Extractor})
  *   <li>AMR ({@link AmrExtractor})
- *   <li>FLAC (only available if the FLAC extension is built and included)
+ *   <li>FLAC
+ *       <ul>
+ *         <li>if available, using the Flac extension extractor,
+ *         <li>otherwise, using core's {@link FlacExtractor}. NOTE: Android devices do not generally
+ *             include a FLAC decoder before API 27, which can be worked around by using the FLAC
+ *             extension of the FFMPEG extension.
+ *       </ul>
  * </ul>
  */
 public final class DefaultExtractorsFactory implements ExtractorsFactory {
@@ -249,10 +255,6 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                     ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
                     : 0));
     extractors[12] = new Ac4Extractor();
-    // Prefer the FLAC extension extractor because it outputs raw audio, which can be handled by the
-    // framework on all API levels, unlike the core library FLAC extractor, which outputs FLAC audio
-    // frames and so relies on having a FLAC decoder (e.g., a MediaCodec decoder that handles FLAC
-    // (from API 27), or the FFmpeg extension with FLAC enabled).
     if (FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR != null) {
       try {
         extractors[13] = FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR.newInstance();
