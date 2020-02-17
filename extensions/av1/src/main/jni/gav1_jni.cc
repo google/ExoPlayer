@@ -27,8 +27,6 @@
 #endif  // CPU_FEATURES_COMPILED_ANY_ARM_NEON
 #include <jni.h>
 
-#include <cassert>
-#include <climits>
 #include <cstdint>
 #include <cstring>
 #include <mutex>  // NOLINT
@@ -134,6 +132,12 @@ class JniFrameBuffer {
     }
   }
 
+  // Not copyable or movable.
+  JniFrameBuffer(const JniFrameBuffer&) = delete;
+  JniFrameBuffer(JniFrameBuffer&&) = delete;
+  JniFrameBuffer& operator=(const JniFrameBuffer&) = delete;
+  JniFrameBuffer& operator=(JniFrameBuffer&&) = delete;
+
   void SetFrameData(const libgav1::DecoderBuffer& decoder_buffer) {
     for (int plane_index = kPlaneY; plane_index < decoder_buffer.NumPlanes();
          plane_index++) {
@@ -162,7 +166,7 @@ class JniFrameBuffer {
   bool InUse() const { return reference_count_ != 0; }
 
   uint8_t* RawBuffer(int plane_index) const { return raw_buffer_[plane_index]; }
-  int Id() const { return id_; }
+  void* BufferPrivateData() const { return const_cast<int*>(&id_); }
 
   // Attempts to reallocate data planes if the existing ones don't have enough
   // capacity. Returns true if the allocation was successful or wasn't needed,
@@ -359,19 +363,17 @@ int Libgav1GetFrameBuffer(void* callback_private_data, int bitdepth,
   uint8_t* const v_buffer =
       (info.uv_buffer_size != 0) ? jni_buffer->RawBuffer(2) : nullptr;
 
-  status = libgav1::SetFrameBuffer(&info, y_buffer, u_buffer, v_buffer,
-                                   reinterpret_cast<void*>(jni_buffer->Id()),
-                                   frame_buffer);
+  status =
+      libgav1::SetFrameBuffer(&info, y_buffer, u_buffer, v_buffer,
+                              jni_buffer->BufferPrivateData(), frame_buffer);
   return (status == kLibgav1StatusOk) ? 0 : -1;
 }
 
 void Libgav1ReleaseFrameBuffer(void* callback_private_data,
                                void* buffer_private_data) {
   JniContext* const context = static_cast<JniContext*>(callback_private_data);
-  const intptr_t buffer_id = reinterpret_cast<intptr_t>(buffer_private_data);
-  assert(buffer_id <= INT_MAX);
-  context->jni_status_code =
-      context->buffer_manager.ReleaseBuffer(static_cast<int>(buffer_id));
+  const int buffer_id = *static_cast<const int*>(buffer_private_data);
+  context->jni_status_code = context->buffer_manager.ReleaseBuffer(buffer_id);
   if (context->jni_status_code != kJniStatusOk) {
     LOGE("%s", GetJniErrorMessage(context->jni_status_code));
   }
@@ -655,12 +657,11 @@ DECODER_FUNC(jint, gav1GetFrame, jlong jContext, jobject jOutputBuffer,
       return kStatusError;
     }
 
-    const intptr_t buffer_id =
-        reinterpret_cast<intptr_t>(decoder_buffer->buffer_private_data);
-    assert(buffer_id <= INT_MAX);
-    context->buffer_manager.AddBufferReference(static_cast<int>(buffer_id));
+    const int buffer_id =
+        *static_cast<const int*>(decoder_buffer->buffer_private_data);
+    context->buffer_manager.AddBufferReference(buffer_id);
     JniFrameBuffer* const jni_buffer =
-        context->buffer_manager.GetBuffer(static_cast<int>(buffer_id));
+        context->buffer_manager.GetBuffer(buffer_id);
     jni_buffer->SetFrameData(*decoder_buffer);
     env->CallVoidMethod(jOutputBuffer, context->init_for_private_frame_method,
                         decoder_buffer->displayed_width[kPlaneY],
@@ -669,8 +670,7 @@ DECODER_FUNC(jint, gav1GetFrame, jlong jContext, jobject jOutputBuffer,
       // Exception is thrown in Java when returning from the native call.
       return kStatusError;
     }
-    env->SetIntField(jOutputBuffer, context->decoder_private_field,
-                     static_cast<int>(buffer_id));
+    env->SetIntField(jOutputBuffer, context->decoder_private_field, buffer_id);
   }
 
   return kStatusOk;
