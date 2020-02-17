@@ -17,36 +17,36 @@ package com.google.android.exoplayer2.source.rtp.upstream;
 
 import com.google.android.exoplayer2.source.rtp.RtpPacket;
 
-public final class RtpSamplesHolder {
+public final class RtpQueueHolder {
 
-    private volatile RtpSamplesQueue samplesQueue;
+    private volatile RtpQueue queue;
 
     private boolean opened;
 
-    public RtpSamplesHolder() {
+    public RtpQueueHolder() {
     }
 
     public void open(int clockrate) {
-        samplesQueue = new RtpSamplesQueue(clockrate);
+        queue = new RtpSimpleQueue(clockrate);
         opened = true;
     }
 
     public void put(RtpPacket packet) {
         if (opened) {
             if (packet != null) {
-                samplesQueue.offer(packet);
+                queue.offer(packet);
             }
         }
     }
 
     public void close() {
         if (opened) {
-            samplesQueue.clear();
+            queue.clear();
             opened = false;
         }
     }
 
-    public RtpSamplesQueue samples() {
-        return samplesQueue;
+    public RtpQueue queue() {
+        return queue;
     }
 }
