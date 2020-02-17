@@ -1241,13 +1241,15 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    protected void onBufferRead() {
-      if (!renderedFirstFrame) {
+    protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
+      boolean shouldProcess = super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
+      if (shouldProcess && !renderedFirstFrame) {
         eventDispatcher.videoSizeChanged(
             format.width, format.height, format.rotationDegrees, format.pixelWidthHeightRatio);
         eventDispatcher.renderedFirstFrame(/* surface= */ null);
         renderedFirstFrame = true;
       }
+      return shouldProcess;
     }
   }
 
@@ -1291,11 +1293,13 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    protected void onBufferRead() {
-      if (!notifiedAudioSessionId) {
+    protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
+      boolean shouldProcess = super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
+      if (shouldProcess && !notifiedAudioSessionId) {
         eventDispatcher.audioSessionId(/* audioSessionId= */ 1);
         notifiedAudioSessionId = true;
       }
+      return shouldProcess;
     }
   }
 
