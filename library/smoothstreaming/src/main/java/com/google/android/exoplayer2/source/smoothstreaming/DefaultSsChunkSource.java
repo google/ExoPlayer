@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.List;
 
@@ -80,7 +81,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
   private SsManifest manifest;
   private int currentManifestChunkOffset;
 
-  private IOException fatalError;
+  @Nullable private IOException fatalError;
 
   /**
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
@@ -106,8 +107,11 @@ public class DefaultSsChunkSource implements SsChunkSource {
     for (int i = 0; i < extractorWrappers.length; i++) {
       int manifestTrackIndex = trackSelection.getIndexInTrackGroup(i);
       Format format = streamElement.formats[manifestTrackIndex];
+      @Nullable
       TrackEncryptionBox[] trackEncryptionBoxes =
-          format.drmInitData != null ? manifest.protectionElement.trackEncryptionBoxes : null;
+          format.drmInitData != null
+              ? Assertions.checkNotNull(manifest.protectionElement).trackEncryptionBoxes
+              : null;
       int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : 0;
       Track track = new Track(manifestTrackIndex, streamElement.type, streamElement.timescale,
           C.TIME_UNSET, manifest.durationUs, format, Track.TRANSFORMATION_NONE,
@@ -277,7 +281,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       long chunkEndTimeUs,
       long chunkSeekTimeUs,
       int trackSelectionReason,
-      Object trackSelectionData,
+      @Nullable Object trackSelectionData,
       ChunkExtractorWrapper extractorWrapper) {
     DataSpec dataSpec = new DataSpec(uri);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
