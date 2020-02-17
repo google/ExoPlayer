@@ -783,7 +783,6 @@ public class SampleQueue implements TrackOutput {
       return;
     }
     @Nullable DrmInitData newDrmInitData = newFormat.drmInitData;
-    outputFormatHolder.includesDrmSession = true;
     outputFormatHolder.drmSession = currentDrmSession;
     if (!isFirstFormat && Util.areEqual(oldDrmInitData, newDrmInitData)) {
       // Nothing to do.
