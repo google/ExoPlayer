@@ -1256,6 +1256,22 @@ public final class Util {
   }
 
   /**
+   * Returns a string containing a lower-case hex representation of the bytes provided.
+   *
+   * @param bytes The byte data to convert to hex.
+   * @return A String containing the hex representation of {@code bytes}.
+   */
+  public static String toHexString(byte[] bytes) {
+    StringBuilder result = new StringBuilder(bytes.length * 2);
+    for (int i = 0; i < bytes.length; i++) {
+      result
+          .append(Character.forDigit((bytes[i] >> 4) & 0xF, 16))
+          .append(Character.forDigit(bytes[i] & 0xF, 16));
+    }
+    return result.toString();
+  }
+
+  /**
    * Returns a string with comma delimited simple names of each object's class.
    *
    * @param objects The objects whose simple class names should be comma delimited and returned.

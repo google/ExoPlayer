@@ -706,6 +706,13 @@ public class UtilTest {
   }
 
   @Test
+  public void testToHexString() {
+    byte[] bytes = TestUtil.createByteArray(0x12, 0xFC, 0x06);
+
+    assertThat(Util.toHexString(bytes)).isEqualTo("12fc06");
+  }
+
+  @Test
   public void testGetCodecsOfType() {
     assertThat(getCodecsOfType(null, C.TRACK_TYPE_VIDEO)).isNull();
     assertThat(getCodecsOfType("avc1.64001e,vp9.63.1", C.TRACK_TYPE_AUDIO)).isNull();
