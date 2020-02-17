@@ -358,7 +358,8 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       audioTrackNeedsConfigure = false;
     }
 
-    if (audioSink.handleBuffer(outputBuffer.data, outputBuffer.timeUs)) {
+    if (audioSink.handleBuffer(
+        outputBuffer.data, outputBuffer.timeUs, /* encodedAccessUnitCount= */ 1)) {
       decoderCounters.renderedOutputBufferCount++;
       outputBuffer.release();
       outputBuffer = null;

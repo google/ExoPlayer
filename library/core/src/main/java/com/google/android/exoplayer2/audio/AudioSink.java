@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.audio;
 
 import android.media.AudioTrack;
-import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -29,18 +28,19 @@ import java.nio.ByteBuffer;
  * <p>Before starting playback, specify the input audio format by calling {@link #configure(int,
  * int, int, int, int[], int, int)}.
  *
- * <p>Call {@link #handleBuffer(ByteBuffer, long)} to write data, and {@link #handleDiscontinuity()}
- * when the data being fed is discontinuous. Call {@link #play()} to start playing the written data.
+ * <p>Call {@link #handleBuffer(ByteBuffer, long, int)} to write data, and {@link
+ * #handleDiscontinuity()} when the data being fed is discontinuous. Call {@link #play()} to start
+ * playing the written data.
  *
  * <p>Call {@link #configure(int, int, int, int, int[], int, int)} whenever the input format
  * changes. The sink will be reinitialized on the next call to {@link #handleBuffer(ByteBuffer,
- * long)}.
+ * long, int)}.
  *
  * <p>Call {@link #flush()} to prepare the sink to receive audio data from a new playback position.
  *
  * <p>Call {@link #playToEndOfStream()} repeatedly to play out all data when no more input buffers
- * will be provided via {@link #handleBuffer(ByteBuffer, long)} until the next {@link #flush()}.
- * Call {@link #reset()} when the instance is no longer required.
+ * will be provided via {@link #handleBuffer(ByteBuffer, long, int)} until the next {@link
+ * #flush()}. Call {@link #reset()} when the instance is no longer required.
  *
  * <p>The implementation may be backed by a platform {@link AudioTrack}. In this case, {@link
  * #setAudioSessionId(int)}, {@link #setAudioAttributes(AudioAttributes)}, {@link
@@ -223,7 +223,7 @@ public interface AudioSink {
   void handleDiscontinuity();
 
   /**
-   * Attempts to process PCM data from a {@link ByteBuffer}, starting from its current position and
+   * Attempts to process data from a {@link ByteBuffer}, starting from its current position and
    * ending at its limit (exclusive). The position of the {@link ByteBuffer} is advanced by the
    * number of bytes that were handled. {@link Listener#onPositionDiscontinuity()} will be called if
    * {@code presentationTimeUs} is discontinuous with the last buffer handled since the last reset.
@@ -233,38 +233,17 @@ public interface AudioSink {
    * except in the case of an intervening call to {@link #flush()} (or to {@link #configure(int,
    * int, int, int, int[], int, int)} that causes the sink to be flushed).
    *
-   * <p>For encoded data (eg in passthrough), use {@link #handleEncodedBuffer(ByteBuffer, long,
-   * int)}.
-   *
    * @param buffer The buffer containing audio data.
    * @param presentationTimeUs The presentation timestamp of the buffer in microseconds.
+   * @param encodedAccessUnitCount The number of encoded access units in the buffer, or 1 if the
+   *     buffer contains PCM audio. This allows batching multiple encoded access units in one
+   *     buffer.
    * @return Whether the buffer was handled fully.
    * @throws InitializationException If an error occurs initializing the sink.
    * @throws WriteException If an error occurs writing the audio data.
    */
-  boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
+  boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs, int encodedAccessUnitCount)
       throws InitializationException, WriteException;
-
-  /**
-   * Attempts to process data from a {@link ByteBuffer}, starting from its current position and
-   * ending at its limit (exclusive).
-   *
-   * <p>This method is the same as {@link #handleBuffer(ByteBuffer, long)} for encoded (non PCM)
-   * audio. The only difference is that it requires to pass the number of audio encoded access
-   * unites (frames) in the buffer. This is used in passthrough mode.
-   *
-   * @param buffer The buffer containing audio data.
-   * @param presentationTimeUs The presentation timestamp of the buffer in microseconds.
-   * @param accessUnitCount The number of encoded access units in the buffer.
-   * @return Whether the buffer was handled fully.
-   * @throws InitializationException If an error occurs initializing the sink.
-   * @throws WriteException If an error occurs writing the audio data.
-   */
-  default boolean handleEncodedBuffer(
-      ByteBuffer buffer, long presentationTimeUs, @IntRange(from = 1) int accessUnitCount)
-      throws InitializationException, WriteException {
-    throw new UnsupportedOperationException();
-  }
 
   /**
    * Processes any remaining data. {@link #isEnded()} will return {@code true} when no data remains.

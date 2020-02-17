@@ -74,16 +74,10 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
-  public boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
+  public boolean handleBuffer(
+      ByteBuffer buffer, long presentationTimeUs, int encodedAccessUnitCount)
       throws InitializationException, WriteException {
-    return sink.handleBuffer(buffer, presentationTimeUs);
-  }
-
-  @Override
-  public boolean handleEncodedBuffer(
-      ByteBuffer buffer, long presentationTimeUs, int accessUnitCount)
-      throws InitializationException, WriteException {
-    return sink.handleEncodedBuffer(buffer, presentationTimeUs, accessUnitCount);
+    return sink.handleBuffer(buffer, presentationTimeUs, encodedAccessUnitCount);
   }
 
   @Override

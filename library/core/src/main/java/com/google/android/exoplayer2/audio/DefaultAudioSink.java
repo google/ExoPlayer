@@ -559,22 +559,8 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
-      throws InitializationException, WriteException {
-    Assertions.checkArgument(configuration.isInputPcm);
-    return handleBufferInternal(buffer, presentationTimeUs, /* encodedAccessUnitCount= */ 0);
-  }
-
-  @Override
-  public boolean handleEncodedBuffer(
-      ByteBuffer buffer, long presentationTimeUs, int accessUnitCount)
-      throws InitializationException, WriteException {
-    Assertions.checkArgument(!configuration.isInputPcm);
-    return handleBufferInternal(buffer, presentationTimeUs, accessUnitCount);
-  }
-
   @SuppressWarnings("ReferenceEquality")
-  private boolean handleBufferInternal(
+  public boolean handleBuffer(
       ByteBuffer buffer, long presentationTimeUs, int encodedAccessUnitCount)
       throws InitializationException, WriteException {
     Assertions.checkArgument(inputBuffer == null || buffer == inputBuffer);
