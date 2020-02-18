@@ -190,6 +190,15 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
     }
   }
 
+  /*
+   * This is a special Section Reader that blindly forwards the sections to the decoder
+   * There are many simple DVB-SI features that have their own dedicated track, and thus doesn't need
+   * additional pre-processing before actual decoding.
+   * Examples of such simple packets:
+   * - TDT/TOT (current time)
+   * - EIT (Name of the current and future programs)
+   * - AIT (used for interactive web browser on top of the broadcast)
+   */
   public class SectionPassthrough implements SectionPayloadReader {
     private TimestampAdjuster timestampAdjuster = null;
     private final String mimeType;
