@@ -35,6 +35,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Default {@link TsPayloadReader.Factory} implementation.
@@ -192,7 +193,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
   public class SectionPassthrough implements SectionPayloadReader {
     private TimestampAdjuster timestampAdjuster = null;
     private final String mimeType;
-    private TrackOutput output;
+    private @MonotonicNonNull TrackOutput output;
 
     SectionPassthrough(String mimeType) {
       this.mimeType = mimeType;
