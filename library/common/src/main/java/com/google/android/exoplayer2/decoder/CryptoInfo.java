@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2.decoder;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
-import java.util.Arrays;
 
 /**
  * Compatibility wrapper for {@link android.media.MediaCodec.CryptoInfo}.
@@ -121,25 +119,6 @@ public final class CryptoInfo {
     return frameworkCryptoInfo;
   }
 
-  /** Performs a deep copy to {@code cryptoInfo}. */
-  public void copyTo(android.media.MediaCodec.CryptoInfo cryptoInfo) {
-    // Update cryptoInfo fields directly because CryptoInfo.set performs an unnecessary
-    // object allocation on Android N.
-    cryptoInfo.numSubSamples = numSubSamples;
-    cryptoInfo.numBytesOfClearData = copyOrNull(numBytesOfClearData);
-    cryptoInfo.numBytesOfEncryptedData = copyOrNull(numBytesOfEncryptedData);
-    cryptoInfo.key = copyOrNull(key);
-    cryptoInfo.iv = copyOrNull(iv);
-    cryptoInfo.mode = mode;
-    if (Util.SDK_INT >= 24) {
-      android.media.MediaCodec.CryptoInfo.Pattern pattern = patternHolder.pattern;
-      android.media.MediaCodec.CryptoInfo.Pattern patternCopy =
-          new android.media.MediaCodec.CryptoInfo.Pattern(
-              pattern.getEncryptBlocks(), pattern.getSkipBlocks());
-      cryptoInfo.setPattern(patternCopy);
-    }
-  }
-
   /** @deprecated Use {@link #getFrameworkCryptoInfo()}. */
   @Deprecated
   public android.media.MediaCodec.CryptoInfo getFrameworkCryptoInfoV16() {
@@ -167,16 +146,6 @@ public final class CryptoInfo {
       frameworkCryptoInfo.numBytesOfClearData = numBytesOfClearData;
     }
     numBytesOfClearData[0] += count;
-  }
-
-  @Nullable
-  private static int[] copyOrNull(@Nullable int[] array) {
-    return array != null ? Arrays.copyOf(array, array.length) : null;
-  }
-
-  @Nullable
-  private static byte[] copyOrNull(@Nullable byte[] array) {
-    return array != null ? Arrays.copyOf(array, array.length) : null;
   }
 
   @RequiresApi(24)
