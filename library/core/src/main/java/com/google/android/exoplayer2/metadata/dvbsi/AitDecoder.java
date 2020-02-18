@@ -14,11 +14,11 @@ import java.util.ArrayList;
 
 // Unless mentioned explicitly, every references here are to
 // https://www.etsi.org/deliver/etsi_ts/102800_102899/102809/01.01.01_60/ts_102809v010101p.pdf
+// Specification of AIT can be found in 5.3.4 of TS 102 809 v1.1.1
 public class AitDecoder implements MetadataDecoder {
-    // Specification of AIT can be found in 5.3.4 of TS 102 809 v1.1.1
-
+    // This value and descriptor is described in section 5.3.6
     private final static int DESCRIPTOR_TRANSPORT_PROTOCOL = 0x02;
-
+    // This value and descriptor is described in section 5.3.7
     private final static int DESCRIPTOR_SIMPLE_APPLICATION_LOCATION = 0x15;
 
     private final static int TRANSPORT_PROTOCOL_HTTP = 3;
@@ -101,40 +101,42 @@ public class AitDecoder implements MetadataDecoder {
             sectionData.skipBits(4);
 
             int applicationDescriptorsLoopLength = sectionData.readBits(12);
-            int positionOfNextSection = sectionData.getBytePosition() + applicationDescriptorsLoopLength;
-            while(sectionData.getBytePosition() < positionOfNextSection) {
-                int type = sectionData.readBits(8);
-                int l = sectionData.readBits(8);
-                int positionOfNextSection2 = sectionData.getBytePosition() + l;
+            int positionOfNextApplication = sectionData.getBytePosition() + applicationDescriptorsLoopLength;
+            while(sectionData.getBytePosition() < positionOfNextApplication) {
+                int descriptorTag = sectionData.readBits(8);
+                int descriptorLen = sectionData.readBits(8);
+                int positionOfNextDescriptor = sectionData.getBytePosition() + descriptorLen;
 
-                if(type == DESCRIPTOR_TRANSPORT_PROTOCOL) {
-                    // See section 5.3.6
+                if(descriptorTag == DESCRIPTOR_TRANSPORT_PROTOCOL) {
+                    // This descriptor is defined in section 5.3.6
                     int protocolId = sectionData.readBits(16);
                     // label
                     sectionData.skipBits(8);
 
                     if(protocolId == TRANSPORT_PROTOCOL_HTTP) {
-                        while (sectionData.getBytePosition() < positionOfNextSection2) {
+                        // This selector is defined in section 5.3.6.2
+                        while (sectionData.getBytePosition() < positionOfNextDescriptor) {
                             int urlBaseLength = sectionData.readBits(8);
                             String urlBase = sectionData.readString(urlBaseLength, Charset.forName("ASCII"));
 
                             int extensionCount = sectionData.readBits(8);
                             aitUrlBase = urlBase;
-                            for (int i = 0; i < extensionCount; i++) {
-                                int len = sectionData.readBits(8);
-                                sectionData.skipBytes(len);
+                            for (int urlExtensionIdx = 0; urlExtensionIdx < extensionCount; urlExtensionIdx++) {
+                                int urlExtensionLength = sectionData.readBits(8);
+                                sectionData.skipBytes(urlExtensionLength);
                             }
                         }
                     }
-                } else if(type == DESCRIPTOR_SIMPLE_APPLICATION_LOCATION) {
-                    String url = sectionData.readString(l, Charset.forName("ASCII"));
+                } else if(descriptorTag == DESCRIPTOR_SIMPLE_APPLICATION_LOCATION) {
+                    // This descriptor is defined in section 5.3.7
+                    String url = sectionData.readString(descriptorLen, Charset.forName("ASCII"));
                     aitUrlExtension = url;
                 }
 
-                sectionData.setPosition(positionOfNextSection2*8);
+                sectionData.setPosition(positionOfNextDescriptor*8);
             }
 
-            sectionData.setPosition(positionOfNextSection*8);
+            sectionData.setPosition(positionOfNextApplication*8);
 
             if(aitControlCode != -1 && aitUrlBase != null && aitUrlExtension != null) {
                 aits.add(new Ait(aitControlCode, aitUrlBase + aitUrlExtension));
