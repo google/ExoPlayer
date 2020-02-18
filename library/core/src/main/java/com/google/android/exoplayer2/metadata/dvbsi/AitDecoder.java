@@ -116,9 +116,7 @@ public class AitDecoder implements MetadataDecoder {
                     if(protocolId == TRANSPORT_PROTOCOL_HTTP) {
                         while (sectionData.getBytePosition() < positionOfNextSection2) {
                             int urlBaseLength = sectionData.readBits(8);
-                            byte[] urlBaseByteArray = new byte[urlBaseLength];
-                            sectionData.readBytes(urlBaseByteArray, 0, urlBaseLength);
-                            String urlBase = new String(urlBaseByteArray, Charset.forName("ASCII"));
+                            String urlBase = sectionData.readString(urlBaseLength, Charset.forName("ASCII"));
 
                             int extensionCount = sectionData.readBits(8);
                             aitUrlBase = urlBase;
@@ -129,9 +127,7 @@ public class AitDecoder implements MetadataDecoder {
                         }
                     }
                 } else if(type == DESCRIPTOR_SIMPLE_APPLICATION_LOCATION) {
-                    byte[] urlByteArray = new byte[l];
-                    sectionData.readBytes(urlByteArray, 0, l);
-                    String url =  new String(urlByteArray, Charset.forName("ASCII"));
+                    String url = sectionData.readString(l, Charset.forName("ASCII"));
                     aitUrlExtension = url;
                 }
 
