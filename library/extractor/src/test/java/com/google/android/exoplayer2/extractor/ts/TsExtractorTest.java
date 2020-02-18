@@ -54,6 +54,11 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void testAitSample() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/ait.ts");
+  }
+
+  @Test
   public void testStreamWithJunkData() throws Exception {
     Random random = new Random(0);
     byte[] fileData =
