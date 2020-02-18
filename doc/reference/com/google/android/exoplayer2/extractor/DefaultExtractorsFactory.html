@@ -129,7 +129,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
    <li>AC3 (<a href="../../../../../com/google/android/exoplayer2/extractor/ts/Ac3Extractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>Ac3Extractor</code></a>)
    <li>AC4 (<a href="../../../../../com/google/android/exoplayer2/extractor/ts/Ac4Extractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>Ac4Extractor</code></a>)
    <li>AMR (<a href="../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a>)
-   <li>FLAC (only available if the FLAC extension is built and included)
+   <li>FLAC
+       <ul>
+         <li>If available, the FLAC extension extractor is used.
+         <li>Otherwise, the core <a href="../../../../../com/google/android/exoplayer2/extractor/flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> is used. Note that Android devices do not
+             generally include a FLAC decoder before API 27. This can be worked around by using
+             the FLAC extension or the FFmpeg extension.
+       </ul>
  </ul></div>
 </li>
 </ul>

@@ -137,27 +137,39 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#iv">iv</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#iv">iv</a></span></code>
+<div class="block">The 16 byte initialization vector.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#key">key</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#key">key</a></span></code>
+<div class="block">The 16 byte key id.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#mode">mode</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#mode">mode</a></span></code>
+<div class="block">The type of encryption that has been applied.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfClearData">numBytesOfClearData</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfClearData">numBytesOfClearData</a></span></code>
+<div class="block">The number of leading unencrypted bytes in each sub-sample.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfEncryptedData">numBytesOfEncryptedData</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfEncryptedData">numBytesOfEncryptedData</a></span></code>
+<div class="block">The number of trailing encrypted bytes in each sub-sample.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numSubSamples">numSubSamples</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numSubSamples">numSubSamples</a></span></code>
+<div class="block">The number of subSamples that make up the buffer's contents.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -245,6 +257,8 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>iv</h4>
 <pre>public&nbsp;byte[] iv</pre>
+<div class="block">The 16 byte initialization vector. If the initialization vector of the content is shorter than
+ 16 bytes, 0 byte padding is appended to extend the vector to the required 16 byte length.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html?is-external=true#iv" title="class or interface in android.media"><code>MediaCodec.CryptoInfo.iv</code></a></dd>
@@ -258,6 +272,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <li class="blockList">
 <h4>key</h4>
 <pre>public&nbsp;byte[] key</pre>
+<div class="block">The 16 byte key id.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html?is-external=true#key" title="class or interface in android.media"><code>MediaCodec.CryptoInfo.key</code></a></dd>
@@ -272,6 +287,7 @@ extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/
 <h4>mode</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/C.CryptoMode.html" title="annotation in com.google.android.exoplayer2">@C.CryptoMode</a>
 public&nbsp;int mode</pre>
+<div class="block">The type of encryption that has been applied. Must be one of the <code>C.CryptoMode</code> values.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html?is-external=true#mode" title="class or interface in android.media"><code>MediaCodec.CryptoInfo.mode</code></a></dd>
@@ -285,6 +301,8 @@ public&nbsp;int mode</pre>
 <li class="blockList">
 <h4>numBytesOfClearData</h4>
 <pre>public&nbsp;int[] numBytesOfClearData</pre>
+<div class="block">The number of leading unencrypted bytes in each sub-sample. If null, all bytes are treated as
+ encrypted and <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfEncryptedData"><code>numBytesOfEncryptedData</code></a> must be specified.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html?is-external=true#numBytesOfClearData" title="class or interface in android.media"><code>MediaCodec.CryptoInfo.numBytesOfClearData</code></a></dd>
@@ -298,6 +316,8 @@ public&nbsp;int mode</pre>
 <li class="blockList">
 <h4>numBytesOfEncryptedData</h4>
 <pre>public&nbsp;int[] numBytesOfEncryptedData</pre>
+<div class="block">The number of trailing encrypted bytes in each sub-sample. If null, all bytes are treated as
+ clear and <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfClearData"><code>numBytesOfClearData</code></a> must be specified.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html?is-external=true#numBytesOfEncryptedData" title="class or interface in android.media"><code>MediaCodec.CryptoInfo.numBytesOfEncryptedData</code></a></dd>
@@ -311,6 +331,7 @@ public&nbsp;int mode</pre>
 <li class="blockList">
 <h4>numSubSamples</h4>
 <pre>public&nbsp;int numSubSamples</pre>
+<div class="block">The number of subSamples that make up the buffer's contents.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html?is-external=true#numSubSamples" title="class or interface in android.media"><code>MediaCodec.CryptoInfo.numSubSamples</code></a></dd>
