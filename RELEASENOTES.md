@@ -1,5 +1,13 @@
 # Release notes #
 
+### 2.11.3 (2020-02-19) ###
+
+* SmoothStreaming: Fix regression that broke playback in 2.11.2
+  ([#6981](https://github.com/google/ExoPlayer/issues/6981)).
+* DRM: Fix issue switching from protected content that uses a 16-byte
+  initialization vector to one that uses an 8-byte initialization vector
+  ([#6982](https://github.com/google/ExoPlayer/issues/6982)).
+
 ### 2.11.2 (2020-02-13) ###
 
 * Add Java FLAC extractor
