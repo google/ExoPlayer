@@ -53,10 +53,10 @@ import java.lang.reflect.Constructor;
  *   <li>AMR ({@link AmrExtractor})
  *   <li>FLAC
  *       <ul>
- *         <li>if available, using the Flac extension extractor,
- *         <li>otherwise, using core's {@link FlacExtractor}. NOTE: Android devices do not generally
- *             include a FLAC decoder before API 27, which can be worked around by using the FLAC
- *             extension of the FFMPEG extension.
+ *         <li>If available, the FLAC extension extractor is used.
+ *         <li>Otherwise, the core {@link FlacExtractor} is used. Note that Android devices do not
+ *             generally include a FLAC decoder before API 27. This can be worked around by using
+ *             the FLAC extension or the FFmpeg extension.
  *       </ul>
  * </ul>
  */
