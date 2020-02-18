@@ -155,15 +155,16 @@ import java.nio.ByteBuffer;
   @Override
   protected void onFlush() {
     if (reconfigurationPending) {
+      // This is the initial flush after reconfiguration. Prepare to trim bytes from the start/end.
       reconfigurationPending = false;
       endBuffer = new byte[trimEndFrames * inputAudioFormat.bytesPerFrame];
       pendingTrimStartBytes = trimStartFrames * inputAudioFormat.bytesPerFrame;
     } else {
-      // Audio processors are flushed after initial configuration, so we leave the pending trim
-      // start byte count unmodified if the processor was just configured. Otherwise we (possibly
-      // incorrectly) assume that this is a seek to a non-zero position. We should instead check the
-      // timestamp of the first input buffer queued after flushing to decide whether to trim (see
-      // also [Internal: b/77292509]).
+      // This is a flush during playback (after the initial flush). We assume this was caused by a
+      // seek to a non-zero position and clear pending start bytes. This assumption may be wrong (we
+      // may be seeking to zero), but playing data that should have been trimmed shouldn't be
+      // noticeable after a seek. Ideally we would check the timestamp of the first input buffer
+      // queued after flushing to decide whether to trim (see also [Internal: b/77292509]).
       pendingTrimStartBytes = 0;
     }
     endBufferSize = 0;
