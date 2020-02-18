@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -110,7 +111,7 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     maybeThrowException();
     MessageParams messageParams = getMessageParams();
     messageParams.setQueueParams(index, offset, /* size= */ 0, presentationTimeUs, flags);
-    info.copyTo(messageParams.cryptoInfo);
+    copy(info, messageParams.cryptoInfo);
     Message message =
         Util.castNonNull(handler).obtainMessage(MSG_QUEUE_SECURE_INPUT_BUFFER, messageParams);
     message.sendToTarget();
@@ -270,5 +271,66 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
       labelBuilder.append("Unknown(").append(trackType).append(")");
     }
     return labelBuilder.toString();
+  }
+
+  /** Performs a deep copy of {@code cryptoInfo} to {@code frameworkCryptoInfo}. */
+  private static void copy(
+      CryptoInfo cryptoInfo, android.media.MediaCodec.CryptoInfo frameworkCryptoInfo) {
+    // Update frameworkCryptoInfo fields directly because CryptoInfo.set performs an unnecessary
+    // object allocation on Android N.
+    frameworkCryptoInfo.numSubSamples = cryptoInfo.numSubSamples;
+    frameworkCryptoInfo.numBytesOfClearData =
+        copy(cryptoInfo.numBytesOfClearData, frameworkCryptoInfo.numBytesOfClearData);
+    frameworkCryptoInfo.numBytesOfEncryptedData =
+        copy(cryptoInfo.numBytesOfEncryptedData, frameworkCryptoInfo.numBytesOfEncryptedData);
+    frameworkCryptoInfo.key = copy(cryptoInfo.key, frameworkCryptoInfo.key);
+    frameworkCryptoInfo.iv = copy(cryptoInfo.iv, frameworkCryptoInfo.iv);
+    frameworkCryptoInfo.mode = cryptoInfo.mode;
+    if (Util.SDK_INT >= 24) {
+      android.media.MediaCodec.CryptoInfo.Pattern pattern =
+          new android.media.MediaCodec.CryptoInfo.Pattern(
+              cryptoInfo.encryptedBlocks, cryptoInfo.clearBlocks);
+      frameworkCryptoInfo.setPattern(pattern);
+    }
+  }
+
+  /**
+   * Copies {@code src}, reusing {@code dst} if it's at least as long as {@code src}.
+   *
+   * @param src The source array.
+   * @param dst The destination array, which will be reused if it's at least as long as {@code src}.
+   * @return The copy, which may be {@code dst} if it was reused.
+   */
+  private static int[] copy(int[] src, int[] dst) {
+    if (src == null) {
+      return dst;
+    }
+
+    if (dst == null || dst.length < src.length) {
+      return Arrays.copyOf(src, src.length);
+    } else {
+      System.arraycopy(src, 0, dst, 0, src.length);
+      return dst;
+    }
+  }
+
+  /**
+   * Copies {@code src}, reusing {@code dst} if it's at least as long as {@code src}.
+   *
+   * @param src The source array.
+   * @param dst The destination array, which will be reused if it's at least as long as {@code src}.
+   * @return The copy, which may be {@code dst} if it was reused.
+   */
+  private static byte[] copy(byte[] src, byte[] dst) {
+    if (src == null) {
+      return dst;
+    }
+
+    if (dst == null || dst.length < src.length) {
+      return Arrays.copyOf(src, src.length);
+    } else {
+      System.arraycopy(src, 0, dst, 0, src.length);
+      return dst;
+    }
   }
 }
