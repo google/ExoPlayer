@@ -29,6 +29,7 @@ import android.text.Layout;
 import androidx.annotation.ColorInt;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -42,6 +43,8 @@ public final class TtmlStyleTest {
   private static final float FONT_SIZE = 12.5f;
   @TtmlStyle.FontSizeUnit private static final int FONT_SIZE_UNIT = TtmlStyle.FONT_SIZE_UNIT_EM;
   @ColorInt private static final int BACKGROUND_COLOR = Color.BLACK;
+  private static final int RUBY_TYPE = TtmlStyle.RUBY_TYPE_TEXT;
+  private static final int RUBY_POSITION = RubySpan.POSITION_UNDER;
   private static final Layout.Alignment TEXT_ALIGN = Layout.Alignment.ALIGN_CENTER;
   private static final boolean TEXT_COMBINE = true;
   @Cue.VerticalType private static final int VERTICAL_TYPE = Cue.VERTICAL_TYPE_RL;
@@ -58,6 +61,8 @@ public final class TtmlStyleTest {
           .setFontFamily(FONT_FAMILY)
           .setFontSize(FONT_SIZE)
           .setFontSizeUnit(FONT_SIZE_UNIT)
+          .setRubyType(RUBY_TYPE)
+          .setRubyPosition(RUBY_POSITION)
           .setTextAlign(TEXT_ALIGN)
           .setTextCombine(TEXT_COMBINE)
           .setVerticalType(VERTICAL_TYPE);
@@ -75,8 +80,12 @@ public final class TtmlStyleTest {
     assertThat(style.getFontColor()).isEqualTo(FONT_COLOR);
     assertThat(style.getFontSize()).isEqualTo(FONT_SIZE);
     assertThat(style.getFontSizeUnit()).isEqualTo(FONT_SIZE_UNIT);
+    assertThat(style.getRubyPosition()).isEqualTo(RUBY_POSITION);
     assertThat(style.getTextAlign()).isEqualTo(TEXT_ALIGN);
     assertThat(style.getTextCombine()).isEqualTo(TEXT_COMBINE);
+    assertWithMessage("rubyType should not be inherited")
+        .that(style.getRubyType())
+        .isEqualTo(UNSPECIFIED);
     assertWithMessage("backgroundColor should not be inherited")
         .that(style.hasBackgroundColor())
         .isFalse();
@@ -99,11 +108,13 @@ public final class TtmlStyleTest {
     assertThat(style.getFontColor()).isEqualTo(FONT_COLOR);
     assertThat(style.getFontSize()).isEqualTo(FONT_SIZE);
     assertThat(style.getFontSizeUnit()).isEqualTo(FONT_SIZE_UNIT);
+    assertThat(style.getRubyPosition()).isEqualTo(RUBY_POSITION);
     assertThat(style.getTextAlign()).isEqualTo(TEXT_ALIGN);
     assertThat(style.getTextCombine()).isEqualTo(TEXT_COMBINE);
     assertWithMessage("backgroundColor should be chained")
         .that(style.getBackgroundColor())
         .isEqualTo(BACKGROUND_COLOR);
+    assertWithMessage("rubyType should be chained").that(style.getRubyType()).isEqualTo(RUBY_TYPE);
     assertWithMessage("verticalType should be chained")
         .that(style.getVerticalType())
         .isEqualTo(VERTICAL_TYPE);
@@ -204,6 +215,24 @@ public final class TtmlStyleTest {
     assertThat(style.getId()).isEqualTo(ID);
     style.setId(null);
     assertThat(style.getId()).isNull();
+  }
+
+  @Test
+  public void testRubyType() {
+    TtmlStyle style = new TtmlStyle();
+
+    assertThat(style.getRubyType()).isEqualTo(UNSPECIFIED);
+    style.setRubyType(TtmlStyle.RUBY_TYPE_BASE);
+    assertThat(style.getRubyType()).isEqualTo(TtmlStyle.RUBY_TYPE_BASE);
+  }
+
+  @Test
+  public void testRubyPosition() {
+    TtmlStyle style = new TtmlStyle();
+
+    assertThat(style.getRubyPosition()).isEqualTo(RubySpan.POSITION_UNKNOWN);
+    style.setRubyPosition(RubySpan.POSITION_OVER);
+    assertThat(style.getRubyPosition()).isEqualTo(RubySpan.POSITION_OVER);
   }
 
   @Test

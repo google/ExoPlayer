@@ -64,11 +64,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String ATTR_TTS_FONT_FAMILY = "fontFamily";
   public static final String ATTR_TTS_FONT_WEIGHT = "fontWeight";
   public static final String ATTR_TTS_COLOR = "color";
+  public static final String ATTR_TTS_RUBY = "ruby";
+  public static final String ATTR_TTS_RUBY_POSITION = "rubyPosition";
   public static final String ATTR_TTS_TEXT_DECORATION = "textDecoration";
   public static final String ATTR_TTS_TEXT_ALIGN = "textAlign";
   public static final String ATTR_TTS_TEXT_COMBINE = "textCombine";
   public static final String ATTR_TTS_WRITING_MODE = "writingMode";
 
+  // Values for ruby
+  public static final String RUBY_CONTAINER = "container";
+  public static final String RUBY_BASE = "base";
+  public static final String RUBY_BASE_CONTAINER = "baseContainer";
+  public static final String RUBY_TEXT = "text";
+  public static final String RUBY_TEXT_CONTAINER = "textContainer";
+  public static final String RUBY_DELIMITER = "delimiter";
+
+  // Values for rubyPosition
+  public static final String RUBY_BEFORE = "before";
+  public static final String RUBY_AFTER = "after";
   // Values for textDecoration
   public static final String LINETHROUGH = "linethrough";
   public static final String NO_LINETHROUGH = "nolinethrough";
@@ -102,6 +115,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private final String[] styleIds;
   public final String regionId;
   @Nullable public final String imageId;
+  @Nullable public final TtmlNode parent;
 
   private final HashMap<String, Integer> nodeStartsByRegion;
   private final HashMap<String, Integer> nodeEndsByRegion;
@@ -117,7 +131,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* style= */ null,
         /* styleIds= */ null,
         ANONYMOUS_REGION_ID,
-        /* imageId= */ null);
+        /* imageId= */ null,
+        /* parent= */ null);
   }
 
   public static TtmlNode buildNode(
@@ -127,9 +142,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @Nullable TtmlStyle style,
       @Nullable String[] styleIds,
       String regionId,
-      @Nullable String imageId) {
+      @Nullable String imageId,
+      @Nullable TtmlNode parent) {
     return new TtmlNode(
-        tag, /* text= */ null, startTimeUs, endTimeUs, style, styleIds, regionId, imageId);
+        tag, /* text= */ null, startTimeUs, endTimeUs, style, styleIds, regionId, imageId, parent);
   }
 
   private TtmlNode(
@@ -140,7 +156,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @Nullable TtmlStyle style,
       @Nullable String[] styleIds,
       String regionId,
-      @Nullable String imageId) {
+      @Nullable String imageId,
+      @Nullable TtmlNode parent) {
     this.tag = tag;
     this.text = text;
     this.imageId = imageId;
@@ -150,6 +167,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
     this.regionId = Assertions.checkNotNull(regionId);
+    this.parent = parent;
     nodeStartsByRegion = new HashMap<>();
     nodeEndsByRegion = new HashMap<>();
   }
@@ -361,14 +379,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       regionOutput.setText(text);
     }
     if (resolvedStyle != null) {
-      TtmlRenderUtil.applyStylesToSpan(text, start, end, resolvedStyle);
+      TtmlRenderUtil.applyStylesToSpan(text, start, end, resolvedStyle, parent);
       regionOutput.setVerticalType(resolvedStyle.getVerticalType());
     }
   }
 
   private static void cleanUpText(SpannableStringBuilder builder) {
     // Having joined the text elements, we need to do some final cleanup on the result.
-    // 1. Collapse multiple consecutive spaces into a single space.
+    // Remove any text covered by a DeleteTextSpan (e.g. ruby text).
+    DeleteTextSpan[] deleteTextSpans = builder.getSpans(0, builder.length(), DeleteTextSpan.class);
+    for (DeleteTextSpan deleteTextSpan : deleteTextSpans) {
+      builder.replace(builder.getSpanStart(deleteTextSpan), builder.getSpanEnd(deleteTextSpan), "");
+    }
+    // Collapse multiple consecutive spaces into a single space.
     for (int i = 0; i < builder.length(); i++) {
       if (builder.charAt(i) == ' ') {
         int j = i + 1;
@@ -381,7 +404,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       }
     }
-    // 2. Remove any spaces from the start of each line.
+    // Remove any spaces from the start of each line.
     if (builder.length() > 0 && builder.charAt(0) == ' ') {
       builder.delete(0, 1);
     }
@@ -390,7 +413,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         builder.delete(i + 1, i + 2);
       }
     }
-    // 3. Remove any spaces from the end of each line.
+    // Remove any spaces from the end of each line.
     if (builder.length() > 0 && builder.charAt(builder.length() - 1) == ' ') {
       builder.delete(builder.length() - 1, builder.length());
     }
@@ -399,7 +422,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         builder.delete(i, i + 1);
       }
     }
-    // 4. Trim a trailing newline, if there is one.
+    // Trim a trailing newline, if there is one.
     if (builder.length() > 0 && builder.charAt(builder.length() - 1) == '\n') {
       builder.delete(builder.length() - 1, builder.length());
     }

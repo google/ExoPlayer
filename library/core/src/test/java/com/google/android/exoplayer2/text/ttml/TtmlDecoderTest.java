@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import java.io.IOException;
@@ -61,6 +62,7 @@ public final class TtmlDecoderTest {
   private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
   private static final String VERTICAL_TEXT_FILE = "ttml/vertical_text.xml";
   private static final String TEXT_COMBINE_FILE = "ttml/text_combine.xml";
+  private static final String RUBIES_FILE = "ttml/rubies.xml";
 
   @Test
   public void testInlineAttributes() throws IOException, SubtitleDecoderException {
@@ -604,6 +606,38 @@ public final class TtmlDecoderTest {
 
     Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
     assertThat(thirdCue).hasNoHorizontalTextInVerticalContextSpanBetween(0, thirdCue.length());
+  }
+
+  @Test
+  public void testRubies() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(RUBIES_FILE);
+
+    Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(firstCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("1st rubies", RubySpan.POSITION_OVER);
+    assertThat(firstCue)
+        .hasRubySpanBetween("Cue with annotated ".length(), "Cue with annotated text".length())
+        .withTextAndPosition("2nd rubies", RubySpan.POSITION_UNKNOWN);
+
+    Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(secondCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("rubies", RubySpan.POSITION_UNKNOWN);
+
+    Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(thirdCue).hasNoRubySpanBetween(0, thirdCue.length());
+
+    Spanned fourthCue = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
+    assertThat(fourthCue.toString()).isEqualTo("Cue with text.");
+    assertThat(fourthCue).hasNoRubySpanBetween(0, fourthCue.length());
+
+    Spanned fifthCue = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
+    assertThat(fifthCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(fifthCue).hasNoRubySpanBetween(0, fifthCue.length());
   }
 
   private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {
