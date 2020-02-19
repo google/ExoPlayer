@@ -267,7 +267,7 @@ import java.util.UUID;
     }
   }
 
-  @Nullable public final String name;
+  public final String name;
 
   public Sample(String name) {
     this.name = name;

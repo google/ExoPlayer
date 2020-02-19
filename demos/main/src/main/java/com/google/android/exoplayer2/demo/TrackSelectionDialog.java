@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.fragment.app.DialogFragment;
@@ -212,6 +213,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   }
 
   @Override
+  @NonNull
   public Dialog onCreateDialog(Bundle savedInstanceState) {
     // We need to own the view to let tab layout work correctly on all API levels. We can't use
     // AlertDialog because it owns the view itself, so we use AppCompatDialog instead, themed using
@@ -223,16 +225,14 @@ public final class TrackSelectionDialog extends DialogFragment {
   }
 
   @Override
-  public void onDismiss(DialogInterface dialog) {
+  public void onDismiss(@NonNull DialogInterface dialog) {
     super.onDismiss(dialog);
     onDismissListener.onDismiss(dialog);
   }
 
-  @Nullable
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
     View dialogView = inflater.inflate(R.layout.track_selection_dialog, container, false);
     TabLayout tabLayout = dialogView.findViewById(R.id.track_selection_dialog_tab_layout);
     ViewPager viewPager = dialogView.findViewById(R.id.track_selection_dialog_view_pager);
@@ -290,6 +290,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     }
 
     @Override
+    @NonNull
     public Fragment getItem(int position) {
       return tabFragments.valueAt(position);
     }
@@ -299,7 +300,6 @@ public final class TrackSelectionDialog extends DialogFragment {
       return tabFragments.size();
     }
 
-    @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
       return getTrackTypeString(getResources(), tabTrackTypes.get(position));
@@ -341,7 +341,6 @@ public final class TrackSelectionDialog extends DialogFragment {
       this.allowMultipleOverrides = allowMultipleOverrides;
     }
 
-    @Nullable
     @Override
     public View onCreateView(
         LayoutInflater inflater,
@@ -360,7 +359,8 @@ public final class TrackSelectionDialog extends DialogFragment {
     }
 
     @Override
-    public void onTrackSelectionChanged(boolean isDisabled, List<SelectionOverride> overrides) {
+    public void onTrackSelectionChanged(
+        boolean isDisabled, @NonNull List<SelectionOverride> overrides) {
       this.isDisabled = isDisabled;
       this.overrides = overrides;
     }
