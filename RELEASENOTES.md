@@ -46,6 +46,9 @@
     [background](https://www.w3.org/TR/webvtt1/#default-text-background) colors
     ([PR #4178](https://github.com/google/ExoPlayer/pull/4178),
     [issue #6581](https://github.com/google/ExoPlayer/issues/6581)).
+  * Catch-and-log all fatal exceptions in `TextRenderer` instead of re-throwing,
+    allowing playback to continue even if subtitles fail
+    ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
 * DRM:
   * Add support for attaching DRM sessions to clear content in the demo app.
   * Remove `DrmSessionManager` references from all renderers.
