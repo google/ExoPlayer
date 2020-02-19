@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.video;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Point;
 import android.media.MediaCodec;
@@ -658,6 +659,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
+  @TargetApi(29) // codecHandlesHdr10PlusOutOfBandMetadata is false if Util.SDK_INT < 29
   protected void handleInputBufferSupplementalData(DecoderInputBuffer buffer)
       throws ExoPlaybackException {
     if (!codecHandlesHdr10PlusOutOfBandMetadata) {
@@ -682,7 +684,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         byte[] hdr10PlusInfo = new byte[data.remaining()];
         data.get(hdr10PlusInfo);
         data.position(0);
-        // If codecHandlesHdr10PlusOutOfBandMetadata is true, this is an API 29 or later build.
         setHdr10PlusInfoV29(getCodec(), hdr10PlusInfo);
       }
     }
@@ -1179,6 +1180,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @return The framework {@link MediaFormat} that should be used to configure the decoder.
    */
   @SuppressLint("InlinedApi")
+  @TargetApi(21) // tunnelingAudioSessionId is unset if Util.SDK_INT < 21
   protected MediaFormat getMediaFormat(
       Format format,
       String codecMimeType,

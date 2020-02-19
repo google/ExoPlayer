@@ -19,7 +19,6 @@ import static android.content.Context.UI_MODE_SERVICE;
 
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.UiModeManager;
 import android.content.ComponentName;
@@ -179,7 +178,6 @@ public final class Util {
    * @param uris {@link Uri}s that may require {@link permission#READ_EXTERNAL_STORAGE} to read.
    * @return Whether a permission request was made.
    */
-  @TargetApi(23)
   public static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri... uris) {
     if (Util.SDK_INT < 23) {
       return false;
@@ -204,7 +202,6 @@ public final class Util {
    * @param uris A list of URIs that will be loaded.
    * @return Whether it may be possible to load the given URIs.
    */
-  @TargetApi(24)
   public static boolean checkCleartextTrafficPermitted(Uri... uris) {
     if (Util.SDK_INT < 24) {
       // We assume cleartext traffic is permitted.

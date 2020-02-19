@@ -1122,6 +1122,9 @@ public final class DefaultAudioSink implements AudioSink {
 
   private static int getMaximumEncodedRateBytesPerSecond(@C.Encoding int encoding) {
     switch (encoding) {
+      case C.ENCODING_MP3:
+        // Maximum bitrate for MPEG-1 layer III: 320 kbit/s.
+        return 320 * 1000 / 8;
       case C.ENCODING_AC3:
         return 640 * 1000 / 8;
       case C.ENCODING_E_AC3:
@@ -1136,12 +1139,13 @@ public final class DefaultAudioSink implements AudioSink {
         return 18000 * 1000 / 8;
       case C.ENCODING_DOLBY_TRUEHD:
         return 24500 * 1000 / 8;
-      case C.ENCODING_INVALID:
       case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
       case C.ENCODING_PCM_24BIT:
       case C.ENCODING_PCM_32BIT:
       case C.ENCODING_PCM_8BIT:
       case C.ENCODING_PCM_FLOAT:
+      case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:
         throw new IllegalArgumentException();
@@ -1167,6 +1171,14 @@ public final class DefaultAudioSink implements AudioSink {
             ? 0
             : (Ac3Util.parseTrueHdSyncframeAudioSampleCount(buffer, syncframeOffset)
                 * Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT);
+      case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
+      case C.ENCODING_PCM_24BIT:
+      case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_8BIT:
+      case C.ENCODING_PCM_FLOAT:
+      case C.ENCODING_INVALID:
+      case Format.NO_VALUE:
       default:
         throw new IllegalStateException("Unexpected audio encoding: " + encoding);
     }
