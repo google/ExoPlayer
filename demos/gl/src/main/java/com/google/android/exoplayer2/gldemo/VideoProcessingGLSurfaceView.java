@@ -83,6 +83,7 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
    *     created, if supported by the device.
    * @param videoProcessor Processor that draws to the view.
    */
+  @SuppressWarnings("InlinedApi")
   public VideoProcessingGLSurfaceView(
       Context context, boolean requireSecureContext, VideoProcessor videoProcessor) {
     super(context);

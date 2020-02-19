@@ -59,7 +59,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
    */
   private static final int WRITE_TO_LOCAL = 1;
   /** Write output to folder {@code /storage/emulated/0/Android/data} of device. */
-  private static final int WRITE_TO_DEVICE = 2;
+  private static final int WRITE_TO_DEVICE = 1 << 1;
 
   @DumpFilesAction private static final int DUMP_FILE_ACTION = COMPARE_WITH_EXISTING;
 

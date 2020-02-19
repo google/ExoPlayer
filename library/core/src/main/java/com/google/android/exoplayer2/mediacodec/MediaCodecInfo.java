@@ -229,9 +229,10 @@ public final class MediaCodecInfo {
    * @see CodecCapabilities#getMaxSupportedInstances()
    */
   public int getMaxSupportedInstances() {
-    return (Util.SDK_INT < 23 || capabilities == null)
-        ? MAX_SUPPORTED_INSTANCES_UNKNOWN
-        : getMaxSupportedInstancesV23(capabilities);
+    if (Util.SDK_INT < 23 || capabilities == null) {
+      return MAX_SUPPORTED_INSTANCES_UNKNOWN;
+    }
+    return getMaxSupportedInstancesV23(capabilities);
   }
 
   /**

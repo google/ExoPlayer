@@ -28,6 +28,9 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -41,6 +44,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class DedicatedThreadAsyncMediaCodecAdapter extends MediaCodec.Callback
     implements MediaCodecAdapter {
 
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_CREATED, STATE_STARTED, STATE_SHUT_DOWN})
   private @interface State {}
 

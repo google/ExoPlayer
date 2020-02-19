@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.video;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
@@ -40,9 +41,9 @@ public final class VideoFrameReleaseTimeHelper {
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
   private static final int MIN_FRAMES_FOR_ADJUSTMENT = 6;
 
-  private final WindowManager windowManager;
-  private final VSyncSampler vsyncSampler;
-  private final DefaultDisplayListener displayListener;
+  @Nullable private final WindowManager windowManager;
+  @Nullable private final VSyncSampler vsyncSampler;
+  @Nullable private final DefaultDisplayListener displayListener;
 
   private long vsyncDurationNs;
   private long vsyncOffsetNs;
@@ -88,9 +89,8 @@ public final class VideoFrameReleaseTimeHelper {
     vsyncOffsetNs = C.TIME_UNSET;
   }
 
-  /**
-   * Enables the helper. Must be called from the playback thread.
-   */
+  /** Enables the helper. Must be called from the playback thread. */
+  @TargetApi(17) // displayListener is null if Util.SDK_INT < 17.
   public void enable() {
     haveSync = false;
     if (windowManager != null) {
@@ -102,9 +102,8 @@ public final class VideoFrameReleaseTimeHelper {
     }
   }
 
-  /**
-   * Disables the helper. Must be called from the playback thread.
-   */
+  /** Disables the helper. Must be called from the playback thread. */
+  @TargetApi(17) // displayListener is null if Util.SDK_INT < 17.
   public void disable() {
     if (windowManager != null) {
       if (displayListener != null) {
