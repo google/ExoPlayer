@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -238,13 +239,24 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     } else if (exposeCea608WhenMissingDeclarations) {
       // The playlist does not provide any closed caption information. We preemptively declare a
       // closed caption track on channel 0.
-      muxedCaptionFormats =
-          Collections.singletonList(
-              Format.createTextSampleFormat(
-                  /* id= */ null,
-                  MimeTypes.APPLICATION_CEA608,
-                  /* selectionFlags= */ 0,
-                  /* language= */ null));
+      muxedCaptionFormats = new LinkedList<Format>();
+
+      muxedCaptionFormats.add(
+          Format.createTextSampleFormat(null,
+              MimeTypes.APPLICATION_CEA608, null, -1,0, "CC1",1,null));
+      muxedCaptionFormats.add(
+          Format.createTextSampleFormat(null,
+              MimeTypes.APPLICATION_CEA608, null, -1,0, "CC2",2,null));
+      muxedCaptionFormats.add(
+          Format.createTextSampleFormat(null,
+              MimeTypes.APPLICATION_CEA608, null, -1,0, "CC3",3,null));
+      muxedCaptionFormats.add(
+          Format.createTextSampleFormat(null,
+              MimeTypes.APPLICATION_CEA608, null, -1,0, "CC4",4,null));
+      muxedCaptionFormats.add(
+          Format.createTextSampleFormat(null,
+              MimeTypes.APPLICATION_CEA708, null, -1,0, "CC708",1,null));
+
     } else {
       muxedCaptionFormats = Collections.emptyList();
     }

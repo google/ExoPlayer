@@ -17,10 +17,12 @@ package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.media.MediaDrm;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.android.exoplayer2.C;
@@ -28,17 +30,22 @@ import com.google.android.exoplayer2.drm.DefaultDrmSession.ProvisioningManager;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
+import com.google.android.exoplayer2.drm.ExoMediaDrm.OnKeyStatusChangeListener;
+import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import nagra.otv.sdk.ext.WidevinePsshDataBuilderParser;
 
 /**
  * A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}.
@@ -99,6 +106,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
   private final List<DefaultDrmSession<T>> sessions;
   private final List<DefaultDrmSession<T>> provisioningSessions;
+  private @Nullable HashMap<byte[], List<ExoMediaDrm.KeyStatus>> keyListsPerSessionIdMap;
 
   private @Nullable Looper playbackLooper;
   private int mode;
@@ -241,6 +249,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
     provisioningSessions = new ArrayList<>();
+    keyListsPerSessionIdMap = new HashMap<>();
     if (multiSession && C.WIDEVINE_UUID.equals(uuid) && Util.SDK_INT >= 19) {
       // TODO: Enabling session sharing probably doesn't do anything useful here. It would only be
       // useful if DefaultDrmSession instances were aware of one another's state, which is not
@@ -249,6 +258,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       mediaDrm.setPropertyString("sessionSharing", "enable");
     }
     mediaDrm.setOnEventListener(new MediaDrmEventListener());
+    if (Util.SDK_INT >= 23) {
+      mediaDrm.setOnKeyStatusChangeListener(new MediaDrmOnKeyStatusChangeListener());
+    }
   }
 
   /**
@@ -408,11 +420,13 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       session = sessions.isEmpty() ? null : sessions.get(0);
     } else {
       // Only use an existing session if it has matching init data.
-      session = null;
-      for (DefaultDrmSession<T> existingSession : sessions) {
-        if (Util.areEqual(existingSession.schemeDatas, schemeDatas)) {
-          session = existingSession;
-          break;
+      session = findSessionFromSchemeDatas(schemeDatas);
+      if (session == null) {
+        for (DefaultDrmSession<T> existingSession : sessions) {
+          if (Util.areEqual(existingSession.schemeDatas, schemeDatas)) {
+            session = existingSession;
+            break;
+          }
         }
       }
     }
@@ -447,6 +461,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
     DefaultDrmSession<T> drmSession = (DefaultDrmSession<T>) session;
     if (drmSession.release()) {
+      keyListsPerSessionIdMap.remove(findSessionIdForSession(drmSession));
       sessions.remove(drmSession);
       if (provisioningSessions.size() > 1 && provisioningSessions.get(0) == drmSession) {
         // Other sessions were waiting for the released session to complete a provision operation.
@@ -515,6 +530,89 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     return matchingSchemeDatas;
   }
 
+  private DefaultDrmSession<T> findSessionFromSchemeDatas(List<SchemeData> schemeDatas) {
+    DefaultDrmSession<T> session;
+    Log.d(TAG, "findSessionFromSchemeDatas() - Enter");
+
+    // For PlayReady, we don't support yet multi-session
+    if (C.PLAYREADY_UUID.equals(uuid)) {
+      return null;
+    }
+
+    // Extract required keyIds from scheme data list
+    List<byte[]> requiredKeyIds = extractRequiredKeyIdsFromSchemeDatas(schemeDatas);
+    if (requiredKeyIds.isEmpty()) {
+      Log.w(TAG, "findSessionFromSchemeDatas() - No Key IDs to search");
+      return null;
+    }
+
+    // Search for a known session that has already acquired the keys for requested keyIds
+    byte[] sessionId = findSessionIdforKeyIds(requiredKeyIds);
+    if (sessionId != null) {
+      session = findSessionForSessionId(sessionId);
+      if (session != null) {
+        Log.d(TAG, String.format("findSessionFromSchemeDatas() - Exit with session %s found (id = %s)", session.toString(), new String(sessionId)));
+        return session;
+      } else {
+        Log.w(TAG, String.format("Couldn't find session for id %s", new String(sessionId)));
+      }
+    }
+
+    Log.d(TAG, "findSessionFromSchemeDatas() - Exit with no session found");
+    return null;
+  }
+
+  private List<byte[]> extractRequiredKeyIdsFromSchemeDatas(List<SchemeData> schemeDatas) {
+    List<byte[]> keyIds = new ArrayList<>();
+    for (SchemeData sd : schemeDatas) {
+      WidevinePsshDataBuilderParser.WidevinePsshData parsedPsshBox = null;
+      try {
+        parsedPsshBox = WidevinePsshDataBuilderParser.WidevinePsshData.parseFrom(PsshAtomUtil.parseSchemeSpecificData(sd.data, uuid));
+        for (int i = 0; i < parsedPsshBox.getKeyIdCount(); ++i) {
+          keyIds.add(parsedPsshBox.getKeyId(i).toByteArray());
+        }
+      } catch (InvalidProtocolBufferException e) {
+        Log.e(TAG, "Failed to parse PSSH block", e);
+      }
+    }
+    return keyIds;
+  }
+
+  private byte[] findSessionIdforKeyIds(List<byte[]> requiredKeyIds) {
+    byte[] sessionId = null;
+    keySearchLoop:
+    for (byte[] sid : keyListsPerSessionIdMap.keySet()) {
+      List<ExoMediaDrm.KeyStatus> keyLists = keyListsPerSessionIdMap.get(sid);
+      for (ExoMediaDrm.KeyStatus ks : keyLists) {
+        for (byte[] keyId : requiredKeyIds) {
+          if (Arrays.equals(keyId, ks.getKeyId()) && ks.getStatusCode() == MediaDrm.KeyStatus.STATUS_USABLE) {
+            sessionId = sid;
+            break keySearchLoop;
+          }
+        }
+      }
+    }
+    return  sessionId;
+  }
+
+  private DefaultDrmSession<T> findSessionForSessionId(byte[] sessionId) {
+    for (DefaultDrmSession<T> existingSession : sessions) {
+      if (existingSession.hasSessionId(sessionId)) {
+        return existingSession;
+      }
+    }
+    return null;
+  }
+
+  private byte[] findSessionIdForSession(DefaultDrmSession<T> session) {
+    for (byte[] id : keyListsPerSessionIdMap.keySet()) {
+      if (session.hasSessionId(id)) {
+        return id;
+      }
+    }
+    return null;
+  }
+
   @SuppressLint("HandlerLeak")
   private class MediaDrmHandler extends Handler {
 
@@ -551,6 +649,21 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       Assertions.checkNotNull(mediaDrmHandler).obtainMessage(event, sessionId).sendToTarget();
     }
 
+  }
+
+  private class MediaDrmOnKeyStatusChangeListener implements OnKeyStatusChangeListener<T> {
+    @Override
+    public void onKeyStatusChange(
+        @NonNull ExoMediaDrm<? extends T> md,
+        @NonNull byte[] sessionId,
+        @NonNull List<ExoMediaDrm.KeyStatus> keyInformation,
+        boolean hasNewUsableKey) {
+      boolean added = (keyListsPerSessionIdMap.put(sessionId, keyInformation) == null);
+      Log.d(TAG, String.format("onKeyStatusChange() - sessionId: %s with %d keys %s",
+          new String(sessionId),
+          keyInformation.size(),
+          added ? "added" : "replaced"));
+    }
   }
 
 }

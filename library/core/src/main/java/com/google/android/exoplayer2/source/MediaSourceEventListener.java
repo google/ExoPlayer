@@ -290,6 +290,17 @@ public interface MediaSourceEventListener {
   void onDownstreamFormatChanged(
       int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData);
 
+  /**
+   * Called when Closed Caption information change occurs
+   *
+   * @param ccTrackInfo the closed caption track information. It can be following values:
+   *                    0 : no closed caption tracks available
+   *                    1 : CC608 tracks are available
+   *                    2 : CC708 tracks are available
+   *                    3 : CC608 and CC708 tracks are available
+   */
+  default void onCCTracksChanged(int ccTrackInfo) {}
+
   /** Dispatches events to {@link MediaSourceEventListener}s. */
   final class EventDispatcher {
 
@@ -712,6 +723,17 @@ public interface MediaSourceEventListener {
             () -> listener.onDownstreamFormatChanged(windowIndex, mediaPeriodId, mediaLoadData));
       }
     }
+
+    /** Dispatches CC tracks available information */
+    public void ccTracksChanged(int ccTrackInfo) {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        final MediaSourceEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler,
+            () -> listener.onCCTracksChanged(ccTrackInfo));
+      }
+    }
+
 
     private long adjustMediaTime(long mediaTimeUs) {
       long mediaTimeMs = C.usToMs(mediaTimeUs);

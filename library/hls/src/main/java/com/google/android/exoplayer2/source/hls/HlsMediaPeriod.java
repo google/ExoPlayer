@@ -596,18 +596,22 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
             positionUs);
     sampleStreamWrappers.add(sampleStreamWrapper);
     manifestUrlIndicesPerWrapper.add(selectedVariantIndices);
-    if (allowChunklessPreparation && codecs != null) {
-      boolean variantsContainVideoCodecs = Util.getCodecsOfType(codecs, C.TRACK_TYPE_VIDEO) != null;
-      boolean variantsContainAudioCodecs = Util.getCodecsOfType(codecs, C.TRACK_TYPE_AUDIO) != null;
+
+    // allowChunklessPreparation is only used for D2G
+    if (allowChunklessPreparation) {
+      boolean variantsContainVideoCodecs = codecs != null && Util.getCodecsOfType(codecs, C.TRACK_TYPE_VIDEO) != null;
+      boolean variantsContainAudioCodecs = codecs != null && Util.getCodecsOfType(codecs, C.TRACK_TYPE_AUDIO) != null;
       List<TrackGroup> muxedTrackGroups = new ArrayList<>();
-      if (variantsContainVideoCodecs) {
+      // We make the assumption there is video if no codec information is provided by the playlist
+      if (variantsContainVideoCodecs || codecs == null) {
         Format[] videoFormats = new Format[selectedVariantsCount];
         for (int i = 0; i < videoFormats.length; i++) {
           videoFormats[i] = deriveVideoFormat(selectedPlaylistFormats[i]);
         }
         muxedTrackGroups.add(new TrackGroup(videoFormats));
 
-        if (variantsContainAudioCodecs
+        // We will also assume the presence of audio if no codec information is provided by the playlist
+        if ((variantsContainAudioCodecs || codecs == null)
             && (masterPlaylist.muxedAudioFormat != null || masterPlaylist.audios.isEmpty())) {
           muxedTrackGroups.add(
               new TrackGroup(
@@ -704,7 +708,14 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       manifestUrlsIndicesPerWrapper.add(Util.toArray(scratchIndicesList));
       sampleStreamWrappers.add(sampleStreamWrapper);
 
-      if (allowChunklessPreparation && renditionsHaveCodecs) {
+      // Affects D2G only, allowing playlists with separate audio tracks (but no codec info) to
+      // reach a prepared state:
+      //  if renditionsHaveCodecs == false, callback.onPrepared() is never called, because
+      //  the HlsSampleStreamWrappers for audio won't reach the prepared state, so pendingPrepareCount
+      //  never reaches 0 (see onPrepared() which checks the value before invoking callback.onPrepared()).
+      //  This hack is sufficient because the SDK will extract audio info directly from the manifest,
+      //  so the TrackGroupArray data isn't important.
+      if (allowChunklessPreparation /* && renditionsHaveCodecs */) {
         Format[] renditionFormats = scratchPlaylistFormats.toArray(new Format[0]);
         sampleStreamWrapper.prepareWithMasterPlaylistInfo(
             new TrackGroupArray(new TrackGroup(renditionFormats)), 0, TrackGroupArray.EMPTY);

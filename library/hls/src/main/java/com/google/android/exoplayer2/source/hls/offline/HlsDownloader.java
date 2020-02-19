@@ -107,9 +107,9 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
         HlsMediaPlaylist.Segment initSegment = segment.initializationSegment;
         if (initSegment != null && initSegment != lastInitSegment) {
           lastInitSegment = initSegment;
-          addSegment(mediaPlaylist, initSegment, seenEncryptionKeyUris, segments);
+          addSegment(mediaPlaylist, initSegment, segments);
         }
-        addSegment(mediaPlaylist, segment, seenEncryptionKeyUris, segments);
+        addSegment(mediaPlaylist, segment, segments);
       }
     }
     return segments;
@@ -127,6 +127,26 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
         dataSource, new HlsPlaylistParser(), dataSpec, C.DATA_TYPE_MANIFEST);
   }
 
+  // PRM-specific overload. segment.fullSegmentEncryptionKeyUri is not intended to be downloaded for PRM,
+  // so it is ignored here.
+  //
+  // See PRMEncryptionKeyChunk and its use in HlsSampleStreamWrapper - it is only used to indicate PRM
+  private void addSegment(
+      HlsMediaPlaylist mediaPlaylist,
+      HlsMediaPlaylist.Segment segment,
+      ArrayList<Segment> out) {
+    String baseUri = mediaPlaylist.baseUri;
+    long startTimeUs = mediaPlaylist.startTimeUs + segment.relativeStartTimeUs;
+
+    // segment.fullSegmentEncryptionKeyUri handling removed
+
+    Uri segmentUri = UriUtil.resolveToUri(baseUri, segment.url);
+    DataSpec dataSpec =
+        new DataSpec(segmentUri, segment.byterangeOffset, segment.byterangeLength, /* key= */ null);
+    out.add(new Segment(startTimeUs, dataSpec));
+  }
+
+  // Original ExoPlayer implementation - retained for reference
   private void addSegment(
       HlsMediaPlaylist mediaPlaylist,
       HlsMediaPlaylist.Segment segment,

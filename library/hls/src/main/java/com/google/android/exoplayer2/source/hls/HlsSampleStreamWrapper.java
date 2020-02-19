@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
+import com.google.android.exoplayer2.text.cea.CeaUtil;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -62,6 +63,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
+import nagra.otv.sdk.hls.PRMEncryptionKeyChunk;
+import nagra.otv.sdk.hls.PRMDecryptor;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -154,6 +158,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean tracksEnded;
   private long sampleOffsetUs;
   private int chunkUid;
+
+  // prm key signalization
+  private String prmKeySignalization = "";
 
   /**
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
@@ -283,7 +290,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     part of the track selection.
    */
   public boolean selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs, boolean forceReset) {
+                              SampleStream[] streams, boolean[] streamResetFlags, long positionUs, boolean forceReset) {
     Assertions.checkState(prepared);
     int oldEnabledTrackGroupCount = enabledTrackGroupCount;
     // Deselect old tracks.
@@ -300,8 +307,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean seekRequired =
         forceReset
             || (seenFirstTrackSelection
-                ? oldEnabledTrackGroupCount == 0
-                : positionUs != lastSeekPositionUs);
+            ? oldEnabledTrackGroupCount == 0
+            : positionUs != lastSeekPositionUs);
     // Get the old (i.e. current before the loop below executes) primary track selection. The new
     // primary selection will equal the old one unless it's changed in the loop.
     TrackSelection oldPrimaryTrackSelection = chunkSource.getTrackSelection();
@@ -459,6 +466,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     handler.removeCallbacksAndMessages(null);
     released = true;
     hlsSampleStreams.clear();
+    //close descrambling session
+    if(!prmKeySignalization.isEmpty()){
+      PRMDecryptor.getInstance().closeDescramblingSession(prmKeySignalization);
+    }
   }
 
   @Override
@@ -486,7 +497,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public int readData(int sampleQueueIndex, FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean requireFormat) {
+                      boolean requireFormat) {
     if (isPendingReset()) {
       return C.RESULT_NOTHING_READ;
     }
@@ -625,6 +636,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return false;
     }
 
+    if (loadable instanceof PRMEncryptionKeyChunk) {
+      if (!prepared) {
+        continueLoading(lastSeekPositionUs);
+      }
+      handleNewKeySignalization( loadable.dataSpec.uri.toString());
+      Log.i(TAG, "PRMEncryptionKeyChunk is not loadable, so return when prepared is true");
+      return true;
+    }
+
     if (isMediaChunk(loadable)) {
       pendingResetPositionUs = C.TIME_UNSET;
       HlsMediaChunk mediaChunk = (HlsMediaChunk) loadable;
@@ -646,6 +666,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         loadable.endTimeUs,
         elapsedRealtimeMs);
     return true;
+  }
+
+  private void handleNewKeySignalization(String signalization){
+    //check if key change happened
+    if(!prmKeySignalization.isEmpty() && prmKeySignalization != signalization){
+      //close previous session
+      PRMDecryptor.getInstance().closeDescramblingSession(prmKeySignalization);
+    }
+    prmKeySignalization = signalization;
+    PRMDecryptor.getInstance().openDescramblingSession(prmKeySignalization);
   }
 
   @Override
@@ -681,7 +711,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void onLoadCanceled(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs,
-      boolean released) {
+                             boolean released) {
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.getUri(),
@@ -864,7 +894,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private SampleQueue createSampleQueue(int id, int type) {
     int trackCount = sampleQueues.length;
 
-    SampleQueue trackOutput = new PrivTimestampStrippingSampleQueue(allocator);
+    SampleQueue trackOutput = new PrivTimestampStrippingSampleQueue(allocator,eventDispatcher);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
@@ -1073,7 +1103,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       } else {
         Format trackFormat =
             primaryExtractorTrackType == C.TRACK_TYPE_VIDEO
-                    && MimeTypes.isAudio(sampleFormat.sampleMimeType)
+                && MimeTypes.isAudio(sampleFormat.sampleMimeType)
                 ? muxedAudioFormat
                 : null;
         trackGroups[i] = new TrackGroup(deriveFormat(trackFormat, sampleFormat, false));
@@ -1202,14 +1232,51 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private static final class PrivTimestampStrippingSampleQueue extends SampleQueue {
+    //the input cc data for CC608 and CC08 are same from Extractor,
+    //so we just detect the tracks only in CC708 tracks.
+    private boolean needDetectSampleQueue = false;
 
-    public PrivTimestampStrippingSampleQueue(Allocator allocator) {
+    private int ccDetectResult = CeaUtil.CC_INVALID;
+
+    private EventDispatcher eventDispatcher;
+
+    public PrivTimestampStrippingSampleQueue(Allocator allocator, EventDispatcher eventDispatcher) {
       super(allocator);
+      this.eventDispatcher = eventDispatcher;
     }
 
     @Override
     public void format(Format format) {
+      if(format != null && format.sampleMimeType != null
+        && format.sampleMimeType.equals(MimeTypes.APPLICATION_CEA708)){
+        needDetectSampleQueue = true;
+      }
       super.format(format.copyWithMetadata(getAdjustedMetadata(format.metadata)));
+    }
+
+    @Override
+    public void sampleData(ParsableByteArray buffer, int length) {
+       if(needDetectSampleQueue){
+         int sampleStartPosition = buffer.getPosition();
+         //detect cc data type
+         int result = CeaUtil.detectCCDataType(buffer);
+         //restore original position
+         buffer.setPosition(sampleStartPosition);
+         if(result != ccDetectResult && result != CeaUtil.CC_INVALID){
+           if(ccDetectResult != CeaUtil.CC_INVALID){
+             ccDetectResult = CeaUtil.CC_608_AND_708_AVAILABLE;
+           } else {
+             ccDetectResult = result;
+           }
+           eventDispatcher.ccTracksChanged(ccDetectResult);
+         }
+
+         if(ccDetectResult == CeaUtil.CC_608_AND_708_AVAILABLE){
+           needDetectSampleQueue  = false;
+         }
+         Log.i(TAG, "The CC detection result is :" + ccDetectResult);
+       }
+       super.sampleData(buffer,length);
     }
 
     /**

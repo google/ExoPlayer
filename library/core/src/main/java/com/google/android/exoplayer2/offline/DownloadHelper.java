@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
@@ -793,6 +794,12 @@ public final class DownloadHelper {
       }
       try {
         Object factory = constructor.newInstance(dataSourceFactory);
+        if (factory instanceof HlsMediaSource.Factory) {
+          // ExoPlayer attempts to read the first chunk to obtain codec info - not possible for PRM.
+          // This makes ExoPlayer check the playlist for codec info before attempting to read a chunk,
+          // with HlsMediaPeriod changed to handle situations when that info is missing.
+          ((HlsMediaSource.Factory) factory).setAllowChunklessPreparation(true);
+        }
         if (streamKeys != null) {
           setStreamKeysMethod.invoke(factory, streamKeys);
         }

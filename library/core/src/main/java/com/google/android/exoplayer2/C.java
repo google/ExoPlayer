@@ -88,6 +88,12 @@ public final class C {
   /** The number of bytes per float. */
   public static final int BYTES_PER_FLOAT = 4;
 
+  /** non-Wide aspect ratio */
+  public static final int NON_WIDE_ASPECT_RATIO_TYPE = 1;
+
+  /** Wide aspect ratio */
+  public static final int WIDE_ASPECT_RATIO_TYPE = 2;
+
   /**
    * The name of the ASCII charset.
    */

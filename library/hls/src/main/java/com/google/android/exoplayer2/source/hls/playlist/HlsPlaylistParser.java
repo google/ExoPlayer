@@ -15,10 +15,6 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
-import android.net.Uri;
-import androidx.annotation.Nullable;
-import android.text.TextUtils;
-import android.util.Base64;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
@@ -37,6 +33,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
+
+import org.checkerframework.checker.nullness.qual.PolyNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +51,12 @@ import java.util.Queue;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.checkerframework.checker.nullness.qual.PolyNull;
+
+import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Base64;
+
+import androidx.annotation.Nullable;
 
 /**
  * HLS playlists parsing logic.
@@ -810,7 +814,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     if (TextUtils.isEmpty(concatenatedCharacteristics)) {
       return 0;
     }
-    String[] characteristics = Util.split(concatenatedCharacteristics, ",");
+    String[] characteristics = Util.split(concatenatedCharacteristics, "\\s*,\\s*");
     @C.RoleFlags int roleFlags = 0;
     if (Util.contains(characteristics, "public.accessibility.describes-video")) {
       roleFlags |= C.ROLE_FLAG_DESCRIBES_VIDEO;

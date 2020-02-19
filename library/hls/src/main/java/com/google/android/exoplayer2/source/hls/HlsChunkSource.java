@@ -45,6 +45,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import nagra.otv.sdk.hls.PRMEncryptionKeyChunk;
+
 /**
  * Source of Hls (possibly adaptive) chunks.
  */
@@ -313,12 +315,14 @@ import java.util.Map;
 
     // Check if the segment or its initialization segment are fully encrypted.
     Uri initSegmentKeyUri = getFullEncryptionKeyUri(mediaPlaylist, segment.initializationSegment);
-    out.chunk = maybeCreateEncryptionChunkFor(initSegmentKeyUri, selectedTrackIndex);
-    if (out.chunk != null) {
-      return;
+    if (segment.initializationSegment != null) {
+      out.chunk = maybeCreateEncryptionChunkFor(initSegmentKeyUri, selectedTrackIndex, segment.initializationSegment.encryptionIV);
+      if (out.chunk != null) {
+        return;
+      }
     }
     Uri mediaSegmentKeyUri = getFullEncryptionKeyUri(mediaPlaylist, segment);
-    out.chunk = maybeCreateEncryptionChunkFor(mediaSegmentKeyUri, selectedTrackIndex);
+    out.chunk = maybeCreateEncryptionChunkFor(mediaSegmentKeyUri, selectedTrackIndex, segment.encryptionIV);
     if (out.chunk != null) {
       return;
     }
@@ -339,7 +343,9 @@ import java.util.Map;
             timestampAdjusterProvider,
             previous,
             /* mediaSegmentKey= */ keyCache.get(mediaSegmentKeyUri),
-            /* initSegmentKey= */ keyCache.get(initSegmentKeyUri));
+            /* initSegmentKey= */ keyCache.get(initSegmentKeyUri),
+            mediaSegmentKeyUri,
+            initSegmentKeyUri);
   }
 
   /**
@@ -491,7 +497,7 @@ import java.util.Map;
   }
 
   @Nullable
-  private Chunk maybeCreateEncryptionChunkFor(@Nullable Uri keyUri, int selectedTrackIndex) {
+  private Chunk maybeCreateEncryptionChunkFor(@Nullable Uri keyUri, int selectedTrackIndex, String encryptionIV) {
     if (keyUri == null) {
       return null;
     }
@@ -502,14 +508,19 @@ import java.util.Map;
       keyCache.put(keyUri, keyCache.remove(keyUri));
       return null;
     }
+    // onChunkLoadCompleted() is never called in the PRMEncryptionKeyChunk implementation,
+    // so keyCache must be updated manually
+    String prmEmptyKey = " ";
+    keyCache.put(keyUri, prmEmptyKey.getBytes());
     DataSpec dataSpec = new DataSpec(keyUri, 0, C.LENGTH_UNSET, null, DataSpec.FLAG_ALLOW_GZIP);
-    return new EncryptionKeyChunk(
+    return new PRMEncryptionKeyChunk(
         encryptionDataSource,
         dataSpec,
         playlistFormats[selectedTrackIndex],
         trackSelection.getSelectionReason(),
         trackSelection.getSelectionData(),
-        scratchSpace);
+        scratchSpace,
+        encryptionIV);
   }
 
   @Nullable

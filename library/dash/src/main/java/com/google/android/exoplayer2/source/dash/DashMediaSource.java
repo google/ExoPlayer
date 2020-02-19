@@ -15,12 +15,6 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
-import android.net.Uri;
-import android.os.Handler;
-import android.os.SystemClock;
-import androidx.annotation.Nullable;
-import android.text.TextUtils;
-import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.ParserException;
@@ -65,6 +59,14 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import android.net.Uri;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.text.TextUtils;
+import android.util.SparseArray;
+
+import androidx.annotation.Nullable;
 
 /** A DASH {@link MediaSource}. */
 public final class DashMediaSource extends BaseMediaSource {
@@ -792,6 +794,13 @@ public final class DashMediaSource extends BaseMediaSource {
         boolean isSameUriInstance = loadable.dataSpec.uri == manifestUri;
         if (isSameUriInstance) {
           manifestUri = manifest.location;
+        }
+      }
+    } else {
+      if(loadable.getUri() != null && manifestUri.compareTo(loadable.getUri()) != 0) {
+        synchronized (manifestUriLock) {
+          Log.i(TAG, "Redirect happened, update manifestUri: " + loadable.getUri().toString());
+          manifestUri = loadable.getUri();
         }
       }
     }

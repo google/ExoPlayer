@@ -126,6 +126,20 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    */
   public DefaultTsPayloadReaderFactory(@Flags int flags, List<Format> closedCaptionFormats) {
     this.flags = flags;
+    if (!isSet(FLAG_OVERRIDE_CAPTION_DESCRIPTORS) && closedCaptionFormats.isEmpty()) {
+      closedCaptionFormats = new ArrayList();
+      closedCaptionFormats.add(Format.createTextSampleFormat(null,
+          MimeTypes.APPLICATION_CEA608, null, -1,0, "CC1",1,null));
+      closedCaptionFormats.add(Format.createTextSampleFormat(null,
+          MimeTypes.APPLICATION_CEA608, null, -1,0, "CC2",2,null));
+      closedCaptionFormats.add(Format.createTextSampleFormat(null,
+          MimeTypes.APPLICATION_CEA608, null, -1,0, "CC3",3,null));
+      closedCaptionFormats.add(Format.createTextSampleFormat(null,
+          MimeTypes.APPLICATION_CEA608, null, -1,0, "CC4",4,null));
+
+      closedCaptionFormats.add(Format.createTextSampleFormat(null,
+          MimeTypes.APPLICATION_CEA708, null, -1,0, "CC708",1,null));
+    }
     this.closedCaptionFormats = closedCaptionFormats;
   }
 

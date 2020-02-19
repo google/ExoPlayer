@@ -238,6 +238,7 @@ public final class Cea608Decoder extends CeaDecoder {
   private CueBuilder currentCueBuilder;
   private List<Cue> cues;
   private List<Cue> lastCues;
+  private long inputTimestampUs;
 
   private int captionMode;
   private int captionRowCount;
@@ -297,7 +298,12 @@ public final class Cea608Decoder extends CeaDecoder {
     super.flush();
     cues = null;
     lastCues = null;
-    setCaptionMode(CC_MODE_UNKNOWN);
+    /*
+    * Remove setCaptionMode to avoid triggering onNewSubtitleDataAvailable method to generate new subtitle sample
+    * when flushing.
+    * */
+    //setCaptionMode(CC_MODE_UNKNOWN);
+    captionMode = CC_MODE_UNKNOWN;
     setCaptionRowCount(DEFAULT_CAPTIONS_ROW_COUNT);
     resetCueBuilders();
     isCaptionValid = false;
@@ -327,6 +333,7 @@ public final class Cea608Decoder extends CeaDecoder {
   @SuppressWarnings("ByteBufferBackingArray")
   @Override
   protected void decode(SubtitleInputBuffer inputBuffer) {
+    inputTimestampUs = inputBuffer.timeUs;
     ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
     boolean captionDataProcessed = false;
     while (ccData.bytesLeft() >= packetLength) {
@@ -418,6 +425,7 @@ public final class Cea608Decoder extends CeaDecoder {
     if (captionDataProcessed) {
       if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
         cues = getDisplayCues();
+        onNewSubtitleDataAvailable(inputTimestampUs);  // update screen
       }
     }
   }
@@ -537,12 +545,14 @@ public final class Cea608Decoder extends CeaDecoder {
         if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
           resetCueBuilders();
         }
+        onNewSubtitleDataAvailable(inputTimestampUs);  // update screen
         break;
       case CTRL_ERASE_NON_DISPLAYED_MEMORY:
         resetCueBuilders();
         break;
       case CTRL_END_OF_CAPTION:
         cues = getDisplayCues();
+        onNewSubtitleDataAvailable(inputTimestampUs);  // update screen
         resetCueBuilders();
         break;
       case CTRL_CARRIAGE_RETURN:
@@ -618,6 +628,7 @@ public final class Cea608Decoder extends CeaDecoder {
         || captionMode == CC_MODE_UNKNOWN) {
       // When switching from paint-on or to roll-up or unknown, we also need to clear the caption.
       cues = Collections.emptyList();
+      onNewSubtitleDataAvailable(inputTimestampUs);  // update screen
     }
   }
 
@@ -858,10 +869,10 @@ public final class Cea608Decoder extends CeaDecoder {
         // that are wider than they should be in this way. See
         // https://github.com/google/ExoPlayer/issues/3534.
         positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
-      } else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
+      } /*else if (captionMode == CC_MODE_POP_ON && startEndPaddingDelta > 0) {
         // Treat pop-on captions with less padding at the end than the start as end aligned.
         positionAnchor = Cue.ANCHOR_TYPE_END;
-      } else {
+      } */ else {
         // For all other cases assume start aligned.
         positionAnchor = Cue.ANCHOR_TYPE_START;
       }
@@ -878,9 +889,12 @@ public final class Cea608Decoder extends CeaDecoder {
           break;
         case Cue.ANCHOR_TYPE_START:
         default:
-          position = (float) startPadding / SCREEN_CHARWIDTH;
+          //position = (float) startPadding / SCREEN_CHARWIDTH;
           // Adjust the position to fit within the safe area.
-          position = position * 0.8f + 0.1f;
+          //position = position * 0.8f + 0.1f;
+
+          //Use the same calculation formula of position with SDK 4
+          position = getXPercent(startPadding);
           break;
       }
 
@@ -992,6 +1006,12 @@ public final class Cea608Decoder extends CeaDecoder {
         return;
       }
       builder.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+
+    private static float getXPercent(int x){
+      final float CC608_COLS_SAFE_AREA = 40.0f;
+      final float CC608_COLS_SAFE_AREA_BASE = 4.0f;
+      return (x+CC608_COLS_SAFE_AREA_BASE)/CC608_COLS_SAFE_AREA;
     }
 
     private static class CueStyle {

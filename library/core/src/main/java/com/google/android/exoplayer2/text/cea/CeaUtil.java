@@ -29,10 +29,17 @@ public final class CeaUtil {
   public static final int USER_DATA_IDENTIFIER_GA94 = Util.getIntegerCodeForString("GA94");
   public static final int USER_DATA_TYPE_CODE_MPEG_CC = 0x3;
 
+  public static final int CC_608_AVAILABLE = 1;
+  public static final int CC_708_AVAILABLE = 2;
+  public static final int CC_608_AND_708_AVAILABLE = 3;
+  public static final int CC_INVALID = 0;
+
   private static final int PAYLOAD_TYPE_CC = 4;
   private static final int COUNTRY_CODE = 0xB5;
   private static final int PROVIDER_CODE_ATSC = 0x31;
   private static final int PROVIDER_CODE_DIRECTV = 0x2F;
+
+  private static final int CC_VALID_FLAG = 0x04;
 
   /**
    * Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608 messages
@@ -111,6 +118,33 @@ public final class CeaUtil {
           /* offset= */ 0,
           /* encryptionData= */ null);
     }
+  }
+
+  public static int detectCCDataType(ParsableByteArray ccDataBuffer) {
+    int result = CC_INVALID;
+
+    while (ccDataBuffer.bytesLeft() >= 3) {
+      int ccTypeAndValid = (ccDataBuffer.readUnsignedByte() & 0x07);
+      boolean ccValid = (ccTypeAndValid & CC_VALID_FLAG) == CC_VALID_FLAG;
+      //skip 2 cc real data bytes
+      ccDataBuffer.skipBytes(2);
+      if (!ccValid) {
+        // This byte-pair isn't valid, ignore it and continue.
+        continue;
+      }
+      if ((ccTypeAndValid & 0x03) <= 1) {
+        //608 data
+        result = result == CC_708_AVAILABLE ? CC_608_AND_708_AVAILABLE : CC_608_AVAILABLE;
+      } else {
+        //708 data
+        result = result == CC_608_AVAILABLE ? CC_608_AND_708_AVAILABLE : CC_708_AVAILABLE;
+      }
+
+      if(result == CC_608_AND_708_AVAILABLE){
+        break;
+      }
+    }
+    return result;
   }
 
   /**

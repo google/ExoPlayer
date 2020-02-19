@@ -36,8 +36,10 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.CircularByteQueue;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -103,7 +105,7 @@ public final class Cea708Decoder extends CeaDecoder {
   private static final int COMMAND_DF1 = 0x99;  // DefineWindow 1 (+6 bytes)
   private static final int COMMAND_DF2 = 0x9A;  // DefineWindow 2 (+6 bytes)
   private static final int COMMAND_DF3 = 0x9B;  // DefineWindow 3 (+6 bytes)
-  private static final int COMMAND_DF4 = 0x9C; // DefineWindow 4 (+6 bytes)
+  private static final int COMMAND_DS4 = 0x9C;  // DefineWindow 4 (+6 bytes)
   private static final int COMMAND_DF5 = 0x9D;  // DefineWindow 5 (+6 bytes)
   private static final int COMMAND_DF6 = 0x9E;  // DefineWindow 6 (+6 bytes)
   private static final int COMMAND_DF7 = 0x9F;  // DefineWindow 7 (+6 bytes)
@@ -140,7 +142,6 @@ public final class Cea708Decoder extends CeaDecoder {
   private static final int CHARACTER_UPPER_LEFT_BORDER = 0x7F;
 
   private final ParsableByteArray ccData;
-  private final ParsableBitArray serviceBlockPacket;
 
   private final int selectedServiceNumber;
   private final CueBuilder[] cueBuilders;
@@ -149,14 +150,45 @@ public final class Cea708Decoder extends CeaDecoder {
   private List<Cue> cues;
   private List<Cue> lastCues;
 
-  private DtvCcPacket currentDtvCcPacket;
+
+  private int lastSequenceNo = -1;
   private int currentWindow;
+
+  private long delayUs; // delayed processing due to DLC command
+  private long startOfDelayUs; // to keep track of the delay timeout
+  private static final int SERVICE_INPUT_BUFF_SIZE = 128;
+  private long inputTimestampUs;// currently processing input buffer timestamp
+
+  // Caption Channel Packet processing related
+  private int ccpDataIndex;
+  private int ccpSize;
+
+  // service block processing related
+  private static final int SERVICE_BLOCK_HEADER = 0;
+  private static final int SERVICE_BLOCK_EXT_HEADER = 1;
+  private static final int SERVICE_BLOCK_DATA = 2;
+  private int serviceBlockProcessingState = SERVICE_BLOCK_HEADER;
+  private int serviceBlockSize;
+  private int serviceNumber;
+  private int serviceBlockDataBufferOffset = 0;
+
+  // service input buffer queue
+  CircularByteQueue serviceInputBufferQ = new CircularByteQueue(SERVICE_INPUT_BUFF_SIZE);
+
+  // Closed Caption data related
+  private static final int CC_DATA_STATE_COMMAND = 0;
+  private static final int CC_DATA_STATE_WAITING_FOR_PARAM = 1;
+  private static final int CC_DATA_STATE_SKIPPING = 2;
+  private int ccDataState = CC_DATA_STATE_COMMAND;
+  private int ccDataSkipCount = 0;
+  private int currentCommand = -1;
+  private boolean isExtendedCommand = false;
+  private boolean cuesNeedUpdate;
+  private static final boolean DEBUG = false;
 
   public Cea708Decoder(int accessibilityChannel, List<byte[]> initializationData) {
     ccData = new ParsableByteArray();
-    serviceBlockPacket = new ParsableBitArray();
-    selectedServiceNumber = accessibilityChannel == Format.NO_VALUE ? 1 : accessibilityChannel;
-
+    selectedServiceNumber = (accessibilityChannel == Format.NO_VALUE) ? 1 : accessibilityChannel;
     cueBuilders = new CueBuilder[NUM_WINDOWS];
     for (int i = 0; i < NUM_WINDOWS; i++) {
       cueBuilders[i] = new CueBuilder();
@@ -179,7 +211,8 @@ public final class Cea708Decoder extends CeaDecoder {
     currentWindow = 0;
     currentCueBuilder = cueBuilders[currentWindow];
     resetCueBuilders();
-    currentDtvCcPacket = null;
+    finishCCPacket();
+    resetCCDataState();
   }
 
   @Override
@@ -195,10 +228,8 @@ public final class Cea708Decoder extends CeaDecoder {
 
   @Override
   protected void decode(SubtitleInputBuffer inputBuffer) {
-    // Subtitle input buffers are non-direct and the position is zero, so calling array() is safe.
-    @SuppressWarnings("ByteBufferBackingArray")
-    byte[] inputBufferData = inputBuffer.data.array();
-    ccData.reset(inputBufferData, inputBuffer.data.limit());
+    inputTimestampUs = inputBuffer.timeUs;
+    ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
     while (ccData.bytesLeft() >= 3) {
       int ccTypeAndValid = (ccData.readUnsignedByte() & 0x07);
 
@@ -218,159 +249,341 @@ public final class Cea708Decoder extends CeaDecoder {
       }
 
       if (ccType == DTVCC_PACKET_START) {
-        finalizeCurrentPacket();
+        finishCCPacket();
 
         int sequenceNumber = (ccData1 & 0xC0) >> 6; // first 2 bits
-        int packetSize = ccData1 & 0x3F; // last 6 bits
-        if (packetSize == 0) {
-          packetSize = 64;
+        if (lastSequenceNo != -1 && sequenceNumber != (lastSequenceNo + 1) % 4) {
+          resetCueBuilders();
+          Log.w(TAG, "discontinuity in sequence number detected : lastSequenceNo = " + lastSequenceNo
+            + " sequenceNumber = " + sequenceNumber);
         }
+        lastSequenceNo = sequenceNumber;
 
-        currentDtvCcPacket = new DtvCcPacket(sequenceNumber, packetSize);
-        currentDtvCcPacket.packetData[currentDtvCcPacket.currentIndex++] = ccData2;
+        ccpSize = ccData1 & 0x3F; // last 6 bits
+        if (ccpSize == 0) {
+          ccpSize = 127;
+        } else {
+          ccpSize *= 2;
+          ccpSize--;
+        }
+        if (DEBUG) {
+          Log.d(TAG,"DTVCC_PACKET_START : sequenceNumber = " + sequenceNumber+ " ccpSize = " + ccpSize);
+        }
+        processCCPacket(ccData2);
+        ccpDataIndex = 1;
       } else {
         // The only remaining valid packet type is DTVCC_PACKET_DATA
         Assertions.checkArgument(ccType == DTVCC_PACKET_DATA);
-
-        if (currentDtvCcPacket == null) {
-          Log.e(TAG, "Encountered DTVCC_PACKET_DATA before DTVCC_PACKET_START");
+        if (ccpSize == 0) {
+          Log.w(TAG,"Encountered DTVCC_PACKET_DATE before DTVCC_PACKET_START, ignoring...");
           continue;
         }
-
-        currentDtvCcPacket.packetData[currentDtvCcPacket.currentIndex++] = ccData1;
-        currentDtvCcPacket.packetData[currentDtvCcPacket.currentIndex++] = ccData2;
+        processCCPacket(ccData1, ccData2);
+        ccpDataIndex += 2;
+        if (DEBUG) {
+          Log.d(TAG, "DTVCC_PACKET_DATA : ccpDataIndex = " + ccpDataIndex);
       }
-
-      if (currentDtvCcPacket.currentIndex == (currentDtvCcPacket.packetSize * 2 - 1)) {
-        finalizeCurrentPacket();
       }
     }
+    if (cuesNeedUpdate) {
+      updateCues();
   }
-
-  private void finalizeCurrentPacket() {
-    if (currentDtvCcPacket == null) {
-      // No packet to finalize;
-      return;
     }
-
-    processCurrentPacket();
-    currentDtvCcPacket = null;
+  private void finishCCPacket() {
+    ccpDataIndex = 0;
+    ccpSize = 0;
+    resetServiceBlockState();
   }
-
-  private void processCurrentPacket() {
-    if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
-      Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
-          + ", but current index is " + currentDtvCcPacket.currentIndex + " (sequence number "
-          + currentDtvCcPacket.sequenceNumber + "); ignoring packet");
-      return;
+  private void updateCues() {
+    cuesNeedUpdate = false;
+    cues = getDisplayCues();
+    onNewSubtitleDataAvailable(inputTimestampUs);
     }
-
-    serviceBlockPacket.reset(currentDtvCcPacket.packetData, currentDtvCcPacket.currentIndex);
-
-    int serviceNumber = serviceBlockPacket.readBits(3);
-    int blockSize = serviceBlockPacket.readBits(5);
-    if (serviceNumber == 7) {
+  private void processCCPacket(byte... dtvccPkt) {
+    for (int i = 0; i < dtvccPkt.length; i++) {
+      switch(serviceBlockProcessingState){
+        case SERVICE_BLOCK_HEADER: {
+          serviceNumber = (dtvccPkt[i] & 0xE0) >> 5; // 3 bits
+          serviceBlockSize = (dtvccPkt[i] & 0x1F); // 5 bits
+          if (DEBUG) {
+            Log.d(TAG,"SERVICE_BLOCK_HEADER: serviceNumber = " + serviceNumber +
+                    ", serviceBlockSize = " + serviceBlockSize);
+          }
+          if (serviceNumber == 7 && serviceBlockSize != 0) {
+            serviceBlockProcessingState = SERVICE_BLOCK_EXT_HEADER;
+          } else if (serviceBlockSize != 0) {
+            serviceBlockProcessingState = SERVICE_BLOCK_DATA;
+            serviceBlockDataBufferOffset = 0;
+          } else { // 0 size block. remain in service block header state
+            serviceNumber = 0;
+          }
+        }
+        break;
+        case SERVICE_BLOCK_EXT_HEADER: {
       // extended service numbers
-      serviceBlockPacket.skipBits(2);
-      serviceNumber = serviceBlockPacket.readBits(6);
-      if (serviceNumber < 7) {
-        Log.w(TAG, "Invalid extended service number: " + serviceNumber);
+          serviceNumber = (dtvccPkt[i] & 0x3F); // 6 bits
+          if (serviceBlockSize != 0) {
+            serviceBlockProcessingState = SERVICE_BLOCK_DATA;
+            serviceBlockDataBufferOffset = 0;
+            if (DEBUG) {
+              Log.d(TAG, "SERVICE_BLOCK_EXT_HEADER: serviceNumber = " + serviceNumber +
+                      ", serviceBlockSize = " + serviceBlockSize);
+      }
+          } else {
+            // reset service block processing state
+            serviceBlockProcessingState = SERVICE_BLOCK_HEADER;
+            serviceNumber = 0;
+          }
+        }
+        break;
+        case SERVICE_BLOCK_DATA: {
+          serviceBlockDataBufferOffset++;
+          if (serviceNumber == selectedServiceNumber) {
+            processCCData(dtvccPkt[i]);
+    }
+
+          if (serviceBlockDataBufferOffset == serviceBlockSize) {
+            if (DEBUG) {
+              Log.d(TAG, "End of Service Block");
+      }
+            resetServiceBlockState();
+            if (cuesNeedUpdate) {
+              updateCues();
+            }
+          }
+        }
+        break;
+      }
+    }
+  }
+  // resets service block processing state
+  private void resetServiceBlockState() {
+    serviceBlockDataBufferOffset = 0;
+    serviceBlockProcessingState = SERVICE_BLOCK_HEADER;
+    serviceNumber = 0;
+    serviceBlockSize = 0;
+    }
+
+  private void resetCCDataState() {
+    currentCommand = -1;
+    cuesNeedUpdate = false;
+    ccDataSkipCount = 0;
+    ccDataState = CC_DATA_STATE_COMMAND;
+  }
+  // process the closed caption data
+  // It manages the service input buffer queue for the selected service number.
+  // It has a RST and DLS pre-processing block
+  private void processCCData(byte data) {
+    // DLC and RST command pre-processor
+    int command = data & 0xFF;
+    if (command == COMMAND_RST || command == COMMAND_DLC) {
+      // cancel the delay
+      delayUs = 0;
+      // additionally RST command also clears the service input buffer queue.
+      if (command == COMMAND_RST) {
+        serviceInputBufferQ.reset();
+      }
+    }
+    // now add the incoming data to service input buffer queue.
+    if (serviceInputBufferQ.canWrite()) {
+      // push to service input buffer queue
+      serviceInputBufferQ.write(data);
+    } else {
+      Log.w(TAG, "Service Input buffer FULL!!!");
+      // if service input buffer is full, cancel delay command
+      delayUs = 0;
+    }
+    // detect timeout of delay and cancel it so that the processing happens immediately.
+    if (delayUs != 0 && inputTimestampUs - startOfDelayUs >= delayUs) {
+      delayUs = 0;
+    }
+    // if delay is active, skip processing the command
+    if (delayUs != 0) {
+      return;
+    }
+    // process the closed caption data stored in service input buffer
+    while (serviceInputBufferQ.canRead(1)) {
+      switch(ccDataState) {
+        case CC_DATA_STATE_COMMAND: {
+          currentCommand = serviceInputBufferQ.read();
+          //if delay is not enabled or RST command, process command immediately
+          if (currentCommand == COMMAND_RST || delayUs == 0) {
+            cuesNeedUpdate |= handleCommand(currentCommand);
+          } else if (currentCommand == COMMAND_DLC ||
+                     serviceInputBufferQ.size() >= SERVICE_INPUT_BUFF_SIZE ||
+                     (inputTimestampUs - startOfDelayUs >= delayUs)) {
+            // cancel delay if DLC or service input buffer is full or delay timer expired
+            delayUs = 0;
+            // now process all delayed commands already stored in service input buffer queue.
+            cuesNeedUpdate |= handleCommand(currentCommand);
+          } else {
+            // we are in delay mode
+          }
+        }
+        break;
+        case CC_DATA_STATE_WAITING_FOR_PARAM: {
+          // we reset state to command here, because if the command still expects more params,
+          // handleCommand will change the state to waiting for param again
+          ccDataState = CC_DATA_STATE_COMMAND;
+          cuesNeedUpdate |= handleCommand(currentCommand);
+        }
+        break;
+        case CC_DATA_STATE_SKIPPING: {
+          serviceInputBufferQ.read();
+          ccDataSkipCount--;
+          if (ccDataSkipCount == 0) {
+            ccDataState = CC_DATA_STATE_COMMAND;
+            isExtendedCommand = false;
+          }
+        }
+        break;
+      }
+      if (ccDataState == CC_DATA_STATE_WAITING_FOR_PARAM) {
+        break;
       }
     }
 
-    // Ignore packets in which blockSize is 0
-    if (blockSize == 0) {
-      if (serviceNumber != 0) {
-        Log.w(TAG, "serviceNumber is non-zero (" + serviceNumber + ") when blockSize is 0");
+  }
+  private void skipBytes(int count) {
+    if (count > 0) {
+      ccDataState = CC_DATA_STATE_SKIPPING;
+      ccDataSkipCount = count;
+    }
+  }
+  private void printCommandName(int command) {
+    String commandName = null;
+    switch (command) {
+      case COMMAND_NUL: commandName = "Null"; break;
+      case COMMAND_ETX: commandName = "EndOfText"; break;
+      case COMMAND_BS:  commandName = "Backspace"; break;
+      case COMMAND_FF:  commandName = "FormFeed (Flush)"; break;
+      case COMMAND_CR:  commandName = "Carriage Return"; break;
+      case COMMAND_HCR: commandName = "ClearLine"; break;
+
+      case COMMAND_CW0: commandName = "SetCurrentWindow 0"; break;
+      case COMMAND_CW1: commandName = "SetCurrentWindow 1"; break;
+      case COMMAND_CW2: commandName = "SetCurrentWindow 2"; break;
+      case COMMAND_CW3: commandName = "SetCurrentWindow 3"; break;
+      case COMMAND_CW4: commandName = "SetCurrentWindow 4"; break;
+      case COMMAND_CW5: commandName = "SetCurrentWindow 5"; break;
+      case COMMAND_CW6: commandName = "SetCurrentWindow 6"; break;
+      case COMMAND_CW7: commandName = "SetCurrentWindow 7"; break;
+
+      case COMMAND_CLW: commandName = "ClearWindows"; break;
+      case COMMAND_DSW: commandName = "DisplayWindows"; break;
+      case COMMAND_HDW: commandName = "HideWindows"; break;
+      case COMMAND_TGW: commandName = "ToggleWindows"; break;
+      case COMMAND_DLW: commandName = "DeleteWindows"; break;
+      case COMMAND_DLY: commandName = "Delay"; break;
+      case COMMAND_DLC: commandName = "DelayCancel"; break;
+      case COMMAND_RST: commandName = "Reset"; break;
+      case COMMAND_SPA: commandName = "SetPenAttributes"; break;
+      case COMMAND_SPC: commandName = "SetPenColor"; break;
+      case COMMAND_SPL: commandName = "SetPenLocation"; break;
+      case COMMAND_SWA: commandName = "SetWindowAttributes"; break;
+      case COMMAND_DF0: commandName = "DefineWindow 0"; break;
+      case COMMAND_DF1: commandName = "DefineWindow 1"; break;
+      case COMMAND_DF2: commandName = "DefineWindow 2"; break;
+      case COMMAND_DF3: commandName = "DefineWindow 3"; break;
+      case COMMAND_DS4: commandName = "DefineWindow 4"; break;
+      case COMMAND_DF5: commandName = "DefineWindow 5"; break;
+      case COMMAND_DF6: commandName = "DefineWindow 6"; break;
+      case COMMAND_DF7: commandName = "DefineWindow 7"; break;
+    }
+
+    if (commandName != null) {
+      Log.d(TAG, "handleCommand: " + commandName);
+    }
+  }
+
+  private boolean handleCommand(int command) {
+    if (DEBUG) {
+      printCommandName(command);
+    }
+    boolean shouldUpdateCue = false;
+    try {
+      if (command == COMMAND_EXT1) {
+        // Read the extended command
+        if (!serviceInputBufferQ.canRead(1)) {
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
+          return shouldUpdateCue;
+        }
+        command = serviceInputBufferQ.read();
+        // update the current command
+        currentCommand = command;
+        isExtendedCommand = true;
       }
-      return;
-    }
-
-    if (serviceNumber != selectedServiceNumber) {
-      return;
-    }
-
-    // The cues should be updated if we receive a C0 ETX command, any C1 command, or if after
-    // processing the service block any text has been added to the buffer. See CEA-708-B Section
-    // 8.10.4 for more details.
-    boolean cuesNeedUpdate = false;
-
-    while (serviceBlockPacket.bitsLeft() > 0) {
-      int command = serviceBlockPacket.readBits(8);
-      if (command != COMMAND_EXT1) {
+      if (!isExtendedCommand) {
         if (command <= GROUP_C0_END) {
-          handleC0Command(command);
           // If the C0 command was an ETX command, the cues are updated in handleC0Command.
+          shouldUpdateCue |= handleC0Command(command);
         } else if (command <= GROUP_G0_END) {
-          handleG0Character(command);
-          cuesNeedUpdate = true;
+          shouldUpdateCue |= handleG0Character(command);
         } else if (command <= GROUP_C1_END) {
-          handleC1Command(command);
-          cuesNeedUpdate = true;
+          shouldUpdateCue |= handleC1Command(command);
         } else if (command <= GROUP_G1_END) {
-          handleG1Character(command);
-          cuesNeedUpdate = true;
+          shouldUpdateCue |= handleG1Character(command);
         } else {
           Log.w(TAG, "Invalid base command: " + command);
         }
       } else {
-        // Read the extended command
-        command = serviceBlockPacket.readBits(8);
         if (command <= GROUP_C2_END) {
-          handleC2Command(command);
+          shouldUpdateCue |= handleC2Command(command);
         } else if (command <= GROUP_G2_END) {
-          handleG2Character(command);
-          cuesNeedUpdate = true;
+          shouldUpdateCue |= handleG2Character(command);
+          isExtendedCommand = false;
         } else if (command <= GROUP_C3_END) {
-          handleC3Command(command);
+          shouldUpdateCue |= handleC3Command(command);
         } else if (command <= GROUP_G3_END) {
-          handleG3Character(command);
-          cuesNeedUpdate = true;
+          shouldUpdateCue |= handleG3Character(command);
+          isExtendedCommand = false;
         } else {
           Log.w(TAG, "Invalid extended command: " + command);
+          isExtendedCommand = false;
         }
       }
+    } catch (IllegalStateException ex) {
+      Log.w(TAG, "CEA708 stream seems to be broken, captions might be incorrect as data in invalid");
     }
-
-    if (cuesNeedUpdate) {
-      cues = getDisplayCues();
-    }
+    return shouldUpdateCue;
   }
 
-  private void handleC0Command(int command) {
+  private boolean handleC0Command(int command) {
     switch (command) {
       case COMMAND_NUL:
         // Do nothing.
         break;
       case COMMAND_ETX:
-        cues = getDisplayCues();
+        updateCues();
         break;
       case COMMAND_BS:
         currentCueBuilder.backspace();
         break;
       case COMMAND_FF:
-        resetCueBuilders();
+        cueBuilders[currentWindow].clear();
+        currentCueBuilder.setPenLocation(0, 0);
         break;
       case COMMAND_CR:
         currentCueBuilder.append('\n');
         break;
       case COMMAND_HCR:
-        // TODO: Add support for this command.
+        currentCueBuilder.hcr();
         break;
       default:
         if (command >= COMMAND_EXT1_START && command <= COMMAND_EXT1_END) {
           Log.w(TAG, "Currently unsupported COMMAND_EXT1 Command: " + command);
-          serviceBlockPacket.skipBits(8);
+          skipBytes(1);
         } else if (command >= COMMAND_P16_START && command <= COMMAND_P16_END) {
           Log.w(TAG, "Currently unsupported COMMAND_P16 Command: " + command);
-          serviceBlockPacket.skipBits(16);
+          skipBytes(2);
         } else {
           Log.w(TAG, "Invalid C0 command: " + command);
         }
     }
+    return false;
   }
 
-  private void handleC1Command(int command) {
+  private boolean handleC1Command(int command) {
     int window;
     switch (command) {
       case COMMAND_CW0:
@@ -385,94 +598,184 @@ public final class Cea708Decoder extends CeaDecoder {
         if (currentWindow != window) {
           currentWindow = window;
           currentCueBuilder = cueBuilders[window];
-        }
-        break;
-      case COMMAND_CLW:
-        for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
-            cueBuilders[NUM_WINDOWS - i].clear();
+          if (DEBUG) {
+            Log.d(TAG, "Setting current window to " + window);
           }
         }
         break;
-      case COMMAND_DSW:
-        for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
-            cueBuilders[NUM_WINDOWS - i].setVisibility(true);
+      case COMMAND_CLW: {
+        if (!serviceInputBufferQ.canRead(1)) {
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
+          break;
+          }
+        int windowMap = serviceInputBufferQ.read();
+        for (int i = 0; i < NUM_WINDOWS; i++) {
+          if ((windowMap & (1 << i)) != 0) {
+            cueBuilders[i].clear();
+            if (DEBUG) {
+              Log.d(TAG, "Clearing window with ID: " + i);
+            }
           }
         }
         break;
-      case COMMAND_HDW:
-        for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
-            cueBuilders[NUM_WINDOWS - i].setVisibility(false);
+      }
+      case COMMAND_DSW: {
+        if (!serviceInputBufferQ.canRead(1)) {
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
+          break;
+        }
+        int windowMap = serviceInputBufferQ.read();
+        for (int i = 0; i < NUM_WINDOWS; i++) {
+          if ((windowMap & (1 << i)) != 0) {
+            CueBuilder builder = cueBuilders[i];
+            if (!builder.defined) {
+              if (DEBUG) {
+                Log.d(TAG, "DisplayWindow command skipped for undefined window" + " ID: " + i);
+              }
+              continue;
+            }
+            cueBuilders[i].setVisibility(true);
+            if (DEBUG) {
+              Log.d(TAG, "Showing window with ID: " + i);
+            }
           }
         }
         break;
-      case COMMAND_TGW:
-        for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
-            CueBuilder cueBuilder = cueBuilders[NUM_WINDOWS - i];
-            cueBuilder.setVisibility(!cueBuilder.isVisible());
+      }
+      case COMMAND_HDW: {
+        if (!serviceInputBufferQ.canRead(1)) {
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
+          break;
+        }
+        int windowMap = serviceInputBufferQ.read();
+        for (int i = 0; i < NUM_WINDOWS; i++) {
+          if ((windowMap & (1 << i)) != 0) {
+            cueBuilders[i].setVisibility(false);
+            if (DEBUG) {
+              Log.d(TAG, "Hiding window with ID: " + i);
+            }
           }
         }
         break;
-      case COMMAND_DLW:
-        for (int i = 1; i <= NUM_WINDOWS; i++) {
-          if (serviceBlockPacket.readBit()) {
-            cueBuilders[NUM_WINDOWS - i].reset();
+      }
+      case COMMAND_TGW: {
+        if (!serviceInputBufferQ.canRead(1)) {
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
+          break;
+        }
+        int windowMap = serviceInputBufferQ.read();
+        for (int i = 0; i < NUM_WINDOWS; i++) {
+          if ((windowMap & (1 << i)) != 0) {
+            CueBuilder builder = cueBuilders[i];
+            if (!builder.defined) {
+              if (DEBUG) {
+                Log.d(TAG, "ToggleWindow command skipped for undefined window" + " ID: " + i);
+              }
+              continue;
+            }
+            builder.setVisibility(!builder.isVisible());
+            if (DEBUG) {
+              Log.d(TAG, "Toggling window with ID: " + i);
+          }
+        }
+        }
+        break;
+      }
+      case COMMAND_DLW: {
+        if (!serviceInputBufferQ.canRead(1)) {
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
+        break;
+        }
+        int windowMap = serviceInputBufferQ.read();
+        for (int i = 0; i < NUM_WINDOWS; i++) {
+          if ((windowMap & (1 << i)) != 0) {
+            cueBuilders[i].reset();
+            if (DEBUG) {
+              Log.d(TAG, "Deleting window: " + i);
+            }
           }
         }
         break;
-      case COMMAND_DLY:
-        // TODO: Add support for delay commands.
-        serviceBlockPacket.skipBits(8);
+      }
+      case COMMAND_DLY: {
+        if (!serviceInputBufferQ.canRead(1)) {
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
         break;
-      case COMMAND_DLC:
-        // TODO: Add support for delay commands.
+        }
+        // delay is in tenths of a second
+        delayUs = serviceInputBufferQ.read() * (C.MICROS_PER_SECOND / 10);
+        startOfDelayUs = inputTimestampUs;
         break;
-      case COMMAND_RST:
+      }
+      case COMMAND_RST: {
         resetCueBuilders();
         break;
-      case COMMAND_SPA:
+      }
+      case COMMAND_SPA: {
+        int paramLen = 2;
         if (!currentCueBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
-          serviceBlockPacket.skipBits(16);
+          skipBytes(paramLen);
+        } else if (!serviceInputBufferQ.canRead(paramLen)) {
+          // param not received yet. wait....
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
         } else {
           handleSetPenAttributes();
         }
         break;
-      case COMMAND_SPC:
+      }
+      case COMMAND_SPC: {
+        int paramLen = 3;
         if (!currentCueBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
-          serviceBlockPacket.skipBits(24);
+          skipBytes(paramLen);
+        } else if (!serviceInputBufferQ.canRead(paramLen)) {
+          // param not received yet. wait....
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
         } else {
           handleSetPenColor();
         }
         break;
-      case COMMAND_SPL:
+      }
+      case COMMAND_SPL: {
+        int paramLen = 2;
         if (!currentCueBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
-          serviceBlockPacket.skipBits(16);
+          skipBytes(paramLen);
+        } else if (!serviceInputBufferQ.canRead(paramLen)) {
+          // param not received yet. wait....
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
         } else {
           handleSetPenLocation();
         }
         break;
-      case COMMAND_SWA:
+      }
+      case COMMAND_SWA: {
+        int paramLen = 4;
         if (!currentCueBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
-          serviceBlockPacket.skipBits(32);
+          skipBytes(paramLen);
+        } else if (!serviceInputBufferQ.canRead(paramLen)) {
+          // param not received yet. wait....
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
         } else {
           handleSetWindowAttributes();
         }
         break;
+      }
       case COMMAND_DF0:
       case COMMAND_DF1:
       case COMMAND_DF2:
       case COMMAND_DF3:
-      case COMMAND_DF4:
+      case COMMAND_DS4:
       case COMMAND_DF5:
       case COMMAND_DF6:
-      case COMMAND_DF7:
+      case COMMAND_DF7: {
+        if (!serviceInputBufferQ.canRead(6)) {
+          // param not received yet. wait....
+          ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
+          break;
+        }
         window = (command - COMMAND_DF0);
         handleDefineWindow(window);
         // We also set the current window to the newly defined window.
@@ -481,53 +784,64 @@ public final class Cea708Decoder extends CeaDecoder {
           currentCueBuilder = cueBuilders[window];
         }
         break;
+      }
       default:
         Log.w(TAG, "Invalid C1 command: " + command);
     }
+
+    // if the state is either skipping or waiting for param, don't render cue
+    return ccDataState == CC_DATA_STATE_COMMAND;
   }
 
-  private void handleC2Command(int command) {
+  private boolean handleC2Command(int command) {
     // C2 Table doesn't contain any commands in CEA-708-B, but we do need to skip bytes
     if (command <= 0x07) {
       // Do nothing.
     } else if (command <= 0x0F) {
-      serviceBlockPacket.skipBits(8);
+      skipBytes(1);
     } else if (command <= 0x17) {
-      serviceBlockPacket.skipBits(16);
+      skipBytes(2);
     } else if (command <= 0x1F) {
-      serviceBlockPacket.skipBits(24);
+      skipBytes(3);
     }
+    return false;
   }
 
-  private void handleC3Command(int command) {
+  private boolean handleC3Command(int command) {
     // C3 Table doesn't contain any commands in CEA-708-B, but we do need to skip bytes
     if (command <= 0x87) {
-      serviceBlockPacket.skipBits(32);
+      skipBytes(4);
     } else if (command <= 0x8F) {
-      serviceBlockPacket.skipBits(40);
+      skipBytes(5);
     } else if (command <= 0x9F) {
       // 90-9F are variable length codes; the first byte defines the header with the first
       // 2 bits specifying the type and the last 6 bits specifying the remaining length of the
       // command in bytes
-      serviceBlockPacket.skipBits(2);
-      int length = serviceBlockPacket.readBits(6);
-      serviceBlockPacket.skipBits(8 * length);
+      if (!serviceInputBufferQ.canRead(1)) {
+        ccDataState = CC_DATA_STATE_WAITING_FOR_PARAM;
+        return false;
     }
+      int val = serviceInputBufferQ.read();
+      skipBytes((int) (val & 0x3F)); // 6 bits
+    }
+    return false;
   }
 
-  private void handleG0Character(int characterCode) {
+  private boolean handleG0Character(int characterCode) {
     if (characterCode == CHARACTER_MN) {
       currentCueBuilder.append('\u266B');
     } else {
       currentCueBuilder.append((char) (characterCode & 0xFF));
     }
+    return true;
   }
 
-  private void handleG1Character(int characterCode) {
+  private boolean handleG1Character(int characterCode) {
     currentCueBuilder.append((char) (characterCode & 0xFF));
+    return true;
   }
 
-  private void handleG2Character(int characterCode) {
+  private boolean handleG2Character(int characterCode) {
     switch (characterCode) {
       case CHARACTER_TSP:
         currentCueBuilder.append('\u0020');
@@ -611,10 +925,12 @@ public final class Cea708Decoder extends CeaDecoder {
         Log.w(TAG, "Invalid G2 character: " + characterCode);
         // The CEA-708 specification doesn't specify what to do in the case of an unexpected
         // value in the G2 character range, so we ignore it.
+        return false;
     }
+    return true;
   }
 
-  private void handleG3Character(int characterCode) {
+  private boolean handleG3Character(int characterCode) {
     if (characterCode == 0xA0) {
       currentCueBuilder.append('\u33C4');
     } else {
@@ -622,19 +938,22 @@ public final class Cea708Decoder extends CeaDecoder {
       // Substitute any unsupported G3 character with an underscore as per CEA-708 specification.
       currentCueBuilder.append('_');
     }
+    return true;
   }
 
   private void handleSetPenAttributes() {
     // the SetPenAttributes command contains 2 bytes of data
     // first byte
-    int textTag = serviceBlockPacket.readBits(4);
-    int offset = serviceBlockPacket.readBits(2);
-    int penSize = serviceBlockPacket.readBits(2);
+    int param = serviceInputBufferQ.read();
+    int textTag = (param & 0xF0) >> 4; // xxxx 0000
+    int offset = (param & 0x0C) >> 2;  // 0000 xx00
+    int penSize = (param & 0x03);      // 0000 00xx
     // second byte
-    boolean italicsToggle = serviceBlockPacket.readBit();
-    boolean underlineToggle = serviceBlockPacket.readBit();
-    int edgeType = serviceBlockPacket.readBits(3);
-    int fontStyle = serviceBlockPacket.readBits(3);
+    param = serviceInputBufferQ.read();
+    boolean italicsToggle = ((param & 0x80) >> 7 == 1);    // x000 0000
+    boolean underlineToggle = ((param & 0x40) >> 6 == 1);  // 0x00 0000
+    int edgeType = (param & 0x38) >> 3;                    // 00xx x000
+    int fontStyle = (param & 0x07);                        // 0000 0xxx
 
     currentCueBuilder.setPenAttributes(textTag, offset, penSize, italicsToggle, underlineToggle,
         edgeType, fontStyle);
@@ -643,24 +962,27 @@ public final class Cea708Decoder extends CeaDecoder {
   private void handleSetPenColor() {
     // the SetPenColor command contains 3 bytes of data
     // first byte
-    int foregroundO = serviceBlockPacket.readBits(2);
-    int foregroundR = serviceBlockPacket.readBits(2);
-    int foregroundG = serviceBlockPacket.readBits(2);
-    int foregroundB = serviceBlockPacket.readBits(2);
+    int param = serviceInputBufferQ.read();
+    int foregroundA = (param & 0xC0) >> 6; // xx00 0000
+    int foregroundR = (param & 0x30) >> 4; // 00xx 0000
+    int foregroundG = (param & 0x0C) >> 2; // 0000 xx00
+    int foregroundB = (param & 0x03);      // 0000 00xx
     int foregroundColor = CueBuilder.getArgbColorFromCeaColor(foregroundR, foregroundG, foregroundB,
-        foregroundO);
+            foregroundA);
     // second byte
-    int backgroundO = serviceBlockPacket.readBits(2);
-    int backgroundR = serviceBlockPacket.readBits(2);
-    int backgroundG = serviceBlockPacket.readBits(2);
-    int backgroundB = serviceBlockPacket.readBits(2);
+    param = serviceInputBufferQ.read();
+    int backgroundA = (param & 0xC0) >> 6; // xx00 0000
+    int backgroundR = (param & 0x30) >> 4; // 00xx 0000
+    int backgroundG = (param & 0x0C) >> 2; // 0000 xx00
+    int backgroundB = (param & 0x03);      // 0000 00xx
     int backgroundColor = CueBuilder.getArgbColorFromCeaColor(backgroundR, backgroundG, backgroundB,
-        backgroundO);
+            backgroundA);
     // third byte
-    serviceBlockPacket.skipBits(2); // null padding
-    int edgeR = serviceBlockPacket.readBits(2);
-    int edgeG = serviceBlockPacket.readBits(2);
-    int edgeB = serviceBlockPacket.readBits(2);
+    param = serviceInputBufferQ.read();
+     // skip 2 bits null padding     // xx00 0000
+    int edgeR = (param & 0x30) >> 4; // 00xx 0000
+    int edgeG = (param & 0x0C) >> 2; // 0000 xx00
+    int edgeB = (param & 0x03);      // 0000 00xx
     int edgeColor = CueBuilder.getArgbColorFromCeaColor(edgeR, edgeG, edgeB);
 
     currentCueBuilder.setPenColor(foregroundColor, backgroundColor, edgeColor);
@@ -669,11 +991,13 @@ public final class Cea708Decoder extends CeaDecoder {
   private void handleSetPenLocation() {
     // the SetPenLocation command contains 2 bytes of data
     // first byte
-    serviceBlockPacket.skipBits(4);
-    int row = serviceBlockPacket.readBits(4);
+    int param = serviceInputBufferQ.read();
+    // skip 4 bits             // xxxx 0000
+    int row = (param & 0x0F);  // 0000 xxxx
     // second byte
-    serviceBlockPacket.skipBits(2);
-    int column = serviceBlockPacket.readBits(6);
+    param = serviceInputBufferQ.read();
+    // skip 2 bits               // xx00 0000
+    int column = (param & 0x3F); // 00xx xxxx
 
     currentCueBuilder.setPenLocation(row, column);
   }
@@ -681,28 +1005,31 @@ public final class Cea708Decoder extends CeaDecoder {
   private void handleSetWindowAttributes() {
     // the SetWindowAttributes command contains 4 bytes of data
     // first byte
-    int fillO = serviceBlockPacket.readBits(2);
-    int fillR = serviceBlockPacket.readBits(2);
-    int fillG = serviceBlockPacket.readBits(2);
-    int fillB = serviceBlockPacket.readBits(2);
-    int fillColor = CueBuilder.getArgbColorFromCeaColor(fillR, fillG, fillB, fillO);
+    int param = serviceInputBufferQ.read();
+    int fillA = (param & 0xC0) >> 6; // xx00 0000
+    int fillR = (param & 0x30) >> 4; // 00xx 0000
+    int fillG = (param & 0x0C) >> 2; // 0000 xx00
+    int fillB = (param & 0x03);      // 0000 00xx
+    int fillColor = CueBuilder.getArgbColorFromCeaColor(fillR, fillG, fillB, fillA);
     // second byte
-    int borderType = serviceBlockPacket.readBits(2); // only the lower 2 bits of borderType
-    int borderR = serviceBlockPacket.readBits(2);
-    int borderG = serviceBlockPacket.readBits(2);
-    int borderB = serviceBlockPacket.readBits(2);
+    param = serviceInputBufferQ.read();
+    int borderType = (param & 0xC0) >> 6; // xx00 0000
+    int borderR = (param & 0x30) >> 4;    // 00xx 0000
+    int borderG = (param & 0x0C) >> 2;    // 0000 xx00
+    int borderB = (param & 0x03);         // 0000 00xx
     int borderColor = CueBuilder.getArgbColorFromCeaColor(borderR, borderG, borderB);
     // third byte
-    if (serviceBlockPacket.readBit()) {
+    param = serviceInputBufferQ.read();
+    if (((param & 0x80) >> 7 == 1)) {                     // x000 0000
       borderType |= 0x04; // set the top bit of the 3-bit borderType
     }
-    boolean wordWrapToggle = serviceBlockPacket.readBit();
-    int printDirection = serviceBlockPacket.readBits(2);
-    int scrollDirection = serviceBlockPacket.readBits(2);
-    int justification = serviceBlockPacket.readBits(2);
+    boolean wordWrapToggle = ((param & 0x40) >> 6 == 1);  // 0x00 0000
+    int printDirection = (param & 0x30) >> 4;             // 00xx 0000
+    int scrollDirection = (param & 0x0C) >> 2;            // 0000 xx00
+    int justification = (param & 0x03);                   // 0000 00xx
     // fourth byte
     // Note that we don't intend to support display effects
-    serviceBlockPacket.skipBits(8); // effectSpeed(4), effectDirection(2), displayEffect(2)
+    param = serviceInputBufferQ.read(); // skip display effects
 
     currentCueBuilder.setWindowAttributes(fillColor, borderColor, wordWrapToggle, borderType,
         printDirection, scrollDirection, justification);
@@ -713,26 +1040,31 @@ public final class Cea708Decoder extends CeaDecoder {
 
     // the DefineWindow command contains 6 bytes of data
     // first byte
-    serviceBlockPacket.skipBits(2); // null padding
-    boolean visible = serviceBlockPacket.readBit();
-    boolean rowLock = serviceBlockPacket.readBit();
-    boolean columnLock = serviceBlockPacket.readBit();
-    int priority = serviceBlockPacket.readBits(3);
+    int param = serviceInputBufferQ.read();
+    // skip 2 bits null padding                            // xx00 0000
+    boolean visible = ((param & 0x20) >> 5 == 1);          // 00x0 0000
+    boolean rowLock = ((param & 0x10) >> 4 == 1);          // 000x 0000
+    boolean columnLock = ((param & 0x08) >> 3 == 1);       // 0000 x000
+    int priority = (param & 0x07);                         // 0000 0xxx
     // second byte
-    boolean relativePositioning = serviceBlockPacket.readBit();
-    int verticalAnchor = serviceBlockPacket.readBits(7);
+    param = serviceInputBufferQ.read();
+    boolean relativePositioning = ((param & 0x80) >> 7 == 1);    // x000 0000
+    int verticalAnchor = (param & 0x7F);                         // 0xxx xxxx
     // third byte
-    int horizontalAnchor = serviceBlockPacket.readBits(8);
+    int horizontalAnchor = serviceInputBufferQ.read();           // xxxx xxxx
     // fourth byte
-    int anchorId = serviceBlockPacket.readBits(4);
-    int rowCount = serviceBlockPacket.readBits(4);
+    param = serviceInputBufferQ.read();
+    int anchorId = (param & 0xF0) >> 4;  // xxxx 0000
+    int rowCount = (param & 0x0F);       // 0000 xxxx
     // fifth byte
-    serviceBlockPacket.skipBits(2); // null padding
-    int columnCount = serviceBlockPacket.readBits(6);
+    param = serviceInputBufferQ.read();
+    // skip 2 bits null padding           // xx00 0000
+    int columnCount = (param & 0x3F);     // 00xx xxxx
     // sixth byte
-    serviceBlockPacket.skipBits(2); // null padding
-    int windowStyle = serviceBlockPacket.readBits(3);
-    int penStyle = serviceBlockPacket.readBits(3);
+    param = serviceInputBufferQ.read();
+    // skip 2 bits null padding             // xx00 0000
+    int windowStyle = (param & 0x38) >> 3;  // 00xx x000
+    int penStyle = (param & 0x07);          // 0000 0xxx
 
     cueBuilder.defineWindow(visible, rowLock, columnLock, priority, relativePositioning,
         verticalAnchor, horizontalAnchor, rowCount, columnCount, anchorId, windowStyle, penStyle);
@@ -741,35 +1073,22 @@ public final class Cea708Decoder extends CeaDecoder {
   private List<Cue> getDisplayCues() {
     List<Cea708Cue> displayCues = new ArrayList<>();
     for (int i = 0; i < NUM_WINDOWS; i++) {
-      if (!cueBuilders[i].isEmpty() && cueBuilders[i].isVisible()) {
+      // we need to render empty window, so allow empty captions.
+      if (cueBuilders[i].isVisible()) {
         displayCues.add(cueBuilders[i].build());
       }
     }
     Collections.sort(displayCues);
-    return Collections.unmodifiableList(displayCues);
+    return Collections.<Cue>unmodifiableList(displayCues);
   }
 
   private void resetCueBuilders() {
     for (int i = 0; i < NUM_WINDOWS; i++) {
       cueBuilders[i].reset();
     }
-  }
-
-  private static final class DtvCcPacket {
-
-    public final int sequenceNumber;
-    public final int packetSize;
-    public final byte[] packetData;
-
-    int currentIndex;
-
-    public DtvCcPacket(int sequenceNumber, int packetSize) {
-      this.sequenceNumber = sequenceNumber;
-      this.packetSize = packetSize;
-      packetData = new byte[2 * packetSize - 1];
-      currentIndex = 0;
-    }
-
+    delayUs = 0;
+    //serviceInputBufLen = 0;
+    serviceInputBufferQ.reset();
   }
 
   // TODO: There is a lot of overlap between Cea708Decoder.CueBuilder and Cea608Decoder.CueBuilder
@@ -913,7 +1232,9 @@ public final class Cea708Decoder extends CeaDecoder {
       foregroundColor = COLOR_SOLID_WHITE;
       backgroundColor = COLOR_SOLID_BLACK;
     }
-
+    public void hcr() {
+      captionStringBuilder.clear();
+    }
     public void clear() {
       rolledUpCaptions.clear();
       captionStringBuilder.clear();
@@ -1133,11 +1454,6 @@ public final class Cea708Decoder extends CeaDecoder {
     }
 
     public Cea708Cue build() {
-      if (isEmpty()) {
-        // The cue is empty.
-        return null;
-      }
-
       SpannableStringBuilder cueString = new SpannableStringBuilder();
 
       // Add any rolled up captions, separated by new lines.
@@ -1172,13 +1488,19 @@ public final class Cea708Decoder extends CeaDecoder {
       if (relativePositioning) {
         position = (float) horizontalAnchor / RELATIVE_CUE_SIZE;
         line = (float) verticalAnchor / RELATIVE_CUE_SIZE;
+        position = (position * 0.8f) + 0.1f;
+        line = (line * 0.8f) + 0.1f;
       } else {
-        position = (float) horizontalAnchor / HORIZONTAL_SIZE;
-        line = (float) verticalAnchor / VERTICAL_SIZE;
+        //position = (float) horizontalAnchor / HORIZONTAL_SIZE;
+        //line = (float) verticalAnchor / VERTICAL_SIZE;
+
+        //Use the same calculation formula of position with SDK 4
+        position = getXPercent(horizontalAnchor);
+        line =  getYPercent(verticalAnchor);
       }
       // Apply screen-edge padding to the line and position.
-      position = (position * 0.9f) + 0.05f;
-      line = (line * 0.9f) + 0.05f;
+      //position = (position * 0.9f) + 0.05f;
+      //line = (line * 0.9f) + 0.05f;
 
       // anchorId specifies where the anchor should be placed on the caption cue/window. The 9
       // possible configurations are as follows:
@@ -1210,6 +1532,18 @@ public final class Cea708Decoder extends CeaDecoder {
       return new Cea708Cue(cueString, alignment, line, Cue.LINE_TYPE_FRACTION, verticalAnchorType,
           position, horizontalAnchorType, Cue.DIMEN_UNSET, windowColorSet, windowFillColor,
           priority);
+    }
+
+    private static float getXPercent(int x){
+      final float CC708_COLS_SAFE_AREA = 300.0f;
+      final float CC708_COLS_SAFE_AREA_BASE = 45.0f;
+      return (x+CC708_COLS_SAFE_AREA_BASE)/CC708_COLS_SAFE_AREA;
+    }
+
+    private static float getYPercent(int y){
+      final float CC708_ROWS_SAFE_AREA = 93.75f;
+      final float CC708_ROWS_SAFE_AREA_BASE = 9.375f;
+      return (y+CC708_ROWS_SAFE_AREA_BASE)/CC708_ROWS_SAFE_AREA;
     }
 
     public static int getArgbColorFromCeaColor(int red, int green, int blue) {

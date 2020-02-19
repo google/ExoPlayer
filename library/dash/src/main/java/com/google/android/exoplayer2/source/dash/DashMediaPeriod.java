@@ -472,13 +472,15 @@ import java.util.regex.Pattern;
     int primaryGroupCount = groupedAdaptationSetIndices.length;
     boolean[] primaryGroupHasEventMessageTrackFlags = new boolean[primaryGroupCount];
     Format[][] primaryGroupCea608TrackFormats = new Format[primaryGroupCount][];
+    Format[][] primaryGroupCea708TrackFormats = new Format[primaryGroupCount][];
     int totalEmbeddedTrackGroupCount =
         identifyEmbeddedTracks(
             primaryGroupCount,
             adaptationSets,
             groupedAdaptationSetIndices,
             primaryGroupHasEventMessageTrackFlags,
-            primaryGroupCea608TrackFormats);
+            primaryGroupCea608TrackFormats,
+            primaryGroupCea708TrackFormats);
 
     int totalGroupCount = primaryGroupCount + totalEmbeddedTrackGroupCount + eventStreams.size();
     TrackGroup[] trackGroups = new TrackGroup[totalGroupCount];
@@ -491,6 +493,7 @@ import java.util.regex.Pattern;
             primaryGroupCount,
             primaryGroupHasEventMessageTrackFlags,
             primaryGroupCea608TrackFormats,
+            primaryGroupCea708TrackFormats,
             trackGroups,
             trackGroupInfos);
 
@@ -557,6 +560,9 @@ import java.util.regex.Pattern;
    *     whether each of the primary track groups contains an embedded event message track.
    * @param primaryGroupCea608TrackFormats An output array to be filled with track formats for
    *     CEA-608 tracks embedded in each of the primary track groups.
+   * @param primaryGroupCea608TrackFormats An output array to be filled with track formats for
+   *     CEA-708 tracks embedded in each of the primary track groups.
+   *
    * @return Total number of embedded track groups.
    */
   private static int identifyEmbeddedTracks(
@@ -564,7 +570,8 @@ import java.util.regex.Pattern;
       List<AdaptationSet> adaptationSets,
       int[][] groupedAdaptationSetIndices,
       boolean[] primaryGroupHasEventMessageTrackFlags,
-      Format[][] primaryGroupCea608TrackFormats) {
+      Format[][] primaryGroupCea608TrackFormats,
+      Format[][] primaryGroupCea708TrackFormats) {
     int numEmbeddedTrackGroups = 0;
     for (int i = 0; i < primaryGroupCount; i++) {
       if (hasEventMessageTrack(adaptationSets, groupedAdaptationSetIndices[i])) {
@@ -574,6 +581,11 @@ import java.util.regex.Pattern;
       primaryGroupCea608TrackFormats[i] =
           getCea608TrackFormats(adaptationSets, groupedAdaptationSetIndices[i]);
       if (primaryGroupCea608TrackFormats[i].length != 0) {
+        numEmbeddedTrackGroups++;
+      }
+      primaryGroupCea708TrackFormats[i] =
+          DashCEA708TracksUtil.getCea708TrackFormats(adaptationSets, groupedAdaptationSetIndices[i]);
+      if (primaryGroupCea708TrackFormats[i].length != 0) {
         numEmbeddedTrackGroups++;
       }
     }
@@ -586,6 +598,7 @@ import java.util.regex.Pattern;
       int primaryGroupCount,
       boolean[] primaryGroupHasEventMessageTrackFlags,
       Format[][] primaryGroupCea608TrackFormats,
+      Format[][] primaryGroupCea708TrackFormats,
       TrackGroup[] trackGroups,
       TrackGroupInfo[] trackGroupInfos) {
     int trackGroupCount = 0;
@@ -607,6 +620,10 @@ import java.util.regex.Pattern;
       int cea608TrackGroupIndex =
           primaryGroupCea608TrackFormats[i].length != 0 ? trackGroupCount++ : C.INDEX_UNSET;
 
+      //Added by Fred.
+      int cea708TrackGroupIndex =
+          primaryGroupCea708TrackFormats[i].length != 0 ? trackGroupCount++ : C.INDEX_UNSET;
+
       trackGroups[primaryTrackGroupIndex] = new TrackGroup(formats);
       trackGroupInfos[primaryTrackGroupIndex] =
           TrackGroupInfo.primaryTrack(
@@ -614,7 +631,8 @@ import java.util.regex.Pattern;
               adaptationSetIndices,
               primaryTrackGroupIndex,
               eventMessageTrackGroupIndex,
-              cea608TrackGroupIndex);
+              cea608TrackGroupIndex,
+              cea708TrackGroupIndex);
       if (eventMessageTrackGroupIndex != C.INDEX_UNSET) {
         Format format = Format.createSampleFormat(firstAdaptationSet.id + ":emsg",
             MimeTypes.APPLICATION_EMSG, null, Format.NO_VALUE, null);
@@ -626,6 +644,12 @@ import java.util.regex.Pattern;
         trackGroups[cea608TrackGroupIndex] = new TrackGroup(primaryGroupCea608TrackFormats[i]);
         trackGroupInfos[cea608TrackGroupIndex] =
             TrackGroupInfo.embeddedCea608Track(adaptationSetIndices, primaryTrackGroupIndex);
+      }
+      //Add by fred.
+      if (cea708TrackGroupIndex != C.INDEX_UNSET) {
+        trackGroups[cea708TrackGroupIndex] = new TrackGroup(primaryGroupCea708TrackFormats[i]);
+        trackGroupInfos[cea708TrackGroupIndex] =
+            TrackGroupInfo.embeddedCea708Track(adaptationSetIndices, primaryTrackGroupIndex);
       }
     }
     return trackGroupCount;
@@ -832,13 +856,15 @@ import java.util.regex.Pattern;
     public final int primaryTrackGroupIndex;
     public final int embeddedEventMessageTrackGroupIndex;
     public final int embeddedCea608TrackGroupIndex;
-
+    //To support CC708 track group,added by Fred.
+    public final int embeddedCea708TrackGroupIndex;
     public static TrackGroupInfo primaryTrack(
         int trackType,
         int[] adaptationSetIndices,
         int primaryTrackGroupIndex,
         int embeddedEventMessageTrackGroupIndex,
-        int embeddedCea608TrackGroupIndex) {
+        int embeddedCea608TrackGroupIndex,
+        int embeddedCea708TrackGroupIndex) {
       return new TrackGroupInfo(
           trackType,
           CATEGORY_PRIMARY,
@@ -846,6 +872,7 @@ import java.util.regex.Pattern;
           primaryTrackGroupIndex,
           embeddedEventMessageTrackGroupIndex,
           embeddedCea608TrackGroupIndex,
+          embeddedCea708TrackGroupIndex,
           /* eventStreamGroupIndex= */ -1);
     }
 
@@ -898,6 +925,39 @@ import java.util.regex.Pattern;
       this.primaryTrackGroupIndex = primaryTrackGroupIndex;
       this.embeddedEventMessageTrackGroupIndex = embeddedEventMessageTrackGroupIndex;
       this.embeddedCea608TrackGroupIndex = embeddedCea608TrackGroupIndex;
+      this.eventStreamGroupIndex = eventStreamGroupIndex;
+      this.embeddedCea708TrackGroupIndex = C.INDEX_UNSET;
+    }
+
+    //To support CC708 track group,added by Fred.
+    public static TrackGroupInfo embeddedCea708Track(int[] adaptationSetIndices,
+                                                     int primaryTrackGroupIndex) {
+      return new TrackGroupInfo(
+          C.TRACK_TYPE_TEXT,
+          CATEGORY_EMBEDDED,
+          adaptationSetIndices,
+          primaryTrackGroupIndex,
+          C.INDEX_UNSET,
+          C.INDEX_UNSET,
+          /* eventStreamGroupIndex= */ -1);
+    }
+
+    private TrackGroupInfo(
+        int trackType,
+        @TrackGroupCategory int trackGroupCategory,
+        int[] adaptationSetIndices,
+        int primaryTrackGroupIndex,
+        int embeddedEventMessageTrackGroupIndex,
+        int embeddedCea608TrackGroupIndex,
+        int embeddedCea708TrackGroupIndex,
+        int eventStreamGroupIndex) {
+      this.trackType = trackType;
+      this.adaptationSetIndices = adaptationSetIndices;
+      this.trackGroupCategory = trackGroupCategory;
+      this.primaryTrackGroupIndex = primaryTrackGroupIndex;
+      this.embeddedEventMessageTrackGroupIndex = embeddedEventMessageTrackGroupIndex;
+      this.embeddedCea608TrackGroupIndex = embeddedCea608TrackGroupIndex;
+      this.embeddedCea708TrackGroupIndex = embeddedCea708TrackGroupIndex;
       this.eventStreamGroupIndex = eventStreamGroupIndex;
     }
   }

@@ -40,6 +40,8 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import nagra.otv.sdk.hls.PRMAes128DataSource;
+
 /**
  * An HLS {@link MediaChunk}.
  */
@@ -82,7 +84,9 @@ import java.util.concurrent.atomic.AtomicInteger;
       TimestampAdjusterProvider timestampAdjusterProvider,
       @Nullable HlsMediaChunk previousChunk,
       @Nullable byte[] mediaSegmentKey,
-      @Nullable byte[] initSegmentKey) {
+      @Nullable byte[] initSegmentKey,
+      @Nullable Uri mediaSegmentKeyUri,
+      @Nullable Uri initSegmentKeyUri) {
     // Media segment.
     HlsMediaPlaylist.Segment mediaSegment = mediaPlaylist.segments.get(segmentIndexInPlaylist);
     DataSpec dataSpec =
@@ -94,7 +98,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;
     byte[] mediaSegmentIv =
         mediaSegmentEncrypted ? getEncryptionIvArray(mediaSegment.encryptionIV) : null;
-    DataSource mediaDataSource = buildDataSource(dataSource, mediaSegmentKey, mediaSegmentIv);
+    DataSource mediaDataSource = buildPRMDataSource(dataSource, dataSpec, mediaSegmentKey, mediaSegmentIv, mediaSegmentKeyUri);
 
     // Init segment.
     HlsMediaPlaylist.Segment initSegment = mediaSegment.initializationSegment;
@@ -112,7 +116,7 @@ import java.util.concurrent.atomic.AtomicInteger;
               initSegment.byterangeOffset,
               initSegment.byterangeLength,
               /* key= */ null);
-      initDataSource = buildDataSource(dataSource, initSegmentKey, initSegmentIv);
+      initDataSource = buildPRMDataSource(dataSource, dataSpec, initSegmentKey, initSegmentIv, initSegmentKeyUri);
     }
 
     long segmentStartTimeInPeriodUs = startOfPlaylistInPeriodUs + mediaSegment.relativeStartTimeUs;
@@ -131,8 +135,8 @@ import java.util.concurrent.atomic.AtomicInteger;
           !playlistUrl.equals(previousChunk.playlistUrl) || !previousChunk.loadCompleted;
       previousExtractor =
           previousChunk.isExtractorReusable
-                  && previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
-                  && !shouldSpliceIn
+              && previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
+              && !shouldSpliceIn
               ? previousChunk.extractor
               : null;
     } else {
@@ -485,11 +489,18 @@ import java.util.concurrent.atomic.AtomicInteger;
    * in order to decrypt the loaded data. Else returns the original.
    */
   private static DataSource buildDataSource(DataSource dataSource, byte[] fullSegmentEncryptionKey,
-      byte[] encryptionIv) {
+                                            byte[] encryptionIv) {
     if (fullSegmentEncryptionKey != null) {
       return new Aes128DataSource(dataSource, fullSegmentEncryptionKey, encryptionIv);
     }
     return dataSource;
   }
 
+  private static DataSource buildPRMDataSource(DataSource dataSource, DataSpec dataSpec,
+                                               byte[] fullSegmentEncryptionKey, byte[] encryptionIv, Uri encryptionKeyUri) {
+    if (fullSegmentEncryptionKey != null) {
+      return new PRMAes128DataSource(dataSource, dataSpec, encryptionKeyUri, encryptionIv);
+    }
+    return dataSource;
+  }
 }
