@@ -616,5 +616,30 @@
         "subtitle_language": "en"
       }
     ]
+  },
+  {
+    "name": "60fps",
+    "samples": [
+      {
+        "name": "Big Buck Bunny (DASH,H264,1080p,Clear)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-1080/manifest.mpd"
+      },
+      {
+        "name": "Big Buck Bunny (DASH,H264,4K,Clear)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-2160/manifest.mpd"
+      },
+      {
+        "name": "Big Buck Bunny (DASH,H264,1080p,Widevine)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-1080/manifest.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "Big Buck Bunny (DASH,H264,4K,Widevine)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-2160/manifest.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      }
+    ]
   }
 ]
