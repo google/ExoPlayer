@@ -2002,6 +2002,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           playingPeriodHolder.sampleStreams[rendererIndex],
           rendererPositionUs,
           joining,
+          /* mayRenderStartOfStream= */ true,
           playingPeriodHolder.getRendererOffset());
       mediaClock.onRendererEnabled(renderer);
       // Start the renderer if playing.

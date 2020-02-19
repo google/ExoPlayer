@@ -241,8 +241,8 @@ public final class AnalyticsCollectorTest {
             period0 /* audio */, period0 /* video */, period1 /* audio */, period1 /* video */);
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period1);
-    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0, period1);
+    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0, period1);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET)).containsExactly(period1);
     listener.assertNoMoreEvents();
   }
@@ -444,8 +444,10 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period1Seq2);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES))
         .containsExactly(period0, period1Seq2, period1Seq2);
-    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0, period0);
-    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0, period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
+        .containsExactly(period0, period1Seq1, period0, period1Seq2);
+    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
+        .containsExactly(period0, period1Seq1, period0, period1Seq2);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
         .containsExactly(period0, period1Seq2, period1Seq2);
     listener.assertNoMoreEvents();
@@ -672,9 +674,9 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(window0Period1Seq0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(window0Period1Seq0);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(window0Period1Seq0, period1Seq0);
+        .containsExactly(window0Period1Seq0, window1Period0Seq1, period1Seq0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
-        .containsExactly(window0Period1Seq0, period1Seq0);
+        .containsExactly(window0Period1Seq0, window1Period0Seq1, period1Seq0);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
         .containsExactly(window0Period1Seq0);
     listener.assertNoMoreEvents();
@@ -964,8 +966,22 @@ public final class AnalyticsCollectorTest {
             contentAfterPostroll);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES))
         .containsExactly(contentAfterPreroll, contentAfterMidroll, contentAfterPostroll);
-    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(prerollAd);
-    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(prerollAd);
+    assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
+        .containsExactly(
+            prerollAd,
+            contentAfterPreroll,
+            midrollAd,
+            contentAfterMidroll,
+            postrollAd,
+            contentAfterPostroll);
+    assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
+        .containsExactly(
+            prerollAd,
+            contentAfterPreroll,
+            midrollAd,
+            contentAfterMidroll,
+            postrollAd,
+            contentAfterPostroll);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
         .containsExactly(contentAfterPreroll, contentAfterMidroll, contentAfterPostroll);
     listener.assertNoMoreEvents();
@@ -1082,9 +1098,9 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(contentBeforeMidroll);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(contentBeforeMidroll, midrollAd);
+        .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
-        .containsExactly(contentBeforeMidroll, midrollAd);
+        .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
         .containsExactly(contentAfterMidroll);
     listener.assertNoMoreEvents();
@@ -1194,7 +1210,10 @@ public final class AnalyticsCollectorTest {
     private final VideoRendererEventListener.EventDispatcher eventDispatcher;
     private final DecoderCounters decoderCounters;
     private Format format;
-    private boolean renderedFirstFrame;
+    private long streamOffsetUs;
+    private boolean renderedFirstFrameAfterReset;
+    private boolean mayRenderFirstFrameAfterStreamChangeIfNotStarted;
+    private boolean renderedFirstFrameAfterStreamChange;
 
     public FakeVideoRenderer(Handler handler, VideoRendererEventListener eventListener) {
       super(ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
@@ -1203,10 +1222,23 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    protected void onEnabled(boolean joining) throws ExoPlaybackException {
-      super.onEnabled(joining);
+    protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+        throws ExoPlaybackException {
+      super.onEnabled(joining, mayRenderStartOfStream);
       eventDispatcher.enabled(decoderCounters);
-      renderedFirstFrame = false;
+      mayRenderFirstFrameAfterStreamChangeIfNotStarted = mayRenderStartOfStream;
+      renderedFirstFrameAfterStreamChange = false;
+    }
+
+    @Override
+    protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+      super.onStreamChanged(formats, offsetUs);
+      streamOffsetUs = offsetUs;
+      if (renderedFirstFrameAfterReset) {
+        renderedFirstFrameAfterReset = false;
+        renderedFirstFrameAfterStreamChange = false;
+        mayRenderFirstFrameAfterStreamChangeIfNotStarted = false;
+      }
     }
 
     @Override
@@ -1226,7 +1258,7 @@ public final class AnalyticsCollectorTest {
     @Override
     protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
       super.onPositionReset(positionUs, joining);
-      renderedFirstFrame = false;
+      renderedFirstFrameAfterReset = false;
     }
 
     @Override
@@ -1242,11 +1274,18 @@ public final class AnalyticsCollectorTest {
     @Override
     protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
       boolean shouldProcess = super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
-      if (shouldProcess && !renderedFirstFrame) {
+      boolean shouldRenderFirstFrame =
+          !renderedFirstFrameAfterStreamChange
+              ? (getState() == Renderer.STATE_STARTED
+                  || mayRenderFirstFrameAfterStreamChangeIfNotStarted)
+              : !renderedFirstFrameAfterReset;
+      shouldProcess |= shouldRenderFirstFrame && playbackPositionUs >= streamOffsetUs;
+      if (shouldProcess && !renderedFirstFrameAfterReset) {
         eventDispatcher.videoSizeChanged(
             format.width, format.height, format.rotationDegrees, format.pixelWidthHeightRatio);
         eventDispatcher.renderedFirstFrame(/* surface= */ null);
-        renderedFirstFrame = true;
+        renderedFirstFrameAfterReset = true;
+        renderedFirstFrameAfterStreamChange = true;
       }
       return shouldProcess;
     }
@@ -1265,8 +1304,9 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    protected void onEnabled(boolean joining) throws ExoPlaybackException {
-      super.onEnabled(joining);
+    protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+        throws ExoPlaybackException {
+      super.onEnabled(joining, mayRenderStartOfStream);
       eventDispatcher.enabled(decoderCounters);
       notifiedAudioSessionId = false;
     }
