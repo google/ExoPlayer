@@ -92,7 +92,9 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   @ReinitializationState private int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
 
-  private boolean renderedFirstFrame;
+  private boolean renderedFirstFrameAfterReset;
+  private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
+  private boolean renderedFirstFrameAfterEnable;
   private long initialPositionUs;
   private long joiningDeadlineMs;
   private boolean waitingForKeys;
@@ -195,7 +197,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     }
     if (inputFormat != null
         && (isSourceReady() || outputBuffer != null)
-        && (renderedFirstFrame || !hasOutput())) {
+        && (renderedFirstFrameAfterReset || !hasOutput())) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = C.TIME_UNSET;
       return true;
@@ -215,9 +217,12 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   // Protected methods.
 
   @Override
-  protected void onEnabled(boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+      throws ExoPlaybackException {
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
+    mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
+    renderedFirstFrameAfterEnable = false;
   }
 
   @Override
@@ -267,6 +272,9 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
 
   @Override
   protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+    // TODO: This shouldn't just update the output stream offset as long as there are still buffers
+    // of the previous stream in the decoder. It should also make sure to render the first frame of
+    // the next stream if the playback position reached the new stream and the renderer is started.
     outputStreamOffsetUs = offsetUs;
     super.onStreamChanged(formats, offsetUs);
   }
@@ -787,10 +795,15 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
     }
 
     long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
+    long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderTimeUs;
     boolean isStarted = getState() == STATE_STARTED;
-    if (!renderedFirstFrame
-        || (isStarted
-            && shouldForceRenderOutputBuffer(earlyUs, elapsedRealtimeNowUs - lastRenderTimeUs))) {
+    boolean shouldRenderFirstFrame =
+        !renderedFirstFrameAfterEnable
+            ? (isStarted || mayRenderFirstFrameAfterEnableIfNotStarted)
+            : !renderedFirstFrameAfterReset;
+    // TODO: We shouldn't force render while we are joining an ongoing playback.
+    if (shouldRenderFirstFrame
+        || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs))) {
       renderOutputBuffer(outputBuffer, presentationTimeUs, outputFormat);
       return true;
     }
@@ -799,6 +812,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       return false;
     }
 
+    // TODO: Treat dropped buffers as skipped while we are joining an ongoing playback.
     if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs)
         && maybeDropBuffersToKeyframe(positionUs)) {
       return false;
@@ -862,18 +876,19 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   }
 
   private void clearRenderedFirstFrame() {
-    renderedFirstFrame = false;
+    renderedFirstFrameAfterReset = false;
   }
 
   private void maybeNotifyRenderedFirstFrame() {
-    if (!renderedFirstFrame) {
-      renderedFirstFrame = true;
+    renderedFirstFrameAfterEnable = true;
+    if (!renderedFirstFrameAfterReset) {
+      renderedFirstFrameAfterReset = true;
       eventDispatcher.renderedFirstFrame(surface);
     }
   }
 
   private void maybeRenotifyRenderedFirstFrame() {
-    if (renderedFirstFrame) {
+    if (renderedFirstFrameAfterReset) {
       eventDispatcher.renderedFirstFrame(surface);
     }
   }

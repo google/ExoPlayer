@@ -222,21 +222,30 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Enables the renderer to consume from the specified {@link SampleStream}.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_DISABLED}.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_DISABLED}.
    *
    * @param configuration The renderer configuration.
    * @param formats The enabled formats.
    * @param stream The {@link SampleStream} from which the renderer should consume.
    * @param positionUs The player's current position.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
-   * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream}
-   *     before they are rendered.
+   * @param mayRenderStartOfStream Whether this renderer is allowed to render the start of the
+   *     stream even if the state is not {@link #STATE_STARTED} yet.
+   * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
+   *     they are rendered.
    * @throws ExoPlaybackException If an error occurs.
    */
-  void enable(RendererConfiguration configuration, Format[] formats, SampleStream stream,
-      long positionUs, boolean joining, long offsetUs) throws ExoPlaybackException;
+  void enable(
+      RendererConfiguration configuration,
+      Format[] formats,
+      SampleStream stream,
+      long positionUs,
+      boolean joining,
+      boolean mayRenderStartOfStream,
+      long offsetUs)
+      throws ExoPlaybackException;
 
   /**
    * Starts the renderer, meaning that calls to {@link #render(long, long)} will cause media to be
@@ -341,21 +350,32 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Incrementally renders the {@link SampleStream}.
-   * <p>
-   * If the renderer is in the {@link #STATE_ENABLED} state then each call to this method will do
-   * work toward being ready to render the {@link SampleStream} when the renderer is started. It may
-   * also render the very start of the media, for example the first frame of a video stream. If the
+   *
+   * <p>If the renderer is in the {@link #STATE_ENABLED} state then each call to this method will do
+   * work toward being ready to render the {@link SampleStream} when the renderer is started. If the
    * renderer is in the {@link #STATE_STARTED} state then calls to this method will render the
    * {@link SampleStream} in sync with the specified media positions.
-   * <p>
-   * This method should return quickly, and should not block if the renderer is unable to make
-   * useful progress.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
-   * @param positionUs The current media time in microseconds, measured at the start of the
-   *     current iteration of the rendering loop.
+   * <p>The renderer may also render the very start of the media at the current position (e.g. the
+   * first frame of a video stream) while still in the {@link #STATE_ENABLED} state. It's not
+   * allowed to do that in the following two cases:
+   *
+   * <ol>
+   *   <li>The initial start of the media after calling {@link #enable(RendererConfiguration,
+   *       Format[], SampleStream, long, boolean, boolean, long)} with {@code
+   *       mayRenderStartOfStream} set to {@code false}.
+   *   <li>The start of a new stream after calling {@link #replaceStream(Format[], SampleStream,
+   *       long)}.
+   * </ol>
+   *
+   * <p>This method should return quickly, and should not block if the renderer is unable to make
+   * useful progress.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * @param positionUs The current media time in microseconds, measured at the start of the current
+   *     iteration of the rendering loop.
    * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
    *     measured at the start of the current iteration of the rendering loop.
    * @throws ExoPlaybackException If an error occurs.

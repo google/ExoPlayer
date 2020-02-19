@@ -97,9 +97,10 @@ public class SimpleDecoderAudioRendererTest {
         RendererConfiguration.DEFAULT,
         new Format[] {FORMAT},
         new FakeSampleStream(FORMAT, /* eventDispatcher= */ null, /* shouldOutputSample= */ false),
-        0,
-        false,
-        0);
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* offsetUs= */ 0);
     audioRenderer.setCurrentStreamFinal();
     when(mockAudioSink.isEnded()).thenReturn(true);
     while (!audioRenderer.isEnded()) {

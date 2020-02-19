@@ -5606,7 +5606,8 @@ public final class ExoPlayerTest {
     FakeRenderer audioRenderer =
         new FakeRenderer(Builder.AUDIO_FORMAT) {
           @Override
-          protected void onEnabled(boolean joining) throws ExoPlaybackException {
+          protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+              throws ExoPlaybackException {
             // Fail when enabling the renderer. This will happen during the period transition.
             throw createRendererException(new IllegalStateException(), Builder.AUDIO_FORMAT);
           }
@@ -5672,7 +5673,8 @@ public final class ExoPlayerTest {
     FakeRenderer audioRenderer =
         new FakeRenderer(Builder.AUDIO_FORMAT) {
           @Override
-          protected void onEnabled(boolean joining) throws ExoPlaybackException {
+          protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+              throws ExoPlaybackException {
             // Fail when enabling the renderer. This will happen during the playlist update.
             throw createRendererException(new IllegalStateException(), Builder.AUDIO_FORMAT);
           }

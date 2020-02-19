@@ -82,13 +82,19 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void enable(RendererConfiguration configuration, Format[] formats,
-      SampleStream stream, long positionUs, boolean joining, long offsetUs)
+  public final void enable(
+      RendererConfiguration configuration,
+      Format[] formats,
+      SampleStream stream,
+      long positionUs,
+      boolean joining,
+      boolean mayRenderStartOfStream,
+      long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
-    onEnabled(joining);
+    onEnabled(joining, mayRenderStartOfStream);
     replaceStream(formats, stream, offsetUs);
     onPositionReset(positionUs, joining);
   }
@@ -193,27 +199,30 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Called when the renderer is enabled.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
+   * @param mayRenderStartOfStream Whether this renderer is allowed to render the start of the
+   *     stream even if the state is not {@link #STATE_STARTED} yet.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onEnabled(boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 
   /**
    * Called when the renderer's stream has changed. This occurs when the renderer is enabled after
-   * {@link #onEnabled(boolean)} has been called, and also when the stream has been replaced whilst
-   * the renderer is enabled or started.
-   * <p>
-   * The default implementation is a no-op.
+   * {@link #onEnabled(boolean, boolean)} has been called, and also when the stream has been
+   * replaced whilst the renderer is enabled or started.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param formats The enabled formats.
-   * @param offsetUs The offset that will be added to the timestamps of buffers read via
-   *     {@link #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input
-   *     buffers have monotonically increasing timestamps.
+   * @param offsetUs The offset that will be added to the timestamps of buffers read via {@link
+   *     #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input buffers have
+   *     monotonically increasing timestamps.
    * @throws ExoPlaybackException If an error occurs.
    */
   protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
