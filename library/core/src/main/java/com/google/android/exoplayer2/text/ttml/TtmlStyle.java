@@ -21,6 +21,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Cue.VerticalType;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -61,6 +62,16 @@ import java.lang.annotation.RetentionPolicy;
   private static final int OFF = 0;
   private static final int ON = 1;
 
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({UNSPECIFIED, RUBY_TYPE_CONTAINER, RUBY_TYPE_BASE, RUBY_TYPE_TEXT, RUBY_TYPE_DELIMITER})
+  public @interface RubyType {}
+
+  public static final int RUBY_TYPE_CONTAINER = 1;
+  public static final int RUBY_TYPE_BASE = 2;
+  public static final int RUBY_TYPE_TEXT = 3;
+  public static final int RUBY_TYPE_DELIMITER = 4;
+
   @Nullable private String fontFamily;
   private int fontColor;
   private boolean hasFontColor;
@@ -73,6 +84,8 @@ import java.lang.annotation.RetentionPolicy;
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
   @Nullable private String id;
+  @RubyType private int rubyType;
+  @RubySpan.Position private int rubyPosition;
   @Nullable private Layout.Alignment textAlign;
   @OptionalBoolean private int textCombine;
   @Cue.VerticalType private int verticalType;
@@ -83,6 +96,8 @@ import java.lang.annotation.RetentionPolicy;
     bold = UNSPECIFIED;
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
+    rubyType = UNSPECIFIED;
+    rubyPosition = RubySpan.POSITION_UNKNOWN;
     textCombine = UNSPECIFIED;
     verticalType = Cue.TYPE_UNSET;
   }
@@ -214,6 +229,9 @@ import java.lang.annotation.RetentionPolicy;
       if (underline == UNSPECIFIED) {
         underline = ancestor.underline;
       }
+      if (rubyPosition == RubySpan.POSITION_UNKNOWN) {
+        rubyPosition = ancestor.rubyPosition;
+      }
       if (textAlign == null && ancestor.textAlign != null) {
         textAlign = ancestor.textAlign;
       }
@@ -228,8 +246,11 @@ import java.lang.annotation.RetentionPolicy;
       if (chaining && !hasBackgroundColor && ancestor.hasBackgroundColor) {
         setBackgroundColor(ancestor.backgroundColor);
       }
-      if (chaining && verticalType == Cue.TYPE_UNSET) {
-        verticalType = ancestor.verticalType;
+      if (chaining && rubyType == UNSPECIFIED && ancestor.rubyType != UNSPECIFIED) {
+        rubyType = ancestor.rubyType;
+      }
+      if (chaining && verticalType == Cue.TYPE_UNSET && ancestor.verticalType != Cue.TYPE_UNSET) {
+        setVerticalType(ancestor.verticalType);
       }
     }
     return this;
@@ -243,6 +264,26 @@ import java.lang.annotation.RetentionPolicy;
   @Nullable
   public String getId() {
     return id;
+  }
+
+  public TtmlStyle setRubyType(@RubyType int rubyType) {
+    this.rubyType = rubyType;
+    return this;
+  }
+
+  @RubyType
+  public int getRubyType() {
+    return rubyType;
+  }
+
+  public TtmlStyle setRubyPosition(@RubySpan.Position int position) {
+    this.rubyPosition = position;
+    return this;
+  }
+
+  @RubySpan.Position
+  public int getRubyPosition() {
+    return rubyPosition;
   }
 
   @Nullable
