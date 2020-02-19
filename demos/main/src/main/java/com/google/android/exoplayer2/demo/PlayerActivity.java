@@ -298,7 +298,7 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   @Override
-  public void onSaveInstanceState(Bundle outState) {
+  public void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
     updateTrackSelectorParameters();
     updateStartPosition();
@@ -628,13 +628,15 @@ public class PlayerActivity extends AppCompatActivity
                 DrmSessionManager.getDummyDrmSessionManager();
 
             @Override
+            @NonNull
             public MediaSourceFactory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
               this.drmSessionManager = drmSessionManager;
               return this;
             }
 
             @Override
-            public MediaSource createMediaSource(Uri uri) {
+            @NonNull
+            public MediaSource createMediaSource(@NonNull Uri uri) {
               return PlayerActivity.this.createLeafMediaSource(
                   uri, /* extension=*/ null, drmSessionManager);
             }
@@ -697,7 +699,7 @@ public class PlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPlayerError(ExoPlaybackException e) {
+    public void onPlayerError(@NonNull ExoPlaybackException e) {
       if (isBehindLiveWindow(e)) {
         clearStartPosition();
         initializePlayer();
@@ -709,7 +711,8 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     @SuppressWarnings("ReferenceEquality")
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    public void onTracksChanged(
+        @NonNull TrackGroupArray trackGroups, @NonNull TrackSelectionArray trackSelections) {
       updateButtonVisibility();
       if (trackGroups != lastSeenTrackGroupArray) {
         MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
@@ -731,7 +734,8 @@ public class PlayerActivity extends AppCompatActivity
   private class PlayerErrorMessageProvider implements ErrorMessageProvider<ExoPlaybackException> {
 
     @Override
-    public Pair<Integer, String> getErrorMessage(ExoPlaybackException e) {
+    @NonNull
+    public Pair<Integer, String> getErrorMessage(@NonNull ExoPlaybackException e) {
       String errorString = getString(R.string.error_generic);
       if (e.type == ExoPlaybackException.TYPE_RENDERER) {
         Exception cause = e.getRendererException();
