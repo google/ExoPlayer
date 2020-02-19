@@ -322,31 +322,18 @@ struct JniContext {
   JniStatusCode jni_status_code = kJniStatusOk;
 };
 
-// Libgav1 frame buffer callbacks return 0 on success, -1 on failure.
-
-int Libgav1OnFrameBufferSizeChanged(void* /*callback_private_data*/,
-                                    int /*bitdepth*/,
-                                    libgav1::ImageFormat /*image_format*/,
-                                    int /*width*/, int /*height*/,
-                                    int /*left_border*/, int /*right_border*/,
-                                    int /*top_border*/, int /*bottom_border*/,
-                                    int /*stride_alignment*/) {
-  // The libgav1 decoder calls this callback to provide information on the
-  // subsequent frames in the video. JniBufferManager ignores this information.
-  return 0;
-}
-
-int Libgav1GetFrameBuffer(void* callback_private_data, int bitdepth,
-                          libgav1::ImageFormat image_format, int width,
-                          int height, int left_border, int right_border,
-                          int top_border, int bottom_border,
-                          int stride_alignment,
-                          libgav1::FrameBuffer2* frame_buffer) {
+Libgav1StatusCode Libgav1GetFrameBuffer(void* callback_private_data,
+                                        int bitdepth,
+                                        libgav1::ImageFormat image_format,
+                                        int width, int height, int left_border,
+                                        int right_border, int top_border,
+                                        int bottom_border, int stride_alignment,
+                                        libgav1::FrameBuffer* frame_buffer) {
   libgav1::FrameBufferInfo info;
   Libgav1StatusCode status = libgav1::ComputeFrameBufferInfo(
       bitdepth, image_format, width, height, left_border, right_border,
       top_border, bottom_border, stride_alignment, &info);
-  if (status != kLibgav1StatusOk) return -1;
+  if (status != kLibgav1StatusOk) return status;
 
   JniContext* const context = static_cast<JniContext*>(callback_private_data);
   JniFrameBuffer* jni_buffer;
@@ -354,7 +341,7 @@ int Libgav1GetFrameBuffer(void* callback_private_data, int bitdepth,
       info.y_buffer_size, info.uv_buffer_size, &jni_buffer);
   if (context->jni_status_code != kJniStatusOk) {
     LOGE("%s", GetJniErrorMessage(context->jni_status_code));
-    return -1;
+    return kLibgav1StatusOutOfMemory;
   }
 
   uint8_t* const y_buffer = jni_buffer->RawBuffer(0);
@@ -363,10 +350,8 @@ int Libgav1GetFrameBuffer(void* callback_private_data, int bitdepth,
   uint8_t* const v_buffer =
       (info.uv_buffer_size != 0) ? jni_buffer->RawBuffer(2) : nullptr;
 
-  status =
-      libgav1::SetFrameBuffer(&info, y_buffer, u_buffer, v_buffer,
-                              jni_buffer->BufferPrivateData(), frame_buffer);
-  return (status == kLibgav1StatusOk) ? 0 : -1;
+  return libgav1::SetFrameBuffer(&info, y_buffer, u_buffer, v_buffer,
+                                 jni_buffer->BufferPrivateData(), frame_buffer);
 }
 
 void Libgav1ReleaseFrameBuffer(void* callback_private_data,
@@ -546,7 +531,6 @@ DECODER_FUNC(jlong, gav1Init, jint threads) {
 
   libgav1::DecoderSettings settings;
   settings.threads = threads;
-  settings.on_frame_buffer_size_changed = Libgav1OnFrameBufferSizeChanged;
   settings.get_frame_buffer = Libgav1GetFrameBuffer;
   settings.release_frame_buffer = Libgav1ReleaseFrameBuffer;
   settings.callback_private_data = context;
