@@ -1,5 +1,11 @@
 # Release notes #
 
+### 2.11.4 (not yet released) ###
+
+* Text: Catch-and-log all fatal exceptions in `TextRenderer` instead of
+  re-throwing, allowing playback to continue even if subtitles fail
+  ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
+
 ### 2.11.3 (2020-02-19) ###
 
 * SmoothStreaming: Fix regression that broke playback in 2.11.2
