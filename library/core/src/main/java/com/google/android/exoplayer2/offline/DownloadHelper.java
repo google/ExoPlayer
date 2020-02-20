@@ -1156,8 +1156,8 @@ public final class DownloadHelper {
       return C.SELECTION_REASON_UNKNOWN;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public Object getSelectionData() {
       return null;
     }
@@ -1180,8 +1180,8 @@ public final class DownloadHelper {
       return 0;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public TransferListener getTransferListener() {
       return null;
     }

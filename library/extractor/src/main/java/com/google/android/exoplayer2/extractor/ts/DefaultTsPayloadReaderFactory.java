@@ -135,8 +135,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
     return new SparseArray<>();
   }
 
-  @Nullable
   @Override
+  @Nullable
   public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo) {
     switch (streamType) {
       case TsExtractor.TS_STREAM_TYPE_MPA:

@@ -88,8 +88,8 @@ import java.nio.ByteBuffer;
     return new VideoDecoderOutputBuffer(this::releaseOutputBuffer);
   }
 
-  @Nullable
   @Override
+  @Nullable
   protected Gav1DecoderException decode(
       VideoDecoderInputBuffer inputBuffer, VideoDecoderOutputBuffer outputBuffer, boolean reset) {
     ByteBuffer inputData = Util.castNonNull(inputBuffer.data);

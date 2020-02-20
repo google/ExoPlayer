@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import android.os.ConditionVariable;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
@@ -332,7 +331,6 @@ public final class SimpleCache implements Cache {
     }
   }
 
-  @NonNull
   @Override
   public synchronized NavigableSet<CacheSpan> getCachedSpans(String key) {
     Assertions.checkState(!released);

@@ -83,8 +83,8 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     }
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Object getTag() {
     return mediaSource.getTag();
   }
@@ -196,8 +196,8 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     }
   }
 
-  @Nullable
   @Override
+  @Nullable
   protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       Void id, MediaPeriodId mediaPeriodId) {
     return mediaPeriodId.copyWithPeriodUid(getExternalPeriodUid(mediaPeriodId.periodUid));

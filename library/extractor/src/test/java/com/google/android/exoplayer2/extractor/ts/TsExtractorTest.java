@@ -138,8 +138,8 @@ public final class TsExtractorTest {
       }
     }
 
-    @Nullable
     @Override
+    @Nullable
     public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo) {
       if (provideCustomEsReader && streamType == 3) {
         esReader = new CustomEsReader(esInfo.language);

@@ -231,8 +231,8 @@ public final class MediaPeriodAsserts {
       return C.SELECTION_REASON_UNKNOWN;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public Object getSelectionData() {
       return null;
     }

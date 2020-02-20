@@ -64,8 +64,8 @@ public final class DummyExoMediaDrm<T extends ExoMediaCrypto> implements ExoMedi
     throw new IllegalStateException();
   }
 
-  @Nullable
   @Override
+  @Nullable
   public byte[] provideKeyResponse(byte[] scope, byte[] response) {
     // Should not be invoked. No session should exist.
     throw new IllegalStateException();

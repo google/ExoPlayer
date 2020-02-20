@@ -130,8 +130,8 @@ public class DownloadServiceDashTest {
                   return dashDownloadManager;
                 }
 
-                @Nullable
                 @Override
+                @Nullable
                 protected Scheduler getScheduler() {
                   return null;
                 }

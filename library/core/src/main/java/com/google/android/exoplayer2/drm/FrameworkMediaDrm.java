@@ -179,8 +179,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     return new KeyRequest(requestData, licenseServerUrl);
   }
 
-  @Nullable
   @Override
+  @Nullable
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
     if (C.CLEARKEY_UUID.equals(uuid)) {

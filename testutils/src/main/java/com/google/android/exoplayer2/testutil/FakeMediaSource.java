@@ -119,8 +119,8 @@ public class FakeMediaSource extends BaseMediaSource {
     return timeline.getWindow(0, new Timeline.Window()).tag;
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Timeline getInitialTimeline() {
     return timeline == null || timeline == Timeline.EMPTY || timeline.getWindowCount() == 1
         ? null

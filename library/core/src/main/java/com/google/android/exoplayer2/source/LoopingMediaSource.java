@@ -71,8 +71,8 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
     return maskingMediaSource.getTag();
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Timeline getInitialTimeline() {
     return loopCount != Integer.MAX_VALUE
         ? new LoopingTimeline(maskingMediaSource.getTimeline(), loopCount)

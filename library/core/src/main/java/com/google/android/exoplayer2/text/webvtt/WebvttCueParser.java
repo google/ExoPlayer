@@ -35,7 +35,6 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
@@ -866,7 +865,7 @@ public final class WebvttCueParser {
     }
 
     @Override
-    public int compareTo(@NonNull StyleMatch another) {
+    public int compareTo(StyleMatch another) {
       return this.score - another.score;
     }
 

@@ -693,8 +693,8 @@ public abstract class DownloadService extends Service {
   /**
    * Throws {@link UnsupportedOperationException} because this service is not designed to be bound.
    */
-  @Nullable
   @Override
+  @Nullable
   public final IBinder onBind(Intent intent) {
     throw new UnsupportedOperationException();
   }

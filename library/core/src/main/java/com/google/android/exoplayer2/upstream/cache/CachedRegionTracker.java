@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.util.Log;
@@ -196,7 +195,7 @@ public final class CachedRegionTracker implements Cache.Listener {
     }
 
     @Override
-    public int compareTo(@NonNull Region another) {
+    public int compareTo(Region another) {
       return Util.compareLong(startOffset, another.startOffset);
     }
 
