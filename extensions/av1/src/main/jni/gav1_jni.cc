@@ -567,7 +567,8 @@ DECODER_FUNC(jint, gav1Decode, jlong jContext, jobject encodedData,
   const uint8_t* const buffer = reinterpret_cast<const uint8_t*>(
       env->GetDirectBufferAddress(encodedData));
   context->libgav1_status_code =
-      context->decoder.EnqueueFrame(buffer, length, /*user_private_data=*/0);
+      context->decoder.EnqueueFrame(buffer, length, /*user_private_data=*/0,
+                                    /*buffer_private_data=*/nullptr);
   if (context->libgav1_status_code != kLibgav1StatusOk) {
     return kStatusError;
   }
