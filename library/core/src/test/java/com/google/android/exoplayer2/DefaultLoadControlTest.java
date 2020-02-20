@@ -44,7 +44,7 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testShouldContinueLoading_untilMaxBufferExceeded() {
+  public void shouldContinueLoading_untilMaxBufferExceeded() {
     createDefaultLoadControl();
 
     assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isTrue();
@@ -54,7 +54,7 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testShouldNotContinueLoadingOnceBufferingStopped_untilBelowMinBuffer() {
+  public void shouldNotContinueLoadingOnceBufferingStopped_untilBelowMinBuffer() {
     createDefaultLoadControl();
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
 
@@ -79,7 +79,7 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testShouldContinueLoadingWithTargetBufferBytesReached_untilMinBufferReached() {
+  public void shouldContinueLoadingWithTargetBufferBytesReached_untilMinBufferReached() {
     createDefaultLoadControl();
     makeSureTargetBufferBytesReached();
 
@@ -90,7 +90,7 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testShouldNeverContinueLoading_ifMaxBufferReachedAndNotPrioritizeTimeOverSize() {
+  public void shouldNeverContinueLoading_ifMaxBufferReachedAndNotPrioritizeTimeOverSize() {
     builder.setPrioritizeTimeOverSizeThresholds(false);
     createDefaultLoadControl();
     // Put loadControl in buffering state.
@@ -104,7 +104,7 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testShouldContinueLoadingWithMinBufferReached_inFastPlayback() {
+  public void shouldContinueLoadingWithMinBufferReached_inFastPlayback() {
     createDefaultLoadControl();
 
     // At normal playback speed, we stop buffering when the buffer reaches the minimum.
@@ -114,7 +114,7 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testShouldNotContinueLoadingWithMaxBufferReached_inFastPlayback() {
+  public void shouldNotContinueLoadingWithMaxBufferReached_inFastPlayback() {
     createDefaultLoadControl();
 
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, /* playbackSpeed= */ 100f))
@@ -122,7 +122,7 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testStartsPlayback_whenMinBufferSizeReached() {
+  public void startsPlayback_whenMinBufferSizeReached() {
     createDefaultLoadControl();
     
     assertThat(loadControl.shouldStartPlayback(MIN_BUFFER_US, SPEED, /* rebuffering= */ false))

@@ -41,7 +41,7 @@ public final class SubripDecoderTest {
   private static final String TYPICAL_WITH_TAGS = "subrip/typical_with_tags";
 
   @Test
-  public void testDecodeEmpty() throws IOException {
+  public void decodeEmpty() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_FILE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -51,7 +51,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypical() throws IOException {
+  public void decodeTypical() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_FILE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -63,7 +63,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithByteOrderMark() throws IOException {
+  public void decodeTypicalWithByteOrderMark() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(
@@ -77,7 +77,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalExtraBlankLine() throws IOException {
+  public void decodeTypicalExtraBlankLine() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(
@@ -91,7 +91,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalMissingTimecode() throws IOException {
+  public void decodeTypicalMissingTimecode() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
@@ -105,7 +105,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalMissingSequence() throws IOException {
+  public void decodeTypicalMissingSequence() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
@@ -119,7 +119,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalNegativeTimestamps() throws IOException {
+  public void decodeTypicalNegativeTimestamps() throws IOException {
     // Parsing should succeed, parsing the third cue only.
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
@@ -132,7 +132,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalUnexpectedEnd() throws IOException {
+  public void decodeTypicalUnexpectedEnd() throws IOException {
     // Parsing should succeed, parsing the first and second cues only.
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
@@ -145,7 +145,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeCueWithTag() throws IOException {
+  public void decodeCueWithTag() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_WITH_TAGS);

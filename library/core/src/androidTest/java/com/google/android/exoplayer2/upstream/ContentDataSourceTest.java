@@ -46,37 +46,37 @@ public final class ContentDataSourceTest {
   private static final String DATA_PATH = "mp3/1024_incrementing_bytes.mp3";
 
   @Test
-  public void testRead() throws Exception {
+  public void read() throws Exception {
     assertData(0, C.LENGTH_UNSET, false);
   }
 
   @Test
-  public void testReadPipeMode() throws Exception {
+  public void readPipeMode() throws Exception {
     assertData(0, C.LENGTH_UNSET, true);
   }
 
   @Test
-  public void testReadFixedLength() throws Exception {
+  public void readFixedLength() throws Exception {
     assertData(0, 100, false);
   }
 
   @Test
-  public void testReadFromOffsetToEndOfInput() throws Exception {
+  public void readFromOffsetToEndOfInput() throws Exception {
     assertData(1, C.LENGTH_UNSET, false);
   }
 
   @Test
-  public void testReadFromOffsetToEndOfInputPipeMode() throws Exception {
+  public void readFromOffsetToEndOfInputPipeMode() throws Exception {
     assertData(1, C.LENGTH_UNSET, true);
   }
 
   @Test
-  public void testReadFromOffsetFixedLength() throws Exception {
+  public void readFromOffsetFixedLength() throws Exception {
     assertData(1, 100, false);
   }
 
   @Test
-  public void testReadInvalidUri() throws Exception {
+  public void readInvalidUri() throws Exception {
     ContentDataSource dataSource =
         new ContentDataSource(InstrumentationRegistry.getTargetContext());
     Uri contentUri = TestContentProvider.buildUri("does/not.exist", false);

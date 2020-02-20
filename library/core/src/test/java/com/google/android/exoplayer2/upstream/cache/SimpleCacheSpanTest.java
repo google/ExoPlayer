@@ -53,7 +53,7 @@ public class SimpleCacheSpanTest {
   }
 
   @Test
-  public void testCacheFile() throws Exception {
+  public void cacheFile() throws Exception {
     assertCacheSpan("key1", 0, 0);
     assertCacheSpan("key2", 1, 2);
     assertCacheSpan("<>:\"/\\|?*%", 1, 2);
@@ -72,7 +72,7 @@ public class SimpleCacheSpanTest {
   }
 
   @Test
-  public void testUpgradeFileName() throws Exception {
+  public void upgradeFileName() throws Exception {
     String key = "abc%def";
     int id = index.assignIdForKey(key);
     File v3file = createTestFile(cacheDir, id + ".0.1.v3.exo");

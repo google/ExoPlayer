@@ -127,7 +127,7 @@ public final class AnalyticsCollectorTest {
   private EventWindowAndPeriodId window1Period0Seq1;
 
   @Test
-  public void testEmptyTimeline() throws Exception {
+  public void emptyTimeline() throws Exception {
     FakeMediaSource mediaSource =
         new FakeMediaSource(
             Timeline.EMPTY,
@@ -144,7 +144,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testSinglePeriod() throws Exception {
+  public void singlePeriod() throws Exception {
     FakeMediaSource mediaSource =
         new FakeMediaSource(
             SINGLE_PERIOD_TIMELINE,
@@ -187,7 +187,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testAutomaticPeriodTransition() throws Exception {
+  public void automaticPeriodTransition() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
             new FakeMediaSource(
@@ -248,7 +248,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testPeriodTransitionWithRendererChange() throws Exception {
+  public void periodTransitionWithRendererChange() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
             new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT),
@@ -303,7 +303,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testSeekToOtherPeriod() throws Exception {
+  public void seekToOtherPeriod() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
             new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT),
@@ -368,7 +368,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testSeekBackAfterReadingAhead() throws Exception {
+  public void seekBackAfterReadingAhead() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
             new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT),
@@ -454,7 +454,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testPrepareNewSource() throws Exception {
+  public void prepareNewSource() throws Exception {
     MediaSource mediaSource1 =
         new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
     MediaSource mediaSource2 =
@@ -532,7 +532,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testReprepareAfterError() throws Exception {
+  public void reprepareAfterError() throws Exception {
     MediaSource mediaSource =
         new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
@@ -603,7 +603,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testDynamicTimelineChange() throws Exception {
+  public void dynamicTimelineChange() throws Exception {
     MediaSource childMediaSource =
         new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
     final ConcatenatingMediaSource concatenatedMediaSource =
@@ -683,7 +683,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testPlaylistOperations() throws Exception {
+  public void playlistOperations() throws Exception {
     MediaSource fakeMediaSource =
         new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
@@ -755,7 +755,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testAdPlayback() throws Exception {
+  public void adPlayback() throws Exception {
     long contentDurationsUs = 10 * C.MICROS_PER_SECOND;
     AtomicReference<AdPlaybackState> adPlaybackState =
         new AtomicReference<>(
@@ -988,7 +988,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testSeekAfterMidroll() throws Exception {
+  public void seekAfterMidroll() throws Exception {
     Timeline adTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -1107,7 +1107,7 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void testNotifyExternalEvents() throws Exception {
+  public void notifyExternalEvents() throws Exception {
     MediaSource mediaSource = new FakeMediaSource(SINGLE_PERIOD_TIMELINE);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder("AnalyticsCollectorTest")

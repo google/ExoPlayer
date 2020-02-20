@@ -33,17 +33,17 @@ public final class ByteArrayDataSourceTest {
   private static final byte[] TEST_DATA_ODD = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
   @Test
-  public void testFullReadSingleBytes() {
+  public void fullReadSingleBytes() {
     readTestData(TEST_DATA, 0, C.LENGTH_UNSET, 1, 0, 1, false);
   }
 
   @Test
-  public void testFullReadAllBytes() {
+  public void fullReadAllBytes() {
     readTestData(TEST_DATA, 0, C.LENGTH_UNSET, 100, 0, 100, false);
   }
 
   @Test
-  public void testLimitReadSingleBytes() {
+  public void limitReadSingleBytes() {
     // Limit set to the length of the data.
     readTestData(TEST_DATA, 0, TEST_DATA.length, 1, 0, 1, false);
     // And less.
@@ -51,7 +51,7 @@ public final class ByteArrayDataSourceTest {
   }
 
   @Test
-  public void testFullReadTwoBytes() {
+  public void fullReadTwoBytes() {
     // Try with the total data length an exact multiple of the size of each individual read.
     readTestData(TEST_DATA, 0, C.LENGTH_UNSET, 2, 0, 2, false);
     // And not.
@@ -59,7 +59,7 @@ public final class ByteArrayDataSourceTest {
   }
 
   @Test
-  public void testLimitReadTwoBytes() {
+  public void limitReadTwoBytes() {
     // Try with the limit an exact multiple of the size of each individual read.
     readTestData(TEST_DATA, 0, 6, 2, 0, 2, false);
     // And not.
@@ -67,7 +67,7 @@ public final class ByteArrayDataSourceTest {
   }
 
   @Test
-  public void testReadFromValidOffsets() {
+  public void readFromValidOffsets() {
     // Read from an offset without bound.
     readTestData(TEST_DATA, 1, C.LENGTH_UNSET, 1, 0, 1, false);
     // And with bound.
@@ -79,7 +79,7 @@ public final class ByteArrayDataSourceTest {
   }
 
   @Test
-  public void testReadFromInvalidOffsets() {
+  public void readFromInvalidOffsets() {
     // Read from first invalid offset and check failure without bound.
     readTestData(TEST_DATA, TEST_DATA.length, C.LENGTH_UNSET, 1, 0, 1, true);
     // And with bound.
@@ -87,7 +87,7 @@ public final class ByteArrayDataSourceTest {
   }
 
   @Test
-  public void testReadWithInvalidLength() {
+  public void readWithInvalidLength() {
     // Read more data than is available.
     readTestData(TEST_DATA, 0, TEST_DATA.length + 1, 1, 0, 1, true);
     // And with bound.

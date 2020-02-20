@@ -29,12 +29,12 @@ import org.junit.runner.RunWith;
 public class TimelineTest {
 
   @Test
-  public void testEmptyTimeline() {
+  public void emptyTimeline() {
     TimelineAsserts.assertEmpty(Timeline.EMPTY);
   }
 
   @Test
-  public void testSinglePeriodTimeline() {
+  public void singlePeriodTimeline() {
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(1, 111));
     TimelineAsserts.assertWindowTags(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 1);
@@ -48,7 +48,7 @@ public class TimelineTest {
   }
 
   @Test
-  public void testMultiPeriodTimeline() {
+  public void multiPeriodTimeline() {
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(5, 111));
     TimelineAsserts.assertWindowTags(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 5);
@@ -62,7 +62,7 @@ public class TimelineTest {
   }
 
   @Test
-  public void testWindowEquals() {
+  public void windowEquals() {
     Timeline.Window window = new Timeline.Window();
     assertThat(window).isEqualTo(new Timeline.Window());
 
@@ -151,7 +151,7 @@ public class TimelineTest {
   }
 
   @Test
-  public void testWindowHashCode() {
+  public void windowHashCode() {
     Timeline.Window window = new Timeline.Window();
     Timeline.Window otherWindow = new Timeline.Window();
     assertThat(window.hashCode()).isEqualTo(otherWindow.hashCode());
@@ -163,7 +163,7 @@ public class TimelineTest {
   }
 
   @Test
-  public void testPeriodEquals() {
+  public void periodEquals() {
     Timeline.Period period = new Timeline.Period();
     assertThat(period).isEqualTo(new Timeline.Period());
 
@@ -199,7 +199,7 @@ public class TimelineTest {
   }
 
   @Test
-  public void testPeriodHashCode() {
+  public void periodHashCode() {
     Timeline.Period period = new Timeline.Period();
     Timeline.Period otherPeriod = new Timeline.Period();
     assertThat(period.hashCode()).isEqualTo(otherPeriod.hashCode());

@@ -105,7 +105,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testGenerateKey() {
+  public void generateKey() {
     assertThat(CacheUtil.generateKey(Uri.EMPTY)).isNotNull();
 
     Uri testUri = Uri.parse("test");
@@ -120,7 +120,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testDefaultCacheKeyFactory_buildCacheKey() {
+  public void defaultCacheKeyFactory_buildCacheKey() {
     Uri testUri = Uri.parse("test");
     String key = "key";
     // If DataSpec.key is present, returns it.
@@ -136,7 +136,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testGetCachedNoData() {
+  public void getCachedNoData() {
     Pair<Long, Long> contentLengthAndBytesCached =
         CacheUtil.getCached(
             new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null);
@@ -146,7 +146,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testGetCachedDataUnknownLength() {
+  public void getCachedDataUnknownLength() {
     // Mock there is 100 bytes cached at the beginning
     mockCache.spansAndGaps = new int[] {100};
     Pair<Long, Long> contentLengthAndBytesCached =
@@ -158,7 +158,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testGetCachedNoDataKnownLength() {
+  public void getCachedNoDataKnownLength() {
     mockCache.contentLength = 1000;
     Pair<Long, Long> contentLengthAndBytesCached =
         CacheUtil.getCached(
@@ -169,7 +169,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testGetCached() {
+  public void getCached() {
     mockCache.contentLength = 1000;
     mockCache.spansAndGaps = new int[] {100, 100, 200};
     Pair<Long, Long> contentLengthAndBytesCached =
@@ -181,7 +181,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testGetCachedFromNonZeroPosition() {
+  public void getCachedFromNonZeroPosition() {
     mockCache.contentLength = 1000;
     mockCache.spansAndGaps = new int[] {100, 100, 200};
     Pair<Long, Long> contentLengthAndBytesCached =
@@ -195,7 +195,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testCache() throws Exception {
+  public void cache() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
@@ -213,7 +213,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testCacheSetOffsetAndLength() throws Exception {
+  public void cacheSetOffsetAndLength() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
@@ -239,7 +239,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testCacheUnknownLength() throws Exception {
+  public void cacheUnknownLength() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().newData("test_data")
         .setSimulateUnknownLength(true)
         .appendReadData(TestUtil.buildTestData(100)).endData();
@@ -255,7 +255,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testCacheUnknownLengthPartialCaching() throws Exception {
+  public void cacheUnknownLengthPartialCaching() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().newData("test_data")
         .setSimulateUnknownLength(true)
         .appendReadData(TestUtil.buildTestData(100)).endData();
@@ -283,7 +283,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testCacheLengthExceedsActualDataLength() throws Exception {
+  public void cacheLengthExceedsActualDataLength() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
@@ -298,7 +298,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testCacheThrowEOFException() throws Exception {
+  public void cacheThrowEOFException() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
@@ -324,7 +324,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testCachePolling() throws Exception {
+  public void cachePolling() throws Exception {
     final CachingCounters counters = new CachingCounters();
     FakeDataSet fakeDataSet =
         new FakeDataSet()
@@ -350,7 +350,7 @@ public final class CacheUtilTest {
   }
 
   @Test
-  public void testRemove() throws Exception {
+  public void remove() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 

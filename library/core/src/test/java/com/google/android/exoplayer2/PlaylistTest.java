@@ -51,7 +51,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testEmptyPlaylist_expectConstantTimelineInstanceEMPTY() {
+  public void emptyPlaylist_expectConstantTimelineInstanceEMPTY() {
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 0);
     List<Playlist.MediaSourceHolder> fakeHolders = createFakeHolders();
@@ -73,7 +73,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testPrepareAndReprepareAfterRelease_expectSourcePreparationAfterPlaylistPrepare() {
+  public void prepareAndReprepareAfterRelease_expectSourcePreparationAfterPlaylistPrepare() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
     playlist.setMediaSources(
@@ -110,7 +110,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testSetMediaSources_playlistUnprepared_notUsingLazyPreparation() {
+  public void setMediaSources_playlistUnprepared_notUsingLazyPreparation() {
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 2);
     MediaSource mockMediaSource1 = mock(MediaSource.class);
@@ -152,7 +152,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testSetMediaSources_playlistPrepared_notUsingLazyPreparation() {
+  public void setMediaSources_playlistPrepared_notUsingLazyPreparation() {
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 2);
     MediaSource mockMediaSource1 = mock(MediaSource.class);
@@ -190,7 +190,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testAddMediaSources_playlistUnprepared_notUsingLazyPreparation_expectUnprepared() {
+  public void addMediaSources_playlistUnprepared_notUsingLazyPreparation_expectUnprepared() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
     List<Playlist.MediaSourceHolder> mediaSources =
@@ -224,7 +224,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testAddMediaSources_playlistPrepared_notUsingLazyPreparation_expectPrepared() {
+  public void addMediaSources_playlistPrepared_notUsingLazyPreparation_expectPrepared() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
     playlist.prepare(/* mediaTransferListener= */ null);
@@ -244,7 +244,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testMoveMediaSources() {
+  public void moveMediaSources() {
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 4);
     List<Playlist.MediaSourceHolder> holders = createFakeHolders();
@@ -283,7 +283,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testRemoveMediaSources_whenUnprepared_expectNoRelease() {
+  public void removeMediaSources_whenUnprepared_expectNoRelease() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
     MediaSource mockMediaSource3 = mock(MediaSource.class);
@@ -315,7 +315,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testRemoveMediaSources_whenPrepared_expectRelease() {
+  public void removeMediaSources_whenPrepared_expectRelease() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
     MediaSource mockMediaSource3 = mock(MediaSource.class);
@@ -346,7 +346,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testRelease_playlistUnprepared_expectSourcesNotReleased() {
+  public void release_playlistUnprepared_expectSourcesNotReleased() {
     MediaSource mockMediaSource = mock(MediaSource.class);
     Playlist.MediaSourceHolder mediaSourceHolder =
         new Playlist.MediaSourceHolder(mockMediaSource, /* useLazyPreparation= */ false);
@@ -363,7 +363,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testRelease_playlistPrepared_expectSourcesReleasedNotRemoved() {
+  public void release_playlistPrepared_expectSourcesReleasedNotRemoved() {
     MediaSource mockMediaSource = mock(MediaSource.class);
     Playlist.MediaSourceHolder mediaSourceHolder =
         new Playlist.MediaSourceHolder(mockMediaSource, /* useLazyPreparation= */ false);
@@ -381,7 +381,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testClearPlaylist_expectSourcesReleasedAndRemoved() {
+  public void clearPlaylist_expectSourcesReleasedAndRemoved() {
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 4);
     MediaSource mockMediaSource1 = mock(MediaSource.class);
@@ -401,14 +401,14 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testSetMediaSources_expectTimelineUsesCustomShuffleOrder() {
+  public void setMediaSources_expectTimelineUsesCustomShuffleOrder() {
     Timeline timeline =
         playlist.setMediaSources(createFakeHolders(), new FakeShuffleOrder(/* length=*/ 4));
     assertTimelineUsesFakeShuffleOrder(timeline);
   }
 
   @Test
-  public void testAddMediaSources_expectTimelineUsesCustomShuffleOrder() {
+  public void addMediaSources_expectTimelineUsesCustomShuffleOrder() {
     Timeline timeline =
         playlist.addMediaSources(
             /* index= */ 0, createFakeHolders(), new FakeShuffleOrder(PLAYLIST_SIZE));
@@ -416,7 +416,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testMoveMediaSources_expectTimelineUsesCustomShuffleOrder() {
+  public void moveMediaSources_expectTimelineUsesCustomShuffleOrder() {
     ShuffleOrder shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ PLAYLIST_SIZE);
     playlist.addMediaSources(/* index= */ 0, createFakeHolders(), shuffleOrder);
     Timeline timeline =
@@ -426,7 +426,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testMoveMediaSourceRange_expectTimelineUsesCustomShuffleOrder() {
+  public void moveMediaSourceRange_expectTimelineUsesCustomShuffleOrder() {
     ShuffleOrder shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ PLAYLIST_SIZE);
     playlist.addMediaSources(/* index= */ 0, createFakeHolders(), shuffleOrder);
     Timeline timeline =
@@ -439,7 +439,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testRemoveMediaSourceRange_expectTimelineUsesCustomShuffleOrder() {
+  public void removeMediaSourceRange_expectTimelineUsesCustomShuffleOrder() {
     ShuffleOrder shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ PLAYLIST_SIZE);
     playlist.addMediaSources(/* index= */ 0, createFakeHolders(), shuffleOrder);
     Timeline timeline =
@@ -449,7 +449,7 @@ public class PlaylistTest {
   }
 
   @Test
-  public void testSetShuffleOrder_expectTimelineUsesCustomShuffleOrder() {
+  public void setShuffleOrder_expectTimelineUsesCustomShuffleOrder() {
     playlist.setMediaSources(
         createFakeHolders(), new ShuffleOrder.DefaultShuffleOrder(/* length= */ PLAYLIST_SIZE));
     assertTimelineUsesFakeShuffleOrder(

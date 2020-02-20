@@ -29,7 +29,7 @@ import org.junit.runner.RunWith;
 public final class TrackGroupTest {
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     Format format1 = Format.createSampleFormat("1", MimeTypes.VIDEO_H264);
     Format format2 = Format.createSampleFormat("2", MimeTypes.AUDIO_AAC);
 

@@ -76,7 +76,7 @@ public class AesFlushingCipherTest {
 
   // Test a single encrypt and decrypt call.
   @Test
-  public void testSingle() {
+  public void single() {
     byte[] reference = TestUtil.buildTestData(DATA_LENGTH);
     byte[] data = reference.clone();
 
@@ -92,7 +92,7 @@ public class AesFlushingCipherTest {
 
   // Test several encrypt and decrypt calls, each aligned on a 16 byte block size.
   @Test
-  public void testAligned() {
+  public void aligned() {
     byte[] reference = TestUtil.buildTestData(DATA_LENGTH);
     byte[] data = reference.clone();
     Random random = new Random(RANDOM_SEED);
@@ -125,7 +125,7 @@ public class AesFlushingCipherTest {
 
   // Test several encrypt and decrypt calls, not aligned on block boundary.
   @Test
-  public void testUnAligned() {
+  public void unAligned() {
     byte[] reference = TestUtil.buildTestData(DATA_LENGTH);
     byte[] data = reference.clone();
     Random random = new Random(RANDOM_SEED);
@@ -157,7 +157,7 @@ public class AesFlushingCipherTest {
 
   // Test decryption starting from the middle of an encrypted block.
   @Test
-  public void testMidJoin() {
+  public void midJoin() {
     byte[] reference = TestUtil.buildTestData(DATA_LENGTH);
     byte[] data = reference.clone();
     Random random = new Random(RANDOM_SEED);

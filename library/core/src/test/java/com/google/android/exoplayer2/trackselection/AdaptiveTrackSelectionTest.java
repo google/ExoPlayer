@@ -63,7 +63,7 @@ public final class AdaptiveTrackSelectionTest {
 
   @Test
   @SuppressWarnings("deprecation")
-  public void testFactoryUsesInitiallyProvidedBandwidthMeter() {
+  public void factoryUsesInitiallyProvidedBandwidthMeter() {
     BandwidthMeter initialBandwidthMeter = mock(BandwidthMeter.class);
     BandwidthMeter injectedBandwidthMeter = mock(BandwidthMeter.class);
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
@@ -87,7 +87,7 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
-  public void testSelectInitialIndexUseMaxInitialBitrateIfNoBandwidthEstimate() {
+  public void selectInitialIndexUseMaxInitialBitrateIfNoBandwidthEstimate() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
@@ -101,7 +101,7 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
-  public void testSelectInitialIndexUseBandwidthEstimateIfAvailable() {
+  public void selectInitialIndexUseBandwidthEstimateIfAvailable() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
@@ -115,7 +115,7 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
-  public void testUpdateSelectedTrackDoNotSwitchUpIfNotBufferedEnough() {
+  public void updateSelectedTrackDoNotSwitchUpIfNotBufferedEnough() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
@@ -143,7 +143,7 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
-  public void testUpdateSelectedTrackSwitchUpIfBufferedEnough() {
+  public void updateSelectedTrackSwitchUpIfBufferedEnough() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
@@ -171,7 +171,7 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
-  public void testUpdateSelectedTrackDoNotSwitchDownIfBufferedEnough() {
+  public void updateSelectedTrackDoNotSwitchDownIfBufferedEnough() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
@@ -199,7 +199,7 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
-  public void testUpdateSelectedTrackSwitchDownIfNotBufferedEnough() {
+  public void updateSelectedTrackSwitchDownIfNotBufferedEnough() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
@@ -227,7 +227,7 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
-  public void testEvaluateQueueSizeReturnQueueSizeIfBandwidthIsNotImproved() {
+  public void evaluateQueueSizeReturnQueueSizeIfBandwidthIsNotImproved() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
@@ -252,7 +252,7 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
-  public void testEvaluateQueueSizeDoNotReevaluateUntilAfterMinTimeBetweenBufferReevaluation() {
+  public void evaluateQueueSizeDoNotReevaluateUntilAfterMinTimeBetweenBufferReevaluation() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);
@@ -289,7 +289,7 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
-  public void testEvaluateQueueSizeRetainMoreThanMinimumDurationAfterDiscard() {
+  public void evaluateQueueSizeRetainMoreThanMinimumDurationAfterDiscard() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
     Format format3 = videoFormat(/* bitrate= */ 2000, /* width= */ 960, /* height= */ 720);

@@ -68,7 +68,7 @@ public final class TtmlStyleTest {
           .setVerticalType(VERTICAL_TYPE);
 
   @Test
-  public void testInheritStyle() {
+  public void inheritStyle() {
     TtmlStyle style = new TtmlStyle();
     style.inherit(populatedStyle);
 
@@ -95,7 +95,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testChainStyle() {
+  public void chainStyle() {
     TtmlStyle style = new TtmlStyle();
 
     style.chain(populatedStyle);
@@ -121,7 +121,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testStyle() {
+  public void style() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.getStyle()).isEqualTo(UNSPECIFIED);
@@ -136,7 +136,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testLinethrough() {
+  public void linethrough() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.isLinethrough()).isFalse();
@@ -147,7 +147,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testUnderline() {
+  public void underline() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.isUnderline()).isFalse();
@@ -158,7 +158,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testFontFamily() {
+  public void fontFamily() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.getFontFamily()).isNull();
@@ -169,7 +169,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testFontColor() {
+  public void fontColor() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.hasFontColor()).isFalse();
@@ -179,7 +179,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testFontSize() {
+  public void fontSize() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.getFontSize()).isEqualTo(0);
@@ -188,7 +188,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testFontSizeUnit() {
+  public void fontSizeUnit() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.getFontSizeUnit()).isEqualTo(UNSPECIFIED);
@@ -197,7 +197,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testBackgroundColor() {
+  public void backgroundColor() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.hasBackgroundColor()).isFalse();
@@ -207,7 +207,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testId() {
+  public void id() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.getId()).isNull();
@@ -236,7 +236,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testTextAlign() {
+  public void textAlign() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.getTextAlign()).isNull();
@@ -247,7 +247,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testTextCombine() {
+  public void textCombine() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.getTextCombine()).isFalse();
