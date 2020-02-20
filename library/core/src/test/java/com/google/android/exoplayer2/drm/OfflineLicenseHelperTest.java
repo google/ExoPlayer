@@ -65,7 +65,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testDownloadRenewReleaseKey() throws Exception {
+  public void downloadRenewReleaseKey() throws Exception {
     setStubLicenseAndPlaybackDurationValues(1000, 200);
 
     byte[] keySetId = {2, 5, 8};
@@ -86,7 +86,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testDownloadLicenseFailsIfNullInitData() throws Exception {
+  public void downloadLicenseFailsIfNullInitData() throws Exception {
     try {
       offlineLicenseHelper.downloadLicense(null);
       fail();
@@ -96,7 +96,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testDownloadLicenseFailsIfNoKeySetIdIsReturned() throws Exception {
+  public void downloadLicenseFailsIfNoKeySetIdIsReturned() throws Exception {
     setStubLicenseAndPlaybackDurationValues(1000, 200);
 
     try {
@@ -108,7 +108,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testDownloadLicenseDoesNotFailIfDurationNotAvailable() throws Exception {
+  public void downloadLicenseDoesNotFailIfDurationNotAvailable() throws Exception {
     setDefaultStubKeySetId();
 
     byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
@@ -117,7 +117,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testGetLicenseDurationRemainingSec() throws Exception {
+  public void getLicenseDurationRemainingSec() throws Exception {
     long licenseDuration = 1000;
     int playbackDuration = 200;
     setStubLicenseAndPlaybackDurationValues(licenseDuration, playbackDuration);
@@ -133,7 +133,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testGetLicenseDurationRemainingSecExpiredLicense() throws Exception {
+  public void getLicenseDurationRemainingSecExpiredLicense() throws Exception {
     long licenseDuration = 0;
     int playbackDuration = 0;
     setStubLicenseAndPlaybackDurationValues(licenseDuration, playbackDuration);

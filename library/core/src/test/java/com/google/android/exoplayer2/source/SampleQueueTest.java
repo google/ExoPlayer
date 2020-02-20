@@ -157,7 +157,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testCapacityIncreases() {
+  public void capacityIncreases() {
     int numberOfSamplesToInput = 3 * SampleQueue.SAMPLE_CAPACITY_INCREMENT + 1;
     sampleQueue.format(FORMAT_1);
     sampleQueue.sampleData(
@@ -185,7 +185,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testResetReleasesAllocations() {
+  public void resetReleasesAllocations() {
     writeTestData();
     assertAllocationCount(10);
     sampleQueue.reset();
@@ -193,12 +193,12 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadWithoutWrite() {
+  public void readWithoutWrite() {
     assertNoSamplesToRead(null);
   }
 
   @Test
-  public void testEqualFormatsDeduplicated() {
+  public void equalFormatsDeduplicated() {
     sampleQueue.format(FORMAT_1);
     assertReadFormat(false, FORMAT_1);
     // If the same format is written then it should not cause a format change on the read side.
@@ -210,7 +210,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testMultipleFormatsDeduplicated() {
+  public void multipleFormatsDeduplicated() {
     sampleQueue.format(FORMAT_1);
     sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
     sampleQueue.sampleMetadata(0, C.BUFFER_FLAG_KEY_FRAME, ALLOCATION_SIZE, 0, null);
@@ -237,7 +237,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadSingleSamples() {
+  public void readSingleSamples() {
     sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
 
     assertAllocationCount(1);
@@ -296,7 +296,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadMultiSamples() {
+  public void readMultiSamples() {
     writeTestData();
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
     assertAllocationCount(10);
@@ -307,7 +307,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadMultiSamplesTwice() {
+  public void readMultiSamplesTwice() {
     writeTestData();
     writeTestData();
     assertAllocationCount(20);
@@ -319,7 +319,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadMultiWithSeek() {
+  public void readMultiWithSeek() {
     writeTestData();
     assertReadTestData();
     assertThat(sampleQueue.getFirstIndex()).isEqualTo(0);
@@ -335,20 +335,20 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testEmptyQueueReturnsLoadingFinished() {
+  public void emptyQueueReturnsLoadingFinished() {
     sampleQueue.sampleData(new ParsableByteArray(DATA), DATA.length);
     assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isFalse();
     assertThat(sampleQueue.isReady(/* loadingFinished= */ true)).isTrue();
   }
 
   @Test
-  public void testIsReadyWithUpstreamFormatOnlyReturnsTrue() {
+  public void isReadyWithUpstreamFormatOnlyReturnsTrue() {
     sampleQueue.format(FORMAT_ENCRYPTED);
     assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
   }
 
   @Test
-  public void testIsReadyReturnsTrueForValidDrmSession() {
+  public void isReadyReturnsTrueForValidDrmSession() {
     writeTestDataWithEncryptedSections();
     assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
     assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isFalse();
@@ -357,7 +357,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testIsReadyReturnsTrueForClearSampleAndPlayClearSamplesWithoutKeysIsTrue() {
+  public void isReadyReturnsTrueForClearSampleAndPlayClearSamplesWithoutKeysIsTrue() {
     when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
     // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
     sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
@@ -366,7 +366,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadEncryptedSectionsWaitsForKeys() {
+  public void readEncryptedSectionsWaitsForKeys() {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
     writeTestDataWithEncryptedSections();
 
@@ -377,7 +377,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadEncryptedSectionsPopulatesDrmSession() {
+  public void readEncryptedSectionsPopulatesDrmSession() {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     writeTestDataWithEncryptedSections();
 
@@ -417,7 +417,7 @@ public final class SampleQueueTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void testAllowPlaceholderSessionPopulatesDrmSession() {
+  public void allowPlaceholderSessionPopulatesDrmSession() {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     DrmSession<ExoMediaCrypto> mockPlaceholderDrmSession =
         (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
@@ -464,7 +464,7 @@ public final class SampleQueueTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void testTrailingCryptoInfoInitializationVectorBytesZeroed() {
+  public void trailingCryptoInfoInitializationVectorBytesZeroed() {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     DrmSession<ExoMediaCrypto> mockPlaceholderDrmSession =
         (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
@@ -516,7 +516,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testReadWithErrorSessionReadsNothingAndThrows() throws IOException {
+  public void readWithErrorSessionReadsNothingAndThrows() throws IOException {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
     writeTestDataWithEncryptedSections();
 
@@ -537,7 +537,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAllowPlayClearSamplesWithoutKeysReadsClearSamples() {
+  public void allowPlayClearSamplesWithoutKeysReadsClearSamples() {
     when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
     // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
     sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
@@ -549,7 +549,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSeekAfterDiscard() {
+  public void seekAfterDiscard() {
     writeTestData();
     assertReadTestData();
     sampleQueue.discardToRead();
@@ -566,7 +566,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdvanceToEnd() {
+  public void advanceToEnd() {
     writeTestData();
     sampleQueue.advanceToEnd();
     assertAllocationCount(10);
@@ -580,7 +580,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdvanceToEndRetainsUnassignedData() {
+  public void advanceToEndRetainsUnassignedData() {
     sampleQueue.format(FORMAT_1);
     sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
     sampleQueue.advanceToEnd();
@@ -604,7 +604,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdvanceToBeforeBuffer() {
+  public void advanceToBeforeBuffer() {
     writeTestData();
     int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0] - 1);
     // Should have no effect (we're already at the first frame).
@@ -614,7 +614,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdvanceToStartOfBuffer() {
+  public void advanceToStartOfBuffer() {
     writeTestData();
     int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0]);
     // Should have no effect (we're already at the first frame).
@@ -624,7 +624,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdvanceToEndOfBuffer() {
+  public void advanceToEndOfBuffer() {
     writeTestData();
     int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP);
     // Should advance to 2nd keyframe (the 4th frame).
@@ -634,7 +634,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdvanceToAfterBuffer() {
+  public void advanceToAfterBuffer() {
     writeTestData();
     int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1);
     // Should advance to 2nd keyframe (the 4th frame).
@@ -644,7 +644,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSeekToBeforeBuffer() {
+  public void seekToBeforeBuffer() {
     writeTestData();
     boolean success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0] - 1, false);
     assertThat(success).isFalse();
@@ -654,7 +654,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSeekToStartOfBuffer() {
+  public void seekToStartOfBuffer() {
     writeTestData();
     boolean success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0], false);
     assertThat(success).isTrue();
@@ -664,7 +664,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSeekToEndOfBuffer() {
+  public void seekToEndOfBuffer() {
     writeTestData();
     boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, false);
     assertThat(success).isTrue();
@@ -674,7 +674,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSeekToAfterBuffer() {
+  public void seekToAfterBuffer() {
     writeTestData();
     boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, false);
     assertThat(success).isFalse();
@@ -684,7 +684,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSeekToAfterBufferAllowed() {
+  public void seekToAfterBufferAllowed() {
     writeTestData();
     boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, true);
     assertThat(success).isTrue();
@@ -694,7 +694,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSeekToEndAndBackToStart() {
+  public void seekToEndAndBackToStart() {
     writeTestData();
     boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, false);
     assertThat(success).isTrue();
@@ -710,7 +710,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardToEnd() {
+  public void discardToEnd() {
     writeTestData();
     // Should discard everything.
     sampleQueue.discardToEnd();
@@ -725,7 +725,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardToStopAtReadPosition() {
+  public void discardToStopAtReadPosition() {
     writeTestData();
     // Shouldn't discard anything.
     sampleQueue.discardTo(LAST_SAMPLE_TIMESTAMP, false, true);
@@ -766,7 +766,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardToDontStopAtReadPosition() {
+  public void discardToDontStopAtReadPosition() {
     writeTestData();
     // Shouldn't discard anything.
     sampleQueue.discardTo(SAMPLE_TIMESTAMPS[1] - 1, false, false);
@@ -783,7 +783,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardUpstream() {
+  public void discardUpstream() {
     writeTestData();
     sampleQueue.discardUpstreamSamples(8);
     assertAllocationCount(10);
@@ -808,7 +808,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardUpstreamMulti() {
+  public void discardUpstreamMulti() {
     writeTestData();
     sampleQueue.discardUpstreamSamples(4);
     assertAllocationCount(4);
@@ -819,7 +819,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardUpstreamBeforeRead() {
+  public void discardUpstreamBeforeRead() {
     writeTestData();
     sampleQueue.discardUpstreamSamples(4);
     assertAllocationCount(4);
@@ -829,7 +829,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testDiscardUpstreamAfterRead() {
+  public void discardUpstreamAfterRead() {
     writeTestData();
     assertReadTestData(null, 0, 3);
     sampleQueue.discardUpstreamSamples(8);
@@ -851,7 +851,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testLargestQueuedTimestampWithDiscardUpstream() {
+  public void largestQueuedTimestampWithDiscardUpstream() {
     writeTestData();
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
     sampleQueue.discardUpstreamSamples(SAMPLE_TIMESTAMPS.length - 1);
@@ -864,7 +864,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testLargestQueuedTimestampWithDiscardUpstreamDecodeOrder() {
+  public void largestQueuedTimestampWithDiscardUpstreamDecodeOrder() {
     long[] decodeOrderTimestamps = new long[] {0, 3000, 2000, 1000, 4000, 7000, 6000, 5000};
     writeTestData(
         DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, decodeOrderTimestamps, SAMPLE_FORMATS, SAMPLE_FLAGS);
@@ -880,9 +880,9 @@ public final class SampleQueueTest {
     // Discarding everything from upstream without reading should unset the largest timestamp.
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(MIN_VALUE);
   }
-  
+
   @Test
-  public void testLargestQueuedTimestampWithRead() {
+  public void largestQueuedTimestampWithRead() {
     writeTestData();
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
     assertReadTestData();
@@ -891,7 +891,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSetSampleOffsetBeforeData() {
+  public void setSampleOffsetBeforeData() {
     long sampleOffsetUs = 1000;
     sampleQueue.setSampleOffsetUs(sampleOffsetUs);
     writeTestData();
@@ -901,7 +901,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSetSampleOffsetBetweenSamples() {
+  public void setSampleOffsetBetweenSamples() {
     writeTestData();
     long sampleOffsetUs = 1000;
     sampleQueue.setSampleOffsetUs(sampleOffsetUs);
@@ -926,7 +926,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testAdjustUpstreamFormat() {
+  public void adjustUpstreamFormat() {
     String label = "label";
     sampleQueue =
         new SampleQueue(allocator, mockDrmSessionManager) {
@@ -942,7 +942,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testInvalidateUpstreamFormatAdjustment() {
+  public void invalidateUpstreamFormatAdjustment() {
     AtomicReference<String> label = new AtomicReference<>("label1");
     sampleQueue =
         new SampleQueue(allocator, mockDrmSessionManager) {
@@ -981,7 +981,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSplice() {
+  public void splice() {
     writeTestData();
     sampleQueue.splice();
     // Splice should succeed, replacing the last 4 samples with the sample being written.
@@ -995,7 +995,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSpliceAfterRead() {
+  public void spliceAfterRead() {
     writeTestData();
     assertReadTestData(null, 0, 4);
     sampleQueue.splice();
@@ -1019,7 +1019,7 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void testSpliceWithSampleOffset() {
+  public void spliceWithSampleOffset() {
     long sampleOffsetUs = 30000;
     sampleQueue.setSampleOffsetUs(sampleOffsetUs);
     writeTestData();

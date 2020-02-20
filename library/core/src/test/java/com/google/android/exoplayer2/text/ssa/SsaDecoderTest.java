@@ -46,7 +46,7 @@ public final class SsaDecoderTest {
   private static final String POSITIONS_WITHOUT_PLAYRES = "ssa/positioning_without_playres";
 
   @Test
-  public void testDecodeEmpty() throws IOException {
+  public void decodeEmpty() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -56,7 +56,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodeTypical() throws IOException {
+  public void decodeTypical() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -81,7 +81,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithInitializationData() throws IOException {
+  public void decodeTypicalWithInitializationData() throws IOException {
     byte[] headerBytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_HEADER_ONLY);
     byte[] formatBytes =
@@ -101,7 +101,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodeOverlappingTimecodes() throws IOException {
+  public void decodeOverlappingTimecodes() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), OVERLAPPING_TIMECODES);
@@ -151,7 +151,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodePositions() throws IOException {
+  public void decodePositions() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), POSITIONS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -204,7 +204,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodeInvalidPositions() throws IOException {
+  public void decodeInvalidPositions() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INVALID_POSITIONS);
@@ -240,7 +240,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodePositionsWithMissingPlayResY() throws IOException {
+  public void decodePositionsWithMissingPlayResY() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =
         TestUtil.getByteArray(
@@ -256,7 +256,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodeInvalidTimecodes() throws IOException {
+  public void decodeInvalidTimecodes() throws IOException {
     // Parsing should succeed, parsing the third cue only.
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =

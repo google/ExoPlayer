@@ -63,7 +63,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testCacheInitialization() {
+  public void cacheInitialization() {
     SimpleCache cache = getSimpleCache();
 
     // Cache initialization should have created a non-negative UID.
@@ -79,7 +79,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testCacheInitializationError() throws IOException {
+  public void cacheInitializationError() throws IOException {
     // Creating a file where the cache should be will cause an error during initialization.
     assertThat(cacheDir.createNewFile()).isTrue();
 
@@ -90,7 +90,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testCommittingOneFile() throws Exception {
+  public void committingOneFile() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
     CacheSpan cacheSpan1 = simpleCache.startReadWrite(KEY_1, 0);
@@ -122,7 +122,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testReadCacheWithoutReleasingWriteCacheSpan() throws Exception {
+  public void readCacheWithoutReleasingWriteCacheSpan() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
     CacheSpan cacheSpan1 = simpleCache.startReadWrite(KEY_1, 0);
@@ -133,7 +133,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testSetGetContentMetadata() throws Exception {
+  public void setGetContentMetadata() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
     assertThat(ContentMetadata.getContentLength(simpleCache.getContentMetadata(KEY_1)))
@@ -173,7 +173,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testReloadCache() throws Exception {
+  public void reloadCache() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
     // write data
@@ -191,7 +191,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testReloadCacheWithoutRelease() throws Exception {
+  public void reloadCacheWithoutRelease() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
     // Write data for KEY_1.
@@ -226,7 +226,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testEncryptedIndex() throws Exception {
+  public void encryptedIndex() throws Exception {
     byte[] key = Util.getUtf8Bytes("Bar12345Bar12345"); // 128 bit key
     SimpleCache simpleCache = getEncryptedSimpleCache(key);
 
@@ -245,7 +245,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testEncryptedIndexWrongKey() throws Exception {
+  public void encryptedIndexWrongKey() throws Exception {
     byte[] key = Util.getUtf8Bytes("Bar12345Bar12345"); // 128 bit key
     SimpleCache simpleCache = getEncryptedSimpleCache(key);
 
@@ -265,7 +265,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testEncryptedIndexLostKey() throws Exception {
+  public void encryptedIndexLostKey() throws Exception {
     byte[] key = Util.getUtf8Bytes("Bar12345Bar12345"); // 128 bit key
     SimpleCache simpleCache = getEncryptedSimpleCache(key);
 
@@ -284,7 +284,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testGetCachedLength() throws Exception {
+  public void getCachedLength() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
     CacheSpan cacheSpan = simpleCache.startReadWrite(KEY_1, 0);
 
@@ -320,7 +320,7 @@ public class SimpleCacheTest {
 
   /* Tests https://github.com/google/ExoPlayer/issues/3260 case. */
   @Test
-  public void testExceptionDuringEvictionByLeastRecentlyUsedCacheEvictorNotHang() throws Exception {
+  public void exceptionDuringEvictionByLeastRecentlyUsedCacheEvictorNotHang() throws Exception {
     CachedContentIndex contentIndex =
         Mockito.spy(new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider()));
     SimpleCache simpleCache =
@@ -357,7 +357,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testUsingReleasedSimpleCacheThrowsException() throws Exception {
+  public void usingReleasedSimpleCacheThrowsException() throws Exception {
     SimpleCache simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
     simpleCache.release();
 
@@ -370,7 +370,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testMultipleSimpleCacheWithSameCacheDirThrowsException() throws Exception {
+  public void multipleSimpleCacheWithSameCacheDirThrowsException() throws Exception {
     new SimpleCache(cacheDir, new NoOpCacheEvictor());
 
     try {
@@ -382,7 +382,7 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void testMultipleSimpleCacheWithSameCacheDirDoesNotThrowsExceptionAfterRelease()
+  public void multipleSimpleCacheWithSameCacheDirDoesNotThrowsExceptionAfterRelease()
       throws Exception {
     SimpleCache simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
     simpleCache.release();
