@@ -91,8 +91,8 @@ import java.util.Map;
     return bytesRead;
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Uri getUri() {
     return upstream.getUri();
   }

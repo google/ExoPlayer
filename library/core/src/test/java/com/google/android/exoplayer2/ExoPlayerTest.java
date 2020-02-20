@@ -3291,8 +3291,8 @@ public final class ExoPlayerTest {
             return false;
           }
 
-          @Nullable
           @Override
+          @Nullable
           public Timeline getInitialTimeline() {
             return Timeline.EMPTY;
           }

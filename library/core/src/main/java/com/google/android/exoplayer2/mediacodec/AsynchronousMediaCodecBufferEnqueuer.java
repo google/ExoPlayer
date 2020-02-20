@@ -21,7 +21,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -86,7 +85,7 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
       handler =
           new Handler(handlerThread.getLooper()) {
             @Override
-            public void handleMessage(@NonNull Message msg) {
+            public void handleMessage(Message msg) {
               doHandleMessage(msg);
             }
           };

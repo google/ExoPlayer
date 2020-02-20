@@ -186,8 +186,8 @@ public class FakeDataSource extends BaseDataSource {
     }
   }
 
-  @Nullable
   @Override
+  @Nullable
   public final Uri getUri() {
     return uri;
   }

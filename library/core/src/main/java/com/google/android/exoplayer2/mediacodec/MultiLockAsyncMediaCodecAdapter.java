@@ -22,7 +22,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
@@ -295,15 +294,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Called by the internal thread.
 
   @Override
-  public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
+  public void onInputBufferAvailable(MediaCodec codec, int index) {
     synchronized (inputBufferLock) {
       availableInputBuffers.add(index);
     }
   }
 
   @Override
-  public void onOutputBufferAvailable(
-      @NonNull MediaCodec codec, int index, @NonNull MediaCodec.BufferInfo info) {
+  public void onOutputBufferAvailable(MediaCodec codec, int index, MediaCodec.BufferInfo info) {
     synchronized (outputBufferLock) {
       availableOutputBuffers.add(index);
       bufferInfos.add(info);
@@ -311,12 +309,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void onError(@NonNull MediaCodec codec, @NonNull MediaCodec.CodecException e) {
+  public void onError(MediaCodec codec, MediaCodec.CodecException e) {
     onMediaCodecError(e);
   }
 
   @Override
-  public void onOutputFormatChanged(@NonNull MediaCodec codec, @NonNull MediaFormat format) {
+  public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
     synchronized (outputBufferLock) {
       availableOutputBuffers.add(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
       formats.add(format);
