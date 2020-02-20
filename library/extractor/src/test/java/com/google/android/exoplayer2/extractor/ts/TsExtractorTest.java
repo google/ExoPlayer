@@ -49,6 +49,11 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void testSampleScte35() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_scte35.ts");
+  }
+
+  @Test
   public void testStreamWithJunkData() throws Exception {
     ExtractorAsserts.assertBehavior(
         TsExtractor::new, "ts/sample_with_junk", ApplicationProvider.getApplicationContext());
