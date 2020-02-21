@@ -288,7 +288,8 @@ public final class CodecSpecificDataUtil {
    * @return The individual NAL units, or null if the input did not consist of NAL start code
    *     delimited units.
    */
-  public static @Nullable byte[][] splitNalUnits(byte[] data) {
+  @Nullable
+  public static byte[][] splitNalUnits(byte[] data) {
     if (!isNalStartCode(data, 0)) {
       // data does not consist of NAL start code delimited units.
       return null;
