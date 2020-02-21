@@ -642,7 +642,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               cea608TrackGroupIndex);
       if (eventMessageTrackGroupIndex != C.INDEX_UNSET) {
         Format format =
-            Format.createSampleFormat(firstAdaptationSet.id + ":emsg", MimeTypes.APPLICATION_EMSG);
+            new Format.Builder()
+                .setId(firstAdaptationSet.id + ":emsg")
+                .setSampleMimeType(MimeTypes.APPLICATION_EMSG)
+                .build();
         trackGroups[eventMessageTrackGroupIndex] = new TrackGroup(format);
         trackGroupInfos[eventMessageTrackGroupIndex] =
             TrackGroupInfo.embeddedEmsgTrack(adaptationSetIndices, primaryTrackGroupIndex);
@@ -660,7 +663,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       TrackGroup[] trackGroups, TrackGroupInfo[] trackGroupInfos, int existingTrackGroupCount) {
     for (int i = 0; i < eventStreams.size(); i++) {
       EventStream eventStream = eventStreams.get(i);
-      Format format = Format.createSampleFormat(eventStream.id(), MimeTypes.APPLICATION_EMSG);
+      Format format =
+          new Format.Builder()
+              .setId(eventStream.id())
+              .setSampleMimeType(MimeTypes.APPLICATION_EMSG)
+              .build();
       trackGroups[existingTrackGroupCount] = new TrackGroup(format);
       trackGroupInfos[existingTrackGroupCount++] = TrackGroupInfo.mpdEventTrack(i);
     }
@@ -804,16 +811,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   private static Format buildCea608TrackFormat(
       int adaptationSetId, @Nullable String language, int accessibilityChannel) {
-    return Format.createTextSampleFormat(
+    String id =
         adaptationSetId
             + ":cea608"
-            + (accessibilityChannel != Format.NO_VALUE ? ":" + accessibilityChannel : ""),
-        MimeTypes.APPLICATION_CEA608,
-        /* selectionFlags= */ 0,
-        language,
-        accessibilityChannel,
-        Format.OFFSET_SAMPLE_RELATIVE,
-        /* initializationData= */ null);
+            + (accessibilityChannel != Format.NO_VALUE ? ":" + accessibilityChannel : "");
+    return new Format.Builder()
+        .setId(id)
+        .setSampleMimeType(MimeTypes.APPLICATION_CEA608)
+        .setLanguage(language)
+        .setAccessibilityChannel(accessibilityChannel)
+        .build();
   }
 
   // We won't assign the array to a variable that erases the generic type, and then write into it.
