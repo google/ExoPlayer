@@ -35,8 +35,7 @@ public class DashManifestTest {
 
   private static final UtcTimingElement DUMMY_UTC_TIMING = new UtcTimingElement("", "");
   private static final SingleSegmentBase DUMMY_SEGMENT_BASE = new SingleSegmentBase();
-  private static final Format DUMMY_FORMAT =
-      Format.createSampleFormat(/* id= */ "", /* sampleMimeType= */ "");
+  private static final Format DUMMY_FORMAT = new Format.Builder().build();
 
   @Test
   public void testCopy() {

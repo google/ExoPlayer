@@ -186,50 +186,33 @@ public final class DashMediaPeriodTest {
   }
 
   private static Format createVideoFormat(int bitrate) {
-    return Format.createContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        MimeTypes.VIDEO_MP4,
-        MimeTypes.VIDEO_H264,
-        /* codecs= */ null,
-        bitrate,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.VIDEO_MP4)
+        .setSampleMimeType(MimeTypes.VIDEO_H264)
+        .setPeakBitrate(bitrate)
+        .build();
   }
 
   private static Representation createAudioRepresentation(int bitrate) {
+    Format format =
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.AUDIO_MP4)
+            .setSampleMimeType(MimeTypes.AUDIO_AAC)
+            .setPeakBitrate(bitrate)
+            .build();
     return Representation.newInstance(
-        /* revisionId= */ 0,
-        Format.createContainerFormat(
-            /* id= */ null,
-            /* label= */ null,
-            MimeTypes.AUDIO_MP4,
-            MimeTypes.AUDIO_AAC,
-            /* codecs= */ null,
-            bitrate,
-            /* selectionFlags= */ 0,
-            /* roleFlags= */ 0,
-            /* language= */ null),
-        /* baseUrl= */ "",
-        new SingleSegmentBase());
+        /* revisionId= */ 0, format, /* baseUrl= */ "", new SingleSegmentBase());
   }
 
   private static Representation createTextRepresentation(String language) {
+    Format format =
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.APPLICATION_MP4)
+            .setSampleMimeType(MimeTypes.TEXT_VTT)
+            .setLanguage(language)
+            .build();
     return Representation.newInstance(
-        /* revisionId= */ 0,
-        Format.createContainerFormat(
-            /* id= */ null,
-            /* label= */ null,
-            MimeTypes.APPLICATION_MP4,
-            MimeTypes.TEXT_VTT,
-            /* codecs= */ null,
-            /* bitrate= */ Format.NO_VALUE,
-            /* selectionFlags= */ 0,
-            /* roleFlags= */ 0,
-            language),
-        /* baseUrl= */ "",
-        new SingleSegmentBase());
+        /* revisionId= */ 0, format, /* baseUrl= */ "", new SingleSegmentBase());
   }
 
   private static Descriptor createSwitchDescriptor(int... ids) {
