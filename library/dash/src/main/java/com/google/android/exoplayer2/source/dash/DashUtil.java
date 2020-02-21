@@ -98,7 +98,7 @@ public final class DashUtil {
     Format sampleFormat = DashUtil.loadSampleFormat(dataSource, primaryTrackType, representation);
     return sampleFormat == null
         ? manifestFormat.drmInitData
-        : sampleFormat.copyWithManifestFormatInfo(manifestFormat).drmInitData;
+        : sampleFormat.withManifestFormatInfo(manifestFormat).drmInitData;
   }
 
   /**

@@ -734,10 +734,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                       ? new Metadata(icyHeaders)
                       : metadata.copyWithAppendedEntries(icyHeaders));
         }
+        // Update the track format with the bitrate from the ICY header only if it declares neither
+        // an average or peak bitrate of its own.
         if (isAudio
-            && trackFormat.bitrate == Format.NO_VALUE
+            && trackFormat.averageBitrate == Format.NO_VALUE
+            && trackFormat.peakBitrate == Format.NO_VALUE
             && icyHeaders.bitrate != Format.NO_VALUE) {
-          trackFormat = trackFormat.copyWithBitrate(icyHeaders.bitrate);
+          trackFormat = trackFormat.buildUpon().setAverageBitrate(icyHeaders.bitrate).build();
         }
       }
       trackArray[i] = new TrackGroup(trackFormat);

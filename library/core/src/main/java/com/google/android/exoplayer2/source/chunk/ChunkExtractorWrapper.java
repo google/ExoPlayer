@@ -197,8 +197,8 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
 
     @Override
     public void format(Format format) {
-      sampleFormat = manifestFormat != null ? format.copyWithManifestFormatInfo(manifestFormat)
-          : format;
+      sampleFormat =
+          manifestFormat != null ? format.withManifestFormatInfo(manifestFormat) : format;
       castNonNull(trackOutput).format(sampleFormat);
     }
 

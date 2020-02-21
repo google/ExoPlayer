@@ -699,7 +699,8 @@ public final class PlaybackStatsListener
      */
     public void onVideoSizeChanged(EventTime eventTime, int width, int height) {
       if (currentVideoFormat != null && currentVideoFormat.height == Format.NO_VALUE) {
-        Format formatWithHeight = currentVideoFormat.copyWithVideoSize(width, height);
+        Format formatWithHeight =
+            currentVideoFormat.buildUpon().setWidth(width).setHeight(height).build();
         maybeUpdateVideoFormat(eventTime, formatWithHeight);
       }
     }

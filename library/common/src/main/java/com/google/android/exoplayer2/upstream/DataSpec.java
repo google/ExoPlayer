@@ -32,7 +32,11 @@ import java.util.Map;
  */
 public final class DataSpec {
 
-  /** Builds {@link DataSpec} instances. */
+  /**
+   * Builds {@link DataSpec} instances.
+   *
+   * <p>Use DataSpec#buildUpon() to obtain a builder representing an existing {@link DataSpec}.
+   */
   public static final class Builder {
 
     @Nullable private Uri uri;
