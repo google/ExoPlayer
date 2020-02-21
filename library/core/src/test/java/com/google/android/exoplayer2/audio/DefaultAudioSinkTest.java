@@ -21,7 +21,6 @@ import static org.robolectric.annotation.Config.TARGET_SDK;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.PlaybackParameters;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -89,8 +88,7 @@ public final class DefaultAudioSinkTest {
 
   @Test
   public void handlesBufferAfterReset_withPlaybackParameters() throws Exception {
-    PlaybackParameters playbackParameters = new PlaybackParameters(1.5f);
-    defaultAudioSink.setPlaybackParameters(playbackParameters);
+    defaultAudioSink.setPlaybackSpeed(/* playbackSpeed= */ 1.5f);
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
     defaultAudioSink.handleBuffer(
         createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
@@ -100,7 +98,7 @@ public final class DefaultAudioSinkTest {
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
     defaultAudioSink.handleBuffer(
         createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
-    assertThat(defaultAudioSink.getPlaybackParameters()).isEqualTo(playbackParameters);
+    assertThat(defaultAudioSink.getPlaybackSpeed()).isEqualTo(1.5f);
   }
 
   @Test
@@ -118,8 +116,7 @@ public final class DefaultAudioSinkTest {
 
   @Test
   public void handlesBufferAfterReset_withFormatChangeAndPlaybackParameters() throws Exception {
-    PlaybackParameters playbackParameters = new PlaybackParameters(1.5f);
-    defaultAudioSink.setPlaybackParameters(playbackParameters);
+    defaultAudioSink.setPlaybackSpeed(/* playbackSpeed= */ 1.5f);
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
     defaultAudioSink.handleBuffer(
         createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
@@ -129,7 +126,7 @@ public final class DefaultAudioSinkTest {
     configureDefaultAudioSink(CHANNEL_COUNT_MONO);
     defaultAudioSink.handleBuffer(
         createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
-    assertThat(defaultAudioSink.getPlaybackParameters()).isEqualTo(playbackParameters);
+    assertThat(defaultAudioSink.getPlaybackSpeed()).isEqualTo(1.5f);
   }
 
   @Test

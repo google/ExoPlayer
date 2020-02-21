@@ -263,17 +263,27 @@ public interface AudioSink {
   boolean hasPendingData();
 
   /**
-   * Attempts to set the playback parameters. The audio sink may override these parameters if they
-   * are not supported.
-   *
-   * @param playbackParameters The new playback parameters to attempt to set.
+   * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
+   *     instead.
    */
+  @Deprecated
   void setPlaybackParameters(PlaybackParameters playbackParameters);
 
-  /**
-   * Gets the active {@link PlaybackParameters}.
-   */
+  /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
+  @Deprecated
   PlaybackParameters getPlaybackParameters();
+
+  /** Sets the playback speed. */
+  void setPlaybackSpeed(float playbackSpeed);
+
+  /** Gets the playback speed. */
+  float getPlaybackSpeed();
+
+  /** Sets whether silences should be skipped in the audio stream. */
+  void setSkipSilenceEnabled(boolean skipSilenceEnabled);
+
+  /** Gets whether silences are skipped in the audio stream. */
+  boolean getSkipSilenceEnabled();
 
   /**
    * Sets attributes for audio playback. If the attributes have changed and if the sink is not
