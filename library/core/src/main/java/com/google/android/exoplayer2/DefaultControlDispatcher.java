@@ -140,6 +140,16 @@ public class DefaultControlDispatcher implements ControlDispatcher {
     return fastForwardIncrementMs > 0;
   }
 
+  /** Returns the rewind increment in milliseconds. */
+  public long getRewindIncrementMs() {
+    return rewindIncrementMs;
+  }
+
+  /** Returns the fast forward increment in milliseconds. */
+  public long getFastForwardIncrementMs() {
+    return fastForwardIncrementMs;
+  }
+
   /**
    * @deprecated Create a new instance instead and pass the new instance to the UI component. This
    *     makes sure the UI gets updated and is in sync with the new values.
