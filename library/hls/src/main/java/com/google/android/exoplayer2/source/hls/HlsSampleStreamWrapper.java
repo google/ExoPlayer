@@ -1269,38 +1269,50 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * @param playlistFormat The format information obtained from the master playlist.
    * @param sampleFormat The format information obtained from the samples.
-   * @param propagateBitrate Whether the bitrate from the playlist format should be included in the
-   *     derived format.
+   * @param propagateBitrates Whether the bitrates from the playlist format should be included in
+   *     the derived format.
    * @return The derived track format.
    */
   private static Format deriveFormat(
-      @Nullable Format playlistFormat, Format sampleFormat, boolean propagateBitrate) {
+      @Nullable Format playlistFormat, Format sampleFormat, boolean propagateBitrates) {
     if (playlistFormat == null) {
       return sampleFormat;
     }
-    int bitrate = propagateBitrate ? playlistFormat.bitrate : Format.NO_VALUE;
-    int channelCount =
-        playlistFormat.channelCount != Format.NO_VALUE
-            ? playlistFormat.channelCount
-            : sampleFormat.channelCount;
+
     int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
     @Nullable String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
-    @Nullable String mimeType = MimeTypes.getMediaMimeType(codecs);
-    if (mimeType == null) {
-      mimeType = sampleFormat.sampleMimeType;
+    @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+
+    Format.Builder formatBuilder =
+        sampleFormat
+            .buildUpon()
+            .setId(playlistFormat.id)
+            .setLabel(playlistFormat.label)
+            .setLanguage(playlistFormat.language)
+            .setSelectionFlags(playlistFormat.selectionFlags)
+            .setAverageBitrate(propagateBitrates ? playlistFormat.averageBitrate : Format.NO_VALUE)
+            .setPeakBitrate(propagateBitrates ? playlistFormat.peakBitrate : Format.NO_VALUE)
+            .setCodecs(codecs)
+            .setWidth(playlistFormat.width)
+            .setHeight(playlistFormat.height);
+
+    if (sampleMimeType != null) {
+      formatBuilder.setSampleMimeType(sampleMimeType);
     }
-    return sampleFormat.copyWithContainerInfo(
-        playlistFormat.id,
-        playlistFormat.label,
-        mimeType,
-        codecs,
-        playlistFormat.metadata,
-        bitrate,
-        playlistFormat.width,
-        playlistFormat.height,
-        channelCount,
-        playlistFormat.selectionFlags,
-        playlistFormat.language);
+
+    if (playlistFormat.channelCount != Format.NO_VALUE) {
+      formatBuilder.setChannelCount(playlistFormat.channelCount);
+    }
+
+    if (playlistFormat.metadata != null) {
+      Metadata metadata = playlistFormat.metadata;
+      if (sampleFormat.metadata != null) {
+        metadata = sampleFormat.metadata.copyWithAppendedEntriesFrom(metadata);
+      }
+      formatBuilder.setMetadata(metadata);
+    }
+
+    return formatBuilder.build();
   }
 
   private static boolean isMediaChunk(Chunk chunk) {
@@ -1409,9 +1421,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     // TODO(ibaker): Create a Formats util class with common constants like this.
     private static final Format ID3_FORMAT =
-        Format.createSampleFormat(/* id= */ null, MimeTypes.APPLICATION_ID3);
+        new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_ID3).build();
     private static final Format EMSG_FORMAT =
-        Format.createSampleFormat(/* id= */ null, MimeTypes.APPLICATION_EMSG);
+        new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_EMSG).build();
 
     private final EventMessageDecoder emsgDecoder;
     private final TrackOutput delegate;

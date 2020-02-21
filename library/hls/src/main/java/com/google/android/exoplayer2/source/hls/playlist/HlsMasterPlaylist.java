@@ -102,16 +102,7 @@ public final class HlsMasterPlaylist extends HlsPlaylist {
      */
     public static Variant createMediaPlaylistVariantUrl(Uri url) {
       Format format =
-          Format.createContainerFormat(
-              "0",
-              /* label= */ null,
-              MimeTypes.APPLICATION_M3U8,
-              /* sampleMimeType= */ null,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              /* selectionFlags= */ 0,
-              /* roleFlags= */ 0,
-              /* language= */ null);
+          new Format.Builder().setId("0").setContainerMimeType(MimeTypes.APPLICATION_M3U8).build();
       return new Variant(
           url,
           format,
