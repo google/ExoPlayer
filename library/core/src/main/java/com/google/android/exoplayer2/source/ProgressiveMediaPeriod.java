@@ -53,7 +53,6 @@ import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1037,75 +1036,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       seekTimeUs = timeUs;
       pendingExtractorSeek = true;
       seenIcyMetadata = false;
-    }
-  }
-
-  /** Stores a list of extractors and a selected extractor when the format has been detected. */
-  private static final class ExtractorHolder {
-
-    private final Extractor[] extractors;
-
-    @Nullable private Extractor extractor;
-
-    /**
-     * Creates a holder that will select an extractor and initialize it using the specified output.
-     *
-     * @param extractors One or more extractors to choose from.
-     */
-    public ExtractorHolder(Extractor[] extractors) {
-      this.extractors = extractors;
-    }
-
-    /**
-     * Returns an initialized extractor for reading {@code input}, and returns the same extractor on
-     * later calls.
-     *
-     * @param input The {@link ExtractorInput} from which data should be read.
-     * @param output The {@link ExtractorOutput} that will be used to initialize the selected
-     *     extractor.
-     * @param uri The {@link Uri} of the data.
-     * @return An initialized extractor for reading {@code input}.
-     * @throws UnrecognizedInputFormatException Thrown if the input format could not be detected.
-     * @throws IOException Thrown if the input could not be read.
-     * @throws InterruptedException Thrown if the thread was interrupted.
-     */
-    public Extractor selectExtractor(ExtractorInput input, ExtractorOutput output, Uri uri)
-        throws IOException, InterruptedException {
-      if (extractor != null) {
-        return extractor;
-      }
-      if (extractors.length == 1) {
-        this.extractor = extractors[0];
-      } else {
-        for (Extractor extractor : extractors) {
-          try {
-            if (extractor.sniff(input)) {
-              this.extractor = extractor;
-              break;
-            }
-          } catch (EOFException e) {
-            // Do nothing.
-          } finally {
-            input.resetPeekPosition();
-          }
-        }
-        if (extractor == null) {
-          throw new UnrecognizedInputFormatException(
-              "None of the available extractors ("
-                  + Util.getCommaDelimitedSimpleClassNames(extractors)
-                  + ") could read the stream.",
-              uri);
-        }
-      }
-      extractor.init(output);
-      return extractor;
-    }
-
-    public void release() {
-      if (extractor != null) {
-        extractor.release();
-        extractor = null;
-      }
     }
   }
 
