@@ -75,7 +75,8 @@ public class SsMediaPeriodTest {
                         /* mediaPeriodId= */ new MediaPeriodId(/* periodUid= */ new Object()),
                         /* mediaTimeOffsetMs= */ 0),
                 mock(LoaderErrorThrower.class),
-                mock(Allocator.class));
+                mock(Allocator.class),
+                null);
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
         mediaPeriodFactory, testManifest);

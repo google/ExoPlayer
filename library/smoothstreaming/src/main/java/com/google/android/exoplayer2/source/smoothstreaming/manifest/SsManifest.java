@@ -80,6 +80,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
     private final List<Long> chunkStartTimes;
     private final long[] chunkStartTimesUs;
     private final long lastChunkDurationUs;
+    private final long lastChunkDuration;
 
     public StreamElement(
         String baseUri,
@@ -110,6 +111,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
           language,
           formats,
           chunkStartTimes,
+          lastChunkDuration,
           Util.scaleLargeTimestamps(chunkStartTimes, C.MICROS_PER_SECOND, timescale),
           Util.scaleLargeTimestamp(lastChunkDuration, C.MICROS_PER_SECOND, timescale));
     }
@@ -128,6 +130,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
         @Nullable String language,
         Format[] formats,
         List<Long> chunkStartTimes,
+        long lastChunkDuration,
         long[] chunkStartTimesUs,
         long lastChunkDurationUs) {
       this.baseUri = baseUri;
@@ -143,6 +146,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
       this.language = language;
       this.formats = formats;
       this.chunkStartTimes = chunkStartTimes;
+      this.lastChunkDuration = lastChunkDuration;
       this.chunkStartTimesUs = chunkStartTimesUs;
       this.lastChunkDurationUs = lastChunkDurationUs;
       chunkCount = chunkStartTimes.size();
@@ -158,7 +162,7 @@ public class SsManifest implements FilterableManifest<SsManifest> {
     public StreamElement copy(Format[] formats) {
       return new StreamElement(baseUri, chunkTemplate, type, subType, timescale, name, maxWidth,
           maxHeight, displayWidth, displayHeight, language, formats, chunkStartTimes,
-          chunkStartTimesUs, lastChunkDurationUs);
+          lastChunkDuration, chunkStartTimesUs, lastChunkDurationUs);
     }
 
     /**
@@ -182,6 +186,16 @@ public class SsManifest implements FilterableManifest<SsManifest> {
     }
 
     /**
+     * Returns the unscaled start time of the specified chunk.
+     *
+     * @param chunkIndex The index of the chunk.
+     * @return The start time of the chunk, in original manifest timebase.
+     */
+    public long getStartTime(int chunkIndex) {
+      return chunkStartTimes.get(chunkIndex);
+    }
+
+    /**
      * Returns the duration of the specified chunk.
      *
      * @param chunkIndex The index of the chunk.
@@ -190,6 +204,17 @@ public class SsManifest implements FilterableManifest<SsManifest> {
     public long getChunkDurationUs(int chunkIndex) {
       return (chunkIndex == chunkCount - 1) ? lastChunkDurationUs
           : chunkStartTimesUs[chunkIndex + 1] - chunkStartTimesUs[chunkIndex];
+    }
+
+    /**
+     * Returns the unscaled duration of the specified chunk.
+     *
+     * @param chunkIndex The index of the chunk.
+     * @return The duration of the chunk, in original manifest timebase.
+     */
+    public long getChunkDuration(int chunkIndex) {
+      return (chunkIndex == chunkCount - 1) ? lastChunkDuration
+          : chunkStartTimes.get(chunkIndex + 1) - chunkStartTimes.get(chunkIndex);
     }
 
     /**
@@ -210,6 +235,25 @@ public class SsManifest implements FilterableManifest<SsManifest> {
           .replace(URL_PLACEHOLDER_BITRATE_2, bitrateString)
           .replace(URL_PLACEHOLDER_START_TIME_1, startTimeString)
           .replace(URL_PLACEHOLDER_START_TIME_2, startTimeString);
+      return UriUtil.resolveToUri(baseUri, chunkUrl);
+    }
+
+    /**
+     * Builds a uri for requesting the chunk at the specified time of the specified track.
+     *
+     * @param track The index of the track for which to build the URL.
+     * @param startTime The unscaled timestamp of the chunk
+     * @return The request uri.
+     */
+    public Uri buildRequestUriFromStartTime(int track, long startTime) {
+      Assertions.checkState(formats != null);
+      Assertions.checkState(chunkStartTimes != null);
+      String bitrateString = Integer.toString(formats[track].bitrate);
+      String chunkUrl = chunkTemplate
+              .replace(URL_PLACEHOLDER_BITRATE_1, bitrateString)
+              .replace(URL_PLACEHOLDER_BITRATE_2, bitrateString)
+              .replace(URL_PLACEHOLDER_START_TIME_1, Long.toString(startTime))
+              .replace(URL_PLACEHOLDER_START_TIME_2, Long.toString(startTime));
       return UriUtil.resolveToUri(baseUri, chunkUrl);
     }
   }

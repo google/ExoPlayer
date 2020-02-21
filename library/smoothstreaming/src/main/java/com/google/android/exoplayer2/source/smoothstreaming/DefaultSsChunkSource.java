@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.extractor.mp4.Track;
 import com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
+import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
@@ -40,12 +42,14 @@ import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * A default {@link SsChunkSource} implementation.
  */
-public class DefaultSsChunkSource implements SsChunkSource {
+public class DefaultSsChunkSource implements SsChunkSource, FragmentedMp4Extractor.SsAtomCallback {
 
   public static final class Factory implements SsChunkSource.Factory {
 
@@ -61,15 +65,37 @@ public class DefaultSsChunkSource implements SsChunkSource {
         SsManifest manifest,
         int elementIndex,
         TrackSelection trackSelection,
-        @Nullable TransferListener transferListener) {
+        @Nullable TransferListener transferListener,
+	SsMediaSource mediaSource) {
       DataSource dataSource = dataSourceFactory.createDataSource();
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);
       }
       return new DefaultSsChunkSource(
-          manifestLoaderErrorThrower, manifest, elementIndex, trackSelection, dataSource);
+          manifestLoaderErrorThrower, manifest, elementIndex, trackSelection, dataSource, mediaSource);
     }
 
+  }
+
+  public static class ChunkInfo implements Comparable<ChunkInfo> {
+    //Times are in timescale base
+    public final long startTimeTs;
+    public final long durationTs;
+    public final int chunkId;
+    public ChunkInfo(long startTimeTs, long durationTs, int chunkId) {
+      this.startTimeTs = startTimeTs;
+      this.durationTs=durationTs;
+      this.chunkId=chunkId;
+    }
+
+    @Override
+    public int compareTo(ChunkInfo chunkInfo) {
+      if(this.startTimeTs > chunkInfo.startTimeTs)
+        return 1;
+      else if(this.startTimeTs < chunkInfo.startTimeTs)
+        return -1;
+      return 0;
+    }
   }
 
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -82,6 +108,9 @@ public class DefaultSsChunkSource implements SsChunkSource {
   private int currentManifestChunkOffset;
 
   @Nullable private IOException fatalError;
+  private final TreeSet<ChunkInfo> ssChunks = new TreeSet<ChunkInfo>();
+  @Nullable private final SsMediaSource mediaSource;
+  private final long tsDeltaUs;
 
   /**
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
@@ -95,12 +124,14 @@ public class DefaultSsChunkSource implements SsChunkSource {
       SsManifest manifest,
       int streamElementIndex,
       TrackSelection trackSelection,
-      DataSource dataSource) {
+      DataSource dataSource,
+      SsMediaSource mediaSource) {
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
     this.streamElementIndex = streamElementIndex;
     this.trackSelection = trackSelection;
     this.dataSource = dataSource;
+    this.mediaSource = mediaSource;
 
     StreamElement streamElement = manifest.streamElements[streamElementIndex];
     extractorWrappers = new ChunkExtractorWrapper[trackSelection.length()];
@@ -123,7 +154,63 @@ public class DefaultSsChunkSource implements SsChunkSource {
               /* timestampAdjuster= */ null,
               track);
       extractorWrappers[i] = new ChunkExtractorWrapper(extractor, streamElement.type, format);
+      extractor.setSsAtomCallback(this);
     }
+    for(int i=0; i<streamElement.chunkCount; i++) {
+      ssChunks.add(new ChunkInfo(
+          streamElement.getStartTime(i),
+          streamElement.getChunkDuration(i),
+          i
+        ));
+    }
+    //Assume now = lastChunk start + duration
+    tsDeltaUs =
+        System.currentTimeMillis()*1000L -
+            (streamElement.getStartTimeUs(streamElement.chunkCount - 1) +
+                streamElement.getChunkDurationUs(streamElement.chunkCount - 1));
+    currentManifestChunkOffset=streamElement.chunkCount;
+  }
+
+  private synchronized boolean clearOldChunks() {
+    long tsNowUs = System.currentTimeMillis()*1000L - tsDeltaUs;
+    long tsOld = tsNowUs*10L - manifest.dvrWindowLengthUs*10L;
+
+    ArrayList<ChunkInfo> toRemove = new ArrayList<>();
+    for (ChunkInfo i : ssChunks) {
+      if (i.startTimeTs < tsOld)
+        toRemove.add(i);
+    }
+    ssChunks.removeAll(toRemove);
+    return toRemove.isEmpty();
+  }
+
+  private synchronized void updateTimeline() {
+    ChunkInfo end = ssChunks.last();
+    ChunkInfo head = ssChunks.first();
+
+    long chunksWindowDuration = (end.durationTs + end.startTimeTs - head.startTimeTs)/10L;
+    long startTime = head.startTimeTs/10L;
+    long defaultStart = manifest.dvrWindowLengthUs - 10*1000L*1000L;
+
+    SinglePeriodTimeline timeline = new SinglePeriodTimeline(C.TIME_UNSET, chunksWindowDuration, startTime,
+            defaultStart, true /* isSeekable */, true /* isDynamic */, true, null, null);
+    if(mediaSource != null) {
+        mediaSource.sourceInfoRefreshed(timeline);
+    }
+  }
+
+  public synchronized void onTfrfAtom(long start, long duration) {
+    if(!manifest.isLive) return;
+
+    boolean ret =
+            ssChunks.add(new ChunkInfo(
+              start,
+              duration,
+              currentManifestChunkOffset++));
+    //If we were already aware of this chunk, don't do anything
+    if(!ret) return;
+    clearOldChunks();
+    updateTimeline();
   }
 
   @Override
@@ -185,6 +272,25 @@ public class DefaultSsChunkSource implements SsChunkSource {
     return trackSelection.evaluateQueueSize(playbackPositionUs, queue);
   }
 
+  private synchronized ChunkInfo bestChunk(MediaChunk previous, long loadPositionUs) {
+    // We'll have chunkFloor < chunkCeiling
+    ChunkInfo chunkCeiling = ssChunks.ceiling(new ChunkInfo(loadPositionUs*10L, 0L, 0));
+    ChunkInfo chunkFloor = ssChunks.floor(new ChunkInfo(loadPositionUs*10L, 0L, 0));
+    ChunkInfo chunk = chunkCeiling;
+    if(chunkFloor == null) return ssChunks.last();
+    if(chunkCeiling == null) return chunkFloor;
+
+    if(previous == null) {
+      //If it's the first chunk we send, send the closest one
+      if(Math.abs(chunkCeiling.startTimeTs - loadPositionUs) >
+              Math.abs(chunkFloor.startTimeTs - loadPositionUs))
+        chunk = chunkFloor;
+      else
+        chunk = chunkCeiling;
+    }
+    return chunk;
+  }
+
   @Override
   public final void getNextChunk(
       long playbackPositionUs,
@@ -202,21 +308,12 @@ public class DefaultSsChunkSource implements SsChunkSource {
       return;
     }
 
-    int chunkIndex;
-    if (queue.isEmpty()) {
-      chunkIndex = streamElement.getChunkIndex(loadPositionUs);
-    } else {
-      chunkIndex =
-          (int) (queue.get(queue.size() - 1).getNextChunkIndex() - currentManifestChunkOffset);
-      if (chunkIndex < 0) {
-        // This is before the first chunk in the current manifest.
-        fatalError = new BehindLiveWindowException();
-        return;
-      }
-    }
+    clearOldChunks();
 
-    if (chunkIndex >= streamElement.chunkCount) {
-      // This is beyond the last chunk in the current manifest.
+    MediaChunk previous = queue.isEmpty() ? null : queue.get(queue.size() - 1);
+    ChunkInfo chunk = bestChunk(previous, loadPositionUs);
+    if(chunk == null) {
+      // This is before the first chunk in the current manifest.
       out.endOfStream = !manifest.isLive;
       return;
     }
@@ -227,28 +324,27 @@ public class DefaultSsChunkSource implements SsChunkSource {
     MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
     for (int i = 0; i < chunkIterators.length; i++) {
       int trackIndex = trackSelection.getIndexInTrackGroup(i);
-      chunkIterators[i] = new StreamElementIterator(streamElement, trackIndex, chunkIndex);
+      chunkIterators[i] = new StreamElementIterator(streamElement, trackIndex, chunk.chunkId);
     }
     trackSelection.updateSelectedTrack(
         playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs, queue, chunkIterators);
 
-    long chunkStartTimeUs = streamElement.getStartTimeUs(chunkIndex);
-    long chunkEndTimeUs = chunkStartTimeUs + streamElement.getChunkDurationUs(chunkIndex);
+    long chunkStartTimeUs = chunk.startTimeTs/10L;
+    long chunkEndTimeUs = chunkStartTimeUs + chunk.durationTs/10L;
     long chunkSeekTimeUs = queue.isEmpty() ? loadPositionUs : C.TIME_UNSET;
-    int currentAbsoluteChunkIndex = chunkIndex + currentManifestChunkOffset;
 
     int trackSelectionIndex = trackSelection.getSelectedIndex();
     ChunkExtractorWrapper extractorWrapper = extractorWrappers[trackSelectionIndex];
 
     int manifestTrackIndex = trackSelection.getIndexInTrackGroup(trackSelectionIndex);
-    Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
+    Uri uri = streamElement.buildRequestUriFromStartTime(manifestTrackIndex, chunk.startTimeTs);
 
     out.chunk =
         newMediaChunk(
             trackSelection.getSelectedFormat(),
             dataSource,
             uri,
-            currentAbsoluteChunkIndex,
+            chunk.chunkId,
             chunkStartTimeUs,
             chunkEndTimeUs,
             chunkSeekTimeUs,

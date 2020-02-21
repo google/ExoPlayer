@@ -567,7 +567,8 @@ public final class SsMediaSource extends BaseMediaSource
             loadErrorHandlingPolicy,
             eventDispatcher,
             manifestLoaderErrorThrower,
-            allocator);
+            allocator,
+	    this);
     mediaPeriods.add(period);
     return period;
   }
@@ -725,13 +726,19 @@ public final class SsMediaSource extends BaseMediaSource
     refreshSourceInfo(timeline);
   }
 
+  public void sourceInfoRefreshed(Timeline timeline) {
+    refreshSourceInfo(timeline);
+  }
+
   private void scheduleManifestRefresh() {
     if (!manifest.isLive) {
       return;
     }
+    /*
     long nextLoadTimestamp = manifestLoadStartTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS;
     long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
     manifestRefreshHandler.postDelayed(this::startLoadingManifest, delayUntilNextLoad);
+    */
   }
 
   private void startLoadingManifest() {
