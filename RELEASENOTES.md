@@ -32,6 +32,10 @@
   * Add a sample count parameter to `MediaCodecRenderer.processOutputBuffer`
     and `AudioSink.handleBuffer` to allow batching multiple encoded frames
     in one buffer.
+  * Add a `Format.Builder` and deprecate all `Format.create*` methods and most
+    `Format.copyWith*` methods.
+  * Split `Format.bitrate` into `Format.averageBitrate` and `Format.peakBitrate`
+    ([#2863](https://github.com/google/ExoPlayer/issues/2863)).
 * Text:
   * Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
     later).

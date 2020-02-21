@@ -568,7 +568,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             chunkIndex < mediaChunks.size()
                 ? mediaChunks.get(chunkIndex).trackFormat
                 : Assertions.checkNotNull(upstreamTrackFormat);
-        format = format.copyWithManifestFormatInfo(trackFormat);
+        format = format.withManifestFormatInfo(trackFormat);
       }
       formatHolder.format = format;
     }
@@ -1160,7 +1160,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
         if (chunkSourceTrackCount == 1) {
-          formats[0] = sampleFormat.copyWithManifestFormatInfo(chunkSourceTrackGroup.getFormat(0));
+          formats[0] = sampleFormat.withManifestFormatInfo(chunkSourceTrackGroup.getFormat(0));
         } else {
           for (int j = 0; j < chunkSourceTrackCount; j++) {
             formats[j] = deriveFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat, true);
@@ -1346,6 +1346,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       invalidateUpstreamFormatAdjustment();
     }
 
+    @SuppressWarnings("ReferenceEquality")
     @Override
     public Format getAdjustedUpstreamFormat(Format format) {
       @Nullable
@@ -1357,8 +1358,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           drmInitData = overridingDrmInitData;
         }
       }
-      return super.getAdjustedUpstreamFormat(
-          format.copyWithAdjustments(drmInitData, getAdjustedMetadata(format.metadata)));
+      @Nullable Metadata metadata = getAdjustedMetadata(format.metadata);
+      if (drmInitData != format.drmInitData || metadata != format.metadata) {
+        format = format.buildUpon().setDrmInitData(drmInitData).setMetadata(metadata).build();
+      }
+      return super.getAdjustedUpstreamFormat(format);
     }
 
     /**

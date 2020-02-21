@@ -423,17 +423,17 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Each sample has up to three bytes of overhead for the start code that replaces its length.
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
-      Format format = track.format.copyWithMaxInputSize(maxInputSize);
+      Format.Builder formatBuilder = track.format.buildUpon();
+      formatBuilder.setMaxInputSize(maxInputSize);
       if (track.type == C.TRACK_TYPE_VIDEO
           && trackDurationUs > 0
           && trackSampleTable.sampleCount > 1) {
         float frameRate = trackSampleTable.sampleCount / (trackDurationUs / 1000000f);
-        format = format.copyWithFrameRate(frameRate);
+        formatBuilder.setFrameRate(frameRate);
       }
-      format =
-          MetadataUtil.getFormatWithMetadata(
-              track.type, format, udtaMetadata, mdtaMetadata, gaplessInfoHolder);
-      mp4Track.trackOutput.format(format);
+      MetadataUtil.setFormatMetadata(
+          track.type, udtaMetadata, mdtaMetadata, gaplessInfoHolder, formatBuilder);
+      mp4Track.trackOutput.format(formatBuilder.build());
 
       if (track.type == C.TRACK_TYPE_VIDEO && firstVideoTrackIndex == C.INDEX_UNSET) {
         firstVideoTrackIndex = tracks.size();
