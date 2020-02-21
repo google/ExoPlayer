@@ -55,11 +55,11 @@ public final class HlsMediaPeriodTest {
     HlsMasterPlaylist testMasterPlaylist =
         createMasterPlaylist(
             /* variants= */ Arrays.asList(
-                createAudioOnlyVariant(/* bitrate= */ 10000),
-                createMuxedVideoAudioVariant(/* bitrate= */ 200000),
-                createAudioOnlyVariant(/* bitrate= */ 300000),
-                createMuxedVideoAudioVariant(/* bitrate= */ 400000),
-                createMuxedVideoAudioVariant(/* bitrate= */ 600000)),
+                createAudioOnlyVariant(/* peakBitrate= */ 10000),
+                createMuxedVideoAudioVariant(/* peakBitrate= */ 200000),
+                createAudioOnlyVariant(/* peakBitrate= */ 300000),
+                createMuxedVideoAudioVariant(/* peakBitrate= */ 400000),
+                createMuxedVideoAudioVariant(/* peakBitrate= */ 600000)),
             /* audios= */ Arrays.asList(
                 createAudioRendition(/* language= */ "spa"),
                 createAudioRendition(/* language= */ "ger"),
@@ -121,40 +121,22 @@ public final class HlsMediaPeriodTest {
         /* sessionKeyDrmInitData= */ Collections.emptyList());
   }
 
-  private static Variant createMuxedVideoAudioVariant(int bitrate) {
+  private static Variant createMuxedVideoAudioVariant(int peakBitrate) {
     return createVariant(
-        Format.createVideoContainerFormat(
-            /* id= */ null,
-            /* label= */ null,
-            /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-            /* sampleMimeType= */ null,
-            /* codecs= */ "avc1.100.41,mp4a.40.2",
-            /* metadata= */ null,
-            bitrate,
-            /* width= */ Format.NO_VALUE,
-            /* height= */ Format.NO_VALUE,
-            /* frameRate= */ Format.NO_VALUE,
-            /* initializationData= */ null,
-            /* selectionFlags= */ 0,
-            /* roleFlags= */ 0));
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
+            .setCodecs("avc1.100.41,mp4a.40.2")
+            .setPeakBitrate(peakBitrate)
+            .build());
   }
 
-  private static Variant createAudioOnlyVariant(int bitrate) {
+  private static Variant createAudioOnlyVariant(int peakBitrate) {
     return createVariant(
-        Format.createVideoContainerFormat(
-            /* id= */ null,
-            /* label= */ null,
-            /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-            /* sampleMimeType= */ null,
-            /* codecs= */ "mp4a.40.2",
-            /* metadata= */ null,
-            bitrate,
-            /* width= */ Format.NO_VALUE,
-            /* height= */ Format.NO_VALUE,
-            /* frameRate= */ Format.NO_VALUE,
-            /* initializationData= */ null,
-            /* selectionFlags= */ 0,
-            /* roleFlags= */ 0));
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
+            .setCodecs("mp4a.40.2")
+            .setPeakBitrate(peakBitrate)
+            .build());
   }
 
   private static Rendition createAudioRendition(String language) {
@@ -174,32 +156,19 @@ public final class HlsMediaPeriodTest {
   }
 
   private static Format createAudioFormat(String language) {
-    return Format.createAudioContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-        MimeTypes.getMediaMimeType("mp4a.40.2"),
-        /* codecs= */ "mp4a.40.2",
-        /* metadata= */ null,
-        /* bitrate= */ Format.NO_VALUE,
-        /* channelCount= */ Format.NO_VALUE,
-        /* sampleRate= */ Format.NO_VALUE,
-        /* initializationData= */ null,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        language);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
+        .setSampleMimeType(MimeTypes.getMediaMimeType("mp4a.40.2"))
+        .setCodecs("mp4a.40.2")
+        .setLanguage(language)
+        .build();
   }
 
   private static Format createSubtitleFormat(String language) {
-    return Format.createTextContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-        /* sampleMimeType= */ MimeTypes.TEXT_VTT,
-        /* codecs= */ null,
-        /* bitrate= */ Format.NO_VALUE,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        language);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
+        .setSampleMimeType(MimeTypes.TEXT_VTT)
+        .setLanguage(language)
+        .build();
   }
 }

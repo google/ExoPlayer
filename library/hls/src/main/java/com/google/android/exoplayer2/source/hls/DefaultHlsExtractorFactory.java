@@ -235,15 +235,11 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       // closed caption track on channel 0.
       muxedCaptionFormats =
           Collections.singletonList(
-              Format.createTextSampleFormat(
-                  /* id= */ null,
-                  MimeTypes.APPLICATION_CEA608,
-                  /* selectionFlags= */ 0,
-                  /* language= */ null));
+              new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA608).build());
     } else {
       muxedCaptionFormats = Collections.emptyList();
     }
-    String codecs = format.codecs;
+    @Nullable String codecs = format.codecs;
     if (!TextUtils.isEmpty(codecs)) {
       // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
       // exist. If we know from the codec attribute that they don't exist, then we can

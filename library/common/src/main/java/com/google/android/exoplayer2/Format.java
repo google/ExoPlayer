@@ -1347,39 +1347,6 @@ public final class Format implements Parcelable {
     return buildUpon().setLabel(label).build();
   }
 
-  // TODO: Inline into HlsSampleStreamWrapper and remove.
-  public Format copyWithContainerInfo(
-      @Nullable String id,
-      @Nullable String label,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      @Nullable Metadata metadata,
-      int bitrate,
-      int width,
-      int height,
-      int channelCount,
-      @C.SelectionFlags int selectionFlags,
-      @Nullable String language) {
-    if (this.metadata != null) {
-      metadata = this.metadata.copyWithAppendedEntriesFrom(metadata);
-    }
-
-    return buildUpon()
-        .setId(id)
-        .setLabel(label)
-        .setLanguage(language)
-        .setSelectionFlags(selectionFlags)
-        .setAverageBitrate(bitrate)
-        .setPeakBitrate(bitrate)
-        .setMetadata(metadata)
-        .setCodecs(codecs)
-        .setSampleMimeType(sampleMimeType)
-        .setWidth(width)
-        .setHeight(height)
-        .setChannelCount(channelCount)
-        .build();
-  }
-
   /** @deprecated Use {@link #withManifestFormatInfo(Format)}. */
   @Deprecated
   public Format copyWithManifestFormatInfo(Format manifestFormat) {

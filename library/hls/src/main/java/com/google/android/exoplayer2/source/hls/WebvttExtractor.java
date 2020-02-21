@@ -187,9 +187,11 @@ public final class WebvttExtractor implements Extractor {
   private TrackOutput buildTrackOutput(long subsampleOffsetUs) {
     TrackOutput trackOutput = output.track(0, C.TRACK_TYPE_TEXT);
     trackOutput.format(
-        Format.createTextSampleFormat(
-                /* id= */ null, MimeTypes.TEXT_VTT, /* selectionFlags= */ 0, language)
-            .copyWithSubsampleOffsetUs(subsampleOffsetUs));
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.TEXT_VTT)
+            .setLanguage(language)
+            .setSubsampleOffsetUs(subsampleOffsetUs)
+            .build());
     output.endTracks();
     return trackOutput;
   }
