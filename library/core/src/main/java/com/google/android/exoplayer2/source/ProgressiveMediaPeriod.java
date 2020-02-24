@@ -25,16 +25,13 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
 import com.google.android.exoplayer2.extractor.SeekMap.Unseekable;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -955,7 +952,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public void load() throws IOException, InterruptedException {
       int result = Extractor.RESULT_CONTINUE;
       while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-        ExtractorInput input = null;
         try {
           long position = positionHolder.position;
           dataSpec = buildDataSpec(position);
@@ -963,7 +959,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           if (length != C.LENGTH_UNSET) {
             length += position;
           }
-          Uri uri = Assertions.checkNotNull(dataSource.getUri());
           icyHeaders = IcyHeaders.parse(dataSource.getResponseHeaders());
           DataSource extractorDataSource = dataSource;
           if (icyHeaders != null && icyHeaders.metadataInterval != C.LENGTH_UNSET) {
@@ -971,23 +966,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             icyTrackOutput = icyTrack();
             icyTrackOutput.format(ICY_FORMAT);
           }
-          input = new DefaultExtractorInput(extractorDataSource, position, length);
-          Extractor extractor = extractorHolder.selectExtractor(input, extractorOutput, uri);
+          extractorHolder.init(extractorDataSource, position, length, extractorOutput);
 
-          // MP3 live streams commonly have seekable metadata, despite being unseekable.
-          if (icyHeaders != null && extractor instanceof Mp3Extractor) {
-            ((Mp3Extractor) extractor).disableSeeking();
+          if (icyHeaders != null) {
+            extractorHolder.disableSeekingOnMp3Streams();
           }
 
           if (pendingExtractorSeek) {
-            extractor.seek(position, seekTimeUs);
+            extractorHolder.seek(position, seekTimeUs);
             pendingExtractorSeek = false;
           }
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
             loadCondition.block();
-            result = extractor.read(input, positionHolder);
-            if (input.getPosition() > position + continueLoadingCheckIntervalBytes) {
-              position = input.getPosition();
+            result = extractorHolder.read(positionHolder);
+            long currentInputPosition = extractorHolder.getCurrentInputPosition();
+            if (currentInputPosition > position + continueLoadingCheckIntervalBytes) {
+              position = currentInputPosition;
               loadCondition.close();
               handler.post(onContinueLoadingRequestedRunnable);
             }
@@ -995,8 +989,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         } finally {
           if (result == Extractor.RESULT_SEEK) {
             result = Extractor.RESULT_CONTINUE;
-          } else if (input != null) {
-            positionHolder.position = input.getPosition();
+          } else if (extractorHolder.getCurrentInputPosition() != C.POSITION_UNSET) {
+            positionHolder.position = extractorHolder.getCurrentInputPosition();
           }
           Util.closeQuietly(dataSource);
         }
