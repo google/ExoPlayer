@@ -459,7 +459,7 @@ public final class DownloadHelper {
   public static MediaSource createMediaSource(
       DownloadRequest downloadRequest,
       DataSource.Factory dataSourceFactory,
-      DrmSessionManager<?> drmSessionManager) {
+      @Nullable DrmSessionManager<?> drmSessionManager) {
     @Nullable Constructor<? extends MediaSourceFactory> constructor;
     switch (downloadRequest.type) {
       case DownloadRequest.TYPE_DASH:
