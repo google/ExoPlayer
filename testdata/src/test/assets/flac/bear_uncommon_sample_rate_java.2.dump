@@ -10,7 +10,8 @@ track 0:
   total output bytes = 48500
   sample count = 10
   format 0:
-    bitrate = 1408000
+    averageBitrate = 1408000
+    peakBitrate = 1408000
     id = null
     containerMimeType = null
     sampleMimeType = audio/flac

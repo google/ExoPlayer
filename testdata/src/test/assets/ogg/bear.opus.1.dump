@@ -10,7 +10,8 @@ track 0:
   total output bytes = 17031
   sample count = 184
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = null
     containerMimeType = null
     sampleMimeType = audio/opus

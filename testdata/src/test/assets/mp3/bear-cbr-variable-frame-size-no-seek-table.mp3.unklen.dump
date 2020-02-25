@@ -7,7 +7,8 @@ track 0:
   total output bytes = 45139
   sample count = 108
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = null
     containerMimeType = null
     sampleMimeType = audio/mpeg
