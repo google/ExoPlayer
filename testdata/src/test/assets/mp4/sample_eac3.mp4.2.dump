@@ -10,7 +10,8 @@ track 0:
   total output bytes = 72000
   sample count = 18
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = 1
     containerMimeType = null
     sampleMimeType = audio/eac3

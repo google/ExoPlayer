@@ -7,7 +7,8 @@ track 0:
   total output bytes = 30797
   sample count = 144
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = 0
     containerMimeType = null
     sampleMimeType = audio/mp4a-latm
@@ -609,7 +610,8 @@ track 1:
   total output bytes = 0
   sample count = 0
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = 1
     containerMimeType = null
     sampleMimeType = application/id3

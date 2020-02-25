@@ -266,7 +266,8 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
     public void dump(Dumper dumper) {
       dumper
           .startBlock("format " + index)
-          .add("bitrate", format.bitrate)
+          .add("averageBitrate", format.averageBitrate)
+          .add("peakBitrate", format.peakBitrate)
           .add("id", format.id)
           .add("containerMimeType", format.containerMimeType)
           .add("sampleMimeType", format.sampleMimeType)

@@ -10,7 +10,8 @@ track 0:
   total output bytes = 17598
   sample count = 109
   format 0:
-    bitrate = 112000
+    averageBitrate = 112000
+    peakBitrate = 112000
     id = null
     containerMimeType = null
     sampleMimeType = audio/vorbis

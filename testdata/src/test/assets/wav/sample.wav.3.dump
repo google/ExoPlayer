@@ -10,7 +10,8 @@ track 0:
   total output bytes = 2
   sample count = 1
   format 0:
-    bitrate = 705600
+    averageBitrate = 705600
+    peakBitrate = 705600
     id = null
     containerMimeType = null
     sampleMimeType = audio/raw

@@ -10,7 +10,8 @@ track 0:
   total output bytes = 2834
   sample count = 218
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = null
     containerMimeType = null
     sampleMimeType = audio/3gpp

@@ -10,7 +10,8 @@ track 1:
   total output bytes = 213
   sample count = 3
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = 1
     containerMimeType = null
     sampleMimeType = application/x-subrip

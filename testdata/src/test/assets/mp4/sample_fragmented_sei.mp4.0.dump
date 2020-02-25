@@ -7,7 +7,8 @@ track 0:
   total output bytes = 85933
   sample count = 30
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = 1
     containerMimeType = null
     sampleMimeType = video/avc
@@ -154,7 +155,8 @@ track 1:
   total output bytes = 18257
   sample count = 46
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = 2
     containerMimeType = null
     sampleMimeType = audio/mp4a-latm
@@ -364,7 +366,8 @@ track 3:
   total output bytes = 0
   sample count = 0
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = null
     containerMimeType = null
     sampleMimeType = application/cea-608

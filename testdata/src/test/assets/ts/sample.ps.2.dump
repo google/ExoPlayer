@@ -10,7 +10,8 @@ track 192:
   total output bytes = 0
   sample count = 0
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = 192
     containerMimeType = null
     sampleMimeType = audio/mpeg-L2
@@ -35,7 +36,8 @@ track 224:
   total output bytes = 19791
   sample count = 0
   format 0:
-    bitrate = -1
+    averageBitrate = -1
+    peakBitrate = -1
     id = 224
     containerMimeType = null
     sampleMimeType = video/mpeg2
