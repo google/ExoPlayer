@@ -293,16 +293,7 @@ public class SimpleExoPlayer extends BasePlayer
     public SimpleExoPlayer build() {
       Assertions.checkState(!buildCalled);
       buildCalled = true;
-      return new SimpleExoPlayer(
-          context,
-          renderersFactory,
-          trackSelector,
-          loadControl,
-          bandwidthMeter,
-          analyticsCollector,
-          useLazyPreparation,
-          clock,
-          looper);
+      return new SimpleExoPlayer(/* builder= */ this);
     }
   }
 
@@ -350,6 +341,20 @@ public class SimpleExoPlayer extends BasePlayer
   @Nullable private PriorityTaskManager priorityTaskManager;
   private boolean isPriorityTaskManagerRegistered;
   private boolean playerReleased;
+
+  /** @param builder The {@link Builder} to obtain all construction parameters. */
+  protected SimpleExoPlayer(Builder builder) {
+    this(
+        builder.context,
+        builder.renderersFactory,
+        builder.trackSelector,
+        builder.loadControl,
+        builder.bandwidthMeter,
+        builder.analyticsCollector,
+        builder.useLazyPreparation,
+        builder.clock,
+        builder.looper);
+  }
 
   /**
    * @param context A {@link Context}.
