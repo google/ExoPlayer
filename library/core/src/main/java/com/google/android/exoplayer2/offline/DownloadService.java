@@ -595,7 +595,7 @@ public abstract class DownloadService extends Service {
   }
 
   @Override
-  public int onStartCommand(Intent intent, int flags, int startId) {
+  public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
     lastStartId = startId;
     taskRemoved = false;
     @Nullable String intentAction = null;
