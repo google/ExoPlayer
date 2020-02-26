@@ -41,7 +41,7 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_native");
+        /* dumpFilesPrefix= */ "flac/bear_raw");
   }
 
   @Test
@@ -50,7 +50,7 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_with_id3.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_with_id3_enabled_native");
+        /* dumpFilesPrefix= */ "flac/bear_with_id3_enabled_raw");
   }
 
   @Test
@@ -59,7 +59,7 @@ public class FlacExtractorTest {
         () -> new FlacExtractor(FlacExtractor.FLAG_DISABLE_ID3_METADATA),
         /* file= */ "flac/bear_with_id3.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_with_id3_disabled_native");
+        /* dumpFilesPrefix= */ "flac/bear_with_id3_disabled_raw");
   }
 
   @Test
@@ -68,7 +68,7 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_no_seek_table_no_num_samples.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_no_seek_table_no_num_samples_native");
+        /* dumpFilesPrefix= */ "flac/bear_no_seek_table_no_num_samples_raw");
   }
 
   @Test
@@ -77,7 +77,7 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_with_vorbis_comments.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_with_vorbis_comments_native");
+        /* dumpFilesPrefix= */ "flac/bear_with_vorbis_comments_raw");
   }
 
   @Test
@@ -86,7 +86,7 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_with_picture.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_with_picture_native");
+        /* dumpFilesPrefix= */ "flac/bear_with_picture_raw");
   }
 
   @Test
@@ -95,7 +95,7 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_one_metadata_block.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_one_metadata_block_native");
+        /* dumpFilesPrefix= */ "flac/bear_one_metadata_block_raw");
   }
 
   @Test
@@ -104,7 +104,7 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_no_min_max_frame_size.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_no_min_max_frame_size_native");
+        /* dumpFilesPrefix= */ "flac/bear_no_min_max_frame_size_raw");
   }
 
   @Test
@@ -113,7 +113,7 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_no_num_samples.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_no_num_samples_native");
+        /* dumpFilesPrefix= */ "flac/bear_no_num_samples_raw");
   }
 
   @Test
@@ -122,6 +122,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_uncommon_sample_rate.flac",
         ApplicationProvider.getApplicationContext(),
-        /* dumpFilesPrefix= */ "flac/bear_uncommon_sample_rate_native");
+        /* dumpFilesPrefix= */ "flac/bear_uncommon_sample_rate_raw");
   }
 }
