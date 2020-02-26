@@ -29,8 +29,11 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 
-/** Stores a list of extractors and a selected extractor when the format has been detected. */
-/* package */ final class ExtractorHolder {
+/**
+ * {@link ProgressiveMediaExtractor} built on top of {@link Extractor} instances, whose
+ * implementation classes are bundled in the app.
+ */
+/* package */ final class BundledExtractorsAdapter implements ProgressiveMediaExtractor {
 
   private final Extractor[] extractors;
 
@@ -42,33 +45,11 @@ import java.io.IOException;
    *
    * @param extractors One or more extractors to choose from.
    */
-  public ExtractorHolder(Extractor[] extractors) {
+  public BundledExtractorsAdapter(Extractor[] extractors) {
     this.extractors = extractors;
   }
 
-  /**
-   * Disables seeking in MP3 streams.
-   *
-   * <p>MP3 live streams commonly have seekable metadata, despite being unseekable.
-   */
-  public void disableSeekingOnMp3Streams() {
-    if (extractor instanceof Mp3Extractor) {
-      ((Mp3Extractor) extractor).disableSeeking();
-    }
-  }
-
-  /**
-   * Initializes any necessary resources for extraction.
-   *
-   * @param dataSource The {@link DataSource} from which data should be read.
-   * @param position The initial position of the {@code dataSource} in the stream.
-   * @param length The length of the stream, or {@link C#LENGTH_UNSET} if it is unknown.
-   * @param output The {@link ExtractorOutput} that will be used to initialize the selected
-   *     extractor.
-   * @throws UnrecognizedInputFormatException Thrown if the input format could not be detected.
-   * @throws IOException Thrown if the input could not be read.
-   * @throws InterruptedException Thrown if the thread was interrupted.
-   */
+  @Override
   public void init(DataSource dataSource, long position, long length, ExtractorOutput output)
       throws IOException, InterruptedException {
     extractorInput = new DefaultExtractorInput(dataSource, position, length);
@@ -101,44 +82,35 @@ import java.io.IOException;
     extractor.init(output);
   }
 
-  /**
-   * Returns the current read position in the input stream, or {@link C#POSITION_UNSET} if no input
-   * is available.
-   */
-  public long getCurrentInputPosition() {
-    return extractorInput != null ? extractorInput.getPosition() : C.POSITION_UNSET;
-  }
-
-  /**
-   * Notifies the underlying extractor that a seek has occurred.
-   *
-   * @param position The byte offset in the stream from which data will be provided.
-   * @param seekTimeUs The seek time in microseconds.
-   */
-  public void seek(long position, long seekTimeUs) {
-    Assertions.checkNotNull(extractor).seek(position, seekTimeUs);
-  }
-
-  /**
-   * Extracts data starting at the current input stream position.
-   *
-   * @param positionHolder If {@link Extractor#RESULT_SEEK} is returned, this holder is updated to
-   *     hold the position of the required data.
-   * @return One of the {@link Extractor}{@code .RESULT_*} values.
-   * @throws IOException If an error occurred reading from the input.
-   * @throws InterruptedException If the thread was interrupted.
-   */
-  public int read(PositionHolder positionHolder) throws IOException, InterruptedException {
-    return Assertions.checkNotNull(extractor)
-        .read(Assertions.checkNotNull(extractorInput), positionHolder);
-  }
-
-  /** Releases any held resources. */
+  @Override
   public void release() {
     if (extractor != null) {
       extractor.release();
       extractor = null;
     }
     extractorInput = null;
+  }
+
+  @Override
+  public void disableSeekingOnMp3Streams() {
+    if (extractor instanceof Mp3Extractor) {
+      ((Mp3Extractor) extractor).disableSeeking();
+    }
+  }
+
+  @Override
+  public long getCurrentInputPosition() {
+    return extractorInput != null ? extractorInput.getPosition() : C.POSITION_UNSET;
+  }
+
+  @Override
+  public void seek(long position, long seekTimeUs) {
+    Assertions.checkNotNull(extractor).seek(position, seekTimeUs);
+  }
+
+  @Override
+  public int read(PositionHolder positionHolder) throws IOException, InterruptedException {
+    return Assertions.checkNotNull(extractor)
+        .read(Assertions.checkNotNull(extractorInput), positionHolder);
   }
 }

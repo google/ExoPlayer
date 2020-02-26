@@ -103,7 +103,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private final String customCacheKey;
   private final long continueLoadingCheckIntervalBytes;
   private final Loader loader;
-  private final ExtractorHolder extractorHolder;
+  private final ProgressiveMediaExtractor progressiveMediaExtractor;
   private final ConditionVariable loadCondition;
   private final Runnable maybeFinishPrepareRunnable;
   private final Runnable onContinueLoadingRequestedRunnable;
@@ -175,7 +175,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     loader = new Loader("Loader:ProgressiveMediaPeriod");
-    extractorHolder = new ExtractorHolder(extractors);
+    progressiveMediaExtractor = new BundledExtractorsAdapter(extractors);
     loadCondition = new ConditionVariable();
     maybeFinishPrepareRunnable = this::maybeFinishPrepare;
     onContinueLoadingRequestedRunnable =
@@ -215,7 +215,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.release();
     }
-    extractorHolder.release();
+    progressiveMediaExtractor.release();
   }
 
   @Override
@@ -756,7 +756,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void startLoading() {
     ExtractingLoadable loadable =
         new ExtractingLoadable(
-            uri, dataSource, extractorHolder, /* extractorOutput= */ this, loadCondition);
+            uri, dataSource, progressiveMediaExtractor, /* extractorOutput= */ this, loadCondition);
     if (preparedState != null) {
       SeekMap seekMap = preparedState.seekMap;
       Assertions.checkState(isPendingReset());
@@ -909,7 +909,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private final Uri uri;
     private final StatsDataSource dataSource;
-    private final ExtractorHolder extractorHolder;
+    private final ProgressiveMediaExtractor progressiveMediaExtractor;
     private final ExtractorOutput extractorOutput;
     private final ConditionVariable loadCondition;
     private final PositionHolder positionHolder;
@@ -927,12 +927,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public ExtractingLoadable(
         Uri uri,
         DataSource dataSource,
-        ExtractorHolder extractorHolder,
+        ProgressiveMediaExtractor progressiveMediaExtractor,
         ExtractorOutput extractorOutput,
         ConditionVariable loadCondition) {
       this.uri = uri;
       this.dataSource = new StatsDataSource(dataSource);
-      this.extractorHolder = extractorHolder;
+      this.progressiveMediaExtractor = progressiveMediaExtractor;
       this.extractorOutput = extractorOutput;
       this.loadCondition = loadCondition;
       this.positionHolder = new PositionHolder();
@@ -966,20 +966,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             icyTrackOutput = icyTrack();
             icyTrackOutput.format(ICY_FORMAT);
           }
-          extractorHolder.init(extractorDataSource, position, length, extractorOutput);
+          progressiveMediaExtractor.init(extractorDataSource, position, length, extractorOutput);
 
           if (icyHeaders != null) {
-            extractorHolder.disableSeekingOnMp3Streams();
+            progressiveMediaExtractor.disableSeekingOnMp3Streams();
           }
 
           if (pendingExtractorSeek) {
-            extractorHolder.seek(position, seekTimeUs);
+            progressiveMediaExtractor.seek(position, seekTimeUs);
             pendingExtractorSeek = false;
           }
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
             loadCondition.block();
-            result = extractorHolder.read(positionHolder);
-            long currentInputPosition = extractorHolder.getCurrentInputPosition();
+            result = progressiveMediaExtractor.read(positionHolder);
+            long currentInputPosition = progressiveMediaExtractor.getCurrentInputPosition();
             if (currentInputPosition > position + continueLoadingCheckIntervalBytes) {
               position = currentInputPosition;
               loadCondition.close();
@@ -989,8 +989,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         } finally {
           if (result == Extractor.RESULT_SEEK) {
             result = Extractor.RESULT_CONTINUE;
-          } else if (extractorHolder.getCurrentInputPosition() != C.POSITION_UNSET) {
-            positionHolder.position = extractorHolder.getCurrentInputPosition();
+          } else if (progressiveMediaExtractor.getCurrentInputPosition() != C.POSITION_UNSET) {
+            positionHolder.position = progressiveMediaExtractor.getCurrentInputPosition();
           }
           Util.closeQuietly(dataSource);
         }
