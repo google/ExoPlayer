@@ -3,6 +3,9 @@
 ### dev-v2 (not yet released) ###
 
 * Core library:
+  * The `DefaultLoadControl` default minimum buffer is set to 50 seconds,
+    equal to the default maximum buffer. `DefaultLoadControl` applies the
+    same behavior for audio and video.
   * Add API in `AnalyticsListener` to report video frame processing offset.
     `MediaCodecVideoRenderer` reports the event.
   * Add fields `videoFrameProcessingOffsetUsSum` and
