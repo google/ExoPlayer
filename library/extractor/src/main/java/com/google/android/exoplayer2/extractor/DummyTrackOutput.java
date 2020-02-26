@@ -27,6 +27,15 @@ import java.io.IOException;
  */
 public final class DummyTrackOutput implements TrackOutput {
 
+  // Even though read data is discarded, data source implementations could be making use of the
+  // buffer contents. For example, caches. So we cannot use a static field for this which could be
+  // shared between different threads.
+  private final byte[] readBuffer;
+
+  public DummyTrackOutput() {
+    readBuffer = new byte[4096];
+  }
+
   @Override
   public void format(Format format) {
     // Do nothing.
@@ -35,7 +44,8 @@ public final class DummyTrackOutput implements TrackOutput {
   @Override
   public int sampleData(SampleDataReader input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
-    int bytesSkipped = input.skip(length);
+    int bytesToSkipByReading = Math.min(readBuffer.length, length);
+    int bytesSkipped = input.read(readBuffer, /* offset= */ 0, bytesToSkipByReading);
     if (bytesSkipped == C.RESULT_END_OF_INPUT) {
       if (allowEndOfInput) {
         return C.RESULT_END_OF_INPUT;
