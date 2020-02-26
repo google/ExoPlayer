@@ -33,16 +33,4 @@ public interface SampleDataReader {
    * @throws InterruptedException If the thread has been interrupted.
    */
   int read(byte[] target, int offset, int length) throws IOException, InterruptedException;
-
-  /**
-   * Like {@link #read(byte[], int, int)}, except the sample data is skipped instead of read.
-   *
-   * @param length The maximum number of bytes to skip from the input.
-   * @return The number of bytes skipped, or {@link C#RESULT_END_OF_INPUT} if the input has ended.
-   *     This may be less than {@code length} because the end of the input (or available data) was
-   *     reached, the method was interrupted, or the operation was aborted early for another reason.
-   * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread has been interrupted.
-   */
-  int skip(int length) throws IOException, InterruptedException;
 }
