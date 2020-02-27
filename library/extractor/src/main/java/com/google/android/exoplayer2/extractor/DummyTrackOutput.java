@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public final class DummyTrackOutput implements TrackOutput {
   }
 
   @Override
-  public int sampleData(SampleDataReader input, int length, boolean allowEndOfInput)
+  public int sampleData(DataReader input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     int bytesToSkipByReading = Math.min(readBuffer.length, length);
     int bytesSkipped = input.read(readBuffer, /* offset= */ 0, bytesToSkipByReading);

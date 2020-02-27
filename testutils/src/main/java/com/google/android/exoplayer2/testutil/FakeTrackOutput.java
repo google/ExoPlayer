@@ -20,9 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.extractor.SampleDataReader;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.testutil.Dumper.Dumpable;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
@@ -65,7 +65,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   }
 
   @Override
-  public int sampleData(SampleDataReader input, int length, boolean allowEndOfInput)
+  public int sampleData(DataReader input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     byte[] newData = new byte[length];
     int bytesAppended = input.read(newData, 0, length);

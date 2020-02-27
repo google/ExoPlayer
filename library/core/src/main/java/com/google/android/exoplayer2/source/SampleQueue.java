@@ -26,9 +26,9 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.extractor.SampleDataReader;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -469,7 +469,7 @@ public class SampleQueue implements TrackOutput {
   }
 
   @Override
-  public final int sampleData(SampleDataReader input, int length, boolean allowEndOfInput)
+  public final int sampleData(DataReader input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     return sampleDataQueue.sampleData(input, length, allowEndOfInput);
   }
