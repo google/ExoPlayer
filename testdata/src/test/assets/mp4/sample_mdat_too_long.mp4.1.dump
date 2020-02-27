@@ -10,27 +10,12 @@ track 0:
   total output bytes = 89876
   sample count = 30
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
     id = 1
-    containerMimeType = null
     sampleMimeType = video/avc
     maxInputSize = 36722
     width = 1080
     height = 720
     frameRate = 29.970028
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
-    channelCount = -1
-    sampleRate = -1
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
-    language = null
-    drmInitData = -
-    metadata = null
     initializationData:
       data = length 29, hash 4746B5D9
       data = length 10, hash 7A0D0F2B
@@ -158,26 +143,12 @@ track 1:
   total output bytes = 7464
   sample count = 33
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
     id = 2
-    containerMimeType = null
     sampleMimeType = audio/mp4a-latm
     maxInputSize = 294
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
     channelCount = 1
     sampleRate = 44100
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
     language = und
-    drmInitData = -
     metadata = entries=[TSSE: description=null: value=Lavf56.1.0]
     initializationData:
       data = length 2, hash 5F7

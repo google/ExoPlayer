@@ -10,27 +10,10 @@ track 1:
   total output bytes = 0
   sample count = 0
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
     id = 1
-    containerMimeType = null
     sampleMimeType = video/avc
-    maxInputSize = -1
     width = 1080
     height = 720
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
-    channelCount = -1
-    sampleRate = -1
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
-    language = null
-    drmInitData = -
-    metadata = null
     initializationData:
       data = length 30, hash F6F3D010
       data = length 10, hash 7A0D0F2B
@@ -38,28 +21,12 @@ track 2:
   total output bytes = 1254
   sample count = 3
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
     id = 2
-    containerMimeType = null
     sampleMimeType = audio/ac3
-    maxInputSize = -1
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
     channelCount = 1
     sampleRate = 44100
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
     selectionFlags = 1
     language = und
-    drmInitData = -
-    metadata = null
-    initializationData:
   sample 0:
     time = 1035000
     flags = 1

@@ -10,27 +10,10 @@ track 0:
   total output bytes = 20523
   sample count = 93
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
     id = 0
-    containerMimeType = null
     sampleMimeType = audio/mp4a-latm
-    maxInputSize = -1
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
     channelCount = 1
     sampleRate = 44100
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
-    language = null
-    drmInitData = -
-    metadata = null
     initializationData:
       data = length 2, hash 5F7
   sample 0:
@@ -409,26 +392,6 @@ track 1:
   total output bytes = 0
   sample count = 0
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
     id = 1
-    containerMimeType = null
     sampleMimeType = application/id3
-    maxInputSize = -1
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
-    channelCount = -1
-    sampleRate = -1
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
-    language = null
-    drmInitData = -
-    metadata = null
-    initializationData:
 tracksEnded = true

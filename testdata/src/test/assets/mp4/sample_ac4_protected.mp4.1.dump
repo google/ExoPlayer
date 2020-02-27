@@ -10,28 +10,12 @@ track 0:
   total output bytes = 5632
   sample count = 13
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
     id = 1
-    containerMimeType = null
     sampleMimeType = audio/ac4
-    maxInputSize = -1
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
     channelCount = 2
     sampleRate = 48000
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
     language = und
     drmInitData = -1683793742
-    metadata = null
-    initializationData:
   sample 0:
     time = 240000
     flags = 1073741825

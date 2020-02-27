@@ -7,28 +7,11 @@ track 330:
   total output bytes = 9928
   sample count = 19
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
     id = 1031/330
-    containerMimeType = null
     sampleMimeType = audio/eac3
-    maxInputSize = -1
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
     channelCount = 2
     sampleRate = 48000
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
     language = fr
-    drmInitData = -
-    metadata = null
-    initializationData:
   sample 0:
     time = 0
     flags = 1
@@ -109,28 +92,8 @@ track 370:
   total output bytes = 1413
   sample count = 3
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
-    id = null
-    containerMimeType = null
     sampleMimeType = application/vnd.dvb.ait
-    maxInputSize = -1
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
-    channelCount = -1
-    sampleRate = -1
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
     subsampleOffsetUs = -43622564033
-    selectionFlags = 0
-    language = null
-    drmInitData = -
-    metadata = null
-    initializationData:
   sample 0:
     time = 0
     flags = 1
