@@ -14,6 +14,8 @@ track 1:
     sampleMimeType = video/avc
     width = 1080
     height = 720
+    selectionFlags = 1
+    language = und
     initializationData:
       data = length 30, hash F6F3D010
       data = length 10, hash 7A0D0F2B
