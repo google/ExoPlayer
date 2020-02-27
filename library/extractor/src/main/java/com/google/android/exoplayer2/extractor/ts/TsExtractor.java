@@ -96,6 +96,9 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
   public static final int TS_STREAM_TYPE_DVBSUBS = 0x59;
 
+  // Stream types that aren't defined by the MPEG-2 TS specification.
+  public static final int TS_STREAM_TYPE_AIT = 0x101;
+
   public static final int TS_PACKET_SIZE = 188;
   public static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
 
@@ -494,6 +497,7 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_REGISTRATION = 0x05;
     private static final int TS_PMT_DESC_ISO639_LANG = 0x0A;
     private static final int TS_PMT_DESC_AC3 = 0x6A;
+    private static final int TS_PMT_DESC_AIT = 0x6F;
     private static final int TS_PMT_DESC_EAC3 = 0x7A;
     private static final int TS_PMT_DESC_DTS = 0x7B;
     private static final int TS_PMT_DESC_DVB_EXT = 0x7F;
@@ -578,7 +582,7 @@ public final class TsExtractor implements Extractor {
         pmtScratch.skipBits(4); // reserved
         int esInfoLength = pmtScratch.readBits(12); // ES_info_length.
         EsInfo esInfo = readEsInfo(sectionData, esInfoLength);
-        if (streamType == 0x06) {
+        if (streamType == 0x06 || streamType == 0x05) {
           streamType = esInfo.streamType;
         }
         remainingEntriesLength -= esInfoLength + 5;
@@ -688,6 +692,8 @@ public final class TsExtractor implements Extractor {
             dvbSubtitleInfos.add(new DvbSubtitleInfo(dvbLanguage, dvbSubtitlingType,
                 initializationData));
           }
+        } else if (descriptorTag == TS_PMT_DESC_AIT) {
+          streamType = TS_STREAM_TYPE_AIT;
         }
         // Skip unused bytes of current descriptor.
         data.skipBytes(positionOfNextDescriptor - data.getPosition());
