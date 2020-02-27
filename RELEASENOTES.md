@@ -1,7 +1,9 @@
 # Release notes #
 
-### 2.11.4 (2020-04-01) ###
+### 2.11.4 (2020-04-08) ###
 
+* Add optional automatic `WifiLock` handling to `SimpleExoPlayer`
+  ([#6914](https://github.com/google/ExoPlayer/issues/6914)).
 * Text:
   * Catch and log exceptions in `TextRenderer` rather than re-throwing. This
     allows playback to continue even if subtitle decoding fails
