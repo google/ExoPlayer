@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil.AacConfig;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -1086,6 +1087,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int channelCount;
     int sampleRate;
     @C.PcmEncoding int pcmEncoding = Format.NO_VALUE;
+    @Nullable String codecs = null;
 
     if (quickTimeSoundDescriptionVersion == 0 || quickTimeSoundDescriptionVersion == 1) {
       channelCount = parent.readUnsignedShort();
@@ -1182,10 +1184,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           if (MimeTypes.AUDIO_AAC.equals(mimeType) && initializationData != null) {
             // Update sampleRate and channelCount from the AudioSpecificConfig initialization data,
             // which is more reliable. See [Internal: b/10903778].
-            Pair<Integer, Integer> audioSpecificConfig =
+            AacConfig aacConfig =
                 CodecSpecificDataUtil.parseAacAudioSpecificConfig(initializationData);
-            sampleRate = audioSpecificConfig.first;
-            channelCount = audioSpecificConfig.second;
+            sampleRate = aacConfig.sampleRateHz;
+            channelCount = aacConfig.channelCount;
+            codecs = aacConfig.codecs;
           }
         }
       } else if (childAtomType == Atom.TYPE_dac3) {
@@ -1237,10 +1240,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     if (out.format == null && mimeType != null) {
-      out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
-          Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, pcmEncoding,
-          initializationData == null ? null : Collections.singletonList(initializationData),
-          drmInitData, 0, language);
+      out.format =
+          new Format.Builder()
+              .setId(Integer.toString(trackId))
+              .setSampleMimeType(mimeType)
+              .setCodecs(codecs)
+              .setChannelCount(channelCount)
+              .setSampleRate(sampleRate)
+              .setPcmEncoding(pcmEncoding)
+              .setInitializationData(
+                  initializationData == null ? null : Collections.singletonList(initializationData))
+              .setDrmInitData(drmInitData)
+              .setLanguage(language)
+              .build();
     }
   }
 
