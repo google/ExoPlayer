@@ -10,27 +10,9 @@ track 0:
   total output bytes = 8698
   sample count = 92
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
-    id = null
-    containerMimeType = null
     sampleMimeType = audio/opus
-    maxInputSize = -1
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
     channelCount = 2
     sampleRate = 48000
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
-    language = null
-    drmInitData = -
-    metadata = null
     initializationData:
       data = length 19, hash BFE794DB
       data = length 8, hash CA22068C

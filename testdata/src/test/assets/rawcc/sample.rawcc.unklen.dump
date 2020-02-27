@@ -7,28 +7,7 @@ track 0:
   total output bytes = 978
   sample count = 150
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
-    id = null
-    containerMimeType = null
     sampleMimeType = application/cea-608
-    maxInputSize = -1
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
-    channelCount = -1
-    sampleRate = -1
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
-    language = null
-    drmInitData = -
-    metadata = null
-    initializationData:
   sample 0:
     time = 37657512133
     flags = 1

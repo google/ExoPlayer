@@ -7,28 +7,10 @@ track 0:
   total output bytes = 2834
   sample count = 218
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
-    id = null
-    containerMimeType = null
     sampleMimeType = audio/3gpp
     maxInputSize = 61
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
     channelCount = 1
     sampleRate = 8000
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
-    language = null
-    drmInitData = -
-    metadata = null
-    initializationData:
   sample 0:
     time = 0
     flags = 1

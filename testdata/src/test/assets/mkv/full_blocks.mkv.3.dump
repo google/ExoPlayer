@@ -10,28 +10,10 @@ track 1:
   total output bytes = 213
   sample count = 3
   format 0:
-    averageBitrate = -1
-    peakBitrate = -1
     id = 1
-    containerMimeType = null
     sampleMimeType = application/x-subrip
-    maxInputSize = -1
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
-    channelCount = -1
-    sampleRate = -1
-    pcmEncoding = -1
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
     selectionFlags = 1
     language = und
-    drmInitData = -
-    metadata = null
-    initializationData:
   sample 0:
     time = 0
     flags = 1

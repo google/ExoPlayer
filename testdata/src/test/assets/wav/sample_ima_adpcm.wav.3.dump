@@ -12,26 +12,11 @@ track 0:
   format 0:
     averageBitrate = 177004
     peakBitrate = 177004
-    id = null
-    containerMimeType = null
     sampleMimeType = audio/raw
     maxInputSize = 8820
-    width = -1
-    height = -1
-    frameRate = -1.0
-    rotationDegrees = 0
-    pixelWidthHeightRatio = 1.0
     channelCount = 1
     sampleRate = 44100
     pcmEncoding = 2
-    encoderDelay = 0
-    encoderPadding = 0
-    subsampleOffsetUs = 9223372036854775807
-    selectionFlags = 0
-    language = null
-    drmInitData = -
-    metadata = null
-    initializationData:
   sample 0:
     time = 1018185
     flags = 1

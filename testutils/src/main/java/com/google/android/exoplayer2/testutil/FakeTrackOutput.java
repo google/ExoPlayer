@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.testutil.Dumper.Dumpable;
 import com.google.android.exoplayer2.upstream.DataReader;
+import com.google.android.exoplayer2.util.Function;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A fake {@link TrackOutput}.
@@ -257,6 +259,8 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
     private final Format format;
     public final int index;
 
+    private static final Format DEFAULT_FORMAT = new Format.Builder().build();
+
     public DumpableFormat(Format format, int index) {
       this.format = format;
       this.index = index;
@@ -264,35 +268,38 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
     @Override
     public void dump(Dumper dumper) {
-      dumper
-          .startBlock("format " + index)
-          .add("averageBitrate", format.averageBitrate)
-          .add("peakBitrate", format.peakBitrate)
-          .add("id", format.id)
-          .add("containerMimeType", format.containerMimeType)
-          .add("sampleMimeType", format.sampleMimeType)
-          .add("maxInputSize", format.maxInputSize)
-          .add("width", format.width)
-          .add("height", format.height)
-          .add("frameRate", format.frameRate)
-          .add("rotationDegrees", format.rotationDegrees)
-          .add("pixelWidthHeightRatio", format.pixelWidthHeightRatio)
-          .add("channelCount", format.channelCount)
-          .add("sampleRate", format.sampleRate)
-          .add("pcmEncoding", format.pcmEncoding)
-          .add("encoderDelay", format.encoderDelay)
-          .add("encoderPadding", format.encoderPadding)
-          .add("subsampleOffsetUs", format.subsampleOffsetUs)
-          .add("selectionFlags", format.selectionFlags)
-          .add("language", format.language)
-          .add("drmInitData", format.drmInitData != null ? format.drmInitData.hashCode() : "-")
-          .add("metadata", format.metadata);
-
-      dumper.startBlock("initializationData");
-      for (int i = 0; i < format.initializationData.size(); i++) {
-        dumper.add("data", format.initializationData.get(i));
+      dumper.startBlock("format " + index);
+      addIfNonDefault(dumper, "averageBitrate", format -> format.averageBitrate);
+      addIfNonDefault(dumper, "peakBitrate", format -> format.peakBitrate);
+      addIfNonDefault(dumper, "id", format -> format.id);
+      addIfNonDefault(dumper, "containerMimeType", format -> format.containerMimeType);
+      addIfNonDefault(dumper, "sampleMimeType", format -> format.sampleMimeType);
+      addIfNonDefault(dumper, "maxInputSize", format -> format.maxInputSize);
+      addIfNonDefault(dumper, "width", format -> format.width);
+      addIfNonDefault(dumper, "height", format -> format.height);
+      addIfNonDefault(dumper, "frameRate", format -> format.frameRate);
+      addIfNonDefault(dumper, "rotationDegrees", format -> format.rotationDegrees);
+      addIfNonDefault(dumper, "pixelWidthHeightRatio", format -> format.pixelWidthHeightRatio);
+      addIfNonDefault(dumper, "channelCount", format -> format.channelCount);
+      addIfNonDefault(dumper, "sampleRate", format -> format.sampleRate);
+      addIfNonDefault(dumper, "pcmEncoding", format -> format.pcmEncoding);
+      addIfNonDefault(dumper, "encoderDelay", format -> format.encoderDelay);
+      addIfNonDefault(dumper, "encoderPadding", format -> format.encoderPadding);
+      addIfNonDefault(dumper, "subsampleOffsetUs", format -> format.subsampleOffsetUs);
+      addIfNonDefault(dumper, "selectionFlags", format -> format.selectionFlags);
+      addIfNonDefault(dumper, "language", format -> format.language);
+      if (format.drmInitData != null) {
+        dumper.add("drmInitData", format.drmInitData.hashCode());
       }
-      dumper.endBlock().endBlock();
+      addIfNonDefault(dumper, "metadata", format -> format.metadata);
+      if (!format.initializationData.isEmpty()) {
+        dumper.startBlock("initializationData");
+        for (int i = 0; i < format.initializationData.size(); i++) {
+          dumper.add("data", format.initializationData.get(i));
+        }
+        dumper.endBlock();
+      }
+      dumper.endBlock();
     }
 
     @Override
@@ -312,6 +319,15 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
       int result = format.hashCode();
       result = 31 * result + index;
       return result;
+    }
+
+    private void addIfNonDefault(
+        Dumper dumper, String field, Function<Format, @NullableType Object> getFieldFunction) {
+      @Nullable Object thisValue = getFieldFunction.apply(format);
+      @Nullable Object defaultValue = getFieldFunction.apply(DEFAULT_FORMAT);
+      if (!Util.areEqual(thisValue, defaultValue)) {
+        dumper.add(field, thisValue);
+      }
     }
   }
 }
