@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -26,6 +25,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil.AacConfig;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
@@ -469,12 +469,17 @@ public final class AdtsReader implements ElementaryStreamReader {
       byte[] audioSpecificConfig =
           CodecSpecificDataUtil.buildAacAudioSpecificConfig(
               audioObjectType, firstFrameSampleRateIndex, channelConfig);
-      Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
-          audioSpecificConfig);
-
-      Format format = Format.createAudioSampleFormat(formatId, MimeTypes.AUDIO_AAC, null,
-          Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
-          Collections.singletonList(audioSpecificConfig), null, 0, language);
+      AacConfig aacConfig = CodecSpecificDataUtil.parseAacAudioSpecificConfig(audioSpecificConfig);
+      Format format =
+          new Format.Builder()
+              .setId(formatId)
+              .setSampleMimeType(MimeTypes.AUDIO_AAC)
+              .setCodecs(aacConfig.codecs)
+              .setChannelCount(aacConfig.channelCount)
+              .setSampleRate(aacConfig.sampleRateHz)
+              .setInitializationData(Collections.singletonList(audioSpecificConfig))
+              .setLanguage(language)
+              .build();
       // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
       // number of PCM audio samples per second.
       sampleDurationUs = (C.MICROS_PER_SECOND * 1024) / format.sampleRate;
