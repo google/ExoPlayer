@@ -54,6 +54,11 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void testAit() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ait.ts");
+  }
+
+  @Test
   public void testStreamWithJunkData() throws Exception {
     ExtractorAsserts.assertBehavior(
         TsExtractor::new, "ts/sample_with_junk", ApplicationProvider.getApplicationContext());

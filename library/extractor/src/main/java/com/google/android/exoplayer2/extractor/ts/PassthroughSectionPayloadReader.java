@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
@@ -28,16 +27,30 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Parses splice info sections as defined by SCTE35.
+ * A {@link SectionPayloadReader} that directly outputs the section bytes as sample data.
+ *
+ * <p>Timestamp adjustment is provided through {@link Format#subsampleOffsetUs}.
  */
-public final class SpliceInfoSectionReader implements SectionPayloadReader {
+public final class PassthroughSectionPayloadReader implements SectionPayloadReader {
 
+  private final String mimeType;
   private @MonotonicNonNull TimestampAdjuster timestampAdjuster;
   private @MonotonicNonNull TrackOutput output;
   private boolean formatDeclared;
 
+  /**
+   * Create a new PassthroughSectionPayloadReader.
+   *
+   * @param mimeType The MIME type set as {@link Format#sampleMimeType} on the created output track.
+   */
+  public PassthroughSectionPayloadReader(String mimeType) {
+    this.mimeType = mimeType;
+  }
+
   @Override
-  public void init(TimestampAdjuster timestampAdjuster, ExtractorOutput extractorOutput,
+  public void init(
+      TimestampAdjuster timestampAdjuster,
+      ExtractorOutput extractorOutput,
       TsPayloadReader.TrackIdGenerator idGenerator) {
     this.timestampAdjuster = timestampAdjuster;
     idGenerator.generateNewId();
@@ -53,14 +66,20 @@ public final class SpliceInfoSectionReader implements SectionPayloadReader {
         return;
       }
       output.format(
-          Format.createSampleFormat(null, MimeTypes.APPLICATION_SCTE35)
-              .copyWithSubsampleOffsetUs(timestampAdjuster.getTimestampOffsetUs()));
+          new Format.Builder()
+              .setSampleMimeType(mimeType)
+              .setSubsampleOffsetUs(timestampAdjuster.getTimestampOffsetUs())
+              .build());
       formatDeclared = true;
     }
     int sampleSize = sectionData.bytesLeft();
     output.sampleData(sectionData, sampleSize);
-    output.sampleMetadata(timestampAdjuster.getLastAdjustedTimestampUs(), C.BUFFER_FLAG_KEY_FRAME,
-        sampleSize, 0, null);
+    output.sampleMetadata(
+        timestampAdjuster.getLastAdjustedTimestampUs(),
+        C.BUFFER_FLAG_KEY_FRAME,
+        sampleSize,
+        0,
+        null);
   }
 
   @EnsuresNonNull({"timestampAdjuster", "output"})
