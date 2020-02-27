@@ -49,11 +49,14 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
   @GuardedBy("MESSAGE_PARAMS_INSTANCE_POOL")
   private static final ArrayDeque<MessageParams> MESSAGE_PARAMS_INSTANCE_POOL = new ArrayDeque<>();
 
+  private static final Object QUEUE_SECURE_LOCK = new Object();
+
   private final MediaCodec codec;
   private final HandlerThread handlerThread;
   private @MonotonicNonNull Handler handler;
   private final AtomicReference<@NullableType RuntimeException> pendingRuntimeException;
   private final ConditionVariable conditionVariable;
+  private final boolean needsSynchronizationWorkaround;
   private boolean started;
 
   /**
@@ -76,6 +79,7 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     this.handlerThread = handlerThread;
     this.conditionVariable = conditionVariable;
     pendingRuntimeException = new AtomicReference<>();
+    needsSynchronizationWorkaround = needsSynchronizationWorkaround();
   }
 
   @Override
@@ -207,7 +211,13 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
   private void doQueueSecureInputBuffer(
       int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
     try {
-      codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+      if (needsSynchronizationWorkaround) {
+        synchronized (QUEUE_SECURE_LOCK) {
+          codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+        }
+      } else {
+        codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+      }
     } catch (RuntimeException e) {
       setPendingRuntimeException(e);
     }
@@ -258,6 +268,15 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
       this.presentationTimeUs = presentationTimeUs;
       this.flags = flags;
     }
+  }
+
+  /**
+   * Returns whether this device needs the synchronization workaround when queueing secure input
+   * buffers (see [Internal: b/149908061]).
+   */
+  private static boolean needsSynchronizationWorkaround() {
+    String manufacturer = Util.toLowerInvariant(Util.MANUFACTURER);
+    return manufacturer.contains("samsung") || manufacturer.contains("motorola");
   }
 
   private static String createThreadLabel(int trackType) {
