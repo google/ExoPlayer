@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.extractor;
+package com.google.android.exoplayer2.upstream;
 
 import com.google.android.exoplayer2.C;
 import java.io.IOException;
 
-/** Provides sample data to be consumed by a {@link TrackOutput}. */
-public interface SampleDataReader {
+/** Reads bytes from a data stream. */
+public interface DataReader {
   /**
-   * Reads up to {@code length} bytes of sample data from the input.
+   * Reads up to {@code length} bytes of data from the input.
    *
    * @param target A target array into which data should be written.
    * @param offset The offset into the target array at which to write.
