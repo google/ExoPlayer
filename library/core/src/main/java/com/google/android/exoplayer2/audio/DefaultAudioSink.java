@@ -884,9 +884,6 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void setPlaybackSpeed(float playbackSpeed) {
-    if (configuration != null && !configuration.canApplyPlaybackParameters) {
-      playbackSpeed = DEFAULT_PLAYBACK_SPEED;
-    }
     setPlaybackSpeedAndSkipSilence(playbackSpeed, getSkipSilenceEnabled());
   }
 
@@ -897,9 +894,6 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
-    if (configuration != null && !configuration.canApplyPlaybackParameters) {
-      skipSilenceEnabled = DEFAULT_SKIP_SILENCE;
-    }
     setPlaybackSpeedAndSkipSilence(getPlaybackSpeed(), skipSilenceEnabled);
   }
 
@@ -1080,10 +1074,6 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private void setPlaybackSpeedAndSkipSilence(float playbackSpeed, boolean skipSilence) {
-    if (configuration != null && !configuration.canApplyPlaybackParameters) {
-      playbackSpeed = DEFAULT_PLAYBACK_SPEED;
-      skipSilence = DEFAULT_SKIP_SILENCE;
-    }
     MediaPositionParameters currentMediaPositionParameters = getMediaPositionParameters();
     if (playbackSpeed != currentMediaPositionParameters.playbackSpeed
         || skipSilence != currentMediaPositionParameters.skipSilence) {
@@ -1119,17 +1109,20 @@ public final class DefaultAudioSink implements AudioSink {
         configuration.canApplyPlaybackParameters
             ? audioProcessorChain.applyPlaybackSpeed(getPlaybackSpeed())
             : DEFAULT_PLAYBACK_SPEED;
-    boolean skipSilence =
+    boolean skipSilenceEnabled =
         configuration.canApplyPlaybackParameters
             ? audioProcessorChain.applySkipSilenceEnabled(getSkipSilenceEnabled())
             : DEFAULT_SKIP_SILENCE;
     mediaPositionParametersCheckpoints.add(
         new MediaPositionParameters(
             playbackSpeed,
-            skipSilence,
+            skipSilenceEnabled,
             /* mediaTimeUs= */ Math.max(0, presentationTimeUs),
             /* audioTrackPositionUs= */ configuration.framesToDurationUs(getWrittenFrames())));
     setupAudioProcessors();
+    if (listener != null) {
+      listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
+    }
   }
 
   /**

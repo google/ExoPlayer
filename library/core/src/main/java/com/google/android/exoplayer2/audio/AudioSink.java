@@ -84,6 +84,12 @@ public interface AudioSink {
      */
     void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
 
+    /**
+     * Called when skipping silences is enabled or disabled.
+     *
+     * @param skipSilenceEnabled Whether skipping silences is enabled.
+     */
+    void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled);
   }
 
   /**

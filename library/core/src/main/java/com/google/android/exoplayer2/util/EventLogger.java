@@ -320,6 +320,11 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
+  public void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {
+    logd(eventTime, "skipSilenceEnabled", Boolean.toString(skipSilenceEnabled));
+  }
+
+  @Override
   public void onVolumeChanged(EventTime eventTime, float volume) {
     logd(eventTime, "volume", Float.toString(volume));
   }

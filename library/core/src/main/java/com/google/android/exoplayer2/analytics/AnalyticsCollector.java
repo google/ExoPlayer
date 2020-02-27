@@ -221,6 +221,14 @@ public class AnalyticsCollector
   }
 
   @Override
+  public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onSkipSilenceEnabledChanged(eventTime, skipSilenceEnabled);
+    }
+  }
+
+  @Override
   public void onVolumeChanged(float audioVolume) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
