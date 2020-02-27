@@ -49,13 +49,23 @@ public final class TsExtractorTest {
   }
 
   @Test
-  public void testSampleScte35() throws Exception {
+  public void testSampleWithScte35() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_scte35.ts");
   }
 
   @Test
-  public void testAit() throws Exception {
+  public void testWithAit() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ait.ts");
+  }
+
+  @Test
+  public void testSampleWithAc4() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac4.ts");
+  }
+
+  @Test
+  public void testSampleWithEac3() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3.ts");
   }
 
   @Test
