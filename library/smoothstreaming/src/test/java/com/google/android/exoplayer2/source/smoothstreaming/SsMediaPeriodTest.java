@@ -82,41 +82,26 @@ public class SsMediaPeriodTest {
   }
 
   private static Format createVideoFormat(int bitrate) {
-    return Format.createContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        MimeTypes.VIDEO_MP4,
-        MimeTypes.VIDEO_H264,
-        /* codecs= */ null,
-        bitrate,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.VIDEO_MP4)
+        .setSampleMimeType(MimeTypes.VIDEO_H264)
+        .setAverageBitrate(bitrate)
+        .build();
   }
 
   private static Format createAudioFormat(int bitrate) {
-    return Format.createContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        MimeTypes.AUDIO_MP4,
-        MimeTypes.AUDIO_AAC,
-        /* codecs= */ null,
-        bitrate,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.AUDIO_MP4)
+        .setSampleMimeType(MimeTypes.AUDIO_AAC)
+        .setAverageBitrate(bitrate)
+        .build();
   }
 
   private static Format createTextFormat(String language) {
-    return Format.createContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        MimeTypes.APPLICATION_MP4,
-        MimeTypes.TEXT_VTT,
-        /* codecs= */ null,
-        /* bitrate= */ Format.NO_VALUE,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        language);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.APPLICATION_MP4)
+        .setSampleMimeType(MimeTypes.TEXT_VTT)
+        .setLanguage(language)
+        .build();
   }
 }

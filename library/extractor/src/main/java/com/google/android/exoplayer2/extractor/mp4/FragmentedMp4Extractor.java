@@ -1504,7 +1504,9 @@ public class FragmentedMp4Extractor implements Extractor {
       TrackEncryptionBox encryptionBox =
           track.getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
       @Nullable String schemeType = encryptionBox != null ? encryptionBox.schemeType : null;
-      output.format(track.format.copyWithDrmInitData(drmInitData.copyWithSchemeType(schemeType)));
+      DrmInitData updatedDrmInitData = drmInitData.copyWithSchemeType(schemeType);
+      Format format = track.format.buildUpon().setDrmInitData(updatedDrmInitData).build();
+      output.format(format);
     }
 
     /** Resets the current fragment and sample indices. */

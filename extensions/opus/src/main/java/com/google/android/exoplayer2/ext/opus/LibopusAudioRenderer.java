@@ -90,18 +90,11 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
 
   @Override
   protected Format getOutputFormat() {
-    return Format.createAudioSampleFormat(
-        /* id= */ null,
-        MimeTypes.AUDIO_RAW,
-        /* codecs= */ null,
-        Format.NO_VALUE,
-        Format.NO_VALUE,
-        channelCount,
-        sampleRate,
-        C.ENCODING_PCM_16BIT,
-        /* initializationData= */ null,
-        /* drmInitData= */ null,
-        /* selectionFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(channelCount)
+        .setSampleRate(sampleRate)
+        .setPcmEncoding(C.ENCODING_PCM_16BIT)
+        .build();
   }
 }

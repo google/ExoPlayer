@@ -386,7 +386,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
           if (type == C.TRACK_TYPE_VIDEO || type == C.TRACK_TYPE_AUDIO) {
             Format[] formats = streamElement.formats;
             for (int i = 0; i < formats.length; i++) {
-              formats[i] = formats[i].copyWithDrmInitData(drmInitData);
+              formats[i] = formats[i].buildUpon().setDrmInitData(drmInitData).build();
             }
           }
         }

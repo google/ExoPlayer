@@ -385,9 +385,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 /* groupId= */ null,
                 /* name= */ null,
                 Assertions.checkNotNull(urlToVariantInfos.get(variant.url)));
-        deduplicatedVariants.add(
-            variant.copyWithFormat(
-                variant.format.copyWithMetadata(new Metadata(hlsMetadataEntry))));
+        Metadata metadata = new Metadata(hlsMetadataEntry);
+        Format format = variant.format.buildUpon().setMetadata(metadata).build();
+        deduplicatedVariants.add(variant.copyWithFormat(format));
       }
     }
 
