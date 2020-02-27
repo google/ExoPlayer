@@ -334,6 +334,7 @@ public class SimpleExoPlayer extends BasePlayer
   private int audioSessionId;
   private AudioAttributes audioAttributes;
   private float audioVolume;
+  private boolean skipSilenceEnabled;
   private List<Cue> currentCues;
   @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
   @Nullable private CameraMotionListener cameraMotionListener;
@@ -929,6 +930,11 @@ public class SimpleExoPlayer extends BasePlayer
     }
   }
 
+  /** Returns whether skipping silences in the audio stream is enabled. */
+  public boolean isSkipSilenceEnabled() {
+    return skipSilenceEnabled;
+  }
+
   /**
    * Sets a listener to receive video events, removing all existing listeners.
    *
@@ -1347,6 +1353,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     verifyApplicationThread();
+    setSkipSilenceEnabled(playbackParameters != null && playbackParameters.skipSilence);
     player.setPlaybackParameters(playbackParameters);
   }
 
@@ -1659,6 +1666,24 @@ public class SimpleExoPlayer extends BasePlayer
         : PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST;
   }
 
+  @SuppressWarnings("SuspiciousMethodCalls")
+  private void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
+    if (this.skipSilenceEnabled == skipSilenceEnabled) {
+      return;
+    }
+    this.skipSilenceEnabled = skipSilenceEnabled;
+    for (AudioListener listener : audioListeners) {
+      // Prevent duplicate notification if a listener is both a AudioRendererEventListener and
+      // a AudioListener, as they have the same method signature.
+      if (!audioDebugListeners.contains(listener)) {
+        listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
+      }
+    }
+    for (AudioRendererEventListener listener : audioDebugListeners) {
+      listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
+    }
+  }
+
   private final class ComponentListener
       implements VideoRendererEventListener,
           AudioRendererEventListener,
@@ -1812,6 +1837,11 @@ public class SimpleExoPlayer extends BasePlayer
       audioFormat = null;
       audioDecoderCounters = null;
       audioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    }
+
+    @Override
+    public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
+      setSkipSilenceEnabled(skipSilenceEnabled);
     }
 
     // TextOutput implementation

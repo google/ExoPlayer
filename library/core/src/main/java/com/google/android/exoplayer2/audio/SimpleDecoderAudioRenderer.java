@@ -270,24 +270,25 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * order to spatialize the audio channels. For this use case, any {@link Virtualizer} instances
    * should be released in {@link #onDisabled()} (if not before).
    *
-   * @see AudioSink.Listener#onAudioSessionId(int)
+   * <p>See {@link AudioSink.Listener#onAudioSessionId(int)}.
    */
   protected void onAudioSessionId(int audioSessionId) {
     // Do nothing.
   }
 
-  /**
-   * @see AudioSink.Listener#onPositionDiscontinuity()
-   */
+  /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
   protected void onAudioTrackPositionDiscontinuity() {
     // Do nothing.
   }
 
-  /**
-   * @see AudioSink.Listener#onUnderrun(int, long, long)
-   */
-  protected void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs,
-      long elapsedSinceLastFeedMs) {
+  /** See {@link AudioSink.Listener#onUnderrun(int, long, long)}. */
+  protected void onAudioTrackUnderrun(
+      int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+    // Do nothing.
+  }
+
+  /** See {@link AudioSink.Listener#onSkipSilenceEnabledChanged(boolean)}. */
+  protected void onAudioTrackSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
     // Do nothing.
   }
 
@@ -693,6 +694,10 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
     }
 
+    @Override
+    public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
+      eventDispatcher.skipSilenceEnabledChanged(skipSilenceEnabled);
+      onAudioTrackSkipSilenceEnabledChanged(skipSilenceEnabled);
+    }
   }
-
 }

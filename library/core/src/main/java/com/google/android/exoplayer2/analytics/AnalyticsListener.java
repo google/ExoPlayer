@@ -451,6 +451,14 @@ public interface AnalyticsListener {
       EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
 
   /**
+   * Called when skipping silences is enabled or disabled in the audio stream.
+   *
+   * @param eventTime The event time.
+   * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+   */
+  default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+
+  /**
    * Called after video frames have been dropped.
    *
    * @param eventTime The event time.
