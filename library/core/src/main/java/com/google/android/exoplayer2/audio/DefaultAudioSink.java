@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
@@ -1217,6 +1218,21 @@ public final class DefaultAudioSink implements AudioSink {
       case C.ENCODING_MP3:
         // Maximum bitrate for MPEG-1 layer III: 320 kbit/s.
         return 320 * 1000 / 8;
+      case C.ENCODING_AAC_LC:
+        // Maximum bitrates for AAC profiles from the Fraunhofer FDK AAC encoder documentation:
+        // https://cs.android.com/android/platform/superproject/+/android-9.0.0_r8:external/aac/libAACenc/include/aacenc_lib.h;l=718
+        return 800 * 1000 / 8;
+      case C.ENCODING_AAC_HE_V1:
+        return 128 * 1000 / 8;
+      case C.ENCODING_AAC_HE_V2:
+        return 56 * 1000 / 8;
+      case C.ENCODING_AAC_XHE:
+        // Fraunhofer documentation says "500 kbit/s and above" for stereo, so we use a rate
+        // generously above the 500 kbit/s level.
+        return 2048 * 1000 / 8;
+      case C.ENCODING_AAC_ELD:
+        // Fraunhofer documentation shows AAC-ELD as useful for up to ~ 64 kbit/s.
+        return 64 * 1000 / 8;
       case C.ENCODING_AC3:
         return 640 * 1000 / 8;
       case C.ENCODING_E_AC3:
@@ -1248,6 +1264,15 @@ public final class DefaultAudioSink implements AudioSink {
     switch (encoding) {
       case C.ENCODING_MP3:
         return MpegAudioUtil.parseMpegAudioFrameSampleCount(buffer.get(buffer.position()));
+      case C.ENCODING_AAC_LC:
+        return CodecSpecificDataUtil.AAC_LC_AUDIO_SAMPLE_COUNT;
+      case C.ENCODING_AAC_HE_V1:
+      case C.ENCODING_AAC_HE_V2:
+        return CodecSpecificDataUtil.AAC_HE_AUDIO_SAMPLE_COUNT;
+      case C.ENCODING_AAC_XHE:
+        return CodecSpecificDataUtil.AAC_XHE_AUDIO_SAMPLE_COUNT;
+      case C.ENCODING_AAC_ELD:
+        return CodecSpecificDataUtil.AAC_LD_AUDIO_SAMPLE_COUNT;
       case C.ENCODING_DTS:
       case C.ENCODING_DTS_HD:
         return DtsUtil.parseDtsAudioSampleCount(buffer);
