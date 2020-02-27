@@ -39,6 +39,8 @@
     `Format.copyWith*` methods.
   * Split `Format.bitrate` into `Format.averageBitrate` and `Format.peakBitrate`
     ([#2863](https://github.com/google/ExoPlayer/issues/2863)).
+  * Add optional automatic `WifiLock` handling to `SimpleExoPlayer`
+    ([#6914](https://github.com/google/ExoPlayer/issues/6914)).
 * Text:
   * Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
     later).

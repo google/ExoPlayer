@@ -317,6 +317,7 @@ public class SimpleExoPlayer extends BasePlayer
   private final AudioBecomingNoisyManager audioBecomingNoisyManager;
   private final AudioFocusManager audioFocusManager;
   private final WakeLockManager wakeLockManager;
+  private final WifiLockManager wifiLockManager;
 
   @Nullable private Format videoFormat;
   @Nullable private Format audioFormat;
@@ -432,6 +433,7 @@ public class SimpleExoPlayer extends BasePlayer
         new AudioBecomingNoisyManager(context, eventHandler, componentListener);
     audioFocusManager = new AudioFocusManager(context, eventHandler, componentListener);
     wakeLockManager = new WakeLockManager(context);
+    wifiLockManager = new WifiLockManager(context);
   }
 
   @Override
@@ -1395,6 +1397,7 @@ public class SimpleExoPlayer extends BasePlayer
     audioBecomingNoisyManager.setEnabled(false);
     audioFocusManager.handleStop();
     wakeLockManager.setStayAwake(false);
+    wifiLockManager.setStayAwake(false);
     player.release();
     removeSurfaceCallbacks();
     if (surface != null) {
@@ -1529,9 +1532,45 @@ public class SimpleExoPlayer extends BasePlayer
    *
    * @param handleWakeLock Whether the player should use a {@link android.os.PowerManager.WakeLock}
    *     to ensure the device stays awake for playback, even when the screen is off.
+   * @deprecated Use {@link #setWakeMode(int)} instead.
    */
+  @Deprecated
   public void setHandleWakeLock(boolean handleWakeLock) {
-    wakeLockManager.setEnabled(handleWakeLock);
+    setWakeMode(handleWakeLock ? C.WAKE_MODE_LOCAL : C.WAKE_MODE_NONE);
+  }
+
+  /**
+   * Sets how the player should keep the device awake for playback when the screen is off.
+   *
+   * <p>Enabling this feature requires the {@link android.Manifest.permission#WAKE_LOCK} permission.
+   * It should be used together with a foreground {@link android.app.Service} for use cases where
+   * playback occurs and the screen is off (e.g. background audio playback). It is not useful when
+   * the screen will be kept on during playback (e.g. foreground video playback).
+   *
+   * <p>When enabled, the locks ({@link android.os.PowerManager.WakeLock} / {@link
+   * android.net.wifi.WifiManager.WifiLock}) will be held whenever the player is in the {@link
+   * #STATE_READY} or {@link #STATE_BUFFERING} states with {@code playWhenReady = true}. The locks
+   * held depends on the specified {@link C.WakeMode}.
+   *
+   * @param wakeMode The {@link C.WakeMode} option to keep the device awake during playback.
+   */
+  public void setWakeMode(@C.WakeMode int wakeMode) {
+    switch (wakeMode) {
+      case C.WAKE_MODE_NONE:
+        wakeLockManager.setEnabled(false);
+        wifiLockManager.setEnabled(false);
+        break;
+      case C.WAKE_MODE_LOCAL:
+        wakeLockManager.setEnabled(true);
+        wifiLockManager.setEnabled(false);
+        break;
+      case C.WAKE_MODE_NETWORK:
+        wakeLockManager.setEnabled(true);
+        wifiLockManager.setEnabled(true);
+        break;
+      default:
+        break;
+    }
   }
 
   // Internal methods.
@@ -1644,16 +1683,18 @@ public class SimpleExoPlayer extends BasePlayer
     }
   }
 
-  private void updateWakeLock() {
+  private void updateWakeAndWifiLock() {
     @State int playbackState = getPlaybackState();
     switch (playbackState) {
       case Player.STATE_READY:
       case Player.STATE_BUFFERING:
         wakeLockManager.setStayAwake(getPlayWhenReady());
+        wifiLockManager.setStayAwake(getPlayWhenReady());
         break;
       case Player.STATE_ENDED:
       case Player.STATE_IDLE:
         wakeLockManager.setStayAwake(false);
+        wifiLockManager.setStayAwake(false);
         break;
       default:
         throw new IllegalStateException();
@@ -1951,13 +1992,13 @@ public class SimpleExoPlayer extends BasePlayer
 
     @Override
     public void onPlaybackStateChanged(@State int playbackState) {
-      updateWakeLock();
+      updateWakeAndWifiLock();
     }
 
     @Override
     public void onPlayWhenReadyChanged(
         boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-      updateWakeLock();
+      updateWakeAndWifiLock();
     }
   }
 }
