@@ -26,6 +26,8 @@ import java.util.List;
 /** Provides utilities for handling various types of codec-specific data. */
 public final class CodecSpecificDataUtil {
 
+  private static final String TAG = "CodecSpecificDataUtil";
+
   /** Holds sample format information for AAC audio. */
   public static final class AacConfig {
 
@@ -42,6 +44,24 @@ public final class CodecSpecificDataUtil {
       this.codecs = codecs;
     }
   }
+
+  // AAC audio sample count constants assume the frameLengthFlag in the access unit is 0.
+  /**
+   * Number of raw audio samples that are produced per channel when decoding an AAC LC access unit.
+   */
+  public static final int AAC_LC_AUDIO_SAMPLE_COUNT = 1024;
+  /**
+   * Number of raw audio samples that are produced per channel when decoding an AAC XHE access unit.
+   */
+  public static final int AAC_XHE_AUDIO_SAMPLE_COUNT = AAC_LC_AUDIO_SAMPLE_COUNT;
+  /**
+   * Number of raw audio samples that are produced per channel when decoding an AAC HE access unit.
+   */
+  public static final int AAC_HE_AUDIO_SAMPLE_COUNT = 2048;
+  /**
+   * Number of raw audio samples that are produced per channel when decoding an AAC LD access unit.
+   */
+  public static final int AAC_LD_AUDIO_SAMPLE_COUNT = 512;
 
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
 
@@ -97,10 +117,14 @@ public final class CodecSpecificDataUtil {
   private static final int AUDIO_OBJECT_TYPE_AAC_SBR = 5;
   // Error Resilient Bit-Sliced Arithmetic Coding.
   private static final int AUDIO_OBJECT_TYPE_AAC_ER_BSAC = 22;
+  // Enhanced low delay.
+  private static final int AUDIO_OBJECT_TYPE_AAC_ELD = 23;
   // Parametric Stereo.
   private static final int AUDIO_OBJECT_TYPE_AAC_PS = 29;
   // Escape code for extended audio object types.
   private static final int AUDIO_OBJECT_TYPE_ESCAPE = 31;
+  // Extended high efficiency.
+  private static final int AUDIO_OBJECT_TYPE_AAC_XHE = 42;
 
   private CodecSpecificDataUtil() {}
 
@@ -228,6 +252,25 @@ public final class CodecSpecificDataUtil {
     specificConfig[0] = (byte) (((audioObjectType << 3) & 0xF8) | ((sampleRateIndex >> 1) & 0x07));
     specificConfig[1] = (byte) (((sampleRateIndex << 7) & 0x80) | ((channelConfig << 3) & 0x78));
     return specificConfig;
+  }
+
+  /** Returns the encoding for a given AAC audio object type. */
+  @C.Encoding
+  public static int getEncodingForAacAudioObjectType(int audioObjectType) {
+    switch (audioObjectType) {
+      case AUDIO_OBJECT_TYPE_AAC_LC:
+        return C.ENCODING_AAC_LC;
+      case AUDIO_OBJECT_TYPE_AAC_SBR:
+        return C.ENCODING_AAC_HE_V1;
+      case AUDIO_OBJECT_TYPE_AAC_PS:
+        return C.ENCODING_AAC_HE_V2;
+      case AUDIO_OBJECT_TYPE_AAC_XHE:
+        return C.ENCODING_AAC_XHE;
+      case AUDIO_OBJECT_TYPE_AAC_ELD:
+        return C.ENCODING_AAC_ELD;
+      default:
+        return C.ENCODING_INVALID;
+    }
   }
 
   /**
@@ -406,7 +449,10 @@ public final class CodecSpecificDataUtil {
 
   private static void parseGaSpecificConfig(ParsableBitArray bitArray, int audioObjectType,
       int channelConfiguration) {
-    bitArray.skipBits(1); // frameLengthFlag.
+    boolean frameLengthFlag = bitArray.readBit();
+    if (frameLengthFlag) {
+      Log.w(TAG, "Unexpected AAC frameLengthFlag = 1");
+    }
     boolean dependsOnCoreDecoder = bitArray.readBit();
     if (dependsOnCoreDecoder) {
       bitArray.skipBits(14); // coreCoderDelay.
