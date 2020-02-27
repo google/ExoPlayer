@@ -114,18 +114,11 @@ public final class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected Format getOutputFormat() {
     Assertions.checkNotNull(streamMetadata);
-    return Format.createAudioSampleFormat(
-        /* id= */ null,
-        MimeTypes.AUDIO_RAW,
-        /* codecs= */ null,
-        /* bitrate= */ Format.NO_VALUE,
-        /* maxInputSize= */ Format.NO_VALUE,
-        streamMetadata.channels,
-        streamMetadata.sampleRate,
-        Util.getPcmEncoding(streamMetadata.bitsPerSample),
-        /* initializationData= */ null,
-        /* drmInitData= */ null,
-        /* selectionFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(streamMetadata.channels)
+        .setSampleRate(streamMetadata.sampleRate)
+        .setPcmEncoding(Util.getPcmEncoding(streamMetadata.bitsPerSample))
+        .build();
   }
 }

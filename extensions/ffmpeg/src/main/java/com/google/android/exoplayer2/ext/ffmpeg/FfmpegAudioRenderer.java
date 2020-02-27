@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.util.Collections;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -122,22 +121,12 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   public Format getOutputFormat() {
     Assertions.checkNotNull(decoder);
-    int channelCount = decoder.getChannelCount();
-    int sampleRate = decoder.getSampleRate();
-    @C.PcmEncoding int encoding = decoder.getEncoding();
-    return Format.createAudioSampleFormat(
-        /* id= */ null,
-        MimeTypes.AUDIO_RAW,
-        /* codecs= */ null,
-        Format.NO_VALUE,
-        Format.NO_VALUE,
-        channelCount,
-        sampleRate,
-        encoding,
-        Collections.emptyList(),
-        /* drmInitData= */ null,
-        /* selectionFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(decoder.getChannelCount())
+        .setSampleRate(decoder.getSampleRate())
+        .setPcmEncoding(decoder.getEncoding())
+        .build();
   }
 
   private boolean isOutputSupported(Format inputFormat) {

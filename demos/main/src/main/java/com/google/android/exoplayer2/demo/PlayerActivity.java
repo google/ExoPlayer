@@ -442,11 +442,11 @@ public class PlayerActivity extends AppCompatActivity
           return Collections.emptyList();
         }
         Format subtitleFormat =
-            Format.createTextSampleFormat(
-                /* id= */ null,
-                subtitleInfo.mimeType,
-                C.SELECTION_FLAG_DEFAULT,
-                subtitleInfo.language);
+            new Format.Builder()
+                .setSampleMimeType(subtitleInfo.mimeType)
+                .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                .setLanguage(subtitleInfo.language)
+                .build();
         MediaSource subtitleMediaSource =
             new SingleSampleMediaSource.Factory(dataSourceFactory)
                 .createMediaSource(subtitleInfo.uri, subtitleFormat, C.TIME_UNSET);

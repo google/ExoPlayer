@@ -77,10 +77,8 @@ public final class DashUtilTest {
         new Format.Builder()
             .setContainerMimeType(MimeTypes.VIDEO_MP4)
             .setSampleMimeType(MimeTypes.VIDEO_H264)
+            .setDrmInitData(drmInitData)
             .build();
-    if (drmInitData != null) {
-      format = format.copyWithDrmInitData(drmInitData);
-    }
     return Representation.newInstance(0, format, "", new SingleSegmentBase());
   }
 
