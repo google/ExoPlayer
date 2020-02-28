@@ -644,34 +644,42 @@ public final class Format implements Parcelable {
   /** Track role flags. */
   @C.RoleFlags public final int roleFlags;
   /**
-   * The average bitrate in bits per second, or {@link #NO_VALUE} if unknown or not applicable. This
-   * field may be populated from the following sources, depending on media type and the type of the
-   * track within the media:
+   * The average bitrate in bits per second, or {@link #NO_VALUE} if unknown or not applicable. The
+   * way in which this field is populated depends on the type of media to which the format
+   * corresponds:
    *
    * <ul>
-   *   <li>DASH: Always {@link Format#NO_VALUE}.
-   *   <li>HLS: The {@code AVERAGE-BANDWIDTH} attribute defined on the corresponding {@code
+   *   <li>DASH representations: Always {@link Format#NO_VALUE}.
+   *   <li>HLS variants: The {@code AVERAGE-BANDWIDTH} attribute defined on the corresponding {@code
    *       EXT-X-STREAM-INF} tag in the master playlist, or {@link Format#NO_VALUE} if not present.
-   *   <li>SmoothStreaming: The {@code Bitrate} attribute defined on the corresponding {@code
-   *       TrackElement} in the manifest, or {@link Format#NO_VALUE} if not present.
+   *   <li>SmoothStreaming track elements: The {@code Bitrate} attribute defined on the
+   *       corresponding {@code TrackElement} in the manifest, or {@link Format#NO_VALUE} if not
+   *       present.
    *   <li>Progressive container formats: Often {@link Format#NO_VALUE}, but may be populated with
-   *       the average bitrate if defined by the container.
+   *       the average bitrate of the container if known.
+   *   <li>Sample formats: Often {@link Format#NO_VALUE}, but may be populated with the average
+   *       bitrate of the stream of samples with type {@link #sampleMimeType} if known. Note that if
+   *       {@link #sampleMimeType} is a compressed format (e.g., {@link MimeTypes#AUDIO_AAC}), then
+   *       this bitrate is for the stream of still compressed samples.
    * </ul>
    */
   public final int averageBitrate;
   /**
-   * The peak bitrate in bits per second, or {@link #NO_VALUE} if unknown or not applicable. This
-   * field may be populated from the following sources, depending on media type and the type of the
-   * track within the media:
+   * The peak bitrate in bits per second, or {@link #NO_VALUE} if unknown or not applicable. The way
+   * in which this field is populated depends on the type of media to which the format corresponds:
    *
    * <ul>
-   *   <li>DASH: The {@code @bandwidth} attribute of the corresponding {@code Representation}
-   *       element in the manifest.
-   *   <li>HLS: The {@code BANDWIDTH} attribute defined on the corresponding {@code
+   *   <li>DASH representations: The {@code @bandwidth} attribute of the corresponding {@code
+   *       Representation} element in the manifest.
+   *   <li>HLS variants: The {@code BANDWIDTH} attribute defined on the corresponding {@code
    *       EXT-X-STREAM-INF} tag.
-   *   <li>SmoothStreaming: Always {@link Format#NO_VALUE}.
+   *   <li>SmoothStreaming track elements: Always {@link Format#NO_VALUE}.
    *   <li>Progressive container formats: Often {@link Format#NO_VALUE}, but may be populated with
-   *       the peak bitrate if defined by the container.
+   *       the peak bitrate of the container if known.
+   *   <li>Sample formats: Often {@link Format#NO_VALUE}, but may be populated with the peak bitrate
+   *       of the stream of samples with type {@link #sampleMimeType} if known. Note that if {@link
+   *       #sampleMimeType} is a compressed format (e.g., {@link MimeTypes#AUDIO_AAC}), then this
+   *       bitrate is for the stream of still compressed samples.
    * </ul>
    */
   public final int peakBitrate;

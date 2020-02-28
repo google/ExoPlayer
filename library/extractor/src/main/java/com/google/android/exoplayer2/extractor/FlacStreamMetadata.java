@@ -182,8 +182,8 @@ public final class FlacStreamMetadata {
     return maxBlockSizeSamples * channels * (bitsPerSample / 8);
   }
 
-  /** Returns the bit-rate of the FLAC stream. */
-  public int getBitRate() {
+  /** Returns the bitrate of the stream after it's decoded into PCM. */
+  public int getDecodedBitrate() {
     return bitsPerSample * sampleRate * channels;
   }
 
@@ -244,7 +244,7 @@ public final class FlacStreamMetadata {
         /* id= */ null,
         MimeTypes.AUDIO_FLAC,
         /* codecs= */ null,
-        getBitRate(),
+        /* bitrate= */ Format.NO_VALUE,
         maxInputSize,
         channels,
         sampleRate,
