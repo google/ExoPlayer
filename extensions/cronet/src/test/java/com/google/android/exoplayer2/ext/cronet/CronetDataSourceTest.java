@@ -63,9 +63,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.robolectric.annotation.LooperMode;
+import org.robolectric.annotation.LooperMode.Mode;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link CronetDataSource}. */
 @RunWith(AndroidJUnit4.class)
+@LooperMode(Mode.PAUSED)
 public final class CronetDataSourceTest {
 
   private static final int TEST_CONNECT_TIMEOUT_MS = 100;
@@ -902,10 +906,12 @@ public final class CronetDataSourceTest {
     // We should still be trying to open.
     assertNotCountedDown(timedOutLatch);
     // We should still be trying to open as we approach the timeout.
-    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
+    setSystemClockInMsAndTriggerPendingMessages(
+        /* nowMs= */ startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
     assertNotCountedDown(timedOutLatch);
     // Now we timeout.
-    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS + 10);
+    setSystemClockInMsAndTriggerPendingMessages(
+        /* nowMs= */ startTimeMs + TEST_CONNECT_TIMEOUT_MS + 10);
     timedOutLatch.await();
 
     verify(mockTransferListener, never())
@@ -941,7 +947,8 @@ public final class CronetDataSourceTest {
     // We should still be trying to open.
     assertNotCountedDown(timedOutLatch);
     // We should still be trying to open as we approach the timeout.
-    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
+    setSystemClockInMsAndTriggerPendingMessages(
+        /* nowMs= */ startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
     assertNotCountedDown(timedOutLatch);
     // Now we interrupt.
     thread.interrupt();
@@ -975,7 +982,8 @@ public final class CronetDataSourceTest {
     // We should still be trying to open.
     assertNotCountedDown(openLatch);
     // We should still be trying to open as we approach the timeout.
-    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
+    setSystemClockInMsAndTriggerPendingMessages(
+        /* nowMs= */ startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
     assertNotCountedDown(openLatch);
     // The response arrives just in time.
     dataSourceUnderTest.urlRequestCallback.onResponseStarted(mockUrlRequest, testUrlResponseInfo);
@@ -1010,14 +1018,15 @@ public final class CronetDataSourceTest {
     // We should still be trying to open.
     assertNotCountedDown(timedOutLatch);
     // We should still be trying to open as we approach the timeout.
-    SystemClock.setCurrentTimeMillis(startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
+    setSystemClockInMsAndTriggerPendingMessages(
+        /* nowMs= */ startTimeMs + TEST_CONNECT_TIMEOUT_MS - 1);
     assertNotCountedDown(timedOutLatch);
     // A redirect arrives just in time.
     dataSourceUnderTest.urlRequestCallback.onRedirectReceived(
         mockUrlRequest, testUrlResponseInfo, "RandomRedirectedUrl1");
 
     long newTimeoutMs = 2 * TEST_CONNECT_TIMEOUT_MS - 1;
-    SystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs - 1);
+    setSystemClockInMsAndTriggerPendingMessages(/* nowMs= */ startTimeMs + newTimeoutMs - 1);
     // We should still be trying to open as we approach the new timeout.
     assertNotCountedDown(timedOutLatch);
     // A redirect arrives just in time.
@@ -1025,11 +1034,11 @@ public final class CronetDataSourceTest {
         mockUrlRequest, testUrlResponseInfo, "RandomRedirectedUrl2");
 
     newTimeoutMs = 3 * TEST_CONNECT_TIMEOUT_MS - 2;
-    SystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs - 1);
+    setSystemClockInMsAndTriggerPendingMessages(/* nowMs= */ startTimeMs + newTimeoutMs - 1);
     // We should still be trying to open as we approach the new timeout.
     assertNotCountedDown(timedOutLatch);
     // Now we timeout.
-    SystemClock.setCurrentTimeMillis(startTimeMs + newTimeoutMs + 10);
+    setSystemClockInMsAndTriggerPendingMessages(/* nowMs= */ startTimeMs + newTimeoutMs + 10);
     timedOutLatch.await();
 
     verify(mockTransferListener, never())
@@ -1458,5 +1467,10 @@ public final class CronetDataSourceTest {
       copy[index++] = src.get();
     }
     return copy;
+  }
+
+  private static void setSystemClockInMsAndTriggerPendingMessages(long nowMs) {
+    SystemClock.setCurrentTimeMillis(nowMs);
+    ShadowLooper.idleMainLooper();
   }
 }
