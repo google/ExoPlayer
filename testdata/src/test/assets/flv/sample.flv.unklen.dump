@@ -8,6 +8,7 @@ track 8:
   sample count = 45
   format 0:
     sampleMimeType = audio/mp4a-latm
+    codecs = mp4a.40.2
     channelCount = 1
     sampleRate = 44100
     initializationData:

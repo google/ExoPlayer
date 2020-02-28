@@ -274,6 +274,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
       addIfNonDefault(dumper, "id", format -> format.id);
       addIfNonDefault(dumper, "containerMimeType", format -> format.containerMimeType);
       addIfNonDefault(dumper, "sampleMimeType", format -> format.sampleMimeType);
+      addIfNonDefault(dumper, "codecs", format -> format.codecs);
       addIfNonDefault(dumper, "maxInputSize", format -> format.maxInputSize);
       addIfNonDefault(dumper, "width", format -> format.width);
       addIfNonDefault(dumper, "height", format -> format.height);
