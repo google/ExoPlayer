@@ -19,12 +19,11 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
-import com.google.android.exoplayer2.util.CodecSpecificDataUtil.AacConfig;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -273,8 +272,7 @@ public final class LatmReader implements ElementaryStreamReader {
 
   private int parseAudioSpecificConfig(ParsableBitArray data) throws ParserException {
     int bitsLeft = data.bitsLeft();
-    AacConfig config =
-        CodecSpecificDataUtil.parseAacAudioSpecificConfig(data, /* forceReadToEnd= */ true);
+    AacUtil.Config config = AacUtil.parseAudioSpecificConfig(data, /* forceReadToEnd= */ true);
     sampleRateHz = config.sampleRateHz;
     channelCount = config.channelCount;
     return bitsLeft - data.bitsLeft();
