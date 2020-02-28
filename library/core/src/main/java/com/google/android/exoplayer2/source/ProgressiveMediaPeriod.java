@@ -91,7 +91,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final Map<String, String> ICY_METADATA_HEADERS = createIcyMetadataHeaders();
 
   private static final Format ICY_FORMAT =
-      Format.createSampleFormat("icy", MimeTypes.APPLICATION_ICY);
+      new Format.Builder().setId("icy").setSampleMimeType(MimeTypes.APPLICATION_ICY).build();
 
   private final Uri uri;
   private final DataSource dataSource;
@@ -716,20 +716,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean[] trackIsAudioVideoFlags = new boolean[trackCount];
     for (int i = 0; i < trackCount; i++) {
       Format trackFormat = Assertions.checkNotNull(sampleQueues[i].getUpstreamFormat());
-      String mimeType = trackFormat.sampleMimeType;
+      @Nullable String mimeType = trackFormat.sampleMimeType;
       boolean isAudio = MimeTypes.isAudio(mimeType);
       boolean isAudioVideo = isAudio || MimeTypes.isVideo(mimeType);
       trackIsAudioVideoFlags[i] = isAudioVideo;
       haveAudioVideoTracks |= isAudioVideo;
-      IcyHeaders icyHeaders = this.icyHeaders;
+      @Nullable IcyHeaders icyHeaders = this.icyHeaders;
       if (icyHeaders != null) {
         if (isAudio || sampleQueueTrackIds[i].isIcyTrack) {
-          Metadata metadata = trackFormat.metadata;
-          trackFormat =
-              trackFormat.copyWithMetadata(
-                  metadata == null
-                      ? new Metadata(icyHeaders)
-                      : metadata.copyWithAppendedEntries(icyHeaders));
+          @Nullable Metadata metadata = trackFormat.metadata;
+          if (metadata == null) {
+            metadata = new Metadata(icyHeaders);
+          } else {
+            metadata = metadata.copyWithAppendedEntries(icyHeaders);
+          }
+          trackFormat = trackFormat.buildUpon().setMetadata(metadata).build();
         }
         // Update the track format with the bitrate from the ICY header only if it declares neither
         // an average or peak bitrate of its own.

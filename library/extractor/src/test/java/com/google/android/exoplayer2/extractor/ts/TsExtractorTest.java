@@ -102,7 +102,12 @@ public final class TsExtractorTest {
     TrackOutput trackOutput = reader.getTrackOutput();
     assertThat(trackOutput == output.trackOutputs.get(257 /* PID of audio track. */)).isTrue();
     assertThat(((FakeTrackOutput) trackOutput).lastFormat)
-        .isEqualTo(Format.createTextSampleFormat("1/257", "mime", /* selectionFlags= */ 0, "und"));
+        .isEqualTo(
+            new Format.Builder()
+                .setId("1/257")
+                .setSampleMimeType("mime")
+                .setLanguage("und")
+                .build());
   }
 
   @Test
@@ -188,8 +193,11 @@ public final class TsExtractorTest {
       idGenerator.generateNewId();
       output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_UNKNOWN);
       output.format(
-          Format.createTextSampleFormat(
-              idGenerator.getFormatId(), "mime", /* selectionFlags= */ 0, language));
+          new Format.Builder()
+              .setId(idGenerator.getFormatId())
+              .setSampleMimeType("mime")
+              .setLanguage(language)
+              .build());
     }
 
     @Override

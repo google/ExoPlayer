@@ -61,7 +61,11 @@ public final class Id3Reader implements ElementaryStreamReader {
   public void createTracks(ExtractorOutput extractorOutput, TrackIdGenerator idGenerator) {
     idGenerator.generateNewId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
-    output.format(Format.createSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_ID3));
+    output.format(
+        new Format.Builder()
+            .setId(idGenerator.getFormatId())
+            .setSampleMimeType(MimeTypes.APPLICATION_ID3)
+            .build());
   }
 
   @Override

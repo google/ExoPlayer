@@ -406,17 +406,11 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   private static Format videoFormat(int bitrate, int width, int height) {
-    return Format.createVideoSampleFormat(
-        /* id= */ null,
-        /* sampleMimeType= */ MimeTypes.VIDEO_H264,
-        /* codecs= */ null,
-        /* bitrate= */ bitrate,
-        /* maxInputSize= */ Format.NO_VALUE,
-        /* width= */ width,
-        /* height= */ height,
-        /* frameRate= */ Format.NO_VALUE,
-        /* initializationData= */ null,
-        /* drmInitData= */ null);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.VIDEO_H264)
+        .setAverageBitrate(bitrate)
+        .setWidth(width)
+        .setHeight(height)
+        .build();
   }
-
 }

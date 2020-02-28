@@ -61,27 +61,23 @@ import java.util.Collections;
       if (audioFormat == AUDIO_FORMAT_MP3) {
         int sampleRateIndex = (header >> 2) & 0x03;
         int sampleRate = AUDIO_SAMPLING_RATE_TABLE[sampleRateIndex];
-        Format format = Format.createAudioSampleFormat(null, MimeTypes.AUDIO_MPEG, null,
-            Format.NO_VALUE, Format.NO_VALUE, 1, sampleRate, null, null, 0, null);
+        Format format =
+            new Format.Builder()
+                .setSampleMimeType(MimeTypes.AUDIO_MPEG)
+                .setChannelCount(1)
+                .setSampleRate(sampleRate)
+                .build();
         output.format(format);
         hasOutputFormat = true;
       } else if (audioFormat == AUDIO_FORMAT_ALAW || audioFormat == AUDIO_FORMAT_ULAW) {
-        String type = audioFormat == AUDIO_FORMAT_ALAW ? MimeTypes.AUDIO_ALAW
-            : MimeTypes.AUDIO_MLAW;
+        String mimeType =
+            audioFormat == AUDIO_FORMAT_ALAW ? MimeTypes.AUDIO_ALAW : MimeTypes.AUDIO_MLAW;
         Format format =
-            Format.createAudioSampleFormat(
-                /* id= */ null,
-                /* sampleMimeType= */ type,
-                /* codecs= */ null,
-                /* bitrate= */ Format.NO_VALUE,
-                /* maxInputSize= */ Format.NO_VALUE,
-                /* channelCount= */ 1,
-                /* sampleRate= */ 8000,
-                /* pcmEncoding= */ Format.NO_VALUE,
-                /* initializationData= */ null,
-                /* drmInitData= */ null,
-                /* selectionFlags= */ 0,
-                /* language= */ null);
+            new Format.Builder()
+                .setSampleMimeType(mimeType)
+                .setChannelCount(1)
+                .setSampleRate(8000)
+                .build();
         output.format(format);
         hasOutputFormat = true;
       } else if (audioFormat != AUDIO_FORMAT_AAC) {

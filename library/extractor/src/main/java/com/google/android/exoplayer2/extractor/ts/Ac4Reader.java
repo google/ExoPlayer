@@ -199,18 +199,13 @@ public final class Ac4Reader implements ElementaryStreamReader {
         || frameInfo.sampleRate != format.sampleRate
         || !MimeTypes.AUDIO_AC4.equals(format.sampleMimeType)) {
       format =
-          Format.createAudioSampleFormat(
-              formatId,
-              MimeTypes.AUDIO_AC4,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              /* maxInputSize= */ Format.NO_VALUE,
-              frameInfo.channelCount,
-              frameInfo.sampleRate,
-              /* initializationData= */ null,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              language);
+          new Format.Builder()
+              .setId(formatId)
+              .setSampleMimeType(MimeTypes.AUDIO_AC4)
+              .setChannelCount(frameInfo.channelCount)
+              .setSampleRate(frameInfo.sampleRate)
+              .setLanguage(language)
+              .build();
       output.format(format);
     }
     sampleSize = frameInfo.frameSize;

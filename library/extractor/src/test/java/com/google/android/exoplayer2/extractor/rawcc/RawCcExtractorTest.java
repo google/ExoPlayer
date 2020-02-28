@@ -28,20 +28,12 @@ public final class RawCcExtractorTest {
 
   @Test
   public void testRawCcSample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        () ->
-            new RawCcExtractor(
-                Format.createTextContainerFormat(
-                    /* id= */ null,
-                    /* label= */ null,
-                    /* containerMimeType= */ null,
-                    /* sampleMimeType= */ MimeTypes.APPLICATION_CEA608,
-                    /* codecs= */ "cea608",
-                    /* bitrate= */ Format.NO_VALUE,
-                    /* selectionFlags= */ 0,
-                    /* roleFlags= */ 0,
-                    /* language= */ null,
-                    /* accessibilityChannel= */ 1)),
-        "rawcc/sample.rawcc");
+    Format format =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.APPLICATION_CEA608)
+            .setCodecs("cea608")
+            .setAccessibilityChannel(1)
+            .build();
+    ExtractorAsserts.assertBehavior(() -> new RawCcExtractor(format), "rawcc/sample.rawcc");
   }
 }

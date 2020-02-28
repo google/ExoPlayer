@@ -201,23 +201,21 @@ public final class H264Reader implements ElementaryStreamReader {
           initializationData.add(Arrays.copyOf(pps.nalData, pps.nalLength));
           NalUnitUtil.SpsData spsData = NalUnitUtil.parseSpsNalUnit(sps.nalData, 3, sps.nalLength);
           NalUnitUtil.PpsData ppsData = NalUnitUtil.parsePpsNalUnit(pps.nalData, 3, pps.nalLength);
+          String codecs =
+              CodecSpecificDataUtil.buildAvcCodecString(
+                  spsData.profileIdc,
+                  spsData.constraintsFlagsAndReservedZero2Bits,
+                  spsData.levelIdc);
           output.format(
-              Format.createVideoSampleFormat(
-                  formatId,
-                  MimeTypes.VIDEO_H264,
-                  CodecSpecificDataUtil.buildAvcCodecString(
-                      spsData.profileIdc,
-                      spsData.constraintsFlagsAndReservedZero2Bits,
-                      spsData.levelIdc),
-                  /* bitrate= */ Format.NO_VALUE,
-                  /* maxInputSize= */ Format.NO_VALUE,
-                  spsData.width,
-                  spsData.height,
-                  /* frameRate= */ Format.NO_VALUE,
-                  initializationData,
-                  /* rotationDegrees= */ Format.NO_VALUE,
-                  spsData.pixelWidthAspectRatio,
-                  /* drmInitData= */ null));
+              new Format.Builder()
+                  .setId(formatId)
+                  .setSampleMimeType(MimeTypes.VIDEO_H264)
+                  .setCodecs(codecs)
+                  .setWidth(spsData.width)
+                  .setHeight(spsData.height)
+                  .setPixelWidthHeightRatio(spsData.pixelWidthAspectRatio)
+                  .setInitializationData(initializationData)
+                  .build());
           hasOutputFormat = true;
           sampleReader.putSps(spsData);
           sampleReader.putPps(ppsData);

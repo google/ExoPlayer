@@ -90,9 +90,14 @@ import com.google.android.exoplayer2.video.AvcConfig;
       AvcConfig avcConfig = AvcConfig.parse(videoSequence);
       nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
       // Construct and output the format.
-      Format format = Format.createVideoSampleFormat(null, MimeTypes.VIDEO_H264, null,
-          Format.NO_VALUE, Format.NO_VALUE, avcConfig.width, avcConfig.height, Format.NO_VALUE,
-          avcConfig.initializationData, Format.NO_VALUE, avcConfig.pixelWidthAspectRatio, null);
+      Format format =
+          new Format.Builder()
+              .setSampleMimeType(MimeTypes.VIDEO_H264)
+              .setWidth(avcConfig.width)
+              .setHeight(avcConfig.height)
+              .setPixelWidthHeightRatio(avcConfig.pixelWidthAspectRatio)
+              .setInitializationData(avcConfig.initializationData)
+              .build();
       output.format(format);
       hasOutputFormat = true;
       return false;

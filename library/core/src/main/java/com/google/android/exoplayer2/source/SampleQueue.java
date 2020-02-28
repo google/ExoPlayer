@@ -521,7 +521,11 @@ public class SampleQueue implements TrackOutput {
   @CallSuper
   protected Format getAdjustedUpstreamFormat(Format format) {
     if (sampleOffsetUs != 0 && format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {
-      format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs);
+      format =
+          format
+              .buildUpon()
+              .setSubsampleOffsetUs(format.subsampleOffsetUs + sampleOffsetUs)
+              .build();
     }
     return format;
   }

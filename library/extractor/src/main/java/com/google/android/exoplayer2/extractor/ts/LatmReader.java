@@ -71,6 +71,7 @@ public final class LatmReader implements ElementaryStreamReader {
   private int sampleRateHz;
   private long sampleDurationUs;
   private int channelCount;
+  @Nullable private String codecs;
 
   /**
    * @param language Track language.
@@ -202,18 +203,15 @@ public final class LatmReader implements ElementaryStreamReader {
         byte[] initData = new byte[(readBits + 7) / 8];
         data.readBits(initData, 0, readBits);
         Format format =
-            Format.createAudioSampleFormat(
-                formatId,
-                MimeTypes.AUDIO_AAC,
-                /* codecs= */ null,
-                Format.NO_VALUE,
-                Format.NO_VALUE,
-                channelCount,
-                sampleRateHz,
-                Collections.singletonList(initData),
-                /* drmInitData= */ null,
-                /* selectionFlags= */ 0,
-                language);
+            new Format.Builder()
+                .setId(formatId)
+                .setSampleMimeType(MimeTypes.AUDIO_AAC)
+                .setCodecs(codecs)
+                .setChannelCount(channelCount)
+                .setSampleRate(sampleRateHz)
+                .setInitializationData(Collections.singletonList(initData))
+                .setLanguage(language)
+                .build();
         if (!format.equals(this.format)) {
           this.format = format;
           sampleDurationUs = (C.MICROS_PER_SECOND * 1024) / format.sampleRate;
@@ -273,6 +271,7 @@ public final class LatmReader implements ElementaryStreamReader {
   private int parseAudioSpecificConfig(ParsableBitArray data) throws ParserException {
     int bitsLeft = data.bitsLeft();
     AacUtil.Config config = AacUtil.parseAudioSpecificConfig(data, /* forceReadToEnd= */ true);
+    codecs = config.codecs;
     sampleRateHz = config.sampleRateHz;
     channelCount = config.channelCount;
     return bitsLeft - data.bitsLeft();

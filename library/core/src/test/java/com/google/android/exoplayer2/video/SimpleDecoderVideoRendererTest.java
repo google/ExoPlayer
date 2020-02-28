@@ -49,20 +49,12 @@ import org.mockito.junit.MockitoRule;
 public final class SimpleDecoderVideoRendererTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
-  private static final Format BASIC_MP4_1080 =
-      Format.createVideoSampleFormat(
-          /* id= */ null,
-          /* sampleMimeType= */ MimeTypes.VIDEO_MP4,
-          /* codecs= */ null,
-          /* bitrate= */ Format.NO_VALUE,
-          /* maxInputSize= */ Format.NO_VALUE,
-          /* width= */ 1920,
-          /* height= */ 1080,
-          /* frameRate= */ Format.NO_VALUE,
-          /* initializationData= */ null,
-          /* rotationDegrees= */ 0,
-          /* pixelWidthHeightRatio= */ 1f,
-          /* drmInitData= */ null);
+  private static final Format H264_FORMAT =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.VIDEO_H264)
+          .setWidth(1920)
+          .setHeight(1080)
+          .build();
 
   private SimpleDecoderVideoRenderer renderer;
   @Mock private VideoRendererEventListener eventListener;
@@ -142,7 +134,7 @@ public final class SimpleDecoderVideoRendererTest {
   public void enable_withMayRenderStartOfStream_rendersFirstFrameBeforeStart() throws Exception {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
-            /* format= */ BASIC_MP4_1080,
+            /* format= */ H264_FORMAT,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -150,7 +142,7 @@ public final class SimpleDecoderVideoRendererTest {
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
-        new Format[] {BASIC_MP4_1080},
+        new Format[] {H264_FORMAT},
         fakeSampleStream,
         /* positionUs= */ 0,
         /* joining= */ false,
@@ -168,7 +160,7 @@ public final class SimpleDecoderVideoRendererTest {
       throws Exception {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
-            /* format= */ BASIC_MP4_1080,
+            /* format= */ H264_FORMAT,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -176,7 +168,7 @@ public final class SimpleDecoderVideoRendererTest {
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
-        new Format[] {BASIC_MP4_1080},
+        new Format[] {H264_FORMAT},
         fakeSampleStream,
         /* positionUs= */ 0,
         /* joining= */ false,
@@ -193,7 +185,7 @@ public final class SimpleDecoderVideoRendererTest {
   public void enable_withoutMayRenderStartOfStream_rendersFirstFrameAfterStart() throws Exception {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
-            /* format= */ BASIC_MP4_1080,
+            /* format= */ H264_FORMAT,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -201,7 +193,7 @@ public final class SimpleDecoderVideoRendererTest {
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
-        new Format[] {BASIC_MP4_1080},
+        new Format[] {H264_FORMAT},
         fakeSampleStream,
         /* positionUs= */ 0,
         /* joining= */ false,
@@ -221,7 +213,7 @@ public final class SimpleDecoderVideoRendererTest {
   public void replaceStream_whenStarted_rendersFirstFrameOfNewStream() throws Exception {
     FakeSampleStream fakeSampleStream1 =
         new FakeSampleStream(
-            /* format= */ BASIC_MP4_1080,
+            /* format= */ H264_FORMAT,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -229,7 +221,7 @@ public final class SimpleDecoderVideoRendererTest {
             FakeSampleStreamItem.END_OF_STREAM_ITEM);
     FakeSampleStream fakeSampleStream2 =
         new FakeSampleStream(
-            /* format= */ BASIC_MP4_1080,
+            /* format= */ H264_FORMAT,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -237,7 +229,7 @@ public final class SimpleDecoderVideoRendererTest {
             FakeSampleStreamItem.END_OF_STREAM_ITEM);
     renderer.enable(
         RendererConfiguration.DEFAULT,
-        new Format[] {BASIC_MP4_1080},
+        new Format[] {H264_FORMAT},
         fakeSampleStream1,
         /* positionUs= */ 0,
         /* joining= */ false,
@@ -249,8 +241,7 @@ public final class SimpleDecoderVideoRendererTest {
     for (int i = 0; i < 200; i += 10) {
       renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && renderer.hasReadStreamToEnd()) {
-        renderer.replaceStream(
-            new Format[] {BASIC_MP4_1080}, fakeSampleStream2, /* offsetUs= */ 100);
+        renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
         replacedStream = true;
       }
     }
@@ -262,7 +253,7 @@ public final class SimpleDecoderVideoRendererTest {
   public void replaceStream_whenNotStarted_doesNotRenderFirstFrameOfNewStream() throws Exception {
     FakeSampleStream fakeSampleStream1 =
         new FakeSampleStream(
-            /* format= */ BASIC_MP4_1080,
+            /* format= */ H264_FORMAT,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -270,7 +261,7 @@ public final class SimpleDecoderVideoRendererTest {
             FakeSampleStreamItem.END_OF_STREAM_ITEM);
     FakeSampleStream fakeSampleStream2 =
         new FakeSampleStream(
-            /* format= */ BASIC_MP4_1080,
+            /* format= */ H264_FORMAT,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -278,7 +269,7 @@ public final class SimpleDecoderVideoRendererTest {
             FakeSampleStreamItem.END_OF_STREAM_ITEM);
     renderer.enable(
         RendererConfiguration.DEFAULT,
-        new Format[] {BASIC_MP4_1080},
+        new Format[] {H264_FORMAT},
         fakeSampleStream1,
         /* positionUs= */ 0,
         /* joining= */ false,
@@ -289,8 +280,7 @@ public final class SimpleDecoderVideoRendererTest {
     for (int i = 0; i < 200; i += 10) {
       renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && renderer.hasReadStreamToEnd()) {
-        renderer.replaceStream(
-            new Format[] {BASIC_MP4_1080}, fakeSampleStream2, /* offsetUs= */ 100);
+        renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
         replacedStream = true;
       }
     }

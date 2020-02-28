@@ -115,7 +115,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
     this(
         flags,
         Collections.singletonList(
-            Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608, 0, null)));
+            new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA608).build()));
   }
 
   /**
@@ -264,14 +264,12 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
           }
 
           closedCaptionFormats.add(
-              Format.createTextSampleFormat(
-                  /* id= */ null,
-                  mimeType,
-                  /* selectionFlags= */ 0,
-                  language,
-                  accessibilityChannel,
-                  Format.OFFSET_SAMPLE_RELATIVE,
-                  initializationData));
+              new Format.Builder()
+                  .setSampleMimeType(mimeType)
+                  .setLanguage(language)
+                  .setAccessibilityChannel(accessibilityChannel)
+                  .setInitializationData(initializationData)
+                  .build());
         }
       } else {
         // Unknown descriptor. Ignore.

@@ -252,22 +252,15 @@ public final class Mp3Extractor implements Extractor {
       seeker = computeSeeker(input);
       extractorOutput.seekMap(seeker);
       currentTrackOutput.format(
-          Format.createAudioSampleFormat(
-              /* id= */ null,
-              synchronizedHeader.mimeType,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              MpegAudioUtil.MAX_FRAME_SIZE_BYTES,
-              synchronizedHeader.channels,
-              synchronizedHeader.sampleRate,
-              /* pcmEncoding= */ Format.NO_VALUE,
-              gaplessInfoHolder.encoderDelay,
-              gaplessInfoHolder.encoderPadding,
-              /* initializationData= */ null,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null,
-              (flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata));
+          new Format.Builder()
+              .setSampleMimeType(synchronizedHeader.mimeType)
+              .setMaxInputSize(MpegAudioUtil.MAX_FRAME_SIZE_BYTES)
+              .setChannelCount(synchronizedHeader.channels)
+              .setSampleRate(synchronizedHeader.sampleRate)
+              .setEncoderDelay(gaplessInfoHolder.encoderDelay)
+              .setEncoderPadding(gaplessInfoHolder.encoderPadding)
+              .setMetadata((flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata)
+              .build());
       firstSamplePosition = input.getPosition();
     } else if (firstSamplePosition != 0) {
       long inputPosition = input.getPosition();

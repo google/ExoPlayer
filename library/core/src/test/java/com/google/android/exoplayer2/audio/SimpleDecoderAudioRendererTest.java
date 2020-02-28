@@ -46,7 +46,8 @@ import org.robolectric.annotation.Config;
 @RunWith(AndroidJUnit4.class)
 public class SimpleDecoderAudioRendererTest {
 
-  private static final Format FORMAT = Format.createSampleFormat(null, MimeTypes.AUDIO_RAW);
+  private static final Format FORMAT =
+      new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_RAW).build();
 
   @Mock private AudioSink mockAudioSink;
   private SimpleDecoderAudioRenderer audioRenderer;

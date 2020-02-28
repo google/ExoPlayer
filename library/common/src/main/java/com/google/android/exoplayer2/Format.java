@@ -1473,6 +1473,7 @@ public final class Format implements Parcelable {
     return buildUpon().setWidth(width).setHeight(height).build();
   }
 
+  /** Returns a copy of this format with the specified {@link #exoMediaCryptoType}. */
   public Format copyWithExoMediaCryptoType(
       @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
     return buildUpon().setExoMediaCryptoType(exoMediaCryptoType).build();
