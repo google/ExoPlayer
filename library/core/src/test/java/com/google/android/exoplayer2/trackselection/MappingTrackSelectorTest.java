@@ -47,35 +47,9 @@ public final class MappingTrackSelectorTest {
   private static final RendererCapabilities METADATA_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_METADATA);
 
-  private static final TrackGroup VIDEO_TRACK_GROUP =
-      new TrackGroup(
-          Format.createVideoSampleFormat(
-              "video",
-              MimeTypes.VIDEO_H264,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              /* maxInputSize= */ Format.NO_VALUE,
-              /* width= */ 1024,
-              /* height= */ 768,
-              /* frameRate= */ Format.NO_VALUE,
-              /* initializationData= */ null,
-              /* drmInitData= */ null));
-  private static final TrackGroup AUDIO_TRACK_GROUP =
-      new TrackGroup(
-          Format.createAudioSampleFormat(
-              "audio",
-              MimeTypes.AUDIO_AAC,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              /* maxInputSize= */ Format.NO_VALUE,
-              /* channelCount= */ 2,
-              /* sampleRate= */ 44100,
-              /* initializationData= */ null,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null));
-  private static final TrackGroup METADATA_TRACK_GROUP =
-      new TrackGroup(Format.createSampleFormat("metadata", MimeTypes.APPLICATION_ID3));
+  private static final TrackGroup VIDEO_TRACK_GROUP = buildTrackGroup(MimeTypes.VIDEO_H264);
+  private static final TrackGroup AUDIO_TRACK_GROUP = buildTrackGroup(MimeTypes.AUDIO_AAC);
+  private static final TrackGroup METADATA_TRACK_GROUP = buildTrackGroup(MimeTypes.APPLICATION_ID3);
 
   private static final Timeline TIMELINE = new FakeTimeline(/* windowCount= */ 1);
 
@@ -150,6 +124,10 @@ public final class MappingTrackSelectorTest {
     trackSelector.assertMappedTrackGroups(2, METADATA_TRACK_GROUP);
   }
 
+  private static TrackGroup buildTrackGroup(String sampleMimeType) {
+    return new TrackGroup(new Format.Builder().setSampleMimeType(sampleMimeType).build());
+  }
+
   /**
    * A {@link MappingTrackSelector} that stashes the {@link MappedTrackInfo} passed to {@link
    * #selectTracks(MappedTrackInfo, int[][][], int[])}.
@@ -209,7 +187,5 @@ public final class MappingTrackSelectorTest {
     public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
       return ADAPTIVE_SEAMLESS;
     }
-
   }
-
 }
