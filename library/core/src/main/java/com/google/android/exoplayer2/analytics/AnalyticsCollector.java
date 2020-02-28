@@ -790,6 +790,8 @@ public class AnalyticsCollector
       }
       if (!mediaPeriodInfoQueue.isEmpty()) {
         playingMediaPeriod = mediaPeriodInfoQueue.get(0);
+      } else if (playingMediaPeriod != null) {
+        playingMediaPeriod = updateMediaPeriodInfoToNewTimeline(playingMediaPeriod, timeline);
       }
       this.timeline = timeline;
       currentPlayerMediaPeriod = findMatchingMediaPeriodInQueue(player);
