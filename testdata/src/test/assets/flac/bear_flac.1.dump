@@ -10,8 +10,6 @@ track 0:
   total output bytes = 113666
   sample count = 23
   format 0:
-    averageBitrate = 1536000
-    peakBitrate = 1536000
     sampleMimeType = audio/flac
     maxInputSize = 5776
     channelCount = 2

@@ -270,7 +270,7 @@ public final class FlacExtractor implements Extractor {
             /* id= */ null,
             MimeTypes.AUDIO_RAW,
             /* codecs= */ null,
-            streamMetadata.getBitRate(),
+            streamMetadata.getDecodedBitrate(),
             streamMetadata.getMaxDecodedFrameSize(),
             streamMetadata.channels,
             streamMetadata.sampleRate,
