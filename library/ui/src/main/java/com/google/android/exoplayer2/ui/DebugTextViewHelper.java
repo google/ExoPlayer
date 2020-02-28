@@ -15,22 +15,21 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import android.annotation.SuppressLint;
+import android.os.Looper;
 import android.widget.TextView;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.Assertions;
+import java.util.Locale;
 
 /**
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
  * a {@link SimpleExoPlayer}.
  */
-public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListener {
+public class DebugTextViewHelper implements Player.EventListener, Runnable {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
 
@@ -40,10 +39,13 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
   private boolean started;
 
   /**
-   * @param player The {@link SimpleExoPlayer} from which debug information should be obtained.
+   * @param player The {@link SimpleExoPlayer} from which debug information should be obtained. Only
+   *     players which are accessed on the main thread are supported ({@code
+   *     player.getApplicationLooper() == Looper.getMainLooper()}).
    * @param textView The {@link TextView} that should be updated to display the information.
    */
   public DebugTextViewHelper(SimpleExoPlayer player, TextView textView) {
+    Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
     this.player = player;
     this.textView = textView;
   }
@@ -52,7 +54,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
    * Starts periodic updates of the {@link TextView}. Must be called from the application's main
    * thread.
    */
-  public void start() {
+  public final void start() {
     if (started) {
       return;
     }
@@ -65,7 +67,7 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
    * Stops periodic updates of the {@link TextView}. Must be called from the application's main
    * thread.
    */
-  public void stop() {
+  public final void stop() {
     if (!started) {
       return;
     }
@@ -74,103 +76,111 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
     textView.removeCallbacks(this);
   }
 
-  // ExoPlayer.EventListener implementation.
+  // Player.EventListener implementation.
 
   @Override
-  public void onLoadingChanged(boolean isLoading) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public final void onPlaybackStateChanged(@Player.State int playbackState) {
     updateAndPost();
   }
 
   @Override
-  public void onPositionDiscontinuity() {
+  public final void onPlayWhenReadyChanged(
+      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int playbackState) {
     updateAndPost();
   }
 
   @Override
-  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onPlayerError(ExoPlaybackException error) {
-    // Do nothing.
-  }
-
-  @Override
-  public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
-    // Do nothing.
+  public final void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+    updateAndPost();
   }
 
   // Runnable implementation.
 
   @Override
-  public void run() {
+  public final void run() {
     updateAndPost();
   }
 
-  // Private methods.
+  // Protected methods.
 
-  private void updateAndPost() {
-    textView.setText(getPlayerStateString() + getPlayerWindowIndexString() + getVideoString()
-        + getAudioString());
+  @SuppressLint("SetTextI18n")
+  protected final void updateAndPost() {
+    textView.setText(getDebugString());
     textView.removeCallbacks(this);
     textView.postDelayed(this, REFRESH_INTERVAL_MS);
   }
 
-  private String getPlayerStateString() {
-    String text = "playWhenReady:" + player.getPlayWhenReady() + " playbackState:";
+  /** Returns the debugging information string to be shown by the target {@link TextView}. */
+  protected String getDebugString() {
+    return getPlayerStateString() + getVideoString() + getAudioString();
+  }
+
+  /** Returns a string containing player state debugging information. */
+  protected String getPlayerStateString() {
+    String playbackStateString;
     switch (player.getPlaybackState()) {
-      case ExoPlayer.STATE_BUFFERING:
-        text += "buffering";
+      case Player.STATE_BUFFERING:
+        playbackStateString = "buffering";
         break;
-      case ExoPlayer.STATE_ENDED:
-        text += "ended";
+      case Player.STATE_ENDED:
+        playbackStateString = "ended";
         break;
-      case ExoPlayer.STATE_IDLE:
-        text += "idle";
+      case Player.STATE_IDLE:
+        playbackStateString = "idle";
         break;
-      case ExoPlayer.STATE_READY:
-        text += "ready";
+      case Player.STATE_READY:
+        playbackStateString = "ready";
         break;
       default:
-        text += "unknown";
+        playbackStateString = "unknown";
         break;
     }
-    return text;
+    return String.format(
+        "playWhenReady:%s playbackState:%s window:%s",
+        player.getPlayWhenReady(), playbackStateString, player.getCurrentWindowIndex());
   }
 
-  private String getPlayerWindowIndexString() {
-    return " window:" + player.getCurrentWindowIndex();
-  }
-
-  private String getVideoString() {
+  /** Returns a string containing video debugging information. */
+  protected String getVideoString() {
     Format format = player.getVideoFormat();
-    if (format == null) {
+    DecoderCounters decoderCounters = player.getVideoDecoderCounters();
+    if (format == null || decoderCounters == null) {
       return "";
     }
-    return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
-        + format.height + getDecoderCountersBufferCountString(player.getVideoDecoderCounters())
+    return "\n"
+        + format.sampleMimeType
+        + "(id:"
+        + format.id
+        + " r:"
+        + format.width
+        + "x"
+        + format.height
+        + getPixelAspectRatioString(format.pixelWidthHeightRatio)
+        + getDecoderCountersBufferCountString(decoderCounters)
+        + " vfpo: "
+        + getVideoFrameProcessingOffsetAverageString(
+            decoderCounters.totalVideoFrameProcessingOffsetUs,
+            decoderCounters.videoFrameProcessingOffsetCount)
         + ")";
   }
 
-  private String getAudioString() {
+  /** Returns a string containing audio debugging information. */
+  protected String getAudioString() {
     Format format = player.getAudioFormat();
-    if (format == null) {
+    DecoderCounters decoderCounters = player.getAudioDecoderCounters();
+    if (format == null || decoderCounters == null) {
       return "";
     }
-    return "\n" + format.sampleMimeType + "(id:" + format.id + " hz:" + format.sampleRate + " ch:"
+    return "\n"
+        + format.sampleMimeType
+        + "(id:"
+        + format.id
+        + " hz:"
+        + format.sampleRate
+        + " ch:"
         + format.channelCount
-        + getDecoderCountersBufferCountString(player.getAudioDecoderCounters()) + ")";
+        + getDecoderCountersBufferCountString(decoderCounters)
+        + ")";
   }
 
   private static String getDecoderCountersBufferCountString(DecoderCounters counters) {
@@ -178,10 +188,26 @@ public final class DebugTextViewHelper implements Runnable, ExoPlayer.EventListe
       return "";
     }
     counters.ensureUpdated();
-    return " rb:" + counters.renderedOutputBufferCount
+    return " sib:" + counters.skippedInputBufferCount
         + " sb:" + counters.skippedOutputBufferCount
-        + " db:" + counters.droppedOutputBufferCount
-        + " mcdb:" + counters.maxConsecutiveDroppedOutputBufferCount;
+        + " rb:" + counters.renderedOutputBufferCount
+        + " db:" + counters.droppedBufferCount
+        + " mcdb:" + counters.maxConsecutiveDroppedBufferCount
+        + " dk:" + counters.droppedToKeyframeCount;
   }
 
+  private static String getPixelAspectRatioString(float pixelAspectRatio) {
+    return pixelAspectRatio == Format.NO_VALUE || pixelAspectRatio == 1f ? ""
+        : (" par:" + String.format(Locale.US, "%.02f", pixelAspectRatio));
+  }
+
+  private static String getVideoFrameProcessingOffsetAverageString(
+      long totalOffsetUs, int frameCount) {
+    if (frameCount == 0) {
+      return "N/A";
+    } else {
+      long averageUs = (long) ((double) totalOffsetUs / frameCount);
+      return String.valueOf(averageUs);
+    }
+  }
 }

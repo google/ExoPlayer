@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.ffmpeg;
 
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.LibraryLoader;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 /**
@@ -23,8 +26,14 @@ import com.google.android.exoplayer2.util.MimeTypes;
  */
 public final class FfmpegLibrary {
 
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.ffmpeg");
+  }
+
+  private static final String TAG = "FfmpegLibrary";
+
   private static final LibraryLoader LOADER =
-      new LibraryLoader("avutil", "avresample", "avcodec", "ffmpeg");
+      new LibraryLoader("avutil", "avresample", "swresample", "avcodec", "ffmpeg");
 
   private FfmpegLibrary() {}
 
@@ -32,6 +41,8 @@ public final class FfmpegLibrary {
    * Override the names of the FFmpeg native libraries. If an application wishes to call this
    * method, it must do so before calling any other method defined by this class, and before
    * instantiating a {@link FfmpegAudioRenderer} instance.
+   *
+   * @param libraries The names of the FFmpeg native libraries.
    */
   public static void setLibraries(String... libraries) {
     LOADER.setLibraries(libraries);
@@ -44,28 +55,36 @@ public final class FfmpegLibrary {
     return LOADER.isAvailable();
   }
 
-  /**
-   * Returns the version of the underlying library if available, or null otherwise.
-   */
-  public static String getVersion() {
+  /** Returns the version of the underlying library if available, or null otherwise. */
+  public static @Nullable String getVersion() {
     return isAvailable() ? ffmpegGetVersion() : null;
   }
 
   /**
    * Returns whether the underlying library supports the specified MIME type.
+   *
+   * @param mimeType The MIME type to check.
    */
   public static boolean supportsFormat(String mimeType) {
     if (!isAvailable()) {
       return false;
     }
     String codecName = getCodecName(mimeType);
-    return codecName != null && ffmpegHasDecoder(codecName);
+    if (codecName == null) {
+      return false;
+    }
+    if (!ffmpegHasDecoder(codecName)) {
+      Log.w(TAG, "No " + codecName + " decoder available. Check the FFmpeg build configuration.");
+      return false;
+    }
+    return true;
   }
 
   /**
-   * Returns the name of the FFmpeg decoder that could be used to decode {@code mimeType}.
+   * Returns the name of the FFmpeg decoder that could be used to decode the format, or {@code null}
+   * if it's unsupported.
    */
-  /* package */ static String getCodecName(String mimeType) {
+  /* package */ static @Nullable String getCodecName(String mimeType) {
     switch (mimeType) {
       case MimeTypes.AUDIO_AAC:
         return "aac";
@@ -76,6 +95,7 @@ public final class FfmpegLibrary {
       case MimeTypes.AUDIO_AC3:
         return "ac3";
       case MimeTypes.AUDIO_E_AC3:
+      case MimeTypes.AUDIO_E_AC3_JOC:
         return "eac3";
       case MimeTypes.AUDIO_TRUEHD:
         return "truehd";
@@ -94,6 +114,10 @@ public final class FfmpegLibrary {
         return "flac";
       case MimeTypes.AUDIO_ALAC:
         return "alac";
+      case MimeTypes.AUDIO_MLAW:
+        return "pcm_mulaw";
+      case MimeTypes.AUDIO_ALAW:
+        return "pcm_alaw";
       default:
         return null;
     }

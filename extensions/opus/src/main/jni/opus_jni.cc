@@ -103,8 +103,16 @@ DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
       kMaxOpusOutputPacketSizeSamples * kBytesPerSample * channelCount;
 
   env->CallObjectMethod(jOutputBuffer, outputBufferInit, jTimeUs, outputSize);
+  if (env->ExceptionCheck()) {
+    // Exception is thrown in Java when returning from the native call.
+    return -1;
+  }
   const jobject jOutputBufferData = env->CallObjectMethod(jOutputBuffer,
       outputBufferInit, jTimeUs, outputSize);
+  if (env->ExceptionCheck()) {
+    // Exception is thrown in Java when returning from the native call.
+    return -1;
+  }
 
   int16_t* outputBufferData = reinterpret_cast<int16_t*>(
       env->GetDirectBufferAddress(jOutputBufferData));

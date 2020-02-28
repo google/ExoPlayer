@@ -20,16 +20,28 @@ import com.google.android.exoplayer2.C;
 /**
  * A {@link SequenceableLoader} that encapsulates multiple other {@link SequenceableLoader}s.
  */
-public final class CompositeSequenceableLoader implements SequenceableLoader {
+public class CompositeSequenceableLoader implements SequenceableLoader {
 
-  private final SequenceableLoader[] loaders;
+  protected final SequenceableLoader[] loaders;
 
   public CompositeSequenceableLoader(SequenceableLoader[] loaders) {
     this.loaders = loaders;
   }
 
   @Override
-  public long getNextLoadPositionUs() {
+  public final long getBufferedPositionUs() {
+    long bufferedPositionUs = Long.MAX_VALUE;
+    for (SequenceableLoader loader : loaders) {
+      long loaderBufferedPositionUs = loader.getBufferedPositionUs();
+      if (loaderBufferedPositionUs != C.TIME_END_OF_SOURCE) {
+        bufferedPositionUs = Math.min(bufferedPositionUs, loaderBufferedPositionUs);
+      }
+    }
+    return bufferedPositionUs == Long.MAX_VALUE ? C.TIME_END_OF_SOURCE : bufferedPositionUs;
+  }
+
+  @Override
+  public final long getNextLoadPositionUs() {
     long nextLoadPositionUs = Long.MAX_VALUE;
     for (SequenceableLoader loader : loaders) {
       long loaderNextLoadPositionUs = loader.getNextLoadPositionUs();
@@ -38,6 +50,13 @@ public final class CompositeSequenceableLoader implements SequenceableLoader {
       }
     }
     return nextLoadPositionUs == Long.MAX_VALUE ? C.TIME_END_OF_SOURCE : nextLoadPositionUs;
+  }
+
+  @Override
+  public final void reevaluateBuffer(long positionUs) {
+    for (SequenceableLoader loader : loaders) {
+      loader.reevaluateBuffer(positionUs);
+    }
   }
 
   @Override
@@ -51,7 +70,11 @@ public final class CompositeSequenceableLoader implements SequenceableLoader {
         break;
       }
       for (SequenceableLoader loader : loaders) {
-        if (loader.getNextLoadPositionUs() == nextLoadPositionUs) {
+        long loaderNextLoadPositionUs = loader.getNextLoadPositionUs();
+        boolean isLoaderBehind =
+            loaderNextLoadPositionUs != C.TIME_END_OF_SOURCE
+                && loaderNextLoadPositionUs <= positionUs;
+        if (loaderNextLoadPositionUs == nextLoadPositionUs || isLoaderBehind) {
           madeProgressThisIteration |= loader.continueLoading(positionUs);
         }
       }
@@ -60,4 +83,13 @@ public final class CompositeSequenceableLoader implements SequenceableLoader {
     return madeProgress;
   }
 
+  @Override
+  public boolean isLoading() {
+    for (SequenceableLoader loader : loaders) {
+      if (loader.isLoading()) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
