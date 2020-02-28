@@ -58,17 +58,12 @@ public final class SampleQueueTest {
 
   private static final int ALLOCATION_SIZE = 16;
 
-  private static final Format FORMAT_1 =
-      Format.createSampleFormat("1", "mimeType").copyWithSubsampleOffsetUs(0);
-  private static final Format FORMAT_2 =
-      Format.createSampleFormat("2", "mimeType").copyWithSubsampleOffsetUs(0);
-  private static final Format FORMAT_1_COPY =
-      Format.createSampleFormat("1", "mimeType").copyWithSubsampleOffsetUs(0);
-  private static final Format FORMAT_SPLICED =
-      Format.createSampleFormat("spliced", "mimeType").copyWithSubsampleOffsetUs(0);
+  private static final Format FORMAT_1 = buildFormat(/* id= */ "1");
+  private static final Format FORMAT_2 = buildFormat(/* id= */ "2");
+  private static final Format FORMAT_1_COPY = buildFormat(/* id= */ "1");
+  private static final Format FORMAT_SPLICED = buildFormat(/* id= */ "spliced");
   private static final Format FORMAT_ENCRYPTED =
-      Format.createSampleFormat(/* id= */ "encrypted", "mimeType")
-          .copyWithDrmInitData(new DrmInitData());
+      new Format.Builder().setId(/* id= */ "encrypted").setDrmInitData(new DrmInitData()).build();
   private static final byte[] DATA = TestUtil.buildTestData(ALLOCATION_SIZE * 10);
 
   /*
@@ -914,7 +909,8 @@ public final class SampleQueueTest {
     // We expect to read the format adjusted to account for the sample offset, followed by the final
     // sample and then the end of stream.
     assertReadFormat(
-        /* formatRequired= */ false, FORMAT_2.copyWithSubsampleOffsetUs(sampleOffsetUs));
+        /* formatRequired= */ false,
+        FORMAT_2.buildUpon().setSubsampleOffsetUs(sampleOffsetUs).build());
     assertReadSample(
         unadjustedTimestampUs + sampleOffsetUs,
         /* isKeyFrame= */ false,
@@ -932,12 +928,12 @@ public final class SampleQueueTest {
         new SampleQueue(allocator, mockDrmSessionManager) {
           @Override
           public Format getAdjustedUpstreamFormat(Format format) {
-            return super.getAdjustedUpstreamFormat(format.copyWithLabel(label));
+            return super.getAdjustedUpstreamFormat(copyWithLabel(format, label));
           }
         };
 
     writeFormat(FORMAT_1);
-    assertReadFormat(/* formatRequired= */ false, FORMAT_1.copyWithLabel(label));
+    assertReadFormat(/* formatRequired= */ false, copyWithLabel(FORMAT_1, label));
     assertReadEndOfStream(/* formatRequired= */ false);
   }
 
@@ -948,7 +944,7 @@ public final class SampleQueueTest {
         new SampleQueue(allocator, mockDrmSessionManager) {
           @Override
           public Format getAdjustedUpstreamFormat(Format format) {
-            return super.getAdjustedUpstreamFormat(format.copyWithLabel(label.get()));
+            return super.getAdjustedUpstreamFormat(copyWithLabel(format, label.get()));
           }
         };
 
@@ -961,7 +957,7 @@ public final class SampleQueueTest {
 
     writeSample(DATA, /* timestampUs= */ 1, /* sampleFlags= */ 0);
 
-    assertReadFormat(/* formatRequired= */ false, FORMAT_1.copyWithLabel("label1"));
+    assertReadFormat(/* formatRequired= */ false, copyWithLabel(FORMAT_1, "label1"));
     assertReadSample(
         /* timeUs= */ 0,
         /* isKeyFrame= */ true,
@@ -969,7 +965,7 @@ public final class SampleQueueTest {
         DATA,
         /* offset= */ 0,
         DATA.length);
-    assertReadFormat(/* formatRequired= */ false, FORMAT_1.copyWithLabel("label2"));
+    assertReadFormat(/* formatRequired= */ false, copyWithLabel(FORMAT_1, "label2"));
     assertReadSample(
         /* timeUs= */ 1,
         /* isKeyFrame= */ false,
@@ -1029,7 +1025,8 @@ public final class SampleQueueTest {
     writeFormat(FORMAT_SPLICED);
     writeSample(DATA, spliceSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME);
     assertReadTestData(null, 0, 4, sampleOffsetUs);
-    assertReadFormat(false, FORMAT_SPLICED.copyWithSubsampleOffsetUs(sampleOffsetUs));
+    assertReadFormat(
+        false, FORMAT_SPLICED.buildUpon().setSubsampleOffsetUs(sampleOffsetUs).build());
     assertReadSample(
         spliceSampleTimeUs + sampleOffsetUs, true, /* isEncrypted= */ false, DATA, 0, DATA.length);
     assertReadEndOfStream(false);
@@ -1351,6 +1348,14 @@ public final class SampleQueueTest {
   private static Format adjustFormat(@Nullable Format format, long sampleOffsetUs) {
     return format == null || sampleOffsetUs == 0
         ? format
-        : format.copyWithSubsampleOffsetUs(sampleOffsetUs);
+        : format.buildUpon().setSubsampleOffsetUs(sampleOffsetUs).build();
+  }
+
+  private static Format buildFormat(String id) {
+    return new Format.Builder().setId(id).setSubsampleOffsetUs(0).build();
+  }
+
+  private static Format copyWithLabel(Format format, String label) {
+    return format.buildUpon().setLabel(label).build();
   }
 }

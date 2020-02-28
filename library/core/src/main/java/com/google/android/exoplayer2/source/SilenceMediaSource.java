@@ -34,24 +34,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 public final class SilenceMediaSource extends BaseMediaSource {
 
   private static final int SAMPLE_RATE_HZ = 44100;
-  @C.PcmEncoding private static final int ENCODING = C.ENCODING_PCM_16BIT;
+  @C.PcmEncoding private static final int PCM_ENCODING = C.ENCODING_PCM_16BIT;
   private static final int CHANNEL_COUNT = 2;
   private static final Format FORMAT =
-      Format.createAudioSampleFormat(
-          /* id=*/ null,
-          MimeTypes.AUDIO_RAW,
-          /* codecs= */ null,
-          /* bitrate= */ Format.NO_VALUE,
-          /* maxInputSize= */ Format.NO_VALUE,
-          CHANNEL_COUNT,
-          SAMPLE_RATE_HZ,
-          ENCODING,
-          /* initializationData= */ null,
-          /* drmInitData= */ null,
-          /* selectionFlags= */ 0,
-          /* language= */ null);
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.AUDIO_RAW)
+          .setChannelCount(CHANNEL_COUNT)
+          .setSampleRate(SAMPLE_RATE_HZ)
+          .setPcmEncoding(PCM_ENCODING)
+          .build();
   private static final byte[] SILENCE_SAMPLE =
-      new byte[Util.getPcmFrameSize(ENCODING, CHANNEL_COUNT) * 1024];
+      new byte[Util.getPcmFrameSize(PCM_ENCODING, CHANNEL_COUNT) * 1024];
 
   private final long durationUs;
 
@@ -243,11 +236,11 @@ public final class SilenceMediaSource extends BaseMediaSource {
 
   private static long getAudioByteCount(long durationUs) {
     long audioSampleCount = durationUs * SAMPLE_RATE_HZ / C.MICROS_PER_SECOND;
-    return Util.getPcmFrameSize(ENCODING, CHANNEL_COUNT) * audioSampleCount;
+    return Util.getPcmFrameSize(PCM_ENCODING, CHANNEL_COUNT) * audioSampleCount;
   }
 
   private static long getAudioPositionUs(long bytes) {
-    long audioSampleCount = bytes / Util.getPcmFrameSize(ENCODING, CHANNEL_COUNT);
+    long audioSampleCount = bytes / Util.getPcmFrameSize(PCM_ENCODING, CHANNEL_COUNT);
     return audioSampleCount * C.MICROS_PER_SECOND / SAMPLE_RATE_HZ;
   }
 }

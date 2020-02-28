@@ -8,7 +8,6 @@ track 0:
   sample count = 180
   format 0:
     averageBitrate = 112000
-    peakBitrate = 112000
     sampleMimeType = audio/vorbis
     channelCount = 2
     sampleRate = 48000

@@ -223,22 +223,19 @@ public final class WavExtractor implements Extractor {
             "Expected block size: " + bytesPerFrame + "; got: " + header.blockSize);
       }
 
+      int constantBitrate = header.frameRateHz * bytesPerFrame * 8;
       targetSampleSizeBytes =
           Math.max(bytesPerFrame, header.frameRateHz * bytesPerFrame / TARGET_SAMPLES_PER_SECOND);
       format =
-          Format.createAudioSampleFormat(
-              /* id= */ null,
-              mimeType,
-              /* codecs= */ null,
-              /* bitrate= */ header.frameRateHz * bytesPerFrame * 8,
-              /* maxInputSize= */ targetSampleSizeBytes,
-              header.numChannels,
-              header.frameRateHz,
-              pcmEncoding,
-              /* initializationData= */ null,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null);
+          new Format.Builder()
+              .setSampleMimeType(mimeType)
+              .setAverageBitrate(constantBitrate)
+              .setPeakBitrate(constantBitrate)
+              .setMaxInputSize(targetSampleSizeBytes)
+              .setChannelCount(header.numChannels)
+              .setSampleRate(header.frameRateHz)
+              .setPcmEncoding(pcmEncoding)
+              .build();
     }
 
     @Override
@@ -371,21 +368,17 @@ public final class WavExtractor implements Extractor {
 
       // Create the format. We calculate the bitrate of the data before decoding, since this is the
       // bitrate of the stream itself.
-      int bitrate = header.frameRateHz * header.blockSize * 8 / framesPerBlock;
+      int constantBitrate = header.frameRateHz * header.blockSize * 8 / framesPerBlock;
       format =
-          Format.createAudioSampleFormat(
-              /* id= */ null,
-              MimeTypes.AUDIO_RAW,
-              /* codecs= */ null,
-              bitrate,
-              /* maxInputSize= */ numOutputFramesToBytes(targetSampleSizeFrames, numChannels),
-              header.numChannels,
-              header.frameRateHz,
-              C.ENCODING_PCM_16BIT,
-              /* initializationData= */ null,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null);
+          new Format.Builder()
+              .setSampleMimeType(MimeTypes.AUDIO_RAW)
+              .setAverageBitrate(constantBitrate)
+              .setPeakBitrate(constantBitrate)
+              .setMaxInputSize(numOutputFramesToBytes(targetSampleSizeFrames, numChannels))
+              .setChannelCount(header.numChannels)
+              .setSampleRate(header.frameRateHz)
+              .setPcmEncoding(C.ENCODING_PCM_16BIT)
+              .build();
     }
 
     @Override

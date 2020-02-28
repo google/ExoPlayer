@@ -48,11 +48,7 @@ public final class FragmentedMp4ExtractorTest {
     ExtractorFactory extractorFactory =
         getExtractorFactory(
             Collections.singletonList(
-                Format.createTextSampleFormat(
-                    null,
-                    MimeTypes.APPLICATION_CEA608,
-                    /* selectionFlags= */ 0,
-                    /* language= */ null)));
+                new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA608).build()));
     ExtractorAsserts.assertBehavior(extractorFactory, "mp4/sample_fragmented_sei.mp4");
   }
 
