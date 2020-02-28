@@ -852,7 +852,8 @@ public class AnalyticsCollector
               ? C.INDEX_UNSET
               : playerTimeline
                   .getPeriod(playerPeriodIndex, period)
-                  .getAdGroupIndexAfterPositionUs(C.msToUs(player.getCurrentPosition()));
+                  .getAdGroupIndexAfterPositionUs(
+                      C.msToUs(player.getCurrentPosition()) - period.getPositionInWindowUs());
       for (int i = 0; i < mediaPeriodInfoQueue.size(); i++) {
         MediaPeriodInfo mediaPeriodInfo = mediaPeriodInfoQueue.get(i);
         if (isMatchingMediaPeriod(
@@ -897,7 +898,8 @@ public class AnalyticsCollector
               ? C.INDEX_UNSET
               : playerTimeline
                   .getPeriod(playerPeriodIndex, period)
-                  .getAdGroupIndexAfterPositionUs(C.msToUs(player.getCurrentPosition()));
+                  .getAdGroupIndexAfterPositionUs(
+                      C.msToUs(player.getCurrentPosition()) - period.getPositionInWindowUs());
       return isMatchingMediaPeriod(
           playingMediaPeriod,
           playerTimeline,

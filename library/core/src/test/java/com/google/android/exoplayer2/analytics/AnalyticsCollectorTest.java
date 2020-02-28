@@ -760,11 +760,10 @@ public final class AnalyticsCollectorTest {
     AtomicReference<AdPlaybackState> adPlaybackState =
         new AtomicReference<>(
             FakeTimeline.createAdPlaybackState(
-                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */
-                    0,
-                    5 * C.MICROS_PER_SECOND,
-                    C.TIME_END_OF_SOURCE)
-                .withContentDurationUs(contentDurationsUs));
+                /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */
+                0,
+                5 * C.MICROS_PER_SECOND,
+                C.TIME_END_OF_SOURCE));
     AtomicInteger playedAdCount = new AtomicInteger(0);
     Timeline adTimeline =
         new FakeTimeline(
