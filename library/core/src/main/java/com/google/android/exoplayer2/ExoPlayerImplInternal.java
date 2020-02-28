@@ -1552,14 +1552,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
       } else if (!timeline.isEmpty()) {
         // Something changed. Seek to new start position.
         @Nullable MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
-        if (periodHolder != null) {
+        while (periodHolder != null) {
           // Update the new playing media period info if it already exists.
-          while (periodHolder.getNext() != null) {
-            periodHolder = periodHolder.getNext();
-            if (periodHolder.info.id.equals(newPeriodId)) {
-              periodHolder.info = queue.getUpdatedMediaPeriodInfo(timeline, periodHolder.info);
-            }
+          if (periodHolder.info.id.equals(newPeriodId)) {
+            periodHolder.info = queue.getUpdatedMediaPeriodInfo(timeline, periodHolder.info);
           }
+          periodHolder = periodHolder.getNext();
         }
         newPositionUs = seekToPeriodPosition(newPeriodId, newPositionUs, forceBufferingState);
       }
