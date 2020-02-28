@@ -15,57 +15,57 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.test.MoreAsserts;
+import static com.google.common.truth.Truth.assertThat;
+
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.testutil.Dumper.Dumpable;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import junit.framework.Assert;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A fake {@link TrackOutput}.
  */
 public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
-  private final ArrayList<Long> sampleTimesUs;
-  private final ArrayList<Integer> sampleFlags;
-  private final ArrayList<Integer> sampleStartOffsets;
-  private final ArrayList<Integer> sampleEndOffsets;
-  private final ArrayList<byte[]> sampleEncryptionKeys;
+  private final ArrayList<DumpableSampleInfo> sampleInfos;
+  private final ArrayList<Dumpable> dumpables;
 
   private byte[] sampleData;
-  public Format format;
+  private int formatCount;
+
+  @Nullable public Format lastFormat;
 
   public FakeTrackOutput() {
-    sampleData = new byte[0];
-    sampleTimesUs = new ArrayList<>();
-    sampleFlags = new ArrayList<>();
-    sampleStartOffsets = new ArrayList<>();
-    sampleEndOffsets = new ArrayList<>();
-    sampleEncryptionKeys = new ArrayList<>();
+    sampleInfos = new ArrayList<>();
+    dumpables = new ArrayList<>();
+    sampleData = Util.EMPTY_BYTE_ARRAY;
+    formatCount = 0;
   }
 
   public void clear() {
-    sampleData = new byte[0];
-    sampleTimesUs.clear();
-    sampleFlags.clear();
-    sampleStartOffsets.clear();
-    sampleEndOffsets.clear();
-    sampleEncryptionKeys.clear();
+    sampleInfos.clear();
+    dumpables.clear();
+    sampleData = Util.EMPTY_BYTE_ARRAY;
+    formatCount = 0;
   }
 
   @Override
   public void format(Format format) {
-    this.format = format;
+    addFormat(format);
   }
 
   @Override
-  public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+  public int sampleData(DataReader input, int length, boolean allowEndOfInput)
       throws IOException, InterruptedException {
     byte[] newData = new byte[length];
     int bytesAppended = input.read(newData, 0, length);
@@ -88,96 +88,230 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   }
 
   @Override
-  public void sampleMetadata(long timeUs, @C.BufferFlags int flags, int size, int offset,
-      byte[] encryptionKey) {
-    sampleTimesUs.add(timeUs);
-    sampleFlags.add(flags);
-    sampleStartOffsets.add(sampleData.length - offset - size);
-    sampleEndOffsets.add(sampleData.length - offset);
-    sampleEncryptionKeys.add(encryptionKey);
+  public void sampleMetadata(
+      long timeUs,
+      @C.BufferFlags int flags,
+      int size,
+      int offset,
+      @Nullable CryptoData cryptoData) {
+    if (lastFormat == null) {
+      throw new IllegalStateException("TrackOutput must receive format before sampleMetadata");
+    }
+    if (lastFormat.maxInputSize != Format.NO_VALUE && size > lastFormat.maxInputSize) {
+      throw new IllegalStateException("Sample size exceeds Format.maxInputSize");
+    }
+    if (dumpables.isEmpty()) {
+      addFormat(lastFormat);
+    }
+    addSampleInfo(
+        timeUs, flags, sampleData.length - offset - size, sampleData.length - offset, cryptoData);
   }
 
   public void assertSampleCount(int count) {
-    Assert.assertEquals(count, sampleTimesUs.size());
+    assertThat(sampleInfos).hasSize(count);
   }
 
-  public void assertSample(int index, byte[] data, long timeUs, int flags, byte[] encryptionKey) {
+  public void assertSample(
+      int index, byte[] data, long timeUs, int flags, @Nullable CryptoData cryptoData) {
     byte[] actualData = getSampleData(index);
-    MoreAsserts.assertEquals(data, actualData);
-    Assert.assertEquals(timeUs, (long) sampleTimesUs.get(index));
-    Assert.assertEquals(flags, (int) sampleFlags.get(index));
-    byte[] sampleEncryptionKey = sampleEncryptionKeys.get(index);
-    if (encryptionKey == null) {
-      Assert.assertEquals(null, sampleEncryptionKey);
-    } else {
-      MoreAsserts.assertEquals(encryptionKey, sampleEncryptionKey);
-    }
+    assertThat(actualData).isEqualTo(data);
+    assertThat(getSampleTimeUs(index)).isEqualTo(timeUs);
+    assertThat(getSampleFlags(index)).isEqualTo(flags);
+    assertThat(getSampleCryptoData(index)).isEqualTo(cryptoData);
   }
 
   public byte[] getSampleData(int index) {
-    return Arrays.copyOfRange(sampleData, sampleStartOffsets.get(index),
-        sampleEndOffsets.get(index));
+    return Arrays.copyOfRange(sampleData, getSampleStartOffset(index), getSampleEndOffset(index));
   }
 
-  public void assertEquals(FakeTrackOutput expected) {
-    Assert.assertEquals(expected.format, format);
-    Assert.assertEquals(expected.sampleTimesUs.size(), sampleTimesUs.size());
-    MoreAsserts.assertEquals(expected.sampleData, sampleData);
-    for (int i = 0; i < sampleTimesUs.size(); i++) {
-      Assert.assertEquals(expected.sampleTimesUs.get(i), sampleTimesUs.get(i));
-      Assert.assertEquals(expected.sampleFlags.get(i), sampleFlags.get(i));
-      Assert.assertEquals(expected.sampleStartOffsets.get(i), sampleStartOffsets.get(i));
-      Assert.assertEquals(expected.sampleEndOffsets.get(i), sampleEndOffsets.get(i));
-      if (expected.sampleEncryptionKeys.get(i) == null) {
-        Assert.assertNull(sampleEncryptionKeys.get(i));
-      } else {
-        MoreAsserts.assertEquals(expected.sampleEncryptionKeys.get(i), sampleEncryptionKeys.get(i));
-      }
+  private byte[] getSampleData(int fromIndex, int toIndex) {
+    return Arrays.copyOfRange(sampleData, fromIndex, toIndex);
+  }
+
+  public long getSampleTimeUs(int index) {
+    return sampleInfos.get(index).timeUs;
+  }
+
+  public int getSampleFlags(int index) {
+    return sampleInfos.get(index).flags;
+  }
+
+  @Nullable
+  public CryptoData getSampleCryptoData(int index) {
+    return sampleInfos.get(index).cryptoData;
+  }
+
+  public int getSampleCount() {
+    return sampleInfos.size();
+  }
+
+  public List<Long> getSampleTimesUs() {
+    List<Long> sampleTimesUs = new ArrayList<>();
+    for (DumpableSampleInfo sampleInfo : sampleInfos) {
+      sampleTimesUs.add(sampleInfo.timeUs);
     }
+    return Collections.unmodifiableList(sampleTimesUs);
   }
 
   @Override
   public void dump(Dumper dumper) {
-    dumper.startBlock("format")
-        .add("bitrate", format.bitrate)
-        .add("id", format.id)
-        .add("containerMimeType", format.containerMimeType)
-        .add("sampleMimeType", format.sampleMimeType)
-        .add("maxInputSize", format.maxInputSize)
-        .add("width", format.width)
-        .add("height", format.height)
-        .add("frameRate", format.frameRate)
-        .add("rotationDegrees", format.rotationDegrees)
-        .add("pixelWidthHeightRatio", format.pixelWidthHeightRatio)
-        .add("channelCount", format.channelCount)
-        .add("sampleRate", format.sampleRate)
-        .add("pcmEncoding", format.pcmEncoding)
-        .add("encoderDelay", format.encoderDelay)
-        .add("encoderPadding", format.encoderPadding)
-        .add("subsampleOffsetUs", format.subsampleOffsetUs)
-        .add("selectionFlags", format.selectionFlags)
-        .add("language", format.language)
-        .add("drmInitData", format.drmInitData != null ? format.drmInitData.hashCode() : "-");
-
-    dumper.startBlock("initializationData");
-    for (int i = 0; i < format.initializationData.size(); i++) {
-      dumper.add("data", format.initializationData.get(i));
+    dumper.add("total output bytes", sampleData.length);
+    dumper.add("sample count", sampleInfos.size());
+    if (dumpables.isEmpty() && lastFormat != null) {
+      new DumpableFormat(lastFormat, 0).dump(dumper);
     }
-    dumper.endBlock().endBlock();
-
-    dumper.add("sample count", sampleTimesUs.size());
-
-    for (int i = 0; i < sampleTimesUs.size(); i++) {
-      dumper.startBlock("sample " + i)
-          .add("time", sampleTimesUs.get(i))
-          .add("flags", sampleFlags.get(i))
-          .add("data", getSampleData(i));
-      byte[] key = sampleEncryptionKeys.get(i);
-      if (key != null) {
-        dumper.add("encryption key", key);
-      }
-      dumper.endBlock();
+    for (int i = 0; i < dumpables.size(); i++) {
+      dumpables.get(i).dump(dumper);
     }
   }
 
+  private int getSampleStartOffset(int index) {
+    return sampleInfos.get(index).startOffset;
+  }
+
+  private int getSampleEndOffset(int index) {
+    return sampleInfos.get(index).endOffset;
+  }
+
+  private void addFormat(Format format) {
+    lastFormat = format;
+    dumpables.add(new DumpableFormat(format, formatCount));
+    formatCount++;
+  }
+
+  private void addSampleInfo(
+      long timeUs, int flags, int startOffset, int endOffset, @Nullable CryptoData cryptoData) {
+    DumpableSampleInfo sampleInfo =
+        new DumpableSampleInfo(timeUs, flags, startOffset, endOffset, cryptoData, getSampleCount());
+    sampleInfos.add(sampleInfo);
+    dumpables.add(sampleInfo);
+  }
+
+  private final class DumpableSampleInfo implements Dumper.Dumpable {
+    public final long timeUs;
+    public final int flags;
+    public final int startOffset;
+    public final int endOffset;
+    @Nullable public final CryptoData cryptoData;
+    public final int index;
+
+    public DumpableSampleInfo(
+        long timeUs,
+        int flags,
+        int startOffset,
+        int endOffset,
+        @Nullable CryptoData cryptoData,
+        int index) {
+      this.timeUs = timeUs;
+      this.flags = flags;
+      this.startOffset = startOffset;
+      this.endOffset = endOffset;
+      this.cryptoData = cryptoData;
+      this.index = index;
+    }
+
+    @Override
+    public void dump(Dumper dumper) {
+      dumper
+          .startBlock("sample " + index)
+          .add("time", timeUs)
+          .add("flags", flags)
+          .add("data", getSampleData(startOffset, endOffset));
+      if (cryptoData != null) {
+        dumper.add("crypto mode", cryptoData.cryptoMode);
+        dumper.add("encryption key", cryptoData.encryptionKey);
+      }
+      dumper.endBlock();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      DumpableSampleInfo that = (DumpableSampleInfo) o;
+      return timeUs == that.timeUs
+          && flags == that.flags
+          && startOffset == that.startOffset
+          && endOffset == that.endOffset
+          && index == that.index
+          && Util.areEqual(cryptoData, that.cryptoData);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = (int) timeUs;
+      result = 31 * result + flags;
+      result = 31 * result + startOffset;
+      result = 31 * result + endOffset;
+      result = 31 * result + (cryptoData == null ? 0 : cryptoData.hashCode());
+      result = 31 * result + index;
+      return result;
+    }
+  }
+
+  private static final class DumpableFormat implements Dumper.Dumpable {
+    private final Format format;
+    public final int index;
+
+    public DumpableFormat(Format format, int index) {
+      this.format = format;
+      this.index = index;
+    }
+
+    @Override
+    public void dump(Dumper dumper) {
+      dumper
+          .startBlock("format " + index)
+          .add("averageBitrate", format.averageBitrate)
+          .add("peakBitrate", format.peakBitrate)
+          .add("id", format.id)
+          .add("containerMimeType", format.containerMimeType)
+          .add("sampleMimeType", format.sampleMimeType)
+          .add("maxInputSize", format.maxInputSize)
+          .add("width", format.width)
+          .add("height", format.height)
+          .add("frameRate", format.frameRate)
+          .add("rotationDegrees", format.rotationDegrees)
+          .add("pixelWidthHeightRatio", format.pixelWidthHeightRatio)
+          .add("channelCount", format.channelCount)
+          .add("sampleRate", format.sampleRate)
+          .add("pcmEncoding", format.pcmEncoding)
+          .add("encoderDelay", format.encoderDelay)
+          .add("encoderPadding", format.encoderPadding)
+          .add("subsampleOffsetUs", format.subsampleOffsetUs)
+          .add("selectionFlags", format.selectionFlags)
+          .add("language", format.language)
+          .add("drmInitData", format.drmInitData != null ? format.drmInitData.hashCode() : "-")
+          .add("metadata", format.metadata);
+
+      dumper.startBlock("initializationData");
+      for (int i = 0; i < format.initializationData.size(); i++) {
+        dumper.add("data", format.initializationData.get(i));
+      }
+      dumper.endBlock().endBlock();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      DumpableFormat that = (DumpableFormat) o;
+      return index == that.index && format.equals(that.format);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = format.hashCode();
+      result = 31 * result + index;
+      return result;
+    }
+  }
 }

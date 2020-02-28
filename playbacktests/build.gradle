@@ -11,20 +11,32 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: '../constants.gradle'
 apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
-    compile project(':library-core')
-    androidTestCompile project(':library-dash')
-    androidTestCompile project(':library-hls')
+    androidTestImplementation 'androidx.test:rules:' + androidxTestRulesVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    androidTestImplementation project(modulePrefix + 'library-core')
+    androidTestImplementation project(modulePrefix + 'library-dash')
+    androidTestImplementation project(modulePrefix + 'library-hls')
+    androidTestImplementation project(modulePrefix + 'testutils')
 }

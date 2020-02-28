@@ -16,9 +16,12 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link DataSource} that can be used as part of a task registered with a
@@ -51,6 +54,11 @@ public final class PriorityDataSource implements DataSource {
   }
 
   @Override
+  public void addTransferListener(TransferListener transferListener) {
+    upstream.addTransferListener(transferListener);
+  }
+
+  @Override
   public long open(DataSpec dataSpec) throws IOException {
     priorityTaskManager.proceedOrThrow(priority);
     return upstream.open(dataSpec);
@@ -63,8 +71,14 @@ public final class PriorityDataSource implements DataSource {
   }
 
   @Override
+  @Nullable
   public Uri getUri() {
     return upstream.getUri();
+  }
+
+  @Override
+  public Map<String, List<String>> getResponseHeaders() {
+    return upstream.getResponseHeaders();
   }
 
   @Override
