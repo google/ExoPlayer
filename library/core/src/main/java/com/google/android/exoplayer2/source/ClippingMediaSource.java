@@ -319,13 +319,13 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
       }
       Window window = timeline.getWindow(0, new Window());
       startUs = Math.max(0, startUs);
+      if (!window.isPlaceholder && startUs != 0 && !window.isSeekable) {
+        throw new IllegalClippingException(IllegalClippingException.REASON_NOT_SEEKABLE_TO_START);
+      }
       long resolvedEndUs = endUs == C.TIME_END_OF_SOURCE ? window.durationUs : Math.max(0, endUs);
       if (window.durationUs != C.TIME_UNSET) {
         if (resolvedEndUs > window.durationUs) {
           resolvedEndUs = window.durationUs;
-        }
-        if (startUs != 0 && !window.isSeekable) {
-          throw new IllegalClippingException(IllegalClippingException.REASON_NOT_SEEKABLE_TO_START);
         }
         if (startUs > resolvedEndUs) {
           throw new IllegalClippingException(IllegalClippingException.REASON_START_EXCEEDS_END);

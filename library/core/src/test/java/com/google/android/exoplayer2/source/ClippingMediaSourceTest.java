@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
+import com.google.android.exoplayer2.source.MaskingMediaSource.DummyTimeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
@@ -101,6 +102,26 @@ public final class ClippingMediaSourceTest {
   }
 
   @Test
+  public void clippingUnseekableWindowWithUnknownDurationThrows() throws IOException {
+    Timeline timeline =
+        new SinglePeriodTimeline(
+            /* durationUs= */ C.TIME_UNSET,
+            /* isSeekable= */ false,
+            /* isDynamic= */ false,
+            /* isLive= */ false);
+
+    // If the unseekable window isn't clipped, clipping succeeds.
+    getClippedTimeline(timeline, /* startUs= */ 0, TEST_PERIOD_DURATION_US);
+    try {
+      // If the unseekable window is clipped, clipping fails.
+      getClippedTimeline(timeline, /* startUs= */ 1, TEST_PERIOD_DURATION_US);
+      fail("Expected clipping to fail.");
+    } catch (IllegalClippingException e) {
+      assertThat(e.reason).isEqualTo(IllegalClippingException.REASON_NOT_SEEKABLE_TO_START);
+    }
+  }
+
+  @Test
   public void clippingStart() throws IOException {
     Timeline timeline =
         new SinglePeriodTimeline(
@@ -139,9 +160,7 @@ public final class ClippingMediaSourceTest {
     // Timeline that's dynamic and not seekable. A child source might report such a timeline prior
     // to it having loaded sufficient data to establish its duration and seekability. Such timelines
     // should not result in clipping failure.
-    Timeline timeline =
-        new SinglePeriodTimeline(
-            C.TIME_UNSET, /* isSeekable= */ false, /* isDynamic= */ true, /* isLive= */ true);
+    Timeline timeline = new DummyTimeline(/* tag= */ null);
 
     Timeline clippedTimeline =
         getClippedTimeline(
