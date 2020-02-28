@@ -971,11 +971,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
       setState(Player.STATE_BUFFERING);
     }
 
-    // Find the requested period if it's already prepared.
+    // Find the requested period if it already exists.
     @Nullable MediaPeriodHolder oldPlayingPeriodHolder = queue.getPlayingPeriod();
     @Nullable MediaPeriodHolder newPlayingPeriodHolder = oldPlayingPeriodHolder;
     while (newPlayingPeriodHolder != null) {
-      if (periodId.equals(newPlayingPeriodHolder.info.id) && newPlayingPeriodHolder.prepared) {
+      if (periodId.equals(newPlayingPeriodHolder.info.id)) {
         break;
       }
       newPlayingPeriodHolder = newPlayingPeriodHolder.getNext();
@@ -1004,7 +1004,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Do the actual seeking.
     if (newPlayingPeriodHolder != null) {
       queue.removeAfter(newPlayingPeriodHolder);
-      if (newPlayingPeriodHolder.hasEnabledTracks) {
+      if (!newPlayingPeriodHolder.prepared) {
+        newPlayingPeriodHolder.info =
+            newPlayingPeriodHolder.info.copyWithStartPositionUs(periodPositionUs);
+      } else if (newPlayingPeriodHolder.hasEnabledTracks) {
         periodPositionUs = newPlayingPeriodHolder.mediaPeriod.seekToUs(periodPositionUs);
         newPlayingPeriodHolder.mediaPeriod.discardBuffer(
             periodPositionUs - backBufferDurationUs, retainBackBufferFromKeyframe);
@@ -1896,7 +1899,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private PlaybackInfo copyWithNewPosition(
       MediaPeriodId mediaPeriodId, long positionUs, long contentPositionUs) {
     deliverPendingMessageAtStartPositionRequired =
-        positionUs != playbackInfo.positionUs || !mediaPeriodId.equals(playbackInfo.periodId);
+        deliverPendingMessageAtStartPositionRequired
+            || positionUs != playbackInfo.positionUs
+            || !mediaPeriodId.equals(playbackInfo.periodId);
     TrackGroupArray trackGroupArray = playbackInfo.trackGroups;
     TrackSelectorResult trackSelectorResult = playbackInfo.trackSelectorResult;
     if (playlist.isPrepared()) {
