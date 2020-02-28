@@ -231,7 +231,8 @@ public final class MediaPeriodQueueTest {
         /* startPositionUs= */ 0,
         /* requestedContentPositionUs= */ C.TIME_UNSET,
         /* endPositionUs= */ C.TIME_UNSET,
-        /* durationUs= */ CONTENT_DURATION_US,
+        /* durationUs= */ CONTENT_DURATION_US
+            + TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
         /* isLastInPeriod= */ true,
         /* isLastInWindow= */ false,
         /* nextAdGroupIndex= */ C.INDEX_UNSET);

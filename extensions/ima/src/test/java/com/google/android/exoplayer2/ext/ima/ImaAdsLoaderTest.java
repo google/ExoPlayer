@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
@@ -67,6 +68,8 @@ public class ImaAdsLoaderTest {
       new FakeTimeline(
           new TimelineWindowDefinition(
               /* isSeekable= */ true, /* isDynamic= */ false, CONTENT_DURATION_US));
+  private static final long CONTENT_PERIOD_DURATION_US =
+      CONTENT_TIMELINE.getPeriod(/* periodIndex= */ 0, new Period()).durationUs;
   private static final Uri TEST_URI = Uri.EMPTY;
   private static final long TEST_AD_DURATION_US = 5 * C.MICROS_PER_SECOND;
   private static final long[][] PREROLL_ADS_DURATIONS_US = new long[][] {{TEST_AD_DURATION_US}};
@@ -147,7 +150,7 @@ public class ImaAdsLoaderTest {
         .isEqualTo(
             new AdPlaybackState(/* adGroupTimesUs...= */ 0)
                 .withAdDurationsUs(PREROLL_ADS_DURATIONS_US)
-                .withContentDurationUs(CONTENT_DURATION_US));
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
   @Test
@@ -216,7 +219,7 @@ public class ImaAdsLoaderTest {
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
             new AdPlaybackState(/* adGroupTimesUs...= */ 0)
-                .withContentDurationUs(CONTENT_DURATION_US)
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, /* uri= */ TEST_URI)
                 .withAdDurationsUs(PREROLL_ADS_DURATIONS_US)
