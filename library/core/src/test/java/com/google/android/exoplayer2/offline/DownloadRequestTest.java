@@ -45,7 +45,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withDifferentIds_fails() {
+  public void mergeRequests_withDifferentIds_fails() {
     DownloadRequest request1 =
         new DownloadRequest(
             "id1",
@@ -71,7 +71,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withDifferentTypes_fails() {
+  public void mergeRequests_withDifferentTypes_fails() {
     DownloadRequest request1 =
         new DownloadRequest(
             "id1",
@@ -97,7 +97,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequest_withSameRequest() {
+  public void mergeRequest_withSameRequest() {
     DownloadRequest request1 = createRequest(uri1, new StreamKey(0, 0, 0));
 
     DownloadRequest mergedRequest = request1.copyWithMergedRequest(request1);
@@ -105,7 +105,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withEmptyStreamKeys() {
+  public void mergeRequests_withEmptyStreamKeys() {
     DownloadRequest request1 = createRequest(uri1, new StreamKey(0, 0, 0));
     DownloadRequest request2 = createRequest(uri1);
 
@@ -118,7 +118,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withOverlappingStreamKeys() {
+  public void mergeRequests_withOverlappingStreamKeys() {
     StreamKey streamKey1 = new StreamKey(0, 1, 2);
     StreamKey streamKey2 = new StreamKey(3, 4, 5);
     StreamKey streamKey3 = new StreamKey(6, 7, 8);
@@ -134,7 +134,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testMergeRequests_withDifferentFields() {
+  public void mergeRequests_withDifferentFields() {
     byte[] data1 = new byte[] {0, 1, 2};
     byte[] data2 = new byte[] {3, 4, 5};
     DownloadRequest request1 =
@@ -167,7 +167,7 @@ public class DownloadRequestTest {
   }
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     ArrayList<StreamKey> streamKeys = new ArrayList<>();
     streamKeys.add(new StreamKey(1, 2, 3));
     streamKeys.add(new StreamKey(4, 5, 6));
@@ -191,7 +191,7 @@ public class DownloadRequestTest {
 
   @SuppressWarnings("EqualsWithItself")
   @Test
-  public void testEquals() {
+  public void equals() {
     DownloadRequest request1 = createRequest(uri1);
     assertThat(request1.equals(request1)).isTrue();
 

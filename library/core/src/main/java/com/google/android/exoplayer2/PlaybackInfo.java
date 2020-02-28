@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 
   /**
    * Dummy media period id used while the timeline is empty and no period id is specified. This id
-   * is used when playback infos are created with {@link #createDummy(long, TrackSelectorResult)}.
+   * is used when playback infos are created with {@link #createDummy(TrackSelectorResult)}.
    */
   private static final MediaPeriodId DUMMY_MEDIA_PERIOD_ID =
       new MediaPeriodId(/* periodUid= */ new Object());
@@ -38,18 +38,14 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   /** The {@link MediaPeriodId} of the currently playing media period in the {@link #timeline}. */
   public final MediaPeriodId periodId;
   /**
-   * The start position at which playback started in {@link #periodId} relative to the start of the
-   * associated period in the {@link #timeline}, in microseconds. Note that this value changes for
-   * each position discontinuity.
+   * The requested next start position for the current period in the {@link #timeline}, in
+   * microseconds, or {@link C#TIME_UNSET} if the period was requested to start at its default
+   * position.
+   *
+   * <p>Note that if {@link #periodId} refers to an ad, this is the requested start position for the
+   * suspended content.
    */
-  public final long startPositionUs;
-  /**
-   * If {@link #periodId} refers to an ad, the position of the suspended content relative to the
-   * start of the associated period in the {@link #timeline}, in microseconds. {@link C#TIME_UNSET}
-   * if {@link #periodId} does not refer to an ad or if the suspended content should be played from
-   * its default position.
-   */
-  public final long contentPositionUs;
+  public final long requestedContentPositionUs;
   /** The current playback state. One of the {@link Player}.STATE_ constants. */
   @Player.State public final int playbackState;
   /** The current playback error, or null if this is not an error state. */
@@ -83,27 +79,24 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * Creates empty dummy playback info which can be used for masking as long as no real playback
    * info is available.
    *
-   * @param startPositionUs The start position at which playback should start, in microseconds.
    * @param emptyTrackSelectorResult An empty track selector result with null entries for each
    *     renderer.
    * @return A dummy playback info.
    */
-  public static PlaybackInfo createDummy(
-      long startPositionUs, TrackSelectorResult emptyTrackSelectorResult) {
+  public static PlaybackInfo createDummy(TrackSelectorResult emptyTrackSelectorResult) {
     return new PlaybackInfo(
         Timeline.EMPTY,
         DUMMY_MEDIA_PERIOD_ID,
-        startPositionUs,
-        /* contentPositionUs= */ C.TIME_UNSET,
+        /* requestedContentPositionUs= */ C.TIME_UNSET,
         Player.STATE_IDLE,
         /* playbackError= */ null,
         /* isLoading= */ false,
         TrackGroupArray.EMPTY,
         emptyTrackSelectorResult,
         DUMMY_MEDIA_PERIOD_ID,
-        startPositionUs,
+        /* bufferedPositionUs= */ 0,
         /* totalBufferedDurationUs= */ 0,
-        startPositionUs);
+        /* positionUs= */ 0);
   }
 
   /**
@@ -111,8 +104,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    *
    * @param timeline See {@link #timeline}.
    * @param periodId See {@link #periodId}.
-   * @param startPositionUs See {@link #startPositionUs}.
-   * @param contentPositionUs See {@link #contentPositionUs}.
+   * @param requestedContentPositionUs See {@link #requestedContentPositionUs}.
    * @param playbackState See {@link #playbackState}.
    * @param isLoading See {@link #isLoading}.
    * @param trackGroups See {@link #trackGroups}.
@@ -125,8 +117,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public PlaybackInfo(
       Timeline timeline,
       MediaPeriodId periodId,
-      long startPositionUs,
-      long contentPositionUs,
+      long requestedContentPositionUs,
       @Player.State int playbackState,
       @Nullable ExoPlaybackException playbackError,
       boolean isLoading,
@@ -138,8 +129,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       long positionUs) {
     this.timeline = timeline;
     this.periodId = periodId;
-    this.startPositionUs = startPositionUs;
-    this.contentPositionUs = contentPositionUs;
+    this.requestedContentPositionUs = requestedContentPositionUs;
     this.playbackState = playbackState;
     this.playbackError = playbackError;
     this.isLoading = isLoading;
@@ -151,31 +141,9 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.positionUs = positionUs;
   }
 
-  /**
-   * Returns dummy media period id for the first-to-be-played period of the current timeline.
-   *
-   * @param shuffleModeEnabled Whether shuffle mode is enabled.
-   * @param window A writable {@link Timeline.Window}.
-   * @param period A writable {@link Timeline.Period}.
-   * @return A dummy media period id for the first-to-be-played period of the current timeline.
-   */
-  public MediaPeriodId getDummyFirstMediaPeriodId(
-      boolean shuffleModeEnabled, Timeline.Window window, Timeline.Period period) {
-    if (timeline.isEmpty()) {
-      return DUMMY_MEDIA_PERIOD_ID;
-    }
-    int firstWindowIndex = timeline.getFirstWindowIndex(shuffleModeEnabled);
-    int firstPeriodIndex = timeline.getWindow(firstWindowIndex, window).firstPeriodIndex;
-    int currentPeriodIndex = timeline.getIndexOfPeriod(periodId.periodUid);
-    long windowSequenceNumber = C.INDEX_UNSET;
-    if (currentPeriodIndex != C.INDEX_UNSET) {
-      int currentWindowIndex = timeline.getPeriod(currentPeriodIndex, period).windowIndex;
-      if (firstWindowIndex == currentWindowIndex) {
-        // Keep window sequence number if the new position is still in the same window.
-        windowSequenceNumber = periodId.windowSequenceNumber;
-      }
-    }
-    return new MediaPeriodId(timeline.getUidOfPeriod(firstPeriodIndex), windowSequenceNumber);
+  /** Returns dummy period id for an empty timeline. */
+  public static MediaPeriodId getDummyPeriodForEmptyTimeline() {
+    return DUMMY_MEDIA_PERIOD_ID;
   }
 
   /**
@@ -183,22 +151,26 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    *
    * @param periodId New playing media period. See {@link #periodId}.
    * @param positionUs New position. See {@link #positionUs}.
-   * @param contentPositionUs New content position. See {@link #contentPositionUs}. Value is ignored
-   *     if {@code periodId.isAd()} is true.
+   * @param requestedContentPositionUs New requested content position. See {@link
+   *     #requestedContentPositionUs}.
    * @param totalBufferedDurationUs New buffered duration. See {@link #totalBufferedDurationUs}.
+   * @param trackGroups The track groups for the new position. See {@link #trackGroups}.
+   * @param trackSelectorResult The track selector result for the new position. See {@link
+   *     #trackSelectorResult}.
    * @return Copied playback info with new playing position.
    */
   @CheckResult
   public PlaybackInfo copyWithNewPosition(
       MediaPeriodId periodId,
       long positionUs,
-      long contentPositionUs,
-      long totalBufferedDurationUs) {
+      long requestedContentPositionUs,
+      long totalBufferedDurationUs,
+      TrackGroupArray trackGroups,
+      TrackSelectorResult trackSelectorResult) {
     return new PlaybackInfo(
         timeline,
         periodId,
-        positionUs,
-        periodId.isAd() ? contentPositionUs : C.TIME_UNSET,
+        requestedContentPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -221,8 +193,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
-        contentPositionUs,
+        requestedContentPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -245,8 +216,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
-        contentPositionUs,
+        requestedContentPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -269,8 +239,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
-        contentPositionUs,
+        requestedContentPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -293,34 +262,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
-        contentPositionUs,
-        playbackState,
-        playbackError,
-        isLoading,
-        trackGroups,
-        trackSelectorResult,
-        loadingMediaPeriodId,
-        bufferedPositionUs,
-        totalBufferedDurationUs,
-        positionUs);
-  }
-
-  /**
-   * Copies playback info with new track information.
-   *
-   * @param trackGroups New track groups. See {@link #trackGroups}.
-   * @param trackSelectorResult New track selector result. See {@link #trackSelectorResult}.
-   * @return Copied playback info with new track information.
-   */
-  @CheckResult
-  public PlaybackInfo copyWithTrackInfo(
-      TrackGroupArray trackGroups, TrackSelectorResult trackSelectorResult) {
-    return new PlaybackInfo(
-        timeline,
-        periodId,
-        startPositionUs,
-        contentPositionUs,
+        requestedContentPositionUs,
         playbackState,
         playbackError,
         isLoading,
@@ -343,8 +285,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     return new PlaybackInfo(
         timeline,
         periodId,
-        startPositionUs,
-        contentPositionUs,
+        requestedContentPositionUs,
         playbackState,
         playbackError,
         isLoading,

@@ -16,10 +16,9 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
@@ -29,6 +28,7 @@ import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.EOFException;
@@ -88,7 +88,6 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       Uri uri,
       Format format,
       @Nullable List<Format> muxedCaptionFormats,
-      @Nullable DrmInitData drmInitData,
       TimestampAdjuster timestampAdjuster,
       Map<String, List<String>> responseHeaders,
       ExtractorInput extractorInput)
@@ -110,8 +109,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
     // Try selecting the extractor by the file extension.
     Extractor extractorByFileExtension =
-        createExtractorByFileExtension(
-            uri, format, muxedCaptionFormats, drmInitData, timestampAdjuster);
+        createExtractorByFileExtension(uri, format, muxedCaptionFormats, timestampAdjuster);
     extractorInput.resetPeekPosition();
     if (sniffQuietly(extractorByFileExtension, extractorInput)) {
       return buildResult(extractorByFileExtension);
@@ -158,7 +156,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
     if (!(extractorByFileExtension instanceof FragmentedMp4Extractor)) {
       FragmentedMp4Extractor fragmentedMp4Extractor =
-          createFragmentedMp4Extractor(timestampAdjuster, drmInitData, muxedCaptionFormats);
+          createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
       if (sniffQuietly(fragmentedMp4Extractor, extractorInput)) {
         return buildResult(fragmentedMp4Extractor);
       }
@@ -184,8 +182,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   private Extractor createExtractorByFileExtension(
       Uri uri,
       Format format,
-      List<Format> muxedCaptionFormats,
-      DrmInitData drmInitData,
+      @Nullable List<Format> muxedCaptionFormats,
       TimestampAdjuster timestampAdjuster) {
     String lastPathSegment = uri.getLastPathSegment();
     if (lastPathSegment == null) {
@@ -208,7 +205,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)
         || lastPathSegment.startsWith(MP4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)
         || lastPathSegment.startsWith(CMF_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)) {
-      return createFragmentedMp4Extractor(timestampAdjuster, drmInitData, muxedCaptionFormats);
+      return createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
     } else {
       // For any other file extension, we assume TS format.
       return createTsExtractor(
@@ -224,7 +221,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       @DefaultTsPayloadReaderFactory.Flags int userProvidedPayloadReaderFactoryFlags,
       boolean exposeCea608WhenMissingDeclarations,
       Format format,
-      List<Format> muxedCaptionFormats,
+      @Nullable List<Format> muxedCaptionFormats,
       TimestampAdjuster timestampAdjuster) {
     @DefaultTsPayloadReaderFactory.Flags
     int payloadReaderFactoryFlags =
@@ -238,15 +235,11 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       // closed caption track on channel 0.
       muxedCaptionFormats =
           Collections.singletonList(
-              Format.createTextSampleFormat(
-                  /* id= */ null,
-                  MimeTypes.APPLICATION_CEA608,
-                  /* selectionFlags= */ 0,
-                  /* language= */ null));
+              new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA608).build());
     } else {
       muxedCaptionFormats = Collections.emptyList();
     }
-    String codecs = format.codecs;
+    @Nullable String codecs = format.codecs;
     if (!TextUtils.isEmpty(codecs)) {
       // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
       // exist. If we know from the codec attribute that they don't exist, then we can
@@ -267,16 +260,33 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
   private static FragmentedMp4Extractor createFragmentedMp4Extractor(
       TimestampAdjuster timestampAdjuster,
-      DrmInitData drmInitData,
+      Format format,
       @Nullable List<Format> muxedCaptionFormats) {
+    // Only enable the EMSG TrackOutput if this is the 'variant' track (i.e. the main one) to avoid
+    // creating a separate EMSG track for every audio track in a video stream.
     return new FragmentedMp4Extractor(
-        /* flags= */ 0,
+        /* flags= */ isFmp4Variant(format) ? FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK : 0,
         timestampAdjuster,
         /* sideloadedTrack= */ null,
-        drmInitData,
         muxedCaptionFormats != null ? muxedCaptionFormats : Collections.emptyList());
   }
 
+  /** Returns true if this {@code format} represents a 'variant' track (i.e. the main one). */
+  private static boolean isFmp4Variant(Format format) {
+    Metadata metadata = format.metadata;
+    if (metadata == null) {
+      return false;
+    }
+    for (int i = 0; i < metadata.length(); i++) {
+      Metadata.Entry entry = metadata.get(i);
+      if (entry instanceof HlsTrackMetadataEntry) {
+        return !((HlsTrackMetadataEntry) entry).variantInfos.isEmpty();
+      }
+    }
+    return false;
+  }
+
+  @Nullable
   private static Result buildResultForSameExtractorType(
       Extractor previousExtractor, Format format, TimestampAdjuster timestampAdjuster) {
     if (previousExtractor instanceof WebvttExtractor) {

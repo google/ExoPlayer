@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link Renderer} implementation whose track type is {@link C#TRACK_TYPE_NONE} and does not
@@ -27,10 +28,10 @@ import java.io.IOException;
  */
 public abstract class NoSampleRenderer implements Renderer, RendererCapabilities {
 
-  private RendererConfiguration configuration;
+  private @MonotonicNonNull RendererConfiguration configuration;
   private int index;
   private int state;
-  private SampleStream stream;
+  @Nullable private SampleStream stream;
   private boolean streamIsFinal;
 
   @Override
@@ -59,24 +60,15 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
     return state;
   }
 
-  /**
-   * Replaces the {@link SampleStream} that will be associated with this renderer.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_DISABLED}.
-   *
-   * @param configuration The renderer configuration.
-   * @param formats The enabled formats. Should be empty.
-   * @param stream The {@link SampleStream} from which the renderer should consume.
-   * @param positionUs The player's current position.
-   * @param joining Whether this renderer is being enabled to join an ongoing playback.
-   * @param offsetUs The offset that should be subtracted from {@code positionUs}
-   *     to get the playback position with respect to the media.
-   * @throws ExoPlaybackException If an error occurs.
-   */
   @Override
-  public final void enable(RendererConfiguration configuration, Format[] formats,
-      SampleStream stream, long positionUs, boolean joining, long offsetUs)
+  public final void enable(
+      RendererConfiguration configuration,
+      Format[] formats,
+      SampleStream stream,
+      long positionUs,
+      boolean joining,
+      boolean mayRenderStartOfStream,
+      long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
@@ -93,18 +85,6 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
     onStarted();
   }
 
-  /**
-   * Replaces the {@link SampleStream} that will be associated with this renderer.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
-   *
-   * @param formats The enabled formats. Should be empty.
-   * @param stream The {@link SampleStream} to be associated with this renderer.
-   * @param offsetUs The offset that should be subtracted from {@code positionUs} in
-   *     {@link #render(long, long)} to get the playback position with respect to the media.
-   * @throws ExoPlaybackException If an error occurs.
-   */
   @Override
   public final void replaceStream(Format[] formats, SampleStream stream, long offsetUs)
       throws ExoPlaybackException {
@@ -184,11 +164,13 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   // RendererCapabilities implementation.
 
   @Override
+  @Capabilities
   public int supportsFormat(Format format) throws ExoPlaybackException {
-    return FORMAT_UNSUPPORTED_TYPE;
+    return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override
+  @AdaptiveSupport
   public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
@@ -285,8 +267,10 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   // Methods to be called by subclasses.
 
   /**
-   * Returns the configuration set when the renderer was most recently enabled.
+   * Returns the configuration set when the renderer was most recently enabled, or {@code null} if
+   * the renderer has never been enabled.
    */
+  @Nullable
   protected final RendererConfiguration getConfiguration() {
     return configuration;
   }

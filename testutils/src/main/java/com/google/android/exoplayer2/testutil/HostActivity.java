@@ -29,13 +29,13 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * A host activity for performing playback tests.
- */
+/** A host activity for performing playback tests. */
 public final class HostActivity extends Activity implements SurfaceHolder.Callback {
 
   /**
@@ -83,13 +83,13 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   private static final String LOCK_TAG = "ExoPlayerTestUtil:" + TAG;
   private static final long START_TIMEOUT_MS = 5000;
 
-  private WakeLock wakeLock;
-  private WifiLock wifiLock;
-  private SurfaceView surfaceView;
+  @Nullable private WakeLock wakeLock;
+  @Nullable private WifiLock wifiLock;
+  private @MonotonicNonNull SurfaceView surfaceView;
 
-  private HostedTest hostedTest;
+  @Nullable private HostedTest hostedTest;
   private boolean hostedTestStarted;
-  private ConditionVariable hostedTestStartedCondition;
+  private @MonotonicNonNull ConditionVariable hostedTestStartedCondition;
   private boolean forcedStopped;
 
   /**
@@ -163,7 +163,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   // Activity lifecycle
 
   @Override
-  public void onCreate(Bundle savedInstanceState) {
+  public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     setContentView(
@@ -176,10 +176,14 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   @Override
   public void onStart() {
     Context appContext = getApplicationContext();
-    WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
+    WifiManager wifiManager =
+        Assertions.checkStateNotNull(
+            (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE));
     wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, LOCK_TAG);
     wifiLock.acquire();
-    PowerManager powerManager = (PowerManager) appContext.getSystemService(Context.POWER_SERVICE);
+    PowerManager powerManager =
+        Assertions.checkStateNotNull(
+            (PowerManager) appContext.getSystemService(Context.POWER_SERVICE));
     wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, LOCK_TAG);
     wakeLock.acquire();
     super.onStart();
@@ -199,10 +203,14 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     if (Util.SDK_INT > 23) {
       maybeStopHostedTest();
     }
-    wakeLock.release();
-    wakeLock = null;
-    wifiLock.release();
-    wifiLock = null;
+    if (wakeLock != null) {
+      wakeLock.release();
+      wakeLock = null;
+    }
+    if (wifiLock != null) {
+      wifiLock.release();
+      wifiLock = null;
+    }
   }
 
   // SurfaceHolder.Callback
@@ -228,12 +236,12 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     if (hostedTest == null || hostedTestStarted) {
       return;
     }
-    Surface surface = surfaceView.getHolder().getSurface();
+    @Nullable Surface surface = Util.castNonNull(surfaceView).getHolder().getSurface();
     if (surface != null && surface.isValid()) {
       hostedTestStarted = true;
       Log.d(TAG, "Starting test.");
-      hostedTest.onStart(this, surface);
-      hostedTestStartedCondition.open();
+      Util.castNonNull(hostedTest).onStart(this, surface);
+      Util.castNonNull(hostedTestStartedCondition).open();
     }
   }
 

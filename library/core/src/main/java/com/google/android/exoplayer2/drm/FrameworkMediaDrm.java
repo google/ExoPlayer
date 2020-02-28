@@ -23,8 +23,10 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
-import androidx.annotation.Nullable;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -42,23 +44,40 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}.
- */
+/** An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}. */
 @TargetApi(23)
+@RequiresApi(18)
 public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto> {
+
+  private static final String TAG = "FrameworkMediaDrm";
+
+  /**
+   * {@link ExoMediaDrm.Provider} that returns a new {@link FrameworkMediaDrm} for the requested
+   * UUID. Returns a {@link DummyExoMediaDrm} if the protection scheme identified by the given UUID
+   * is not supported by the device.
+   */
+  public static final Provider<FrameworkMediaCrypto> DEFAULT_PROVIDER =
+      uuid -> {
+        try {
+          return newInstance(uuid);
+        } catch (UnsupportedDrmException e) {
+          Log.e(TAG, "Failed to instantiate a FrameworkMediaDrm for uuid: " + uuid + ".");
+          return new DummyExoMediaDrm<>();
+        }
+      };
 
   private static final String CENC_SCHEME_MIME_TYPE = "cenc";
   private static final String MOCK_LA_URL_VALUE = "https://x";
   private static final String MOCK_LA_URL = "<LA_URL>" + MOCK_LA_URL_VALUE + "</LA_URL>";
   private static final int UTF_16_BYTES_PER_CHARACTER = 2;
-  private static final String TAG = "FrameworkMediaDrm";
 
   private final UUID uuid;
   private final MediaDrm mediaDrm;
+  private int referenceCount;
 
   /**
-   * Creates an instance for the specified scheme UUID.
+   * Creates an instance with an initial reference count of 1. {@link #release()} must be called on
+   * the instance when it's no longer required.
    *
    * @param uuid The scheme uuid.
    * @return The created instance.
@@ -79,6 +98,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
     this.uuid = uuid;
     this.mediaDrm = new MediaDrm(adjustUuid(uuid));
+    // Creators of an instance automatically acquire ownership of the created instance.
+    referenceCount = 1;
     if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
       forceWidevineL3(mediaDrm);
     }
@@ -158,8 +179,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
     return new KeyRequest(requestData, licenseServerUrl);
   }
 
-  @Nullable
   @Override
+  @Nullable
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException {
     if (C.CLEARKEY_UUID.equals(uuid)) {
@@ -186,13 +207,31 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
   }
 
   @Override
-  public void release() {
-    mediaDrm.release();
+  public synchronized void acquire() {
+    Assertions.checkState(referenceCount > 0);
+    referenceCount++;
+  }
+
+  @Override
+  public synchronized void release() {
+    if (--referenceCount == 0) {
+      mediaDrm.release();
+    }
   }
 
   @Override
   public void restoreKeys(byte[] sessionId, byte[] keySetId) {
     mediaDrm.restoreKeys(sessionId, keySetId);
+  }
+
+  @Override
+  @Nullable
+  @TargetApi(28)
+  public PersistableBundle getMetrics() {
+    if (Util.SDK_INT < 28) {
+      return null;
+    }
+    return mediaDrm.getMetrics();
   }
 
   @Override

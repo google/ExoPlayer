@@ -18,9 +18,10 @@ package com.google.android.exoplayer2.demo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.Download;
@@ -141,7 +142,8 @@ public class DownloadTracker {
   private class DownloadManagerListener implements DownloadManager.Listener {
 
     @Override
-    public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+    public void onDownloadChanged(
+        @NonNull DownloadManager downloadManager, @NonNull Download download) {
       downloads.put(download.request.uri, download);
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
@@ -149,7 +151,8 @@ public class DownloadTracker {
     }
 
     @Override
-    public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
+    public void onDownloadRemoved(
+        @NonNull DownloadManager downloadManager, @NonNull Download download) {
       downloads.remove(download.request.uri);
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
@@ -187,7 +190,7 @@ public class DownloadTracker {
     // DownloadHelper.Callback implementation.
 
     @Override
-    public void onPrepared(DownloadHelper helper) {
+    public void onPrepared(@NonNull DownloadHelper helper) {
       if (helper.getPeriodCount() == 0) {
         Log.d(TAG, "No periods found. Downloading entire stream.");
         startDownload();
@@ -214,9 +217,14 @@ public class DownloadTracker {
     }
 
     @Override
-    public void onPrepareError(DownloadHelper helper, IOException e) {
+    public void onPrepareError(@NonNull DownloadHelper helper, @NonNull IOException e) {
       Toast.makeText(context, R.string.download_start_error, Toast.LENGTH_LONG).show();
-      Log.e(TAG, "Failed to start download", e);
+      Log.e(
+          TAG,
+          e instanceof DownloadHelper.LiveContentUnsupportedException
+              ? "Downloading live content unsupported"
+              : "Failed to start download",
+          e);
     }
 
     // DialogInterface.OnClickListener implementation.

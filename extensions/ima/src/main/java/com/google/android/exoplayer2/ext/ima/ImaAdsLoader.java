@@ -19,11 +19,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import android.view.View;
-import android.view.ViewGroup;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdError;
@@ -272,11 +272,6 @@ public final class ImaAdsLoader
   private static final boolean DEBUG = false;
   private static final String TAG = "ImaAdsLoader";
 
-  /**
-   * Whether to enable preloading of ads in {@link AdsRenderingSettings}.
-   */
-  private static final boolean ENABLE_PRELOADING = true;
-
   private static final String IMA_SDK_SETTINGS_PLAYER_TYPE = "google/exo.ext.ima";
   private static final String IMA_SDK_SETTINGS_PLAYER_VERSION = ExoPlayerLibraryInfo.VERSION;
 
@@ -337,7 +332,7 @@ public final class ImaAdsLoader
   private VideoProgressUpdate lastAdProgress;
   private int lastVolumePercentage;
 
-  private AdsManager adsManager;
+  @Nullable private AdsManager adsManager;
   private boolean initializedAdsManager;
   private AdLoadException pendingAdLoadError;
   private Timeline timeline;
@@ -646,6 +641,11 @@ public final class ImaAdsLoader
   public void release() {
     pendingAdRequestContext = null;
     if (adsManager != null) {
+      adsManager.removeAdErrorListener(this);
+      adsManager.removeAdEventListener(this);
+      if (adEventListener != null) {
+        adsManager.removeAdEventListener(adEventListener);
+      }
       adsManager.destroy();
       adsManager = null;
     }
@@ -973,12 +973,21 @@ public final class ImaAdsLoader
       initializedAdsManager = true;
       initializeAdsManager();
     }
-    onPositionDiscontinuity(Player.DISCONTINUITY_REASON_INTERNAL);
+    checkForContentCompleteOrNewAdGroup();
   }
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-    if (adsManager == null) {
+  public void onPlaybackStateChanged(@Player.State int playbackState) {
+    if (adsManager == null || player == null) {
+      return;
+    }
+    handlePlayerStateChanged(player.getPlayWhenReady(), playbackState);
+  }
+
+  @Override
+  public void onPlayWhenReadyChanged(
+      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
+    if (adsManager == null || player == null) {
       return;
     }
 
@@ -991,18 +1000,7 @@ public final class ImaAdsLoader
       adsManager.resume();
       return;
     }
-
-    if (imaAdState == IMA_AD_STATE_NONE && playbackState == Player.STATE_BUFFERING
-        && playWhenReady) {
-      checkForContentComplete();
-    } else if (imaAdState != IMA_AD_STATE_NONE && playbackState == Player.STATE_ENDED) {
-      for (int i = 0; i < adCallbacks.size(); i++) {
-        adCallbacks.get(i).onEnded();
-      }
-      if (DEBUG) {
-        Log.d(TAG, "VideoAdPlayerCallback.onEnded in onPlayerStateChanged");
-      }
-    }
+    handlePlayerStateChanged(playWhenReady, player.getPlaybackState());
   }
 
   @Override
@@ -1016,39 +1014,14 @@ public final class ImaAdsLoader
 
   @Override
   public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-    if (adsManager == null) {
-      return;
-    }
-    if (!playingAd && !player.isPlayingAd()) {
-      checkForContentComplete();
-      if (sentContentComplete) {
-        for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
-          if (adPlaybackState.adGroupTimesUs[i] != C.TIME_END_OF_SOURCE) {
-            adPlaybackState = adPlaybackState.withSkippedAdGroup(i);
-          }
-        }
-        updateAdPlaybackState();
-      } else if (!timeline.isEmpty()) {
-        long positionMs = player.getCurrentPosition();
-        timeline.getPeriod(0, period);
-        int newAdGroupIndex = period.getAdGroupIndexForPositionUs(C.msToUs(positionMs));
-        if (newAdGroupIndex != C.INDEX_UNSET) {
-          sentPendingContentPositionMs = false;
-          pendingContentPositionMs = positionMs;
-          if (newAdGroupIndex != adGroupIndex) {
-            shouldNotifyAdPrepareError = false;
-          }
-        }
-      }
-    }
-    updateImaStateForPlayerState();
+    checkForContentCompleteOrNewAdGroup();
   }
 
   // Internal methods.
 
   private void initializeAdsManager() {
     AdsRenderingSettings adsRenderingSettings = imaFactory.createAdsRenderingSettings();
-    adsRenderingSettings.setEnablePreloading(ENABLE_PRELOADING);
+    adsRenderingSettings.setEnablePreloading(true);
     adsRenderingSettings.setMimeTypes(supportedMimeTypes);
     if (mediaLoadTimeoutMs != TIMEOUT_UNSET) {
       adsRenderingSettings.setLoadVideoTimeout(mediaLoadTimeoutMs);
@@ -1172,6 +1145,50 @@ public final class ImaAdsLoader
       default:
         break;
     }
+  }
+
+  private void handlePlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    if (imaAdState == IMA_AD_STATE_NONE
+        && playbackState == Player.STATE_BUFFERING
+        && playWhenReady) {
+      checkForContentComplete();
+    } else if (imaAdState != IMA_AD_STATE_NONE && playbackState == Player.STATE_ENDED) {
+      for (int i = 0; i < adCallbacks.size(); i++) {
+        adCallbacks.get(i).onEnded();
+      }
+      if (DEBUG) {
+        Log.d(TAG, "VideoAdPlayerCallback.onEnded in onPlaybackStateChanged");
+      }
+    }
+  }
+
+  private void checkForContentCompleteOrNewAdGroup() {
+    if (adsManager == null || player == null) {
+      return;
+    }
+    if (!playingAd && !player.isPlayingAd()) {
+      checkForContentComplete();
+      if (sentContentComplete) {
+        for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
+          if (adPlaybackState.adGroupTimesUs[i] != C.TIME_END_OF_SOURCE) {
+            adPlaybackState = adPlaybackState.withSkippedAdGroup(/* adGroupIndex= */ i);
+          }
+        }
+        updateAdPlaybackState();
+      } else if (!timeline.isEmpty()) {
+        long positionMs = player.getCurrentPosition();
+        timeline.getPeriod(/* periodIndex= */ 0, period);
+        int newAdGroupIndex = period.getAdGroupIndexForPositionUs(C.msToUs(positionMs));
+        if (newAdGroupIndex != C.INDEX_UNSET) {
+          sentPendingContentPositionMs = false;
+          pendingContentPositionMs = positionMs;
+          if (newAdGroupIndex != adGroupIndex) {
+            shouldNotifyAdPrepareError = false;
+          }
+        }
+      }
+    }
+    updateImaStateForPlayerState();
   }
 
   private void updateImaStateForPlayerState() {

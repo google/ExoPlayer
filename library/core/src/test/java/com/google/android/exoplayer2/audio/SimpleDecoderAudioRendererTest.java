@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -47,7 +46,7 @@ import org.robolectric.annotation.Config;
 @RunWith(AndroidJUnit4.class)
 public class SimpleDecoderAudioRendererTest {
 
-  private static final Format FORMAT = Format.createSampleFormat(null, MimeTypes.AUDIO_RAW, 0);
+  private static final Format FORMAT = Format.createSampleFormat(null, MimeTypes.AUDIO_RAW);
 
   @Mock private AudioSink mockAudioSink;
   private SimpleDecoderAudioRenderer audioRenderer;
@@ -56,47 +55,52 @@ public class SimpleDecoderAudioRendererTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     audioRenderer =
-        new SimpleDecoderAudioRenderer(null, null, null, false, mockAudioSink) {
+        new SimpleDecoderAudioRenderer(null, null, mockAudioSink) {
           @Override
-          protected int supportsFormatInternal(
-              @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
+          @FormatSupport
+          protected int supportsFormatInternal(Format format) {
             return FORMAT_HANDLED;
           }
 
           @Override
           protected SimpleDecoder<
                   DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
-              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
-                  throws AudioDecoderException {
+              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
             return new FakeDecoder();
+          }
+
+          @Override
+          protected Format getOutputFormat() {
+            return FORMAT;
           }
         };
   }
 
   @Config(sdk = 19)
   @Test
-  public void testSupportsFormatAtApi19() {
+  public void supportsFormatAtApi19() {
     assertThat(audioRenderer.supportsFormat(FORMAT))
         .isEqualTo(ADAPTIVE_NOT_SEAMLESS | TUNNELING_NOT_SUPPORTED | FORMAT_HANDLED);
   }
 
   @Config(sdk = 21)
   @Test
-  public void testSupportsFormatAtApi21() {
+  public void supportsFormatAtApi21() {
     // From API 21, tunneling is supported.
     assertThat(audioRenderer.supportsFormat(FORMAT))
         .isEqualTo(ADAPTIVE_NOT_SEAMLESS | TUNNELING_SUPPORTED | FORMAT_HANDLED);
   }
 
   @Test
-  public void testImmediatelyReadEndOfStreamPlaysAudioSinkToEndOfStream() throws Exception {
+  public void immediatelyReadEndOfStreamPlaysAudioSinkToEndOfStream() throws Exception {
     audioRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {FORMAT},
         new FakeSampleStream(FORMAT, /* eventDispatcher= */ null, /* shouldOutputSample= */ false),
-        0,
-        false,
-        0);
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* offsetUs= */ 0);
     audioRenderer.setCurrentStreamFinal();
     when(mockAudioSink.isEnded()).thenReturn(true);
     while (!audioRenderer.isEnded()) {

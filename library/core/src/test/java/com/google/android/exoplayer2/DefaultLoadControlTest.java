@@ -29,8 +29,8 @@ import org.junit.runner.RunWith;
 public class DefaultLoadControlTest {
 
   private static final float SPEED = 1f;
-  private static final long MIN_BUFFER_US = C.msToUs(DefaultLoadControl.DEFAULT_MIN_BUFFER_MS);
   private static final long MAX_BUFFER_US = C.msToUs(DefaultLoadControl.DEFAULT_MAX_BUFFER_MS);
+  private static final long MIN_BUFFER_US = MAX_BUFFER_US / 2;
   private static final int TARGET_BUFFER_BYTES = C.DEFAULT_BUFFER_SEGMENT_SIZE * 2;
 
   private Builder builder;
@@ -44,17 +44,23 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testShouldContinueLoading_untilMaxBufferExceeded() {
+  public void shouldContinueLoading_untilMaxBufferExceeded() {
     createDefaultLoadControl();
+
     assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isTrue();
-    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isTrue();
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US - 1, SPEED)).isTrue();
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
   }
 
   @Test
-  public void testShouldNotContinueLoadingOnceBufferingStopped_untilBelowMinBuffer() {
+  public void shouldNotContinueLoadingOnceBufferingStopped_untilBelowMinBuffer() {
+    builder.setBufferDurationsMs(
+        /* minBufferMs= */ (int) C.usToMs(MIN_BUFFER_US),
+        /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
+        /* bufferForPlaybackMs= */ 0,
+        /* bufferForPlaybackAfterRebufferMs= */ 0);
     createDefaultLoadControl();
+
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US - 1, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
@@ -62,7 +68,27 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testShouldContinueLoadingWithTargetBufferBytesReached_untilMinBufferReached() {
+  public void
+      testContinueLoadingOnceBufferingStopped_andBufferAlmostEmpty_evenIfMinBufferNotReached() {
+    builder.setBufferDurationsMs(
+        /* minBufferMs= */ 0,
+        /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
+        /* bufferForPlaybackMs= */ 0,
+        /* bufferForPlaybackAfterRebufferMs= */ 0);
+    createDefaultLoadControl();
+
+    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(5 * C.MICROS_PER_SECOND, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(500L, SPEED)).isTrue();
+  }
+
+  @Test
+  public void shouldContinueLoadingWithTargetBufferBytesReached_untilMinBufferReached() {
+    builder.setBufferDurationsMs(
+        /* minBufferMs= */ (int) C.usToMs(MIN_BUFFER_US),
+        /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
+        /* bufferForPlaybackMs= */ 0,
+        /* bufferForPlaybackAfterRebufferMs= */ 0);
     createDefaultLoadControl();
     makeSureTargetBufferBytesReached();
 
@@ -73,31 +99,37 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testShouldNeverContinueLoading_ifMaxBufferReachedAndNotPrioritizeTimeOverSize() {
+  public void shouldNeverContinueLoading_ifMaxBufferReachedAndNotPrioritizeTimeOverSize() {
     builder.setPrioritizeTimeOverSizeThresholds(false);
     createDefaultLoadControl();
+
     // Put loadControl in buffering state.
     assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isTrue();
     makeSureTargetBufferBytesReached();
 
     assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US - 1, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
   }
 
   @Test
-  public void testShouldContinueLoadingWithMinBufferReached_inFastPlayback() {
+  public void shouldContinueLoadingWithMinBufferReached_inFastPlayback() {
+    builder.setBufferDurationsMs(
+        /* minBufferMs= */ (int) C.usToMs(MIN_BUFFER_US),
+        /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
+        /* bufferForPlaybackMs= */ 0,
+        /* bufferForPlaybackAfterRebufferMs= */ 0);
     createDefaultLoadControl();
 
     // At normal playback speed, we stop buffering when the buffer reaches the minimum.
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
-
     // At double playback speed, we continue loading.
     assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, /* playbackSpeed= */ 2f)).isTrue();
   }
 
   @Test
-  public void testShouldNotContinueLoadingWithMaxBufferReached_inFastPlayback() {
+  public void shouldNotContinueLoadingWithMaxBufferReached_inFastPlayback() {
     createDefaultLoadControl();
 
     assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, /* playbackSpeed= */ 100f))
@@ -105,15 +137,15 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void testStartsPlayback_whenMinBufferSizeReached() {
+  public void startsPlayback_whenMinBufferSizeReached() {
     createDefaultLoadControl();
+
     assertThat(loadControl.shouldStartPlayback(MIN_BUFFER_US, SPEED, /* rebuffering= */ false))
         .isTrue();
   }
 
   private void createDefaultLoadControl() {
-    builder.setAllocator(allocator);
-    builder.setTargetBufferBytes(TARGET_BUFFER_BYTES);
+    builder.setAllocator(allocator).setTargetBufferBytes(TARGET_BUFFER_BYTES);
     loadControl = builder.createDefaultLoadControl();
     loadControl.onTracksSelected(new Renderer[0], null, null);
   }

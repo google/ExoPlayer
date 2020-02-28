@@ -49,15 +49,14 @@ public interface LoaderErrorThrower {
   final class Dummy implements LoaderErrorThrower {
 
     @Override
-    public void maybeThrowError() throws IOException {
+    public void maybeThrowError() {
       // Do nothing.
     }
 
     @Override
-    public void maybeThrowError(int minRetryCount) throws IOException {
+    public void maybeThrowError(int minRetryCount) {
       // Do nothing.
     }
-
   }
 
 }

@@ -30,21 +30,21 @@ import java.util.Map;
 public interface DrmSession<T extends ExoMediaCrypto> {
 
   /**
-   * Invokes {@code newSession's} {@link #acquireReference()} and {@code previousSession's} {@link
-   * #releaseReference()} in that order. Null arguments are ignored. Does nothing if {@code
-   * previousSession} and {@code newSession} are the same session.
+   * Invokes {@code newSession's} {@link #acquire()} and {@code previousSession's} {@link
+   * #release()} in that order. Null arguments are ignored. Does nothing if {@code previousSession}
+   * and {@code newSession} are the same session.
    */
-  static <T extends ExoMediaCrypto> void replaceSessionReferences(
+  static <T extends ExoMediaCrypto> void replaceSession(
       @Nullable DrmSession<T> previousSession, @Nullable DrmSession<T> newSession) {
     if (previousSession == newSession) {
       // Do nothing.
       return;
     }
     if (newSession != null) {
-      newSession.acquireReference();
+      newSession.acquire();
     }
     if (previousSession != null) {
-      previousSession.releaseReference();
+      previousSession.release();
     }
   }
 
@@ -77,13 +77,9 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    * The session is being opened.
    */
   int STATE_OPENING = 2;
-  /**
-   * The session is open, but does not yet have the keys required for decryption.
-   */
+  /** The session is open, but does not have keys required for decryption. */
   int STATE_OPENED = 3;
-  /**
-   * The session is open and has the keys required for decryption.
-   */
+  /** The session is open and has keys required for decryption. */
   int STATE_OPENED_WITH_KEYS = 4;
 
   /**
@@ -92,6 +88,11 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    * {@link #STATE_OPENED_WITH_KEYS}.
    */
   @State int getState();
+
+  /** Returns whether this session allows playback of clear samples prior to keys being loaded. */
+  default boolean playClearSamplesWithoutKeys() {
+    return false;
+  }
 
   /**
    * Returns the cause of the error state, or null if {@link #getState()} is not {@link
@@ -130,16 +131,14 @@ public interface DrmSession<T extends ExoMediaCrypto> {
   byte[] getOfflineLicenseKeySetId();
 
   /**
-   * Increments the reference count for this session. A non-zero reference count session will keep
-   * any acquired resources.
+   * Increments the reference count. When the caller no longer needs to use the instance, it must
+   * call {@link #release()} to decrement the reference count.
    */
-  void acquireReference();
+  void acquire();
 
   /**
-   * Decreases by one the reference count for this session. A session that reaches a zero reference
-   * count will release any resources it holds.
-   *
-   * <p>The session must not be used after its reference count has been reduced to 0.
+   * Decrements the reference count. If the reference count drops to 0 underlying resources are
+   * released, and the instance cannot be re-used.
    */
-  void releaseReference();
+  void release();
 }

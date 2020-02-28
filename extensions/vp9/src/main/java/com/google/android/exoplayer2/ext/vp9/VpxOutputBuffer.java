@@ -17,18 +17,22 @@ package com.google.android.exoplayer2.ext.vp9;
 
 import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
 
-/** Video output buffer, populated by {@link VpxDecoder}. */
+// TODO(b/139174707): Delete this class once binaries in WVVp9OpusPlaybackTest are updated to depend
+// on VideoDecoderOutputBuffer. Also mark VideoDecoderOutputBuffer as final.
+/**
+ * Video output buffer, populated by {@link VpxDecoder}.
+ *
+ * @deprecated Use {@link VideoDecoderOutputBuffer} instead.
+ */
+@Deprecated
 public final class VpxOutputBuffer extends VideoDecoderOutputBuffer {
 
-  private final VpxDecoder owner;
-
-  public VpxOutputBuffer(VpxDecoder owner) {
-    this.owner = owner;
+  /**
+   * Creates VpxOutputBuffer.
+   *
+   * @param owner Buffer owner.
+   */
+  public VpxOutputBuffer(VideoDecoderOutputBuffer.Owner owner) {
+    super(owner);
   }
-
-  @Override
-  public void release() {
-    owner.releaseOutputBuffer(this);
-  }
-
 }

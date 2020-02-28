@@ -16,10 +16,10 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -36,6 +36,7 @@ import java.net.NoRouteToHostException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -48,14 +49,16 @@ import java.util.zip.GZIPInputStream;
  *
  * <p>By default this implementation will not follow cross-protocol redirects (i.e. redirects from
  * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the {@link
- * #DefaultHttpDataSource(String, Predicate, int, int, boolean, RequestProperties)} constructor and
- * passing {@code true} as the second last argument.
+ * #DefaultHttpDataSource(String, int, int, boolean, RequestProperties)} constructor and passing
+ * {@code true} for the {@code allowCrossProtocolRedirects} argument.
+ *
+ * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
+ * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
+ * construct the instance.
  */
 public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
 
-  /**
-   * The default connection timeout, in milliseconds.
-   */
+  /** The default connection timeout, in milliseconds. */
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 8 * 1000;
   /**
    * The default read timeout, in milliseconds.
@@ -83,6 +86,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   @Nullable private HttpURLConnection connection;
   @Nullable private InputStream inputStream;
   private boolean opened;
+  private int responseCode;
 
   private long bytesToSkip;
   private long bytesToRead;
@@ -167,6 +171,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @deprecated Use {@link #DefaultHttpDataSource(String, int, int)} and {@link
    *     #setContentTypePredicate(Predicate)}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource(
       String userAgent,
@@ -235,6 +240,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   @Override
+  public int getResponseCode() {
+    return connection == null || responseCode <= 0 ? -1 : responseCode;
+  }
+
+  @Override
   public Map<String, List<String>> getResponseHeaders() {
     return connection == null ? Collections.emptyMap() : connection.getHeaderFields();
   }
@@ -257,6 +267,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     requestProperties.clear();
   }
 
+  /**
+   * Opens the source to read the specified data.
+   */
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
@@ -270,7 +283,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
           dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
 
-    int responseCode;
     String responseMessage;
     try {
       responseCode = connection.getResponseCode();
@@ -374,7 +386,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *
    * @return The current open connection, or null.
    */
-  protected final @Nullable HttpURLConnection getConnection() {
+  @Nullable
+  protected final HttpURLConnection getConnection() {
     return connection;
   }
 
@@ -416,11 +429,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private HttpURLConnection makeConnection(DataSpec dataSpec) throws IOException {
     URL url = new URL(dataSpec.uri.toString());
     @HttpMethod int httpMethod = dataSpec.httpMethod;
-    byte[] httpBody = dataSpec.httpBody;
+    @Nullable byte[] httpBody = dataSpec.httpBody;
     long position = dataSpec.position;
     long length = dataSpec.length;
     boolean allowGzip = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP);
-    boolean allowIcyMetadata = dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_ICY_METADATA);
 
     if (!allowCrossProtocolRedirects) {
       // HttpURLConnection disallows cross-protocol redirects, but otherwise performs redirection
@@ -432,8 +444,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
           position,
           length,
           allowGzip,
-          allowIcyMetadata,
-          /* followRedirects= */ true);
+          /* followRedirects= */ true,
+          dataSpec.httpRequestHeaders);
     }
 
     // We need to handle redirects ourselves to allow cross-protocol redirects.
@@ -447,8 +459,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
               position,
               length,
               allowGzip,
-              allowIcyMetadata,
-              /* followRedirects= */ false);
+              /* followRedirects= */ false,
+              dataSpec.httpRequestHeaders);
       int responseCode = connection.getResponseCode();
       String location = connection.getHeaderField("Location");
       if ((httpMethod == DataSpec.HTTP_METHOD_GET || httpMethod == DataSpec.HTTP_METHOD_HEAD)
@@ -484,34 +496,38 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    *
    * @param url The url to connect to.
    * @param httpMethod The http method.
-   * @param httpBody The body data.
+   * @param httpBody The body data, or {@code null} if not required.
    * @param position The byte offset of the requested data.
    * @param length The length of the requested data, or {@link C#LENGTH_UNSET}.
    * @param allowGzip Whether to allow the use of gzip.
-   * @param allowIcyMetadata Whether to allow ICY metadata.
    * @param followRedirects Whether to follow redirects.
+   * @param requestParameters parameters (HTTP headers) to include in request.
    */
   private HttpURLConnection makeConnection(
       URL url,
       @HttpMethod int httpMethod,
-      byte[] httpBody,
+      @Nullable byte[] httpBody,
       long position,
       long length,
       boolean allowGzip,
-      boolean allowIcyMetadata,
-      boolean followRedirects)
+      boolean followRedirects,
+      Map<String, String> requestParameters)
       throws IOException {
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    HttpURLConnection connection = openConnection(url);
     connection.setConnectTimeout(connectTimeoutMillis);
     connection.setReadTimeout(readTimeoutMillis);
+
+    Map<String, String> requestHeaders = new HashMap<>();
     if (defaultRequestProperties != null) {
-      for (Map.Entry<String, String> property : defaultRequestProperties.getSnapshot().entrySet()) {
-        connection.setRequestProperty(property.getKey(), property.getValue());
-      }
+      requestHeaders.putAll(defaultRequestProperties.getSnapshot());
     }
-    for (Map.Entry<String, String> property : requestProperties.getSnapshot().entrySet()) {
+    requestHeaders.putAll(requestProperties.getSnapshot());
+    requestHeaders.putAll(requestParameters);
+
+    for (Map.Entry<String, String> property : requestHeaders.entrySet()) {
       connection.setRequestProperty(property.getKey(), property.getValue());
     }
+
     if (!(position == 0 && length == C.LENGTH_UNSET)) {
       String rangeRequest = "bytes=" + position + "-";
       if (length != C.LENGTH_UNSET) {
@@ -521,14 +537,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
     connection.setRequestProperty("User-Agent", userAgent);
     connection.setRequestProperty("Accept-Encoding", allowGzip ? "gzip" : "identity");
-    if (allowIcyMetadata) {
-      connection.setRequestProperty(
-          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_NAME,
-          IcyHeaders.REQUEST_HEADER_ENABLE_METADATA_VALUE);
-    }
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(httpBody != null);
     connection.setRequestMethod(DataSpec.getStringForHttpMethod(httpMethod));
+    
     if (httpBody != null) {
       connection.setFixedLengthStreamingMode(httpBody.length);
       connection.connect();
@@ -541,15 +553,21 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     return connection;
   }
 
+  /** Creates an {@link HttpURLConnection} that is connected with the {@code url}. */
+  @VisibleForTesting
+  /* package */ HttpURLConnection openConnection(URL url) throws IOException {
+    return (HttpURLConnection) url.openConnection();
+  }
+
   /**
    * Handles a redirect.
    *
    * @param originalUrl The original URL.
-   * @param location The Location header in the response.
+   * @param location The Location header in the response. May be {@code null}.
    * @return The next URL.
    * @throws IOException If redirection isn't possible.
    */
-  private static URL handleRedirect(URL originalUrl, String location) throws IOException {
+  private static URL handleRedirect(URL originalUrl, @Nullable String location) throws IOException {
     if (location == null) {
       throw new ProtocolException("Null location redirect");
     }

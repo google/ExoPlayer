@@ -15,12 +15,17 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import android.content.Context;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.accessibility.CaptioningManager;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
+import java.util.Locale;
 
 /** Constraint parameters for track selection. */
 public class TrackSelectionParameters implements Parcelable {
@@ -33,12 +38,32 @@ public class TrackSelectionParameters implements Parcelable {
 
     @Nullable /* package */ String preferredAudioLanguage;
     @Nullable /* package */ String preferredTextLanguage;
+    @C.RoleFlags /* package */ int preferredTextRoleFlags;
     /* package */ boolean selectUndeterminedTextLanguage;
     @C.SelectionFlags /* package */ int disabledTextTrackSelectionFlags;
 
-    /** Creates a builder with default initial values. */
+    /**
+     * Creates a builder with default initial values.
+     *
+     * @param context Any context.
+     */
+    @SuppressWarnings({"deprecation", "initialization:method.invocation.invalid"})
+    public Builder(Context context) {
+      this();
+      setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context);
+    }
+
+    /**
+     * @deprecated {@link Context} constraints will not be set when using this constructor. Use
+     *     {@link #Builder(Context)} instead.
+     */
+    @Deprecated
     public Builder() {
-      this(DEFAULT);
+      preferredAudioLanguage = null;
+      preferredTextLanguage = null;
+      preferredTextRoleFlags = 0;
+      selectUndeterminedTextLanguage = false;
+      disabledTextTrackSelectionFlags = 0;
     }
 
     /**
@@ -48,6 +73,7 @@ public class TrackSelectionParameters implements Parcelable {
     /* package */ Builder(TrackSelectionParameters initialValues) {
       preferredAudioLanguage = initialValues.preferredAudioLanguage;
       preferredTextLanguage = initialValues.preferredTextLanguage;
+      preferredTextRoleFlags = initialValues.preferredTextRoleFlags;
       selectUndeterminedTextLanguage = initialValues.selectUndeterminedTextLanguage;
       disabledTextTrackSelectionFlags = initialValues.disabledTextTrackSelectionFlags;
     }
@@ -65,6 +91,23 @@ public class TrackSelectionParameters implements Parcelable {
     }
 
     /**
+     * Sets the preferred language and role flags for text tracks based on the accessibility
+     * settings of {@link CaptioningManager}.
+     *
+     * <p>Does nothing for API levels &lt; 19 or when the {@link CaptioningManager} is disabled.
+     *
+     * @param context A {@link Context}.
+     * @return This builder.
+     */
+    public Builder setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(
+        Context context) {
+      if (Util.SDK_INT >= 19) {
+        setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettingsV19(context);
+      }
+      return this;
+    }
+
+    /**
      * Sets the preferred language for text tracks.
      *
      * @param preferredTextLanguage Preferred text language as an IETF BCP 47 conformant tag, or
@@ -73,6 +116,17 @@ public class TrackSelectionParameters implements Parcelable {
      */
     public Builder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
       this.preferredTextLanguage = preferredTextLanguage;
+      return this;
+    }
+
+    /**
+     * Sets the preferred {@link C.RoleFlags} for text tracks.
+     *
+     * @param preferredTextRoleFlags Preferred text role flags.
+     * @return This builder.
+     */
+    public Builder setPreferredTextRoleFlags(@C.RoleFlags int preferredTextRoleFlags) {
+      this.preferredTextRoleFlags = preferredTextRoleFlags;
       return this;
     }
 
@@ -110,13 +164,58 @@ public class TrackSelectionParameters implements Parcelable {
           preferredAudioLanguage,
           // Text
           preferredTextLanguage,
+          preferredTextRoleFlags,
           selectUndeterminedTextLanguage,
           disabledTextTrackSelectionFlags);
     }
+
+    @RequiresApi(19)
+    private void setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettingsV19(
+        Context context) {
+      if (Util.SDK_INT < 23 && Looper.myLooper() == null) {
+        // Android platform bug (pre-Marshmallow) that causes RuntimeExceptions when
+        // CaptioningService is instantiated from a non-Looper thread. See [internal: b/143779904].
+        return;
+      }
+      CaptioningManager captioningManager =
+          (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
+      if (captioningManager == null || !captioningManager.isEnabled()) {
+        return;
+      }
+      preferredTextRoleFlags = C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND;
+      Locale preferredLocale = captioningManager.getLocale();
+      if (preferredLocale != null) {
+        preferredTextLanguage = Util.getLocaleLanguageTag(preferredLocale);
+      }
+    }
   }
 
-  /** An instance with default values. */
-  public static final TrackSelectionParameters DEFAULT = new TrackSelectionParameters();
+  /**
+   * An instance with default values, except those obtained from the {@link Context}.
+   *
+   * <p>If possible, use {@link #getDefaults(Context)} instead.
+   *
+   * <p>This instance will not have the following settings:
+   *
+   * <ul>
+   *   <li>{@link Builder#setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(Context)
+   *       Preferred text language and role flags} configured to the accessibility settings of
+   *       {@link CaptioningManager}.
+   * </ul>
+   */
+  @SuppressWarnings("deprecation")
+  public static final TrackSelectionParameters DEFAULT_WITHOUT_CONTEXT = new Builder().build();
+
+  /**
+   * @deprecated This instance is not configured using {@link Context} constraints. Use {@link
+   *     #getDefaults(Context)} instead.
+   */
+  @Deprecated public static final TrackSelectionParameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
+
+  /** Returns an instance configured with default values. */
+  public static TrackSelectionParameters getDefaults(Context context) {
+    return new Builder(context).build();
+  }
 
   /**
    * The preferred language for audio and forced text tracks as an IETF BCP 47 conformant tag.
@@ -126,9 +225,17 @@ public class TrackSelectionParameters implements Parcelable {
   @Nullable public final String preferredAudioLanguage;
   /**
    * The preferred language for text tracks as an IETF BCP 47 conformant tag. {@code null} selects
-   * the default track if there is one, or no track otherwise. The default value is {@code null}.
+   * the default track if there is one, or no track otherwise. The default value is {@code null}, or
+   * the language of the accessibility {@link CaptioningManager} if enabled.
    */
   @Nullable public final String preferredTextLanguage;
+  /**
+   * The preferred {@link C.RoleFlags} for text tracks. {@code 0} selects the default track if there
+   * is one, or no track otherwise. The default value is {@code 0}, or {@link C#ROLE_FLAG_SUBTITLE}
+   * | {@link C#ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND} if the accessibility {@link CaptioningManager}
+   * is enabled.
+   */
+  @C.RoleFlags public final int preferredTextRoleFlags;
   /**
    * Whether a text track with undetermined language should be selected if no track with {@link
    * #preferredTextLanguage} is available, or if {@link #preferredTextLanguage} is unset. The
@@ -141,24 +248,17 @@ public class TrackSelectionParameters implements Parcelable {
    */
   @C.SelectionFlags public final int disabledTextTrackSelectionFlags;
 
-  /* package */ TrackSelectionParameters() {
-    this(
-        /* preferredAudioLanguage= */ null,
-        // Text
-        /* preferredTextLanguage= */ null,
-        /* selectUndeterminedTextLanguage= */ false,
-        /* disabledTextTrackSelectionFlags= */ 0);
-  }
-
   /* package */ TrackSelectionParameters(
       @Nullable String preferredAudioLanguage,
       @Nullable String preferredTextLanguage,
+      @C.RoleFlags int preferredTextRoleFlags,
       boolean selectUndeterminedTextLanguage,
       @C.SelectionFlags int disabledTextTrackSelectionFlags) {
     // Audio
     this.preferredAudioLanguage = Util.normalizeLanguageCode(preferredAudioLanguage);
     // Text
     this.preferredTextLanguage = Util.normalizeLanguageCode(preferredTextLanguage);
+    this.preferredTextRoleFlags = preferredTextRoleFlags;
     this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
     this.disabledTextTrackSelectionFlags = disabledTextTrackSelectionFlags;
   }
@@ -166,6 +266,7 @@ public class TrackSelectionParameters implements Parcelable {
   /* package */ TrackSelectionParameters(Parcel in) {
     this.preferredAudioLanguage = in.readString();
     this.preferredTextLanguage = in.readString();
+    this.preferredTextRoleFlags = in.readInt();
     this.selectUndeterminedTextLanguage = Util.readBoolean(in);
     this.disabledTextTrackSelectionFlags = in.readInt();
   }
@@ -187,6 +288,7 @@ public class TrackSelectionParameters implements Parcelable {
     TrackSelectionParameters other = (TrackSelectionParameters) obj;
     return TextUtils.equals(preferredAudioLanguage, other.preferredAudioLanguage)
         && TextUtils.equals(preferredTextLanguage, other.preferredTextLanguage)
+        && preferredTextRoleFlags == other.preferredTextRoleFlags
         && selectUndeterminedTextLanguage == other.selectUndeterminedTextLanguage
         && disabledTextTrackSelectionFlags == other.disabledTextTrackSelectionFlags;
   }
@@ -196,6 +298,7 @@ public class TrackSelectionParameters implements Parcelable {
     int result = 1;
     result = 31 * result + (preferredAudioLanguage == null ? 0 : preferredAudioLanguage.hashCode());
     result = 31 * result + (preferredTextLanguage == null ? 0 : preferredTextLanguage.hashCode());
+    result = 31 * result + preferredTextRoleFlags;
     result = 31 * result + (selectUndeterminedTextLanguage ? 1 : 0);
     result = 31 * result + disabledTextTrackSelectionFlags;
     return result;
@@ -212,6 +315,7 @@ public class TrackSelectionParameters implements Parcelable {
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(preferredAudioLanguage);
     dest.writeString(preferredTextLanguage);
+    dest.writeInt(preferredTextRoleFlags);
     Util.writeBoolean(dest, selectUndeterminedTextLanguage);
     dest.writeInt(disabledTextTrackSelectionFlags);
   }

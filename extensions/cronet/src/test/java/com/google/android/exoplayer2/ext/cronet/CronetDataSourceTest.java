@@ -19,7 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -60,6 +60,7 @@ import org.chromium.net.impl.UrlResponseInfoImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -95,6 +96,12 @@ public final class CronetDataSourceTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
+
+    HttpDataSource.RequestProperties defaultRequestProperties =
+        new HttpDataSource.RequestProperties();
+    defaultRequestProperties.set("defaultHeader1", "defaultValue1");
+    defaultRequestProperties.set("defaultHeader2", "defaultValue2");
+
     dataSourceUnderTest =
         new CronetDataSource(
             mockCronetEngine,
@@ -103,7 +110,7 @@ public final class CronetDataSourceTest {
             TEST_READ_TIMEOUT_MS,
             /* resetTimeoutOnRedirects= */ true,
             Clock.DEFAULT,
-            /* defaultRequestProperties= */ null,
+            defaultRequestProperties,
             /* handleSetCookieRequests= */ false);
     dataSourceUnderTest.addTransferListener(mockTransferListener);
     when(mockCronetEngine.newUrlRequestBuilder(
@@ -113,12 +120,15 @@ public final class CronetDataSourceTest {
     when(mockUrlRequestBuilder.build()).thenReturn(mockUrlRequest);
     mockStatusResponse();
 
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, C.LENGTH_UNSET, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL));
     testPostDataSpec =
-        new DataSpec(Uri.parse(TEST_URL), TEST_POST_BODY, 0, 0, C.LENGTH_UNSET, null, 0);
+        new DataSpec.Builder()
+            .setUri(TEST_URL)
+            .setHttpMethod(DataSpec.HTTP_METHOD_POST)
+            .setHttpBody(TEST_POST_BODY)
+            .build();
     testHeadDataSpec =
-        new DataSpec(
-            Uri.parse(TEST_URL), DataSpec.HTTP_METHOD_HEAD, null, 0, 0, C.LENGTH_UNSET, null, 0);
+        new DataSpec.Builder().setUri(TEST_URL).setHttpMethod(DataSpec.HTTP_METHOD_HEAD).build();
     testResponseHeader = new HashMap<>();
     testResponseHeader.put("Content-Type", TEST_CONTENT_TYPE);
     // This value can be anything since the DataSpec is unset.
@@ -189,18 +199,55 @@ public final class CronetDataSourceTest {
   }
 
   @Test
-  public void testRequestHeadersSet() throws HttpDataSourceException {
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+  public void testRequestSetsRangeHeader() throws HttpDataSourceException {
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
     mockResponseStartSuccess();
-
-    dataSourceUnderTest.setRequestProperty("firstHeader", "firstValue");
-    dataSourceUnderTest.setRequestProperty("secondHeader", "secondValue");
 
     dataSourceUnderTest.open(testDataSpec);
     // The header value to add is current position to current position + length - 1.
     verify(mockUrlRequestBuilder).addHeader("Range", "bytes=1000-5999");
-    verify(mockUrlRequestBuilder).addHeader("firstHeader", "firstValue");
-    verify(mockUrlRequestBuilder).addHeader("secondHeader", "secondValue");
+  }
+
+  @Test
+  public void testRequestHeadersSet() throws HttpDataSourceException {
+    Map<String, String> headersSet = new HashMap<>();
+    doAnswer(
+            (invocation) -> {
+              String key = invocation.getArgument(0);
+              String value = invocation.getArgument(1);
+              headersSet.put(key, value);
+              return null;
+            })
+        .when(mockUrlRequestBuilder)
+        .addHeader(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
+
+    dataSourceUnderTest.setRequestProperty("defaultHeader2", "dataSourceOverridesDefault");
+    dataSourceUnderTest.setRequestProperty("dataSourceHeader1", "dataSourceValue1");
+    dataSourceUnderTest.setRequestProperty("dataSourceHeader2", "dataSourceValue2");
+
+    Map<String, String> dataSpecRequestProperties = new HashMap<>();
+    dataSpecRequestProperties.put("defaultHeader3", "dataSpecOverridesAll");
+    dataSpecRequestProperties.put("dataSourceHeader2", "dataSpecOverridesDataSource");
+    dataSpecRequestProperties.put("dataSpecHeader1", "dataSpecValue1");
+
+    testDataSpec =
+        new DataSpec.Builder()
+            .setUri(TEST_URL)
+            .setPosition(1000)
+            .setLength(5000)
+            .setHttpRequestHeaders(dataSpecRequestProperties)
+            .build();
+    mockResponseStartSuccess();
+
+    dataSourceUnderTest.open(testDataSpec);
+
+    assertThat(headersSet.get("defaultHeader1")).isEqualTo("defaultValue1");
+    assertThat(headersSet.get("defaultHeader2")).isEqualTo("dataSourceOverridesDefault");
+    assertThat(headersSet.get("defaultHeader3")).isEqualTo("dataSpecOverridesAll");
+    assertThat(headersSet.get("dataSourceHeader1")).isEqualTo("dataSourceValue1");
+    assertThat(headersSet.get("dataSourceHeader2")).isEqualTo("dataSpecOverridesDataSource");
+    assertThat(headersSet.get("dataSpecHeader1")).isEqualTo("dataSpecValue1");
+
     verify(mockUrlRequest).start();
   }
 
@@ -215,7 +262,7 @@ public final class CronetDataSourceTest {
   @Test
   public void testRequestOpenGzippedCompressedReturnsDataSpecLength()
       throws HttpDataSourceException {
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, 5000, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, 5000);
     testResponseHeader.put("Content-Encoding", "gzip");
     testResponseHeader.put("Content-Length", Long.toString(50L));
     mockResponseStartSuccess();
@@ -238,6 +285,26 @@ public final class CronetDataSourceTest {
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never())
           .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
+    }
+  }
+
+  @Test
+  public void open_ifBodyIsSetWithoutContentTypeHeader_fails() {
+    testDataSpec =
+        new DataSpec.Builder()
+            .setUri(TEST_URL)
+            .setHttpMethod(DataSpec.HTTP_METHOD_POST)
+            .setHttpBody(new byte[1024])
+            .setPosition(200)
+            .setLength(1024)
+            .setKey("key")
+            .build();
+
+    try {
+      dataSourceUnderTest.open(testDataSpec);
+      fail();
+    } catch (IOException expected) {
+      // Expected
     }
   }
 
@@ -413,7 +480,7 @@ public final class CronetDataSourceTest {
     mockResponseStartSuccess();
     mockReadSuccess(1000, 5000);
     testUrlResponseInfo = createUrlResponseInfo(206); // Server supports range requests.
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
 
     dataSourceUnderTest.open(testDataSpec);
 
@@ -430,7 +497,7 @@ public final class CronetDataSourceTest {
     mockResponseStartSuccess();
     mockReadSuccess(0, 7000);
     testUrlResponseInfo = createUrlResponseInfo(200); // Server does not support range requests.
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
 
     dataSourceUnderTest.open(testDataSpec);
 
@@ -503,7 +570,7 @@ public final class CronetDataSourceTest {
 
   @Test
   public void testOverread() throws HttpDataSourceException {
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, 16, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, 16);
     testResponseHeader.put("Content-Length", Long.toString(16L));
     mockResponseStartSuccess();
     mockReadSuccess(0, 16);
@@ -656,7 +723,7 @@ public final class CronetDataSourceTest {
     mockResponseStartSuccess();
     mockReadSuccess(1000, 5000);
     testUrlResponseInfo = createUrlResponseInfo(206); // Server supports range requests.
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
 
     dataSourceUnderTest.open(testDataSpec);
 
@@ -675,7 +742,7 @@ public final class CronetDataSourceTest {
     mockResponseStartSuccess();
     mockReadSuccess(0, 7000);
     testUrlResponseInfo = createUrlResponseInfo(200); // Server does not support range requests.
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
 
     dataSourceUnderTest.open(testDataSpec);
 
@@ -724,7 +791,7 @@ public final class CronetDataSourceTest {
 
   @Test
   public void testOverreadByteBuffer() throws HttpDataSourceException {
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, 16, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 0, 16);
     testResponseHeader.put("Content-Length", Long.toString(16L));
     mockResponseStartSuccess();
     mockReadSuccess(0, 16);
@@ -1016,7 +1083,7 @@ public final class CronetDataSourceTest {
   public void
       testRedirectParseAndAttachCookie_dataSourceHandlesSetCookie_andPreservesOriginalRequestHeadersIncludingByteRangeHeader()
           throws HttpDataSourceException {
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
     dataSourceUnderTest =
         new CronetDataSource(
             mockCronetEngine,
@@ -1203,7 +1270,7 @@ public final class CronetDataSourceTest {
 
   @Test
   public void testAllowDirectExecutor() throws HttpDataSourceException {
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000, null);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
     mockResponseStartSuccess();
 
     dataSourceUnderTest.open(testDataSpec);

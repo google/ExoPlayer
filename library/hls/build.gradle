@@ -28,18 +28,16 @@ android {
     }
 
     buildTypes {
-        // Re-enable test coverage when the following issue is fixed:
-        // https://issuetracker.google.com/issues/37019591
-        // debug {
-        //    testCoverageEnabled = true
-        // }
+        debug {
+            testCoverageEnabled = true
+        }
     }
 
     testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     implementation project(modulePrefix + 'library-core')

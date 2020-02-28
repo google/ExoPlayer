@@ -136,7 +136,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
    *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
-   *     as the server's unix time minus the local elapsed time. If unknown, set to 0.
+   *     as the server's unix time minus the local elapsed time. Or {@link C#TIME_UNSET} if unknown.
    * @param maxSegmentsPerLoad The maximum number of segments to combine into a single request. Note
    *     that segments will only be combined if their {@link Uri}s are the same and if their data
    *     ranges are adjacent.
@@ -198,7 +198,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
             firstSyncUs < positionUs && segmentNum < representationHolder.getSegmentCount() - 1
                 ? representationHolder.getSegmentStartTimeUs(segmentNum + 1)
                 : firstSyncUs;
-        return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+        return seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
       }
     }
     // We don't have a segment index to adjust the seek position with yet.
@@ -267,7 +267,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    long nowUnixTimeUs = getNowUnixTimeUs();
+    long nowUnixTimeUs = C.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
     MediaChunk previous = queue.isEmpty() ? null : queue.get(queue.size() - 1);
     MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
     for (int i = 0; i < chunkIterators.length; i++) {
@@ -474,14 +474,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
         ? representationHolder.getSegmentEndTimeUs(lastAvailableSegmentNum) : C.TIME_UNSET;
   }
 
-  private long getNowUnixTimeUs() {
-    if (elapsedRealtimeOffsetMs != 0) {
-      return (SystemClock.elapsedRealtime() + elapsedRealtimeOffsetMs) * 1000;
-    } else {
-      return System.currentTimeMillis() * 1000;
-    }
-  }
-
   private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
     boolean resolveTimeToLiveEdgePossible = manifest.dynamic && liveEdgeTimeUs != C.TIME_UNSET;
     return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
@@ -495,20 +487,19 @@ public class DefaultDashChunkSource implements DashChunkSource {
       Object trackSelectionData,
       RangedUri initializationUri,
       RangedUri indexUri) {
+    Representation representation = representationHolder.representation;
     RangedUri requestUri;
-    String baseUrl = representationHolder.representation.baseUrl;
     if (initializationUri != null) {
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
-      requestUri = initializationUri.attemptMerge(indexUri, baseUrl);
+      requestUri = initializationUri.attemptMerge(indexUri, representation.baseUrl);
       if (requestUri == null) {
         requestUri = initializationUri;
       }
     } else {
       requestUri = indexUri;
     }
-    DataSpec dataSpec = new DataSpec(requestUri.resolveUri(baseUrl), requestUri.start,
-        requestUri.length, representationHolder.representation.getCacheKey());
+    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri);
     return new InitializationChunk(dataSource, dataSpec, trackFormat,
         trackSelectionReason, trackSelectionData, representationHolder.extractorWrapper);
   }
@@ -529,15 +520,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
     String baseUrl = representation.baseUrl;
     if (representationHolder.extractorWrapper == null) {
       long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum);
-      DataSpec dataSpec = new DataSpec(segmentUri.resolveUri(baseUrl),
-          segmentUri.start, segmentUri.length, representation.getCacheKey());
+      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri);
       return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
           trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum, trackType, trackFormat);
     } else {
       int segmentCount = 1;
       for (int i = 1; i < maxSegmentCount; i++) {
         RangedUri nextSegmentUri = representationHolder.getSegmentUrl(firstSegmentNum + i);
-        RangedUri mergedSegmentUri = segmentUri.attemptMerge(nextSegmentUri, baseUrl);
+        @Nullable RangedUri mergedSegmentUri = segmentUri.attemptMerge(nextSegmentUri, baseUrl);
         if (mergedSegmentUri == null) {
           // Unable to merge segment fetches because the URIs do not merge.
           break;
@@ -551,8 +541,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           periodDurationUs != C.TIME_UNSET && periodDurationUs <= endTimeUs
               ? periodDurationUs
               : C.TIME_UNSET;
-      DataSpec dataSpec = new DataSpec(segmentUri.resolveUri(baseUrl),
-          segmentUri.start, segmentUri.length, representation.getCacheKey());
+      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri);
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(
           dataSource,
@@ -596,11 +585,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     @Override
     public DataSpec getDataSpec() {
       checkInBounds();
-      Representation representation = representationHolder.representation;
       RangedUri segmentUri = representationHolder.getSegmentUrl(getCurrentIndex());
-      Uri resolvedUri = segmentUri.resolveUri(representation.baseUrl);
-      String cacheKey = representation.getCacheKey();
-      return new DataSpec(resolvedUri, segmentUri.start, segmentUri.length, cacheKey);
+      return DashUtil.buildDataSpec(representationHolder.representation, segmentUri);
     }
 
     @Override
@@ -686,7 +672,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
             newPeriodDurationUs, newRepresentation, extractorWrapper, segmentNumShift, newIndex);
       }
 
-      long oldIndexLastSegmentNum = oldIndex.getFirstSegmentNum() + oldIndexSegmentCount - 1;
+      long oldIndexFirstSegmentNum = oldIndex.getFirstSegmentNum();
+      long oldIndexStartTimeUs = oldIndex.getTimeUs(oldIndexFirstSegmentNum);
+      long oldIndexLastSegmentNum = oldIndexFirstSegmentNum + oldIndexSegmentCount - 1;
       long oldIndexEndTimeUs =
           oldIndex.getTimeUs(oldIndexLastSegmentNum)
               + oldIndex.getDurationUs(oldIndexLastSegmentNum, newPeriodDurationUs);
@@ -700,8 +688,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
         // There's a gap between the old index and the new one which means we've slipped behind the
         // live window and can't proceed.
         throw new BehindLiveWindowException();
+      } else if (newIndexStartTimeUs < oldIndexStartTimeUs) {
+        // The new index overlaps with (but does not have a start position contained within) the old
+        // index. This can only happen if extra segments have been added to the start of the index.
+        newSegmentNumShift -=
+            newIndex.getSegmentNum(oldIndexStartTimeUs, newPeriodDurationUs)
+                - oldIndexFirstSegmentNum;
       } else {
-        // The new index overlaps with the old one.
+        // The new index overlaps with (and has a start position contained within) the old index.
         newSegmentNumShift +=
             oldIndex.getSegmentNum(newIndexStartTimeUs, newPeriodDurationUs)
                 - newIndexFirstSegmentNum;
@@ -804,10 +798,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
         extractor =
             new FragmentedMp4Extractor(
-                flags, null, null, null, closedCaptionFormats, playerEmsgTrackOutput);
+                flags,
+                /* timestampAdjuster= */ null,
+                /* sideloadedTrack= */ null,
+                closedCaptionFormats,
+                playerEmsgTrackOutput);
       }
-      // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
-      // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
       return new ChunkExtractorWrapper(extractor, trackType, representation.format);
     }
   }

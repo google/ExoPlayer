@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import org.junit.Before;
@@ -43,9 +44,9 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testBase64Data() throws IOException {
+  public void base64Data() throws IOException {
     DataSpec dataSpec = buildDataSpec(DATA_SCHEME_URI);
-    DataSourceAsserts.assertDataSourceContent(
+    assertDataSourceContent(
         schemeDataDataSource,
         dataSpec,
         Util.getUtf8Bytes(
@@ -54,15 +55,15 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testAsciiData() throws IOException {
-    DataSourceAsserts.assertDataSourceContent(
+  public void asciiData() throws IOException {
+    assertDataSourceContent(
         schemeDataDataSource,
         buildDataSpec("data:,A%20brief%20note"),
         Util.getUtf8Bytes("A brief note"));
   }
 
   @Test
-  public void testPartialReads() throws IOException {
+  public void partialReads() throws IOException {
     byte[] buffer = new byte[18];
     DataSpec dataSpec = buildDataSpec("data:,012345678901234567");
     assertThat(schemeDataDataSource.open(dataSpec)).isEqualTo(18);
@@ -75,29 +76,28 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testSequentialRangeRequests() throws IOException {
+  public void sequentialRangeRequests() throws IOException {
     DataSpec dataSpec =
         buildDataSpec(DATA_SCHEME_URI, /* position= */ 1, /* length= */ C.LENGTH_UNSET);
-    DataSourceAsserts.assertDataSourceContent(
+    assertDataSourceContent(
         schemeDataDataSource,
         dataSpec,
         Util.getUtf8Bytes(
             "\"provider\":\"widevine_test\",\"content_id\":\"MjAxNV90ZWFycw==\",\"key_ids\":"
                 + "[\"00000000000000000000000000000000\"]}"));
     dataSpec = buildDataSpec(DATA_SCHEME_URI, /* position= */ 10, /* length= */ C.LENGTH_UNSET);
-    DataSourceAsserts.assertDataSourceContent(
+    assertDataSourceContent(
         schemeDataDataSource,
         dataSpec,
         Util.getUtf8Bytes(
             "\":\"widevine_test\",\"content_id\":\"MjAxNV90ZWFycw==\",\"key_ids\":"
                 + "[\"00000000000000000000000000000000\"]}"));
     dataSpec = buildDataSpec(DATA_SCHEME_URI, /* position= */ 15, /* length= */ 5);
-    DataSourceAsserts.assertDataSourceContent(
-        schemeDataDataSource, dataSpec, Util.getUtf8Bytes("devin"));
+    assertDataSourceContent(schemeDataDataSource, dataSpec, Util.getUtf8Bytes("devin"));
   }
 
   @Test
-  public void testInvalidStartPositionRequest() throws IOException {
+  public void invalidStartPositionRequest() throws IOException {
     try {
       // Try to open a range starting one byte beyond the resource's length.
       schemeDataDataSource.open(
@@ -109,7 +109,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testRangeExceedingResourceLengthRequest() throws IOException {
+  public void rangeExceedingResourceLengthRequest() throws IOException {
     try {
       // Try to open a range exceeding the resource's length.
       schemeDataDataSource.open(
@@ -121,7 +121,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testIncorrectScheme() {
+  public void incorrectScheme() {
     try {
       schemeDataDataSource.open(buildDataSpec("http://www.google.com"));
       fail();
@@ -131,7 +131,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testMalformedData() {
+  public void malformedData() {
     try {
       schemeDataDataSource.open(buildDataSpec("data:text/plain;base64,,This%20is%20Content"));
       fail();
@@ -151,7 +151,26 @@ public final class DataSchemeDataSourceTest {
   }
 
   private static DataSpec buildDataSpec(String uriString, int position, int length) {
-    return new DataSpec(Uri.parse(uriString), position, length, /* key= */ null);
+    return new DataSpec(Uri.parse(uriString), position, length);
   }
 
+  /**
+   * Asserts that data read from a {@link DataSource} matches {@code expected}.
+   *
+   * @param dataSource The {@link DataSource} through which to read.
+   * @param dataSpec The {@link DataSpec} to use when opening the {@link DataSource}.
+   * @param expectedData The expected data.
+   * @throws IOException If an error occurs reading fom the {@link DataSource}.
+   */
+  private static void assertDataSourceContent(
+      DataSource dataSource, DataSpec dataSpec, byte[] expectedData) throws IOException {
+    try {
+      long length = dataSource.open(dataSpec);
+      assertThat(length).isEqualTo(expectedData.length);
+      byte[] readData = TestUtil.readToEnd(dataSource);
+      assertThat(readData).isEqualTo(expectedData);
+    } finally {
+      dataSource.close();
+    }
+  }
 }

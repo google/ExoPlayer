@@ -18,58 +18,62 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
-import android.os.ConditionVariable;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.util.Util;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link DownloadManager.Listener} for testing. */
 public final class TestDownloadManagerListener implements DownloadManager.Listener {
 
-  private static final int TIMEOUT = 1000;
-  private static final int INITIALIZATION_TIMEOUT = 10000;
+  private static final int TIMEOUT_MS = 1000;
+  private static final int INITIALIZATION_TIMEOUT_MS = 10_000;
   private static final int STATE_REMOVED = -1;
 
   private final DownloadManager downloadManager;
   private final DummyMainThread dummyMainThread;
   private final HashMap<String, ArrayBlockingQueue<Integer>> downloadStates;
-  private final ConditionVariable initializedCondition;
-  private final int timeout;
+  private final CountDownLatch initializedCondition;
+  private final int timeoutMs;
 
-  private CountDownLatch downloadFinishedCondition;
+  private @MonotonicNonNull CountDownLatch downloadFinishedCondition;
   @Download.FailureReason private int failureReason;
 
   public TestDownloadManagerListener(
       DownloadManager downloadManager, DummyMainThread dummyMainThread) {
-    this(downloadManager, dummyMainThread, TIMEOUT);
+    this(downloadManager, dummyMainThread, TIMEOUT_MS);
   }
 
   public TestDownloadManagerListener(
-      DownloadManager downloadManager, DummyMainThread dummyMainThread, int timeout) {
+      DownloadManager downloadManager, DummyMainThread dummyMainThread, int timeoutMs) {
     this.downloadManager = downloadManager;
     this.dummyMainThread = dummyMainThread;
-    this.timeout = timeout;
+    this.timeoutMs = timeoutMs;
     downloadStates = new HashMap<>();
-    initializedCondition = new ConditionVariable();
+    initializedCondition = new CountDownLatch(1);
     downloadManager.addListener(this);
   }
 
+  @Nullable
   public Integer pollStateChange(String taskId, long timeoutMs) throws InterruptedException {
     return getStateQueue(taskId).poll(timeoutMs, TimeUnit.MILLISECONDS);
   }
 
   @Override
   public void onInitialized(DownloadManager downloadManager) {
-    initializedCondition.open();
+    initializedCondition.countDown();
   }
 
-  public void waitUntilInitialized() {
+  public void waitUntilInitialized() throws InterruptedException {
     if (!downloadManager.isInitialized()) {
-      assertThat(initializedCondition.block(INITIALIZATION_TIMEOUT)).isTrue();
+      assertThat(initializedCondition.await(INITIALIZATION_TIMEOUT_MS, TimeUnit.MILLISECONDS))
+          .isTrue();
     }
   }
 
@@ -112,18 +116,20 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     dummyMainThread.runOnMainThread(
         () -> {
           if (downloadManager.isIdle()) {
-            downloadFinishedCondition.countDown();
+            Util.castNonNull(downloadFinishedCondition).countDown();
           }
         });
-    assertThat(downloadFinishedCondition.await(timeout, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(downloadFinishedCondition.await(timeoutMs, TimeUnit.MILLISECONDS)).isTrue();
   }
 
   private ArrayBlockingQueue<Integer> getStateQueue(String taskId) {
     synchronized (downloadStates) {
-      if (!downloadStates.containsKey(taskId)) {
-        downloadStates.put(taskId, new ArrayBlockingQueue<>(10));
+      @Nullable ArrayBlockingQueue<Integer> stateQueue = downloadStates.get(taskId);
+      if (stateQueue == null) {
+        stateQueue = new ArrayBlockingQueue<>(10);
+        downloadStates.put(taskId, stateQueue);
       }
-      return downloadStates.get(taskId);
+      return stateQueue;
     }
   }
 
@@ -137,11 +143,11 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
 
   private void assertStateInternal(String taskId, int expectedState, int timeoutMs) {
     while (true) {
-      Integer state = null;
+      @Nullable Integer state = null;
       try {
         state = pollStateChange(taskId, timeoutMs);
       } catch (InterruptedException e) {
-        fail(e.getMessage());
+        fail("Interrupted: " + e.getMessage());
       }
       if (state != null) {
         if (expectedState == state) {

@@ -26,7 +26,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -44,40 +43,40 @@ import org.junit.runner.RunWith;
 public final class ContentDataSourceTest {
 
   private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
-  private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
+  private static final String DATA_PATH = "mp3/1024_incrementing_bytes.mp3";
 
   @Test
-  public void testRead() throws Exception {
+  public void read() throws Exception {
     assertData(0, C.LENGTH_UNSET, false);
   }
 
   @Test
-  public void testReadPipeMode() throws Exception {
+  public void readPipeMode() throws Exception {
     assertData(0, C.LENGTH_UNSET, true);
   }
 
   @Test
-  public void testReadFixedLength() throws Exception {
+  public void readFixedLength() throws Exception {
     assertData(0, 100, false);
   }
 
   @Test
-  public void testReadFromOffsetToEndOfInput() throws Exception {
+  public void readFromOffsetToEndOfInput() throws Exception {
     assertData(1, C.LENGTH_UNSET, false);
   }
 
   @Test
-  public void testReadFromOffsetToEndOfInputPipeMode() throws Exception {
+  public void readFromOffsetToEndOfInputPipeMode() throws Exception {
     assertData(1, C.LENGTH_UNSET, true);
   }
 
   @Test
-  public void testReadFromOffsetFixedLength() throws Exception {
+  public void readFromOffsetFixedLength() throws Exception {
     assertData(1, 100, false);
   }
 
   @Test
-  public void testReadInvalidUri() throws Exception {
+  public void readInvalidUri() throws Exception {
     ContentDataSource dataSource =
         new ContentDataSource(InstrumentationRegistry.getTargetContext());
     Uri contentUri = TestContentProvider.buildUri("does/not.exist", false);
@@ -98,7 +97,7 @@ public final class ContentDataSourceTest {
     ContentDataSource dataSource =
         new ContentDataSource(InstrumentationRegistry.getTargetContext());
     try {
-      DataSpec dataSpec = new DataSpec(contentUri, offset, length, null);
+      DataSpec dataSpec = new DataSpec(contentUri, offset, length);
       byte[] completeData =
           TestUtil.getByteArray(InstrumentationRegistry.getTargetContext(), DATA_PATH);
       byte[] expectedData = Arrays.copyOfRange(completeData, offset,
@@ -134,14 +133,13 @@ public final class ContentDataSourceTest {
     }
 
     @Override
-    public Cursor query(@NonNull Uri uri, String[] projection, String selection,
-        String[] selectionArgs, String sortOrder) {
+    public Cursor query(
+        Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode)
-        throws FileNotFoundException {
+    public AssetFileDescriptor openAssetFile(Uri uri, String mode) throws FileNotFoundException {
       if (uri.getPath() == null) {
         return null;
       }
@@ -162,29 +160,32 @@ public final class ContentDataSourceTest {
     }
 
     @Override
-    public String getType(@NonNull Uri uri) {
+    public String getType(Uri uri) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Uri insert(@NonNull Uri uri, ContentValues values) {
+    public Uri insert(Uri uri, ContentValues values) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public int update(@NonNull Uri uri, ContentValues values, String selection,
-        String[] selectionArgs) {
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void writeDataToPipe(@NonNull ParcelFileDescriptor output, @NonNull Uri uri,
-        @NonNull String mimeType, @Nullable Bundle opts, @Nullable Object args) {
+    public void writeDataToPipe(
+        ParcelFileDescriptor output,
+        Uri uri,
+        String mimeType,
+        @Nullable Bundle opts,
+        @Nullable Object args) {
       try {
         byte[] data = TestUtil.getByteArray(getContext(), getFileName(uri));
         FileOutputStream outputStream = new FileOutputStream(output.getFileDescriptor());

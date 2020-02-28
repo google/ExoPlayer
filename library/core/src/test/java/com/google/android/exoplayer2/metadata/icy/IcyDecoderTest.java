@@ -16,9 +16,15 @@
 package com.google.android.exoplayer2.metadata.icy;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_16;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import com.google.android.exoplayer2.testutil.TestUtil;
+import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -26,77 +32,164 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class IcyDecoderTest {
 
+  private final IcyDecoder decoder = new IcyDecoder();
+
   @Test
   public void decode() {
-    IcyDecoder decoder = new IcyDecoder();
-    Metadata metadata = decoder.decode("StreamTitle='test title';StreamURL='test_url';");
+    byte[] icyContent = "StreamTitle='test title';StreamURL='test_url';".getBytes(UTF_8);
+
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
 
     assertThat(metadata.length()).isEqualTo(1);
     IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
     assertThat(streamInfo.title).isEqualTo("test title");
     assertThat(streamInfo.url).isEqualTo("test_url");
   }
 
   @Test
-  public void decode_titleOnly() {
-    IcyDecoder decoder = new IcyDecoder();
-    Metadata metadata = decoder.decode("StreamTitle='test title';");
+  // Check the decoder is reading MetadataInputBuffer.data.limit() correctly.
+  public void decode_respectsLimit() {
+    byte[] icyTitle = "StreamTitle='test title';".getBytes(UTF_8);
+    byte[] icyUrl = "StreamURL='test_url';".getBytes(UTF_8);
+    byte[] paddedRawBytes = TestUtil.joinByteArrays(icyTitle, icyUrl);
+    MetadataInputBuffer metadataBuffer = createMetadataInputBuffer(paddedRawBytes);
+    // Stop before the stream URL.
+    metadataBuffer.data.limit(icyTitle.length);
+    Metadata metadata = decoder.decode(metadataBuffer);
 
     assertThat(metadata.length()).isEqualTo(1);
     IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyTitle);
     assertThat(streamInfo.title).isEqualTo("test title");
     assertThat(streamInfo.url).isNull();
   }
 
   @Test
-  public void decode_emptyTitle() {
-    IcyDecoder decoder = new IcyDecoder();
-    Metadata metadata = decoder.decode("StreamTitle='';StreamURL='test_url';");
+  public void decode_titleOnly() {
+    byte[] icyContent = "StreamTitle='test title';".getBytes(UTF_8);
+
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
 
     assertThat(metadata.length()).isEqualTo(1);
     IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
+    assertThat(streamInfo.title).isEqualTo("test title");
+    assertThat(streamInfo.url).isNull();
+  }
+
+  @Test
+  public void decode_extraTags() {
+    byte[] icyContent =
+        "StreamTitle='test title';StreamURL='test_url';CustomTag|withWeirdSeparator"
+            .getBytes(UTF_8);
+
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
+
+    assertThat(metadata.length()).isEqualTo(1);
+    IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
+    assertThat(streamInfo.title).isEqualTo("test title");
+    assertThat(streamInfo.url).isEqualTo("test_url");
+  }
+
+  @Test
+  public void decode_emptyTitle() {
+    byte[] icyContent = "StreamTitle='';StreamURL='test_url';".getBytes(UTF_8);
+
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
+
+    assertThat(metadata.length()).isEqualTo(1);
+    IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
     assertThat(streamInfo.title).isEmpty();
     assertThat(streamInfo.url).isEqualTo("test_url");
   }
 
   @Test
   public void decode_semiColonInTitle() {
-    IcyDecoder decoder = new IcyDecoder();
-    Metadata metadata = decoder.decode("StreamTitle='test; title';StreamURL='test_url';");
+    byte[] icyContent = "StreamTitle='test; title';StreamURL='test_url';".getBytes(UTF_8);
+
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
 
     assertThat(metadata.length()).isEqualTo(1);
     IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
     assertThat(streamInfo.title).isEqualTo("test; title");
     assertThat(streamInfo.url).isEqualTo("test_url");
   }
 
   @Test
   public void decode_quoteInTitle() {
-    IcyDecoder decoder = new IcyDecoder();
-    Metadata metadata = decoder.decode("StreamTitle='test' title';StreamURL='test_url';");
+    byte[] icyContent = "StreamTitle='test' title';StreamURL='test_url';".getBytes(UTF_8);
+
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
 
     assertThat(metadata.length()).isEqualTo(1);
     IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
     assertThat(streamInfo.title).isEqualTo("test' title");
     assertThat(streamInfo.url).isEqualTo("test_url");
   }
 
   @Test
   public void decode_lineTerminatorInTitle() {
-    IcyDecoder decoder = new IcyDecoder();
-    Metadata metadata = decoder.decode("StreamTitle='test\r\ntitle';StreamURL='test_url';");
+    byte[] icyContent = "StreamTitle='test\r\ntitle';StreamURL='test_url';".getBytes(UTF_8);
+
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
 
     assertThat(metadata.length()).isEqualTo(1);
     IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
     assertThat(streamInfo.title).isEqualTo("test\r\ntitle");
     assertThat(streamInfo.url).isEqualTo("test_url");
   }
 
   @Test
-  public void decode_notIcy() {
-    IcyDecoder decoder = new IcyDecoder();
-    Metadata metadata = decoder.decode("NotIcyData");
+  public void decode_iso885911() {
+    // Create an invalid UTF-8 string by using 'é'.
+    byte[] icyContent = "StreamTitle='tést';StreamURL='tést_url';".getBytes(ISO_8859_1);
 
-    assertThat(metadata).isNull();
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
+
+    assertThat(metadata.length()).isEqualTo(1);
+    IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
+    assertThat(streamInfo.title).isEqualTo("tést");
+    assertThat(streamInfo.url).isEqualTo("tést_url");
+  }
+
+  @Test
+  public void decode_unrecognisedEncoding() {
+    // Create an invalid UTF-8 and ISO-88591-1 string by using 'é'.
+    byte[] icyContent = "StreamTitle='tést';StreamURL='tést_url';".getBytes(UTF_16);
+
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
+
+    assertThat(metadata.length()).isEqualTo(1);
+    IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
+    assertThat(streamInfo.title).isNull();
+    assertThat(streamInfo.url).isNull();
+  }
+
+  @Test
+  public void decode_noRecognisedHeaders() {
+    byte[] icyContent = "NotIcyData".getBytes(UTF_8);
+
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(icyContent));
+
+    assertThat(metadata.length()).isEqualTo(1);
+    IcyInfo streamInfo = (IcyInfo) metadata.get(0);
+    assertThat(streamInfo.rawMetadata).isEqualTo(icyContent);
+    assertThat(streamInfo.title).isNull();
+    assertThat(streamInfo.url).isNull();
+  }
+
+  private static MetadataInputBuffer createMetadataInputBuffer(byte[] data) {
+    MetadataInputBuffer metadataInputBuffer = new MetadataInputBuffer();
+    metadataInputBuffer.data = ByteBuffer.allocate(data.length).put(data);
+    metadataInputBuffer.data.flip();
+    return metadataInputBuffer;
   }
 }

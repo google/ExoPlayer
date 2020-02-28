@@ -18,11 +18,13 @@ package com.google.android.exoplayer2.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.scheduler.Requirements;
+import com.google.android.exoplayer2.testutil.DownloadBuilder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
@@ -81,7 +83,7 @@ public class DownloadManagerTest {
     uri2 = Uri.parse("http://abc.com/media2");
     uri3 = Uri.parse("http://abc.com/media3");
     dummyMainThread = new DummyMainThread();
-    downloadIndex = new DefaultDownloadIndex(TestUtil.getTestDatabaseProvider());
+    downloadIndex = new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
     downloaderFactory = new FakeDownloaderFactory();
     setUpDownloadManager(100);
   }
@@ -714,7 +716,7 @@ public class DownloadManagerTest {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (this == o) {
         return true;
       }

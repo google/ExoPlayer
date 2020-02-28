@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Assertion methods for {@link Extractor}.
@@ -44,6 +43,29 @@ public final class ExtractorAsserts {
 
   private static final String DUMP_EXTENSION = ".dump";
   private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen" + DUMP_EXTENSION;
+
+  /**
+   * Asserts that {@link Extractor#sniff(ExtractorInput)} returns the {@code expectedResult} for a
+   * given {@code input}, retrying repeatedly when {@link SimulatedIOException} is thrown.
+   *
+   * @param extractor The extractor to test.
+   * @param input The extractor input.
+   * @param expectedResult The expected return value.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   */
+  public static void assertSniff(
+      Extractor extractor, FakeExtractorInput input, boolean expectedResult)
+      throws IOException, InterruptedException {
+    while (true) {
+      try {
+        assertThat(extractor.sniff(input)).isEqualTo(expectedResult);
+        return;
+      } catch (SimulatedIOException e) {
+        // Ignore.
+      }
+    }
+  }
 
   /**
    * Asserts that an extractor behaves correctly given valid input data. Can only be used from
@@ -64,13 +86,7 @@ public final class ExtractorAsserts {
    */
   public static void assertBehavior(ExtractorFactory factory, String file)
       throws IOException, InterruptedException {
-    // Check behavior prior to initialization.
-    Extractor extractor = factory.create();
-    extractor.seek(0, 0);
-    extractor.release();
-    // Assert output.
-    byte[] fileData = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), file);
-    assertOutput(factory, file, fileData, ApplicationProvider.getApplicationContext());
+    assertBehavior(factory, file, ApplicationProvider.getApplicationContext());
   }
 
   /**
@@ -92,13 +108,37 @@ public final class ExtractorAsserts {
    */
   public static void assertBehavior(ExtractorFactory factory, String file, Context context)
       throws IOException, InterruptedException {
+    assertBehavior(factory, file, context, file);
+  }
+
+  /**
+   * Asserts that an extractor behaves correctly given valid input data:
+   *
+   * <ul>
+   *   <li>Calls {@link Extractor#seek(long, long)} and {@link Extractor#release()} without calling
+   *       {@link Extractor#init(ExtractorOutput)} to check these calls do not fail.
+   *   <li>Calls {@link #assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
+   *       boolean)} with all possible combinations of "simulate" parameters.
+   * </ul>
+   *
+   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
+   *     class which is to be tested.
+   * @param file The path to the input sample.
+   * @param context To be used to load the sample file.
+   * @param dumpFilesPrefix The dump files prefix appended to the dump files path.
+   * @throws IOException If reading from the input fails.
+   * @throws InterruptedException If interrupted while reading from the input.
+   */
+  public static void assertBehavior(
+      ExtractorFactory factory, String file, Context context, String dumpFilesPrefix)
+      throws IOException, InterruptedException {
     // Check behavior prior to initialization.
     Extractor extractor = factory.create();
     extractor.seek(0, 0);
     extractor.release();
     // Assert output.
     byte[] fileData = TestUtil.getByteArray(context, file);
-    assertOutput(factory, file, fileData, context);
+    assertOutput(factory, dumpFilesPrefix, fileData, context);
   }
 
   /**
@@ -109,34 +149,32 @@ public final class ExtractorAsserts {
    *
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
    *     class which is to be tested.
-   * @param file The path to the input sample.
+   * @param dumpFilesPrefix The dump files prefix appended to the dump files path.
    * @param data Content of the input file.
    * @param context To be used to load the sample file.
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    */
   public static void assertOutput(
-      ExtractorFactory factory, String file, byte[] data, Context context)
+      ExtractorFactory factory, String dumpFilesPrefix, byte[] data, Context context)
       throws IOException, InterruptedException {
-    assertOutput(factory.create(), file, data, context, true, false, false, false);
-    assertOutput(factory.create(), file, data, context, true, false, false, true);
-    assertOutput(factory.create(), file, data, context, true, false, true, false);
-    assertOutput(factory.create(), file, data, context, true, false, true, true);
-    assertOutput(factory.create(), file, data, context, true, true, false, false);
-    assertOutput(factory.create(), file, data, context, true, true, false, true);
-    assertOutput(factory.create(), file, data, context, true, true, true, false);
-    assertOutput(factory.create(), file, data, context, true, true, true, true);
-    assertOutput(factory.create(), file, data, context, false, false, false, false);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, false, false);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, false, true);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, true, false);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, true, true);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, true, false, false);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, true, false, true);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, true, true, false);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, true, true, true);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, false, false, false);
   }
 
   /**
-   * Asserts that {@code extractor} consumes {@code sampleFile} successfully and its output equals
-   * to a prerecorded output dump file with the name {@code sampleFile} + "{@value
-   * #DUMP_EXTENSION}". If {@code simulateUnknownLength} is true and {@code sampleFile} + "{@value
-   * #UNKNOWN_LENGTH_EXTENSION}" exists, it's preferred.
+   * Asserts that {@code extractor} consumes {@code data} successfully and that its output for
+   * various initial seek times and for a known and unknown length matches prerecorded dump files.
    *
    * @param extractor The {@link Extractor} to be tested.
-   * @param file The path to the input sample.
+   * @param dumpFilesPrefix The dump files prefix appended to the dump files path.
    * @param data Content of the input file.
    * @param context To be used to load the sample file.
    * @param sniffFirst Whether to sniff the data by calling {@link Extractor#sniff(ExtractorInput)}
@@ -148,9 +186,9 @@ public final class ExtractorAsserts {
    * @throws IOException If reading from the input fails.
    * @throws InterruptedException If interrupted while reading from the input.
    */
-  private static FakeExtractorOutput assertOutput(
+  public static FakeExtractorOutput assertOutput(
       Extractor extractor,
-      String file,
+      String dumpFilesPrefix,
       byte[] data,
       Context context,
       boolean sniffFirst,
@@ -164,39 +202,42 @@ public final class ExtractorAsserts {
         .setSimulatePartialReads(simulatePartialReads).build();
 
     if (sniffFirst) {
-      assertThat(TestUtil.sniffTestData(extractor, input)).isTrue();
+      assertSniff(extractor, input, /* expectedResult= */ true);
       input.resetPeekPosition();
     }
 
     FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, 0, true);
-    if (simulateUnknownLength && assetExists(context, file + UNKNOWN_LENGTH_EXTENSION)) {
-      extractorOutput.assertOutput(context, file + UNKNOWN_LENGTH_EXTENSION);
+    if (simulateUnknownLength) {
+      extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
     } else {
-      extractorOutput.assertOutput(context, file + ".0" + DUMP_EXTENSION);
+      extractorOutput.assertOutput(context, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
     }
 
     // Seeking to (timeUs=0, position=0) should always work, and cause the same data to be output.
     extractorOutput.clearTrackOutputs();
     input.reset();
     consumeTestData(extractor, input, /* timeUs= */ 0, extractorOutput, false);
-    if (simulateUnknownLength && assetExists(context, file + UNKNOWN_LENGTH_EXTENSION)) {
-      extractorOutput.assertOutput(context, file + UNKNOWN_LENGTH_EXTENSION);
+    if (simulateUnknownLength) {
+      extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
     } else {
-      extractorOutput.assertOutput(context, file + ".0" + DUMP_EXTENSION);
+      extractorOutput.assertOutput(context, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
     }
 
-    // If the SeekMap is seekable, test seeking to 4 positions in the stream.
-    SeekMap seekMap = extractorOutput.seekMap;
+    // If the SeekMap is seekable, test seeking in the stream.
+    SeekMap seekMap = Assertions.checkNotNull(extractorOutput.seekMap);
     if (seekMap.isSeekable()) {
       long durationUs = seekMap.getDurationUs();
       for (int j = 0; j < 4; j++) {
         extractorOutput.clearTrackOutputs();
-        long timeUs = (durationUs * j) / 3;
+        long timeUs = durationUs == C.TIME_UNSET ? 0 : (durationUs * j) / 3;
         long position = seekMap.getSeekPoints(timeUs).first.position;
         input.reset();
         input.setPosition((int) position);
         consumeTestData(extractor, input, timeUs, extractorOutput, false);
-        extractorOutput.assertOutput(context, file + '.' + j + DUMP_EXTENSION);
+        extractorOutput.assertOutput(context, dumpFilesPrefix + '.' + j + DUMP_EXTENSION);
+        if (durationUs == C.TIME_UNSET) {
+          break;
+        }
       }
     }
 
@@ -252,7 +293,7 @@ public final class ExtractorAsserts {
   }
 
   /**
-   * Asserts {@code extractor} throws {@code expectedThrowable} while consuming {@code sampleFile}.
+   * Asserts {@code extractor} throws {@code expectedThrowable} while consuming {@code fileData}.
    *
    * @param extractor The {@link Extractor} to be tested.
    * @param fileData Content of the input file.
@@ -330,12 +371,4 @@ public final class ExtractorAsserts {
       }
     }
   }
-
-  private static boolean assetExists(Context context, String fileName) throws IOException {
-    int i = fileName.lastIndexOf('/');
-    String path = i >= 0 ? fileName.substring(0, i) : "";
-    String file = i >= 0 ? fileName.substring(i + 1) : fileName;
-    return Arrays.asList(context.getResources().getAssets().list(path)).contains(file);
-  }
-
 }

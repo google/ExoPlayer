@@ -17,11 +17,11 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 
-import android.annotation.TargetApi;
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.view.Surface;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
@@ -39,12 +40,10 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
-import com.google.android.exoplayer2.testutil.DebugRenderersFactory;
 import com.google.android.exoplayer2.testutil.DecoderCountersUtil;
 import com.google.android.exoplayer2.testutil.ExoHostedTest;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
-import com.google.android.exoplayer2.testutil.MetricsLogger;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
@@ -61,7 +60,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /** {@link DashHostedTest} builder. */
-public final class DashTestRunner {
+/* package */ final class DashTestRunner {
 
   static final int VIDEO_RENDERER_INDEX = 0;
   static final int AUDIO_RENDERER_INDEX = 1;
@@ -265,11 +264,17 @@ public final class DashTestRunner {
       try {
         MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
             new DefaultHttpDataSourceFactory(userAgent));
+        FrameworkMediaDrm frameworkMediaDrm = FrameworkMediaDrm.newInstance(WIDEVINE_UUID);
         DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
-            DefaultDrmSessionManager.newWidevineInstance(drmCallback, null);
+            new DefaultDrmSessionManager<>(
+                C.WIDEVINE_UUID,
+                frameworkMediaDrm,
+                drmCallback,
+                /* keyRequestParameters= */ null,
+                /* multiSession= */ false,
+                DefaultDrmSessionManager.INITIAL_DRM_REQUEST_RETRY_COUNT);
         if (!useL1Widevine) {
-          drmSessionManager.setPropertyString(
-              SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
+          frameworkMediaDrm.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
         }
         if (offlineLicenseKeySetId != null) {
           drmSessionManager.setMode(DefaultDrmSessionManager.MODE_PLAYBACK,
@@ -446,17 +451,17 @@ public final class DashTestRunner {
     }
 
     private static boolean isFormatHandled(int formatSupport) {
-      return (formatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK)
+      return RendererCapabilities.getFormatSupport(formatSupport)
           == RendererCapabilities.FORMAT_HANDLED;
     }
 
   }
 
   /**
-   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be
-   * executed for API level < 18.
+   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be executed
+   * for API level < 18.
    */
-  @TargetApi(18)
+  @RequiresApi(18)
   private static final class MediaDrmBuilder {
 
     public static MediaDrm build () {

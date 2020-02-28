@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
@@ -285,7 +286,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   public static final int DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS = 10000;
   public static final int DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS = 25000;
   public static final int DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS = 25000;
-  public static final float DEFAULT_BANDWIDTH_FRACTION = 0.75f;
+  public static final float DEFAULT_BANDWIDTH_FRACTION = 0.7f;
   public static final float DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE = 0.75f;
   public static final long DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS = 2000;
 

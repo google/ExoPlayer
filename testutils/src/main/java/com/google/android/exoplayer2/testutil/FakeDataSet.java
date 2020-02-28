@@ -89,24 +89,28 @@ public class FakeDataSet {
       public boolean exceptionCleared;
       public int bytesRead;
 
-      private Segment(byte[] data, Segment previousSegment) {
+      private Segment(byte[] data, @Nullable Segment previousSegment) {
         this(data, data.length, null, null, previousSegment);
       }
 
-      private Segment(int length, Segment previousSegment) {
+      private Segment(int length, @Nullable Segment previousSegment) {
         this(null, length, null, null, previousSegment);
       }
 
-      private Segment(IOException exception, Segment previousSegment) {
+      private Segment(IOException exception, @Nullable Segment previousSegment) {
         this(null, 0, exception, null, previousSegment);
       }
 
-      private Segment(Runnable action, Segment previousSegment) {
+      private Segment(Runnable action, @Nullable Segment previousSegment) {
         this(null, 0, null, action, previousSegment);
       }
 
-      private Segment(@Nullable byte[] data, int length, @Nullable IOException exception,
-          @Nullable Runnable action, Segment previousSegment) {
+      private Segment(
+          @Nullable byte[] data,
+          int length,
+          @Nullable IOException exception,
+          @Nullable Runnable action,
+          @Nullable Segment previousSegment) {
         this.exception = exception;
         this.action = action;
         this.data = data;
@@ -125,16 +129,17 @@ public class FakeDataSet {
 
     }
 
-    /** Uri of the data or null if this is the default FakeData. */
-    public final Uri uri;
-    private final ArrayList<Segment> segments;
     private final FakeDataSet dataSet;
+    /** Uri of the data or null if this is the default FakeData. */
+    @Nullable public final Uri uri;
+
+    private final ArrayList<Segment> segments;
     private boolean simulateUnknownLength;
 
-    private FakeData(FakeDataSet dataSet, Uri uri) {
+    private FakeData(FakeDataSet dataSet, @Nullable Uri uri) {
+      this.dataSet = dataSet;
       this.uri = uri;
       this.segments = new ArrayList<>();
-      this.dataSet = dataSet;
     }
 
     /** Returns the {@link FakeDataSet} this FakeData belongs to. */
@@ -157,7 +162,7 @@ public class FakeDataSet {
      * Appends to the underlying data.
      */
     public FakeData appendReadData(byte[] data) {
-      Assertions.checkState(data != null && data.length > 0);
+      Assertions.checkState(data.length > 0);
       segments.add(new Segment(data, getLastSegment()));
       return this;
     }
@@ -213,6 +218,7 @@ public class FakeDataSet {
       return simulateUnknownLength;
     }
 
+    @Nullable
     private Segment getLastSegment() {
       int count = segments.size();
       return count > 0 ? segments.get(count - 1) : null;
@@ -221,7 +227,7 @@ public class FakeDataSet {
   }
 
   private final HashMap<Uri, FakeData> dataMap;
-  private FakeData defaultData;
+  @Nullable private FakeData defaultData;
 
   public FakeDataSet() {
     dataMap = new HashMap<>();
@@ -266,13 +272,15 @@ public class FakeDataSet {
   }
 
   /** Returns the data for the given {@code uri}, or {@code defaultData} if no data is set. */
+  @Nullable
   public FakeData getData(String uri) {
     return getData(Uri.parse(uri));
   }
 
   /** Returns the data for the given {@code uri}, or {@code defaultData} if no data is set. */
+  @Nullable
   public FakeData getData(Uri uri) {
-    FakeData data = dataMap.get(uri);
+    @Nullable FakeData data = dataMap.get(uri);
     return data != null ? data : defaultData;
   }
 

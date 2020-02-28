@@ -93,7 +93,6 @@ public final class DefaultRenderersFactoryAsserts {
         new VideoRendererEventListener() {},
         new AudioRendererEventListener() {},
         (List<Cue> cues) -> {},
-        (Metadata metadata) -> {},
-        /* drmSessionManager= */ null);
+        (Metadata metadata) -> {});
   }
 }

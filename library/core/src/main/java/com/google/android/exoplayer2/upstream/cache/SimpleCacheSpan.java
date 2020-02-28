@@ -91,6 +91,7 @@ import java.util.regex.Pattern;
    * @param length The length of the cache file in bytes, or {@link C#LENGTH_UNSET} to query the
    *     underlying file system. Querying the underlying file system can be expensive, so callers
    *     that already know the length of the file should pass it explicitly.
+   * @param index The cached content index.
    * @return The span, or null if the file name is not correctly formatted, or if the id is not
    *     present in the content index, or if the length is 0.
    */
@@ -108,6 +109,7 @@ import java.util.regex.Pattern;
    *     that already know the length of the file should pass it explicitly.
    * @param lastTouchTimestamp The last touch timestamp, or {@link C#TIME_UNSET} to use the file
    *     timestamp.
+   * @param index The cached content index.
    * @return The span, or null if the file name is not correctly formatted, or if the id is not
    *     present in the content index, or if the length is 0.
    */
@@ -116,10 +118,11 @@ import java.util.regex.Pattern;
       File file, long length, long lastTouchTimestamp, CachedContentIndex index) {
     String name = file.getName();
     if (!name.endsWith(SUFFIX)) {
-      file = upgradeFile(file, index);
-      if (file == null) {
+      @Nullable File upgradedFile = upgradeFile(file, index);
+      if (upgradedFile == null) {
         return null;
       }
+      file = upgradedFile;
       name = file.getName();
     }
 
@@ -129,7 +132,7 @@ import java.util.regex.Pattern;
     }
 
     int id = Integer.parseInt(matcher.group(1));
-    String key = index.getKeyForId(id);
+    @Nullable String key = index.getKeyForId(id);
     if (key == null) {
       return null;
     }
@@ -152,30 +155,34 @@ import java.util.regex.Pattern;
    * Upgrades the cache file if it is created by an earlier version of {@link SimpleCache}.
    *
    * @param file The cache file.
-   * @param index Cached content index.
+   * @param index The cached content index.
    * @return Upgraded cache file or {@code null} if the file name is not correctly formatted or the
    *     file can not be renamed.
    */
   @Nullable
   private static File upgradeFile(File file, CachedContentIndex index) {
-    String key;
+    @Nullable String key = null;
     String filename = file.getName();
     Matcher matcher = CACHE_FILE_PATTERN_V2.matcher(filename);
     if (matcher.matches()) {
       key = Util.unescapeFileName(matcher.group(1));
-      if (key == null) {
-        return null;
-      }
     } else {
       matcher = CACHE_FILE_PATTERN_V1.matcher(filename);
-      if (!matcher.matches()) {
-        return null;
+      if (matcher.matches()) {
+        key = matcher.group(1); // Keys were not escaped in version 1.
       }
-      key = matcher.group(1); // Keys were not escaped in version 1.
     }
 
-    File newCacheFile = getCacheFile(file.getParentFile(), index.assignIdForKey(key),
-        Long.parseLong(matcher.group(2)), Long.parseLong(matcher.group(3)));
+    if (key == null) {
+      return null;
+    }
+
+    File newCacheFile =
+        getCacheFile(
+            Assertions.checkStateNotNull(file.getParentFile()),
+            index.assignIdForKey(key),
+            Long.parseLong(matcher.group(2)),
+            Long.parseLong(matcher.group(3)));
     if (!file.renameTo(newCacheFile)) {
       return null;
     }

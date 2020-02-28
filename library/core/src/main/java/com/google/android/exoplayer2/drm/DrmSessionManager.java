@@ -16,12 +16,9 @@
 package com.google.android.exoplayer2.drm;
 
 import android.os.Looper;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * Manages a DRM session.
@@ -58,25 +55,20 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
         }
       };
 
-  /** Flags that control the handling of DRM protected content. */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(
-      flag = true,
-      value = {FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS})
-  @interface Flags {}
-
   /**
-   * When this flag is set, clear samples of an encrypted region may be rendered when no keys are
-   * available.
+   * Acquires any required resources.
    *
-   * <p>Encrypted media may contain clear (un-encrypted) regions. For example a media file may start
-   * with a short clear region so as to allow playback to begin in parallel with key acquisition.
-   * When this flag is set, consumers of sample data are permitted to access the clear regions of
-   * encrypted media files when the associated {@link DrmSession} has not yet obtained the keys
-   * necessary for the encrypted regions of the media.
+   * <p>{@link #release()} must be called to ensure the acquired resources are released. After
+   * releasing, an instance may be re-prepared.
    */
-  int FLAG_PLAY_CLEAR_SAMPLES_WITHOUT_KEYS = 1;
+  default void prepare() {
+    // Do nothing.
+  }
+
+  /** Releases any acquired resources. */
+  default void release() {
+    // Do nothing.
+  }
 
   /**
    * Returns whether the manager is capable of acquiring a session for the given
@@ -89,10 +81,29 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
   boolean canAcquireSession(DrmInitData drmInitData);
 
   /**
-   * Returns a {@link DrmSession} with an acquired reference for the specified {@link DrmInitData}.
+   * Returns a {@link DrmSession} that does not execute key requests, with an incremented reference
+   * count. When the caller no longer needs to use the instance, it must call {@link
+   * DrmSession#release()} to decrement the reference count.
    *
-   * <p>The caller must call {@link DrmSession#releaseReference} to decrement the session's
-   * reference count when the session is no longer required.
+   * <p>Placeholder {@link DrmSession DrmSessions} may be used to configure secure decoders for
+   * playback of clear content periods. This can reduce the cost of transitioning between clear and
+   * encrypted content periods.
+   *
+   * @param playbackLooper The looper associated with the media playback thread.
+   * @param trackType The type of the track to acquire a placeholder session for. Must be one of the
+   *     {@link C}{@code .TRACK_TYPE_*} constants.
+   * @return The placeholder DRM session, or null if this DRM session manager does not support
+   *     placeholder sessions.
+   */
+  @Nullable
+  default DrmSession<T> acquirePlaceholderSession(Looper playbackLooper, int trackType) {
+    return null;
+  }
+
+  /**
+   * Returns a {@link DrmSession} for the specified {@link DrmInitData}, with an incremented
+   * reference count. When the caller no longer needs to use the instance, it must call {@link
+   * DrmSession#release()} to decrement the reference count.
    *
    * @param playbackLooper The looper associated with the media playback thread.
    * @param drmInitData DRM initialization data. All contained {@link SchemeData}s must contain
@@ -100,12 +111,6 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
    * @return The DRM session.
    */
   DrmSession<T> acquireSession(Looper playbackLooper, DrmInitData drmInitData);
-
-  /** Returns flags that control the handling of DRM protected content. */
-  @Flags
-  default int getFlags() {
-    return 0;
-  }
 
   /**
    * Returns the {@link ExoMediaCrypto} type returned by sessions acquired using the given {@link

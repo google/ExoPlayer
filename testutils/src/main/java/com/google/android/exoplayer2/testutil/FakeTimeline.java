@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.net.Uri;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
@@ -23,9 +24,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
-/**
- * Fake {@link Timeline} which can be setup to return custom {@link TimelineWindowDefinition}s.
- */
+/** Fake {@link Timeline} which can be setup to return custom {@link TimelineWindowDefinition}s. */
 public final class FakeTimeline extends Timeline {
 
   /**
@@ -40,12 +39,34 @@ public final class FakeTimeline extends Timeline {
     public final Object id;
     public final boolean isSeekable;
     public final boolean isDynamic;
+    public final boolean isLive;
+    public final boolean isPlaceholder;
     public final long durationUs;
+    public final long defaultPositionUs;
     public final AdPlaybackState adPlaybackState;
 
     /**
-     * Creates a seekable, non-dynamic window definition with a duration of
-     * {@link #DEFAULT_WINDOW_DURATION_US}.
+     * Creates a window definition that corresponds to a dummy placeholder timeline using the given
+     * tag.
+     *
+     * @param tag The tag to use in the timeline.
+     */
+    public static TimelineWindowDefinition createDummy(Object tag) {
+      return new TimelineWindowDefinition(
+          /* periodCount= */ 1,
+          /* id= */ tag,
+          /* isSeekable= */ false,
+          /* isDynamic= */ true,
+          /* isLive= */ false,
+          /* isPlaceholder= */ true,
+          /* durationUs= */ C.TIME_UNSET,
+          /* defaultPositionUs= */ 0,
+          AdPlaybackState.NONE);
+    }
+
+    /**
+     * Creates a seekable, non-dynamic window definition with a duration of {@link
+     * #DEFAULT_WINDOW_DURATION_US}.
      *
      * @param periodCount The number of periods in the window. Each period get an equal slice of the
      *     total window duration.
@@ -99,14 +120,52 @@ public final class FakeTimeline extends Timeline {
         boolean isDynamic,
         long durationUs,
         AdPlaybackState adPlaybackState) {
+      this(
+          periodCount,
+          id,
+          isSeekable,
+          isDynamic,
+          /* isLive= */ isDynamic,
+          /* isPlaceholder= */ false,
+          durationUs,
+          /* defaultPositionUs= */ 0,
+          adPlaybackState);
+    }
+
+    /**
+     * Creates a window definition with ad groups.
+     *
+     * @param periodCount The number of periods in the window. Each period get an equal slice of the
+     *     total window duration.
+     * @param id The UID of the window.
+     * @param isSeekable Whether the window is seekable.
+     * @param isDynamic Whether the window is dynamic.
+     * @param isLive Whether the window is live.
+     * @param isPlaceholder Whether the window is a placeholder.
+     * @param durationUs The duration of the window in microseconds.
+     * @param defaultPositionUs The default position of the window in microseconds.
+     * @param adPlaybackState The ad playback state.
+     */
+    public TimelineWindowDefinition(
+        int periodCount,
+        Object id,
+        boolean isSeekable,
+        boolean isDynamic,
+        boolean isLive,
+        boolean isPlaceholder,
+        long durationUs,
+        long defaultPositionUs,
+        AdPlaybackState adPlaybackState) {
       this.periodCount = periodCount;
       this.id = id;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
+      this.isLive = isLive;
+      this.isPlaceholder = isPlaceholder;
       this.durationUs = durationUs;
+      this.defaultPositionUs = defaultPositionUs;
       this.adPlaybackState = adPlaybackState;
     }
-
   }
 
   private static final long AD_DURATION_US = 10 * C.MICROS_PER_SECOND;
@@ -128,11 +187,19 @@ public final class FakeTimeline extends Timeline {
     AdPlaybackState adPlaybackState = new AdPlaybackState(adGroupTimesUs);
     long[][] adDurationsUs = new long[adGroupCount][];
     for (int i = 0; i < adGroupCount; i++) {
-      adPlaybackState = adPlaybackState.withAdCount(i, adsPerAdGroup);
+      adPlaybackState = adPlaybackState.withAdCount(/* adGroupIndex= */ i, adsPerAdGroup);
+      for (int j = 0; j < adsPerAdGroup; j++) {
+        adPlaybackState =
+            adPlaybackState.withAdUri(
+                /* adGroupIndex= */ i,
+                /* adIndexInAdGroup= */ j,
+                Uri.parse("https://ad/" + i + "/" + j));
+      }
       adDurationsUs[i] = new long[adsPerAdGroup];
       Arrays.fill(adDurationsUs[i], AD_DURATION_US);
     }
     adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
+
     return adPlaybackState;
   }
 
@@ -181,18 +248,23 @@ public final class FakeTimeline extends Timeline {
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
-    return window.set(
+    window.set(
+        /* uid= */ windowDefinition.id,
         /* tag= */ windowDefinition.id,
         manifests[windowIndex],
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
         windowDefinition.isSeekable,
         windowDefinition.isDynamic,
-        /* defaultPositionUs= */ 0,
+        windowDefinition.isLive,
+        windowDefinition.defaultPositionUs,
         windowDefinition.durationUs,
         periodOffsets[windowIndex],
         periodOffsets[windowIndex + 1] - 1,
         /* positionInFirstPeriodUs= */ 0);
+    window.isPlaceholder = windowDefinition.isPlaceholder;
+    return window;
   }
 
   @Override

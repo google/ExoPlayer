@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Writes data into a cache.
@@ -49,14 +51,13 @@ public final class CacheDataSink implements DataSink {
   private final long fragmentSize;
   private final int bufferSize;
 
-  private DataSpec dataSpec;
+  @Nullable private DataSpec dataSpec;
   private long dataSpecFragmentSize;
-  private File file;
-  private OutputStream outputStream;
-  private FileOutputStream underlyingFileOutputStream;
+  @Nullable private File file;
+  @Nullable private OutputStream outputStream;
   private long outputStreamBytesWritten;
   private long dataSpecBytesWritten;
-  private ReusableBufferedOutputStream bufferedOutputStream;
+  private @MonotonicNonNull ReusableBufferedOutputStream bufferedOutputStream;
 
   /**
    * Thrown when IOException is encountered when writing data into sink.
@@ -168,10 +169,8 @@ public final class CacheDataSink implements DataSink {
         dataSpec.length == C.LENGTH_UNSET
             ? C.LENGTH_UNSET
             : Math.min(dataSpec.length - dataSpecBytesWritten, dataSpecFragmentSize);
-    file =
-        cache.startFile(
-            dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten, length);
-    underlyingFileOutputStream = new FileOutputStream(file);
+    file = cache.startFile(dataSpec.key, dataSpec.position + dataSpecBytesWritten, length);
+    FileOutputStream underlyingFileOutputStream = new FileOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {
         bufferedOutputStream = new ReusableBufferedOutputStream(underlyingFileOutputStream,

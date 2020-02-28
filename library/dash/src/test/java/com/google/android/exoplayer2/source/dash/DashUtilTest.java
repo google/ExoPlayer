@@ -38,21 +38,21 @@ public final class DashUtilTest {
 
   @Test
   public void testLoadDrmInitDataFromManifest() throws Exception {
-    Period period = newPeriod(newAdaptationSets(newRepresentations(newDrmInitData())));
+    Period period = newPeriod(newAdaptationSet(newRepresentation(newDrmInitData())));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isEqualTo(newDrmInitData());
   }
 
   @Test
   public void testLoadDrmInitDataMissing() throws Exception {
-    Period period = newPeriod(newAdaptationSets(newRepresentations(null /* no init data */)));
+    Period period = newPeriod(newAdaptationSet(newRepresentation(null /* no init data */)));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isNull();
   }
 
   @Test
   public void testLoadDrmInitDataNoRepresentations() throws Exception {
-    Period period = newPeriod(newAdaptationSets(/* no representation */ ));
+    Period period = newPeriod(newAdaptationSet(/* no representation */ ));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isNull();
   }
@@ -68,29 +68,17 @@ public final class DashUtilTest {
     return new Period("", 0, Arrays.asList(adaptationSets));
   }
 
-  private static AdaptationSet newAdaptationSets(Representation... representations) {
+  private static AdaptationSet newAdaptationSet(Representation... representations) {
     return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations), null, null);
   }
 
-  private static Representation newRepresentations(DrmInitData drmInitData) {
+  private static Representation newRepresentation(DrmInitData drmInitData) {
     Format format =
-        Format.createVideoContainerFormat(
-            "id",
-            "label",
-            MimeTypes.VIDEO_MP4,
-            MimeTypes.VIDEO_H264,
-            /* codecs= */ "",
-            /* metadata= */ null,
-            Format.NO_VALUE,
-            /* width= */ 1024,
-            /* height= */ 768,
-            Format.NO_VALUE,
-            /* initializationData= */ null,
-            /* selectionFlags= */ 0,
-            /* roleFlags= */ 0);
-    if (drmInitData != null) {
-      format = format.copyWithDrmInitData(drmInitData);
-    }
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.VIDEO_MP4)
+            .setSampleMimeType(MimeTypes.VIDEO_H264)
+            .setDrmInitData(drmInitData)
+            .build();
     return Representation.newInstance(0, format, "", new SingleSegmentBase());
   }
 

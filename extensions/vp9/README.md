@@ -11,7 +11,7 @@ more external libraries as described below. These are licensed separately.
 
 [Apache 2.0]: https://github.com/google/ExoPlayer/blob/release-v2/LICENSE
 
-## Build instructions ##
+## Build instructions (Linux, macOS) ##
 
 To use this extension you need to clone the ExoPlayer repository and depend on
 its modules locally. Instructions for doing this can be found in ExoPlayer's
@@ -29,7 +29,7 @@ VP9_EXT_PATH="${EXOPLAYER_ROOT}/extensions/vp9/src/main"
 ```
 
 * Download the [Android NDK][] and set its location in an environment variable.
-  The build configuration has been tested with Android NDK r19c.
+  This build configuration has been tested on NDK r20.
 
 ```
 NDK_PATH="<path to Android NDK>"
@@ -67,6 +67,13 @@ ${NDK_PATH}/ndk-build APP_ABI=all -j4
 
 [top level README]: https://github.com/google/ExoPlayer/blob/release-v2/README.md
 [Android NDK]: https://developer.android.com/tools/sdk/ndk/index.html
+
+## Build instructions (Windows) ##
+
+We do not provide support for building this extension on Windows, however it
+should be possible to follow the Linux instructions in [Windows PowerShell][].
+
+[Windows PowerShell]: https://docs.microsoft.com/en-us/powershell/scripting/getting-started/getting-started-with-windows-powershell
 
 ## Notes ##
 
@@ -107,12 +114,35 @@ a custom track selector the choice of `Renderer` is up to your implementation,
 so you need to make sure you are passing an `LibvpxVideoRenderer` to the
 player, then implement your own logic to use the renderer for a given track.
 
-`LibvpxVideoRenderer` can optionally output to a `VpxVideoSurfaceView` when not
-being used via `SimpleExoPlayer`, in which case color space conversion will be
-performed using a GL shader. To enable this mode, send the renderer a message of
-type `LibvpxVideoRenderer.MSG_SET_OUTPUT_BUFFER_RENDERER` with the
-`VpxVideoSurfaceView` as its object, instead of sending `MSG_SET_SURFACE` with a
-`Surface`.
+## Using the extension in the demo application ##
+
+To try out playback using the extension in the [demo application][], see
+[enabling extension decoders][].
+
+[demo application]: https://exoplayer.dev/demo-application.html
+[enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
+
+## Rendering options ##
+
+There are two possibilities for rendering the output `LibvpxVideoRenderer`
+gets from the libvpx decoder:
+
+* GL rendering using GL shader for color space conversion
+  * If you are using `SimpleExoPlayer` with `PlayerView`, enable this option by
+    setting `surface_type` of `PlayerView` to be
+    `video_decoder_gl_surface_view`.
+  * Otherwise, enable this option by sending `LibvpxVideoRenderer` a message of
+    type `C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER` with an instance of
+    `VideoDecoderOutputBufferRenderer` as its object.
+
+* Native rendering using `ANativeWindow`
+  * If you are using `SimpleExoPlayer` with `PlayerView`, this option is enabled
+    by default.
+  * Otherwise, enable this option by sending `LibvpxVideoRenderer` a message of
+    type `C.MSG_SET_SURFACE` with an instance of `SurfaceView` as its object.
+
+Note: Although the default option uses `ANativeWindow`, based on our testing the
+GL rendering mode has better performance, so should be preferred.
 
 ## Links ##
 

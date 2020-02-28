@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.analytics;
 
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
-import android.util.Pair;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
@@ -28,18 +28,145 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Statistics about playbacks. */
 public final class PlaybackStats {
+
+  /** Stores a playback state with the event time at which it became active. */
+  public static final class EventTimeAndPlaybackState {
+    /** The event time at which the playback state became active. */
+    public final EventTime eventTime;
+    /** The playback state that became active. */
+    public final @PlaybackState int playbackState;
+
+    /**
+     * Creates a new timed playback state event.
+     *
+     * @param eventTime The event time at which the playback state became active.
+     * @param playbackState The playback state that became active.
+     */
+    public EventTimeAndPlaybackState(EventTime eventTime, @PlaybackState int playbackState) {
+      this.eventTime = eventTime;
+      this.playbackState = playbackState;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      EventTimeAndPlaybackState that = (EventTimeAndPlaybackState) o;
+      if (playbackState != that.playbackState) {
+        return false;
+      }
+      return eventTime.equals(that.eventTime);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = eventTime.hashCode();
+      result = 31 * result + playbackState;
+      return result;
+    }
+  }
+
+  /**
+   * Stores a format with the event time at which it started being used, or {@code null} to indicate
+   * that no format was used.
+   */
+  public static final class EventTimeAndFormat {
+    /** The event time associated with {@link #format}. */
+    public final EventTime eventTime;
+    /** The format that started being used, or {@code null} if no format was used. */
+    @Nullable public final Format format;
+
+    /**
+     * Creates a new timed format event.
+     *
+     * @param eventTime The event time associated with {@code format}.
+     * @param format The format that started being used, or {@code null} if no format was used.
+     */
+    public EventTimeAndFormat(EventTime eventTime, @Nullable Format format) {
+      this.eventTime = eventTime;
+      this.format = format;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      EventTimeAndFormat that = (EventTimeAndFormat) o;
+      if (!eventTime.equals(that.eventTime)) {
+        return false;
+      }
+      return format != null ? format.equals(that.format) : that.format == null;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = eventTime.hashCode();
+      result = 31 * result + (format != null ? format.hashCode() : 0);
+      return result;
+    }
+  }
+
+  /** Stores an exception with the event time at which it occurred. */
+  public static final class EventTimeAndException {
+    /** The event time at which the exception occurred. */
+    public final EventTime eventTime;
+    /** The exception that was thrown. */
+    public final Exception exception;
+
+    /**
+     * Creates a new timed exception event.
+     *
+     * @param eventTime The event time at which the exception occurred.
+     * @param exception The exception that was thrown.
+     */
+    public EventTimeAndException(EventTime eventTime, Exception exception) {
+      this.eventTime = eventTime;
+      this.exception = exception;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      EventTimeAndException that = (EventTimeAndException) o;
+      if (!eventTime.equals(that.eventTime)) {
+        return false;
+      }
+      return exception.equals(that.exception);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = eventTime.hashCode();
+      result = 31 * result + exception.hashCode();
+      return result;
+    }
+  }
 
   /**
    * State of a playback. One of {@link #PLAYBACK_STATE_NOT_STARTED}, {@link
    * #PLAYBACK_STATE_JOINING_FOREGROUND}, {@link #PLAYBACK_STATE_JOINING_BACKGROUND}, {@link
    * #PLAYBACK_STATE_PLAYING}, {@link #PLAYBACK_STATE_PAUSED}, {@link #PLAYBACK_STATE_SEEKING},
    * {@link #PLAYBACK_STATE_BUFFERING}, {@link #PLAYBACK_STATE_PAUSED_BUFFERING}, {@link
-   * #PLAYBACK_STATE_SEEK_BUFFERING}, {@link #PLAYBACK_STATE_ENDED}, {@link
-   * #PLAYBACK_STATE_STOPPED}, {@link #PLAYBACK_STATE_FAILED} or {@link #PLAYBACK_STATE_SUSPENDED}.
+   * #PLAYBACK_STATE_SEEK_BUFFERING}, {@link #PLAYBACK_STATE_SUPPRESSED}, {@link
+   * #PLAYBACK_STATE_SUPPRESSED_BUFFERING}, {@link #PLAYBACK_STATE_ENDED}, {@link
+   * #PLAYBACK_STATE_STOPPED}, {@link #PLAYBACK_STATE_FAILED}, {@link
+   * #PLAYBACK_STATE_INTERRUPTED_BY_AD} or {@link #PLAYBACK_STATE_ABANDONED}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -54,10 +181,13 @@ public final class PlaybackStats {
     PLAYBACK_STATE_BUFFERING,
     PLAYBACK_STATE_PAUSED_BUFFERING,
     PLAYBACK_STATE_SEEK_BUFFERING,
+    PLAYBACK_STATE_SUPPRESSED,
+    PLAYBACK_STATE_SUPPRESSED_BUFFERING,
     PLAYBACK_STATE_ENDED,
     PLAYBACK_STATE_STOPPED,
     PLAYBACK_STATE_FAILED,
-    PLAYBACK_STATE_SUSPENDED
+    PLAYBACK_STATE_INTERRUPTED_BY_AD,
+    PLAYBACK_STATE_ABANDONED
   })
   @interface PlaybackState {}
   /** Playback has not started (initial state). */
@@ -72,22 +202,28 @@ public final class PlaybackStats {
   public static final int PLAYBACK_STATE_PAUSED = 4;
   /** Playback is handling a seek. */
   public static final int PLAYBACK_STATE_SEEKING = 5;
-  /** Playback is buffering to restart playback. */
+  /** Playback is buffering to resume active playback. */
   public static final int PLAYBACK_STATE_BUFFERING = 6;
   /** Playback is buffering while paused. */
   public static final int PLAYBACK_STATE_PAUSED_BUFFERING = 7;
   /** Playback is buffering after a seek. */
   public static final int PLAYBACK_STATE_SEEK_BUFFERING = 8;
+  /** Playback is suppressed (e.g. due to audio focus loss). */
+  public static final int PLAYBACK_STATE_SUPPRESSED = 9;
+  /** Playback is suppressed (e.g. due to audio focus loss) while buffering to resume a playback. */
+  public static final int PLAYBACK_STATE_SUPPRESSED_BUFFERING = 10;
   /** Playback has reached the end of the media. */
-  public static final int PLAYBACK_STATE_ENDED = 9;
-  /** Playback is stopped and can be resumed. */
-  public static final int PLAYBACK_STATE_STOPPED = 10;
+  public static final int PLAYBACK_STATE_ENDED = 11;
+  /** Playback is stopped and can be restarted. */
+  public static final int PLAYBACK_STATE_STOPPED = 12;
   /** Playback is stopped due a fatal error and can be retried. */
-  public static final int PLAYBACK_STATE_FAILED = 11;
-  /** Playback is suspended, e.g. because the user left or it is interrupted by another playback. */
-  public static final int PLAYBACK_STATE_SUSPENDED = 12;
+  public static final int PLAYBACK_STATE_FAILED = 13;
+  /** Playback is interrupted by an ad. */
+  public static final int PLAYBACK_STATE_INTERRUPTED_BY_AD = 14;
+  /** Playback is abandoned before reaching the end of the media. */
+  public static final int PLAYBACK_STATE_ABANDONED = 15;
   /** Total number of playback states. */
-  /* package */ static final int PLAYBACK_STATE_COUNT = 13;
+  /* package */ static final int PLAYBACK_STATE_COUNT = 16;
 
   /** Empty playback stats. */
   public static final PlaybackStats EMPTY = merge(/* nothing */ );
@@ -247,10 +383,10 @@ public final class PlaybackStats {
   // Playback state stats.
 
   /**
-   * The playback state history as ordered pairs of the {@link EventTime} at which a state became
-   * active and the {@link PlaybackState}.
+   * The playback state history as {@link EventTimeAndPlaybackState EventTimeAndPlaybackStates}
+   * ordered by {@code EventTime.realTimeMs}.
    */
-  public final List<Pair<EventTime, @PlaybackState Integer>> playbackStateHistory;
+  public final List<EventTimeAndPlaybackState> playbackStateHistory;
   /**
    * The media time history as an ordered list of long[2] arrays with [0] being the realtime as
    * returned by {@code SystemClock.elapsedRealtime()} and [1] being the media time at this
@@ -308,15 +444,15 @@ public final class PlaybackStats {
   // Format stats.
 
   /**
-   * The video format history as ordered pairs of the {@link EventTime} at which a format started
-   * being used and the {@link Format}. The {@link Format} may be null if no video format was used.
+   * The video format history as {@link EventTimeAndFormat EventTimeAndFormats} ordered by {@code
+   * EventTime.realTimeMs}. The {@link Format} may be null if no video format was used.
    */
-  public final List<Pair<EventTime, @NullableType Format>> videoFormatHistory;
+  public final List<EventTimeAndFormat> videoFormatHistory;
   /**
-   * The audio format history as ordered pairs of the {@link EventTime} at which a format started
-   * being used and the {@link Format}. The {@link Format} may be null if no audio format was used.
+   * The audio format history as {@link EventTimeAndFormat EventTimeAndFormats} ordered by {@code
+   * EventTime.realTimeMs}. The {@link Format} may be null if no audio format was used.
    */
-  public final List<Pair<EventTime, @NullableType Format>> audioFormatHistory;
+  public final List<EventTimeAndFormat> audioFormatHistory;
   /** The total media time for which video format height data is available, in milliseconds. */
   public final long totalVideoFormatHeightTimeMs;
   /**
@@ -389,23 +525,23 @@ public final class PlaybackStats {
    */
   public final int nonFatalErrorCount;
   /**
-   * The history of fatal errors as ordered pairs of the {@link EventTime} at which an error
-   * occurred and the error. Errors are fatal if playback stopped due to this error.
+   * The history of fatal errors as {@link EventTimeAndException EventTimeAndExceptions} ordered by
+   * {@code EventTime.realTimeMs}. Errors are fatal if playback stopped due to this error.
    */
-  public final List<Pair<EventTime, Exception>> fatalErrorHistory;
+  public final List<EventTimeAndException> fatalErrorHistory;
   /**
-   * The history of non-fatal errors as ordered pairs of the {@link EventTime} at which an error
-   * occurred and the error. Error are non-fatal if playback can recover from the error without
-   * stopping.
+   * The history of non-fatal errors as {@link EventTimeAndException EventTimeAndExceptions} ordered
+   * by {@code EventTime.realTimeMs}. Errors are non-fatal if playback can recover from the error
+   * without stopping.
    */
-  public final List<Pair<EventTime, Exception>> nonFatalErrorHistory;
+  public final List<EventTimeAndException> nonFatalErrorHistory;
 
   private final long[] playbackStateDurationsMs;
 
   /* package */ PlaybackStats(
       int playbackCount,
       long[] playbackStateDurationsMs,
-      List<Pair<EventTime, @PlaybackState Integer>> playbackStateHistory,
+      List<EventTimeAndPlaybackState> playbackStateHistory,
       List<long[]> mediaTimeHistory,
       long firstReportedTimeMs,
       int foregroundPlaybackCount,
@@ -420,8 +556,8 @@ public final class PlaybackStats {
       int totalRebufferCount,
       long maxRebufferTimeMs,
       int adPlaybackCount,
-      List<Pair<EventTime, @NullableType Format>> videoFormatHistory,
-      List<Pair<EventTime, @NullableType Format>> audioFormatHistory,
+      List<EventTimeAndFormat> videoFormatHistory,
+      List<EventTimeAndFormat> audioFormatHistory,
       long totalVideoFormatHeightTimeMs,
       long totalVideoFormatHeightTimeProduct,
       long totalVideoFormatBitrateTimeMs,
@@ -441,8 +577,8 @@ public final class PlaybackStats {
       int fatalErrorPlaybackCount,
       int fatalErrorCount,
       int nonFatalErrorCount,
-      List<Pair<EventTime, Exception>> fatalErrorHistory,
-      List<Pair<EventTime, Exception>> nonFatalErrorHistory) {
+      List<EventTimeAndException> fatalErrorHistory,
+      List<EventTimeAndException> nonFatalErrorHistory) {
     this.playbackCount = playbackCount;
     this.playbackStateDurationsMs = playbackStateDurationsMs;
     this.playbackStateHistory = Collections.unmodifiableList(playbackStateHistory);
@@ -504,11 +640,11 @@ public final class PlaybackStats {
    */
   public @PlaybackState int getPlaybackStateAtTime(long realtimeMs) {
     @PlaybackState int state = PLAYBACK_STATE_NOT_STARTED;
-    for (Pair<EventTime, @PlaybackState Integer> timeAndState : playbackStateHistory) {
-      if (timeAndState.first.realtimeMs > realtimeMs) {
+    for (EventTimeAndPlaybackState timeAndState : playbackStateHistory) {
+      if (timeAndState.eventTime.realtimeMs > realtimeMs) {
         break;
       }
-      state = timeAndState.second;
+      state = timeAndState.playbackState;
     }
     return state;
   }

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.io.File;
@@ -95,7 +94,7 @@ public class CacheSpan implements Comparable<CacheSpan> {
   }
 
   @Override
-  public int compareTo(@NonNull CacheSpan another) {
+  public int compareTo(CacheSpan another) {
     if (!key.equals(another.key)) {
       return key.compareTo(another.key);
     }

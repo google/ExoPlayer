@@ -39,10 +39,9 @@ public final class SubripDecoderTest {
   private static final String TYPICAL_NEGATIVE_TIMESTAMPS = "subrip/typical_negative_timestamps";
   private static final String TYPICAL_UNEXPECTED_END = "subrip/typical_unexpected_end";
   private static final String TYPICAL_WITH_TAGS = "subrip/typical_with_tags";
-  private static final String NO_END_TIMECODES_FILE = "subrip/no_end_timecodes";
 
   @Test
-  public void testDecodeEmpty() throws IOException {
+  public void decodeEmpty() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_FILE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -52,7 +51,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypical() throws IOException {
+  public void decodeTypical() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_FILE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -64,7 +63,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithByteOrderMark() throws IOException {
+  public void decodeTypicalWithByteOrderMark() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(
@@ -78,7 +77,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalExtraBlankLine() throws IOException {
+  public void decodeTypicalExtraBlankLine() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(
@@ -92,7 +91,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalMissingTimecode() throws IOException {
+  public void decodeTypicalMissingTimecode() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
@@ -106,7 +105,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalMissingSequence() throws IOException {
+  public void decodeTypicalMissingSequence() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
@@ -120,7 +119,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalNegativeTimestamps() throws IOException {
+  public void decodeTypicalNegativeTimestamps() throws IOException {
     // Parsing should succeed, parsing the third cue only.
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
@@ -133,7 +132,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalUnexpectedEnd() throws IOException {
+  public void decodeTypicalUnexpectedEnd() throws IOException {
     // Parsing should succeed, parsing the first and second cues only.
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
@@ -146,29 +145,7 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void testDecodeNoEndTimecodes() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
-    byte[] bytes =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_END_TIMECODES_FILE);
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
-
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(3);
-
-    assertThat(subtitle.getEventTime(0)).isEqualTo(0);
-    assertThat(subtitle.getCues(subtitle.getEventTime(0)).get(0).text.toString())
-        .isEqualTo("SubRip doesn't technically allow missing end timecodes.");
-
-    assertThat(subtitle.getEventTime(1)).isEqualTo(2345000);
-    assertThat(subtitle.getCues(subtitle.getEventTime(1)).get(0).text.toString())
-        .isEqualTo("We interpret it to mean that a subtitle extends to the start of the next one.");
-
-    assertThat(subtitle.getEventTime(2)).isEqualTo(3456000);
-    assertThat(subtitle.getCues(subtitle.getEventTime(2)).get(0).text.toString())
-        .isEqualTo("Or to the end of the media.");
-  }
-
-  @Test
-  public void testDecodeCueWithTag() throws IOException {
+  public void decodeCueWithTag() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_WITH_TAGS);

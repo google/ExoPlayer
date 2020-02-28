@@ -21,8 +21,6 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.JsonReader;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +34,8 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.demo.Sample.DrmInfo;
@@ -68,6 +68,7 @@ public class SampleChooserActivity extends AppCompatActivity
   private SampleAdapter sampleAdapter;
   private MenuItem preferExtensionDecodersMenuItem;
   private MenuItem randomAbrMenuItem;
+  private MenuItem tunnelingMenuItem;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -125,6 +126,10 @@ public class SampleChooserActivity extends AppCompatActivity
     preferExtensionDecodersMenuItem = menu.findItem(R.id.prefer_extension_decoders);
     preferExtensionDecodersMenuItem.setVisible(useExtensionRenderers);
     randomAbrMenuItem = menu.findItem(R.id.random_abr);
+    tunnelingMenuItem = menu.findItem(R.id.tunneling);
+    if (Util.SDK_INT < 21) {
+      tunnelingMenuItem.setEnabled(false);
+    }
     return true;
   }
 
@@ -173,6 +178,7 @@ public class SampleChooserActivity extends AppCompatActivity
             ? PlayerActivity.ABR_ALGORITHM_RANDOM
             : PlayerActivity.ABR_ALGORITHM_DEFAULT;
     intent.putExtra(PlayerActivity.ABR_ALGORITHM_EXTRA, abrAlgorithm);
+    intent.putExtra(PlayerActivity.TUNNELING_EXTRA, isNonNullAndChecked(tunnelingMenuItem));
     sample.addToIntent(intent);
     startActivity(intent);
     return true;
@@ -204,6 +210,9 @@ public class SampleChooserActivity extends AppCompatActivity
     UriSample uriSample = (UriSample) sample;
     if (uriSample.drmInfo != null) {
       return R.string.download_drm_unsupported;
+    }
+    if (uriSample.isLive) {
+      return R.string.download_live_unsupported;
     }
     if (uriSample.adTagUri != null) {
       return R.string.download_ads_unsupported;
@@ -294,13 +303,19 @@ public class SampleChooserActivity extends AppCompatActivity
       String sampleName = null;
       Uri uri = null;
       String extension = null;
+      boolean isLive = false;
       String drmScheme = null;
       String drmLicenseUrl = null;
       String[] drmKeyRequestProperties = null;
+      String[] drmSessionForClearTypes = null;
       boolean drmMultiSession = false;
       ArrayList<UriSample> playlistSamples = null;
       String adTagUri = null;
       String sphericalStereoMode = null;
+      List<Sample.SubtitleInfo> subtitleInfos = new ArrayList<>();
+      Uri subtitleUri = null;
+      String subtitleMimeType = null;
+      String subtitleLanguage = null;
 
       reader.beginObject();
       while (reader.hasNext()) {
@@ -318,6 +333,9 @@ public class SampleChooserActivity extends AppCompatActivity
           case "drm_scheme":
             drmScheme = reader.nextString();
             break;
+          case "is_live":
+            isLive = reader.nextBoolean();
+            break;
           case "drm_license_url":
             drmLicenseUrl = reader.nextString();
             break;
@@ -331,6 +349,15 @@ public class SampleChooserActivity extends AppCompatActivity
             reader.endObject();
             drmKeyRequestProperties = drmKeyRequestPropertiesList.toArray(new String[0]);
             break;
+          case "drm_session_for_clear_types":
+            ArrayList<String> drmSessionForClearTypesList = new ArrayList<>();
+            reader.beginArray();
+            while (reader.hasNext()) {
+              drmSessionForClearTypesList.add(reader.nextString());
+            }
+            reader.endArray();
+            drmSessionForClearTypes = drmSessionForClearTypesList.toArray(new String[0]);
+            break;
           case "drm_multi_session":
             drmMultiSession = reader.nextBoolean();
             break;
@@ -339,7 +366,7 @@ public class SampleChooserActivity extends AppCompatActivity
             playlistSamples = new ArrayList<>();
             reader.beginArray();
             while (reader.hasNext()) {
-              playlistSamples.add((UriSample) readEntry(reader, true));
+              playlistSamples.add((UriSample) readEntry(reader, /* insidePlaylist= */ true));
             }
             reader.endArray();
             break;
@@ -350,6 +377,15 @@ public class SampleChooserActivity extends AppCompatActivity
             Assertions.checkState(
                 !insidePlaylist, "Invalid attribute on nested item: spherical_stereo_mode");
             sphericalStereoMode = reader.nextString();
+            break;
+          case "subtitle_uri":
+            subtitleUri = Uri.parse(reader.nextString());
+            break;
+          case "subtitle_mime_type":
+            subtitleMimeType = reader.nextString();
+            break;
+          case "subtitle_language":
+            subtitleLanguage = reader.nextString();
             break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
@@ -363,18 +399,29 @@ public class SampleChooserActivity extends AppCompatActivity
                   Util.getDrmUuid(drmScheme),
                   drmLicenseUrl,
                   drmKeyRequestProperties,
+                  Sample.toTrackTypeArray(drmSessionForClearTypes),
                   drmMultiSession);
+      Sample.SubtitleInfo subtitleInfo =
+          subtitleUri == null
+              ? null
+              : new Sample.SubtitleInfo(
+                  subtitleUri,
+                  Assertions.checkNotNull(
+                      subtitleMimeType, "subtitle_mime_type is required if subtitle_uri is set."),
+                  subtitleLanguage);
       if (playlistSamples != null) {
         UriSample[] playlistSamplesArray = playlistSamples.toArray(new UriSample[0]);
         return new PlaylistSample(sampleName, playlistSamplesArray);
       } else {
         return new UriSample(
             sampleName,
-            drmInfo,
             uri,
             extension,
+            isLive,
+            drmInfo,
             adTagUri != null ? Uri.parse(adTagUri) : null,
-            sphericalStereoMode);
+            sphericalStereoMode,
+            subtitleInfo);
       }
     }
 
@@ -486,7 +533,7 @@ public class SampleChooserActivity extends AppCompatActivity
       ImageButton downloadButton = view.findViewById(R.id.download_button);
       downloadButton.setTag(sample);
       downloadButton.setColorFilter(
-          canDownload ? (isDownloaded ? 0xFF42A5F5 : 0xFFBDBDBD) : 0xFFEEEEEE);
+          canDownload ? (isDownloaded ? 0xFF42A5F5 : 0xFFBDBDBD) : 0xFF666666);
       downloadButton.setImageResource(
           isDownloaded ? R.drawable.ic_download_done : R.drawable.ic_download);
     }

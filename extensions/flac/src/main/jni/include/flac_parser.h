@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 
+#include <array>
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -84,7 +85,7 @@ class FLACParser {
   bool decodeMetadata();
   size_t readBuffer(void *output, size_t output_size);
 
-  int64_t getSeekPosition(int64_t timeUs);
+  bool getSeekPositions(int64_t timeUs, std::array<int64_t, 4> &result);
 
   void flush() {
     reset(mCurrentPos);

@@ -15,11 +15,13 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.os.Handler;
 import android.os.SystemClock;
-import androidx.annotation.Nullable;
 import android.view.Surface;
 import android.view.TextureView;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -68,6 +70,28 @@ public interface VideoRendererEventListener {
    *     (whichever was more recent), and not from when the first of the reported drops occurred.
    */
   default void onDroppedFrames(int count, long elapsedMs) {}
+
+  /**
+   * Called to report the video processing offset of video frames processed by the video renderer.
+   *
+   * <p>Video processing offset represents how early a video frame is processed compared to the
+   * player's current position. For each video frame, the offset is calculated as <em>P<sub>vf</sub>
+   * - P<sub>pl</sub></em> where <em>P<sub>vf</sub></em> is the presentation timestamp of the video
+   * frame and <em>P<sub>pl</sub></em> is the current position of the player. Positive values
+   * indicate the frame was processed early enough whereas negative values indicate that the
+   * player's position had progressed beyond the frame's timestamp when the frame was processed (and
+   * the frame was probably dropped).
+   *
+   * <p>The renderer reports the sum of video processing offset samples (one sample per processed
+   * video frame: dropped, skipped or rendered) and the total number of samples.
+   *
+   * @param totalProcessingOffsetUs The sum of all video frame processing offset samples for the
+   *     video frames processed by the renderer in microseconds.
+   * @param frameCount The number of samples included in the {@code totalProcessingOffsetUs}.
+   * @param format The {@link Format} that is currently output.
+   */
+  default void onVideoFrameProcessingOffset(
+      long totalProcessingOffsetUs, int frameCount, Format format) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
@@ -126,33 +150,45 @@ public interface VideoRendererEventListener {
 
     /** Invokes {@link VideoRendererEventListener#onVideoEnabled(DecoderCounters)}. */
     public void enabled(DecoderCounters decoderCounters) {
-      if (listener != null) {
-        handler.post(() -> listener.onVideoEnabled(decoderCounters));
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onVideoEnabled(decoderCounters));
       }
     }
 
     /** Invokes {@link VideoRendererEventListener#onVideoDecoderInitialized(String, long, long)}. */
     public void decoderInitialized(
         String decoderName, long initializedTimestampMs, long initializationDurationMs) {
-      if (listener != null) {
+      if (handler != null) {
         handler.post(
             () ->
-                listener.onVideoDecoderInitialized(
-                    decoderName, initializedTimestampMs, initializationDurationMs));
+                castNonNull(listener)
+                    .onVideoDecoderInitialized(
+                        decoderName, initializedTimestampMs, initializationDurationMs));
       }
     }
 
     /** Invokes {@link VideoRendererEventListener#onVideoInputFormatChanged(Format)}. */
     public void inputFormatChanged(Format format) {
-      if (listener != null) {
-        handler.post(() -> listener.onVideoInputFormatChanged(format));
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onVideoInputFormatChanged(format));
       }
     }
 
     /** Invokes {@link VideoRendererEventListener#onDroppedFrames(int, long)}. */
     public void droppedFrames(int droppedFrameCount, long elapsedMs) {
-      if (listener != null) {
-        handler.post(() -> listener.onDroppedFrames(droppedFrameCount, elapsedMs));
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onDroppedFrames(droppedFrameCount, elapsedMs));
+      }
+    }
+
+    /** Invokes {@link VideoRendererEventListener#onVideoFrameProcessingOffset}. */
+    public void reportVideoFrameProcessingOffset(
+        long totalProcessingOffsetUs, int frameCount, Format format) {
+      if (handler != null) {
+        handler.post(
+            () ->
+                castNonNull(listener)
+                    .onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount, format));
       }
     }
 
@@ -162,29 +198,30 @@ public interface VideoRendererEventListener {
         int height,
         final int unappliedRotationDegrees,
         final float pixelWidthHeightRatio) {
-      if (listener != null) {
+      if (handler != null) {
         handler.post(
             () ->
-                listener.onVideoSizeChanged(
-                    width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
+                castNonNull(listener)
+                    .onVideoSizeChanged(
+                        width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
       }
     }
 
     /** Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Surface)}. */
     public void renderedFirstFrame(@Nullable Surface surface) {
-      if (listener != null) {
-        handler.post(() -> listener.onRenderedFirstFrame(surface));
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onRenderedFirstFrame(surface));
       }
     }
 
     /** Invokes {@link VideoRendererEventListener#onVideoDisabled(DecoderCounters)}. */
     public void disabled(DecoderCounters counters) {
       counters.ensureUpdated();
-      if (listener != null) {
+      if (handler != null) {
         handler.post(
             () -> {
               counters.ensureUpdated();
-              listener.onVideoDisabled(counters);
+              castNonNull(listener).onVideoDisabled(counters);
             });
       }
     }

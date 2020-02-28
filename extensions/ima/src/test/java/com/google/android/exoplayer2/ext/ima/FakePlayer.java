@@ -30,7 +30,6 @@ import java.util.ArrayList;
   private final Timeline.Period period;
   private final Timeline timeline;
 
-  private boolean prepared;
   @Player.State private int state;
   private boolean playWhenReady;
   private long position;
@@ -48,12 +47,10 @@ import java.util.ArrayList;
   }
 
   /** Sets the timeline on this fake player, which notifies listeners with the changed timeline. */
-  public void updateTimeline(Timeline timeline) {
+  public void updateTimeline(Timeline timeline, @TimelineChangeReason int reason) {
     for (Player.EventListener listener : listeners) {
-      listener.onTimelineChanged(
-          timeline, prepared ? TIMELINE_CHANGE_REASON_DYNAMIC : TIMELINE_CHANGE_REASON_PREPARED);
+      listener.onTimelineChanged(timeline, reason);
     }
-    prepared = true;
   }
 
   /**
@@ -95,13 +92,22 @@ import java.util.ArrayList;
   }
 
   /** Sets the {@link Player.State} of this player. */
+  @SuppressWarnings("deprecation")
   public void setState(@Player.State int state, boolean playWhenReady) {
-    boolean notify = this.state != state || this.playWhenReady != playWhenReady;
+    boolean playWhenReadyChanged = this.playWhenReady != playWhenReady;
+    boolean playbackStateChanged = this.state != state;
     this.state = state;
     this.playWhenReady = playWhenReady;
-    if (notify) {
+    if (playbackStateChanged || playWhenReadyChanged) {
       for (Player.EventListener listener : listeners) {
         listener.onPlayerStateChanged(playWhenReady, state);
+        if (playbackStateChanged) {
+          listener.onPlaybackStateChanged(state);
+        }
+        if (playWhenReadyChanged) {
+          listener.onPlayWhenReadyChanged(
+              playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+        }
       }
     }
   }

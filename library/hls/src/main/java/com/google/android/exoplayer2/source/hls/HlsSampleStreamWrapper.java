@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -27,12 +28,14 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
+import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.emsg.EventMessage;
+import com.google.android.exoplayer2.metadata.emsg.EventMessageDecoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
-import com.google.android.exoplayer2.source.DecryptableSampleQueueReader;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
@@ -44,13 +47,16 @@ import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +65,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Loads {@link HlsMediaChunk}s obtained from a {@link HlsChunkSource}, and provides
@@ -93,46 +103,51 @@ import java.util.Set;
   public static final int SAMPLE_QUEUE_INDEX_NO_MAPPING_FATAL = -2;
   public static final int SAMPLE_QUEUE_INDEX_NO_MAPPING_NON_FATAL = -3;
 
+  private static final Set<Integer> MAPPABLE_TYPES =
+      Collections.unmodifiableSet(
+          new HashSet<>(
+              Arrays.asList(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_METADATA)));
+
   private final int trackType;
   private final Callback callback;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;
-  private final Format muxedAudioFormat;
+  @Nullable private final Format muxedAudioFormat;
   private final DrmSessionManager<?> drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
+  private final @HlsMediaSource.MetadataType int metadataType;
   private final HlsChunkSource.HlsChunkHolder nextChunkHolder;
   private final ArrayList<HlsMediaChunk> mediaChunks;
   private final List<HlsMediaChunk> readOnlyMediaChunks;
+  // Using runnables rather than in-line method references to avoid repeated allocations.
   private final Runnable maybeFinishPrepareRunnable;
   private final Runnable onTracksEndedRunnable;
   private final Handler handler;
   private final ArrayList<HlsSampleStream> hlsSampleStreams;
   private final Map<String, DrmInitData> overridingDrmInitData;
 
-  private SampleQueue[] sampleQueues;
-  private DecryptableSampleQueueReader[] sampleQueueReaders;
+  private FormatAdjustingSampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
-  private boolean audioSampleQueueMappingDone;
-  private int audioSampleQueueIndex;
-  private boolean videoSampleQueueMappingDone;
-  private int videoSampleQueueIndex;
+  private Set<Integer> sampleQueueMappingDoneByType;
+  private SparseIntArray sampleQueueIndicesByType;
+  private @MonotonicNonNull TrackOutput emsgUnwrappingTrackOutput;
   private int primarySampleQueueType;
   private int primarySampleQueueIndex;
   private boolean sampleQueuesBuilt;
   private boolean prepared;
   private int enabledTrackGroupCount;
-  private Format upstreamTrackFormat;
-  private Format downstreamTrackFormat;
+  private @MonotonicNonNull Format upstreamTrackFormat;
+  @Nullable private Format downstreamTrackFormat;
   private boolean released;
 
-  // Tracks are complicated in HLS. See documentation of buildTracks for details.
+  // Tracks are complicated in HLS. See documentation of buildTracksFromSampleStreams for details.
   // Indexed by track (as exposed by this source).
-  private TrackGroupArray trackGroups;
-  private Set<TrackGroup> optionalTrackGroups;
+  private @MonotonicNonNull TrackGroupArray trackGroups;
+  private @MonotonicNonNull Set<TrackGroup> optionalTrackGroups;
   // Indexed by track group.
-  private int[] trackGroupToSampleQueueIndex;
+  private int @MonotonicNonNull [] trackGroupToSampleQueueIndex;
   private int primaryTrackGroupIndex;
   private boolean haveAudioVideoSampleQueues;
   private boolean[] sampleQueuesEnabledStates;
@@ -147,6 +162,7 @@ import java.util.Set;
   // Accessed only by the loading thread.
   private boolean tracksEnded;
   private long sampleOffsetUs;
+  @Nullable private DrmInitData drmInitData;
   private int chunkUid;
 
   /**
@@ -172,10 +188,11 @@ import java.util.Set;
       Map<String, DrmInitData> overridingDrmInitData,
       Allocator allocator,
       long positionUs,
-      Format muxedAudioFormat,
+      @Nullable Format muxedAudioFormat,
       DrmSessionManager<?> drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
-      EventDispatcher eventDispatcher) {
+      EventDispatcher eventDispatcher,
+      @HlsMediaSource.MetadataType int metadataType) {
     this.trackType = trackType;
     this.callback = callback;
     this.chunkSource = chunkSource;
@@ -185,21 +202,26 @@ import java.util.Set;
     this.drmSessionManager = drmSessionManager;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.eventDispatcher = eventDispatcher;
+    this.metadataType = metadataType;
     loader = new Loader("Loader:HlsSampleStreamWrapper");
     nextChunkHolder = new HlsChunkSource.HlsChunkHolder();
     sampleQueueTrackIds = new int[0];
-    audioSampleQueueIndex = C.INDEX_UNSET;
-    videoSampleQueueIndex = C.INDEX_UNSET;
-    sampleQueues = new SampleQueue[0];
-    sampleQueueReaders = new DecryptableSampleQueueReader[0];
+    sampleQueueMappingDoneByType = new HashSet<>(MAPPABLE_TYPES.size());
+    sampleQueueIndicesByType = new SparseIntArray(MAPPABLE_TYPES.size());
+    sampleQueues = new FormatAdjustingSampleQueue[0];
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
     mediaChunks = new ArrayList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
     hlsSampleStreams = new ArrayList<>();
-    maybeFinishPrepareRunnable = this::maybeFinishPrepare;
-    onTracksEndedRunnable = this::onTracksEnded;
-    handler = new Handler();
+    // Suppressions are needed because `this` is not initialized here.
+    @SuppressWarnings("nullness:methodref.receiver.bound.invalid")
+    Runnable maybeFinishPrepareRunnable = this::maybeFinishPrepare;
+    this.maybeFinishPrepareRunnable = maybeFinishPrepareRunnable;
+    @SuppressWarnings("nullness:methodref.receiver.bound.invalid")
+    Runnable onTracksEndedRunnable = this::onTracksEnded;
+    this.onTracksEndedRunnable = onTracksEndedRunnable;
+    handler = Util.createHandler();
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
   }
@@ -221,7 +243,6 @@ import java.util.Set;
    */
   public void prepareWithMasterPlaylistInfo(
       TrackGroup[] trackGroups, int primaryTrackGroupIndex, int... optionalTrackGroupsIndices) {
-    prepared = true;
     this.trackGroups = createTrackGroupArrayWithDrmInfo(trackGroups);
     optionalTrackGroups = new HashSet<>();
     for (int optionalTrackGroupIndex : optionalTrackGroupsIndices) {
@@ -229,6 +250,7 @@ import java.util.Set;
     }
     this.primaryTrackGroupIndex = primaryTrackGroupIndex;
     handler.post(callback::onPrepared);
+    setIsPrepared();
   }
 
   public void maybeThrowPrepareError() throws IOException {
@@ -239,6 +261,7 @@ import java.util.Set;
   }
 
   public TrackGroupArray getTrackGroups() {
+    assertIsPrepared();
     return trackGroups;
   }
 
@@ -247,6 +270,9 @@ import java.util.Set;
   }
 
   public int bindSampleQueueToSampleStream(int trackGroupIndex) {
+    assertIsPrepared();
+    Assertions.checkNotNull(trackGroupToSampleQueueIndex);
+
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     if (sampleQueueIndex == C.INDEX_UNSET) {
       return optionalTrackGroups.contains(trackGroups.get(trackGroupIndex))
@@ -262,6 +288,8 @@ import java.util.Set;
   }
 
   public void unbindSampleQueue(int trackGroupIndex) {
+    assertIsPrepared();
+    Assertions.checkNotNull(trackGroupToSampleQueueIndex);
     int sampleQueueIndex = trackGroupToSampleQueueIndex[trackGroupIndex];
     Assertions.checkState(sampleQueuesEnabledStates[sampleQueueIndex]);
     sampleQueuesEnabledStates[sampleQueueIndex] = false;
@@ -284,15 +312,21 @@ import java.util.Set;
    * @return Whether this wrapper requires the parent {@link HlsMediaPeriod} to perform a seek as
    *     part of the track selection.
    */
-  public boolean selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs, boolean forceReset) {
-    Assertions.checkState(prepared);
+  public boolean selectTracks(
+      @NullableType TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      @NullableType SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs,
+      boolean forceReset) {
+    assertIsPrepared();
     int oldEnabledTrackGroupCount = enabledTrackGroupCount;
     // Deselect old tracks.
     for (int i = 0; i < selections.length; i++) {
-      if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
+      HlsSampleStream stream = (HlsSampleStream) streams[i];
+      if (stream != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
         enabledTrackGroupCount--;
-        ((HlsSampleStream) streams[i]).unbindSampleQueue();
+        stream.unbindSampleQueue();
         streams[i] = null;
       }
     }
@@ -325,17 +359,17 @@ import java.util.Set;
         streamResetFlags[i] = true;
         if (trackGroupToSampleQueueIndex != null) {
           ((HlsSampleStream) streams[i]).bindSampleQueue();
-        }
-        // If there's still a chance of avoiding a seek, try and seek within the sample queue.
-        if (sampleQueuesBuilt && !seekRequired) {
-          SampleQueue sampleQueue = sampleQueues[trackGroupToSampleQueueIndex[trackGroupIndex]];
-          sampleQueue.rewind();
-          // A seek can be avoided if we're able to advance to the current playback position in the
-          // sample queue, or if we haven't read anything from the queue since the previous seek
-          // (this case is common for sparse tracks such as metadata tracks). In all other cases a
-          // seek is required.
-          seekRequired = sampleQueue.advanceTo(positionUs, true, true) == SampleQueue.ADVANCE_FAILED
-              && sampleQueue.getReadIndex() != 0;
+          // If there's still a chance of avoiding a seek, try and seek within the sample queue.
+          if (!seekRequired) {
+            SampleQueue sampleQueue = sampleQueues[trackGroupToSampleQueueIndex[trackGroupIndex]];
+            // A seek can be avoided if we're able to seek to the current playback position in
+            // the sample queue, or if we haven't read anything from the queue since the previous
+            // seek (this case is common for sparse tracks such as metadata tracks). In all other
+            // cases a seek is required.
+            seekRequired =
+                !sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ true)
+                    && sampleQueue.getReadIndex() != 0;
+          }
         }
       }
     }
@@ -443,6 +477,7 @@ import java.util.Set;
     if (loader.isLoading()) {
       loader.cancelLoading();
     } else {
+      loader.clearFatalError();
       resetSampleQueues();
     }
     return true;
@@ -453,10 +488,7 @@ import java.util.Set;
       // Discard as much as we can synchronously. We only do this if we're prepared, since otherwise
       // sampleQueues may still be being modified by the loading thread.
       for (SampleQueue sampleQueue : sampleQueues) {
-        sampleQueue.discardToEnd();
-      }
-      for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
-        reader.release();
+        sampleQueue.preRelease();
       }
     }
     loader.release(this);
@@ -467,9 +499,8 @@ import java.util.Set;
 
   @Override
   public void onLoaderReleased() {
-    resetSampleQueues();
-    for (DecryptableSampleQueueReader reader : sampleQueueReaders) {
-      reader.release();
+    for (SampleQueue sampleQueue : sampleQueues) {
+      sampleQueue.release();
     }
   }
 
@@ -484,12 +515,12 @@ import java.util.Set;
   // SampleStream implementation.
 
   public boolean isReady(int sampleQueueIndex) {
-    return !isPendingReset() && sampleQueueReaders[sampleQueueIndex].isReady(loadingFinished);
+    return !isPendingReset() && sampleQueues[sampleQueueIndex].isReady(loadingFinished);
   }
 
   public void maybeThrowError(int sampleQueueIndex) throws IOException {
     maybeThrowError();
-    sampleQueueReaders[sampleQueueIndex].maybeThrowError();
+    sampleQueues[sampleQueueIndex].maybeThrowError();
   }
 
   public void maybeThrowError() throws IOException {
@@ -522,10 +553,10 @@ import java.util.Set;
     }
 
     int result =
-        sampleQueueReaders[sampleQueueIndex].read(
+        sampleQueues[sampleQueueIndex].read(
             formatHolder, buffer, requireFormat, loadingFinished, lastSeekPositionUs);
     if (result == C.RESULT_FORMAT_READ) {
-      Format format = formatHolder.format;
+      Format format = Assertions.checkNotNull(formatHolder.format);
       if (sampleQueueIndex == primarySampleQueueIndex) {
         // Fill in primary sample format with information from the track format.
         int chunkUid = sampleQueues[sampleQueueIndex].peekSourceId();
@@ -536,8 +567,8 @@ import java.util.Set;
         Format trackFormat =
             chunkIndex < mediaChunks.size()
                 ? mediaChunks.get(chunkIndex).trackFormat
-                : upstreamTrackFormat;
-        format = format.copyWithManifestFormatInfo(trackFormat);
+                : Assertions.checkNotNull(upstreamTrackFormat);
+        format = format.withManifestFormatInfo(trackFormat);
       }
       formatHolder.format = format;
     }
@@ -553,8 +584,7 @@ import java.util.Set;
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
       return sampleQueue.advanceToEnd();
     } else {
-      int skipCount = sampleQueue.advanceTo(positionUs, true, true);
-      return skipCount == SampleQueue.ADVANCE_FAILED ? 0 : skipCount;
+      return sampleQueue.advanceTo(positionUs);
     }
   }
 
@@ -595,7 +625,7 @@ import java.util.Set;
 
   @Override
   public boolean continueLoading(long positionUs) {
-    if (loadingFinished || loader.isLoading()) {
+    if (loadingFinished || loader.isLoading() || loader.hasFatalError()) {
       return false;
     }
 
@@ -657,6 +687,11 @@ import java.util.Set;
         loadable.endTimeUs,
         elapsedRealtimeMs);
     return true;
+  }
+
+  @Override
+  public boolean isLoading() {
+    return loader.isLoading();
   }
 
   @Override
@@ -788,14 +823,8 @@ import java.util.Set;
    * @param chunkUid The chunk's uid.
    * @param shouldSpliceIn Whether the samples parsed from the chunk should be spliced into any
    *     samples already queued to the wrapper.
-   * @param reusingExtractor Whether the extractor for the chunk has already been used for preceding
-   *     chunks.
    */
-  public void init(int chunkUid, boolean shouldSpliceIn, boolean reusingExtractor) {
-    if (!reusingExtractor) {
-      audioSampleQueueMappingDone = false;
-      videoSampleQueueMappingDone = false;
-    }
+  public void init(int chunkUid, boolean shouldSpliceIn) {
     this.chunkUid = chunkUid;
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.sourceId(chunkUid);
@@ -811,67 +840,88 @@ import java.util.Set;
 
   @Override
   public TrackOutput track(int id, int type) {
-    int trackCount = sampleQueues.length;
-
-    // Audio and video tracks are handled manually to ignore ids.
-    if (type == C.TRACK_TYPE_AUDIO) {
-      if (audioSampleQueueIndex != C.INDEX_UNSET) {
-        if (audioSampleQueueMappingDone) {
-          return sampleQueueTrackIds[audioSampleQueueIndex] == id
-              ? sampleQueues[audioSampleQueueIndex]
-              : createDummyTrackOutput(id, type);
-        }
-        audioSampleQueueMappingDone = true;
-        sampleQueueTrackIds[audioSampleQueueIndex] = id;
-        return sampleQueues[audioSampleQueueIndex];
-      } else if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
-      }
-    } else if (type == C.TRACK_TYPE_VIDEO) {
-      if (videoSampleQueueIndex != C.INDEX_UNSET) {
-        if (videoSampleQueueMappingDone) {
-          return sampleQueueTrackIds[videoSampleQueueIndex] == id
-              ? sampleQueues[videoSampleQueueIndex]
-              : createDummyTrackOutput(id, type);
-        }
-        videoSampleQueueMappingDone = true;
-        sampleQueueTrackIds[videoSampleQueueIndex] = id;
-        return sampleQueues[videoSampleQueueIndex];
-      } else if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
-      }
-    } else /* sparse track */ {
-      for (int i = 0; i < trackCount; i++) {
+    @Nullable TrackOutput trackOutput = null;
+    if (MAPPABLE_TYPES.contains(type)) {
+      // Track types in MAPPABLE_TYPES are handled manually to ignore IDs.
+      trackOutput = getMappedTrackOutput(id, type);
+    } else /* non-mappable type track */ {
+      for (int i = 0; i < sampleQueues.length; i++) {
         if (sampleQueueTrackIds[i] == id) {
-          return sampleQueues[i];
+          trackOutput = sampleQueues[i];
+          break;
         }
-      }
-      if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
       }
     }
-    SampleQueue trackOutput = new FormatAdjustingSampleQueue(allocator, overridingDrmInitData);
+
+    if (trackOutput == null) {
+      if (tracksEnded) {
+        return createDummyTrackOutput(id, type);
+      } else {
+        // The relevant SampleQueue hasn't been constructed yet - so construct it.
+        trackOutput = createSampleQueue(id, type);
+      }
+    }
+
+    if (type == C.TRACK_TYPE_METADATA) {
+      if (emsgUnwrappingTrackOutput == null) {
+        emsgUnwrappingTrackOutput = new EmsgUnwrappingTrackOutput(trackOutput, metadataType);
+      }
+      return emsgUnwrappingTrackOutput;
+    }
+    return trackOutput;
+  }
+
+  /**
+   * Returns the {@link TrackOutput} for the provided {@code type} and {@code id}, or null if none
+   * has been created yet.
+   *
+   * <p>If a {@link SampleQueue} for {@code type} has been created and is mapped, but it has a
+   * different ID, then return a {@link DummyTrackOutput} that does nothing.
+   *
+   * <p>If a {@link SampleQueue} for {@code type} has been created but is not mapped, then map it to
+   * this {@code id} and return it. This situation can happen after a call to {@link
+   * #onNewExtractor}.
+   *
+   * @param id The ID of the track.
+   * @param type The type of the track, must be one of {@link #MAPPABLE_TYPES}.
+   * @return The the mapped {@link TrackOutput}, or null if it's not been created yet.
+   */
+  @Nullable
+  private TrackOutput getMappedTrackOutput(int id, int type) {
+    Assertions.checkArgument(MAPPABLE_TYPES.contains(type));
+    int sampleQueueIndex = sampleQueueIndicesByType.get(type, C.INDEX_UNSET);
+    if (sampleQueueIndex == C.INDEX_UNSET) {
+      return null;
+    }
+
+    if (sampleQueueMappingDoneByType.add(type)) {
+      sampleQueueTrackIds[sampleQueueIndex] = id;
+    }
+    return sampleQueueTrackIds[sampleQueueIndex] == id
+        ? sampleQueues[sampleQueueIndex]
+        : createDummyTrackOutput(id, type);
+  }
+
+  private SampleQueue createSampleQueue(int id, int type) {
+    int trackCount = sampleQueues.length;
+
+    boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
+    FormatAdjustingSampleQueue trackOutput =
+        new FormatAdjustingSampleQueue(allocator, drmSessionManager, overridingDrmInitData);
+    if (isAudioVideo) {
+      trackOutput.setDrmInitData(drmInitData);
+    }
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
     sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
     sampleQueueTrackIds[trackCount] = id;
-    sampleQueues = Arrays.copyOf(sampleQueues, trackCount + 1);
-    sampleQueues[trackCount] = trackOutput;
-    sampleQueueReaders = Arrays.copyOf(sampleQueueReaders, trackCount + 1);
-    sampleQueueReaders[trackCount] =
-        new DecryptableSampleQueueReader(sampleQueues[trackCount], drmSessionManager);
+    sampleQueues = Util.nullSafeArrayAppend(sampleQueues, trackOutput);
     sampleQueueIsAudioVideoFlags = Arrays.copyOf(sampleQueueIsAudioVideoFlags, trackCount + 1);
-    sampleQueueIsAudioVideoFlags[trackCount] = type == C.TRACK_TYPE_AUDIO
-        || type == C.TRACK_TYPE_VIDEO;
+    sampleQueueIsAudioVideoFlags[trackCount] = isAudioVideo;
     haveAudioVideoSampleQueues |= sampleQueueIsAudioVideoFlags[trackCount];
-    if (type == C.TRACK_TYPE_AUDIO) {
-      audioSampleQueueMappingDone = true;
-      audioSampleQueueIndex = trackCount;
-    } else if (type == C.TRACK_TYPE_VIDEO) {
-      videoSampleQueueMappingDone = true;
-      videoSampleQueueIndex = trackCount;
-    }
+    sampleQueueMappingDoneByType.add(type);
+    sampleQueueIndicesByType.append(type, trackCount);
     if (getTrackTypeScore(type) > getTrackTypeScore(primarySampleQueueType)) {
       primarySampleQueueIndex = trackCount;
       primarySampleQueueType = type;
@@ -900,18 +950,66 @@ import java.util.Set;
 
   // Called by the loading thread.
 
+  /** Called when an {@link HlsMediaChunk} starts extracting media with a new {@link Extractor}. */
+  public void onNewExtractor() {
+    sampleQueueMappingDoneByType.clear();
+  }
+
+  /**
+   * Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples that
+   * are subsequently loaded by this wrapper.
+   *
+   * @param sampleOffsetUs The timestamp offset in microseconds.
+   */
   public void setSampleOffsetUs(long sampleOffsetUs) {
-    this.sampleOffsetUs = sampleOffsetUs;
-    for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+    if (this.sampleOffsetUs != sampleOffsetUs) {
+      this.sampleOffsetUs = sampleOffsetUs;
+      for (SampleQueue sampleQueue : sampleQueues) {
+        sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+      }
+    }
+  }
+
+  /**
+   * Sets default {@link DrmInitData} for samples that are subsequently loaded by this wrapper.
+   *
+   * <p>This method should be called prior to loading each {@link HlsMediaChunk}. The {@link
+   * DrmInitData} passed should be that of an EXT-X-KEY tag that applies to the chunk, or {@code
+   * null} otherwise.
+   *
+   * <p>The final {@link DrmInitData} for subsequently queued samples is determined as followed:
+   *
+   * <ol>
+   *   <li>It is initially set to {@code drmInitData}, unless {@code drmInitData} is null in which
+   *       case it's set to {@link Format#drmInitData} of the upstream {@link Format}.
+   *   <li>If the initial {@link DrmInitData} is non-null and {@link #overridingDrmInitData}
+   *       contains an entry whose key matches the {@link DrmInitData#schemeType}, then the sample's
+   *       {@link DrmInitData} is overridden to be this entry's value.
+   * </ol>
+   *
+   * <p>
+   *
+   * @param drmInitData The default {@link DrmInitData} for samples that are subsequently queued. If
+   *     non-null then it takes precedence over {@link Format#drmInitData} of the upstream {@link
+   *     Format}, but will still be overridden by a matching override in {@link
+   *     #overridingDrmInitData}.
+   */
+  public void setDrmInitData(@Nullable DrmInitData drmInitData) {
+    if (!Util.areEqual(this.drmInitData, drmInitData)) {
+      this.drmInitData = drmInitData;
+      for (int i = 0; i < sampleQueues.length; i++) {
+        if (sampleQueueIsAudioVideoFlags[i]) {
+          sampleQueues[i].setDrmInitData(drmInitData);
+        }
+      }
     }
   }
 
   // Internal methods.
 
-  private void updateSampleStreams(SampleStream[] streams) {
+  private void updateSampleStreams(@NullableType SampleStream[] streams) {
     hlsSampleStreams.clear();
-    for (SampleStream stream : streams) {
+    for (@Nullable SampleStream stream : streams) {
       if (stream != null) {
         hlsSampleStreams.add((HlsSampleStream) stream);
       }
@@ -957,11 +1055,13 @@ import java.util.Set;
     } else {
       // Tracks are created using media segment information.
       buildTracksFromSampleStreams();
-      prepared = true;
+      setIsPrepared();
       callback.onPrepared();
     }
   }
 
+  @RequiresNonNull("trackGroups")
+  @EnsuresNonNull("trackGroupToSampleQueueIndex")
   private void mapSampleQueuesToMatchTrackGroups() {
     int trackGroupCount = trackGroups.length;
     trackGroupToSampleQueueIndex = new int[trackGroupCount];
@@ -969,7 +1069,8 @@ import java.util.Set;
     for (int i = 0; i < trackGroupCount; i++) {
       for (int queueIndex = 0; queueIndex < sampleQueues.length; queueIndex++) {
         SampleQueue sampleQueue = sampleQueues[queueIndex];
-        if (formatsMatch(sampleQueue.getUpstreamFormat(), trackGroups.get(i).getFormat(0))) {
+        Format upstreamFormat = Assertions.checkStateNotNull(sampleQueue.getUpstreamFormat());
+        if (formatsMatch(upstreamFormat, trackGroups.get(i).getFormat(0))) {
           trackGroupToSampleQueueIndex[i] = queueIndex;
           break;
         }
@@ -1010,6 +1111,7 @@ import java.util.Set;
    *       unchanged.
    * </ul>
    */
+  @EnsuresNonNull({"trackGroups", "optionalTrackGroups", "trackGroupToSampleQueueIndex"})
   private void buildTracksFromSampleStreams() {
     // Iterate through the extractor tracks to discover the "primary" track type, and the index
     // of the single track of this type.
@@ -1017,7 +1119,9 @@ import java.util.Set;
     int primaryExtractorTrackIndex = C.INDEX_UNSET;
     int extractorTrackCount = sampleQueues.length;
     for (int i = 0; i < extractorTrackCount; i++) {
-      String sampleMimeType = sampleQueues[i].getUpstreamFormat().sampleMimeType;
+      @Nullable
+      String sampleMimeType =
+          Assertions.checkStateNotNull(sampleQueues[i].getUpstreamFormat()).sampleMimeType;
       int trackType;
       if (MimeTypes.isVideo(sampleMimeType)) {
         trackType = C.TRACK_TYPE_VIDEO;
@@ -1052,11 +1156,11 @@ import java.util.Set;
     // Construct the set of exposed track groups.
     TrackGroup[] trackGroups = new TrackGroup[extractorTrackCount];
     for (int i = 0; i < extractorTrackCount; i++) {
-      Format sampleFormat = sampleQueues[i].getUpstreamFormat();
+      Format sampleFormat = Assertions.checkStateNotNull(sampleQueues[i].getUpstreamFormat());
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
         if (chunkSourceTrackCount == 1) {
-          formats[0] = sampleFormat.copyWithManifestFormatInfo(chunkSourceTrackGroup.getFormat(0));
+          formats[0] = sampleFormat.withManifestFormatInfo(chunkSourceTrackGroup.getFormat(0));
         } else {
           for (int j = 0; j < chunkSourceTrackCount; j++) {
             formats[j] = deriveFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat, true);
@@ -1065,6 +1169,7 @@ import java.util.Set;
         trackGroups[i] = new TrackGroup(formats);
         primaryTrackGroupIndex = i;
       } else {
+        @Nullable
         Format trackFormat =
             primaryExtractorTrackType == C.TRACK_TYPE_VIDEO
                     && MimeTypes.isAudio(sampleFormat.sampleMimeType)
@@ -1114,9 +1219,7 @@ import java.util.Set;
     int sampleQueueCount = sampleQueues.length;
     for (int i = 0; i < sampleQueueCount; i++) {
       SampleQueue sampleQueue = sampleQueues[i];
-      sampleQueue.rewind();
-      boolean seekInsideQueue = sampleQueue.advanceTo(positionUs, true, false)
-          != SampleQueue.ADVANCE_FAILED;
+      boolean seekInsideQueue = sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ false);
       // If we have AV tracks then an in-queue seek is successful if the seek into every AV queue
       // is successful. We ignore whether seeks within non-AV queues are successful in this case, as
       // they may be sparse or poorly interleaved. If we only have non-AV tracks then a seek is
@@ -1126,6 +1229,18 @@ import java.util.Set;
       }
     }
     return true;
+  }
+
+  @RequiresNonNull({"trackGroups", "optionalTrackGroups"})
+  private void setIsPrepared() {
+    prepared = true;
+  }
+
+  @EnsuresNonNull({"trackGroups", "optionalTrackGroups"})
+  private void assertIsPrepared() {
+    Assertions.checkState(prepared);
+    Assertions.checkNotNull(trackGroups);
+    Assertions.checkNotNull(optionalTrackGroups);
   }
 
   /**
@@ -1154,38 +1269,50 @@ import java.util.Set;
    *
    * @param playlistFormat The format information obtained from the master playlist.
    * @param sampleFormat The format information obtained from the samples.
-   * @param propagateBitrate Whether the bitrate from the playlist format should be included in the
-   *     derived format.
+   * @param propagateBitrates Whether the bitrates from the playlist format should be included in
+   *     the derived format.
    * @return The derived track format.
    */
   private static Format deriveFormat(
-      Format playlistFormat, Format sampleFormat, boolean propagateBitrate) {
+      @Nullable Format playlistFormat, Format sampleFormat, boolean propagateBitrates) {
     if (playlistFormat == null) {
       return sampleFormat;
     }
-    int bitrate = propagateBitrate ? playlistFormat.bitrate : Format.NO_VALUE;
-    int channelCount =
-        playlistFormat.channelCount != Format.NO_VALUE
-            ? playlistFormat.channelCount
-            : sampleFormat.channelCount;
+
     int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
-    String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
-    String mimeType = MimeTypes.getMediaMimeType(codecs);
-    if (mimeType == null) {
-      mimeType = sampleFormat.sampleMimeType;
+    @Nullable String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
+    @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+
+    Format.Builder formatBuilder =
+        sampleFormat
+            .buildUpon()
+            .setId(playlistFormat.id)
+            .setLabel(playlistFormat.label)
+            .setLanguage(playlistFormat.language)
+            .setSelectionFlags(playlistFormat.selectionFlags)
+            .setAverageBitrate(propagateBitrates ? playlistFormat.averageBitrate : Format.NO_VALUE)
+            .setPeakBitrate(propagateBitrates ? playlistFormat.peakBitrate : Format.NO_VALUE)
+            .setCodecs(codecs)
+            .setWidth(playlistFormat.width)
+            .setHeight(playlistFormat.height);
+
+    if (sampleMimeType != null) {
+      formatBuilder.setSampleMimeType(sampleMimeType);
     }
-    return sampleFormat.copyWithContainerInfo(
-        playlistFormat.id,
-        playlistFormat.label,
-        mimeType,
-        codecs,
-        playlistFormat.metadata,
-        bitrate,
-        playlistFormat.width,
-        playlistFormat.height,
-        channelCount,
-        playlistFormat.selectionFlags,
-        playlistFormat.language);
+
+    if (playlistFormat.channelCount != Format.NO_VALUE) {
+      formatBuilder.setChannelCount(playlistFormat.channelCount);
+    }
+
+    if (playlistFormat.metadata != null) {
+      Metadata metadata = playlistFormat.metadata;
+      if (sampleFormat.metadata != null) {
+        metadata = sampleFormat.metadata.copyWithAppendedEntriesFrom(metadata);
+      }
+      formatBuilder.setMetadata(metadata);
+    }
+
+    return formatBuilder.build();
   }
 
   private static boolean isMediaChunk(Chunk chunk) {
@@ -1193,8 +1320,8 @@ import java.util.Set;
   }
 
   private static boolean formatsMatch(Format manifestFormat, Format sampleFormat) {
-    String manifestFormatMimeType = manifestFormat.sampleMimeType;
-    String sampleFormatMimeType = sampleFormat.sampleMimeType;
+    @Nullable String manifestFormatMimeType = manifestFormat.sampleMimeType;
+    @Nullable String sampleFormatMimeType = sampleFormat.sampleMimeType;
     int manifestFormatTrackType = MimeTypes.getTrackType(manifestFormatMimeType);
     if (manifestFormatTrackType != C.TRACK_TYPE_TEXT) {
       return manifestFormatTrackType == MimeTypes.getTrackType(sampleFormatMimeType);
@@ -1216,23 +1343,38 @@ import java.util.Set;
   private static final class FormatAdjustingSampleQueue extends SampleQueue {
 
     private final Map<String, DrmInitData> overridingDrmInitData;
+    @Nullable private DrmInitData drmInitData;
 
     public FormatAdjustingSampleQueue(
-        Allocator allocator, Map<String, DrmInitData> overridingDrmInitData) {
-      super(allocator);
+        Allocator allocator,
+        DrmSessionManager<?> drmSessionManager,
+        Map<String, DrmInitData> overridingDrmInitData) {
+      super(allocator, drmSessionManager);
       this.overridingDrmInitData = overridingDrmInitData;
     }
 
+    public void setDrmInitData(@Nullable DrmInitData drmInitData) {
+      this.drmInitData = drmInitData;
+      invalidateUpstreamFormatAdjustment();
+    }
+
+    @SuppressWarnings("ReferenceEquality")
     @Override
-    public void format(Format format) {
-      DrmInitData drmInitData = format.drmInitData;
+    public Format getAdjustedUpstreamFormat(Format format) {
+      @Nullable
+      DrmInitData drmInitData = this.drmInitData != null ? this.drmInitData : format.drmInitData;
       if (drmInitData != null) {
+        @Nullable
         DrmInitData overridingDrmInitData = this.overridingDrmInitData.get(drmInitData.schemeType);
         if (overridingDrmInitData != null) {
           drmInitData = overridingDrmInitData;
         }
       }
-      super.format(format.copyWithAdjustments(drmInitData, getAdjustedMetadata(format.metadata)));
+      @Nullable Metadata metadata = getAdjustedMetadata(format.metadata);
+      if (drmInitData != format.drmInitData || metadata != format.metadata) {
+        format = format.buildUpon().setDrmInitData(drmInitData).setMetadata(metadata).build();
+      }
+      return super.getAdjustedUpstreamFormat(format);
     }
 
     /**
@@ -1270,6 +1412,142 @@ import java.util.Set;
         }
       }
       return new Metadata(newMetadataEntries);
+    }
+  }
+
+  private static class EmsgUnwrappingTrackOutput implements TrackOutput {
+
+    private static final String TAG = "EmsgUnwrappingTrackOutput";
+
+    // TODO(ibaker): Create a Formats util class with common constants like this.
+    private static final Format ID3_FORMAT =
+        new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_ID3).build();
+    private static final Format EMSG_FORMAT =
+        new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_EMSG).build();
+
+    private final EventMessageDecoder emsgDecoder;
+    private final TrackOutput delegate;
+    private final Format delegateFormat;
+    private @MonotonicNonNull Format format;
+
+    private byte[] buffer;
+    private int bufferPosition;
+
+    public EmsgUnwrappingTrackOutput(
+        TrackOutput delegate, @HlsMediaSource.MetadataType int metadataType) {
+      this.emsgDecoder = new EventMessageDecoder();
+      this.delegate = delegate;
+      switch (metadataType) {
+        case HlsMediaSource.METADATA_TYPE_ID3:
+          delegateFormat = ID3_FORMAT;
+          break;
+        case HlsMediaSource.METADATA_TYPE_EMSG:
+          delegateFormat = EMSG_FORMAT;
+          break;
+        default:
+          throw new IllegalArgumentException("Unknown metadataType: " + metadataType);
+      }
+
+      this.buffer = new byte[0];
+      this.bufferPosition = 0;
+    }
+
+    @Override
+    public void format(Format format) {
+      this.format = format;
+      delegate.format(delegateFormat);
+    }
+
+    @Override
+    public int sampleData(DataReader input, int length, boolean allowEndOfInput)
+        throws IOException, InterruptedException {
+      ensureBufferCapacity(bufferPosition + length);
+      int numBytesRead = input.read(buffer, bufferPosition, length);
+      if (numBytesRead == C.RESULT_END_OF_INPUT) {
+        if (allowEndOfInput) {
+          return C.RESULT_END_OF_INPUT;
+        } else {
+          throw new EOFException();
+        }
+      }
+      bufferPosition += numBytesRead;
+      return numBytesRead;
+    }
+
+    @Override
+    public void sampleData(ParsableByteArray buffer, int length) {
+      ensureBufferCapacity(bufferPosition + length);
+      buffer.readBytes(this.buffer, bufferPosition, length);
+      bufferPosition += length;
+    }
+
+    @Override
+    public void sampleMetadata(
+        long timeUs,
+        @C.BufferFlags int flags,
+        int size,
+        int offset,
+        @Nullable CryptoData cryptoData) {
+      Assertions.checkNotNull(format);
+      ParsableByteArray sample = getSampleAndTrimBuffer(size, offset);
+      ParsableByteArray sampleForDelegate;
+      if (Util.areEqual(format.sampleMimeType, delegateFormat.sampleMimeType)) {
+        // Incoming format matches delegate track's format, so pass straight through.
+        sampleForDelegate = sample;
+      } else if (MimeTypes.APPLICATION_EMSG.equals(format.sampleMimeType)) {
+        // Incoming sample is EMSG, and delegate track is not expecting EMSG, so try unwrapping.
+        EventMessage emsg = emsgDecoder.decode(sample);
+        if (!emsgContainsExpectedWrappedFormat(emsg)) {
+          Log.w(
+              TAG,
+              String.format(
+                  "Ignoring EMSG. Expected it to contain wrapped %s but actual wrapped format: %s",
+                  delegateFormat.sampleMimeType, emsg.getWrappedMetadataFormat()));
+          return;
+        }
+        sampleForDelegate =
+            new ParsableByteArray(Assertions.checkNotNull(emsg.getWrappedMetadataBytes()));
+      } else {
+        Log.w(TAG, "Ignoring sample for unsupported format: " + format.sampleMimeType);
+        return;
+      }
+
+      int sampleSize = sampleForDelegate.bytesLeft();
+
+      delegate.sampleData(sampleForDelegate, sampleSize);
+      delegate.sampleMetadata(timeUs, flags, sampleSize, offset, cryptoData);
+    }
+
+    private boolean emsgContainsExpectedWrappedFormat(EventMessage emsg) {
+      @Nullable Format wrappedMetadataFormat = emsg.getWrappedMetadataFormat();
+      return wrappedMetadataFormat != null
+          && Util.areEqual(delegateFormat.sampleMimeType, wrappedMetadataFormat.sampleMimeType);
+    }
+
+    private void ensureBufferCapacity(int requiredLength) {
+      if (buffer.length < requiredLength) {
+        buffer = Arrays.copyOf(buffer, requiredLength + requiredLength / 2);
+      }
+    }
+
+    /**
+     * Removes a complete sample from the {@link #buffer} field & reshuffles the tail data skipped
+     * by {@code offset} to the head of the array.
+     *
+     * @param size see {@code size} param of {@link #sampleMetadata}.
+     * @param offset see {@code offset} param of {@link #sampleMetadata}.
+     * @return A {@link ParsableByteArray} containing the sample removed from {@link #buffer}.
+     */
+    private ParsableByteArray getSampleAndTrimBuffer(int size, int offset) {
+      int sampleEnd = bufferPosition - offset;
+      int sampleStart = sampleEnd - size;
+
+      byte[] sampleBytes = Arrays.copyOfRange(buffer, sampleStart, sampleEnd);
+      ParsableByteArray sample = new ParsableByteArray(sampleBytes);
+
+      System.arraycopy(buffer, sampleEnd, buffer, 0, offset);
+      bufferPosition = offset;
+      return sample;
     }
   }
 }

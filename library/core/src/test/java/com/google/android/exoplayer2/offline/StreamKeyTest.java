@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public class StreamKeyTest {
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     StreamKey streamKeyToParcel = new StreamKey(1, 2, 3);
     Parcel parcel = Parcel.obtain();
     streamKeyToParcel.writeToParcel(parcel, 0);

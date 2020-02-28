@@ -62,12 +62,13 @@ public abstract class SimpleDecoder<
     for (int i = 0; i < availableOutputBufferCount; i++) {
       availableOutputBuffers[i] = createOutputBuffer();
     }
-    decodeThread = new Thread() {
-      @Override
-      public void run() {
-        SimpleDecoder.this.run();
-      }
-    };
+    decodeThread =
+        new Thread("SimpleDecoder:Decode") {
+          @Override
+          public void run() {
+            SimpleDecoder.this.run();
+          }
+        };
     decodeThread.start();
   }
 
@@ -149,6 +150,7 @@ public abstract class SimpleDecoder<
       while (!queuedOutputBuffers.isEmpty()) {
         queuedOutputBuffers.removeFirst().release();
       }
+      exception = null;
     }
   }
 
@@ -225,6 +227,7 @@ public abstract class SimpleDecoder<
       if (inputBuffer.isDecodeOnly()) {
         outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
+      @Nullable E exception;
       try {
         exception = decode(inputBuffer, outputBuffer, resetDecoder);
       } catch (RuntimeException e) {
@@ -238,8 +241,9 @@ public abstract class SimpleDecoder<
         exception = createUnexpectedDecodeException(e);
       }
       if (exception != null) {
-        // Memory barrier to ensure that the decoder exception is visible from the playback thread.
-        synchronized (lock) {}
+        synchronized (lock) {
+          this.exception = exception;
+        }
         return false;
       }
     }

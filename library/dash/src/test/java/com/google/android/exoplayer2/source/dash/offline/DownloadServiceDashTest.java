@@ -112,7 +112,7 @@ public class DownloadServiceDashTest {
     dummyMainThread.runTestOnMainThread(
         () -> {
           DefaultDownloadIndex downloadIndex =
-              new DefaultDownloadIndex(TestUtil.getTestDatabaseProvider());
+              new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
           final DownloadManager dashDownloadManager =
               new DownloadManager(
                   ApplicationProvider.getApplicationContext(),
@@ -130,8 +130,8 @@ public class DownloadServiceDashTest {
                   return dashDownloadManager;
                 }
 
-                @Nullable
                 @Override
+                @Nullable
                 protected Scheduler getScheduler() {
                   return null;
                 }

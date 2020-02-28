@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.List;
@@ -45,6 +46,22 @@ import java.util.List;
 public final class DashUtil {
 
   /**
+   * Builds a {@link DataSpec} for a given {@link RangedUri} belonging to {@link Representation}.
+   *
+   * @param representation The {@link Representation} to which the request belongs.
+   * @param requestUri The {@link RangedUri} of the data to request.
+   * @return The {@link DataSpec}.
+   */
+  public static DataSpec buildDataSpec(Representation representation, RangedUri requestUri) {
+    return new DataSpec.Builder()
+        .setUri(requestUri.resolveUri(representation.baseUrl))
+        .setPosition(requestUri.start)
+        .setLength(requestUri.length)
+        .setKey(representation.getCacheKey())
+        .build();
+  }
+
+  /**
    * Loads a DASH manifest.
    *
    * @param dataSource The {@link HttpDataSource} from which the manifest should be read.
@@ -52,8 +69,7 @@ public final class DashUtil {
    * @return An instance of {@link DashManifest}.
    * @throws IOException Thrown when there is an error while loading.
    */
-  public static DashManifest loadManifest(DataSource dataSource, Uri uri)
-      throws IOException {
+  public static DashManifest loadManifest(DataSource dataSource, Uri uri) throws IOException {
     return ParsingLoadable.load(dataSource, new DashManifestParser(), uri, C.DATA_TYPE_MANIFEST);
   }
 
@@ -82,7 +98,7 @@ public final class DashUtil {
     Format sampleFormat = DashUtil.loadSampleFormat(dataSource, primaryTrackType, representation);
     return sampleFormat == null
         ? manifestFormat.drmInitData
-        : sampleFormat.copyWithManifestFormatInfo(manifestFormat).drmInitData;
+        : sampleFormat.withManifestFormatInfo(manifestFormat).drmInitData;
   }
 
   /**
@@ -102,7 +118,9 @@ public final class DashUtil {
       throws IOException, InterruptedException {
     ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, trackType,
         representation, false);
-    return extractorWrapper == null ? null : extractorWrapper.getSampleFormats()[0];
+    return extractorWrapper == null
+        ? null
+        : Assertions.checkStateNotNull(extractorWrapper.getSampleFormats())[0];
   }
 
   /**
@@ -173,8 +191,7 @@ public final class DashUtil {
   private static void loadInitializationData(DataSource dataSource,
       Representation representation, ChunkExtractorWrapper extractorWrapper, RangedUri requestUri)
       throws IOException, InterruptedException {
-    DataSpec dataSpec = new DataSpec(requestUri.resolveUri(representation.baseUrl),
-        requestUri.start, requestUri.length, representation.getCacheKey());
+    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri);
     InitializationChunk initializationChunk = new InitializationChunk(dataSource, dataSpec,
         representation.format, C.SELECTION_REASON_UNKNOWN, null /* trackSelectionData */,
         extractorWrapper);

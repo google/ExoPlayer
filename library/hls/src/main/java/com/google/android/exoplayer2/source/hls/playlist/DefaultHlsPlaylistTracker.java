@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -117,7 +118,7 @@ public final class DefaultHlsPlaylistTracker
       Uri initialPlaylistUri,
       EventDispatcher eventDispatcher,
       PrimaryPlaylistListener primaryPlaylistListener) {
-    this.playlistRefreshHandler = new Handler();
+    this.playlistRefreshHandler = Util.createHandler();
     this.eventDispatcher = eventDispatcher;
     this.primaryPlaylistListener = primaryPlaylistListener;
     ParsingLoadable<HlsPlaylist> masterPlaylistLoadable =
@@ -491,8 +492,8 @@ public final class DefaultHlsPlaylistTracker
 
     public void loadPlaylist() {
       blacklistUntilMs = 0;
-      if (loadPending || mediaPlaylistLoader.isLoading()) {
-        // Load already pending or in progress. Do nothing.
+      if (loadPending || mediaPlaylistLoader.isLoading() || mediaPlaylistLoader.hasFatalError()) {
+        // Load already pending, in progress, or a fatal error has been encountered. Do nothing.
         return;
       }
       long currentTimeMs = SystemClock.elapsedRealtime();

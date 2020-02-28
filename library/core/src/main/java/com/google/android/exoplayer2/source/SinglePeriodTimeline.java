@@ -29,12 +29,14 @@ public final class SinglePeriodTimeline extends Timeline {
 
   private final long presentationStartTimeMs;
   private final long windowStartTimeMs;
+  private final long elapsedRealtimeEpochOffsetMs;
   private final long periodDurationUs;
   private final long windowDurationUs;
   private final long windowPositionInPeriodUs;
   private final long windowDefaultStartPositionUs;
   private final boolean isSeekable;
   private final boolean isDynamic;
+  private final boolean isLive;
   @Nullable private final Object tag;
   @Nullable private final Object manifest;
 
@@ -44,9 +46,11 @@ public final class SinglePeriodTimeline extends Timeline {
    * @param durationUs The duration of the period, in microseconds.
    * @param isSeekable Whether seeking is supported within the period.
    * @param isDynamic Whether the window may change when the timeline is updated.
+   * @param isLive Whether the window is live.
    */
-  public SinglePeriodTimeline(long durationUs, boolean isSeekable, boolean isDynamic) {
-    this(durationUs, isSeekable, isDynamic, /* manifest= */ null, /* tag= */ null);
+  public SinglePeriodTimeline(
+      long durationUs, boolean isSeekable, boolean isDynamic, boolean isLive) {
+    this(durationUs, isSeekable, isDynamic, isLive, /* manifest= */ null, /* tag= */ null);
   }
 
   /**
@@ -55,6 +59,7 @@ public final class SinglePeriodTimeline extends Timeline {
    * @param durationUs The duration of the period, in microseconds.
    * @param isSeekable Whether seeking is supported within the period.
    * @param isDynamic Whether the window may change when the timeline is updated.
+   * @param isLive Whether the window is live.
    * @param manifest The manifest. May be {@code null}.
    * @param tag A tag used for {@link Window#tag}.
    */
@@ -62,6 +67,7 @@ public final class SinglePeriodTimeline extends Timeline {
       long durationUs,
       boolean isSeekable,
       boolean isDynamic,
+      boolean isLive,
       @Nullable Object manifest,
       @Nullable Object tag) {
     this(
@@ -71,6 +77,7 @@ public final class SinglePeriodTimeline extends Timeline {
         /* windowDefaultStartPositionUs= */ 0,
         isSeekable,
         isDynamic,
+        isLive,
         manifest,
         tag);
   }
@@ -87,6 +94,7 @@ public final class SinglePeriodTimeline extends Timeline {
    *     which to begin playback, in microseconds.
    * @param isSeekable Whether seeking is supported within the window.
    * @param isDynamic Whether the window may change when the timeline is updated.
+   * @param isLive Whether the window is live.
    * @param manifest The manifest. May be (@code null}.
    * @param tag A tag used for {@link Timeline.Window#tag}.
    */
@@ -97,17 +105,20 @@ public final class SinglePeriodTimeline extends Timeline {
       long windowDefaultStartPositionUs,
       boolean isSeekable,
       boolean isDynamic,
+      boolean isLive,
       @Nullable Object manifest,
       @Nullable Object tag) {
     this(
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
         periodDurationUs,
         windowDurationUs,
         windowPositionInPeriodUs,
         windowDefaultStartPositionUs,
         isSeekable,
         isDynamic,
+        isLive,
         manifest,
         tag);
   }
@@ -117,8 +128,12 @@ public final class SinglePeriodTimeline extends Timeline {
    * position in the period.
    *
    * @param presentationStartTimeMs The start time of the presentation in milliseconds since the
-   *     epoch.
-   * @param windowStartTimeMs The window's start time in milliseconds since the epoch.
+   *     epoch, or {@link C#TIME_UNSET} if unknown or not applicable.
+   * @param windowStartTimeMs The window's start time in milliseconds since the epoch, or {@link
+   *     C#TIME_UNSET} if unknown or not applicable.
+   * @param elapsedRealtimeEpochOffsetMs The offset between {@link
+   *     android.os.SystemClock#elapsedRealtime()} and the time since the Unix epoch according to
+   *     the clock of the media origin server, or {@link C#TIME_UNSET} if unknown or not applicable.
    * @param periodDurationUs The duration of the period in microseconds.
    * @param windowDurationUs The duration of the window in microseconds.
    * @param windowPositionInPeriodUs The position of the start of the window in the period, in
@@ -127,28 +142,33 @@ public final class SinglePeriodTimeline extends Timeline {
    *     which to begin playback, in microseconds.
    * @param isSeekable Whether seeking is supported within the window.
    * @param isDynamic Whether the window may change when the timeline is updated.
+   * @param isLive Whether the window is live.
    * @param manifest The manifest. May be {@code null}.
    * @param tag A tag used for {@link Timeline.Window#tag}.
    */
   public SinglePeriodTimeline(
       long presentationStartTimeMs,
       long windowStartTimeMs,
+      long elapsedRealtimeEpochOffsetMs,
       long periodDurationUs,
       long windowDurationUs,
       long windowPositionInPeriodUs,
       long windowDefaultStartPositionUs,
       boolean isSeekable,
       boolean isDynamic,
+      boolean isLive,
       @Nullable Object manifest,
       @Nullable Object tag) {
     this.presentationStartTimeMs = presentationStartTimeMs;
     this.windowStartTimeMs = windowStartTimeMs;
+    this.elapsedRealtimeEpochOffsetMs = elapsedRealtimeEpochOffsetMs;
     this.periodDurationUs = periodDurationUs;
     this.windowDurationUs = windowDurationUs;
     this.windowPositionInPeriodUs = windowPositionInPeriodUs;
     this.windowDefaultStartPositionUs = windowDefaultStartPositionUs;
     this.isSeekable = isSeekable;
     this.isDynamic = isDynamic;
+    this.isLive = isLive;
     this.manifest = manifest;
     this.tag = tag;
   }
@@ -175,16 +195,19 @@ public final class SinglePeriodTimeline extends Timeline {
       }
     }
     return window.set(
+        Window.SINGLE_WINDOW_UID,
         tag,
         manifest,
         presentationStartTimeMs,
         windowStartTimeMs,
+        elapsedRealtimeEpochOffsetMs,
         isSeekable,
         isDynamic,
+        isLive,
         windowDefaultStartPositionUs,
         windowDurationUs,
-        0,
-        0,
+        /* firstPeriodIndex= */ 0,
+        /* lastPeriodIndex= */ 0,
         windowPositionInPeriodUs);
   }
 

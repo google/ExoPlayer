@@ -19,8 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-import android.os.ConditionVariable;
-import android.os.Handler;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
@@ -35,10 +33,12 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +65,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testPlaylistChangesAfterPreparation() throws IOException, InterruptedException {
+  public void playlistChangesAfterPreparation() throws IOException, InterruptedException {
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertEmpty(timeline);
 
@@ -187,7 +187,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testPlaylistChangesBeforePreparation() throws IOException, InterruptedException {
+  public void playlistChangesBeforePreparation() throws IOException, InterruptedException {
     FakeMediaSource[] childSources = createMediaSources(4);
     mediaSource.addMediaSource(childSources[0]);
     mediaSource.addMediaSource(childSources[1]);
@@ -220,7 +220,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testPlaylistWithLazyMediaSource() throws IOException, InterruptedException {
+  public void playlistWithLazyMediaSource() throws IOException, InterruptedException {
     // Create some normal (immediately preparing) sources and some lazy sources whose timeline
     // updates need to be triggered.
     FakeMediaSource[] fastSources = createMediaSources(2);
@@ -246,8 +246,7 @@ public final class ConcatenatingMediaSourceTest {
 
     // Trigger source info refresh for lazy source and check that the timeline now contains all
     // information for all windows.
-    testRunner.runOnPlaybackThread(
-        () -> lazySources[1].setNewSourceInfo(createFakeTimeline(8), null));
+    testRunner.runOnPlaybackThread(() -> lazySources[1].setNewSourceInfo(createFakeTimeline(8)));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 9);
     TimelineAsserts.assertWindowTags(timeline, 111, 999);
@@ -281,8 +280,7 @@ public final class ConcatenatingMediaSourceTest {
 
     // Trigger source info refresh for lazy media source. Assert that now all information is
     // available again and the previously created period now also finished preparing.
-    testRunner.runOnPlaybackThread(
-        () -> lazySources[3].setNewSourceInfo(createFakeTimeline(7), null));
+    testRunner.runOnPlaybackThread(() -> lazySources[3].setNewSourceInfo(createFakeTimeline(7)));
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 8, 1, 2, 9);
     TimelineAsserts.assertWindowTags(timeline, 888, 111, 222, 999);
@@ -303,7 +301,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testEmptyTimelineMediaSource() throws IOException, InterruptedException {
+  public void emptyTimelineMediaSource() throws IOException, InterruptedException {
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertEmpty(timeline);
 
@@ -359,7 +357,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testDynamicChangeOfEmptyTimelines() throws IOException {
+  public void dynamicChangeOfEmptyTimelines() throws IOException {
     FakeMediaSource[] childSources =
         new FakeMediaSource[] {
           new FakeMediaSource(Timeline.EMPTY),
@@ -372,21 +370,21 @@ public final class ConcatenatingMediaSourceTest {
     Timeline timeline = testRunner.prepareSource();
     TimelineAsserts.assertEmpty(timeline);
 
-    childSources[0].setNewSourceInfo(nonEmptyTimeline, /* newManifest== */ null);
+    childSources[0].setNewSourceInfo(nonEmptyTimeline);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1);
 
-    childSources[2].setNewSourceInfo(nonEmptyTimeline, /* newManifest== */ null);
+    childSources[2].setNewSourceInfo(nonEmptyTimeline);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1);
 
-    childSources[1].setNewSourceInfo(nonEmptyTimeline, /* newManifest== */ null);
+    childSources[1].setNewSourceInfo(nonEmptyTimeline);
     timeline = testRunner.assertTimelineChangeBlocking();
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
   }
 
   @Test
-  public void testIllegalArguments() {
+  public void illegalArguments() {
     MediaSource validSource = new FakeMediaSource(createFakeTimeline(1));
 
     // Null sources.
@@ -407,55 +405,58 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testCustomCallbackBeforePreparationAddSingle() {
-    ConditionVariable runnableInvoked = new ConditionVariable();
+  public void customCallbackBeforePreparationAddSingle() throws Exception {
+    CountDownLatch runnableInvoked = new CountDownLatch(1);
 
     DummyMainThread dummyMainThread = new DummyMainThread();
     dummyMainThread.runOnMainThread(
         () ->
             mediaSource.addMediaSource(
-                createFakeMediaSource(), new Handler(), runnableInvoked::open));
-    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+                createFakeMediaSource(), Util.createHandler(), runnableInvoked::countDown));
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
 
-    assertThat(runnableInvoked.block(0)).isTrue();
+    assertThat(runnableInvoked.getCount()).isEqualTo(0);
   }
 
   @Test
-  public void testCustomCallbackBeforePreparationAddMultiple() {
-    ConditionVariable runnableInvoked = new ConditionVariable();
+  public void customCallbackBeforePreparationAddMultiple() throws Exception {
+    CountDownLatch runnableInvoked = new CountDownLatch(1);
 
     DummyMainThread dummyMainThread = new DummyMainThread();
     dummyMainThread.runOnMainThread(
         () ->
             mediaSource.addMediaSources(
                 Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                new Handler(),
-                runnableInvoked::open));
-    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+                Util.createHandler(),
+                runnableInvoked::countDown));
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
 
-    assertThat(runnableInvoked.block(0)).isTrue();
+    assertThat(runnableInvoked.getCount()).isEqualTo(0);
   }
 
   @Test
-  public void testCustomCallbackBeforePreparationAddSingleWithIndex() {
-    ConditionVariable runnableInvoked = new ConditionVariable();
+  public void customCallbackBeforePreparationAddSingleWithIndex() throws Exception {
+    CountDownLatch runnableInvoked = new CountDownLatch(1);
 
     DummyMainThread dummyMainThread = new DummyMainThread();
     dummyMainThread.runOnMainThread(
         () ->
             mediaSource.addMediaSource(
-                /* index */ 0, createFakeMediaSource(), new Handler(), runnableInvoked::open));
-    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+                /* index */ 0,
+                createFakeMediaSource(),
+                Util.createHandler(),
+                runnableInvoked::countDown));
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
 
-    assertThat(runnableInvoked.block(0)).isTrue();
+    assertThat(runnableInvoked.getCount()).isEqualTo(0);
   }
 
   @Test
-  public void testCustomCallbackBeforePreparationAddMultipleWithIndex() {
-    ConditionVariable runnableInvoked = new ConditionVariable();
+  public void customCallbackBeforePreparationAddMultipleWithIndex() throws Exception {
+    CountDownLatch runnableInvoked = new CountDownLatch(1);
 
     DummyMainThread dummyMainThread = new DummyMainThread();
     dummyMainThread.runOnMainThread(
@@ -463,33 +464,34 @@ public final class ConcatenatingMediaSourceTest {
             mediaSource.addMediaSources(
                 /* index */ 0,
                 Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                new Handler(),
-                runnableInvoked::open));
-    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+                Util.createHandler(),
+                runnableInvoked::countDown));
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
 
-    assertThat(runnableInvoked.block(0)).isTrue();
+    assertThat(runnableInvoked.getCount()).isEqualTo(0);
   }
 
   @Test
-  public void testCustomCallbackBeforePreparationRemove() {
-    ConditionVariable runnableInvoked = new ConditionVariable();
+  public void customCallbackBeforePreparationRemove() throws Exception {
+    CountDownLatch runnableInvoked = new CountDownLatch(1);
 
     DummyMainThread dummyMainThread = new DummyMainThread();
     dummyMainThread.runOnMainThread(
         () -> {
           mediaSource.addMediaSource(createFakeMediaSource());
-          mediaSource.removeMediaSource(/* index */ 0, new Handler(), runnableInvoked::open);
+          mediaSource.removeMediaSource(
+              /* index */ 0, Util.createHandler(), runnableInvoked::countDown);
         });
-    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
 
-    assertThat(runnableInvoked.block(0)).isTrue();
+    assertThat(runnableInvoked.getCount()).isEqualTo(0);
   }
 
   @Test
-  public void testCustomCallbackBeforePreparationMove() {
-    ConditionVariable runnableInvoked = new ConditionVariable();
+  public void customCallbackBeforePreparationMove() throws Exception {
+    CountDownLatch runnableInvoked = new CountDownLatch(1);
 
     DummyMainThread dummyMainThread = new DummyMainThread();
     dummyMainThread.runOnMainThread(
@@ -497,23 +499,24 @@ public final class ConcatenatingMediaSourceTest {
           mediaSource.addMediaSources(
               Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
           mediaSource.moveMediaSource(
-              /* fromIndex */ 1, /* toIndex */ 0, new Handler(), runnableInvoked::open);
+              /* fromIndex */ 1, /* toIndex */ 0, Util.createHandler(), runnableInvoked::countDown);
         });
-    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
 
-    assertThat(runnableInvoked.block(0)).isTrue();
+    assertThat(runnableInvoked.getCount()).isEqualTo(0);
   }
 
   @Test
-  public void testCustomCallbackAfterPreparationAddSingle() throws IOException {
+  public void customCallbackAfterPreparationAddSingle() throws Exception {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
           () ->
-              mediaSource.addMediaSource(createFakeMediaSource(), new Handler(), timelineGrabber));
+              mediaSource.addMediaSource(
+                  createFakeMediaSource(), Util.createHandler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
@@ -522,7 +525,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testCustomCallbackAfterPreparationAddMultiple() throws IOException {
+  public void customCallbackAfterPreparationAddMultiple() throws Exception {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -532,7 +535,7 @@ public final class ConcatenatingMediaSourceTest {
               mediaSource.addMediaSources(
                   Arrays.asList(
                       new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                  new Handler(),
+                  Util.createHandler(),
                   timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
@@ -542,7 +545,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testCustomCallbackAfterPreparationAddSingleWithIndex() throws IOException {
+  public void customCallbackAfterPreparationAddSingleWithIndex() throws Exception {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -550,7 +553,7 @@ public final class ConcatenatingMediaSourceTest {
       dummyMainThread.runOnMainThread(
           () ->
               mediaSource.addMediaSource(
-                  /* index */ 0, createFakeMediaSource(), new Handler(), timelineGrabber));
+                  /* index */ 0, createFakeMediaSource(), Util.createHandler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
@@ -559,7 +562,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testCustomCallbackAfterPreparationAddMultipleWithIndex() throws IOException {
+  public void customCallbackAfterPreparationAddMultipleWithIndex() throws Exception {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -570,7 +573,7 @@ public final class ConcatenatingMediaSourceTest {
                   /* index */ 0,
                   Arrays.asList(
                       new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                  new Handler(),
+                  Util.createHandler(),
                   timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
@@ -580,7 +583,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testCustomCallbackAfterPreparationRemove() throws IOException {
+  public void customCallbackAfterPreparationRemove() throws Exception {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -589,7 +592,8 @@ public final class ConcatenatingMediaSourceTest {
 
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
-          () -> mediaSource.removeMediaSource(/* index */ 0, new Handler(), timelineGrabber));
+          () ->
+              mediaSource.removeMediaSource(/* index */ 0, Util.createHandler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(0);
     } finally {
@@ -598,7 +602,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testCustomCallbackAfterPreparationMove() throws IOException {
+  public void customCallbackAfterPreparationMove() throws Exception {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       testRunner.prepareSource();
@@ -613,7 +617,7 @@ public final class ConcatenatingMediaSourceTest {
       dummyMainThread.runOnMainThread(
           () ->
               mediaSource.moveMediaSource(
-                  /* fromIndex */ 1, /* toIndex */ 0, new Handler(), timelineGrabber));
+                  /* fromIndex */ 1, /* toIndex */ 0, Util.createHandler(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
     } finally {
@@ -622,9 +626,9 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testCustomCallbackIsCalledAfterRelease() throws IOException {
+  public void customCallbackIsCalledAfterRelease() throws Exception {
     DummyMainThread dummyMainThread = new DummyMainThread();
-    ConditionVariable callbackCalledCondition = new ConditionVariable();
+    CountDownLatch callbackCalledCondition = new CountDownLatch(1);
     try {
       dummyMainThread.runOnMainThread(
           () -> {
@@ -634,18 +638,21 @@ public final class ConcatenatingMediaSourceTest {
             mediaSource.moveMediaSource(
                 /* currentIndex= */ 0,
                 /* newIndex= */ 1,
-                new Handler(),
-                callbackCalledCondition::open);
+                Util.createHandler(),
+                callbackCalledCondition::countDown);
             mediaSource.releaseSource(caller);
           });
-      assertThat(callbackCalledCondition.block(MediaSourceTestRunner.TIMEOUT_MS)).isTrue();
+      assertThat(
+              callbackCalledCondition.await(
+                  MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS))
+          .isTrue();
     } finally {
       dummyMainThread.release();
     }
   }
 
   @Test
-  public void testPeriodCreationWithAds() throws IOException, InterruptedException {
+  public void periodCreationWithAds() throws IOException, InterruptedException {
     // Create concatenated media source with ad child source.
     Timeline timelineContentOnly =
         new FakeTimeline(
@@ -659,7 +666,7 @@ public final class ConcatenatingMediaSourceTest {
                 false,
                 10 * C.MICROS_PER_SECOND,
                 FakeTimeline.createAdPlaybackState(
-                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs= */ 0)));
+                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs=... */ 0)));
     FakeMediaSource mediaSourceContentOnly = new FakeMediaSource(timelineContentOnly);
     FakeMediaSource mediaSourceWithAds = new FakeMediaSource(timelineWithAds);
     mediaSource.addMediaSource(mediaSourceContentOnly);
@@ -701,7 +708,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testAtomicTimelineWindowOrder() throws IOException {
+  public void atomicTimelineWindowOrder() throws IOException {
     // Release default test runner with non-atomic media source and replace with new test runner.
     testRunner.release();
     ConcatenatingMediaSource mediaSource =
@@ -742,7 +749,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testNestedTimeline() throws IOException {
+  public void nestedTimeline() throws IOException {
     ConcatenatingMediaSource nestedSource1 =
         new ConcatenatingMediaSource(/* isAtomic= */ false, new FakeShuffleOrder(0));
     ConcatenatingMediaSource nestedSource2 =
@@ -789,7 +796,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testRemoveChildSourceWithActiveMediaPeriod() throws IOException {
+  public void removeChildSourceWithActiveMediaPeriod() throws IOException {
     FakeMediaSource childSource = createFakeMediaSource();
     mediaSource.addMediaSource(childSource);
     Timeline timeline = testRunner.prepareSource();
@@ -805,7 +812,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testDuplicateMediaSources() throws IOException, InterruptedException {
+  public void duplicateMediaSources() throws IOException, InterruptedException {
     Timeline childTimeline = new FakeTimeline(/* windowCount= */ 2);
     FakeMediaSource childSource = new FakeMediaSource(childTimeline);
 
@@ -830,7 +837,7 @@ public final class ConcatenatingMediaSourceTest {
             new MediaPeriodId(childPeriodUid1, /* windowSequenceNumber= */ 5),
             new MediaPeriodId(childPeriodUid1, /* windowSequenceNumber= */ 7));
     // Assert that only one manifest load is reported because the source is reused.
-    testRunner.assertCompletedManifestLoads(/* windowIndices= */ 0);
+    testRunner.assertCompletedManifestLoads(/* windowIndices=... */ 0);
     assertCompletedAllMediaPeriodLoads(timeline);
 
     testRunner.releaseSource();
@@ -838,7 +845,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testDuplicateNestedMediaSources() throws IOException, InterruptedException {
+  public void duplicateNestedMediaSources() throws IOException, InterruptedException {
     Timeline childTimeline = new FakeTimeline(/* windowCount= */ 1);
     FakeMediaSource childSource = new FakeMediaSource(childTimeline);
     ConcatenatingMediaSource nestedConcatenation = new ConcatenatingMediaSource();
@@ -863,7 +870,7 @@ public final class ConcatenatingMediaSourceTest {
             new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 3),
             new MediaPeriodId(childPeriodUid, /* windowSequenceNumber= */ 4));
     // Assert that only one manifest load is needed because the source is reused.
-    testRunner.assertCompletedManifestLoads(/* windowIndices= */ 0);
+    testRunner.assertCompletedManifestLoads(/* windowIndices=... */ 0);
     assertCompletedAllMediaPeriodLoads(timeline);
 
     testRunner.releaseSource();
@@ -871,7 +878,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testClear() throws IOException {
+  public void clear() throws Exception {
     DummyMainThread dummyMainThread = new DummyMainThread();
     final FakeMediaSource preparedChildSource = createFakeMediaSource();
     final FakeMediaSource unpreparedChildSource = new FakeMediaSource(/* timeline= */ null);
@@ -883,7 +890,7 @@ public final class ConcatenatingMediaSourceTest {
     testRunner.prepareSource();
     final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
 
-    dummyMainThread.runOnMainThread(() -> mediaSource.clear(new Handler(), timelineGrabber));
+    dummyMainThread.runOnMainThread(() -> mediaSource.clear(Util.createHandler(), timelineGrabber));
 
     Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
     assertThat(timeline.isEmpty()).isTrue();
@@ -892,7 +899,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testReleaseAndReprepareSource() throws IOException {
+  public void releaseAndReprepareSource() throws IOException {
     FakeMediaSource[] fakeMediaSources = createMediaSources(/* count= */ 2);
     mediaSource.addMediaSource(fakeMediaSources[0]); // Child source with 1 period.
     mediaSource.addMediaSource(fakeMediaSources[1]); // Child source with 2 periods.
@@ -913,7 +920,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testChildTimelineChangeWithActiveMediaPeriod() throws IOException {
+  public void childTimelineChangeWithActiveMediaPeriod() throws IOException {
     FakeMediaSource[] nestedChildSources = createMediaSources(/* count= */ 2);
     ConcatenatingMediaSource childSource = new ConcatenatingMediaSource(nestedChildSources);
     mediaSource.addMediaSource(childSource);
@@ -933,7 +940,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testChildSourceIsNotPreparedWithLazyPreparation() throws IOException {
+  public void childSourceIsNotPreparedWithLazyPreparation() throws IOException {
     FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
     mediaSource =
         new ConcatenatingMediaSource(
@@ -949,7 +956,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testChildSourceIsPreparedWithLazyPreparationAfterPeriodCreation() throws IOException {
+  public void childSourceIsPreparedWithLazyPreparationAfterPeriodCreation() throws IOException {
     FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
     mediaSource =
         new ConcatenatingMediaSource(
@@ -968,7 +975,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testChildSourceWithLazyPreparationOnlyPreparesSourceOnce() throws IOException {
+  public void childSourceWithLazyPreparationOnlyPreparesSourceOnce() throws IOException {
     FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
     mediaSource =
         new ConcatenatingMediaSource(
@@ -990,7 +997,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testRemoveUnpreparedChildSourceWithLazyPreparation() throws IOException {
+  public void removeUnpreparedChildSourceWithLazyPreparation() throws IOException {
     FakeMediaSource[] childSources = createMediaSources(/* count= */ 2);
     mediaSource =
         new ConcatenatingMediaSource(
@@ -1006,7 +1013,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testSetShuffleOrderBeforePreparation() throws Exception {
+  public void setShuffleOrderBeforePreparation() throws Exception {
     mediaSource.setShuffleOrder(new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0));
     mediaSource.addMediaSources(
         Arrays.asList(createFakeMediaSource(), createFakeMediaSource(), createFakeMediaSource()));
@@ -1016,7 +1023,7 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testSetShuffleOrderAfterPreparation() throws Exception {
+  public void setShuffleOrderAfterPreparation() throws Exception {
     mediaSource.addMediaSources(
         Arrays.asList(createFakeMediaSource(), createFakeMediaSource(), createFakeMediaSource()));
     testRunner.prepareSource();
@@ -1027,24 +1034,24 @@ public final class ConcatenatingMediaSourceTest {
   }
 
   @Test
-  public void testCustomCallbackBeforePreparationSetShuffleOrder() throws Exception {
-    ConditionVariable runnableInvoked = new ConditionVariable();
+  public void customCallbackBeforePreparationSetShuffleOrder() throws Exception {
+    CountDownLatch runnableInvoked = new CountDownLatch(1);
 
     DummyMainThread dummyMainThread = new DummyMainThread();
     dummyMainThread.runOnMainThread(
         () ->
             mediaSource.setShuffleOrder(
                 new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0),
-                new Handler(),
-                runnableInvoked::open));
-    runnableInvoked.block(MediaSourceTestRunner.TIMEOUT_MS);
+                Util.createHandler(),
+                runnableInvoked::countDown));
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
 
-    assertThat(runnableInvoked.block(0)).isTrue();
+    assertThat(runnableInvoked.getCount()).isEqualTo(0);
   }
 
   @Test
-  public void testCustomCallbackAfterPreparationSetShuffleOrder() throws Exception {
+  public void customCallbackAfterPreparationSetShuffleOrder() throws Exception {
     DummyMainThread dummyMainThread = new DummyMainThread();
     try {
       mediaSource.addMediaSources(
@@ -1055,7 +1062,7 @@ public final class ConcatenatingMediaSourceTest {
           () ->
               mediaSource.setShuffleOrder(
                   new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 3),
-                  new Handler(),
+                  Util.createHandler(),
                   timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);
@@ -1107,14 +1114,14 @@ public final class ConcatenatingMediaSourceTest {
   private static final class TimelineGrabber implements Runnable {
 
     private final MediaSourceTestRunner testRunner;
-    private final ConditionVariable finishedCondition;
+    private final CountDownLatch finishedLatch;
 
     private Timeline timeline;
     private AssertionError error;
 
     public TimelineGrabber(MediaSourceTestRunner testRunner) {
       this.testRunner = testRunner;
-      finishedCondition = new ConditionVariable();
+      finishedLatch = new CountDownLatch(1);
     }
 
     @Override
@@ -1124,11 +1131,12 @@ public final class ConcatenatingMediaSourceTest {
       } catch (AssertionError e) {
         error = e;
       }
-      finishedCondition.open();
+      finishedLatch.countDown();
     }
 
-    public Timeline assertTimelineChangeBlocking() {
-      assertThat(finishedCondition.block(MediaSourceTestRunner.TIMEOUT_MS)).isTrue();
+    public Timeline assertTimelineChangeBlocking() throws InterruptedException {
+      assertThat(finishedLatch.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS))
+          .isTrue();
       if (error != null) {
         throw error;
       }

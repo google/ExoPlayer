@@ -501,6 +501,7 @@ public final class DefaultPlaybackSessionManagerTest {
         createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
 
     sessionManager.handleTimelineUpdate(newTimelineEventTime);
+    sessionManager.updateSessions(newTimelineEventTime);
 
     ArgumentCaptor<String> sessionId1 = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> sessionId2 = ArgumentCaptor.forClass(String.class);
@@ -608,7 +609,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
-                new AdPlaybackState(/* adGroupTimesUs= */ C.TIME_END_OF_SOURCE)
+                new AdPlaybackState(/* adGroupTimesUs=... */ C.TIME_END_OF_SOURCE)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)));
     EventTime adEventTime =
         createEventTime(
@@ -657,6 +658,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
     sessionManager.handlePositionDiscontinuity(
         eventTime2, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+    sessionManager.updateSessions(eventTime2);
 
     verify(mockListener).onSessionCreated(eq(eventTime1), anyString());
     verify(mockListener).onSessionActive(eq(eventTime1), anyString());
@@ -688,6 +690,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
     sessionManager.handlePositionDiscontinuity(
         eventTime2, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+    sessionManager.updateSessions(eventTime2);
 
     verify(mockListener).onSessionCreated(eventTime1, sessionId1);
     verify(mockListener).onSessionActive(eventTime1, sessionId1);
@@ -722,6 +725,7 @@ public final class DefaultPlaybackSessionManagerTest {
         sessionManager.getSessionForMediaPeriodId(timeline, eventTime2.mediaPeriodId);
 
     sessionManager.handlePositionDiscontinuity(eventTime2, Player.DISCONTINUITY_REASON_SEEK);
+    sessionManager.updateSessions(eventTime2);
 
     verify(mockListener).onSessionCreated(eventTime1, sessionId1);
     verify(mockListener).onSessionActive(eventTime1, sessionId1);
@@ -748,6 +752,7 @@ public final class DefaultPlaybackSessionManagerTest {
     sessionManager.updateSessions(eventTime2);
 
     sessionManager.handlePositionDiscontinuity(eventTime2, Player.DISCONTINUITY_REASON_SEEK);
+    sessionManager.updateSessions(eventTime2);
 
     verify(mockListener, never()).onSessionFinished(any(), anyString(), anyBoolean());
   }
@@ -790,6 +795,7 @@ public final class DefaultPlaybackSessionManagerTest {
         sessionManager.getSessionForMediaPeriodId(timeline, eventTime2.mediaPeriodId);
 
     sessionManager.handlePositionDiscontinuity(eventTime3, Player.DISCONTINUITY_REASON_SEEK);
+    sessionManager.updateSessions(eventTime3);
 
     verify(mockListener).onSessionCreated(eventTime1, sessionId1);
     verify(mockListener).onSessionActive(eventTime1, sessionId1);
@@ -814,7 +820,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
-                new AdPlaybackState(/* adGroupTimesUs= */ 0, 5 * C.MICROS_PER_SECOND)
+                new AdPlaybackState(/* adGroupTimesUs=... */ 0, 5 * C.MICROS_PER_SECOND)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                     .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)));
     EventTime adEventTime1 =
@@ -851,6 +857,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
     sessionManager.handlePositionDiscontinuity(
         contentEventTime, Player.DISCONTINUITY_REASON_AD_INSERTION);
+    sessionManager.updateSessions(contentEventTime);
 
     verify(mockListener).onSessionCreated(adEventTime1, adSessionId1);
     verify(mockListener).onSessionActive(adEventTime1, adSessionId1);
@@ -858,6 +865,8 @@ public final class DefaultPlaybackSessionManagerTest {
     verify(mockListener)
         .onSessionFinished(
             contentEventTime, adSessionId1, /* automaticTransitionToNextPlayback= */ true);
+    verify(mockListener).onSessionCreated(eq(contentEventTime), anyString());
+    verify(mockListener).onSessionActive(eq(contentEventTime), anyString());
     verifyNoMoreInteractions(mockListener);
   }
 
@@ -872,7 +881,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
                 new AdPlaybackState(
-                        /* adGroupTimesUs= */ 2 * C.MICROS_PER_SECOND, 5 * C.MICROS_PER_SECOND)
+                        /* adGroupTimesUs=... */ 2 * C.MICROS_PER_SECOND, 5 * C.MICROS_PER_SECOND)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                     .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)));
     EventTime adEventTime1 =
@@ -908,6 +917,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
     sessionManager.handlePositionDiscontinuity(
         adEventTime1, Player.DISCONTINUITY_REASON_AD_INSERTION);
+    sessionManager.updateSessions(adEventTime1);
 
     verify(mockListener, never()).onSessionFinished(any(), anyString(), anyBoolean());
   }
@@ -922,7 +932,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
-                new AdPlaybackState(/* adGroupTimesUs= */ 0, 5 * C.MICROS_PER_SECOND)
+                new AdPlaybackState(/* adGroupTimesUs=... */ 0, 5 * C.MICROS_PER_SECOND)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                     .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)));
     EventTime adEventTime1 =
@@ -964,7 +974,9 @@ public final class DefaultPlaybackSessionManagerTest {
 
     sessionManager.handlePositionDiscontinuity(
         adEventTime1, Player.DISCONTINUITY_REASON_AD_INSERTION);
+    sessionManager.updateSessions(adEventTime1);
     sessionManager.handlePositionDiscontinuity(adEventTime2, Player.DISCONTINUITY_REASON_SEEK);
+    sessionManager.updateSessions(adEventTime2);
 
     verify(mockListener).onSessionCreated(eq(contentEventTime), anyString());
     verify(mockListener).onSessionActive(eq(contentEventTime), anyString());
@@ -992,7 +1004,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
                 new AdPlaybackState(
-                        /* adGroupTimesUs= */ 2 * C.MICROS_PER_SECOND, 5 * C.MICROS_PER_SECOND)
+                        /* adGroupTimesUs=... */ 2 * C.MICROS_PER_SECOND, 5 * C.MICROS_PER_SECOND)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                     .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)));
     EventTime adEventTime1 =
@@ -1034,8 +1046,10 @@ public final class DefaultPlaybackSessionManagerTest {
     sessionManager.updateSessions(adEventTime1);
     sessionManager.handlePositionDiscontinuity(
         adEventTime1, Player.DISCONTINUITY_REASON_AD_INSERTION);
+    sessionManager.updateSessions(adEventTime1);
     sessionManager.handlePositionDiscontinuity(
         contentEventTime2, Player.DISCONTINUITY_REASON_AD_INSERTION);
+    sessionManager.updateSessions(contentEventTime2);
     String adSessionId2 =
         sessionManager.getSessionForMediaPeriodId(adTimeline, adEventTime2.mediaPeriodId);
 

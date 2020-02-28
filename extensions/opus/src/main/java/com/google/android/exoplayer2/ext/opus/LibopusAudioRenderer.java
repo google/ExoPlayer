@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 
@@ -34,7 +33,6 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 
-  @Nullable private OpusDecoder decoder;
   private int channelCount;
   private int sampleRate;
 
@@ -55,37 +53,12 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
     super(eventHandler, eventListener, audioProcessors);
   }
 
-  /**
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param drmSessionManager For use with encrypted media. May be null if support for encrypted
-   *     media is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
-   */
-  public LibopusAudioRenderer(
-      @Nullable Handler eventHandler,
-      @Nullable AudioRendererEventListener eventListener,
-      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
-      AudioProcessor... audioProcessors) {
-    super(eventHandler, eventListener, null, drmSessionManager, playClearSamplesWithoutKeys,
-        audioProcessors);
-  }
-
   @Override
-  protected int supportsFormatInternal(
-      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
+  @FormatSupport
+  protected int supportsFormatInternal(Format format) {
     boolean drmIsSupported =
         format.drmInitData == null
-            || OpusLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType)
-            || (format.exoMediaCryptoType == null
-                && supportsFormatDrm(drmSessionManager, format.drmInitData));
+            || OpusLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType);
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
@@ -103,7 +76,7 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
       throws OpusDecoderException {
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
-    decoder =
+    OpusDecoder decoder =
         new OpusDecoder(
             NUM_BUFFERS,
             NUM_BUFFERS,
@@ -117,18 +90,11 @@ public class LibopusAudioRenderer extends SimpleDecoderAudioRenderer {
 
   @Override
   protected Format getOutputFormat() {
-    return Format.createAudioSampleFormat(
-        /* id= */ null,
-        MimeTypes.AUDIO_RAW,
-        /* codecs= */ null,
-        Format.NO_VALUE,
-        Format.NO_VALUE,
-        channelCount,
-        sampleRate,
-        C.ENCODING_PCM_16BIT,
-        /* initializationData= */ null,
-        /* drmInitData= */ null,
-        /* selectionFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(channelCount)
+        .setSampleRate(sampleRate)
+        .setPcmEncoding(C.ENCODING_PCM_16BIT)
+        .build();
   }
 }

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -77,7 +77,7 @@ public final class CachedRegionTracker implements Cache.Listener {
    */
   public synchronized int getRegionEndTimeMs(long byteOffset) {
     lookupRegion.startOffset = byteOffset;
-    Region floorRegion = regions.floor(lookupRegion);
+    @Nullable Region floorRegion = regions.floor(lookupRegion);
     if (floorRegion == null || byteOffset > floorRegion.endOffset
         || floorRegion.endOffsetIndex == -1) {
       return NOT_CACHED;
@@ -102,7 +102,7 @@ public final class CachedRegionTracker implements Cache.Listener {
     Region removedRegion = new Region(span.position, span.position + span.length);
 
     // Look up a region this span falls into.
-    Region floorRegion = regions.floor(removedRegion);
+    @Nullable Region floorRegion = regions.floor(removedRegion);
     if (floorRegion == null) {
       Log.e(TAG, "Removed a span we were not aware of");
       return;
@@ -134,8 +134,8 @@ public final class CachedRegionTracker implements Cache.Listener {
 
   private void mergeSpan(CacheSpan span) {
     Region newRegion = new Region(span.position, span.position + span.length);
-    Region floorRegion = regions.floor(newRegion);
-    Region ceilingRegion = regions.ceiling(newRegion);
+    @Nullable Region floorRegion = regions.floor(newRegion);
+    @Nullable Region ceilingRegion = regions.ceiling(newRegion);
     boolean floorConnects = regionsConnect(floorRegion, newRegion);
     boolean ceilingConnects = regionsConnect(newRegion, ceilingRegion);
 
@@ -168,7 +168,7 @@ public final class CachedRegionTracker implements Cache.Listener {
     }
   }
 
-  private boolean regionsConnect(Region lower, Region upper) {
+  private boolean regionsConnect(@Nullable Region lower, @Nullable Region upper) {
     return lower != null && upper != null && lower.endOffset == upper.startOffset;
   }
 
@@ -195,7 +195,7 @@ public final class CachedRegionTracker implements Cache.Listener {
     }
 
     @Override
-    public int compareTo(@NonNull Region another) {
+    public int compareTo(Region another) {
       return Util.compareLong(startOffset, another.startOffset);
     }
 

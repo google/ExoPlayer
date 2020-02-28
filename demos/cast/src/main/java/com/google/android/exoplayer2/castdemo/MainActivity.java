@@ -17,15 +17,6 @@ package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.ColorUtils;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,6 +27,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.ColorUtils;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.cast.MediaItem;
@@ -171,8 +171,6 @@ public class MainActivity extends AppCompatActivity
       showToast(R.string.error_unsupported_audio);
     } else if (trackType == C.TRACK_TYPE_VIDEO) {
       showToast(R.string.error_unsupported_video);
-    } else {
-      // Do nothing.
     }
   }
 
@@ -199,6 +197,7 @@ public class MainActivity extends AppCompatActivity
   private class MediaQueueListAdapter extends RecyclerView.Adapter<QueueItemViewHolder> {
 
     @Override
+    @NonNull
     public QueueItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       TextView v = (TextView) LayoutInflater.from(parent.getContext())
           .inflate(android.R.layout.simple_list_item_1, parent, false);
@@ -236,7 +235,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onMove(RecyclerView list, RecyclerView.ViewHolder origin,
+    public boolean onMove(
+        @NonNull RecyclerView list,
+        RecyclerView.ViewHolder origin,
         RecyclerView.ViewHolder target) {
       int fromPosition = origin.getAdapterPosition();
       int toPosition = target.getAdapterPosition();
@@ -261,7 +262,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void clearView(RecyclerView recyclerView, ViewHolder viewHolder) {
+    public void clearView(@NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder) {
       super.clearView(recyclerView, viewHolder);
       if (draggingFromPosition != C.INDEX_UNSET) {
         QueueItemViewHolder queueItemHolder = (QueueItemViewHolder) viewHolder;
@@ -300,8 +301,8 @@ public class MainActivity extends AppCompatActivity
       super(context, android.R.layout.simple_list_item_1, DemoUtil.SAMPLES);
     }
 
-    @NonNull
     @Override
+    @NonNull
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
       View view = super.getView(position, convertView, parent);
       ((TextView) view).setText(getItem(position).title);

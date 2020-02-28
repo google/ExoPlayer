@@ -71,7 +71,7 @@ import java.util.Map;
   }
 
   @Override
-  public long open(DataSpec dataSpec) throws IOException {
+  public long open(DataSpec dataSpec) {
     throw new UnsupportedOperationException();
   }
 
@@ -91,8 +91,8 @@ import java.util.Map;
     return bytesRead;
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Uri getUri() {
     return upstream.getUri();
   }
@@ -103,14 +103,14 @@ import java.util.Map;
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Reads an ICY stream metadata block, passing it to {@link #listener} unless the block is empty.
    *
-   * @return True if the block was extracted, including if it's length byte indicated a length of
+   * @return True if the block was extracted, including if its length byte indicated a length of
    *     zero. False if the end of the stream was reached.
    * @throws IOException If an error occurs reading from the wrapped {@link DataSource}.
    */

@@ -104,7 +104,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void maybeThrowPrepareError() throws IOException {
+  public void maybeThrowPrepareError() {
     // Do nothing.
   }
 
@@ -147,7 +147,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public boolean continueLoading(long positionUs) {
-    if (loadingFinished || loader.isLoading()) {
+    if (loadingFinished || loader.isLoading() || loader.hasFatalError()) {
       return false;
     }
     DataSource dataSource = dataSourceFactory.createDataSource();
@@ -170,6 +170,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         durationUs,
         elapsedRealtimeMs);
     return true;
+  }
+
+  @Override
+  public boolean isLoading() {
+    return loader.isLoading();
   }
 
   @Override
@@ -389,7 +394,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public void load() throws IOException, InterruptedException {
+    public void load() throws IOException {
       // We always load from the beginning, so reset bytesRead to 0.
       dataSource.resetBytesRead();
       try {
@@ -410,7 +415,5 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Util.closeQuietly(dataSource);
       }
     }
-
   }
-
 }

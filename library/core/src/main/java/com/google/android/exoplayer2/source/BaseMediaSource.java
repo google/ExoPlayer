@@ -106,7 +106,7 @@ public abstract class BaseMediaSource implements MediaSource {
    */
   protected final MediaSourceEventListener.EventDispatcher createEventDispatcher(
       MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
-    Assertions.checkArgument(mediaPeriodId != null);
+    Assertions.checkNotNull(mediaPeriodId);
     return eventDispatcher.withParameters(/* windowIndex= */ 0, mediaPeriodId, mediaTimeOffsetMs);
   }
 
@@ -145,7 +145,7 @@ public abstract class BaseMediaSource implements MediaSource {
       MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
     Looper looper = Looper.myLooper();
     Assertions.checkArgument(this.looper == null || this.looper == looper);
-    Timeline timeline = this.timeline;
+    @Nullable Timeline timeline = this.timeline;
     mediaSourceCallers.add(caller);
     if (this.looper == null) {
       this.looper = looper;

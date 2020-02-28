@@ -32,7 +32,7 @@ android {
 
 dependencies {
     api 'com.google.android.gms:play-services-cast-framework:17.0.0'
-    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-ui')
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion

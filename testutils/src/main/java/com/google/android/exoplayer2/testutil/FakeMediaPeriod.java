@@ -30,8 +30,12 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Fake {@link MediaPeriod} that provides tracks from the given {@link TrackGroupArray}. Selecting
@@ -43,7 +47,8 @@ public class FakeMediaPeriod implements MediaPeriod {
   public static final DataSpec FAKE_DATA_SPEC = new DataSpec(Uri.parse("http://fake.uri"));
 
   private final TrackGroupArray trackGroupArray;
-  protected final EventDispatcher eventDispatcher;
+  private final List<SampleStream> sampleStreams;
+  private final EventDispatcher eventDispatcher;
 
   @Nullable private Handler playerHandler;
   @Nullable private Callback prepareCallback;
@@ -75,6 +80,7 @@ public class FakeMediaPeriod implements MediaPeriod {
     this.eventDispatcher = eventDispatcher;
     this.deferOnPrepared = deferOnPrepared;
     discontinuityPositionUs = C.TIME_UNSET;
+    sampleStreams = new ArrayList<>();
     eventDispatcher.mediaPeriodCreated();
   }
 
@@ -126,7 +132,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         SystemClock.elapsedRealtime());
     prepareCallback = callback;
     if (deferOnPrepared) {
-      playerHandler = new Handler();
+      playerHandler = Util.createHandler();
     } else {
       finishPreparation();
     }
@@ -144,9 +150,14 @@ public class FakeMediaPeriod implements MediaPeriod {
   }
 
   @Override
-  public long selectTracks(TrackSelection[] selections, boolean[] mayRetainStreamFlags,
-      SampleStream[] streams, boolean[] streamResetFlags, long positionUs) {
+  public long selectTracks(
+      @NullableType TrackSelection[] selections,
+      boolean[] mayRetainStreamFlags,
+      @NullableType SampleStream[] streams,
+      boolean[] streamResetFlags,
+      long positionUs) {
     assertThat(prepared).isTrue();
+    sampleStreams.clear();
     int rendererCount = selections.length;
     for (int i = 0; i < rendererCount; i++) {
       if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
@@ -160,7 +171,8 @@ public class FakeMediaPeriod implements MediaPeriod {
         int indexInTrackGroup = selection.getIndexInTrackGroup(selection.getSelectedIndex());
         assertThat(indexInTrackGroup).isAtLeast(0);
         assertThat(indexInTrackGroup).isLessThan(trackGroup.length);
-        streams[i] = createSampleStream(selection);
+        streams[i] = createSampleStream(positionUs, selection, eventDispatcher);
+        sampleStreams.add(streams[i]);
         streamResetFlags[i] = true;
       }
     }
@@ -198,12 +210,16 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public long seekToUs(long positionUs) {
     assertThat(prepared).isTrue();
-    return positionUs + seekOffsetUs;
+    long seekPositionUs = positionUs + seekOffsetUs;
+    for (SampleStream sampleStream : sampleStreams) {
+      seekSampleStream(sampleStream, seekPositionUs);
+    }
+    return seekPositionUs;
   }
 
   @Override
   public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
-    return positionUs;
+    return positionUs + seekOffsetUs;
   }
 
   @Override
@@ -217,14 +233,45 @@ public class FakeMediaPeriod implements MediaPeriod {
     return false;
   }
 
-  protected SampleStream createSampleStream(TrackSelection selection) {
+  @Override
+  public boolean isLoading() {
+    return false;
+  }
+
+  /**
+   * Creates a sample stream for the provided selection.
+   *
+   * @param positionUs The position at which the tracks were selected, in microseconds.
+   * @param selection A selection of tracks.
+   * @param eventDispatcher A dispatcher for events that should be used by the sample stream.
+   * @return A {@link SampleStream} for this selection.
+   */
+  protected SampleStream createSampleStream(
+      long positionUs, TrackSelection selection, EventDispatcher eventDispatcher) {
     return new FakeSampleStream(
-        selection.getSelectedFormat(), eventDispatcher, /* shouldOutputSample= */ true);
+        selection.getSelectedFormat(),
+        eventDispatcher,
+        positionUs,
+        /* timeUsIncrement= */ 0,
+        FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM);
+  }
+
+  /**
+   * Seeks inside the given sample stream.
+   *
+   * @param sampleStream A sample stream that was created by a call to {@link
+   *     #createSampleStream(long, TrackSelection, EventDispatcher)}.
+   * @param positionUs The position to seek to, in microseconds.
+   */
+  protected void seekSampleStream(SampleStream sampleStream, long positionUs) {
+    // Queue a single sample from the seek position again.
+    ((FakeSampleStream) sampleStream)
+        .resetSampleStreamItems(positionUs, FakeSampleStream.SINGLE_SAMPLE_THEN_END_OF_STREAM);
   }
 
   private void finishPreparation() {
     prepared = true;
-    prepareCallback.onPrepared(this);
+    Util.castNonNull(prepareCallback).onPrepared(this);
     eventDispatcher.loadCompleted(
         FAKE_DATA_SPEC,
         FAKE_DATA_SPEC.uri,

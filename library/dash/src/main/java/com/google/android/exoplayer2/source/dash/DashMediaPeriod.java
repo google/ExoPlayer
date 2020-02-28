@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import android.util.Pair;
 import android.util.SparseIntArray;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
@@ -298,6 +298,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
+  public boolean isLoading() {
+    return compositeSequenceableLoader.isLoading();
+  }
+
+  @Override
   public long getNextLoadPositionUs() {
     return compositeSequenceableLoader.getNextLoadPositionUs();
   }
@@ -528,8 +533,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         continue;
       }
       adaptationSetUsedFlags[i] = true;
-      Descriptor adaptationSetSwitchingProperty = findAdaptationSetSwitchingProperty(
-          adaptationSets.get(i).supplementalProperties);
+      @Nullable
+      Descriptor adaptationSetSwitchingProperty =
+          findAdaptationSetSwitchingProperty(adaptationSets.get(i).supplementalProperties);
       if (adaptationSetSwitchingProperty == null) {
         groupedAdaptationSetIndices[groupCount++] = new int[] {i};
       } else {
@@ -635,8 +641,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               eventMessageTrackGroupIndex,
               cea608TrackGroupIndex);
       if (eventMessageTrackGroupIndex != C.INDEX_UNSET) {
-        Format format = Format.createSampleFormat(firstAdaptationSet.id + ":emsg",
-            MimeTypes.APPLICATION_EMSG, null, Format.NO_VALUE, null);
+        Format format =
+            new Format.Builder()
+                .setId(firstAdaptationSet.id + ":emsg")
+                .setSampleMimeType(MimeTypes.APPLICATION_EMSG)
+                .build();
         trackGroups[eventMessageTrackGroupIndex] = new TrackGroup(format);
         trackGroupInfos[eventMessageTrackGroupIndex] =
             TrackGroupInfo.embeddedEmsgTrack(adaptationSetIndices, primaryTrackGroupIndex);
@@ -654,8 +663,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       TrackGroup[] trackGroups, TrackGroupInfo[] trackGroupInfos, int existingTrackGroupCount) {
     for (int i = 0; i < eventStreams.size(); i++) {
       EventStream eventStream = eventStreams.get(i);
-      Format format = Format.createSampleFormat(eventStream.id(), MimeTypes.APPLICATION_EMSG, null,
-          Format.NO_VALUE, null);
+      Format format =
+          new Format.Builder()
+              .setId(eventStream.id())
+              .setSampleMimeType(MimeTypes.APPLICATION_EMSG)
+              .build();
       trackGroups[existingTrackGroupCount] = new TrackGroup(format);
       trackGroupInfos[existingTrackGroupCount++] = TrackGroupInfo.mpdEventTrack(i);
     }
@@ -733,6 +745,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return stream;
   }
 
+  @Nullable
   private static Descriptor findAdaptationSetSwitchingProperty(List<Descriptor> descriptors) {
     for (int i = 0; i < descriptors.size(); i++) {
       Descriptor descriptor = descriptors.get(i);
@@ -765,7 +778,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       for (int j = 0; j < descriptors.size(); j++) {
         Descriptor descriptor = descriptors.get(j);
         if ("urn:scte:dash:cc:cea-608:2015".equals(descriptor.schemeIdUri)) {
-          String value = descriptor.value;
+          @Nullable String value = descriptor.value;
           if (value == null) {
             // There are embedded CEA-608 tracks, but service information is not declared.
             return new Format[] {buildCea608TrackFormat(adaptationSet.id)};
@@ -797,23 +810,21 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private static Format buildCea608TrackFormat(
-      int adaptationSetId, String language, int accessibilityChannel) {
-    return Format.createTextSampleFormat(
+      int adaptationSetId, @Nullable String language, int accessibilityChannel) {
+    String id =
         adaptationSetId
             + ":cea608"
-            + (accessibilityChannel != Format.NO_VALUE ? ":" + accessibilityChannel : ""),
-        MimeTypes.APPLICATION_CEA608,
-        /* codecs= */ null,
-        /* bitrate= */ Format.NO_VALUE,
-        /* selectionFlags= */ 0,
-        language,
-        accessibilityChannel,
-        /* drmInitData= */ null,
-        Format.OFFSET_SAMPLE_RELATIVE,
-        /* initializationData= */ null);
+            + (accessibilityChannel != Format.NO_VALUE ? ":" + accessibilityChannel : "");
+    return new Format.Builder()
+        .setId(id)
+        .setSampleMimeType(MimeTypes.APPLICATION_CEA608)
+        .setLanguage(language)
+        .setAccessibilityChannel(accessibilityChannel)
+        .build();
   }
 
-  @SuppressWarnings("unchecked")
+  // We won't assign the array to a variable that erases the generic type, and then write into it.
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static ChunkSampleStream<DashChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
   }

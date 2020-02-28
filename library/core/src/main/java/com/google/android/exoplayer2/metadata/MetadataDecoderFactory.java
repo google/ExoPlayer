@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.metadata;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.metadata.dvbsi.AppInfoTableDecoder;
 import com.google.android.exoplayer2.metadata.emsg.EventMessageDecoder;
 import com.google.android.exoplayer2.metadata.icy.IcyDecoder;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
@@ -62,28 +64,35 @@ public interface MetadataDecoderFactory {
 
         @Override
         public boolean supportsFormat(Format format) {
-          String mimeType = format.sampleMimeType;
+          @Nullable String mimeType = format.sampleMimeType;
           return MimeTypes.APPLICATION_ID3.equals(mimeType)
               || MimeTypes.APPLICATION_EMSG.equals(mimeType)
               || MimeTypes.APPLICATION_SCTE35.equals(mimeType)
-              || MimeTypes.APPLICATION_ICY.equals(mimeType);
+              || MimeTypes.APPLICATION_ICY.equals(mimeType)
+              || MimeTypes.APPLICATION_AIT.equals(mimeType);
         }
 
         @Override
         public MetadataDecoder createDecoder(Format format) {
-          switch (format.sampleMimeType) {
-            case MimeTypes.APPLICATION_ID3:
-              return new Id3Decoder();
-            case MimeTypes.APPLICATION_EMSG:
-              return new EventMessageDecoder();
-            case MimeTypes.APPLICATION_SCTE35:
-              return new SpliceInfoDecoder();
-            case MimeTypes.APPLICATION_ICY:
-              return new IcyDecoder();
-            default:
-              throw new IllegalArgumentException(
-                  "Attempted to create decoder for unsupported format");
+          @Nullable String mimeType = format.sampleMimeType;
+          if (mimeType != null) {
+            switch (mimeType) {
+              case MimeTypes.APPLICATION_ID3:
+                return new Id3Decoder();
+              case MimeTypes.APPLICATION_EMSG:
+                return new EventMessageDecoder();
+              case MimeTypes.APPLICATION_SCTE35:
+                return new SpliceInfoDecoder();
+              case MimeTypes.APPLICATION_ICY:
+                return new IcyDecoder();
+              case MimeTypes.APPLICATION_AIT:
+                return new AppInfoTableDecoder();
+              default:
+                break;
+            }
           }
+          throw new IllegalArgumentException(
+              "Attempted to create decoder for unsupported MIME type: " + mimeType);
         }
       };
 }

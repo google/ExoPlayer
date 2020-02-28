@@ -26,6 +26,8 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaPeriod.Callback;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
+import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -185,7 +187,7 @@ public final class MediaPeriodAsserts {
   }
 
   private static TrackGroupArray getTrackGroups(MediaPeriod mediaPeriod) {
-    AtomicReference<TrackGroupArray> trackGroupArray = new AtomicReference<>(null);
+    AtomicReference<TrackGroupArray> trackGroupArray = new AtomicReference<>();
     DummyMainThread dummyMainThread = new DummyMainThread();
     ConditionVariable preparedCondition = new ConditionVariable();
     dummyMainThread.runOnMainThread(
@@ -229,10 +231,20 @@ public final class MediaPeriodAsserts {
       return C.SELECTION_REASON_UNKNOWN;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public Object getSelectionData() {
       return null;
+    }
+
+    @Override
+    public void updateSelectedTrack(
+        long playbackPositionUs,
+        long bufferedDurationUs,
+        long availableDurationUs,
+        List<? extends MediaChunk> queue,
+        MediaChunkIterator[] mediaChunkIterators) {
+      // Do nothing.
     }
   }
 }

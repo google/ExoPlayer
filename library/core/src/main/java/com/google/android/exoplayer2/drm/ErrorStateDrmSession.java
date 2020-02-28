@@ -34,6 +34,11 @@ public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements Drm
   }
 
   @Override
+  public boolean playClearSamplesWithoutKeys() {
+    return false;
+  }
+
+  @Override
   @Nullable
   public DrmSessionException getError() {
     return error;
@@ -58,12 +63,12 @@ public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements Drm
   }
 
   @Override
-  public void acquireReference() {
+  public void acquire() {
     // Do nothing.
   }
 
   @Override
-  public void releaseReference() {
+  public void release() {
     // Do nothing.
   }
 }

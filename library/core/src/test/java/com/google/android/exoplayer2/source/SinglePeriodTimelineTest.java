@@ -40,8 +40,10 @@ public final class SinglePeriodTimelineTest {
   }
 
   @Test
-  public void testGetPeriodPositionDynamicWindowUnknownDuration() {
-    SinglePeriodTimeline timeline = new SinglePeriodTimeline(C.TIME_UNSET, false, true);
+  public void getPeriodPositionDynamicWindowUnknownDuration() {
+    SinglePeriodTimeline timeline =
+        new SinglePeriodTimeline(
+            C.TIME_UNSET, /* isSeekable= */ false, /* isDynamic= */ true, /* isLive= */ true);
     // Should return null with any positive position projection.
     Pair<Object, Long> position = timeline.getPeriodPosition(window, period, 0, C.TIME_UNSET, 1);
     assertThat(position).isNull();
@@ -52,7 +54,7 @@ public final class SinglePeriodTimelineTest {
   }
 
   @Test
-  public void testGetPeriodPositionDynamicWindowKnownDuration() {
+  public void getPeriodPositionDynamicWindowKnownDuration() {
     long windowDurationUs = 1000;
     SinglePeriodTimeline timeline =
         new SinglePeriodTimeline(
@@ -62,6 +64,7 @@ public final class SinglePeriodTimelineTest {
             /* windowDefaultStartPositionUs= */ 0,
             /* isSeekable= */ false,
             /* isDynamic= */ true,
+            /* isLive= */ true,
             /* manifest= */ null,
             /* tag= */ null);
     // Should return null with a positive position projection beyond window duration.
@@ -85,6 +88,7 @@ public final class SinglePeriodTimelineTest {
             /* durationUs= */ C.TIME_UNSET,
             /* isSeekable= */ false,
             /* isDynamic= */ false,
+            /* isLive= */ false,
             /* manifest= */ null,
             /* tag= */ null);
 
@@ -104,6 +108,7 @@ public final class SinglePeriodTimelineTest {
             /* durationUs= */ C.TIME_UNSET,
             /* isSeekable= */ false,
             /* isDynamic= */ false,
+            /* isLive= */ false,
             /* manifest= */ null,
             tag);
 
@@ -117,6 +122,7 @@ public final class SinglePeriodTimelineTest {
             /* durationUs= */ C.TIME_UNSET,
             /* isSeekable= */ false,
             /* isDynamic= */ false,
+            /* isLive= */ false,
             /* manifest= */ null,
             /* tag= */ null);
     Object uid = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;

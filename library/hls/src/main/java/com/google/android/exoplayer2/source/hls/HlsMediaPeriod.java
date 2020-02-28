@@ -16,8 +16,8 @@
 package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
@@ -48,7 +48,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +55,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link MediaPeriod} that loads an HLS stream.
@@ -75,11 +75,12 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final boolean allowChunklessPreparation;
+  private final @HlsMediaSource.MetadataType int metadataType;
   private final boolean useSessionKeys;
 
   @Nullable private Callback callback;
   private int pendingPrepareCount;
-  private TrackGroupArray trackGroups;
+  private @MonotonicNonNull TrackGroupArray trackGroups;
   private HlsSampleStreamWrapper[] sampleStreamWrappers;
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   // Maps sample stream wrappers to variant/rendition index by matching array positions.
@@ -117,6 +118,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       Allocator allocator,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       boolean allowChunklessPreparation,
+      @HlsMediaSource.MetadataType int metadataType,
       boolean useSessionKeys) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
@@ -128,6 +130,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.allowChunklessPreparation = allowChunklessPreparation;
+    this.metadataType = metadataType;
     this.useSessionKeys = useSessionKeys;
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
@@ -164,7 +167,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public TrackGroupArray getTrackGroups() {
-    return trackGroups;
+    // trackGroups will only be null if period hasn't been prepared or has been released.
+    return Assertions.checkNotNull(trackGroups);
   }
 
   // TODO: When the master playlist does not de-duplicate variants by URL and allows Renditions with
@@ -279,8 +283,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     streamWrapperIndices.clear();
     // Select tracks for each child, copying the resulting streams back into a new streams array.
     SampleStream[] newStreams = new SampleStream[selections.length];
-    SampleStream[] childStreams = new SampleStream[selections.length];
-    TrackSelection[] childSelections = new TrackSelection[selections.length];
+    @NullableType SampleStream[] childStreams = new SampleStream[selections.length];
+    @NullableType TrackSelection[] childSelections = new TrackSelection[selections.length];
     int newEnabledSampleStreamWrapperCount = 0;
     HlsSampleStreamWrapper[] newEnabledSampleStreamWrappers =
         new HlsSampleStreamWrapper[sampleStreamWrappers.length];
@@ -294,15 +298,16 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
           childStreams, streamResetFlags, positionUs, forceReset);
       boolean wrapperEnabled = false;
       for (int j = 0; j < selections.length; j++) {
+        SampleStream childStream = childStreams[j];
         if (selectionChildIndices[j] == i) {
           // Assert that the child provided a stream for the selection.
-          Assertions.checkState(childStreams[j] != null);
-          newStreams[j] = childStreams[j];
+          Assertions.checkNotNull(childStream);
+          newStreams[j] = childStream;
           wrapperEnabled = true;
-          streamWrapperIndices.put(childStreams[j], i);
+          streamWrapperIndices.put(childStream, i);
         } else if (streamChildIndices[j] == i) {
           // Assert that the child cleared any previous stream.
-          Assertions.checkState(childStreams[j] == null);
+          Assertions.checkState(childStream == null);
         }
       }
       if (wrapperEnabled) {
@@ -326,8 +331,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     // Copy the new streams back into the streams array.
     System.arraycopy(newStreams, 0, streams, 0, newStreams.length);
     // Update the local state.
-    enabledSampleStreamWrappers = Arrays.copyOf(newEnabledSampleStreamWrappers,
-        newEnabledSampleStreamWrapperCount);
+    enabledSampleStreamWrappers =
+        Util.nullSafeArrayCopy(newEnabledSampleStreamWrappers, newEnabledSampleStreamWrapperCount);
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(
             enabledSampleStreamWrappers);
@@ -357,6 +362,11 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     } else {
       return compositeSequenceableLoader.continueLoading(positionUs);
     }
+  }
+
+  @Override
+  public boolean isLoading() {
+    return compositeSequenceableLoader.isLoading();
   }
 
   @Override
@@ -650,18 +660,16 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
       TrackGroup id3TrackGroup =
           new TrackGroup(
-              Format.createSampleFormat(
-                  /* id= */ "ID3",
-                  MimeTypes.APPLICATION_ID3,
-                  /* codecs= */ null,
-                  /* bitrate= */ Format.NO_VALUE,
-                  /* drmInitData= */ null));
+              new Format.Builder()
+                  .setId("ID3")
+                  .setSampleMimeType(MimeTypes.APPLICATION_ID3)
+                  .build());
       muxedTrackGroups.add(id3TrackGroup);
 
       sampleStreamWrapper.prepareWithMasterPlaylistInfo(
           muxedTrackGroups.toArray(new TrackGroup[0]),
           /* primaryTrackGroupIndex= */ 0,
-          /* optionalTrackGroupsIndices= */ muxedTrackGroups.indexOf(id3TrackGroup));
+          /* optionalTrackGroupsIndices...= */ muxedTrackGroups.indexOf(id3TrackGroup));
     }
   }
 
@@ -705,7 +713,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       HlsSampleStreamWrapper sampleStreamWrapper =
           buildSampleStreamWrapper(
               C.TRACK_TYPE_AUDIO,
-              scratchPlaylistUrls.toArray(new Uri[0]),
+              scratchPlaylistUrls.toArray(Util.castNonNullTypeArray(new Uri[0])),
               scratchPlaylistFormats.toArray(new Format[0]),
               /* muxedAudioFormat= */ null,
               /* muxedCaptionFormats= */ Collections.emptyList(),
@@ -726,8 +734,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       int trackType,
       Uri[] playlistUrls,
       Format[] playlistFormats,
-      Format muxedAudioFormat,
-      List<Format> muxedCaptionFormats,
+      @Nullable Format muxedAudioFormat,
+      @Nullable List<Format> muxedCaptionFormats,
       Map<String, DrmInitData> overridingDrmInitData,
       long positionUs) {
     HlsChunkSource defaultChunkSource =
@@ -750,7 +758,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         muxedAudioFormat,
         drmSessionManager,
         loadErrorHandlingPolicy,
-        eventDispatcher);
+        eventDispatcher,
+        metadataType);
   }
 
   private static Map<String, DrmInitData> deriveOverridingDrmInitData(
@@ -780,33 +789,34 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   }
 
   private static Format deriveVideoFormat(Format variantFormat) {
-    String codecs = Util.getCodecsOfType(variantFormat.codecs, C.TRACK_TYPE_VIDEO);
-    String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
-    return Format.createVideoContainerFormat(
-        variantFormat.id,
-        variantFormat.label,
-        variantFormat.containerMimeType,
-        sampleMimeType,
-        codecs,
-        variantFormat.metadata,
-        variantFormat.bitrate,
-        variantFormat.width,
-        variantFormat.height,
-        variantFormat.frameRate,
-        /* initializationData= */ null,
-        variantFormat.selectionFlags,
-        variantFormat.roleFlags);
+    @Nullable String codecs = Util.getCodecsOfType(variantFormat.codecs, C.TRACK_TYPE_VIDEO);
+    @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+    return new Format.Builder()
+        .setId(variantFormat.id)
+        .setLabel(variantFormat.label)
+        .setContainerMimeType(variantFormat.containerMimeType)
+        .setSampleMimeType(sampleMimeType)
+        .setCodecs(codecs)
+        .setMetadata(variantFormat.metadata)
+        .setAverageBitrate(variantFormat.averageBitrate)
+        .setPeakBitrate(variantFormat.peakBitrate)
+        .setWidth(variantFormat.width)
+        .setHeight(variantFormat.height)
+        .setFrameRate(variantFormat.frameRate)
+        .setSelectionFlags(variantFormat.selectionFlags)
+        .setRoleFlags(variantFormat.roleFlags)
+        .build();
   }
 
   private static Format deriveAudioFormat(
-      Format variantFormat, Format mediaTagFormat, boolean isPrimaryTrackInVariant) {
-    String codecs;
-    Metadata metadata;
+      Format variantFormat, @Nullable Format mediaTagFormat, boolean isPrimaryTrackInVariant) {
+    @Nullable String codecs;
+    @Nullable Metadata metadata;
     int channelCount = Format.NO_VALUE;
     int selectionFlags = 0;
     int roleFlags = 0;
-    String language = null;
-    String label = null;
+    @Nullable String language = null;
+    @Nullable String label = null;
     if (mediaTagFormat != null) {
       codecs = mediaTagFormat.codecs;
       metadata = mediaTagFormat.metadata;
@@ -826,22 +836,23 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         label = variantFormat.label;
       }
     }
-    String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
-    int bitrate = isPrimaryTrackInVariant ? variantFormat.bitrate : Format.NO_VALUE;
-    return Format.createAudioContainerFormat(
-        variantFormat.id,
-        label,
-        variantFormat.containerMimeType,
-        sampleMimeType,
-        codecs,
-        metadata,
-        bitrate,
-        channelCount,
-        /* sampleRate= */ Format.NO_VALUE,
-        /* initializationData= */ null,
-        selectionFlags,
-        roleFlags,
-        language);
+    @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+    int averageBitrate = isPrimaryTrackInVariant ? variantFormat.averageBitrate : Format.NO_VALUE;
+    int peakBitrate = isPrimaryTrackInVariant ? variantFormat.peakBitrate : Format.NO_VALUE;
+    return new Format.Builder()
+        .setId(variantFormat.id)
+        .setLabel(label)
+        .setContainerMimeType(variantFormat.containerMimeType)
+        .setSampleMimeType(sampleMimeType)
+        .setCodecs(codecs)
+        .setMetadata(metadata)
+        .setAverageBitrate(averageBitrate)
+        .setPeakBitrate(peakBitrate)
+        .setChannelCount(channelCount)
+        .setSelectionFlags(selectionFlags)
+        .setRoleFlags(roleFlags)
+        .setLanguage(language)
+        .build();
   }
 
 }

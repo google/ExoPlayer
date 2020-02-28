@@ -158,12 +158,12 @@ public final class Loader implements LoaderErrorThrower {
   /** Retries the load using the default delay and resets the error count. */
   public static final LoadErrorAction RETRY_RESET_ERROR_COUNT =
       createRetryAction(/* resetErrorCount= */ true, C.TIME_UNSET);
-  /** Discards the failed loading task and ignores any errors that have occurred. */
+  /** Discards the failed {@link Loadable} and ignores any errors that have occurred. */
   public static final LoadErrorAction DONT_RETRY =
       new LoadErrorAction(ACTION_TYPE_DONT_RETRY, C.TIME_UNSET);
   /**
-   * Discards the failed load. The next call to {@link #maybeThrowError()} will throw the last load
-   * error.
+   * Discards the failed {@link Loadable}. The next call to {@link #maybeThrowError()} will throw
+   * the last load error.
    */
   public static final LoadErrorAction DONT_RETRY_FATAL =
       new LoadErrorAction(ACTION_TYPE_DONT_RETRY_FATAL, C.TIME_UNSET);
@@ -190,8 +190,8 @@ public final class Loader implements LoaderErrorThrower {
 
   private final ExecutorService downloadExecutorService;
 
-  private LoadTask<? extends Loadable> currentTask;
-  private IOException fatalError;
+  @Nullable private LoadTask<? extends Loadable> currentTask;
+  @Nullable private IOException fatalError;
 
   /**
    * @param threadName A name for the loader's thread.
@@ -214,6 +214,19 @@ public final class Loader implements LoaderErrorThrower {
   }
 
   /**
+   * Whether the last call to {@link #startLoading} resulted in a fatal error. Calling {@link
+   * #maybeThrowError()} will throw the fatal error.
+   */
+  public boolean hasFatalError() {
+    return fatalError != null;
+  }
+
+  /** Clears any stored fatal error. */
+  public void clearFatalError() {
+    fatalError = null;
+  }
+
+  /**
    * Starts loading a {@link Loadable}.
    *
    * <p>The calling thread must be a {@link Looper} thread, which is the thread on which the {@link
@@ -229,39 +242,34 @@ public final class Loader implements LoaderErrorThrower {
    */
   public <T extends Loadable> long startLoading(
       T loadable, Callback<T> callback, int defaultMinRetryCount) {
-    Looper looper = Looper.myLooper();
-    Assertions.checkState(looper != null);
+    Looper looper = Assertions.checkStateNotNull(Looper.myLooper());
     fatalError = null;
     long startTimeMs = SystemClock.elapsedRealtime();
     new LoadTask<>(looper, loadable, callback, defaultMinRetryCount, startTimeMs).start(0);
     return startTimeMs;
   }
 
-  /**
-   * Returns whether the {@link Loader} is currently loading a {@link Loadable}.
-   */
+  /** Returns whether the loader is currently loading. */
   public boolean isLoading() {
     return currentTask != null;
   }
 
   /**
-   * Cancels the current load. This method should only be called when a load is in progress.
+   * Cancels the current load.
+   *
+   * @throws IllegalStateException If the loader is not currently loading.
    */
   public void cancelLoading() {
-    currentTask.cancel(false);
+    Assertions.checkStateNotNull(currentTask).cancel(false);
   }
 
-  /**
-   * Releases the {@link Loader}. This method should be called when the {@link Loader} is no longer
-   * required.
-   */
+  /** Releases the loader. This method should be called when the loader is no longer required. */
   public void release() {
     release(null);
   }
 
   /**
-   * Releases the {@link Loader}. This method should be called when the {@link Loader} is no longer
-   * required.
+   * Releases the loader. This method should be called when the loader is no longer required.
    *
    * @param callback An optional callback to be called on the loading thread once the loader has
    *     been released.
@@ -312,10 +320,10 @@ public final class Loader implements LoaderErrorThrower {
     private final long startTimeMs;
 
     @Nullable private Loader.Callback<T> callback;
-    private IOException currentError;
+    @Nullable private IOException currentError;
     private int errorCount;
 
-    private volatile Thread executorThread;
+    @Nullable private volatile Thread executorThread;
     private volatile boolean canceled;
     private volatile boolean released;
 
@@ -355,6 +363,7 @@ public final class Loader implements LoaderErrorThrower {
       } else {
         canceled = true;
         loadable.cancelLoad();
+        @Nullable Thread executorThread = this.executorThread;
         if (executorThread != null) {
           executorThread.interrupt();
         }
@@ -362,7 +371,8 @@ public final class Loader implements LoaderErrorThrower {
       if (released) {
         finish();
         long nowMs = SystemClock.elapsedRealtime();
-        callback.onLoadCanceled(loadable, nowMs, nowMs - startTimeMs, true);
+        Assertions.checkNotNull(callback)
+            .onLoadCanceled(loadable, nowMs, nowMs - startTimeMs, true);
         // If loading, this task will be referenced from a GC root (the loading thread) until
         // cancellation completes. The time taken for cancellation to complete depends on the
         // implementation of the Loadable that the task is loading. We null the callback reference
@@ -437,6 +447,7 @@ public final class Loader implements LoaderErrorThrower {
       finish();
       long nowMs = SystemClock.elapsedRealtime();
       long durationMs = nowMs - startTimeMs;
+      Loader.Callback<T> callback = Assertions.checkNotNull(this.callback);
       if (canceled) {
         callback.onLoadCanceled(loadable, nowMs, durationMs, false);
         return;
@@ -479,7 +490,7 @@ public final class Loader implements LoaderErrorThrower {
 
     private void execute() {
       currentError = null;
-      downloadExecutorService.execute(currentTask);
+      downloadExecutorService.execute(Assertions.checkNotNull(currentTask));
     }
 
     private void finish() {

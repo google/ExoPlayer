@@ -56,7 +56,7 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadNoDataThrowsIOException() throws Exception {
+  public void loadNoDataThrowsIOException() throws Exception {
     ActionFile actionFile = getActionFile("offline/action_file_no_data.exi");
     try {
       actionFile.load();
@@ -67,7 +67,7 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadIncompleteHeaderThrowsIOException() throws Exception {
+  public void loadIncompleteHeaderThrowsIOException() throws Exception {
     ActionFile actionFile = getActionFile("offline/action_file_incomplete_header.exi");
     try {
       actionFile.load();
@@ -78,7 +78,7 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadZeroActions() throws Exception {
+  public void loadZeroActions() throws Exception {
     ActionFile actionFile = getActionFile("offline/action_file_zero_actions.exi");
     DownloadRequest[] actions = actionFile.load();
     assertThat(actions).isNotNull();
@@ -86,7 +86,7 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadOneAction() throws Exception {
+  public void loadOneAction() throws Exception {
     ActionFile actionFile = getActionFile("offline/action_file_one_action.exi");
     DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(1);
@@ -94,7 +94,7 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadTwoActions() throws Exception {
+  public void loadTwoActions() throws Exception {
     ActionFile actionFile = getActionFile("offline/action_file_two_actions.exi");
     DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(2);
@@ -103,7 +103,7 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadUnsupportedVersion() throws Exception {
+  public void loadUnsupportedVersion() throws Exception {
     ActionFile actionFile = getActionFile("offline/action_file_unsupported_version.exi");
     try {
       actionFile.load();

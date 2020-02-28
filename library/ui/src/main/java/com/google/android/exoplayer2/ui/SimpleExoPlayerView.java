@@ -16,9 +16,8 @@
 package com.google.android.exoplayer2.ui;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 
@@ -49,7 +48,7 @@ public final class SimpleExoPlayerView extends PlayerView {
   @Deprecated
   @SuppressWarnings("deprecation")
   public static void switchTargetView(
-      @NonNull SimpleExoPlayer player,
+      SimpleExoPlayer player,
       @Nullable SimpleExoPlayerView oldPlayerView,
       @Nullable SimpleExoPlayerView newPlayerView) {
     PlayerView.switchTargetView(player, oldPlayerView, newPlayerView);

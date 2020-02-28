@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.ui;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -27,9 +26,6 @@ import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
-import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -41,6 +37,10 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
@@ -59,24 +59,28 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
-import com.google.android.exoplayer2.ui.spherical.SphericalSurfaceView;
+import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
 import com.google.android.exoplayer2.video.VideoListener;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A high level view for {@link Player} media playbacks. It displays video, subtitles and album art
  * during playback, and displays playback controls using a {@link PlayerControlView}.
  *
  * <p>A PlayerView can be customized by setting attributes (or calling corresponding methods),
- * overriding the view's layout file or by specifying a custom view layout file, as outlined below.
+ * overriding drawables, overriding the view's layout file, or by specifying a custom view layout
+ * file.
  *
  * <h3>Attributes</h3>
  *
@@ -130,11 +134,11 @@ import java.util.List;
  *         <li>Default: {@code fit}
  *       </ul>
  *   <li><b>{@code surface_type}</b> - The type of surface view used for video playbacks. Valid
- *       values are {@code surface_view}, {@code texture_view}, {@code spherical_view} and {@code
- *       none}. Using {@code none} is recommended for audio only applications, since creating the
- *       surface can be expensive. Using {@code surface_view} is recommended for video applications.
- *       Note, TextureView can only be used in a hardware accelerated window. When rendered in
- *       software, TextureView will draw nothing.
+ *       values are {@code surface_view}, {@code texture_view}, {@code spherical_gl_surface_view},
+ *       {@code video_decoder_gl_surface_view} and {@code none}. Using {@code none} is recommended
+ *       for audio only applications, since creating the surface can be expensive. Using {@code
+ *       surface_view} is recommended for video applications. Note, TextureView can only be used in
+ *       a hardware accelerated window. When rendered in software, TextureView will draw nothing.
  *       <ul>
  *         <li>Corresponding method: None
  *         <li>Default: {@code surface_view}
@@ -169,6 +173,12 @@ import java.util.List;
  *       exo_controller} (see below).
  * </ul>
  *
+ * <h3>Overriding drawables</h3>
+ *
+ * The drawables used by {@link PlayerControlView} (with its default layout file) can be overridden
+ * by drawables with the same names defined in your application. See the {@link PlayerControlView}
+ * documentation for a list of drawables that can be overridden.
+ *
  * <h3>Overriding the layout file</h3>
  *
  * To customize the layout of PlayerView throughout your app, or just for certain configurations,
@@ -176,8 +186,6 @@ import java.util.List;
  * directories. These layouts will override the one provided by the ExoPlayer library, and will be
  * inflated for use by PlayerView. The view identifies and binds its children by looking for the
  * following ids:
- *
- * <p>
  *
  * <ul>
  *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
@@ -275,23 +283,25 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   private static final int SURFACE_TYPE_NONE = 0;
   private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
   private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
-  private static final int SURFACE_TYPE_MONO360_VIEW = 3;
+  private static final int SURFACE_TYPE_SPHERICAL_GL_SURFACE_VIEW = 3;
+  private static final int SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW = 4;
   // LINT.ThenChange(../../../../../../res/values/attrs.xml)
 
+  private final ComponentListener componentListener;
   @Nullable private final AspectRatioFrameLayout contentFrame;
-  private final View shutterView;
+  @Nullable private final View shutterView;
   @Nullable private final View surfaceView;
-  private final ImageView artworkView;
-  private final SubtitleView subtitleView;
+  @Nullable private final ImageView artworkView;
+  @Nullable private final SubtitleView subtitleView;
   @Nullable private final View bufferingView;
   @Nullable private final TextView errorMessageView;
   @Nullable private final PlayerControlView controller;
-  private final ComponentListener componentListener;
   @Nullable private final FrameLayout adOverlayFrameLayout;
   @Nullable private final FrameLayout overlayFrameLayout;
 
-  private Player player;
+  @Nullable private Player player;
   private boolean useController;
+  @Nullable private PlayerControlView.VisibilityListener controllerVisibilityListener;
   private boolean useArtwork;
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
@@ -315,8 +325,11 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     this(context, attrs, /* defStyleAttr= */ 0);
   }
 
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:method.invocation.invalid"})
   public PlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
+
+    componentListener = new ComponentListener();
 
     if (isInEditMode()) {
       contentFrame = null;
@@ -327,7 +340,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
       bufferingView = null;
       errorMessageView = null;
       controller = null;
-      componentListener = null;
       adOverlayFrameLayout = null;
       overlayFrameLayout = null;
       ImageView logo = new ImageView(context);
@@ -382,7 +394,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     }
 
     LayoutInflater.from(context).inflate(playerLayoutId, this);
-    componentListener = new ComponentListener();
     setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
 
     // Content frame.
@@ -406,10 +417,13 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
         case SURFACE_TYPE_TEXTURE_VIEW:
           surfaceView = new TextureView(context);
           break;
-        case SURFACE_TYPE_MONO360_VIEW:
-          SphericalSurfaceView sphericalSurfaceView = new SphericalSurfaceView(context);
-          sphericalSurfaceView.setSingleTapListener(componentListener);
-          surfaceView = sphericalSurfaceView;
+        case SURFACE_TYPE_SPHERICAL_GL_SURFACE_VIEW:
+          SphericalGLSurfaceView sphericalGLSurfaceView = new SphericalGLSurfaceView(context);
+          sphericalGLSurfaceView.setSingleTapListener(componentListener);
+          surfaceView = sphericalGLSurfaceView;
+          break;
+        case SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW:
+          surfaceView = new VideoDecoderGLSurfaceView(context);
           break;
         default:
           surfaceView = new SurfaceView(context);
@@ -478,6 +492,10 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     this.controllerHideDuringAds = controllerHideDuringAds;
     this.useController = useController && controller != null;
     hideController();
+    updateContentDescription();
+    if (controller != null) {
+      controller.addVisibilityListener(/* listener= */ componentListener);
+    }
   }
 
   /**
@@ -530,26 +548,29 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     if (this.player == player) {
       return;
     }
-    if (this.player != null) {
-      this.player.removeListener(componentListener);
-      Player.VideoComponent oldVideoComponent = this.player.getVideoComponent();
+    @Nullable Player oldPlayer = this.player;
+    if (oldPlayer != null) {
+      oldPlayer.removeListener(componentListener);
+      @Nullable Player.VideoComponent oldVideoComponent = oldPlayer.getVideoComponent();
       if (oldVideoComponent != null) {
         oldVideoComponent.removeVideoListener(componentListener);
         if (surfaceView instanceof TextureView) {
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
-        } else if (surfaceView instanceof SphericalSurfaceView) {
-          ((SphericalSurfaceView) surfaceView).setVideoComponent(null);
+        } else if (surfaceView instanceof SphericalGLSurfaceView) {
+          ((SphericalGLSurfaceView) surfaceView).setVideoComponent(null);
+        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
+          oldVideoComponent.setVideoDecoderOutputBufferRenderer(null);
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
       }
-      Player.TextComponent oldTextComponent = this.player.getTextComponent();
+      @Nullable Player.TextComponent oldTextComponent = oldPlayer.getTextComponent();
       if (oldTextComponent != null) {
         oldTextComponent.removeTextOutput(componentListener);
       }
     }
     this.player = player;
-    if (useController) {
+    if (useController()) {
       controller.setPlayer(player);
     }
     if (subtitleView != null) {
@@ -559,18 +580,21 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     updateErrorMessage();
     updateForCurrentTrackSelections(/* isNewPlayer= */ true);
     if (player != null) {
-      Player.VideoComponent newVideoComponent = player.getVideoComponent();
+      @Nullable Player.VideoComponent newVideoComponent = player.getVideoComponent();
       if (newVideoComponent != null) {
         if (surfaceView instanceof TextureView) {
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
-        } else if (surfaceView instanceof SphericalSurfaceView) {
-          ((SphericalSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
+        } else if (surfaceView instanceof SphericalGLSurfaceView) {
+          ((SphericalGLSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
+        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
+          newVideoComponent.setVideoDecoderOutputBufferRenderer(
+              ((VideoDecoderGLSurfaceView) surfaceView).getVideoDecoderOutputBufferRenderer());
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
         newVideoComponent.addVideoListener(componentListener);
       }
-      Player.TextComponent newTextComponent = player.getTextComponent();
+      @Nullable Player.TextComponent newTextComponent = player.getTextComponent();
       if (newTextComponent != null) {
         newTextComponent.addTextOutput(componentListener);
       }
@@ -596,13 +620,13 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * @param resizeMode The {@link ResizeMode}.
    */
   public void setResizeMode(@ResizeMode int resizeMode) {
-    Assertions.checkState(contentFrame != null);
+    Assertions.checkStateNotNull(contentFrame);
     contentFrame.setResizeMode(resizeMode);
   }
 
   /** Returns the {@link ResizeMode}. */
   public @ResizeMode int getResizeMode() {
-    Assertions.checkState(contentFrame != null);
+    Assertions.checkStateNotNull(contentFrame);
     return contentFrame.getResizeMode();
   }
 
@@ -673,12 +697,13 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
       return;
     }
     this.useController = useController;
-    if (useController) {
+    if (useController()) {
       controller.setPlayer(player);
     } else if (controller != null) {
       controller.hide();
-      controller.setPlayer(null);
+      controller.setPlayer(/* player= */ null);
     }
+    updateContentDescription();
   }
 
   /**
@@ -736,8 +761,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * buffering spinner is not displayed by default.
    *
    * @param showBuffering The mode that defines when the buffering spinner is displayed. One of
-   *     {@link #SHOW_BUFFERING_NEVER}, {@link #SHOW_BUFFERING_WHEN_PLAYING} and
-   *     {@link #SHOW_BUFFERING_ALWAYS}.
+   *     {@link #SHOW_BUFFERING_NEVER}, {@link #SHOW_BUFFERING_WHEN_PLAYING} and {@link
+   *     #SHOW_BUFFERING_ALWAYS}.
    */
   public void setShowBuffering(@ShowBuffering int showBuffering) {
     if (this.showBuffering != showBuffering) {
@@ -777,9 +802,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
       return super.dispatchKeyEvent(event);
     }
 
-    boolean isDpadAndUseController = isDpadKey(event.getKeyCode()) && useController;
+    boolean isDpadKey = isDpadKey(event.getKeyCode());
     boolean handled = false;
-    if (isDpadAndUseController && !controller.isVisible()) {
+    if (isDpadKey && useController() && !controller.isVisible()) {
       // Handle the key event by showing the controller.
       maybeShowController(true);
       handled = true;
@@ -788,7 +813,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
       // controller, or extend its show timeout if already visible.
       maybeShowController(true);
       handled = true;
-    } else if (isDpadAndUseController) {
+    } else if (isDpadKey && useController()) {
       // The key event wasn't handled, but we should extend the controller's show timeout.
       maybeShowController(true);
     }
@@ -803,7 +828,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * @return Whether the key event was handled.
    */
   public boolean dispatchMediaKeyEvent(KeyEvent event) {
-    return useController && controller.dispatchMediaKeyEvent(event);
+    return useController() && controller.dispatchMediaKeyEvent(event);
   }
 
   /** Returns whether the controller is currently visible. */
@@ -849,7 +874,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    *     controller to remain visible indefinitely.
    */
   public void setControllerShowTimeoutMs(int controllerShowTimeoutMs) {
-    Assertions.checkState(controller != null);
+    Assertions.checkStateNotNull(controller);
     this.controllerShowTimeoutMs = controllerShowTimeoutMs;
     if (controller.isVisible()) {
       // Update the controller's timeout if necessary.
@@ -868,8 +893,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * @param controllerHideOnTouch Whether the playback controls are hidden by touch events.
    */
   public void setControllerHideOnTouch(boolean controllerHideOnTouch) {
-    Assertions.checkState(controller != null);
+    Assertions.checkStateNotNull(controller);
     this.controllerHideOnTouch = controllerHideOnTouch;
+    updateContentDescription();
   }
 
   /**
@@ -910,8 +936,17 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    */
   public void setControllerVisibilityListener(
       @Nullable PlayerControlView.VisibilityListener listener) {
-    Assertions.checkState(controller != null);
-    controller.setVisibilityListener(listener);
+    Assertions.checkStateNotNull(controller);
+    if (this.controllerVisibilityListener == listener) {
+      return;
+    }
+    if (this.controllerVisibilityListener != null) {
+      controller.removeVisibilityListener(this.controllerVisibilityListener);
+    }
+    this.controllerVisibilityListener = listener;
+    if (listener != null) {
+      controller.addVisibilityListener(listener);
+    }
   }
 
   /**
@@ -921,40 +956,39 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    *     preparer.
    */
   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
-    Assertions.checkState(controller != null);
+    Assertions.checkStateNotNull(controller);
     controller.setPlaybackPreparer(playbackPreparer);
   }
 
   /**
    * Sets the {@link ControlDispatcher}.
    *
-   * @param controlDispatcher The {@link ControlDispatcher}, or null to use {@link
-   *     DefaultControlDispatcher}.
+   * @param controlDispatcher The {@link ControlDispatcher}.
    */
-  public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
-    Assertions.checkState(controller != null);
+  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
+    Assertions.checkStateNotNull(controller);
     controller.setControlDispatcher(controlDispatcher);
   }
 
   /**
-   * Sets the rewind increment in milliseconds.
-   *
-   * @param rewindMs The rewind increment in milliseconds. A non-positive value will cause the
-   *     rewind button to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setRewindIncrementMs(int rewindMs) {
-    Assertions.checkState(controller != null);
+    Assertions.checkStateNotNull(controller);
     controller.setRewindIncrementMs(rewindMs);
   }
 
   /**
-   * Sets the fast forward increment in milliseconds.
-   *
-   * @param fastForwardMs The fast forward increment in milliseconds. A non-positive value will
-   *     cause the fast forward button to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setFastForwardIncrementMs(int fastForwardMs) {
-    Assertions.checkState(controller != null);
+    Assertions.checkStateNotNull(controller);
     controller.setFastForwardIncrementMs(fastForwardMs);
   }
 
@@ -964,7 +998,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * @param repeatToggleModes A set of {@link RepeatModeUtil.RepeatToggleModes}.
    */
   public void setRepeatToggleModes(@RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
-    Assertions.checkState(controller != null);
+    Assertions.checkStateNotNull(controller);
     controller.setRepeatToggleModes(repeatToggleModes);
   }
 
@@ -974,7 +1008,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * @param showShuffleButton Whether the shuffle button is shown.
    */
   public void setShowShuffleButton(boolean showShuffleButton) {
-    Assertions.checkState(controller != null);
+    Assertions.checkStateNotNull(controller);
     controller.setShowShuffleButton(showShuffleButton);
   }
 
@@ -984,7 +1018,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * @param showMultiWindowTimeBar Whether to show all windows.
    */
   public void setShowMultiWindowTimeBar(boolean showMultiWindowTimeBar) {
-    Assertions.checkState(controller != null);
+    Assertions.checkStateNotNull(controller);
     controller.setShowMultiWindowTimeBar(showMultiWindowTimeBar);
   }
 
@@ -1000,7 +1034,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    */
   public void setExtraAdGroupMarkers(
       @Nullable long[] extraAdGroupTimesMs, @Nullable boolean[] extraPlayedAdGroups) {
-    Assertions.checkState(controller != null);
+    Assertions.checkStateNotNull(controller);
     controller.setExtraAdGroupMarkers(extraAdGroupTimesMs, extraPlayedAdGroups);
   }
 
@@ -1012,7 +1046,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    */
   public void setAspectRatioListener(
       @Nullable AspectRatioFrameLayout.AspectRatioListener listener) {
-    Assertions.checkState(contentFrame != null);
+    Assertions.checkStateNotNull(contentFrame);
     contentFrame.setAspectRatioListener(listener);
   }
 
@@ -1023,12 +1057,15 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    *   <li>{@link SurfaceView} by default, or if the {@code surface_type} attribute is set to {@code
    *       surface_view}.
    *   <li>{@link TextureView} if {@code surface_type} is {@code texture_view}.
-   *   <li>{@link SphericalSurfaceView} if {@code surface_type} is {@code spherical_view}.
+   *   <li>{@link SphericalGLSurfaceView} if {@code surface_type} is {@code
+   *       spherical_gl_surface_view}.
+   *   <li>{@link VideoDecoderGLSurfaceView} if {@code surface_type} is {@code
+   *       video_decoder_gl_surface_view}.
    *   <li>{@code null} if {@code surface_type} is {@code none}.
    * </ul>
    *
-   * @return The {@link SurfaceView}, {@link TextureView}, {@link SphericalSurfaceView} or {@code
-   *     null}.
+   * @return The {@link SurfaceView}, {@link TextureView}, {@link SphericalGLSurfaceView}, {@link
+   *     VideoDecoderGLSurfaceView} or {@code null}.
    */
   @Nullable
   public View getVideoSurfaceView() {
@@ -1060,7 +1097,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
   @Override
   public boolean onTouchEvent(MotionEvent event) {
-    if (!useController || player == null) {
+    if (!useController() || player == null) {
       return false;
     }
     switch (event.getAction()) {
@@ -1087,7 +1124,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
   @Override
   public boolean onTrackballEvent(MotionEvent ev) {
-    if (!useController || player == null) {
+    if (!useController() || player == null) {
       return false;
     }
     maybeShowController(true);
@@ -1096,34 +1133,34 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
   /**
    * Should be called when the player is visible to the user and if {@code surface_type} is {@code
-   * spherical_view}. It is the counterpart to {@link #onPause()}.
+   * spherical_gl_surface_view}. It is the counterpart to {@link #onPause()}.
    *
    * <p>This method should typically be called in {@code Activity.onStart()}, or {@code
    * Activity.onResume()} for API versions &lt;= 23.
    */
   public void onResume() {
-    if (surfaceView instanceof SphericalSurfaceView) {
-      ((SphericalSurfaceView) surfaceView).onResume();
+    if (surfaceView instanceof SphericalGLSurfaceView) {
+      ((SphericalGLSurfaceView) surfaceView).onResume();
     }
   }
 
   /**
    * Should be called when the player is no longer visible to the user and if {@code surface_type}
-   * is {@code spherical_view}. It is the counterpart to {@link #onResume()}.
+   * is {@code spherical_gl_surface_view}. It is the counterpart to {@link #onResume()}.
    *
    * <p>This method should typically be called in {@code Activity.onStop()}, or {@code
    * Activity.onPause()} for API versions &lt;= 23.
    */
   public void onPause() {
-    if (surfaceView instanceof SphericalSurfaceView) {
-      ((SphericalSurfaceView) surfaceView).onPause();
+    if (surfaceView instanceof SphericalGLSurfaceView) {
+      ((SphericalGLSurfaceView) surfaceView).onPause();
     }
   }
 
   /**
    * Called when there's a change in the aspect ratio of the content being displayed. The default
    * implementation sets the aspect ratio of the content frame to that of the content, unless the
-   * content view is a {@link SphericalSurfaceView} in which case the frame's aspect ratio is
+   * content view is a {@link SphericalGLSurfaceView} in which case the frame's aspect ratio is
    * cleared.
    *
    * @param contentAspectRatio The aspect ratio of the content.
@@ -1136,7 +1173,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
       @Nullable View contentView) {
     if (contentFrame != null) {
       contentFrame.setAspectRatio(
-          contentView instanceof SphericalSurfaceView ? 0 : contentAspectRatio);
+          contentView instanceof SphericalGLSurfaceView ? 0 : contentAspectRatio);
     }
   }
 
@@ -1144,7 +1181,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
   @Override
   public ViewGroup getAdViewGroup() {
-    return Assertions.checkNotNull(
+    return Assertions.checkStateNotNull(
         adOverlayFrameLayout, "exo_ad_overlay must be present for ad playback");
   }
 
@@ -1162,8 +1199,26 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
   // Internal methods.
 
+  @EnsuresNonNullIf(expression = "controller", result = true)
+  private boolean useController() {
+    if (useController) {
+      Assertions.checkStateNotNull(controller);
+      return true;
+    }
+    return false;
+  }
+
+  @EnsuresNonNullIf(expression = "artworkView", result = true)
+  private boolean useArtwork() {
+    if (useArtwork) {
+      Assertions.checkStateNotNull(artworkView);
+      return true;
+    }
+    return false;
+  }
+
   private boolean toggleControllerVisibility() {
-    if (!useController || player == null) {
+    if (!useController() || player == null) {
       return false;
     }
     if (!controller.isVisible()) {
@@ -1179,7 +1234,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     if (isPlayingAd() && controllerHideDuringAds) {
       return;
     }
-    if (useController) {
+    if (useController()) {
       boolean wasShowingIndefinitely = controller.isVisible() && controller.getShowTimeoutMs() <= 0;
       boolean shouldShowIndefinitely = shouldShowControllerIndefinitely();
       if (isForced || wasShowingIndefinitely || shouldShowIndefinitely) {
@@ -1200,7 +1255,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   private void showController(boolean showIndefinitely) {
-    if (!useController) {
+    if (!useController()) {
       return;
     }
     controller.setShowTimeoutMs(showIndefinitely ? 0 : controllerShowTimeoutMs);
@@ -1212,6 +1267,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   private void updateForCurrentTrackSelections(boolean isNewPlayer) {
+    @Nullable Player player = this.player;
     if (player == null || player.getCurrentTrackGroups().isEmpty()) {
       if (!keepContentOnPlayerReset) {
         hideArtwork();
@@ -1238,12 +1294,12 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     // Video disabled so the shutter must be closed.
     closeShutter();
     // Display artwork if enabled and available, else hide it.
-    if (useArtwork) {
+    if (useArtwork()) {
       for (int i = 0; i < selections.length; i++) {
-        TrackSelection selection = selections.get(i);
+        @Nullable TrackSelection selection = selections.get(i);
         if (selection != null) {
           for (int j = 0; j < selection.length(); j++) {
-            Metadata metadata = selection.getFormat(j).metadata;
+            @Nullable Metadata metadata = selection.getFormat(j).metadata;
             if (metadata != null && setArtworkFromMetadata(metadata)) {
               return;
             }
@@ -1258,6 +1314,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     hideArtwork();
   }
 
+  @RequiresNonNull("artworkView")
   private boolean setArtworkFromMetadata(Metadata metadata) {
     boolean isArtworkSet = false;
     int currentPictureType = PICTURE_TYPE_NOT_SET;
@@ -1287,6 +1344,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     return isArtworkSet;
   }
 
+  @RequiresNonNull("artworkView")
   private boolean setDrawableArtwork(@Nullable Drawable drawable) {
     if (drawable != null) {
       int drawableWidth = drawable.getIntrinsicWidth();
@@ -1333,13 +1391,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
         errorMessageView.setVisibility(View.VISIBLE);
         return;
       }
-      ExoPlaybackException error = null;
-      if (player != null
-          && player.getPlaybackState() == Player.STATE_IDLE
-          && errorMessageProvider != null) {
-        error = player.getPlaybackError();
-      }
-      if (error != null) {
+      @Nullable ExoPlaybackException error = player != null ? player.getPlayerError() : null;
+      if (error != null && errorMessageProvider != null) {
         CharSequence errorMessage = errorMessageProvider.getErrorMessage(error).second;
         errorMessageView.setText(errorMessage);
         errorMessageView.setVisibility(View.VISIBLE);
@@ -1349,7 +1402,29 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     }
   }
 
-  @TargetApi(23)
+  private void updateContentDescription() {
+    if (controller == null || !useController) {
+      setContentDescription(/* contentDescription= */ null);
+    } else if (controller.getVisibility() == View.VISIBLE) {
+      setContentDescription(
+          /* contentDescription= */ controllerHideOnTouch
+              ? getResources().getString(R.string.exo_controls_hide)
+              : null);
+    } else {
+      setContentDescription(
+          /* contentDescription= */ getResources().getString(R.string.exo_controls_show));
+    }
+  }
+
+  private void updateControllerVisibility() {
+    if (isPlayingAd() && controllerHideDuringAds) {
+      hideController();
+    } else {
+      maybeShowController(false);
+    }
+  }
+
+  @RequiresApi(23)
   private static void configureEditModeLogoV23(Resources resources, ImageView logo) {
     logo.setImageDrawable(resources.getDrawable(R.drawable.exo_edit_mode_logo, null));
     logo.setBackgroundColor(resources.getColor(R.color.exo_edit_mode_background_color, null));
@@ -1367,12 +1442,10 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
   /** Applies a texture rotation to a {@link TextureView}. */
   private static void applyTextureViewRotation(TextureView textureView, int textureViewRotation) {
+    Matrix transformMatrix = new Matrix();
     float textureViewWidth = textureView.getWidth();
     float textureViewHeight = textureView.getHeight();
-    if (textureViewWidth == 0 || textureViewHeight == 0 || textureViewRotation == 0) {
-      textureView.setTransform(null);
-    } else {
-      Matrix transformMatrix = new Matrix();
+    if (textureViewWidth != 0 && textureViewHeight != 0 && textureViewRotation != 0) {
       float pivotX = textureViewWidth / 2;
       float pivotY = textureViewHeight / 2;
       transformMatrix.postRotate(textureViewRotation, pivotX, pivotY);
@@ -1386,8 +1459,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           textureViewHeight / rotatedTextureRect.height(),
           pivotX,
           pivotY);
-      textureView.setTransform(transformMatrix);
     }
+    textureView.setTransform(transformMatrix);
   }
 
   @SuppressLint("InlinedApi")
@@ -1408,7 +1481,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           TextOutput,
           VideoListener,
           OnLayoutChangeListener,
-          SingleTapListener {
+          SingleTapListener,
+          PlayerControlView.VisibilityListener {
 
     // TextOutput implementation
 
@@ -1464,14 +1538,17 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     // Player.EventListener implementation
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       updateBuffering();
       updateErrorMessage();
-      if (isPlayingAd() && controllerHideDuringAds) {
-        hideController();
-      } else {
-        maybeShowController(false);
-      }
+      updateControllerVisibility();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
+      updateBuffering();
+      updateControllerVisibility();
     }
 
     @Override
@@ -1502,6 +1579,13 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
       return toggleControllerVisibility();
+    }
+
+    // PlayerControlView.VisibilityListener implementation
+
+    @Override
+    public void onVisibilityChange(int visibility) {
+      updateContentDescription();
     }
   }
 }

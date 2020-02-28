@@ -185,6 +185,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
+  public boolean isLoading() {
+    return compositeSequenceableLoader.isLoading();
+  }
+
+  @Override
   public long getNextLoadPositionUs() {
     return compositeSequenceableLoader.getNextLoadPositionUs();
   }
@@ -272,7 +277,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return new TrackGroupArray(trackGroups);
   }
 
-  @SuppressWarnings("unchecked")
+  // We won't assign the array to a variable that erases the generic type, and then write into it.
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private static ChunkSampleStream<SsChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
   }

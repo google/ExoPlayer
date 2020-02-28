@@ -64,12 +64,11 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
 
     private final DataSource.Factory dataSourceFactory;
 
-    @Nullable private ExtractorsFactory extractorsFactory;
-    @Nullable private String customCacheKey;
-    @Nullable private Object tag;
+    private ExtractorsFactory extractorsFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private int continueLoadingCheckIntervalBytes;
-    private boolean isCreateCalled;
+    @Nullable private String customCacheKey;
+    @Nullable private Object tag;
 
     /**
      * Creates a new factory for {@link ExtractorMediaSource}s.
@@ -78,6 +77,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
      */
     public Factory(DataSource.Factory dataSourceFactory) {
       this.dataSourceFactory = dataSourceFactory;
+      extractorsFactory = new DefaultExtractorsFactory();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       continueLoadingCheckIntervalBytes = DEFAULT_LOADING_CHECK_INTERVAL_BYTES;
     }
@@ -90,11 +90,10 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
      *     possible formats are known, pass a factory that instantiates extractors for those
      *     formats.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setExtractorsFactory(ExtractorsFactory extractorsFactory) {
-      Assertions.checkState(!isCreateCalled);
-      this.extractorsFactory = extractorsFactory;
+    public Factory setExtractorsFactory(@Nullable ExtractorsFactory extractorsFactory) {
+      this.extractorsFactory =
+          extractorsFactory != null ? extractorsFactory : new DefaultExtractorsFactory();
       return this;
     }
 
@@ -105,10 +104,8 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
      * @param customCacheKey A custom key that uniquely identifies the original stream. Used for
      *     cache indexing.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setCustomCacheKey(String customCacheKey) {
-      Assertions.checkState(!isCreateCalled);
+    public Factory setCustomCacheKey(@Nullable String customCacheKey) {
       this.customCacheKey = customCacheKey;
       return this;
     }
@@ -120,27 +117,13 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
      *
      * @param tag A tag for the media source.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setTag(Object tag) {
-      Assertions.checkState(!isCreateCalled);
+    public Factory setTag(@Nullable Object tag) {
       this.tag = tag;
       return this;
     }
 
-    /**
-     * Sets the minimum number of times to retry if a loading error occurs. See {@link
-     * #setLoadErrorHandlingPolicy} for the default value.
-     *
-     * <p>Calling this method is equivalent to calling {@link #setLoadErrorHandlingPolicy} with
-     * {@link DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy(int)
-     * DefaultLoadErrorHandlingPolicy(minLoadableRetryCount)}
-     *
-     * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-     * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
-     * @deprecated Use {@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)} instead.
-     */
+    /** @deprecated Use {@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)} instead. */
     @Deprecated
     public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
       return setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount));
@@ -154,11 +137,13 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
      *
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
-    public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
-      Assertions.checkState(!isCreateCalled);
-      this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+    public Factory setLoadErrorHandlingPolicy(
+        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      this.loadErrorHandlingPolicy =
+          loadErrorHandlingPolicy != null
+              ? loadErrorHandlingPolicy
+              : new DefaultLoadErrorHandlingPolicy();
       return this;
     }
 
@@ -171,12 +156,17 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
      *     each invocation of {@link
      *     MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
     public Factory setContinueLoadingCheckIntervalBytes(int continueLoadingCheckIntervalBytes) {
-      Assertions.checkState(!isCreateCalled);
       this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
       return this;
+    }
+
+    /** @deprecated Use {@link ProgressiveMediaSource.Factory#setDrmSessionManager} instead. */
+    @Deprecated
+    @Override
+    public Factory setDrmSessionManager(@Nullable DrmSessionManager<?> drmSessionManager) {
+      throw new UnsupportedOperationException();
     }
 
     /**
@@ -187,10 +177,6 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
      */
     @Override
     public ExtractorMediaSource createMediaSource(Uri uri) {
-      isCreateCalled = true;
-      if (extractorsFactory == null) {
-        extractorsFactory = new DefaultExtractorsFactory();
-      }
       return new ExtractorMediaSource(
           uri,
           dataSourceFactory,
@@ -365,7 +351,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Deprecated
-  private static final class EventListenerWrapper extends DefaultMediaSourceEventListener {
+  private static final class EventListenerWrapper implements MediaSourceEventListener {
 
     private final EventListener eventListener;
 

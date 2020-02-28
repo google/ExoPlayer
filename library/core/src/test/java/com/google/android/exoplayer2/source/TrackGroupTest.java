@@ -29,9 +29,9 @@ import org.junit.runner.RunWith;
 public final class TrackGroupTest {
 
   @Test
-  public void testParcelable() {
-    Format format1 = Format.createSampleFormat("1", MimeTypes.VIDEO_H264, 0);
-    Format format2 = Format.createSampleFormat("2", MimeTypes.AUDIO_AAC, 0);
+  public void parcelable() {
+    Format format1 = Format.createSampleFormat("1", MimeTypes.VIDEO_H264);
+    Format format2 = Format.createSampleFormat("2", MimeTypes.AUDIO_AAC);
 
     TrackGroup trackGroupToParcel = new TrackGroup(format1, format2);
 

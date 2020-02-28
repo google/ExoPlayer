@@ -37,8 +37,11 @@ public final class EventSampleStreamTest {
 
   private static final String SCHEME_ID = "urn:test";
   private static final String VALUE = "123";
-  private static final Format FORMAT = Format.createSampleFormat("urn:test/123",
-      MimeTypes.APPLICATION_EMSG, null, Format.NO_VALUE, null);
+  private static final Format FORMAT =
+      new Format.Builder()
+          .setId("urn:test/123")
+          .setSampleMimeType(MimeTypes.APPLICATION_EMSG)
+          .build();
   private static final byte[] MESSAGE_DATA = new byte[] {1, 2, 3, 4};
   private static final long DURATION_MS = 3000;
   private static final long TIME_SCALE = 1000;

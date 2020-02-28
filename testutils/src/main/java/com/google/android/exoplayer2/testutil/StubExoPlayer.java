@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.os.Looper;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -25,8 +26,10 @@ import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import java.util.List;
 
 /**
  * An abstract {@link ExoPlayer} implementation that throws {@link UnsupportedOperationException}
@@ -75,28 +78,136 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  @Player.State
+  @State
   public int getPlaybackState() {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  @PlaybackSuppressionReason
+  public int getPlaybackSuppressionReason() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Deprecated
   @Override
   public ExoPlaybackException getPlaybackError() {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  public ExoPlaybackException getPlayerError() {
+    throw new UnsupportedOperationException();
+  }
+
+  /** @deprecated Use {@link #prepare()} instead. */
+  @Deprecated
+  @Override
   public void retry() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link ExoPlayer#prepare()} instead.
+   */
+  @Deprecated
+  @Override
+  public void prepare() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource)} and {@link ExoPlayer#prepare()} instead.
+   */
+  @Deprecated
   @Override
   public void prepare(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @deprecated Use {@link #setMediaSource(MediaSource, boolean)} and {@link ExoPlayer#prepare()}
+   *     instead.
+   */
+  @Deprecated
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSource(MediaSource mediaSource) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSource(MediaSource mediaSource, long startPositionMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSources(List<MediaSource> mediaSources) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSources(List<MediaSource> mediaSources, boolean resetPosition) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaSources(
+      List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaSource(MediaSource mediaSource) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaSource(int index, MediaSource mediaSource) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaSources(List<MediaSource> mediaSources) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaSources(int index, List<MediaSource> mediaSources) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void moveMediaItem(int currentIndex, int newIndex) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeMediaItem(int index) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeMediaItems(int fromIndex, int toIndex) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void clearMediaItems() {
     throw new UnsupportedOperationException();
   }
 
@@ -121,6 +232,11 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public void setShuffleOrder(ShuffleOrder shuffleOrder) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setShuffleModeEnabled(boolean shuffleModeEnabled) {
     throw new UnsupportedOperationException();
   }
@@ -141,7 +257,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
+  public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     throw new UnsupportedOperationException();
   }
 
@@ -151,7 +267,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void setSeekParameters(SeekParameters seekParameters) {
+  public void setSeekParameters(@Nullable SeekParameters seekParameters) {
     throw new UnsupportedOperationException();
   }
 

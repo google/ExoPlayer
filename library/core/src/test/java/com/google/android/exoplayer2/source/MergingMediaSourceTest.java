@@ -37,7 +37,7 @@ import org.robolectric.annotation.LooperMode;
 public class MergingMediaSourceTest {
 
   @Test
-  public void testMergingDynamicTimelines() throws IOException {
+  public void mergingDynamicTimelines() throws IOException {
     FakeTimeline firstTimeline =
         new FakeTimeline(new TimelineWindowDefinition(true, true, C.TIME_UNSET));
     FakeTimeline secondTimeline =
@@ -46,14 +46,14 @@ public class MergingMediaSourceTest {
   }
 
   @Test
-  public void testMergingStaticTimelines() throws IOException {
+  public void mergingStaticTimelines() throws IOException {
     FakeTimeline firstTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 20));
     FakeTimeline secondTimeline = new FakeTimeline(new TimelineWindowDefinition(true, false, 10));
     testMergingMediaSourcePrepare(firstTimeline, secondTimeline);
   }
 
   @Test
-  public void testMergingTimelinesWithDifferentPeriodCounts() throws IOException {
+  public void mergingTimelinesWithDifferentPeriodCounts() throws IOException {
     FakeTimeline firstTimeline = new FakeTimeline(new TimelineWindowDefinition(1, null));
     FakeTimeline secondTimeline = new FakeTimeline(new TimelineWindowDefinition(2, null));
     try {
@@ -65,7 +65,7 @@ public class MergingMediaSourceTest {
   }
 
   @Test
-  public void testMergingMediaSourcePeriodCreation() throws Exception {
+  public void mergingMediaSourcePeriodCreation() throws Exception {
     FakeMediaSource[] mediaSources = new FakeMediaSource[2];
     for (int i = 0; i < mediaSources.length; i++) {
       mediaSources[i] = new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2));

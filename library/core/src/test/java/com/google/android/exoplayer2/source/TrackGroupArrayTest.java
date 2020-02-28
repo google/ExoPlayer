@@ -29,10 +29,10 @@ import org.junit.runner.RunWith;
 public final class TrackGroupArrayTest {
 
   @Test
-  public void testParcelable() {
-    Format format1 = Format.createSampleFormat("1", MimeTypes.VIDEO_H264, 0);
-    Format format2 = Format.createSampleFormat("2", MimeTypes.AUDIO_AAC, 0);
-    Format format3 = Format.createSampleFormat("3", MimeTypes.VIDEO_H264, 0);
+  public void parcelable() {
+    Format format1 = Format.createSampleFormat("1", MimeTypes.VIDEO_H264);
+    Format format2 = Format.createSampleFormat("2", MimeTypes.AUDIO_AAC);
+    Format format3 = Format.createSampleFormat("3", MimeTypes.VIDEO_H264);
 
     TrackGroup trackGroup1 = new TrackGroup(format1, format2);
     TrackGroup trackGroup2 = new TrackGroup(format3);

@@ -14,6 +14,10 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <!-- Description for a media player view to indicate that tapping on the view shows the playback controls. [CHAR LIMIT=50] -->
+  <string name="exo_controls_show">Show player controls</string>
+  <!-- Description for a media player view to indicate that tapping on the view hides the playback controls [CHAR LIMIT=50] -->
+  <string name="exo_controls_hide">Hide player controls</string>
   <!-- Description for a media control button that causes the previous track to be played. [CHAR LIMIT=30] -->
   <string name="exo_controls_previous_description">Previous track</string>
   <!-- Description for a media control button that causes the next track to be played. [CHAR LIMIT=30] -->
@@ -34,8 +38,10 @@
   <string name="exo_controls_repeat_one_description">Repeat one</string>
   <!-- Description for a button that controls the repeat mode of a media playback. In this mode the entire playlist is repeated. [CHAR LIMIT=30] -->
   <string name="exo_controls_repeat_all_description">Repeat all</string>
-  <!-- Description for a media control button that toggles whether shuffle mode is enabled. [CHAR LIMIT=30] -->
-  <string name="exo_controls_shuffle_description">Shuffle</string>
+  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is on. [CHAR LIMIT=40] -->
+  <string name="exo_controls_shuffle_on_description">Shuffle on</string>
+  <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is off. [CHAR LIMIT=40] -->
+  <string name="exo_controls_shuffle_off_description">Shuffle off</string>
   <!-- Description for a media control button that toggles whether a video playback is fullscreen. [CHAR LIMIT=30] -->
   <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
   <!-- Description for a media control button that toggles whether a video playback is in VR mode. [CHAR LIMIT=30] -->

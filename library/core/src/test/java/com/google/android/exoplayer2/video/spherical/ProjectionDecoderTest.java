@@ -44,12 +44,12 @@ public final class ProjectionDecoderTest {
   private static final float[] LAST_UV = {1.0f, 1.0f};
 
   @Test
-  public void testDecodeProj() {
+  public void decodeProj() {
     testDecoding(PROJ_DATA);
   }
 
   @Test
-  public void testDecodeMshp() {
+  public void decodeMshp() {
     testDecoding(Arrays.copyOfRange(PROJ_DATA, MSHP_OFFSET, PROJ_DATA.length));
   }
 

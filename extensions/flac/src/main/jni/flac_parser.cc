@@ -265,11 +265,11 @@ FLACParser::FLACParser(DataSource *source)
     : mDataSource(source),
       mCopy(copyTrespass),
       mDecoder(NULL),
-      mSeekTable(NULL),
-      firstFrameOffset(0LL),
       mCurrentPos(0LL),
       mEOF(false),
       mStreamInfoValid(false),
+      mSeekTable(NULL),
+      firstFrameOffset(0LL),
       mVorbisCommentsValid(false),
       mPicturesValid(false),
       mWriteRequested(false),
@@ -349,26 +349,6 @@ bool FLACParser::decodeMetadata() {
         ALOGE("unsupported bits per sample %u", getBitsPerSample());
         return false;
     }
-    // check sample rate
-    switch (getSampleRate()) {
-      case 8000:
-      case 11025:
-      case 12000:
-      case 16000:
-      case 22050:
-      case 24000:
-      case 32000:
-      case 44100:
-      case 48000:
-      case 88200:
-      case 96000:
-      case 176400:
-      case 192000:
-        break;
-      default:
-        ALOGE("unsupported sample rate %u", getSampleRate());
-        return false;
-    }
     // configure the appropriate copy function based on device endianness.
     if (isBigEndian()) {
       mCopy = copyToByteArrayBigEndian;
@@ -438,22 +418,45 @@ size_t FLACParser::readBuffer(void *output, size_t output_size) {
   return bufferSize;
 }
 
-int64_t FLACParser::getSeekPosition(int64_t timeUs) {
+bool FLACParser::getSeekPositions(int64_t timeUs,
+                                  std::array<int64_t, 4> &result) {
   if (!mSeekTable) {
-    return -1;
+    return false;
   }
 
-  int64_t sample = (timeUs * getSampleRate()) / 1000000LL;
-  if (sample >= getTotalSamples()) {
-      sample = getTotalSamples();
+  unsigned sampleRate = getSampleRate();
+  int64_t totalSamples = getTotalSamples();
+  int64_t targetSampleNumber = (timeUs * sampleRate) / 1000000LL;
+  if (targetSampleNumber >= totalSamples) {
+    targetSampleNumber = totalSamples - 1;
   }
 
   FLAC__StreamMetadata_SeekPoint* points = mSeekTable->points;
-  for (unsigned i = mSeekTable->num_points; i > 0; ) {
-    i--;
-    if (points[i].sample_number <= sample) {
-      return firstFrameOffset + points[i].stream_offset;
+  unsigned length = mSeekTable->num_points;
+
+  for (unsigned i = length; i != 0; i--) {
+    int64_t sampleNumber = points[i - 1].sample_number;
+    if (sampleNumber == -1) {  // placeholder
+      continue;
+    }
+    if (sampleNumber <= targetSampleNumber) {
+      result[0] = (sampleNumber * 1000000LL) / sampleRate;
+      result[1] = firstFrameOffset + points[i - 1].stream_offset;
+      if (sampleNumber == targetSampleNumber || i >= length ||
+          points[i].sample_number == -1) {  // placeholder
+        // exact seek, or no following non-placeholder seek point
+        result[2] = result[0];
+        result[3] = result[1];
+      } else {
+        result[2] = (points[i].sample_number * 1000000LL) / sampleRate;
+        result[3] = firstFrameOffset + points[i].stream_offset;
+      }
+      return true;
     }
   }
-  return firstFrameOffset;
+  result[0] = 0;
+  result[1] = firstFrameOffset;
+  result[2] = 0;
+  result[3] = firstFrameOffset;
+  return true;
 }

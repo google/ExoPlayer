@@ -28,6 +28,23 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final void play() {
+    setPlayWhenReady(true);
+  }
+
+  @Override
+  public final void pause() {
+    setPlayWhenReady(false);
+  }
+
+  @Override
+  public final boolean isPlaying() {
+    return getPlaybackState() == Player.STATE_READY
+        && getPlayWhenReady()
+        && getPlaybackSuppressionReason() == PLAYBACK_SUPPRESSION_REASON_NONE;
+  }
+
+  @Override
   public final void seekToDefaultPosition() {
     seekToDefaultPosition(getCurrentWindowIndex());
   }
@@ -118,6 +135,25 @@ public abstract class BasePlayer implements Player {
   public final boolean isCurrentWindowDynamic() {
     Timeline timeline = getCurrentTimeline();
     return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isDynamic;
+  }
+
+  @Override
+  public final boolean isCurrentWindowLive() {
+    Timeline timeline = getCurrentTimeline();
+    return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isLive;
+  }
+
+  @Override
+  public final long getCurrentLiveOffset() {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline.isEmpty()) {
+      return C.TIME_UNSET;
+    }
+    long windowStartTimeMs = timeline.getWindow(getCurrentWindowIndex(), window).windowStartTimeMs;
+    if (windowStartTimeMs == C.TIME_UNSET) {
+      return C.TIME_UNSET;
+    }
+    return window.getCurrentUnixTimeMs() - window.windowStartTimeMs - getContentPosition();
   }
 
   @Override
