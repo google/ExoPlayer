@@ -8,6 +8,7 @@ track 0:
   sample count = 150
   format 0:
     sampleMimeType = application/cea-608
+    codecs = cea608
   sample 0:
     time = 37657512133
     flags = 1
