@@ -762,7 +762,8 @@ public final class AnalyticsCollectorTest {
             FakeTimeline.createAdPlaybackState(
                 /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */
                 0,
-                5 * C.MICROS_PER_SECOND,
+                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
+                    + 5 * C.MICROS_PER_SECOND,
                 C.TIME_END_OF_SOURCE));
     AtomicInteger playedAdCount = new AtomicInteger(0);
     Timeline adTimeline =
@@ -997,7 +998,9 @@ public final class AnalyticsCollectorTest {
                 /* isDynamic= */ false,
                 10 * C.MICROS_PER_SECOND,
                 FakeTimeline.createAdPlaybackState(
-                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */ 5 * C.MICROS_PER_SECOND)));
+                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */
+                    TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
+                        + 5 * C.MICROS_PER_SECOND)));
     FakeMediaSource fakeMediaSource =
         new FakeMediaSource(adTimeline, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
