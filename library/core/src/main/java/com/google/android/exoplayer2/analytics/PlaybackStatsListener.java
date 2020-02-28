@@ -194,11 +194,15 @@ public final class PlaybackStatsListener
   @Override
   public void onAdPlaybackStarted(EventTime eventTime, String contentSession, String adSession) {
     Assertions.checkState(Assertions.checkNotNull(eventTime.mediaPeriodId).isAd());
-    long contentPositionUs =
+    long contentPeriodPositionUs =
         eventTime
             .timeline
             .getPeriodByUid(eventTime.mediaPeriodId.periodUid, period)
             .getAdGroupTimeUs(eventTime.mediaPeriodId.adGroupIndex);
+    long contentWindowPositionUs =
+        contentPeriodPositionUs == C.TIME_END_OF_SOURCE
+            ? C.TIME_END_OF_SOURCE
+            : contentPeriodPositionUs + period.getPositionInWindowUs();
     EventTime contentEventTime =
         new EventTime(
             eventTime.realtimeMs,
@@ -208,7 +212,7 @@ public final class PlaybackStatsListener
                 eventTime.mediaPeriodId.periodUid,
                 eventTime.mediaPeriodId.windowSequenceNumber,
                 eventTime.mediaPeriodId.adGroupIndex),
-            /* eventPlaybackPositionMs= */ C.usToMs(contentPositionUs),
+            /* eventPlaybackPositionMs= */ C.usToMs(contentWindowPositionUs),
             eventTime.currentPlaybackPositionMs,
             eventTime.totalBufferedDurationMs);
     Assertions.checkNotNull(playbackStatsTrackers.get(contentSession))
