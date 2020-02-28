@@ -59,6 +59,11 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void testSampleWithAc3() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac3.ts");
+  }
+
+  @Test
   public void testSampleWithAc4() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac4.ts");
   }
@@ -66,6 +71,11 @@ public final class TsExtractorTest {
   @Test
   public void testSampleWithEac3() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3.ts");
+  }
+
+  @Test
+  public void testSampleWithEac3joc() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3joc.ts");
   }
 
   @Test
