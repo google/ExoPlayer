@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
@@ -687,7 +688,7 @@ public class SsManifestParser implements ParsingLoadable.Parser<SsManifest> {
         if (codecSpecificData.isEmpty() && MimeTypes.AUDIO_AAC.equals(sampleMimeType)) {
           codecSpecificData =
               Collections.singletonList(
-                  CodecSpecificDataUtil.buildAacLcAudioSpecificConfig(sampleRate, channelCount));
+                  AacUtil.buildAacLcAudioSpecificConfig(sampleRate, channelCount));
         }
         formatBuilder
             .setContainerMimeType(MimeTypes.AUDIO_MP4)

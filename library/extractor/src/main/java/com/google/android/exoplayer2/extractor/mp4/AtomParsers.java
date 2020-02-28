@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -29,7 +30,6 @@ import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
-import com.google.android.exoplayer2.util.CodecSpecificDataUtil.AacConfig;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -1184,8 +1184,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           if (MimeTypes.AUDIO_AAC.equals(mimeType) && initializationData != null) {
             // Update sampleRate and channelCount from the AudioSpecificConfig initialization data,
             // which is more reliable. See [Internal: b/10903778].
-            AacConfig aacConfig =
-                CodecSpecificDataUtil.parseAacAudioSpecificConfig(initializationData);
+            AacUtil.Config aacConfig = AacUtil.parseAudioSpecificConfig(initializationData);
             sampleRate = aacConfig.sampleRateHz;
             channelCount = aacConfig.channelCount;
             codecs = aacConfig.codecs;

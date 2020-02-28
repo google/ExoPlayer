@@ -18,9 +18,8 @@ package com.google.android.exoplayer2.extractor.flv;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
-import com.google.android.exoplayer2.util.CodecSpecificDataUtil.AacConfig;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.Collections;
@@ -109,8 +108,7 @@ import java.util.Collections;
         // Parse the sequence header.
         byte[] audioSpecificConfig = new byte[data.bytesLeft()];
         data.readBytes(audioSpecificConfig, 0, audioSpecificConfig.length);
-        AacConfig aacConfig =
-            CodecSpecificDataUtil.parseAacAudioSpecificConfig(audioSpecificConfig);
+        AacUtil.Config aacConfig = AacUtil.parseAudioSpecificConfig(audioSpecificConfig);
         Format format =
             new Format.Builder()
                 .setSampleMimeType(MimeTypes.AUDIO_AAC)
