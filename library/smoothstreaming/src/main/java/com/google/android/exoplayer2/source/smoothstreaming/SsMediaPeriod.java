@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
@@ -59,6 +60,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
   private boolean notifiedReadingStarted;
+  private SsMediaSource mediaSource;
 
   public SsMediaPeriod(
       SsManifest manifest,
@@ -69,7 +71,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       LoaderErrorThrower manifestLoaderErrorThrower,
-      Allocator allocator) {
+      Allocator allocator,
+      SsMediaSource mediaSource) {
     this.manifest = manifest;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
@@ -84,6 +87,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
     eventDispatcher.mediaPeriodCreated();
+    this.mediaSource = mediaSource;
   }
 
   public void updateManifest(SsManifest manifest) {
@@ -244,7 +248,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             manifest,
             streamElementIndex,
             selection,
-            transferListener);
+            transferListener,
+	    mediaSource);
     return new ChunkSampleStream<>(
         manifest.streamElements[streamElementIndex].type,
         null,

@@ -46,7 +46,8 @@ public interface SsChunkSource extends ChunkSource {
         SsManifest manifest,
         int streamElementIndex,
         TrackSelection trackSelection,
-        @Nullable TransferListener transferListener);
+        @Nullable TransferListener transferListener,
+        SsMediaSource mediaSource);
   }
 
   /**
