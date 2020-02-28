@@ -5728,6 +5728,43 @@ public final class ExoPlayerTest {
     assertThat(trackSelectionsAfterError.get().get(1)).isNotNull(); // Audio renderer.
   }
 
+  @Test
+  public void seekToCurrentPosition_inEndedState_switchesToBufferingStateAndContinuesPlayback()
+      throws Exception {
+    MediaSource mediaSource = new FakeMediaSource(new FakeTimeline(/* windowCount = */ 1));
+    AtomicInteger windowIndexAfterFinalEndedState = new AtomicInteger();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("seekToCurrentPosition_inEndedState")
+            .waitForPlaybackState(Player.STATE_ENDED)
+            .addMediaSources(mediaSource)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.seekTo(player.getCurrentPosition());
+                  }
+                })
+            .waitForPlaybackState(Player.STATE_READY)
+            .waitForPlaybackState(Player.STATE_ENDED)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    windowIndexAfterFinalEndedState.set(player.getCurrentWindowIndex());
+                  }
+                })
+            .build();
+    new Builder()
+        .setMediaSources(mediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(windowIndexAfterFinalEndedState.get()).isEqualTo(1);
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {

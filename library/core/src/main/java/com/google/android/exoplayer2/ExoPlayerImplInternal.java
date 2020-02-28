@@ -902,12 +902,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
 
     try {
-      if (playbackInfo.timeline.isEmpty() || !playlist.isPrepared()) {
+      if (playbackInfo.timeline.isEmpty()) {
         // Save seek position for later, as we are still waiting for a prepared source.
         pendingInitialSeekPosition = seekPosition;
       } else if (resolvedSeekPosition == null) {
         // End playback, as we didn't manage to find a valid seek position.
-        setState(Player.STATE_ENDED);
+        if (playbackInfo.playbackState != Player.STATE_IDLE) {
+          setState(Player.STATE_ENDED);
+        }
         resetInternal(
             /* resetRenderers= */ false,
             /* resetPosition= */ true,
@@ -926,7 +928,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 playingPeriodHolder.mediaPeriod.getAdjustedSeekPositionUs(
                     newPeriodPositionUs, seekParameters);
           }
-          if (C.usToMs(newPeriodPositionUs) == C.usToMs(playbackInfo.positionUs)) {
+          if (C.usToMs(newPeriodPositionUs) == C.usToMs(playbackInfo.positionUs)
+              && (playbackInfo.playbackState == Player.STATE_BUFFERING
+                  || playbackInfo.playbackState == Player.STATE_READY)) {
             // Seek will be performed to the current position. Do nothing.
             periodPositionUs = playbackInfo.positionUs;
             return;
