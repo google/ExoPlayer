@@ -1,0 +1,43 @@
+seekMap:
+  isSeekable = true
+  duration = 2013977
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(1006988) = [[timeUs=1006988, position=101524]]
+  getPosition(2013977) = [[timeUs=2013977, position=203237]]
+numberOfTracks = 1
+track 1900:
+  total output bytes = 5120
+  sample count = 2
+  format 0:
+    averageBitrate = -1
+    peakBitrate = -1
+    id = 1/1900
+    containerMimeType = null
+    sampleMimeType = audio/eac3-joc
+    maxInputSize = -1
+    width = -1
+    height = -1
+    frameRate = -1.0
+    rotationDegrees = 0
+    pixelWidthHeightRatio = 1.0
+    channelCount = 6
+    sampleRate = 48000
+    pcmEncoding = -1
+    encoderDelay = 0
+    encoderPadding = 0
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    metadata = null
+    initializationData:
+  sample 0:
+    time = 1984000
+    flags = 1
+    data = length 2560, hash 10C62F30
+  sample 1:
+    time = 2016000
+    flags = 1
+    data = length 2560, hash EE4F848A
+tracksEnded = true

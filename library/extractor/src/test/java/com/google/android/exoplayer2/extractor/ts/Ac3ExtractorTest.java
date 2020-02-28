@@ -33,4 +33,9 @@ public final class Ac3ExtractorTest {
   public void testEAc3Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.eac3");
   }
+
+  @Test
+  public void testEAc3jocSample() throws Exception {
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample_eac3joc.ec3");
+  }
 }
