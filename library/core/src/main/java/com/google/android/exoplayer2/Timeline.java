@@ -466,8 +466,8 @@ public abstract class Timeline {
      * microseconds.
      *
      * @param adGroupIndex The ad group index.
-     * @return The time of the ad group at the index, in microseconds, or {@link
-     *     C#TIME_END_OF_SOURCE} for a post-roll ad group.
+     * @return The time of the ad group at the index relative to the start of the enclosing {@link
+     *     Period}, in microseconds, or {@link C#TIME_END_OF_SOURCE} for a post-roll ad group.
      */
     public long getAdGroupTimeUs(int adGroupIndex) {
       return adPlaybackState.adGroupTimesUs[adGroupIndex];
@@ -510,22 +510,23 @@ public abstract class Timeline {
     }
 
     /**
-     * Returns the index of the ad group at or before {@code positionUs}, if that ad group is
-     * unplayed. Returns {@link C#INDEX_UNSET} if the ad group at or before {@code positionUs} has
-     * no ads remaining to be played, or if there is no such ad group.
+     * Returns the index of the ad group at or before {@code positionUs} in the period, if that ad
+     * group is unplayed. Returns {@link C#INDEX_UNSET} if the ad group at or before {@code
+     * positionUs} has no ads remaining to be played, or if there is no such ad group.
      *
-     * @param positionUs The position at or before which to find an ad group, in microseconds.
+     * @param positionUs The period position at or before which to find an ad group, in
+     *     microseconds.
      * @return The index of the ad group, or {@link C#INDEX_UNSET}.
      */
     public int getAdGroupIndexForPositionUs(long positionUs) {
-      return adPlaybackState.getAdGroupIndexForPositionUs(positionUs);
+      return adPlaybackState.getAdGroupIndexForPositionUs(positionUs, durationUs);
     }
 
     /**
-     * Returns the index of the next ad group after {@code positionUs} that has ads remaining to be
-     * played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
+     * Returns the index of the next ad group after {@code positionUs} in the period that has ads
+     * remaining to be played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
      *
-     * @param positionUs The position after which to find an ad group, in microseconds.
+     * @param positionUs The period position after which to find an ad group, in microseconds.
      * @return The index of the ad group, or {@link C#INDEX_UNSET}.
      */
     public int getAdGroupIndexAfterPositionUs(long positionUs) {
