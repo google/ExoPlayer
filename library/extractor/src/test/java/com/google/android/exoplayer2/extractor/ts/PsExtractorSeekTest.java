@@ -74,7 +74,7 @@ public final class PsExtractorSeekTest {
   }
 
   @Test
-  public void testPsExtractorReads_nonSeekTableFile_returnSeekableSeekMap()
+  public void psExtractorReads_nonSeekTableFile_returnSeekableSeekMap()
       throws IOException, InterruptedException {
     PsExtractor extractor = new PsExtractor();
 
@@ -86,7 +86,7 @@ public final class PsExtractorSeekTest {
   }
 
   @Test
-  public void testHandlePendingSeek_handlesSeekingToPositionInFile_extractsCorrectFrame()
+  public void handlePendingSeek_handlesSeekingToPositionInFile_extractsCorrectFrame()
       throws IOException, InterruptedException {
     PsExtractor extractor = new PsExtractor();
 
@@ -103,7 +103,7 @@ public final class PsExtractorSeekTest {
   }
 
   @Test
-  public void testHandlePendingSeek_handlesSeekToEoF() throws IOException, InterruptedException {
+  public void handlePendingSeek_handlesSeekToEoF() throws IOException, InterruptedException {
     PsExtractor extractor = new PsExtractor();
 
     FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
@@ -118,7 +118,7 @@ public final class PsExtractorSeekTest {
   }
 
   @Test
-  public void testHandlePendingSeek_handlesSeekingBackward_extractsCorrectFrame()
+  public void handlePendingSeek_handlesSeekingBackward_extractsCorrectFrame()
       throws IOException, InterruptedException {
     PsExtractor extractor = new PsExtractor();
 
@@ -138,7 +138,7 @@ public final class PsExtractorSeekTest {
   }
 
   @Test
-  public void testHandlePendingSeek_handlesSeekingForward_extractsCorrectFrame()
+  public void handlePendingSeek_handlesSeekingForward_extractsCorrectFrame()
       throws IOException, InterruptedException {
     PsExtractor extractor = new PsExtractor();
 
@@ -158,7 +158,7 @@ public final class PsExtractorSeekTest {
   }
 
   @Test
-  public void testHandlePendingSeek_handlesRandomSeeks_extractsCorrectFrame()
+  public void handlePendingSeek_handlesRandomSeeks_extractsCorrectFrame()
       throws IOException, InterruptedException {
     PsExtractor extractor = new PsExtractor();
 
@@ -178,7 +178,7 @@ public final class PsExtractorSeekTest {
   }
 
   @Test
-  public void testHandlePendingSeek_handlesRandomSeeksAfterReadingFileOnce_extractsCorrectFrame()
+  public void handlePendingSeek_handlesRandomSeeksAfterReadingFileOnce_extractsCorrectFrame()
       throws IOException, InterruptedException {
     PsExtractor extractor = new PsExtractor();
 

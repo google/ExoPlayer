@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public final class PictureFrameTest {
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     PictureFrame pictureFrameToParcel = new PictureFrame(0, "", "", 0, 0, 0, 0, new byte[0]);
 
     Parcel parcel = Parcel.obtain();

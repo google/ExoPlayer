@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public final class RawCcExtractorTest {
 
   @Test
-  public void testRawCcSample() throws Exception {
+  public void rawCcSample() throws Exception {
     Format format =
         new Format.Builder()
             .setSampleMimeType(MimeTypes.APPLICATION_CEA608)

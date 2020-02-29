@@ -37,28 +37,28 @@ import org.junit.runner.RunWith;
 public final class DashUtilTest {
 
   @Test
-  public void testLoadDrmInitDataFromManifest() throws Exception {
+  public void loadDrmInitDataFromManifest() throws Exception {
     Period period = newPeriod(newAdaptationSet(newRepresentation(newDrmInitData())));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isEqualTo(newDrmInitData());
   }
 
   @Test
-  public void testLoadDrmInitDataMissing() throws Exception {
+  public void loadDrmInitDataMissing() throws Exception {
     Period period = newPeriod(newAdaptationSet(newRepresentation(null /* no init data */)));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isNull();
   }
 
   @Test
-  public void testLoadDrmInitDataNoRepresentations() throws Exception {
+  public void loadDrmInitDataNoRepresentations() throws Exception {
     Period period = newPeriod(newAdaptationSet(/* no representation */ ));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isNull();
   }
 
   @Test
-  public void testLoadDrmInitDataNoAdaptationSets() throws Exception {
+  public void loadDrmInitDataNoAdaptationSets() throws Exception {
     Period period = newPeriod(/* no adaptation set */ );
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isNull();

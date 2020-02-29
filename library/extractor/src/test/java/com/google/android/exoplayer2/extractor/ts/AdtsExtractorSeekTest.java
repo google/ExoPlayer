@@ -54,8 +54,7 @@ public final class AdtsExtractorSeekTest {
   }
 
   @Test
-  public void testAdtsExtractorReads_returnSeekableSeekMap()
-      throws IOException, InterruptedException {
+  public void adtsExtractorReads_returnSeekableSeekMap() throws IOException, InterruptedException {
     String fileName = TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -74,7 +73,7 @@ public final class AdtsExtractorSeekTest {
   }
 
   @Test
-  public void testSeeking_handlesSeekingToPositionInFile_extractsCorrectSample()
+  public void seeking_handlesSeekingToPositionInFile_extractsCorrectSample()
       throws IOException, InterruptedException {
     String fileName = TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
@@ -101,7 +100,7 @@ public final class AdtsExtractorSeekTest {
   }
 
   @Test
-  public void testSeeking_handlesSeekToEoF_extractsLastSample()
+  public void seeking_handlesSeekToEoF_extractsLastSample()
       throws IOException, InterruptedException {
     String fileName = TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
@@ -128,7 +127,7 @@ public final class AdtsExtractorSeekTest {
   }
 
   @Test
-  public void testSeeking_handlesSeekingBackward_extractsCorrectSamples()
+  public void seeking_handlesSeekingBackward_extractsCorrectSamples()
       throws IOException, InterruptedException {
     String fileName = TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
@@ -157,7 +156,7 @@ public final class AdtsExtractorSeekTest {
   }
 
   @Test
-  public void testSeeking_handlesSeekingForward_extractsCorrectSamples()
+  public void seeking_handlesSeekingForward_extractsCorrectSamples()
       throws IOException, InterruptedException {
     String fileName = TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
@@ -186,7 +185,7 @@ public final class AdtsExtractorSeekTest {
   }
 
   @Test
-  public void testSeeking_handlesRandomSeeks_extractsCorrectSamples()
+  public void seeking_handlesRandomSeeks_extractsCorrectSamples()
       throws IOException, InterruptedException {
     String fileName = TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);

@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
 public final class VorbisReaderTest {
 
   @Test
-  public void testReadBits() throws Exception {
+  public void readBits_returnsSignificantBitsFromIndex() {
     assertThat(readBits((byte) 0x00, 2, 2)).isEqualTo(0);
     assertThat(readBits((byte) 0x02, 1, 1)).isEqualTo(1);
     assertThat(readBits((byte) 0xF0, 4, 4)).isEqualTo(15);
@@ -44,7 +44,7 @@ public final class VorbisReaderTest {
   }
 
   @Test
-  public void testAppendNumberOfSamples() throws Exception {
+  public void appendNumberOfSamples() {
     ParsableByteArray buffer = new ParsableByteArray(4);
     buffer.setLimit(0);
     VorbisReader.appendNumberOfSamples(buffer, 0x01234567);
@@ -56,7 +56,8 @@ public final class VorbisReaderTest {
   }
 
   @Test
-  public void testReadSetupHeadersWithIOExceptions() throws IOException, InterruptedException {
+  public void readSetupHeaders_withIOExceptions_readSuccess()
+      throws IOException, InterruptedException {
     // initial two pages of bytes which by spec contain the three Vorbis header packets:
     // identification, comment and setup header.
     byte[] data =

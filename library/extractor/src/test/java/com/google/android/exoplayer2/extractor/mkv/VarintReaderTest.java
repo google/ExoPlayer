@@ -85,7 +85,7 @@ public final class VarintReaderTest {
   private static final long VALUE_8_BYTE_MAX_WITH_MASK = 0x1FFFFFFFFFFFFFFL;
 
   @Test
-  public void testReadVarintEndOfInputAtStart() throws IOException, InterruptedException {
+  public void readVarintEndOfInputAtStart() throws IOException, InterruptedException {
     VarintReader reader = new VarintReader();
     // Build an input with no data.
     ExtractorInput input = new FakeExtractorInput.Builder()
@@ -104,7 +104,7 @@ public final class VarintReaderTest {
   }
 
   @Test
-  public void testReadVarintExceedsMaximumAllowedLength() throws IOException, InterruptedException {
+  public void readVarintExceedsMaximumAllowedLength() throws IOException, InterruptedException {
     VarintReader reader = new VarintReader();
     ExtractorInput input = new FakeExtractorInput.Builder()
         .setData(DATA_8_BYTE_0)
@@ -115,7 +115,7 @@ public final class VarintReaderTest {
   }
 
   @Test
-  public void testReadVarint() throws IOException, InterruptedException {
+  public void readVarint() throws IOException, InterruptedException {
     VarintReader reader = new VarintReader();
     testReadVarint(reader, true, DATA_1_BYTE_0, 1, 0);
     testReadVarint(reader, true, DATA_2_BYTE_0, 2, 0);
@@ -152,7 +152,7 @@ public final class VarintReaderTest {
   }
 
   @Test
-  public void testReadVarintFlaky() throws IOException, InterruptedException {
+  public void readVarintFlaky() throws IOException, InterruptedException {
     VarintReader reader = new VarintReader();
     testReadVarintFlaky(reader, true, DATA_1_BYTE_0, 1, 0);
     testReadVarintFlaky(reader, true, DATA_2_BYTE_0, 2, 0);

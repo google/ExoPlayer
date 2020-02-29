@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 public final class Ac4ExtractorTest {
 
   @Test
-  public void testAc4Sample() throws Exception {
+  public void ac4Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Ac4Extractor::new, "ts/sample.ac4");
   }
 }

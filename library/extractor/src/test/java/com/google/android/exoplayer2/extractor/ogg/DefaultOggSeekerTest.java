@@ -39,7 +39,7 @@ public final class DefaultOggSeekerTest {
   private final Random random = new Random(/* seed= */ 0);
 
   @Test
-  public void testSetupWithUnsetEndPositionFails() {
+  public void setupWithUnsetEndPositionFails() {
     try {
       new DefaultOggSeeker(
           /* streamReader= */ new TestStreamReader(),
@@ -55,7 +55,7 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void testSeeking() throws Exception {
+  public void seeking() throws Exception {
     byte[] data =
         getByteArray(ApplicationProvider.getApplicationContext(), "ogg/random_1000_pages");
     int granuleCount = 49269395;
@@ -122,7 +122,7 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void testSkipToNextPage() throws Exception {
+  public void skipToNextPage_success() throws Exception {
     FakeExtractorInput extractorInput =
         createInput(
             TestUtil.joinByteArrays(
@@ -135,7 +135,7 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void testSkipToNextPageOverlap() throws Exception {
+  public void skipToNextPage_withOverlappingInput_success() throws Exception {
     FakeExtractorInput extractorInput =
         createInput(
             TestUtil.joinByteArrays(
@@ -148,7 +148,7 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void testSkipToNextPageInputShorterThanPeekLength() throws Exception {
+  public void skipToNextPage_withInputShorterThanPeekLength_success() throws Exception {
     FakeExtractorInput extractorInput =
         createInput(
             TestUtil.joinByteArrays(new byte[] {'x', 'O', 'g', 'g', 'S'}),
@@ -158,7 +158,7 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void testSkipToNextPageNoMatch() throws Exception {
+  public void skipToNextPage_withoutMatch_throwsException() throws Exception {
     FakeExtractorInput extractorInput =
         createInput(new byte[] {'g', 'g', 'S', 'O', 'g', 'g'}, /* simulateUnknownLength= */ false);
     try {
@@ -170,7 +170,7 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void testReadGranuleOfLastPage() throws IOException, InterruptedException {
+  public void readGranuleOfLastPage() throws IOException, InterruptedException {
     // This test stream has three headers with granule numbers 20000, 40000 and 60000.
     byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/three_headers");
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);
@@ -178,7 +178,7 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void testReadGranuleOfLastPageAfterLastHeader() throws Exception {
+  public void readGranuleOfLastPage_afterLastHeader_throwsException() throws Exception {
     FakeExtractorInput input =
         createInput(TestUtil.buildTestData(100, random), /* simulateUnknownLength= */ false);
     try {
@@ -190,7 +190,7 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void testReadGranuleOfLastPageWithUnboundedLength() throws Exception {
+  public void readGranuleOfLastPage_withUnboundedLength_throwsException() throws Exception {
     FakeExtractorInput input = createInput(new byte[0], /* simulateUnknownLength= */ true);
     try {
       assertReadGranuleOfLastPage(input, 60000);

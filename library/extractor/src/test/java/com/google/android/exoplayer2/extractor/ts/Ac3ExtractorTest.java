@@ -25,12 +25,12 @@ import org.junit.runner.RunWith;
 public final class Ac3ExtractorTest {
 
   @Test
-  public void testAc3Sample() throws Exception {
+  public void ac3Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.ac3");
   }
 
   @Test
-  public void testEAc3Sample() throws Exception {
+  public void eAc3Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.eac3");
   }
 }

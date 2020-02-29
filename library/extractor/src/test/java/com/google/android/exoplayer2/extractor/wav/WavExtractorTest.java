@@ -25,12 +25,12 @@ import org.junit.runner.RunWith;
 public final class WavExtractorTest {
 
   @Test
-  public void testSample() throws Exception {
+  public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(WavExtractor::new, "wav/sample.wav");
   }
 
   @Test
-  public void testSampleImaAdpcm() throws Exception {
+  public void sampleImaAdpcm() throws Exception {
     ExtractorAsserts.assertBehavior(WavExtractor::new, "wav/sample_ima_adpcm.wav");
   }
 }

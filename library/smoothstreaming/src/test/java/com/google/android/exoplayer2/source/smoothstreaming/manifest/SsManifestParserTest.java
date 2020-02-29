@@ -32,7 +32,7 @@ public final class SsManifestParserTest {
 
   /** Simple test to ensure the sample manifests parse without any exceptions being thrown. */
   @Test
-  public void testParseSmoothStreamingManifest() throws IOException {
+  public void parseSmoothStreamingManifest() throws IOException {
     SsManifestParser parser = new SsManifestParser();
     parser.parse(
         Uri.parse("https://example.com/test.ismc"),

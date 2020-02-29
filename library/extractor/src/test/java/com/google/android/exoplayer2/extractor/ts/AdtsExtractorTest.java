@@ -25,12 +25,12 @@ import org.junit.runner.RunWith;
 public final class AdtsExtractorTest {
 
   @Test
-  public void testSample() throws Exception {
+  public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(AdtsExtractor::new, "ts/sample.adts");
   }
 
   @Test
-  public void testSample_withSeeking() throws Exception {
+  public void sample_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
         "ts/sample_cbs.adts");
@@ -38,7 +38,7 @@ public final class AdtsExtractorTest {
 
   // https://github.com/google/ExoPlayer/issues/6700
   @Test
-  public void testSample_withSeekingAndTruncatedFile() throws Exception {
+  public void sample_withSeekingAndTruncatedFile() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
         "ts/sample_cbs_truncated.adts");

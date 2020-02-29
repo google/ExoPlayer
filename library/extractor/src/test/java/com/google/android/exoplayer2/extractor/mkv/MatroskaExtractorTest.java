@@ -25,23 +25,23 @@ import org.junit.runner.RunWith;
 public final class MatroskaExtractorTest {
 
   @Test
-  public void testMkvSample() throws Exception {
+  public void mkvSample() throws Exception {
     ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/sample.mkv");
   }
 
   @Test
-  public void testMkvFullBlocksSample() throws Exception {
+  public void mkvFullBlocksSample() throws Exception {
     ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/full_blocks.mkv");
   }
 
   @Test
-  public void testWebmSubsampleEncryption() throws Exception {
+  public void webmSubsampleEncryption() throws Exception {
     ExtractorAsserts.assertBehavior(
         MatroskaExtractor::new, "mkv/subsample_encrypted_noaltref.webm");
   }
 
   @Test
-  public void testWebmSubsampleEncryptionWithAltrefFrames() throws Exception {
+  public void webmSubsampleEncryptionWithAltrefFrames() throws Exception {
     ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/subsample_encrypted_altref.webm");
   }
 }

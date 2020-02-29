@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public final class ChapterTocFrameTest {
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     String[] children = new String[] {"child0", "child1"};
     Id3Frame[] subFrames = new Id3Frame[] {
         new TextInformationFrame("TIT2", null, "title"),

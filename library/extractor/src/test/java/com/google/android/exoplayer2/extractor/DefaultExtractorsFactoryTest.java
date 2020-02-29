@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 public final class DefaultExtractorsFactoryTest {
 
   @Test
-  public void testCreateExtractors_returnExpectedClasses() {
+  public void createExtractors_returnExpectedClasses() {
     DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
 
     Extractor[] extractors = defaultExtractorsFactory.createExtractors();

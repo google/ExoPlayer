@@ -25,12 +25,12 @@ import org.junit.runner.RunWith;
 public final class Mp4ExtractorTest {
 
   @Test
-  public void testMp4Sample() throws Exception {
+  public void mp4Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample.mp4");
   }
 
   @Test
-  public void testMp4SampleWithSlowMotionMetadata() throws Exception {
+  public void mp4SampleWithSlowMotionMetadata() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_android_slow_motion.mp4");
   }
 
@@ -39,17 +39,17 @@ public final class Mp4ExtractorTest {
    * atom whose size indicates that it extends 8 bytes beyond the end of the file.
    */
   @Test
-  public void testMp4SampleWithMdatTooLong() throws Exception {
+  public void mp4SampleWithMdatTooLong() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_mdat_too_long.mp4");
   }
 
   @Test
-  public void testMp4SampleWithAc4Track() throws Exception {
+  public void mp4SampleWithAc4Track() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_ac4.mp4");
   }
 
   @Test
-  public void testMp4SampleWithEac3Track() throws Exception {
+  public void mp4SampleWithEac3Track() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_eac3.mp4");
   }
 }

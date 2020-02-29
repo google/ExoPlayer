@@ -80,7 +80,7 @@ public class AdtsReaderTest {
   }
 
   @Test
-  public void testSkipToNextSample() throws Exception {
+  public void skipToNextSample() throws Exception {
     for (int i = 1; i <= ID3_DATA_1.length + ID3_DATA_2.length; i++) {
       data.setPosition(i);
       feed();
@@ -91,7 +91,7 @@ public class AdtsReaderTest {
   }
 
   @Test
-  public void testSkipToNextSampleResetsState() throws Exception {
+  public void skipToNextSampleResetsState() throws Exception {
     data =
         new ParsableByteArray(
             TestUtil.joinByteArrays(
@@ -118,45 +118,45 @@ public class AdtsReaderTest {
   }
 
   @Test
-  public void testNoData() throws Exception {
+  public void noData() throws Exception {
     feedLimited(0);
     assertSampleCounts(0, 0);
   }
 
   @Test
-  public void testNotEnoughDataForIdentifier() throws Exception {
+  public void notEnoughDataForIdentifier() throws Exception {
     feedLimited(3 - 1);
     assertSampleCounts(0, 0);
   }
 
   @Test
-  public void testNotEnoughDataForHeader() throws Exception {
+  public void notEnoughDataForHeader() throws Exception {
     feedLimited(10 - 1);
     assertSampleCounts(0, 0);
   }
 
   @Test
-  public void testNotEnoughDataForWholeId3Packet() throws Exception {
+  public void notEnoughDataForWholeId3Packet() throws Exception {
     feedLimited(ID3_DATA_1.length - 1);
     assertSampleCounts(0, 0);
   }
 
   @Test
-  public void testConsumeWholeId3Packet() throws Exception {
+  public void consumeWholeId3Packet() throws Exception {
     feedLimited(ID3_DATA_1.length);
     assertSampleCounts(1, 0);
     id3Output.assertSample(0, ID3_DATA_1, 0, C.BUFFER_FLAG_KEY_FRAME, null);
   }
 
   @Test
-  public void testMultiId3Packet() throws Exception {
+  public void multiId3Packet() throws Exception {
     feedLimited(ID3_DATA_1.length + ID3_DATA_2.length - 1);
     assertSampleCounts(1, 0);
     id3Output.assertSample(0, ID3_DATA_1, 0, C.BUFFER_FLAG_KEY_FRAME, null);
   }
 
   @Test
-  public void testMultiId3PacketConsumed() throws Exception {
+  public void multiId3PacketConsumed() throws Exception {
     feedLimited(ID3_DATA_1.length + ID3_DATA_2.length);
     assertSampleCounts(2, 0);
     id3Output.assertSample(0, ID3_DATA_1, 0, C.BUFFER_FLAG_KEY_FRAME, null);
@@ -164,7 +164,7 @@ public class AdtsReaderTest {
   }
 
   @Test
-  public void testMultiPacketConsumed() throws Exception {
+  public void multiPacketConsumed() throws Exception {
     for (int i = 0; i < 10; i++) {
       data.setPosition(0);
       feed();
@@ -180,7 +180,7 @@ public class AdtsReaderTest {
   }
 
   @Test
-  public void testAdtsDataOnly() throws ParserException {
+  public void adtsDataOnly() throws ParserException {
     data.setPosition(ID3_DATA_1.length + ID3_DATA_2.length);
     feed();
     assertSampleCounts(0, 1);

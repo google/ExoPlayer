@@ -80,7 +80,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testCreateWithDefaultDownloaderFactory() {
+  public void createWithDefaultDownloaderFactory() {
     DownloaderConstructorHelper constructorHelper =
         new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
     DownloaderFactory factory = new DefaultDownloaderFactory(constructorHelper);
@@ -98,7 +98,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testDownloadRepresentation() throws Exception {
+  public void downloadRepresentation() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -113,7 +113,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testDownloadRepresentationInSmallParts() throws Exception {
+  public void downloadRepresentationInSmallParts() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -132,7 +132,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testDownloadRepresentations() throws Exception {
+  public void downloadRepresentations() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -151,7 +151,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testDownloadAllRepresentations() throws Exception {
+  public void downloadAllRepresentations() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -172,7 +172,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testProgressiveDownload() throws Exception {
+  public void progressiveDownload() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -204,7 +204,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testProgressiveDownloadSeparatePeriods() throws Exception {
+  public void progressiveDownloadSeparatePeriods() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -236,7 +236,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testDownloadRepresentationFailure() throws Exception {
+  public void downloadRepresentationFailure() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -261,7 +261,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testCounters() throws Exception {
+  public void counters() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -289,7 +289,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testRemove() throws Exception {
+  public void remove() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD)
@@ -309,7 +309,7 @@ public class DashDownloaderTest {
   }
 
   @Test
-  public void testRepresentationWithoutIndex() throws Exception {
+  public void representationWithoutIndex() throws Exception {
     FakeDataSet fakeDataSet =
         new FakeDataSet()
             .setData(TEST_MPD_URI, TEST_MPD_NO_INDEX)

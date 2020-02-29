@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 public final class EventMessageDecoderTest {
 
   @Test
-  public void testDecodeEventMessage() {
+  public void decodeEventMessage() {
     byte[] rawEmsgBody =
         joinByteArrays(
             createByteArray(117, 114, 110, 58, 116, 101, 115, 116, 0), // scheme_id_uri = "urn:test"

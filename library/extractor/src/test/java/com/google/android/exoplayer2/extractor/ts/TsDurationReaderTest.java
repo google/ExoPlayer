@@ -42,12 +42,12 @@ public final class TsDurationReaderTest {
   }
 
   @Test
-  public void testIsDurationReadPending_returnFalseByDefault() {
+  public void isDurationReadPending_returnFalseByDefault() {
     assertThat(tsDurationReader.isDurationReadFinished()).isFalse();
   }
 
   @Test
-  public void testReadDuration_returnsCorrectDuration() throws IOException, InterruptedException {
+  public void readDuration_returnsCorrectDuration() throws IOException, InterruptedException {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
             .setData(
@@ -71,7 +71,7 @@ public final class TsDurationReaderTest {
   }
 
   @Test
-  public void testReadDuration_midStream_returnsCorrectDuration()
+  public void readDuration_midStream_returnsCorrectDuration()
       throws IOException, InterruptedException {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()

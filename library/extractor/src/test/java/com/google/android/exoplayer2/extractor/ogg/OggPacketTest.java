@@ -39,7 +39,7 @@ public final class OggPacketTest {
   private final OggPacket oggPacket = new OggPacket();
 
   @Test
-  public void testReadPacketsWithEmptyPage() throws Exception {
+  public void readPacketsWithEmptyPage() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(8, random);
     byte[] secondPacket = TestUtil.buildTestData(272, random);
     byte[] thirdPacket = TestUtil.buildTestData(256, random);
@@ -88,7 +88,7 @@ public final class OggPacketTest {
   }
 
   @Test
-  public void testReadPacketWithZeroSizeTerminator() throws Exception {
+  public void readPacketWithZeroSizeTerminator() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(255, random);
     byte[] secondPacket = TestUtil.buildTestData(8, random);
     FakeExtractorInput input =
@@ -103,7 +103,7 @@ public final class OggPacketTest {
   }
 
   @Test
-  public void testReadContinuedPacketOverTwoPages() throws Exception {
+  public void readContinuedPacketOverTwoPages() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(518);
     FakeExtractorInput input =
         createInput(
@@ -120,7 +120,7 @@ public final class OggPacketTest {
   }
 
   @Test
-  public void testReadContinuedPacketOverFourPages() throws Exception {
+  public void readContinuedPacketOverFourPages() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(1028);
     FakeExtractorInput input =
         createInput(
@@ -137,7 +137,7 @@ public final class OggPacketTest {
   }
 
   @Test
-  public void testReadDiscardContinuedPacketAtStart() throws Exception {
+  public void readDiscardContinuedPacketAtStart() throws Exception {
     byte[] pageBody = TestUtil.buildTestData(256 + 8);
     FakeExtractorInput input =
         createInput(
@@ -150,7 +150,7 @@ public final class OggPacketTest {
   }
 
   @Test
-  public void testReadZeroSizedPacketsAtEndOfStream() throws Exception {
+  public void readZeroSizedPacketsAtEndOfStream() throws Exception {
     byte[] firstPacket = TestUtil.buildTestData(8, random);
     byte[] secondPacket = TestUtil.buildTestData(8, random);
     byte[] thirdPacket = TestUtil.buildTestData(8, random);
@@ -167,7 +167,7 @@ public final class OggPacketTest {
   }
 
   @Test
-  public void testParseRealFile() throws IOException, InterruptedException {
+  public void parseRealFile() throws IOException, InterruptedException {
     byte[] data = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_FILE);
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     int packetCounter = 0;

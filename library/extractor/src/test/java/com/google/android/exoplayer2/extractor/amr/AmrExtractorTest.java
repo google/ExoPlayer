@@ -42,7 +42,7 @@ public final class AmrExtractorTest {
   private static final Random RANDOM = new Random(1234);
 
   @Test
-  public void testSniff_nonAmrSignature_returnFalse() throws IOException, InterruptedException {
+  public void sniff_nonAmrSignature_returnFalse() throws IOException, InterruptedException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
     FakeExtractorInput input = fakeExtractorInputWithData(Util.getUtf8Bytes("0#!AMR\n123"));
 
@@ -51,8 +51,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void testRead_nonAmrSignature_throwParserException()
-      throws IOException, InterruptedException {
+  public void read_nonAmrSignature_throwParserException() throws IOException, InterruptedException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
     FakeExtractorInput input = fakeExtractorInputWithData(Util.getUtf8Bytes("0#!AMR-WB\n"));
 
@@ -65,7 +64,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void testRead_amrNb_returnParserException_forInvalidFrameType()
+  public void read_amrNb_returnParserException_forInvalidFrameType()
       throws IOException, InterruptedException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
@@ -83,7 +82,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void testRead_amrWb_returnParserException_forInvalidFrameType()
+  public void read_amrWb_returnParserException_forInvalidFrameType()
       throws IOException, InterruptedException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
@@ -101,7 +100,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void testRead_amrNb_returnEndOfInput_ifInputEncountersEoF()
+  public void read_amrNb_returnEndOfInput_ifInputEncountersEoF()
       throws IOException, InterruptedException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
@@ -117,7 +116,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void testRead_amrWb_returnEndOfInput_ifInputEncountersEoF()
+  public void read_amrWb_returnEndOfInput_ifInputEncountersEoF()
       throws IOException, InterruptedException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
@@ -133,7 +132,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void testRead_amrNb_returnParserException_forInvalidFrameHeader()
+  public void read_amrNb_returnParserException_forInvalidFrameHeader()
       throws IOException, InterruptedException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
@@ -155,7 +154,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void testRead_amrWb_returnParserException_forInvalidFrameHeader()
+  public void read_amrWb_returnParserException_forInvalidFrameHeader()
       throws IOException, InterruptedException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
@@ -177,25 +176,25 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void testExtractingNarrowBandSamples() throws Exception {
+  public void extractingNarrowBandSamples() throws Exception {
     ExtractorAsserts.assertBehavior(
         createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_nb.amr");
   }
 
   @Test
-  public void testExtractingWideBandSamples() throws Exception {
+  public void extractingWideBandSamples() throws Exception {
     ExtractorAsserts.assertBehavior(
         createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_wb.amr");
   }
 
   @Test
-  public void testExtractingNarrowBandSamples_withSeeking() throws Exception {
+  public void extractingNarrowBandSamples_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
         createAmrExtractorFactory(/* withSeeking= */ true), "amr/sample_nb_cbr.amr");
   }
 
   @Test
-  public void testExtractingWideBandSamples_withSeeking() throws Exception {
+  public void extractingWideBandSamples_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
         createAmrExtractorFactory(/* withSeeking= */ true), "amr/sample_wb_cbr.amr");
   }

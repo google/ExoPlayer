@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public final class VorbisCommentTest {
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     VorbisComment vorbisCommentFrameToParcel = new VorbisComment("key", "value");
 
     Parcel parcel = Parcel.obtain();

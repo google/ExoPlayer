@@ -30,7 +30,7 @@ public final class ConstantBitrateSeekMapTest {
   private ConstantBitrateSeekMap constantBitrateSeekMap;
 
   @Test
-  public void testIsSeekable_forKnownInputLength_returnSeekable() {
+  public void isSeekable_forKnownInputLength_returnSeekable() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ 1000,
@@ -41,7 +41,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testIsSeekable_forUnknownInputLength_returnUnseekable() {
+  public void isSeekable_forUnknownInputLength_returnUnseekable() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ C.LENGTH_UNSET,
@@ -52,7 +52,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetSeekPoints_forUnseekableInput_returnSeekPoint0() {
+  public void getSeekPoints_forUnseekableInput_returnSeekPoint0() {
     int firstBytePosition = 100;
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
@@ -67,7 +67,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetDurationUs_forKnownInputLength_returnCorrectDuration() {
+  public void getDurationUs_forKnownInputLength_returnCorrectDuration() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ 2_300,
@@ -81,7 +81,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetDurationUs_forUnnnownInputLength_returnUnknownDuration() {
+  public void getDurationUs_forUnnnownInputLength_returnUnknownDuration() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ C.LENGTH_UNSET,
@@ -92,7 +92,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetSeekPoints_forSeekableInput_forSyncPosition0_return1SeekPoint() {
+  public void getSeekPoints_forSeekableInput_forSyncPosition0_return1SeekPoint() {
     int firstBytePosition = 100;
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
@@ -107,7 +107,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetSeekPoints_forSeekableInput_forSeekPointAtSyncPosition_return1SeekPoint() {
+  public void getSeekPoints_forSeekableInput_forSeekPointAtSyncPosition_return1SeekPoint() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ 2_300,
@@ -123,7 +123,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetSeekPoints_forSeekableInput_forNonSyncSeekPosition_return2SeekPoints() {
+  public void getSeekPoints_forSeekableInput_forNonSyncSeekPosition_return2SeekPoints() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ 2_300,
@@ -140,7 +140,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetSeekPoints_forSeekableInput_forSeekPointWithinLastFrame_return1SeekPoint() {
+  public void getSeekPoints_forSeekableInput_forSeekPointWithinLastFrame_return1SeekPoint() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ 2_300,
@@ -154,7 +154,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetSeekPoints_forSeekableInput_forSeekPointAtEndOfStream_return1SeekPoint() {
+  public void getSeekPoints_forSeekableInput_forSeekPointAtEndOfStream_return1SeekPoint() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ 2_300,
@@ -168,7 +168,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetTimeUsAtPosition_forPosition0_return0() {
+  public void getTimeUsAtPosition_forPosition0_return0() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ 2_300,
@@ -180,7 +180,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetTimeUsAtPosition_forPositionWithinStream_returnCorrectTime() {
+  public void getTimeUsAtPosition_forPositionWithinStream_returnCorrectTime() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ 2_300,
@@ -192,7 +192,7 @@ public final class ConstantBitrateSeekMapTest {
   }
 
   @Test
-  public void testGetTimeUsAtPosition_forPositionAtEndOfStream_returnStreamDuration() {
+  public void getTimeUsAtPosition_forPositionAtEndOfStream_returnStreamDuration() {
     constantBitrateSeekMap =
         new ConstantBitrateSeekMap(
             /* inputLength= */ 2_300,

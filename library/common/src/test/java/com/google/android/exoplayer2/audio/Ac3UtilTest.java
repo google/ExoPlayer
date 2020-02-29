@@ -33,13 +33,13 @@ public final class Ac3UtilTest {
       Util.getBytesFromHexString("A025048860224E6F6DEDB6D5B6DBAFE6");
 
   @Test
-  public void testParseTrueHdSyncframeAudioSampleCount_nonSyncframe() {
+  public void parseTrueHdSyncframeAudioSampleCount_nonSyncframe() {
     assertThat(Ac3Util.parseTrueHdSyncframeAudioSampleCount(TRUEHD_NON_SYNCFRAME_HEADER))
         .isEqualTo(0);
   }
 
   @Test
-  public void testParseTrueHdSyncframeAudioSampleCount_syncframe() {
+  public void parseTrueHdSyncframeAudioSampleCount_syncframe() {
     assertThat(Ac3Util.parseTrueHdSyncframeAudioSampleCount(TRUEHD_SYNCFRAME_HEADER))
         .isEqualTo(TRUEHD_SYNCFRAME_SAMPLE_COUNT);
   }
