@@ -51,7 +51,7 @@ public final class SectionReaderTest {
   }
 
   @Test
-  public void testSingleOnePacketSection() {
+  public void singleOnePacketSection() {
     packetPayload[0] = 3;
     insertTableSection(4, (byte) 99, 3);
     reader.consume(new ParsableByteArray(packetPayload), FLAG_PAYLOAD_UNIT_START_INDICATOR);
@@ -59,7 +59,7 @@ public final class SectionReaderTest {
   }
 
   @Test
-  public void testHeaderSplitAcrossPackets() {
+  public void headerSplitAcrossPackets() {
     packetPayload[0] = 3; // The first packet includes a pointer_field.
     insertTableSection(4, (byte) 100, 3); // This section header spreads across both packets.
 
@@ -74,7 +74,7 @@ public final class SectionReaderTest {
   }
 
   @Test
-  public void testFiveSectionsInTwoPackets() {
+  public void fiveSectionsInTwoPackets() {
     packetPayload[0] = 0; // The first packet includes a pointer_field.
     insertTableSection(1, (byte) 101, 10);
     insertTableSection(14, (byte) 102, 10);
@@ -94,7 +94,7 @@ public final class SectionReaderTest {
   }
 
   @Test
-  public void testLongSectionAcrossFourPackets() {
+  public void longSectionAcrossFourPackets() {
     packetPayload[0] = 13; // The first packet includes a pointer_field.
     insertTableSection(1, (byte) 106, 10); // First section. Should be skipped.
     // Second section spread across four packets. Should be consumed.
@@ -124,7 +124,7 @@ public final class SectionReaderTest {
   }
 
   @Test
-  public void testSeek() {
+  public void seek() {
     packetPayload[0] = 13; // The first packet includes a pointer_field.
     insertTableSection(1, (byte) 109, 10); // First section. Should be skipped.
     // Second section spread across four packets. Should be consumed.
@@ -156,7 +156,7 @@ public final class SectionReaderTest {
   }
 
   @Test
-  public void testCrcChecks() {
+  public void crcChecks() {
     byte[] correctCrcPat = new byte[] {
         (byte) 0x0, (byte) 0x0, (byte) 0xb0, (byte) 0xd, (byte) 0x0, (byte) 0x1, (byte) 0xc1,
         (byte) 0x0, (byte) 0x0, (byte) 0x0, (byte) 0x1, (byte) 0xe1, (byte) 0x0, (byte) 0xe8,

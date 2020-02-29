@@ -32,7 +32,7 @@ public final class ParsableNalUnitBitArrayTest {
   private static final byte[] MIX_TEST_DATA = createByteArray(255, 0, 0, 3, 255, 0, 0, 127);
 
   @Test
-  public void testReadNoEscaping() {
+  public void readNoEscaping() {
     ParsableNalUnitBitArray array =
         new ParsableNalUnitBitArray(NO_ESCAPING_TEST_DATA, 0, NO_ESCAPING_TEST_DATA.length);
     assertThat(array.readBits(24)).isEqualTo(0x000300);
@@ -44,7 +44,7 @@ public final class ParsableNalUnitBitArrayTest {
   }
 
   @Test
-  public void testReadNoEscapingTruncated() {
+  public void readNoEscapingTruncated() {
     ParsableNalUnitBitArray array = new ParsableNalUnitBitArray(NO_ESCAPING_TEST_DATA, 0, 4);
     assertThat(array.canReadBits(32)).isTrue();
     array.skipBits(32);
@@ -58,7 +58,7 @@ public final class ParsableNalUnitBitArrayTest {
   }
 
   @Test
-  public void testReadAllEscaping() {
+  public void readAllEscaping() {
     ParsableNalUnitBitArray array =
         new ParsableNalUnitBitArray(ALL_ESCAPING_TEST_DATA, 0, ALL_ESCAPING_TEST_DATA.length);
     assertThat(array.canReadBits(48)).isTrue();
@@ -70,7 +70,7 @@ public final class ParsableNalUnitBitArrayTest {
   }
 
   @Test
-  public void testReadMix() {
+  public void readMix() {
     ParsableNalUnitBitArray array =
         new ParsableNalUnitBitArray(MIX_TEST_DATA, 0, MIX_TEST_DATA.length);
     assertThat(array.canReadBits(56)).isTrue();
@@ -84,7 +84,7 @@ public final class ParsableNalUnitBitArrayTest {
   }
 
   @Test
-  public void testReadExpGolomb() {
+  public void readExpGolomb() {
     ParsableNalUnitBitArray array = new ParsableNalUnitBitArray(createByteArray(0x9E), 0, 1);
     assertThat(array.canReadExpGolombCodedNum()).isTrue();
     assertThat(array.readUnsignedExpGolombCodedInt()).isEqualTo(0);
@@ -100,7 +100,7 @@ public final class ParsableNalUnitBitArrayTest {
   }
 
   @Test
-  public void testReadExpGolombWithEscaping() {
+  public void readExpGolombWithEscaping() {
     ParsableNalUnitBitArray array =
         new ParsableNalUnitBitArray(createByteArray(0, 0, 3, 128, 0), 0, 5);
     assertThat(array.canReadExpGolombCodedNum()).isFalse();
@@ -111,7 +111,7 @@ public final class ParsableNalUnitBitArrayTest {
   }
 
   @Test
-  public void testReset() {
+  public void reset() {
     ParsableNalUnitBitArray array = new ParsableNalUnitBitArray(createByteArray(0, 0), 0, 2);
     assertThat(array.canReadExpGolombCodedNum()).isFalse();
     assertThat(array.canReadBits(16)).isTrue();

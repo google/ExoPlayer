@@ -111,7 +111,7 @@ public class DownloadManagerDashTest {
   // Disabled due to flakiness.
   @Ignore
   @Test
-  public void testSaveAndLoadActionFile() throws Throwable {
+  public void saveAndLoadActionFile() throws Throwable {
     // Configure fakeDataSet to block until interrupted when TEST_MPD is read.
     fakeDataSet
         .newData(TEST_MPD_URI)
@@ -152,14 +152,14 @@ public class DownloadManagerDashTest {
   }
 
   @Test
-  public void testHandleDownloadRequest() throws Throwable {
+  public void handleDownloadRequest_downloadSuccess() throws Throwable {
     handleDownloadRequest(fakeStreamKey1, fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertCachedData(cache, new RequestSet(fakeDataSet).useBoundedDataSpecFor("audio_init_data"));
   }
 
   @Test
-  public void testHandleMultipleDownloadRequest() throws Throwable {
+  public void handleDownloadRequest_withRequest_downloadSuccess() throws Throwable {
     handleDownloadRequest(fakeStreamKey1);
     handleDownloadRequest(fakeStreamKey2);
     blockUntilTasksCompleteAndThrowAnyDownloadError();
@@ -167,7 +167,7 @@ public class DownloadManagerDashTest {
   }
 
   @Test
-  public void testHandleInterferingDownloadRequest() throws Throwable {
+  public void handleDownloadRequest_withInferringRequest_success() throws Throwable {
     fakeDataSet
         .newData("audio_segment_2")
         .appendReadAction(() -> handleDownloadRequest(fakeStreamKey2))
@@ -181,7 +181,7 @@ public class DownloadManagerDashTest {
   }
 
   @Test
-  public void testHandleRemoveAction() throws Throwable {
+  public void handleRemoveAction_blockUntilTaskCompleted_noDownloadedData() throws Throwable {
     handleDownloadRequest(fakeStreamKey1);
 
     blockUntilTasksCompleteAndThrowAnyDownloadError();
@@ -194,7 +194,7 @@ public class DownloadManagerDashTest {
   }
 
   @Test
-  public void testHandleRemoveActionBeforeDownloadFinish() throws Throwable {
+  public void handleRemoveAction_beforeDownloadFinish_noDownloadedData() throws Throwable {
     handleDownloadRequest(fakeStreamKey1);
     handleRemoveAction();
 
@@ -204,7 +204,7 @@ public class DownloadManagerDashTest {
   }
 
   @Test
-  public void testHandleInterferingRemoveAction() throws Throwable {
+  public void handleRemoveAction_withInterfering_noDownloadedData() throws Throwable {
     CountDownLatch downloadInProgressLatch = new CountDownLatch(1);
     fakeDataSet
         .newData("audio_segment_2")

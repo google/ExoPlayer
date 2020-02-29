@@ -218,7 +218,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testRubyType() {
+  public void rubyType() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.getRubyType()).isEqualTo(UNSPECIFIED);
@@ -227,7 +227,7 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testRubyPosition() {
+  public void rubyPosition() {
     TtmlStyle style = new TtmlStyle();
 
     assertThat(style.getRubyPosition()).isEqualTo(RubySpan.POSITION_UNKNOWN);

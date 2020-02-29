@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public final class ChapterFrameTest {
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     Id3Frame[] subFrames = new Id3Frame[] {
       new TextInformationFrame("TIT2", null, "title"),
       new UrlLinkFrame("WXXX", "description", "url")

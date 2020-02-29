@@ -37,7 +37,7 @@ public final class AtomParsersTest {
       + SAMPLE_COUNT + "0001000200030004");
 
   @Test
-  public void testParseCommonEncryptionSinfFromParentIgnoresUnknownSchemeType() {
+  public void parseCommonEncryptionSinfFromParentIgnoresUnknownSchemeType() {
     byte[] cencSinf = new byte[] {
         0, 0, 0, 24, 115, 105, 110, 102, // size (4), 'sinf' (4)
         0, 0, 0, 16, 115, 99, 104, 109, // size (4), 'schm' (4)
@@ -47,17 +47,17 @@ public final class AtomParsersTest {
   }
 
   @Test
-  public void testStz2Parsing4BitFieldSize() {
+  public void stz2Parsing4BitFieldSize() {
     verifyStz2Parsing(new Atom.LeafAtom(Atom.TYPE_stsz, new ParsableByteArray(FOUR_BIT_STZ2)));
   }
 
   @Test
-  public void testStz2Parsing8BitFieldSize() {
+  public void stz2Parsing8BitFieldSize() {
     verifyStz2Parsing(new Atom.LeafAtom(Atom.TYPE_stsz, new ParsableByteArray(EIGHT_BIT_STZ2)));
   }
 
   @Test
-  public void testStz2Parsing16BitFieldSize() {
+  public void stz2Parsing16BitFieldSize() {
     verifyStz2Parsing(new Atom.LeafAtom(Atom.TYPE_stsz, new ParsableByteArray(SIXTEEN_BIT_STZ2)));
   }
 

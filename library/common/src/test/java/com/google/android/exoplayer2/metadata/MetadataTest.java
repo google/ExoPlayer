@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 public class MetadataTest {
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     Metadata metadataToParcel =
         new Metadata(
             new BinaryFrame("id1", new byte[] {1}), new BinaryFrame("id2", new byte[] {2}));

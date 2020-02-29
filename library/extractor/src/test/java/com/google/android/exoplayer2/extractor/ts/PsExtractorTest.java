@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 public final class PsExtractorTest {
 
   @Test
-  public void testSample() throws Exception {
+  public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(PsExtractor::new, "ts/sample.ps");
   }
 }

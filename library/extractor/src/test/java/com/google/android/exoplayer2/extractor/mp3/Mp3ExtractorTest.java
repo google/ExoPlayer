@@ -25,25 +25,25 @@ import org.junit.runner.RunWith;
 public final class Mp3ExtractorTest {
 
   @Test
-  public void testMp3SampleWithXingHeader() throws Exception {
+  public void mp3SampleWithXingHeader() throws Exception {
     ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/bear-vbr-xing-header.mp3");
   }
 
   @Test
-  public void testMp3SampleWithCbrSeeker() throws Exception {
+  public void mp3SampleWithCbrSeeker() throws Exception {
     ExtractorAsserts.assertBehavior(
         Mp3Extractor::new, "mp3/bear-cbr-variable-frame-size-no-seek-table.mp3");
   }
 
   @Test
-  public void testMp3SampleWithIndexSeeker() throws Exception {
+  public void mp3SampleWithIndexSeeker() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new Mp3Extractor(Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING),
         "mp3/bear-vbr-no-seek-table.mp3");
   }
 
   @Test
-  public void testTrimmedMp3Sample() throws Exception {
+  public void trimmedMp3Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/play-trimmed.mp3");
   }
 }

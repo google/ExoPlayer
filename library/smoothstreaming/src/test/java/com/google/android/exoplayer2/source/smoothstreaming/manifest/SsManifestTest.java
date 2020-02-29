@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 public class SsManifestTest {
 
   @Test
-  public void testCopy() throws Exception {
+  public void copy() throws Exception {
     Format[][] formats = newFormats(2, 3);
     SsManifest sourceManifest =
         createSsManifest(
@@ -58,7 +58,7 @@ public class SsManifestTest {
   }
 
   @Test
-  public void testCopyRemoveStreamElement() throws Exception {
+  public void copyRemoveStreamElement() throws Exception {
     Format[][] formats = newFormats(2, 3);
     SsManifest sourceManifest =
         createSsManifest(

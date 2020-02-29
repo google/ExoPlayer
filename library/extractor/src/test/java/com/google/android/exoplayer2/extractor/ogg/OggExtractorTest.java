@@ -33,58 +33,58 @@ public final class OggExtractorTest {
   private static final ExtractorFactory OGG_EXTRACTOR_FACTORY = OggExtractor::new;
 
   @Test
-  public void testOpus() throws Exception {
+  public void opus() throws Exception {
     ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear.opus");
   }
 
   @Test
-  public void testFlac() throws Exception {
+  public void flac() throws Exception {
     ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac.ogg");
   }
 
   @Test
-  public void testFlacNoSeektable() throws Exception {
+  public void flacNoSeektable() throws Exception {
     ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac_noseektable.ogg");
   }
 
   @Test
-  public void testVorbis() throws Exception {
+  public void vorbis() throws Exception {
     ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_vorbis.ogg");
   }
 
   @Test
-  public void testSniffVorbis() throws Exception {
+  public void sniffVorbis() throws Exception {
     byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/vorbis_header");
     assertSniff(data, /* expectedResult= */ true);
   }
 
   @Test
-  public void testSniffFlac() throws Exception {
+  public void sniffFlac() throws Exception {
     byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/flac_header");
     assertSniff(data, /* expectedResult= */ true);
   }
 
   @Test
-  public void testSniffFailsOpusFile() throws Exception {
+  public void sniffFailsOpusFile() throws Exception {
     byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/opus_header");
     assertSniff(data, /* expectedResult= */ false);
   }
 
   @Test
-  public void testSniffFailsInvalidOggHeader() throws Exception {
+  public void sniffFailsInvalidOggHeader() throws Exception {
     byte[] data =
         getByteArray(ApplicationProvider.getApplicationContext(), "ogg/invalid_ogg_header");
     assertSniff(data, /* expectedResult= */ false);
   }
 
   @Test
-  public void testSniffInvalidHeader() throws Exception {
+  public void sniffInvalidHeader() throws Exception {
     byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/invalid_header");
     assertSniff(data, /* expectedResult= */ false);
   }
 
   @Test
-  public void testSniffFailsEOF() throws Exception {
+  public void sniffFailsEOF() throws Exception {
     byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/eof_header");
     assertSniff(data, /* expectedResult= */ false);
   }

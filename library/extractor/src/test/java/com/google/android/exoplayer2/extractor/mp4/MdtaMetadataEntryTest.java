@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public final class MdtaMetadataEntryTest {
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     MdtaMetadataEntry mdtaMetadataEntryToParcel =
         new MdtaMetadataEntry("test", new byte[] {1, 2}, 3, 4);
 

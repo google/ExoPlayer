@@ -39,7 +39,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadShort() {
+  public void readShort() {
     testReadShort((short) -1);
     testReadShort((short) 0);
     testReadShort((short) 1);
@@ -65,7 +65,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadInt() {
+  public void readInt() {
     testReadInt(0);
     testReadInt(1);
     testReadInt(-1);
@@ -91,7 +91,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadUnsignedInt() {
+  public void readUnsignedInt() {
     testReadUnsignedInt(0);
     testReadUnsignedInt(1);
     testReadUnsignedInt(Integer.MAX_VALUE);
@@ -117,7 +117,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadUnsignedIntToInt() {
+  public void readUnsignedIntToInt() {
     testReadUnsignedIntToInt(0);
     testReadUnsignedIntToInt(1);
     testReadUnsignedIntToInt(Integer.MAX_VALUE);
@@ -153,7 +153,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadUnsignedLongToLong() {
+  public void readUnsignedLongToLong() {
     testReadUnsignedLongToLong(0);
     testReadUnsignedLongToLong(1);
     testReadUnsignedLongToLong(Long.MAX_VALUE);
@@ -189,7 +189,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadLong() {
+  public void readLong() {
     testReadLong(0);
     testReadLong(1);
     testReadLong(-1);
@@ -215,7 +215,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadingMovesPosition() {
+  public void readingMovesPosition() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // Given an array at the start
@@ -226,7 +226,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testOutOfBoundsThrows() {
+  public void outOfBoundsThrows() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // Given an array at the end
@@ -242,7 +242,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testModificationsAffectParsableArray() {
+  public void modificationsAffectParsableArray() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // When modifying the wrapped byte array
@@ -255,7 +255,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadingUnsignedLongWithMsbSetThrows() {
+  public void readingUnsignedLongWithMsbSetThrows() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // Given an array with the most-significant bit set on the top byte
@@ -271,7 +271,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadUnsignedFixedPoint1616() {
+  public void readUnsignedFixedPoint1616() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // When reading the integer part of a 16.16 fixed point value
@@ -282,7 +282,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadingBytesReturnsCopy() {
+  public void readingBytesReturnsCopy() {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // When reading all the bytes back
@@ -295,7 +295,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadLittleEndianLong() {
+  public void readLittleEndianLong() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x01, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, (byte) 0xFF
@@ -305,7 +305,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadLittleEndianUnsignedInt() {
+  public void readLittleEndianUnsignedInt() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x10, 0x00, 0x00, (byte) 0xFF
     });
@@ -314,7 +314,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadLittleEndianInt() {
+  public void readLittleEndianInt() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x01, 0x00, 0x00, (byte) 0xFF
     });
@@ -323,7 +323,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadLittleEndianUnsignedInt24() {
+  public void readLittleEndianUnsignedInt24() {
     byte[] data = {0x01, 0x02, (byte) 0xFF};
     ParsableByteArray byteArray = new ParsableByteArray(data);
     assertThat(byteArray.readLittleEndianUnsignedInt24()).isEqualTo(0xFF0201);
@@ -331,7 +331,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadInt24Positive() {
+  public void readInt24Positive() {
     byte[] data = {0x01, 0x02, (byte) 0xFF};
     ParsableByteArray byteArray = new ParsableByteArray(data);
     assertThat(byteArray.readInt24()).isEqualTo(0x0102FF);
@@ -339,7 +339,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadInt24Negative() {
+  public void readInt24Negative() {
     byte[] data = {(byte) 0xFF, 0x02, (byte) 0x01};
     ParsableByteArray byteArray = new ParsableByteArray(data);
     assertThat(byteArray.readInt24()).isEqualTo(0xFFFF0201);
@@ -347,7 +347,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadLittleEndianUnsignedShort() {
+  public void readLittleEndianUnsignedShort() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x01, (byte) 0xFF, 0x02, (byte) 0xFF
     });
@@ -358,7 +358,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadLittleEndianShort() {
+  public void readLittleEndianShort() {
     ParsableByteArray byteArray = new ParsableByteArray(new byte[] {
         0x01, (byte) 0xFF, 0x02, (byte) 0xFF
     });
@@ -369,7 +369,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadString() {
+  public void readString() {
     byte[] data = {
         (byte) 0xC3, (byte) 0xA4, (byte) 0x20,
         (byte) 0xC3, (byte) 0xB6, (byte) 0x20,
@@ -385,7 +385,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadAsciiString() {
+  public void readAsciiString() {
     byte[] data = new byte[] {'t', 'e', 's', 't'};
     ParsableByteArray testArray = new ParsableByteArray(data);
     assertThat(testArray.readString(data.length, forName("US-ASCII"))).isEqualTo("test");
@@ -393,7 +393,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadStringOutOfBoundsDoesNotMovePosition() {
+  public void readStringOutOfBoundsDoesNotMovePosition() {
     byte[] data = {
         (byte) 0xC3, (byte) 0xA4, (byte) 0x20
     };
@@ -407,14 +407,14 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadEmptyString() {
+  public void readEmptyString() {
     byte[] bytes = new byte[0];
     ParsableByteArray parser = new ParsableByteArray(bytes);
     assertThat(parser.readLine()).isNull();
   }
 
   @Test
-  public void testReadNullTerminatedStringWithLengths() {
+  public void readNullTerminatedStringWithLengths() {
     byte[] bytes = new byte[] {
         'f', 'o', 'o', 0, 'b', 'a', 'r', 0
     };
@@ -449,7 +449,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadNullTerminatedString() {
+  public void readNullTerminatedString() {
     byte[] bytes = new byte[] {
         'f', 'o', 'o', 0, 'b', 'a', 'r', 0
     };
@@ -473,7 +473,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadNullTerminatedStringWithoutEndingNull() {
+  public void readNullTerminatedStringWithoutEndingNull() {
     byte[] bytes = new byte[] {
         'f', 'o', 'o', 0, 'b', 'a', 'r'
     };
@@ -484,7 +484,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadSingleLineWithoutEndingTrail() {
+  public void readSingleLineWithoutEndingTrail() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o'
     };
@@ -494,7 +494,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadSingleLineWithEndingLf() {
+  public void readSingleLineWithEndingLf() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o', '\n'
     };
@@ -504,7 +504,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadTwoLinesWithCrFollowedByLf() {
+  public void readTwoLinesWithCrFollowedByLf() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o', '\r', '\n', 'b', 'a', 'r'
     };
@@ -515,7 +515,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadThreeLinesWithEmptyLine() {
+  public void readThreeLinesWithEmptyLine() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o', '\r', '\n', '\r', 'b', 'a', 'r'
     };
@@ -527,7 +527,7 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
-  public void testReadFourLinesWithLfFollowedByCr() {
+  public void readFourLinesWithLfFollowedByCr() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o', '\n', '\r', '\r', 'b', 'a', 'r', '\r', '\n'
     };

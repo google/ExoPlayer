@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public final class MlltFrameTest {
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     MlltFrame mlltFrameToParcel =
         new MlltFrame(
             /* mpegFramesBetweenReference= */ 1,

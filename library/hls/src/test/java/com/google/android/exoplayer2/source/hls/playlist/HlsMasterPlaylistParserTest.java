@@ -35,7 +35,7 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Test for {@link HlsMasterPlaylistParserTest}. */
+/** Test for {@link HlsMasterPlaylist}. */
 @RunWith(AndroidJUnit4.class)
 public class HlsMasterPlaylistParserTest {
 
@@ -195,7 +195,7 @@ public class HlsMasterPlaylistParserTest {
           + "GROUP-ID=\"sub1\",NAME=\"English\",URI=\"s1/en/prog_index.m3u8\"\n";
 
   @Test
-  public void testParseMasterPlaylist() throws IOException {
+  public void parseMasterPlaylist_withSimple_success() throws IOException {
     HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
 
     List<HlsMasterPlaylist.Variant> variants = masterPlaylist.variants;
@@ -236,7 +236,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testMasterPlaylistWithBandwdithAverage() throws IOException {
+  public void parseMasterPlaylist_withAverageBandwidth_success() throws IOException {
     HlsMasterPlaylist masterPlaylist =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AVG_BANDWIDTH);
 
@@ -247,7 +247,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testPlaylistWithInvalidHeader() throws IOException {
+  public void parseMasterPlaylist_withInvalidHeader_throwsException() throws IOException {
     try {
       parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_INVALID_HEADER);
       fail("Expected exception not thrown.");
@@ -257,7 +257,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testPlaylistWithClosedCaption() throws IOException {
+  public void parseMasterPlaylist_withClosedCaption_success() throws IOException {
     HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CC);
     assertThat(playlist.muxedCaptionFormats).hasSize(1);
     Format closedCaptionFormat = playlist.muxedCaptionFormats.get(0);
@@ -267,7 +267,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testPlaylistWithChannelsAttribute() throws IOException {
+  public void parseMasterPlaylist_withChannelsAttribute_success() throws IOException {
     HlsMasterPlaylist playlist =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CHANNELS_ATTRIBUTE);
     List<HlsMasterPlaylist.Rendition> audios = playlist.audios;
@@ -278,13 +278,13 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testPlaylistWithoutClosedCaptions() throws IOException {
+  public void parseMasterPlaylist_withoutClosedCaption_success() throws IOException {
     HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITHOUT_CC);
     assertThat(playlist.muxedCaptionFormats).isEmpty();
   }
 
   @Test
-  public void testCodecPropagation() throws IOException {
+  public void parseMasterPlaylist_withAudio_codecPropagated() throws IOException {
     HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AUDIO_MEDIA_TAG);
 
     Format firstAudioFormat = playlist.audios.get(0).format;
@@ -297,7 +297,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testAudioIdPropagation() throws IOException {
+  public void parseMasterPlaylist_withAudio_audioIdPropagated() throws IOException {
     HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_AUDIO_MEDIA_TAG);
 
     Format firstAudioFormat = playlist.audios.get(0).format;
@@ -308,7 +308,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testCCIdPropagation() throws IOException {
+  public void parseMasterPlaylist_withCc_cCIdPropagated() throws IOException {
     HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_CC);
 
     Format firstTextFormat = playlist.muxedCaptionFormats.get(0);
@@ -316,7 +316,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testSubtitleIdPropagation() throws IOException {
+  public void parseMasterPlaylist_withSubtitles_subtitlesIdPropagated() throws IOException {
     HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_SUBTITLES);
 
     Format firstTextFormat = playlist.subtitles.get(0).format;
@@ -324,7 +324,8 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testIndependentSegments() throws IOException {
+  public void parseMasterPlaylist_withIndependentSegments_hasNoIndenpendentSegments()
+      throws IOException {
     HlsMasterPlaylist playlistWithIndependentSegments =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_INDEPENDENT_SEGMENTS);
     assertThat(playlistWithIndependentSegments.hasIndependentSegments).isTrue();
@@ -335,7 +336,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testVariableSubstitution() throws IOException {
+  public void parseMasterPlaylist_withVariableSubstitution_success() throws IOException {
     HlsMasterPlaylist playlistWithSubstitutions =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_VARIABLE_SUBSTITUTION);
     HlsMasterPlaylist.Variant variant = playlistWithSubstitutions.variants.get(0);
@@ -345,7 +346,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testHlsMetadata() throws IOException {
+  public void parseMasterPlaylist_withMatchingStreamInfUrls_success() throws IOException {
     HlsMasterPlaylist playlist =
         parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_MATCHING_STREAM_INF_URLS);
     assertThat(playlist.variants).hasSize(4);

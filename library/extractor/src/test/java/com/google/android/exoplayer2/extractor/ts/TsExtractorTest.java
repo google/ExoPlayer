@@ -44,38 +44,38 @@ import org.junit.runner.RunWith;
 public final class TsExtractorTest {
 
   @Test
-  public void testSample() throws Exception {
+  public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample.ts");
   }
 
   @Test
-  public void testSampleWithScte35() throws Exception {
+  public void testSampleScte35() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_scte35.ts");
   }
 
   @Test
-  public void testWithAit() throws Exception {
+  public void withAit() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ait.ts");
   }
 
   @Test
-  public void testSampleWithAc4() throws Exception {
+  public void sampleWithAc4() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac4.ts");
   }
 
   @Test
-  public void testSampleWithEac3() throws Exception {
+  public void sampleWithEac3() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3.ts");
   }
 
   @Test
-  public void testStreamWithJunkData() throws Exception {
+  public void streamWithJunkData() throws Exception {
     ExtractorAsserts.assertBehavior(
         TsExtractor::new, "ts/sample_with_junk", ApplicationProvider.getApplicationContext());
   }
 
   @Test
-  public void testCustomPesReader() throws Exception {
+  public void customPesReader() throws Exception {
     CustomTsPayloadReaderFactory factory = new CustomTsPayloadReaderFactory(true, false);
     TsExtractor tsExtractor =
         new TsExtractor(TsExtractor.MODE_MULTI_PMT, new TimestampAdjuster(0), factory);
@@ -111,7 +111,7 @@ public final class TsExtractorTest {
   }
 
   @Test
-  public void testCustomInitialSectionReader() throws Exception {
+  public void customInitialSectionReader() throws Exception {
     CustomTsPayloadReaderFactory factory = new CustomTsPayloadReaderFactory(false, true);
     TsExtractor tsExtractor =
         new TsExtractor(TsExtractor.MODE_MULTI_PMT, new TimestampAdjuster(0), factory);

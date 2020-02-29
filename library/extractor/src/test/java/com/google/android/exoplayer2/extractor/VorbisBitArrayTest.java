@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public final class VorbisBitArrayTest {
 
   @Test
-  public void testReadBit() {
+  public void readBit() {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x5c, 0x50));
     assertThat(bitArray.readBit()).isFalse();
     assertThat(bitArray.readBit()).isFalse();
@@ -48,7 +48,7 @@ public final class VorbisBitArrayTest {
   }
 
   @Test
-  public void testSkipBits() {
+  public void skipBits() {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
     bitArray.skipBits(10);
     assertThat(bitArray.getPosition()).isEqualTo(10);
@@ -62,7 +62,7 @@ public final class VorbisBitArrayTest {
   }
 
   @Test
-  public void testGetPosition() throws Exception {
+  public void getPosition() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
     assertThat(bitArray.getPosition()).isEqualTo(0);
     bitArray.readBit();
@@ -74,7 +74,7 @@ public final class VorbisBitArrayTest {
   }
 
   @Test
-  public void testSetPosition() throws Exception {
+  public void setPosition() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F));
     assertThat(bitArray.getPosition()).isEqualTo(0);
     bitArray.setPosition(4);
@@ -84,7 +84,7 @@ public final class VorbisBitArrayTest {
   }
 
   @Test
-  public void testReadInt32() {
+  public void readInt32() {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xF0, 0x0F, 0xF0, 0x0F));
     assertThat(bitArray.readBits(32)).isEqualTo(0x0FF00FF0);
     bitArray = new VorbisBitArray(TestUtil.createByteArray(0x0F, 0xF0, 0x0F, 0xF0));
@@ -92,7 +92,7 @@ public final class VorbisBitArrayTest {
   }
 
   @Test
-  public void testReadBits() throws Exception {
+  public void readBits() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x03, 0x22));
     assertThat(bitArray.readBits(2)).isEqualTo(3);
     bitArray.skipBits(6);
@@ -104,7 +104,7 @@ public final class VorbisBitArrayTest {
   }
 
   @Test
-  public void testRead4BitsBeyondBoundary() throws Exception {
+  public void read4BitsBeyondBoundary() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x2e, 0x10));
     assertThat(bitArray.readBits(7)).isEqualTo(0x2e);
     assertThat(bitArray.getPosition()).isEqualTo(7);
@@ -112,7 +112,7 @@ public final class VorbisBitArrayTest {
   }
 
   @Test
-  public void testReadBitsBeyondByteBoundaries() throws Exception {
+  public void readBitsBeyondByteBoundaries() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0xFF, 0x0F, 0xFF, 0x0F));
     assertThat(bitArray.readBits(32)).isEqualTo(0x0FFF0FFF);
 
@@ -137,7 +137,7 @@ public final class VorbisBitArrayTest {
   }
 
   @Test
-  public void testReadBitsIllegalLengths() throws Exception {
+  public void readBitsIllegalLengths() throws Exception {
     VorbisBitArray bitArray = new VorbisBitArray(TestUtil.createByteArray(0x03, 0x22, 0x30));
 
     // reading zero bits gets 0 without advancing position

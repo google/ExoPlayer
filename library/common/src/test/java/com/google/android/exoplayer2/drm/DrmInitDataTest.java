@@ -47,7 +47,7 @@ public class DrmInitDataTest {
       TestUtil.buildTestData(128, 3 /* data seed */));
 
   @Test
-  public void testParcelable() {
+  public void parcelable() {
     DrmInitData drmInitDataToParcel = new DrmInitData(DATA_1, DATA_2);
 
     Parcel parcel = Parcel.obtain();
@@ -61,7 +61,7 @@ public class DrmInitDataTest {
   }
 
   @Test
-  public void testEquals() {
+  public void equals() {
     DrmInitData drmInitData = new DrmInitData(DATA_1, DATA_2);
 
     // Basic non-referential equality test.
@@ -95,7 +95,7 @@ public class DrmInitDataTest {
 
   @Test
   @SuppressWarnings("deprecation")
-  public void testGetByUuid() {
+  public void getByUuid() {
     // Basic matching.
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
     assertThat(testInitData.get(WIDEVINE_UUID)).isEqualTo(DATA_1);
@@ -122,14 +122,14 @@ public class DrmInitDataTest {
   }
 
   @Test
-  public void testGetByIndex() {
+  public void getByIndex() {
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
     assertThat(getAllSchemeData(testInitData)).containsAtLeast(DATA_1, DATA_2);
   }
 
   @Test
   @SuppressWarnings("deprecation")
-  public void testSchemeDatasWithSameUuid() {
+  public void schemeDatasWithSameUuid() {
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_1B);
     assertThat(testInitData.schemeDataCount).isEqualTo(2);
     // Deprecated get method should return first entry.
@@ -140,7 +140,7 @@ public class DrmInitDataTest {
   }
 
   @Test
-  public void testSchemeDataMatches() {
+  public void schemeDataMatches() {
     assertThat(DATA_1.matches(WIDEVINE_UUID)).isTrue();
     assertThat(DATA_1.matches(PLAYREADY_UUID)).isFalse();
     assertThat(DATA_2.matches(UUID_NIL)).isFalse();

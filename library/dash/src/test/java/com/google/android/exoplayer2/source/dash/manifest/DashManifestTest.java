@@ -38,7 +38,7 @@ public class DashManifestTest {
   private static final Format DUMMY_FORMAT = new Format.Builder().build();
 
   @Test
-  public void testCopy() {
+  public void copy() {
     Representation[][][] representations = newRepresentations(3, 2, 3);
     DashManifest sourceManifest =
         newDashManifest(
@@ -97,7 +97,7 @@ public class DashManifestTest {
   }
 
   @Test
-  public void testCopySameAdaptationIndexButDifferentPeriod() {
+  public void copySameAdaptationIndexButDifferentPeriod() {
     Representation[][][] representations = newRepresentations(2, 1, 1);
     DashManifest sourceManifest =
         newDashManifest(
@@ -117,7 +117,7 @@ public class DashManifestTest {
   }
 
   @Test
-  public void testCopySkipPeriod() {
+  public void copySkipPeriod() {
     Representation[][][] representations = newRepresentations(3, 2, 3);
     DashManifest sourceManifest =
         newDashManifest(

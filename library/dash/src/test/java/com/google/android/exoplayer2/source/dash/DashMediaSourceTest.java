@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 public final class DashMediaSourceTest {
 
   @Test
-  public void testIso8601ParserParse() throws IOException {
+  public void iso8601ParserParse() throws IOException {
     DashMediaSource.Iso8601Parser parser = new DashMediaSource.Iso8601Parser();
     // UTC.
     assertParseStringToLong(1512381697000L, parser, "2017-12-04T10:01:37Z");
@@ -58,7 +58,7 @@ public final class DashMediaSourceTest {
   }
 
   @Test
-  public void testIso8601ParserParseMissingTimezone() throws IOException {
+  public void iso8601ParserParseMissingTimezone() throws IOException {
     DashMediaSource.Iso8601Parser parser = new DashMediaSource.Iso8601Parser();
     try {
       assertParseStringToLong(0, parser, "2017-12-04T10:01:37");

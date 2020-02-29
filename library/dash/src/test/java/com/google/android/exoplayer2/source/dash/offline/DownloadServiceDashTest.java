@@ -154,7 +154,7 @@ public class DownloadServiceDashTest {
 
   @Ignore // b/78877092
   @Test
-  public void testMultipleDownloadRequest() throws Throwable {
+  public void multipleDownloadRequest() throws Throwable {
     downloadKeys(fakeStreamKey1);
     downloadKeys(fakeStreamKey2);
 
@@ -165,7 +165,7 @@ public class DownloadServiceDashTest {
 
   @Ignore // b/78877092
   @Test
-  public void testRemoveAction() throws Throwable {
+  public void removeAction() throws Throwable {
     downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
@@ -179,7 +179,7 @@ public class DownloadServiceDashTest {
 
   @Ignore // b/78877092
   @Test
-  public void testRemoveBeforeDownloadComplete() throws Throwable {
+  public void removeBeforeDownloadComplete() throws Throwable {
     pauseDownloadCondition = new ConditionVariable();
     downloadKeys(fakeStreamKey1, fakeStreamKey2);
 

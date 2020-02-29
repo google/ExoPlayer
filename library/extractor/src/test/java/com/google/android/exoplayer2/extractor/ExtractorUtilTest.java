@@ -34,7 +34,7 @@ public class ExtractorUtilTest {
   private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
   @Test
-  public void testPeekToLengthEndNotReached() throws Exception {
+  public void peekToLengthEndNotReached() throws Exception {
     FakeDataSource testDataSource = new FakeDataSource();
     testDataSource
         .getDataSet()
@@ -57,7 +57,7 @@ public class ExtractorUtilTest {
   }
 
   @Test
-  public void testPeekToLengthEndReached() throws Exception {
+  public void peekToLengthEndReached() throws Exception {
     FakeDataSource testDataSource = new FakeDataSource();
     testDataSource
         .getDataSet()

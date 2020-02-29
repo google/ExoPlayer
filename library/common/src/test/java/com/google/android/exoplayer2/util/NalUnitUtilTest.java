@@ -36,7 +36,7 @@ public final class NalUnitUtilTest {
   private static final int SPS_TEST_DATA_OFFSET = 3;
 
   @Test
-  public void testFindNalUnit() {
+  public void findNalUnit() {
     byte[] data = buildTestData();
 
     // Should find NAL unit.
@@ -57,7 +57,7 @@ public final class NalUnitUtilTest {
   }
 
   @Test
-  public void testFindNalUnitWithPrefix() {
+  public void findNalUnitWithPrefix() {
     byte[] data = buildTestData();
 
     // First byte of NAL unit in data1, rest in data2.
@@ -121,7 +121,7 @@ public final class NalUnitUtilTest {
   }
 
   @Test
-  public void testParseSpsNalUnit() {
+  public void parseSpsNalUnit() {
     NalUnitUtil.SpsData data = NalUnitUtil.parseSpsNalUnit(SPS_TEST_DATA, SPS_TEST_DATA_OFFSET,
         SPS_TEST_DATA.length);
     assertThat(data.width).isEqualTo(640);
@@ -137,7 +137,7 @@ public final class NalUnitUtilTest {
   }
 
   @Test
-  public void testUnescapeDoesNotModifyBuffersWithoutStartCodes() {
+  public void unescapeDoesNotModifyBuffersWithoutStartCodes() {
     assertUnescapeDoesNotModify("");
     assertUnescapeDoesNotModify("0000");
     assertUnescapeDoesNotModify("172BF38A3C");
@@ -145,13 +145,13 @@ public final class NalUnitUtilTest {
   }
 
   @Test
-  public void testUnescapeModifiesBuffersWithStartCodes() {
+  public void unescapeModifiesBuffersWithStartCodes() {
     assertUnescapeMatchesExpected("00000301", "000001");
     assertUnescapeMatchesExpected("0000030200000300", "000002000000");
   }
 
   @Test
-  public void testDiscardToSps() {
+  public void discardToSps() {
     assertDiscardToSpsMatchesExpected("", "");
     assertDiscardToSpsMatchesExpected("00", "");
     assertDiscardToSpsMatchesExpected("FFFF000001", "");

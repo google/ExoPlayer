@@ -25,7 +25,7 @@ import org.junit.runner.RunWith;
 public final class FlvExtractorTest {
 
   @Test
-  public void testSample() throws Exception {
+  public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(FlvExtractor::new, "flv/sample.flv");
   }
 }

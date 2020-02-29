@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 public final class PsshAtomUtilTest {
 
   @Test
-  public void testBuildPsshAtom() {
+  public void buildPsshAtom() {
     byte[] schemeData = new byte[]{0, 1, 2, 3, 4, 5};
     byte[] psshAtom = PsshAtomUtil.buildPsshAtom(C.WIDEVINE_UUID, schemeData);
     // Read the PSSH atom back and assert its content is as expected.

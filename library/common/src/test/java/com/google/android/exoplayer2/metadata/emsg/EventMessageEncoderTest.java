@@ -43,15 +43,13 @@ public final class EventMessageEncoderTest {
           createByteArray(0, 1, 2, 3, 4)); // message_data = {0, 1, 2, 3, 4}
 
   @Test
-  public void testEncodeEventStream() throws IOException {
-    byte[] foo = new byte[] {1, 2, 3};
-
+  public void encodeEventStream() throws IOException {
     byte[] encodedByteArray = new EventMessageEncoder().encode(DECODED_MESSAGE);
     assertThat(encodedByteArray).isEqualTo(ENCODED_MESSAGE);
   }
 
   @Test
-  public void testEncodeDecodeEventStream() throws IOException {
+  public void encodeDecodeEventStream() throws IOException {
     byte[] encodedByteArray = new EventMessageEncoder().encode(DECODED_MESSAGE);
     MetadataInputBuffer buffer = new MetadataInputBuffer();
     buffer.data = ByteBuffer.allocate(encodedByteArray.length).put(encodedByteArray);
@@ -63,7 +61,7 @@ public final class EventMessageEncoderTest {
   }
 
   @Test
-  public void testEncodeEventStreamMultipleTimesWorkingCorrectly() throws IOException {
+  public void encodeEventStreamMultipleTimesWorkingCorrectly() throws IOException {
     EventMessage eventMessage1 =
         new EventMessage("urn:test", "123", 3000, 1000402, new byte[] {4, 3, 2, 1, 0});
     byte[] expectedEmsgBody1 =

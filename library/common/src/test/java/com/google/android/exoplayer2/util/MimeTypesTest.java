@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 public final class MimeTypesTest {
 
   @Test
-  public void testGetMediaMimeType_fromValidCodecs_returnsCorrectMimeType() {
+  public void getMediaMimeType_fromValidCodecs_returnsCorrectMimeType() {
     assertThat(MimeTypes.getMediaMimeType("avc1")).isEqualTo(MimeTypes.VIDEO_H264);
     assertThat(MimeTypes.getMediaMimeType("avc1.42E01E")).isEqualTo(MimeTypes.VIDEO_H264);
     assertThat(MimeTypes.getMediaMimeType("avc1.42E01F")).isEqualTo(MimeTypes.VIDEO_H264);
@@ -76,7 +76,7 @@ public final class MimeTypesTest {
   }
 
   @Test
-  public void testGetMimeTypeFromMp4ObjectType_forValidObjectType_returnsCorrectMimeType() {
+  public void getMimeTypeFromMp4ObjectType_forValidObjectType_returnsCorrectMimeType() {
     assertThat(MimeTypes.getMimeTypeFromMp4ObjectType(0x60)).isEqualTo(MimeTypes.VIDEO_MPEG2);
     assertThat(MimeTypes.getMimeTypeFromMp4ObjectType(0x61)).isEqualTo(MimeTypes.VIDEO_MPEG2);
     assertThat(MimeTypes.getMimeTypeFromMp4ObjectType(0x20)).isEqualTo(MimeTypes.VIDEO_MP4V);
@@ -97,7 +97,7 @@ public final class MimeTypesTest {
   }
 
   @Test
-  public void testGetMimeTypeFromMp4ObjectType_forInvalidObjectType_returnsNull() {
+  public void getMimeTypeFromMp4ObjectType_forInvalidObjectType_returnsNull() {
     assertThat(MimeTypes.getMimeTypeFromMp4ObjectType(0)).isNull();
     assertThat(MimeTypes.getMimeTypeFromMp4ObjectType(0x600)).isNull();
     assertThat(MimeTypes.getMimeTypeFromMp4ObjectType(0x01)).isNull();

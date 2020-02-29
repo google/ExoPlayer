@@ -608,7 +608,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testRubies() throws IOException, SubtitleDecoderException {
+  public void rubies() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(RUBIES_FILE);
 
     Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);

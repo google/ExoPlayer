@@ -31,19 +31,19 @@ import org.junit.runner.RunWith;
 public final class FragmentedMp4ExtractorTest {
 
   @Test
-  public void testSample() throws Exception {
+  public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(ImmutableList.of()), "mp4/sample_fragmented.mp4");
   }
 
   @Test
-  public void testSampleSeekable() throws Exception {
+  public void sampleSeekable() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(ImmutableList.of()), "mp4/sample_fragmented_seekable.mp4");
   }
 
   @Test
-  public void testSampleWithSeiPayloadParsing() throws Exception {
+  public void sampleWithSeiPayloadParsing() throws Exception {
     // Enabling the CEA-608 track enables SEI payload parsing.
     ExtractorFactory extractorFactory =
         getExtractorFactory(
@@ -53,19 +53,19 @@ public final class FragmentedMp4ExtractorTest {
   }
 
   @Test
-  public void testSampleWithAc4Track() throws Exception {
+  public void sampleWithAc4Track() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(ImmutableList.of()), "mp4/sample_ac4_fragmented.mp4");
   }
 
   @Test
-  public void testSampleWithProtectedAc4Track() throws Exception {
+  public void sampleWithProtectedAc4Track() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(ImmutableList.of()), "mp4/sample_ac4_protected.mp4");
   }
 
   @Test
-  public void testSampleWithEac3Track() throws Exception {
+  public void sampleWithEac3Track() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(ImmutableList.of()), "mp4/sample_eac3_fragmented.mp4");
   }

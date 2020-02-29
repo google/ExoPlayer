@@ -69,19 +69,19 @@ public final class XingSeekerTest {
   }
 
   @Test
-  public void testGetTimeUsBeforeFirstAudioFrame() {
+  public void getTimeUsBeforeFirstAudioFrame() {
     assertThat(seeker.getTimeUs(-1)).isEqualTo(0);
     assertThat(seekerWithInputLength.getTimeUs(-1)).isEqualTo(0);
   }
 
   @Test
-  public void testGetTimeUsAtFirstAudioFrame() {
+  public void getTimeUsAtFirstAudioFrame() {
     assertThat(seeker.getTimeUs(XING_FRAME_POSITION + xingFrameSize)).isEqualTo(0);
     assertThat(seekerWithInputLength.getTimeUs(XING_FRAME_POSITION + xingFrameSize)).isEqualTo(0);
   }
 
   @Test
-  public void testGetTimeUsAtEndOfStream() {
+  public void getTimeUsAtEndOfStream() {
     assertThat(seeker.getTimeUs(STREAM_LENGTH))
         .isEqualTo(STREAM_DURATION_US);
     assertThat(
@@ -90,7 +90,7 @@ public final class XingSeekerTest {
   }
 
   @Test
-  public void testGetSeekPointsAtStartOfStream() {
+  public void getSeekPointsAtStartOfStream() {
     SeekPoints seekPoints = seeker.getSeekPoints(0);
     SeekPoint seekPoint = seekPoints.first;
     assertThat(seekPoint).isEqualTo(seekPoints.second);
@@ -99,7 +99,7 @@ public final class XingSeekerTest {
   }
 
   @Test
-  public void testGetSeekPointsAtEndOfStream() {
+  public void getSeekPointsAtEndOfStream() {
     SeekPoints seekPoints = seeker.getSeekPoints(STREAM_DURATION_US);
     SeekPoint seekPoint = seekPoints.first;
     assertThat(seekPoint).isEqualTo(seekPoints.second);
@@ -108,7 +108,7 @@ public final class XingSeekerTest {
   }
 
   @Test
-  public void testGetTimeForAllPositions() {
+  public void getTimeForAllPositions() {
     for (int offset = xingFrameSize; offset < DATA_SIZE_BYTES; offset++) {
       int position = XING_FRAME_POSITION + offset;
       // Test seeker.

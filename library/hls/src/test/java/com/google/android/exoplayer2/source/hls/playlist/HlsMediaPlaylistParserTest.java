@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 public class HlsMediaPlaylistParserTest {
 
   @Test
-  public void testParseMediaPlaylist() throws Exception {
+  public void parseMediaPlaylist() throws Exception {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -149,7 +149,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testParseSampleAesMethod() throws Exception {
+  public void parseSampleAesMethod() throws Exception {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -178,7 +178,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testParseSampleAesCencMethod() throws Exception {
+  public void parseSampleAesCencMethod() throws Exception {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -202,7 +202,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testParseSampleAesCtrMethod() throws Exception {
+  public void parseSampleAesCtrMethod() throws Exception {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -226,7 +226,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testMultipleExtXKeysForSingleSegment() throws Exception {
+  public void multipleExtXKeysForSingleSegment() throws Exception {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -303,7 +303,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testGapTag() throws IOException {
+  public void gapTag() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test2.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -338,7 +338,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testMapTag() throws IOException {
+  public void mapTag() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -368,7 +368,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testEncryptedMapTag() throws IOException {
+  public void encryptedMapTag() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -399,7 +399,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testEncryptedMapTagWithNoIvFails() throws IOException {
+  public void encryptedMapTagWithNoIvFails() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -423,7 +423,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testMasterPlaylistAttributeInheritance() throws IOException {
+  public void masterPlaylistAttributeInheritance() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -466,7 +466,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testVariableSubstitution() throws IOException {
+  public void variableSubstitution() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/substitution.m3u8");
     String playlistString =
         "#EXTM3U\n"
@@ -489,7 +489,7 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void testInheritedVariableSubstitution() throws IOException {
+  public void inheritedVariableSubstitution() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
     String playlistString =
         "#EXTM3U\n"

@@ -96,7 +96,7 @@ public class HlsDownloaderTest {
   }
 
   @Test
-  public void testCreateWithDefaultDownloaderFactory() {
+  public void createWithDefaultDownloaderFactory() {
     DownloaderConstructorHelper constructorHelper =
         new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
     DownloaderFactory factory = new DefaultDownloaderFactory(constructorHelper);
@@ -114,7 +114,7 @@ public class HlsDownloaderTest {
   }
 
   @Test
-  public void testCounterMethods() throws Exception {
+  public void counterMethods() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
     downloader.download(progressListener);
@@ -123,7 +123,7 @@ public class HlsDownloaderTest {
   }
 
   @Test
-  public void testDownloadRepresentation() throws Exception {
+  public void downloadRepresentation() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(MASTER_PLAYLIST_URI, getKeys(MASTER_MEDIA_PLAYLIST_1_INDEX));
     downloader.download(progressListener);
@@ -140,7 +140,7 @@ public class HlsDownloaderTest {
   }
 
   @Test
-  public void testDownloadMultipleRepresentations() throws Exception {
+  public void downloadMultipleRepresentations() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(
             MASTER_PLAYLIST_URI,
@@ -151,7 +151,7 @@ public class HlsDownloaderTest {
   }
 
   @Test
-  public void testDownloadAllRepresentations() throws Exception {
+  public void downloadAllRepresentations() throws Exception {
     // Add data for the rest of the playlists
     fakeDataSet
         .setData(MEDIA_PLAYLIST_0_URI, MEDIA_PLAYLIST_DATA)
@@ -170,7 +170,7 @@ public class HlsDownloaderTest {
   }
 
   @Test
-  public void testRemove() throws Exception {
+  public void remove() throws Exception {
     HlsDownloader downloader =
         getHlsDownloader(
             MASTER_PLAYLIST_URI,
@@ -182,7 +182,7 @@ public class HlsDownloaderTest {
   }
 
   @Test
-  public void testDownloadMediaPlaylist() throws Exception {
+  public void downloadMediaPlaylist() throws Exception {
     HlsDownloader downloader = getHlsDownloader(MEDIA_PLAYLIST_1_URI, getKeys());
     downloader.download(progressListener);
 
@@ -197,7 +197,7 @@ public class HlsDownloaderTest {
   }
 
   @Test
-  public void testDownloadEncMediaPlaylist() throws Exception {
+  public void downloadEncMediaPlaylist() throws Exception {
     fakeDataSet =
         new FakeDataSet()
             .setData(ENC_MEDIA_PLAYLIST_URI, ENC_MEDIA_PLAYLIST_DATA)
