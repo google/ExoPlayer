@@ -126,6 +126,12 @@ public interface Renderer extends PlayerMessage.Target {
   @SuppressWarnings("deprecation")
   int MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER = C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER;
   /**
+   * The type of a message that can be passed to an audio renderer via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be a {@link Boolean} instance
+   * telling whether to enable or disable skipping silences in the audio stream.
+   */
+  int MSG_SET_SKIP_SILENCE_ENABLED = 101;
+  /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.
    */
