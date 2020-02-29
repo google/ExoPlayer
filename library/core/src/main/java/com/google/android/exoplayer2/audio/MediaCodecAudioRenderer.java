@@ -670,6 +670,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         AuxEffectInfo auxEffectInfo = (AuxEffectInfo) message;
         audioSink.setAuxEffectInfo(auxEffectInfo);
         break;
+      case MSG_SET_SKIP_SILENCE_ENABLED:
+        audioSink.setSkipSilenceEnabled((Boolean) message);
+        break;
       default:
         super.handleMessage(messageType, message);
         break;

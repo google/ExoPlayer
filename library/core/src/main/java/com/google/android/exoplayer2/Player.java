@@ -141,6 +141,16 @@ public interface Player {
 
     /** Returns the audio volume, with 0 being silence and 1 being unity gain. */
     float getVolume();
+
+    /**
+     * Sets whether skipping silences in the audio stream is enabled.
+     *
+     * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+     */
+    void setSkipSilenceEnabled(boolean skipSilenceEnabled);
+
+    /** Returns whether skipping silences in the audio stream is enabled. */
+    boolean getSkipSilenceEnabled();
   }
 
   /** The video component of a {@link Player}. */

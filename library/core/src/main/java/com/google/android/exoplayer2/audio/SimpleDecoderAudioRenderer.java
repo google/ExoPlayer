@@ -560,6 +560,9 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
         AuxEffectInfo auxEffectInfo = (AuxEffectInfo) message;
         audioSink.setAuxEffectInfo(auxEffectInfo);
         break;
+      case MSG_SET_SKIP_SILENCE_ENABLED:
+        audioSink.setSkipSilenceEnabled((Boolean) message);
+        break;
       default:
         super.handleMessage(messageType, message);
         break;

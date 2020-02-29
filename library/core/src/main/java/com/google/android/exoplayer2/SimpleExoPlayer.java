@@ -715,6 +715,30 @@ public class SimpleExoPlayer extends BasePlayer
     return audioVolume;
   }
 
+  @Override
+  public boolean getSkipSilenceEnabled() {
+    return skipSilenceEnabled;
+  }
+
+  @Override
+  public void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
+    verifyApplicationThread();
+    if (this.skipSilenceEnabled == skipSilenceEnabled) {
+      return;
+    }
+    this.skipSilenceEnabled = skipSilenceEnabled;
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        player
+            .createMessage(renderer)
+            .setType(Renderer.MSG_SET_SKIP_SILENCE_ENABLED)
+            .setPayload(skipSilenceEnabled)
+            .send();
+      }
+    }
+    notifySkipSilenceEnabledChanged();
+  }
+
   /**
    * Sets the stream type for audio playback, used by the underlying audio track.
    *
@@ -1355,7 +1379,14 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     verifyApplicationThread();
-    setSkipSilenceEnabled(playbackParameters != null && playbackParameters.skipSilence);
+    boolean newSkipSilenceEnabled =
+        playbackParameters != null
+            ? playbackParameters.skipSilence
+            : PlaybackParameters.DEFAULT.skipSilence;
+    if (skipSilenceEnabled != newSkipSilenceEnabled) {
+      skipSilenceEnabled = newSkipSilenceEnabled;
+      notifySkipSilenceEnabledChanged();
+    }
     player.setPlaybackParameters(playbackParameters);
   }
 
@@ -1708,11 +1739,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @SuppressWarnings("SuspiciousMethodCalls")
-  private void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
-    if (this.skipSilenceEnabled == skipSilenceEnabled) {
-      return;
-    }
-    this.skipSilenceEnabled = skipSilenceEnabled;
+  private void notifySkipSilenceEnabledChanged() {
     for (AudioListener listener : audioListeners) {
       // Prevent duplicate notification if a listener is both a AudioRendererEventListener and
       // a AudioListener, as they have the same method signature.
@@ -1882,7 +1909,11 @@ public class SimpleExoPlayer extends BasePlayer
 
     @Override
     public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
-      setSkipSilenceEnabled(skipSilenceEnabled);
+      if (SimpleExoPlayer.this.skipSilenceEnabled == skipSilenceEnabled) {
+        return;
+      }
+      SimpleExoPlayer.this.skipSilenceEnabled = skipSilenceEnabled;
+      notifySkipSilenceEnabledChanged();
     }
 
     // TextOutput implementation
