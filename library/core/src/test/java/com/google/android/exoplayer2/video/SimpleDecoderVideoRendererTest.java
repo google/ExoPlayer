@@ -24,6 +24,7 @@ import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -43,8 +44,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.robolectric.annotation.LooperMode;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link SimpleDecoderVideoRenderer}. */
+@LooperMode(LooperMode.Mode.PAUSED)
 @RunWith(AndroidJUnit4.class)
 public final class SimpleDecoderVideoRendererTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
@@ -67,6 +71,12 @@ public final class SimpleDecoderVideoRendererTest {
             new Handler(),
             eventListener,
             /* maxDroppedFramesToNotify= */ -1) {
+
+          private final Object pendingDecodeCallLock = new Object();
+
+          @GuardedBy("pendingDecodeCallLock")
+          private int pendingDecodeCalls;
+
           @C.VideoOutputMode private int outputMode;
 
           @Override
@@ -84,6 +94,34 @@ public final class SimpleDecoderVideoRendererTest {
           protected void renderOutputBufferToSurface(
               VideoDecoderOutputBuffer outputBuffer, Surface surface) {
             // Do nothing.
+          }
+
+          @Override
+          protected void onQueueInputBuffer(VideoDecoderInputBuffer buffer) {
+            // SimpleDecoder.decode() is called on a background thread we have no control about from
+            // the test. Ensure the background calls are predictably serialized by waiting for them
+            // to finish:
+            //  1. Mark decode calls as "pending" here.
+            //  2. Send a message on the test thread to wait for all pending decode calls.
+            //  3. Decrement the pending counter in decode calls and wake up the waiting test.
+            //  4. The tests need to call ShadowLooper.idleMainThread() to wait for pending calls.
+            synchronized (pendingDecodeCallLock) {
+              pendingDecodeCalls++;
+            }
+            new Handler()
+                .post(
+                    () -> {
+                      synchronized (pendingDecodeCallLock) {
+                        while (pendingDecodeCalls > 0) {
+                          try {
+                            pendingDecodeCallLock.wait();
+                          } catch (InterruptedException e) {
+                            // Ignore.
+                          }
+                        }
+                      }
+                    });
+            super.onQueueInputBuffer(buffer);
           }
 
           @Override
@@ -117,6 +155,10 @@ public final class SimpleDecoderVideoRendererTest {
                   VideoDecoderOutputBuffer outputBuffer,
                   boolean reset) {
                 outputBuffer.init(inputBuffer.timeUs, outputMode, /* supplementalData= */ null);
+                synchronized (pendingDecodeCallLock) {
+                  pendingDecodeCalls--;
+                  pendingDecodeCallLock.notify();
+                }
                 return null;
               }
 
@@ -150,6 +192,8 @@ public final class SimpleDecoderVideoRendererTest {
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
+      // Ensure pending messages are delivered.
+      ShadowLooper.idleMainLooper();
     }
 
     verify(eventListener).onRenderedFirstFrame(any());
@@ -176,6 +220,8 @@ public final class SimpleDecoderVideoRendererTest {
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
+      // Ensure pending messages are delivered.
+      ShadowLooper.idleMainLooper();
     }
 
     verify(eventListener, never()).onRenderedFirstFrame(any());
@@ -202,6 +248,8 @@ public final class SimpleDecoderVideoRendererTest {
     renderer.start();
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
+      // Ensure pending messages are delivered.
+      ShadowLooper.idleMainLooper();
     }
 
     verify(eventListener).onRenderedFirstFrame(any());
@@ -244,6 +292,8 @@ public final class SimpleDecoderVideoRendererTest {
         renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
         replacedStream = true;
       }
+      // Ensure pending messages are delivered.
+      ShadowLooper.idleMainLooper();
     }
 
     verify(eventListener, times(2)).onRenderedFirstFrame(any());
@@ -283,6 +333,8 @@ public final class SimpleDecoderVideoRendererTest {
         renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
         replacedStream = true;
       }
+      // Ensure pending messages are delivered.
+      ShadowLooper.idleMainLooper();
     }
 
     verify(eventListener).onRenderedFirstFrame(any());
