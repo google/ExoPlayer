@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.metadata.dvbsi;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
+import static com.google.android.exoplayer2.testutil.TestUtil.createMetadataInputBuffer;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -23,7 +26,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,12 +71,32 @@ public final class AppInfoTableDecoderTest {
     assertThat(metadata).isNull();
   }
 
-  private static MetadataInputBuffer createMetadataInputBuffer(byte[] data) {
-    MetadataInputBuffer inputBuffer = new MetadataInputBuffer();
-    inputBuffer.data = ByteBuffer.allocate(data.length);
-    inputBuffer.data.put(data);
-    inputBuffer.data.flip();
-    return inputBuffer;
+  @Test
+  public void decode_failsIfPositionNonZero() {
+    AppInfoTableDecoder decoder = new AppInfoTableDecoder();
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void decode_failsIfBufferHasNoArray() {
+    AppInfoTableDecoder decoder = new AppInfoTableDecoder();
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data = buffer.data.asReadOnlyBuffer();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void decode_failsIfArrayOffsetNonZero() {
+    AppInfoTableDecoder decoder = new AppInfoTableDecoder();
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+    buffer.data = buffer.data.slice();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
   }
 
   private static byte[] readTestFile(String name) throws IOException {

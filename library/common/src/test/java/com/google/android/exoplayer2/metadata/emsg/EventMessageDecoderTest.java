@@ -16,13 +16,14 @@
 package com.google.android.exoplayer2.metadata.emsg;
 
 import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
+import static com.google.android.exoplayer2.testutil.TestUtil.createMetadataInputBuffer;
 import static com.google.android.exoplayer2.testutil.TestUtil.joinByteArrays;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
-import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -40,10 +41,8 @@ public final class EventMessageDecoderTest {
             createByteArray(0, 15, 67, 211), // id = 1000403
             createByteArray(0, 1, 2, 3, 4)); // message_data = {0, 1, 2, 3, 4}
     EventMessageDecoder decoder = new EventMessageDecoder();
-    MetadataInputBuffer buffer = new MetadataInputBuffer();
-    buffer.data = ByteBuffer.allocate(rawEmsgBody.length).put(rawEmsgBody);
 
-    Metadata metadata = decoder.decode(buffer);
+    Metadata metadata = decoder.decode(createMetadataInputBuffer(rawEmsgBody));
 
     assertThat(metadata.length()).isEqualTo(1);
     EventMessage eventMessage = (EventMessage) metadata.get(0);
@@ -54,4 +53,31 @@ public final class EventMessageDecoderTest {
     assertThat(eventMessage.messageData).isEqualTo(new byte[]{0, 1, 2, 3, 4});
   }
 
+  @Test
+  public void testDecodeEventMessage_failsIfPositionNonZero() {
+    EventMessageDecoder decoder = new EventMessageDecoder();
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void testDecodeEventMessage_failsIfBufferHasNoArray() {
+    EventMessageDecoder decoder = new EventMessageDecoder();
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data = buffer.data.asReadOnlyBuffer();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void testDecodeEventMessage_failsIfArrayOffsetNonZero() {
+    EventMessageDecoder decoder = new EventMessageDecoder();
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+    buffer.data = buffer.data.slice();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
 }

@@ -26,13 +26,12 @@ import java.util.Arrays;
 /** Decodes data encoded by {@link EventMessageEncoder}. */
 public final class EventMessageDecoder implements MetadataDecoder {
 
-  @SuppressWarnings("ByteBufferBackingArray")
   @Override
   public Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
-    byte[] data = buffer.array();
-    int size = buffer.limit();
-    return new Metadata(decode(new ParsableByteArray(data, size)));
+    Assertions.checkArgument(
+        buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
+    return new Metadata(decode(new ParsableByteArray(buffer.array(), buffer.limit())));
   }
 
   public EventMessage decode(ParsableByteArray emsgData) {

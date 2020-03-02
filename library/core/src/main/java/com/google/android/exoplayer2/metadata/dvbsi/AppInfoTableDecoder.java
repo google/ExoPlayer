@@ -48,9 +48,10 @@ public final class AppInfoTableDecoder implements MetadataDecoder {
 
   @Override
   @Nullable
-  @SuppressWarnings("ByteBufferBackingArray")
   public Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
+    Assertions.checkArgument(
+        buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
     int tableId = buffer.get();
     return tableId == APPLICATION_INFORMATION_TABLE_ID
         ? parseAit(new ParsableBitArray(buffer.array(), buffer.limit()))

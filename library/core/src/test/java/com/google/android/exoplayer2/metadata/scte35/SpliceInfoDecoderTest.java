@@ -16,7 +16,10 @@
 package com.google.android.exoplayer2.metadata.scte35;
 
 import static com.google.android.exoplayer2.C.TIME_UNSET;
+import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
+import static com.google.android.exoplayer2.testutil.TestUtil.createMetadataInputBuffer;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -162,9 +165,35 @@ public final class SpliceInfoDecoderTest {
     assertThat(command.availsExpected).isEqualTo(2);
   }
 
+  @Test
+  public void decodeFailsIfPositionNonZero() {
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void decodeFailsIfBufferHasNoArray() {
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data = buffer.data.asReadOnlyBuffer();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void decodeFailsIfArrayOffsetNonZero() {
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+    buffer.data = buffer.data.slice();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
   private Metadata feedInputBuffer(byte[] data, long timeUs, long subsampleOffset) {
     inputBuffer.clear();
     inputBuffer.data = ByteBuffer.allocate(data.length).put(data);
+    inputBuffer.data.flip();
     inputBuffer.timeUs = timeUs;
     inputBuffer.subsampleOffsetUs = subsampleOffset;
     return decoder.decode(inputBuffer);

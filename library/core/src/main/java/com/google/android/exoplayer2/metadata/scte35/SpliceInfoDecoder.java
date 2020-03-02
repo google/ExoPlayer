@@ -47,10 +47,11 @@ public final class SpliceInfoDecoder implements MetadataDecoder {
     sectionHeader = new ParsableBitArray();
   }
 
-  @SuppressWarnings("ByteBufferBackingArray")
   @Override
   public Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
+    Assertions.checkArgument(
+        buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
 
     // Internal timestamps adjustment.
     if (timestampAdjuster == null

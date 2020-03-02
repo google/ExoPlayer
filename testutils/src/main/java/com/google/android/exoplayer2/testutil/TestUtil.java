@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -42,6 +43,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -472,5 +474,16 @@ public class TestUtil {
       length += position;
     }
     return new DefaultExtractorInput(dataSource, position, length);
+  }
+
+  /**
+   * Create a new {@link MetadataInputBuffer} and copy {@code data} into the backing {@link
+   * ByteBuffer}.
+   */
+  public static MetadataInputBuffer createMetadataInputBuffer(byte[] data) {
+    MetadataInputBuffer buffer = new MetadataInputBuffer();
+    buffer.data = ByteBuffer.allocate(data.length).put(data);
+    buffer.data.flip();
+    return buffer;
   }
 }
