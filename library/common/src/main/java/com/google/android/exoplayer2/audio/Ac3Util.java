@@ -99,6 +99,13 @@ public final class Ac3Util {
 
   }
 
+  /** Maximum rate for an AC-3 audio stream, in bytes per second. */
+  public static final int AC3_MAX_RATE_BYTES_PER_SECOND = 640 * 1000 / 8;
+  /** Maximum rate for an E-AC-3 audio stream, in bytes per second. */
+  public static final int E_AC3_MAX_RATE_BYTES_PER_SECOND = 6144 * 1000 / 8;
+  /** Maximum rate for a TrueHD audio stream, in bytes per second. */
+  public static final int TRUEHD_MAX_RATE_BYTES_PER_SECOND = 24500 * 1000 / 8;
+
   /**
    * The number of samples to store in each output chunk when rechunking TrueHD streams. The number
    * of samples extracted from the container corresponding to one syncframe must be an integer

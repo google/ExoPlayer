@@ -209,6 +209,12 @@ public final class MpegAudioUtil {
    */
   public static final int MAX_FRAME_SIZE_BYTES = 4096;
 
+  /**
+   * Maximum rate for an MPEG audio stream corresponding to MPEG-1 layer III (320 kbit/s), in bytes
+   * per second.
+   */
+  public static final int MAX_RATE_BYTES_PER_SECOND = 320 * 1000 / 8;
+
   private static final String[] MIME_TYPE_BY_LAYER =
       new String[] {MimeTypes.AUDIO_MPEG_L1, MimeTypes.AUDIO_MPEG_L2, MimeTypes.AUDIO_MPEG};
   private static final int[] SAMPLING_RATE_V1 = {44100, 48000, 32000};

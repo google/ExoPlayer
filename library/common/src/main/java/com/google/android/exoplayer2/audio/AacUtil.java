@@ -61,6 +61,28 @@ public final class AacUtil {
    */
   public static final int AAC_LD_AUDIO_SAMPLE_COUNT = 512;
 
+  // Maximum bitrates for AAC profiles from the Fraunhofer FDK AAC encoder documentation:
+  // https://cs.android.com/android/platform/superproject/+/android-9.0.0_r8:external/aac/libAACenc/include/aacenc_lib.h;l=718
+  /** Maximum rate for an AAC LC audio stream, in bytes per second. */
+  public static final int AAC_LC_MAX_RATE_BYTES_PER_SECOND = 800 * 1000 / 8;
+  /** Maximum rate for an AAC HE V1 audio stream, in bytes per second. */
+  public static final int AAC_HE_V1_MAX_RATE_BYTES_PER_SECOND = 128 * 1000 / 8;
+  /** Maximum rate for an AAC HE V2 audio stream, in bytes per second. */
+  public static final int AAC_HE_V2_MAX_RATE_BYTES_PER_SECOND = 56 * 1000 / 8;
+  /**
+   * Maximum rate for an AAC XHE audio stream, in bytes per second.
+   *
+   * <p>Fraunhofer documentation says "500 kbit/s and above" for stereo, so we use a rate generously
+   * above the 500 kbit/s level.
+   */
+  public static final int AAC_XHE_MAX_RATE_BYTES_PER_SECOND = 2048 * 1000 / 8;
+  /**
+   * Maximum rate for an AAC ELD audio stream, in bytes per second.
+   *
+   * <p>Fraunhofer documentation shows AAC-ELD as useful for up to ~ 64 kbit/s so we use this value.
+   */
+  public static final int AAC_ELD_MAX_RATE_BYTES_PER_SECOND = 64 * 1000 / 8;
+
   private static final int AUDIO_SPECIFIC_CONFIG_FREQUENCY_INDEX_ARBITRARY = 0xF;
   private static final int[] AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE =
       new int[] {

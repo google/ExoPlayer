@@ -1208,37 +1208,30 @@ public final class DefaultAudioSink implements AudioSink {
   private static int getMaximumEncodedRateBytesPerSecond(@C.Encoding int encoding) {
     switch (encoding) {
       case C.ENCODING_MP3:
-        // Maximum bitrate for MPEG-1 layer III: 320 kbit/s.
-        return 320 * 1000 / 8;
+        return MpegAudioUtil.MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_AAC_LC:
-        // Maximum bitrates for AAC profiles from the Fraunhofer FDK AAC encoder documentation:
-        // https://cs.android.com/android/platform/superproject/+/android-9.0.0_r8:external/aac/libAACenc/include/aacenc_lib.h;l=718
-        return 800 * 1000 / 8;
+        return AacUtil.AAC_LC_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_AAC_HE_V1:
-        return 128 * 1000 / 8;
+        return AacUtil.AAC_HE_V1_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_AAC_HE_V2:
-        return 56 * 1000 / 8;
+        return AacUtil.AAC_HE_V2_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_AAC_XHE:
-        // Fraunhofer documentation says "500 kbit/s and above" for stereo, so we use a rate
-        // generously above the 500 kbit/s level.
-        return 2048 * 1000 / 8;
+        return AacUtil.AAC_XHE_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_AAC_ELD:
-        // Fraunhofer documentation shows AAC-ELD as useful for up to ~ 64 kbit/s.
-        return 64 * 1000 / 8;
+        return AacUtil.AAC_ELD_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_AC3:
-        return 640 * 1000 / 8;
+        return Ac3Util.AC3_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_E_AC3:
       case C.ENCODING_E_AC3_JOC:
-        return 6144 * 1000 / 8;
+        return Ac3Util.E_AC3_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_AC4:
-        return 2688 * 1000 / 8;
+        return Ac4Util.MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_DTS:
-        // DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
-        return 1536 * 1000 / 8;
+        return DtsUtil.DTS_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_DTS_HD:
-        return 18000 * 1000 / 8;
+        return DtsUtil.DTS_HD_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_DOLBY_TRUEHD:
-        return 24500 * 1000 / 8;
+        return Ac3Util.TRUEHD_MAX_RATE_BYTES_PER_SECOND;
       case C.ENCODING_PCM_16BIT:
       case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
       case C.ENCODING_PCM_24BIT:
