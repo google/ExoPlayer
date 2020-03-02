@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -26,12 +27,8 @@ import java.util.List;
 /** Factory for creating {@link MediaSource}s from URIs. */
 public interface MediaSourceFactory {
 
-  /**
-   * Sets a list of {@link StreamKey StreamKeys} by which the manifest is filtered.
-   *
-   * @param streamKeys A list of {@link StreamKey StreamKeys}.
-   * @return This factory, for convenience.
-   */
+  /** @deprecated Use {@link MediaItem.PlaybackProperties#streamKeys} instead. */
+  @Deprecated
   default MediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
     return this;
   }
@@ -45,17 +42,27 @@ public interface MediaSourceFactory {
   MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager<?> drmSessionManager);
 
   /**
-   * Creates a new {@link MediaSource} with the specified {@code uri}.
-   *
-   * @param uri The URI to play.
-   * @return The new {@link MediaSource media source}.
-   */
-  MediaSource createMediaSource(Uri uri);
-
-  /**
    * Returns the {@link C.ContentType content types} supported by media sources created by this
    * factory.
    */
   @C.ContentType
   int[] getSupportedTypes();
+
+  /**
+   * Creates a new {@link MediaSource} with the specified {@link MediaItem}.
+   *
+   * @param mediaItem The media item to play.
+   * @return The new {@link MediaSource media source}.
+   */
+  MediaSource createMediaSource(MediaItem mediaItem);
+
+  /**
+   * Creates a new {@link MediaSource} with the specified {@code uri}.
+   *
+   * @param uri The URI to play.
+   * @return The new {@link MediaSource media source}.
+   */
+  default MediaSource createMediaSource(Uri uri) {
+    return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());
+  }
 }
