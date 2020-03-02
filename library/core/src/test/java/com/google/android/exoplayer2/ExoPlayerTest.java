@@ -83,6 +83,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.LooperMode;
@@ -5592,7 +5593,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void errorThrownDuringPeriodTransition_keepsConsistentPlayerState() {
+  public void errorThrownDuringRendererEnableAtPeriodTransition_isReportedForNewPeriod() {
     FakeMediaSource source1 =
         new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.VIDEO_FORMAT);
     FakeMediaSource source2 =
@@ -5611,7 +5612,7 @@ public final class ExoPlayerTest {
     AtomicReference<TrackSelectionArray> trackSelectionsAfterError = new AtomicReference<>();
     AtomicInteger windowIndexAfterError = new AtomicInteger();
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder("errorThrownDuringPeriodTransition_keepsConsistentPlayerState")
+        new ActionSchedule.Builder("errorDuringEnableAtPeriodTransition_isReportedForNewPeriod")
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -5628,13 +5629,128 @@ public final class ExoPlayerTest {
                         });
                   }
                 })
-            .pause()
-            // Wait until fully buffered so that the new renderer can be enabled immediately.
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .play()
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSources(source1, source2)
+            .setActionSchedule(actionSchedule)
+            .setRenderers(videoRenderer, audioRenderer)
+            .build(context);
+
+    assertThrows(
+        ExoPlaybackException.class,
+        () ->
+            testRunner
+                .start(/* doPrepare= */ true)
+                .blockUntilActionScheduleFinished(TIMEOUT_MS)
+                .blockUntilEnded(TIMEOUT_MS));
+
+    assertThat(windowIndexAfterError.get()).isEqualTo(1);
+    assertThat(trackGroupsAfterError.get().length).isEqualTo(1);
+    assertThat(trackGroupsAfterError.get().get(0).getFormat(0)).isEqualTo(Builder.AUDIO_FORMAT);
+    assertThat(trackSelectionsAfterError.get().get(0)).isNull(); // Video renderer.
+    assertThat(trackSelectionsAfterError.get().get(1)).isNotNull(); // Audio renderer.
+  }
+
+  @Test
+  public void errorThrownDuringRendererDisableAtPeriodTransition_isReportedForCurrentPeriod() {
+    FakeMediaSource source1 =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.VIDEO_FORMAT);
+    FakeMediaSource source2 =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.AUDIO_FORMAT);
+    FakeRenderer videoRenderer =
+        new FakeRenderer(Builder.VIDEO_FORMAT) {
+          @Override
+          protected void onStopped() throws ExoPlaybackException {
+            // Fail when stopping the renderer. This will happen during the period transition.
+            throw createRendererException(new IllegalStateException(), Builder.VIDEO_FORMAT);
+          }
+        };
+    FakeRenderer audioRenderer = new FakeRenderer(Builder.AUDIO_FORMAT);
+    AtomicReference<TrackGroupArray> trackGroupsAfterError = new AtomicReference<>();
+    AtomicReference<TrackSelectionArray> trackSelectionsAfterError = new AtomicReference<>();
+    AtomicInteger windowIndexAfterError = new AtomicInteger();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("errorDuringDisableAtTransition_isReportedForCurrentPeriod")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.addAnalyticsListener(
+                        new AnalyticsListener() {
+                          @Override
+                          public void onPlayerError(
+                              EventTime eventTime, ExoPlaybackException error) {
+                            trackGroupsAfterError.set(player.getCurrentTrackGroups());
+                            trackSelectionsAfterError.set(player.getCurrentTrackSelections());
+                            windowIndexAfterError.set(player.getCurrentWindowIndex());
+                          }
+                        });
+                  }
+                })
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new Builder()
+            .setMediaSources(source1, source2)
+            .setActionSchedule(actionSchedule)
+            .setRenderers(videoRenderer, audioRenderer)
+            .build(context);
+
+    assertThrows(
+        ExoPlaybackException.class,
+        () ->
+            testRunner
+                .start(/* doPrepare= */ true)
+                .blockUntilActionScheduleFinished(TIMEOUT_MS)
+                .blockUntilEnded(TIMEOUT_MS));
+
+    assertThat(windowIndexAfterError.get()).isEqualTo(0);
+    assertThat(trackGroupsAfterError.get().length).isEqualTo(1);
+    assertThat(trackGroupsAfterError.get().get(0).getFormat(0)).isEqualTo(Builder.VIDEO_FORMAT);
+    assertThat(trackSelectionsAfterError.get().get(0)).isNotNull(); // Video renderer.
+    assertThat(trackSelectionsAfterError.get().get(1)).isNull(); // Audio renderer.
+  }
+
+  // TODO(b/150584930): Fix reporting of renderer errors.
+  @Ignore
+  @Test
+  public void errorThrownDuringRendererReplaceStreamAtPeriodTransition_isReportedForNewPeriod() {
+    FakeMediaSource source1 =
+        new FakeMediaSource(
+            new FakeTimeline(/* windowCount= */ 1), Builder.VIDEO_FORMAT, Builder.AUDIO_FORMAT);
+    FakeMediaSource source2 =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.AUDIO_FORMAT);
+    FakeRenderer videoRenderer = new FakeRenderer(Builder.VIDEO_FORMAT);
+    FakeRenderer audioRenderer =
+        new FakeRenderer(Builder.AUDIO_FORMAT) {
+          @Override
+          protected void onStreamChanged(Format[] formats, long offsetUs)
+              throws ExoPlaybackException {
+            // Fail when changing streams. This will happen during the period transition.
+            throw createRendererException(new IllegalStateException(), Builder.AUDIO_FORMAT);
+          }
+        };
+    AtomicReference<TrackGroupArray> trackGroupsAfterError = new AtomicReference<>();
+    AtomicReference<TrackSelectionArray> trackSelectionsAfterError = new AtomicReference<>();
+    AtomicInteger windowIndexAfterError = new AtomicInteger();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder("errorDuringReplaceStreamAtTransition_isReportedForNewPeriod")
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.addAnalyticsListener(
+                        new AnalyticsListener() {
+                          @Override
+                          public void onPlayerError(
+                              EventTime eventTime, ExoPlaybackException error) {
+                            trackGroupsAfterError.set(player.getCurrentTrackGroups());
+                            trackSelectionsAfterError.set(player.getCurrentTrackSelections());
+                            windowIndexAfterError.set(player.getCurrentWindowIndex());
+                          }
+                        });
+                  }
+                })
             .build();
     ExoPlayerTestRunner testRunner =
         new Builder()
