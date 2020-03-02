@@ -28,6 +28,15 @@ import java.util.Arrays;
  */
 public final class DtsUtil {
 
+  /**
+   * Maximum rate for a DTS audio stream, in bytes per second.
+   *
+   * <p>DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
+   */
+  public static final int DTS_MAX_RATE_BYTES_PER_SECOND = 1536 * 1000 / 8;
+  /** Maximum rate for a DTS-HD audio stream, in bytes per second. */
+  public static final int DTS_HD_MAX_RATE_BYTES_PER_SECOND = 18000 * 1000 / 8;
+
   private static final int SYNC_VALUE_BE = 0x7FFE8001;
   private static final int SYNC_VALUE_14B_BE = 0x1FFFE800;
   private static final int SYNC_VALUE_LE = 0xFE7F0180;

@@ -54,6 +54,9 @@ public final class Ac4Util {
   public static final int AC40_SYNCWORD = 0xAC40;
   public static final int AC41_SYNCWORD = 0xAC41;
 
+  /** Maximum rate for an AC-4 audio stream, in bytes per second. */
+  public static final int MAX_RATE_BYTES_PER_SECOND = 2688 * 1000 / 8;
+
   /** The channel count of AC-4 stream. */
   // TODO: Parse AC-4 stream channel count.
   private static final int CHANNEL_COUNT_2 = 2;
