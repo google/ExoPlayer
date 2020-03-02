@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -74,6 +75,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
@@ -636,9 +638,12 @@ public class PlayerActivity extends AppCompatActivity
 
             @Override
             @NonNull
-            public MediaSource createMediaSource(@NonNull Uri uri) {
+            public MediaSource createMediaSource(@NonNull MediaItem mediaItem) {
+              Assertions.checkNotNull(mediaItem.playbackProperties);
               return PlayerActivity.this.createLeafMediaSource(
-                  uri, /* extension=*/ null, drmSessionManager);
+                  mediaItem.playbackProperties.sourceUri,
+                  mediaItem.playbackProperties.extension,
+                  drmSessionManager);
             }
 
             @Override
