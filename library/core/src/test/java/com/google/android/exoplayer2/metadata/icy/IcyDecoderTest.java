@@ -15,16 +15,18 @@
  */
 package com.google.android.exoplayer2.metadata.icy;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
+import static com.google.android.exoplayer2.testutil.TestUtil.createMetadataInputBuffer;
 import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_16;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -186,10 +188,28 @@ public final class IcyDecoderTest {
     assertThat(streamInfo.url).isNull();
   }
 
-  private static MetadataInputBuffer createMetadataInputBuffer(byte[] data) {
-    MetadataInputBuffer metadataInputBuffer = new MetadataInputBuffer();
-    metadataInputBuffer.data = ByteBuffer.allocate(data.length).put(data);
-    metadataInputBuffer.data.flip();
-    return metadataInputBuffer;
+  @Test
+  public void decode_failsIfPositionNonZero() {
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void decode_failsIfBufferHasNoArray() {
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data = buffer.data.asReadOnlyBuffer();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void decode_failsIfArrayOffsetNonZero() {
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+    buffer.data = buffer.data.slice();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
   }
 }

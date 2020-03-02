@@ -15,11 +15,15 @@
  */
 package com.google.android.exoplayer2.metadata.id3;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
+import static com.google.android.exoplayer2.testutil.TestUtil.createMetadataInputBuffer;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -231,6 +235,34 @@ public final class Id3DecoderTest {
     assertThat(apicFrame.description).isEqualTo("Hello World");
     assertThat(apicFrame.pictureData).hasLength(10);
     assertThat(apicFrame.pictureData).isEqualTo(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+  }
+
+  @Test
+  public void decodeFailsIfPositionNonZero() {
+    Id3Decoder decoder = new Id3Decoder();
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void decodeFailsIfBufferHasNoArray() {
+    Id3Decoder decoder = new Id3Decoder();
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data = buffer.data.asReadOnlyBuffer();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  @Test
+  public void decodeFailsIfArrayOffsetNonZero() {
+    Id3Decoder decoder = new Id3Decoder();
+    MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
+    buffer.data.position(1);
+    buffer.data = buffer.data.slice();
+
+    assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
   }
 
   public static byte[] buildSingleFrameTag(String frameId, byte[] frameData) {

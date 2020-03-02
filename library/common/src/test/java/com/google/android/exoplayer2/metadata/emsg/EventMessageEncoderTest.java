@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.metadata.emsg;
 
 import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
+import static com.google.android.exoplayer2.testutil.TestUtil.createMetadataInputBuffer;
 import static com.google.android.exoplayer2.testutil.TestUtil.joinByteArrays;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -23,7 +24,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,8 +51,7 @@ public final class EventMessageEncoderTest {
   @Test
   public void encodeDecodeEventStream() throws IOException {
     byte[] encodedByteArray = new EventMessageEncoder().encode(DECODED_MESSAGE);
-    MetadataInputBuffer buffer = new MetadataInputBuffer();
-    buffer.data = ByteBuffer.allocate(encodedByteArray.length).put(encodedByteArray);
+    MetadataInputBuffer buffer = createMetadataInputBuffer(encodedByteArray);
 
     EventMessageDecoder decoder = new EventMessageDecoder();
     Metadata metadata = decoder.decode(buffer);

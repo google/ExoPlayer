@@ -96,11 +96,12 @@ public final class Id3Decoder implements MetadataDecoder {
     this.framePredicate = framePredicate;
   }
 
-  @SuppressWarnings("ByteBufferBackingArray")
   @Override
   @Nullable
   public Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
+    Assertions.checkArgument(
+        buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
     return decode(buffer.array(), buffer.limit());
   }
 

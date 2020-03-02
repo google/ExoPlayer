@@ -45,9 +45,10 @@ public final class IcyDecoder implements MetadataDecoder {
   }
 
   @Override
-  @SuppressWarnings("ByteBufferBackingArray")
   public Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
+    Assertions.checkArgument(
+        buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
     @Nullable String icyString = decodeToString(buffer);
     byte[] icyBytes = new byte[buffer.limit()];
     buffer.get(icyBytes);
