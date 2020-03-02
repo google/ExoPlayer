@@ -42,7 +42,7 @@ public final class ExtractorAsserts {
   }
 
   private static final String DUMP_EXTENSION = ".dump";
-  private static final String UNKNOWN_LENGTH_EXTENSION = ".unklen" + DUMP_EXTENSION;
+  private static final String UNKNOWN_LENGTH_EXTENSION = ".unknown_length" + DUMP_EXTENSION;
 
   /**
    * Asserts that {@link Extractor#sniff(ExtractorInput)} returns the {@code expectedResult} for a
