@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -153,7 +154,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       // We don't have a format yet, so try and read one.
       FormatHolder formatHolder = getFormatHolder();
       flagsOnlyBuffer.clear();
-      int result = readSource(formatHolder, flagsOnlyBuffer, true);
+      @SampleStream.ReadDataResult int result = readSource(formatHolder, flagsOnlyBuffer, true);
       if (result == C.RESULT_FORMAT_READ) {
         onInputFormatChanged(formatHolder);
       } else if (result == C.RESULT_BUFFER_READ) {
@@ -678,7 +679,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
       return false;
     }
 
-    int result;
+    @SampleStream.ReadDataResult int result;
     FormatHolder formatHolder = getFormatHolder();
     if (waitingForKeys) {
       // We've already read an encrypted sample into buffer, and are waiting for keys.

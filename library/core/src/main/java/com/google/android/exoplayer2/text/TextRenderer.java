@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -229,7 +230,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
           return;
         }
         // Try and read the next subtitle from the source.
-        int result = readSource(formatHolder, nextInputBuffer, false);
+        @SampleStream.ReadDataResult int result = readSource(formatHolder, nextInputBuffer, false);
         if (result == C.RESULT_BUFFER_READ) {
           if (nextInputBuffer.isEndOfStream()) {
             inputStreamEnded = true;

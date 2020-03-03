@@ -310,7 +310,7 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
       }
-      int result = childStream.readData(formatHolder, buffer, requireFormat);
+      @ReadDataResult int result = childStream.readData(formatHolder, buffer, requireFormat);
       if (result == C.RESULT_FORMAT_READ) {
         Format format = Assertions.checkNotNull(formatHolder.format);
         if (format.encoderDelay != 0 || format.encoderPadding != 0) {
