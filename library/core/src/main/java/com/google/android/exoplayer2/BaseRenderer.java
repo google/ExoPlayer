@@ -345,12 +345,12 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
-   * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
-   *     {@link C#RESULT_BUFFER_READ}.
+   * @return The status of read, one of {@link SampleStream.ReadDataResult}.
    */
+  @SampleStream.ReadDataResult
   protected final int readSource(
       FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
-    int result = stream.readData(formatHolder, buffer, formatRequired);
+    @SampleStream.ReadDataResult int result = stream.readData(formatHolder, buffer, formatRequired);
     if (result == C.RESULT_BUFFER_READ) {
       if (buffer.isEndOfStream()) {
         readingPositionUs = C.TIME_END_OF_SOURCE;
