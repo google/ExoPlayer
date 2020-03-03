@@ -258,7 +258,7 @@ public final class DashMediaSource extends BaseMediaSource {
      */
     public DashMediaSource createMediaSource(DashManifest manifest) {
       Assertions.checkArgument(!manifest.dynamic);
-      if (streamKeys != null) {
+      if (streamKeys != null && !streamKeys.isEmpty()) {
         manifest = manifest.copy(streamKeys);
       }
       return new DashMediaSource(
