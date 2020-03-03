@@ -153,7 +153,7 @@ import java.util.List;
       if (i > 0) {
         cueText.append("<br>");
       }
-      cueText.append(cues.get(i).text);
+      cueText.append(SpannedToHtmlConverter.convert(cues.get(i).text));
     }
     webView.loadData(
         "<html><body><p style=\"color:red;font-size:20px;height:150px\">"
