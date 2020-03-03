@@ -156,7 +156,7 @@ import java.util.List;
       cueText.append(SpannedToHtmlConverter.convert(cues.get(i).text));
     }
     webView.loadData(
-        "<html><body><p style=\"color:red;font-size:20px;height:150px\">"
+        "<html><body><p style=\"color:red;font-size:20px;height:150px;-webkit-user-select:none;\">"
             + cueText
             + "</p></body></html>",
         "text/html",
