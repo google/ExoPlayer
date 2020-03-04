@@ -88,6 +88,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_REMOVE_MEDIA_SOURCES = 20;
   private static final int MSG_SET_SHUFFLE_ORDER = 21;
   private static final int MSG_PLAYLIST_UPDATE_REQUESTED = 22;
+  private static final int MSG_SET_PAUSE_AT_END_OF_WINDOW = 23;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
@@ -119,6 +120,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private Renderer[] enabledRenderers;
   private boolean released;
   private boolean playWhenReady;
+  private boolean pauseAtEndOfWindow;
+  private boolean pendingPauseAtEndOfPeriod;
   private boolean rebuffering;
   private boolean shouldContinueLoading;
   @Player.RepeatMode private int repeatMode;
@@ -197,6 +200,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   public void setPlayWhenReady(boolean playWhenReady) {
     handler.obtainMessage(MSG_SET_PLAY_WHEN_READY, playWhenReady ? 1 : 0, 0).sendToTarget();
+  }
+
+  public void setPauseAtEndOfWindow(boolean pauseAtEndOfWindow) {
+    handler
+        .obtainMessage(MSG_SET_PAUSE_AT_END_OF_WINDOW, pauseAtEndOfWindow ? 1 : 0, /* ignored */ 0)
+        .sendToTarget();
   }
 
   public void setRepeatMode(@Player.RepeatMode int repeatMode) {
@@ -439,6 +448,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
         case MSG_PLAYLIST_UPDATE_REQUESTED:
           playlistUpdateRequestedInternal();
           break;
+        case MSG_SET_PAUSE_AT_END_OF_WINDOW:
+          setPauseAtEndOfWindowInternal(msg.arg1 != 0);
+          break;
         case MSG_RELEASE:
           releaseInternal();
           // Return immediately to not send playback info updates after release.
@@ -660,6 +672,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
+  private void setPauseAtEndOfWindowInternal(boolean pauseAtEndOfWindow)
+      throws ExoPlaybackException {
+    this.pauseAtEndOfWindow = pauseAtEndOfWindow;
+    if (queue.getReadingPeriod() != queue.getPlayingPeriod()) {
+      seekToCurrentPosition(/* sendDiscontinuity= */ true);
+    }
+    resetPendingPauseAtEndOfPeriod();
+    handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
+  }
+
   private void setRepeatModeInternal(@Player.RepeatMode int repeatMode)
       throws ExoPlaybackException {
     this.repeatMode = repeatMode;
@@ -810,11 +832,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
 
     long playingPeriodDurationUs = playingPeriodHolder.info.durationUs;
-    if (renderersEnded
-        && playingPeriodHolder.prepared
-        && (playingPeriodDurationUs == C.TIME_UNSET
-            || playingPeriodDurationUs <= playbackInfo.positionUs)
-        && playingPeriodHolder.info.isFinal) {
+    boolean finishedRendering =
+        renderersEnded
+            && playingPeriodHolder.prepared
+            && (playingPeriodDurationUs == C.TIME_UNSET
+                || playingPeriodDurationUs <= playbackInfo.positionUs);
+    if (finishedRendering && pendingPauseAtEndOfPeriod) {
+      pendingPauseAtEndOfPeriod = false;
+      setPlayWhenReadyInternal(false);
+    }
+    if (finishedRendering && playingPeriodHolder.info.isFinal) {
       setState(Player.STATE_ENDED);
       stopRenderers();
     } else if (playbackInfo.playbackState == Player.STATE_BUFFERING
@@ -1571,6 +1598,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         playbackInfo =
             copyWithNewPosition(newPeriodId, newPositionUs, newRequestedContentPositionUs);
       }
+      resetPendingPauseAtEndOfPeriod();
       resolvePendingMessagePositions(
           /* newTimeline= */ timeline, /* previousTimeline= */ playbackInfo.timeline);
       playbackInfo = playbackInfo.copyWithTimeline(timeline);
@@ -1656,9 +1684,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
 
-    if (readingPeriodHolder.getNext() == null) {
-      // We don't have a successor to advance the reading period to.
-      if (readingPeriodHolder.info.isFinal) {
+    if (readingPeriodHolder.getNext() == null || pendingPauseAtEndOfPeriod) {
+      // We don't have a successor to advance the reading period to or we want to let them end
+      // intentionally to pause at the end of the period.
+      if (readingPeriodHolder.info.isFinal || pendingPauseAtEndOfPeriod) {
         for (int i = 0; i < renderers.length; i++) {
           Renderer renderer = renderers[i];
           SampleStream sampleStream = readingPeriodHolder.sampleStreams[i];
@@ -1754,14 +1783,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
               ? Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
               : Player.DISCONTINUITY_REASON_AD_INSERTION;
       playbackInfoUpdate.setPositionDiscontinuity(discontinuityReason);
+      resetPendingPauseAtEndOfPeriod();
       enablePlayingPeriodRenderers(rendererWasEnabledFlags);
       updatePlaybackPositions();
       advancedPlayingPeriod = true;
     }
   }
 
+  private void resetPendingPauseAtEndOfPeriod() {
+    @Nullable MediaPeriodHolder playingPeriod = queue.getPlayingPeriod();
+    pendingPauseAtEndOfPeriod =
+        playingPeriod != null && playingPeriod.info.isLastInTimelineWindow && pauseAtEndOfWindow;
+  }
+
   private boolean shouldAdvancePlayingPeriod() {
     if (!playWhenReady) {
+      return false;
+    }
+    if (pendingPauseAtEndOfPeriod) {
       return false;
     }
     MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
@@ -1904,6 +1943,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         deliverPendingMessageAtStartPositionRequired
             || positionUs != playbackInfo.positionUs
             || !mediaPeriodId.equals(playbackInfo.periodId);
+    resetPendingPauseAtEndOfPeriod();
     TrackGroupArray trackGroupArray = playbackInfo.trackGroups;
     TrackSelectorResult trackSelectorResult = playbackInfo.trackSelectorResult;
     if (playlist.isPrepared()) {
