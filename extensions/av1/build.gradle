@@ -65,6 +65,7 @@ if (project.file('src/main/jni/libgav1').exists()) {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
 }
 
 ext {

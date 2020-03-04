@@ -40,6 +40,7 @@ dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }

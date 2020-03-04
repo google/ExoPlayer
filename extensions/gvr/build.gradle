@@ -36,6 +36,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     api 'com.google.vr:sdk-base:1.190.0'
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
 }
 
 ext {

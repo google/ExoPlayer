@@ -43,6 +43,7 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
