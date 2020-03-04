@@ -45,6 +45,11 @@ public final class DummyExoMediaDrm<T extends ExoMediaCrypto> implements ExoMedi
   }
 
   @Override
+  public void setOnExpirationUpdateListener(OnExpirationUpdateListener<? super T> listener) {
+    // Do nothing.
+  }
+
+  @Override
   public byte[] openSession() throws MediaDrmException {
     throw new MediaDrmException("Attempting to open a session using a dummy ExoMediaDrm.");
   }
