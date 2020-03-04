@@ -293,7 +293,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   /** Dummy placeholder timeline with one dynamic window with a period of indeterminate duration. */
-  private static final class DummyTimeline extends Timeline {
+  public static final class DummyTimeline extends Timeline {
 
     @Nullable private final Object tag;
 
