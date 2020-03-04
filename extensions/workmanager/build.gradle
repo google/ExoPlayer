@@ -35,6 +35,7 @@ android {
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.work:work-runtime:2.2.0'
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
 }
 
 ext {
