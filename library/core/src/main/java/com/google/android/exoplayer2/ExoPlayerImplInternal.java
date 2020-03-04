@@ -712,7 +712,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
             /* forceBufferingState= */ false);
     if (newPositionUs != playbackInfo.positionUs) {
       playbackInfo =
-          copyWithNewPosition(periodId, newPositionUs, playbackInfo.requestedContentPositionUs);
+          handlePositionDiscontinuity(
+              periodId, newPositionUs, playbackInfo.requestedContentPositionUs);
       if (sendDiscontinuity) {
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_INTERNAL);
       }
@@ -751,7 +752,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       // renderers are flushed. Only report the discontinuity externally if the position changed.
       if (discontinuityPositionUs != playbackInfo.positionUs) {
         playbackInfo =
-            copyWithNewPosition(
+            handlePositionDiscontinuity(
                 playbackInfo.periodId,
                 discontinuityPositionUs,
                 playbackInfo.requestedContentPositionUs);
@@ -972,7 +973,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         periodPositionUs = newPeriodPositionUs;
       }
     } finally {
-      playbackInfo = copyWithNewPosition(periodId, periodPositionUs, requestedContentPosition);
+      playbackInfo =
+          handlePositionDiscontinuity(periodId, periodPositionUs, requestedContentPosition);
       if (seekPositionAdjusted) {
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT);
       }
@@ -1430,7 +1432,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           playingPeriodHolder.applyTrackSelection(
               newTrackSelectorResult, playbackInfo.positionUs, recreateStreams, streamResetFlags);
       playbackInfo =
-          copyWithNewPosition(
+          handlePositionDiscontinuity(
               playbackInfo.periodId, periodPositionUs, playbackInfo.requestedContentPositionUs);
       if (playbackInfo.playbackState != Player.STATE_ENDED
           && periodPositionUs != playbackInfo.positionUs) {
@@ -1596,7 +1598,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       if (periodPositionChanged
           || newRequestedContentPositionUs != playbackInfo.requestedContentPositionUs) {
         playbackInfo =
-            copyWithNewPosition(newPeriodId, newPositionUs, newRequestedContentPositionUs);
+            handlePositionDiscontinuity(newPeriodId, newPositionUs, newRequestedContentPositionUs);
       }
       resetPendingPauseAtEndOfPeriod();
       resolvePendingMessagePositions(
@@ -1774,7 +1776,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       disablePlayingPeriodRenderersForTransition(rendererWasEnabledFlags);
       MediaPeriodHolder newPlayingPeriodHolder = queue.advancePlayingPeriod();
       playbackInfo =
-          copyWithNewPosition(
+          handlePositionDiscontinuity(
               newPlayingPeriodHolder.info.id,
               newPlayingPeriodHolder.info.startPositionUs,
               newPlayingPeriodHolder.info.requestedContentPositionUs);
@@ -1858,7 +1860,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       resetRendererPosition(loadingPeriodHolder.info.startPositionUs);
       enablePlayingPeriodRenderers();
       playbackInfo =
-          copyWithNewPosition(
+          handlePositionDiscontinuity(
               playbackInfo.periodId,
               playbackInfo.positionUs,
               playbackInfo.requestedContentPositionUs);
@@ -1937,7 +1939,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   @CheckResult
-  private PlaybackInfo copyWithNewPosition(
+  private PlaybackInfo handlePositionDiscontinuity(
       MediaPeriodId mediaPeriodId, long positionUs, long contentPositionUs) {
     deliverPendingMessageAtStartPositionRequired =
         deliverPendingMessageAtStartPositionRequired
