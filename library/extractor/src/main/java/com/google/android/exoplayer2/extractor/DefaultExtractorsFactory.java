@@ -93,14 +93,15 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   }
 
   private boolean constantBitrateSeekingEnabled;
-  private @AdtsExtractor.Flags int adtsFlags;
-  private @AmrExtractor.Flags int amrFlags;
-  private @MatroskaExtractor.Flags int matroskaFlags;
-  private @Mp4Extractor.Flags int mp4Flags;
-  private @FragmentedMp4Extractor.Flags int fragmentedMp4Flags;
-  private @Mp3Extractor.Flags int mp3Flags;
-  private @TsExtractor.Mode int tsMode;
-  private @DefaultTsPayloadReaderFactory.Flags int tsFlags;
+  @AdtsExtractor.Flags private int adtsFlags;
+  @AmrExtractor.Flags private int amrFlags;
+  @FlacExtractor.Flags private int coreFlacFlags;
+  @MatroskaExtractor.Flags private int matroskaFlags;
+  @Mp4Extractor.Flags private int mp4Flags;
+  @FragmentedMp4Extractor.Flags private int fragmentedMp4Flags;
+  @Mp3Extractor.Flags private int mp3Flags;
+  @TsExtractor.Mode private int tsMode;
+  @DefaultTsPayloadReaderFactory.Flags private int tsFlags;
 
   public DefaultExtractorsFactory() {
     tsMode = TsExtractor.MODE_SINGLE_PMT;
@@ -145,6 +146,19 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
    */
   public synchronized DefaultExtractorsFactory setAmrExtractorFlags(@AmrExtractor.Flags int flags) {
     this.amrFlags = flags;
+    return this;
+  }
+
+  /**
+   * Sets flags for {@link FlacExtractor} instances created by the factory.
+   *
+   * @see FlacExtractor#FlacExtractor(int)
+   * @param flags The flags to use.
+   * @return The factory, for convenience.
+   */
+  public synchronized DefaultExtractorsFactory setCoreFlacExtractorFlags(
+      @FlacExtractor.Flags int flags) {
+    this.coreFlacFlags = flags;
     return this;
   }
 
@@ -263,7 +277,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         throw new IllegalStateException("Unexpected error creating FLAC extractor", e);
       }
     } else {
-      extractors[13] = new FlacExtractor();
+      extractors[13] = new FlacExtractor(coreFlacFlags);
     }
     return extractors;
   }
