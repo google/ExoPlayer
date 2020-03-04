@@ -149,6 +149,23 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
         boolean hasNewUsableKey);
   }
 
+  /** @see android.media.MediaDrm.OnExpirationUpdateListener */
+  interface OnExpirationUpdateListener<T extends ExoMediaCrypto> {
+
+    /**
+     * Called when a session expiration update occurs, to inform the app about the change in
+     * expiration time
+     *
+     * @param mediaDrm The {@link ExoMediaDrm} object on which the event occurred.
+     * @param sessionId The DRM session ID on which the event occurred
+     * @param expirationTimeMs The new expiration time for the keys in the session. The time is in
+     *     milliseconds, relative to the Unix epoch. A time of 0 indicates that the keys never
+     *     expire.
+     */
+    void onExpirationUpdate(
+        ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId, long expirationTimeMs);
+  }
+
   /** @see android.media.MediaDrm.KeyStatus */
   final class KeyStatus {
 
@@ -222,9 +239,10 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
    */
   void setOnKeyStatusChangeListener(OnKeyStatusChangeListener<? super T> listener);
 
-  /**
-   * @see MediaDrm#openSession()
-   */
+  /** @see MediaDrm#setOnExpirationUpdateListener(MediaDrm.OnExpirationUpdateListener, Handler) */
+  void setOnExpirationUpdateListener(OnExpirationUpdateListener<? super T> listener);
+
+  /** @see MediaDrm#openSession() */
   byte[] openSession() throws MediaDrmException;
 
   /**

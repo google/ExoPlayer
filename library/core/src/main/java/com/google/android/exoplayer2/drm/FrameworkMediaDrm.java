@@ -107,7 +107,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
 
   @Override
   public void setOnEventListener(
-      final ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
+      ExoMediaDrm.OnEventListener<? super FrameworkMediaCrypto> listener) {
     mediaDrm.setOnEventListener(
         listener == null
             ? null
@@ -117,7 +117,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
 
   @Override
   public void setOnKeyStatusChangeListener(
-      final ExoMediaDrm.OnKeyStatusChangeListener<? super FrameworkMediaCrypto> listener) {
+      ExoMediaDrm.OnKeyStatusChangeListener<? super FrameworkMediaCrypto> listener) {
     if (Util.SDK_INT < 23) {
       throw new UnsupportedOperationException();
     }
@@ -133,7 +133,23 @@ public final class FrameworkMediaDrm implements ExoMediaDrm<FrameworkMediaCrypto
               listener.onKeyStatusChange(
                   FrameworkMediaDrm.this, sessionId, exoKeyInfo, hasNewUsableKey);
             },
-        null);
+        /* handler= */ null);
+  }
+
+  @Override
+  public void setOnExpirationUpdateListener(
+      OnExpirationUpdateListener<? super FrameworkMediaCrypto> listener) {
+    if (Util.SDK_INT < 23) {
+      throw new UnsupportedOperationException();
+    }
+
+    mediaDrm.setOnExpirationUpdateListener(
+        listener == null
+            ? null
+            : (mediaDrm, sessionId, expirationTimeMs) -> {
+              listener.onExpirationUpdate(FrameworkMediaDrm.this, sessionId, expirationTimeMs);
+            },
+        /* handler= */ null);
   }
 
   @Override
