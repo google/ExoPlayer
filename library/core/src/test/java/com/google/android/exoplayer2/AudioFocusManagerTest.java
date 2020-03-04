@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.AudioFocusManager.PLAYER_COMMAND_WAI
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.robolectric.annotation.Config.TARGET_SDK;
+import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 import android.content.Context;
 import android.media.AudioFocusRequest;
@@ -36,9 +37,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowAudioManager;
 
 /** Unit tests for {@link AudioFocusManager}. */
+@LooperMode(LEGACY)
 @RunWith(AndroidJUnit4.class)
 public class AudioFocusManagerTest {
   private static final int NO_COMMAND_RECEIVED = ~PLAYER_COMMAND_WAIT_FOR_CALLBACK;

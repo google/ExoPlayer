@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.testutil.TestUtil.assertBufferInfosE
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.robolectric.Shadows.shadowOf;
+import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
@@ -36,9 +37,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Shadows;
+import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit tests for {@link DedicatedThreadAsyncMediaCodecAdapter}. */
+@LooperMode(LEGACY)
 @RunWith(AndroidJUnit4.class)
 public class DedicatedThreadAsyncMediaCodecAdapterTest {
   private DedicatedThreadAsyncMediaCodecAdapter adapter;

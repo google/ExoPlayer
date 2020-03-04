@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
+import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -37,8 +38,10 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link MediaPeriodQueue}. */
+@LooperMode(LEGACY)
 @RunWith(AndroidJUnit4.class)
 public final class MediaPeriodQueueTest {
 
