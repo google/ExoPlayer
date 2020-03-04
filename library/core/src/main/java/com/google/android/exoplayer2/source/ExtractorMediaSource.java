@@ -112,7 +112,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
     }
 
     /**
-     * @deprecated Use {@link MediaItem.PlaybackProperties#tag} and {@link
+     * @deprecated Use {@link MediaItem.Builder#setTag(Object)} and {@link
      *     #createMediaSource(MediaItem)} instead.
      */
     @Deprecated

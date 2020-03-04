@@ -47,7 +47,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     implements ProgressiveMediaPeriod.Listener {
 
   /** Factory for {@link ProgressiveMediaSource}s. */
-  public static final class Factory implements MediaSourceFactory {
+  public static final class Factory implements DefaultMediaSourceFactory.Delegate {
 
     private final DataSource.Factory dataSourceFactory;
 
@@ -108,7 +108,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     }
 
     /**
-     * @deprecated Use {@link MediaItem.PlaybackProperties#tag} and {@link
+     * @deprecated Use {@link MediaItem.Builder#setTag(Object)} and {@link
      *     #createMediaSource(MediaItem)} instead.
      */
     @Deprecated
