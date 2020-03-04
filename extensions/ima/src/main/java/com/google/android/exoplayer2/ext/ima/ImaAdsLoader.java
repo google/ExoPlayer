@@ -967,10 +967,6 @@ public final class ImaAdsLoader
       return;
     }
     Assertions.checkArgument(timeline.getPeriodCount() == 1);
-    if (timeline.getWindow(/* windowIndex= */ 0, window).isPlaceholder) {
-      // This is just a placeholder. Wait until we get the fully prepared timeline.
-      return;
-    }
     this.timeline = timeline;
     long contentDurationUs = timeline.getPeriod(/* periodIndex= */ 0, period).durationUs;
     contentDurationMs = C.usToMs(contentDurationUs);
