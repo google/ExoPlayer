@@ -53,7 +53,7 @@ public final class AdPlaybackStateTest {
 
     assertThat(state.adGroups[0].uris[0]).isNull();
     assertThat(state.adGroups[0].states[0]).isEqualTo(AdPlaybackState.AD_STATE_UNAVAILABLE);
-    assertThat(state.adGroups[0].uris[1]).isSameAs(TEST_URI);
+    assertThat(state.adGroups[0].uris[1]).isSameInstanceAs(TEST_URI);
     assertThat(state.adGroups[0].states[1]).isEqualTo(AdPlaybackState.AD_STATE_AVAILABLE);
   }
 

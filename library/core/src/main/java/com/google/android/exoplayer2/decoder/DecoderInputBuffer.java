@@ -16,11 +16,13 @@
 package com.google.android.exoplayer2.decoder;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
 /**
  * Holds input for a decoder.
@@ -58,15 +60,19 @@ public class DecoderInputBuffer extends Buffer {
    */
   public final CryptoInfo cryptoInfo;
 
-  /**
-   * The buffer's data, or {@code null} if no data has been set.
-   */
-  public ByteBuffer data;
+  /** The buffer's data, or {@code null} if no data has been set. */
+  @Nullable public ByteBuffer data;
 
   /**
    * The time at which the sample should be presented.
    */
   public long timeUs;
+
+  /**
+   * Supplemental data related to the buffer, if {@link #hasSupplementalData()} returns true. If
+   * present, the buffer is populated with supplemental data from position 0 to its limit.
+   */
+  @Nullable public ByteBuffer supplementalData;
 
   @BufferReplacementMode private final int bufferReplacementMode;
 
@@ -90,6 +96,21 @@ public class DecoderInputBuffer extends Buffer {
   }
 
   /**
+   * Clears {@link #supplementalData} and ensures that it's large enough to accommodate {@code
+   * length} bytes.
+   *
+   * @param length The length of the supplemental data that must be accommodated, in bytes.
+   */
+  @EnsuresNonNull("supplementalData")
+  public void resetSupplementalData(int length) {
+    if (supplementalData == null || supplementalData.capacity() < length) {
+      supplementalData = ByteBuffer.allocate(length);
+    } else {
+      supplementalData.clear();
+    }
+  }
+
+  /**
    * Ensures that {@link #data} is large enough to accommodate a write of a given length at its
    * current position.
    *
@@ -101,6 +122,7 @@ public class DecoderInputBuffer extends Buffer {
    * @throws IllegalStateException If there is insufficient capacity to accommodate the write and
    *     the buffer replacement mode of the holder is {@link #BUFFER_REPLACEMENT_MODE_DISABLED}.
    */
+  @EnsuresNonNull("data")
   public void ensureSpaceForWrite(int length) {
     if (data == null) {
       data = createReplacementByteBuffer(length);
@@ -117,8 +139,7 @@ public class DecoderInputBuffer extends Buffer {
     ByteBuffer newData = createReplacementByteBuffer(requiredCapacity);
     // Copy data up to the current position from the old buffer to the new one.
     if (position > 0) {
-      data.position(0);
-      data.limit(position);
+      data.flip();
       newData.put(data);
     }
     // Set the new buffer.
@@ -141,12 +162,15 @@ public class DecoderInputBuffer extends Buffer {
   }
 
   /**
-   * Flips {@link #data} in preparation for being queued to a decoder.
+   * Flips {@link #data} and {@link #supplementalData} in preparation for being queued to a decoder.
    *
    * @see java.nio.Buffer#flip()
    */
   public final void flip() {
     data.flip();
+    if (supplementalData != null) {
+      supplementalData.flip();
+    }
   }
 
   @Override
@@ -154,6 +178,9 @@ public class DecoderInputBuffer extends Buffer {
     super.clear();
     if (data != null) {
       data.clear();
+    }
+    if (supplementalData != null) {
+      supplementalData.clear();
     }
   }
 

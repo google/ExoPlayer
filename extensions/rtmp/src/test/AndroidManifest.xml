@@ -14,4 +14,6 @@
      limitations under the License.
 -->
 
-<manifest package="com.google.android.exoplayer2.ext.rtmp"/>
+<manifest package="com.google.android.exoplayer2.ext.rtmp">
+  <uses-sdk/>
+</manifest>

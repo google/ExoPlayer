@@ -64,8 +64,9 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
-  public boolean configure(int sampleRateHz, int channelCount, @C.PcmEncoding int encoding) {
-    return setInputFormat(sampleRateHz, channelCount, encoding);
+  public AudioFormat onConfigure(AudioFormat inputAudioFormat) {
+    // This processor is always active (if passed to the sink) and outputs its input.
+    return inputAudioFormat;
   }
 
   @Override
@@ -79,9 +80,19 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
-  protected void onFlush() {
+  protected void onQueueEndOfStream() {
+    flushSinkIfActive();
+  }
+
+  @Override
+  protected void onReset() {
+    flushSinkIfActive();
+  }
+
+  private void flushSinkIfActive() {
     if (isActive()) {
-      audioBufferSink.flush(sampleRateHz, channelCount, encoding);
+      audioBufferSink.flush(
+          inputAudioFormat.sampleRate, inputAudioFormat.channelCount, inputAudioFormat.encoding);
     }
   }
 
@@ -165,7 +176,7 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
       // Write the rest of the header as little endian data.
       scratchByteBuffer.clear();
       scratchByteBuffer.putInt(16);
-      scratchByteBuffer.putShort((short) WavUtil.getTypeForEncoding(encoding));
+      scratchByteBuffer.putShort((short) WavUtil.getTypeForPcmEncoding(encoding));
       scratchByteBuffer.putShort((short) channelCount);
       scratchByteBuffer.putInt(sampleRateHz);
       int bytesPerSample = Util.getPcmFrameSize(encoding, channelCount);

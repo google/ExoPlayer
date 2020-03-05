@@ -151,7 +151,7 @@ DECODER_FUNC(jobject, flacDecodeMetadata, jlong jContext) {
       "FlacStreamMetadata");
   jmethodID flacStreamMetadataConstructor =
       env->GetMethodID(flacStreamMetadataClass, "<init>",
-                       "(IIIIIIIJLjava/util/List;Ljava/util/List;)V");
+                       "(IIIIIIIJLjava/util/ArrayList;Ljava/util/ArrayList;)V");
 
   return env->NewObject(flacStreamMetadataClass, flacStreamMetadataConstructor,
                         streamInfo.min_blocksize, streamInfo.max_blocksize,

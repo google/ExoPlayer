@@ -24,6 +24,7 @@ track 0:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = entries=[TXXX: description=ID: value=105519843, TIT2: description=null: value=那么爱你为什么, TPE1: description=null: value=阿强, TALB: description=null: value=华丽的外衣, TXXX: description=ID: value=105519843, APIC: mimeType=image/jpeg, description=]
     initializationData:
   total output bytes = 18368
   sample count = 2

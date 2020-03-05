@@ -24,13 +24,14 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.audio.AudioSink;
+import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.testutil.CapturingAudioSink;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +41,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class FlacPlaybackTest {
 
-  private static final String BEAR_FLAC_URI = "asset:///bear-flac.mka";
+  private static final String BEAR_FLAC_16BIT = "bear-flac-16bit.mka";
+  private static final String BEAR_FLAC_24BIT = "bear-flac-24bit.mka";
 
   @Before
   public void setUp() {
@@ -50,40 +52,57 @@ public class FlacPlaybackTest {
   }
 
   @Test
-  public void testBasicPlayback() throws Exception {
-    playUri(BEAR_FLAC_URI);
+  public void test16BitPlayback() throws Exception {
+    playAndAssertAudioSinkInput(BEAR_FLAC_16BIT);
   }
 
-  private void playUri(String uri) throws Exception {
+  @Test
+  public void test24BitPlayback() throws Exception {
+    playAndAssertAudioSinkInput(BEAR_FLAC_24BIT);
+  }
+
+  private static void playAndAssertAudioSinkInput(String fileName) throws Exception {
+    CapturingAudioSink audioSink =
+        new CapturingAudioSink(
+            new DefaultAudioSink(/* audioCapabilities= */ null, new AudioProcessor[0]));
+
     TestPlaybackRunnable testPlaybackRunnable =
-        new TestPlaybackRunnable(Uri.parse(uri), ApplicationProvider.getApplicationContext());
+        new TestPlaybackRunnable(
+            Uri.parse("asset:///" + fileName),
+            ApplicationProvider.getApplicationContext(),
+            audioSink);
     Thread thread = new Thread(testPlaybackRunnable);
     thread.start();
     thread.join();
     if (testPlaybackRunnable.playbackException != null) {
       throw testPlaybackRunnable.playbackException;
     }
+
+    audioSink.assertOutput(
+        ApplicationProvider.getApplicationContext(), fileName + ".audiosink.dump");
   }
 
   private static class TestPlaybackRunnable implements Player.EventListener, Runnable {
 
     private final Context context;
     private final Uri uri;
+    private final AudioSink audioSink;
 
     private ExoPlayer player;
     private ExoPlaybackException playbackException;
 
-    public TestPlaybackRunnable(Uri uri, Context context) {
+    public TestPlaybackRunnable(Uri uri, Context context, AudioSink audioSink) {
       this.uri = uri;
       this.context = context;
+      this.audioSink = audioSink;
     }
 
     @Override
     public void run() {
       Looper.prepare();
-      LibflacAudioRenderer audioRenderer = new LibflacAudioRenderer();
-      DefaultTrackSelector trackSelector = new DefaultTrackSelector();
-      player = ExoPlayerFactory.newInstance(context, new Renderer[] {audioRenderer}, trackSelector);
+      LibflacAudioRenderer audioRenderer =
+          new LibflacAudioRenderer(/* eventHandler= */ null, /* eventListener= */ null, audioSink);
+      player = new ExoPlayer.Builder(context, audioRenderer).build();
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
@@ -101,7 +120,7 @@ public class FlacPlaybackTest {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
       if (playbackState == Player.STATE_ENDED
           || (playbackState == Player.STATE_IDLE && playbackException != null)) {
         player.release();
@@ -109,5 +128,4 @@ public class FlacPlaybackTest {
       }
     }
   }
-
 }

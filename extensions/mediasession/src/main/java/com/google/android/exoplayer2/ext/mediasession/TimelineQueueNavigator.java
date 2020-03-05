@@ -17,10 +17,10 @@ package com.google.android.exoplayer2.ext.mediasession;
 
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import androidx.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
@@ -80,7 +80,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
    * <p>Often artworks and icons need to be loaded asynchronously. In such a case, return a {@link
    * MediaDescriptionCompat} without the images, load your images asynchronously off the main thread
    * and then call {@link MediaSessionConnector#invalidateMediaSessionQueue()} to make the connector
-   * update the queue by calling {@link #getMediaDescription(Player, int)} again.
+   * update the queue by calling this method again.
    *
    * @param player The current player.
    * @param windowIndex The timeline window index for which to provide a description.
@@ -186,8 +186,8 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
       Player player,
       ControlDispatcher controlDispatcher,
       String command,
-      Bundle extras,
-      ResultReceiver cb) {
+      @Nullable Bundle extras,
+      @Nullable ResultReceiver cb) {
     return false;
   }
 

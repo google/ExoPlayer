@@ -66,10 +66,10 @@ public final class SilenceMediaSource extends BaseMediaSource {
   }
 
   @Override
-  public void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
+  protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     refreshSourceInfo(
-        new SinglePeriodTimeline(durationUs, /* isSeekable= */ true, /* isDynamic= */ false),
-        /* manifest= */ null);
+        new SinglePeriodTimeline(
+            durationUs, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false));
   }
 
   @Override
@@ -84,7 +84,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
   public void releasePeriod(MediaPeriod mediaPeriod) {}
 
   @Override
-  public void releaseSourceInternal() {}
+  protected void releaseSourceInternal() {}
 
   private static final class SilenceMediaPeriod implements MediaPeriod {
 
@@ -173,6 +173,11 @@ public final class SilenceMediaSource extends BaseMediaSource {
     }
 
     @Override
+    public boolean isLoading() {
+      return false;
+    }
+
+    @Override
     public void reevaluateBuffer(long positionUs) {}
 
     private long constrainSeekPosition(long positionUs) {
@@ -221,9 +226,9 @@ public final class SilenceMediaSource extends BaseMediaSource {
 
       int bytesToWrite = (int) Math.min(SILENCE_SAMPLE.length, bytesRemaining);
       buffer.ensureSpaceForWrite(bytesToWrite);
-      buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
       buffer.data.put(SILENCE_SAMPLE, /* offset= */ 0, bytesToWrite);
       buffer.timeUs = getAudioPositionUs(positionBytes);
+      buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
       positionBytes += bytesToWrite;
       return C.RESULT_BUFFER_READ;
     }

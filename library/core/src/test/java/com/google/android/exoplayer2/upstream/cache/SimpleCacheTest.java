@@ -164,7 +164,7 @@ public class SimpleCacheTest {
         .isEqualTo(150);
 
     // Removing the last span shouldn't cause the length be change next time cache loaded
-    SimpleCacheSpan lastSpan = simpleCache2.startReadWrite(KEY_1, 145);
+    CacheSpan lastSpan = simpleCache2.startReadWrite(KEY_1, 145);
     simpleCache2.removeSpan(lastSpan);
     simpleCache2.release();
     simpleCache2 = getSimpleCache();
@@ -204,7 +204,7 @@ public class SimpleCacheTest {
     simpleCache.releaseHoleSpan(cacheSpan2);
     simpleCache.removeSpan(simpleCache.getCachedSpans(KEY_2).first());
 
-    // Don't release the cache. This means the index file wont have been written to disk after the
+    // Don't release the cache. This means the index file won't have been written to disk after the
     // data for KEY_2 was removed. Move the cache instead, so we can reload it without failing the
     // folder locking check.
     File cacheDir2 =
@@ -322,7 +322,7 @@ public class SimpleCacheTest {
   @Test
   public void testExceptionDuringEvictionByLeastRecentlyUsedCacheEvictorNotHang() throws Exception {
     CachedContentIndex contentIndex =
-        Mockito.spy(new CachedContentIndex(TestUtil.getTestDatabaseProvider()));
+        Mockito.spy(new CachedContentIndex(TestUtil.getInMemoryDatabaseProvider()));
     SimpleCache simpleCache =
         new SimpleCache(
             cacheDir, new LeastRecentlyUsedCacheEvictor(20), contentIndex, /* fileIndex= */ null);
@@ -401,11 +401,8 @@ public class SimpleCacheTest {
   private static void addCache(SimpleCache simpleCache, String key, int position, int length)
       throws IOException {
     File file = simpleCache.startFile(key, position, length);
-    FileOutputStream fos = new FileOutputStream(file);
-    try {
+    try (FileOutputStream fos = new FileOutputStream(file)) {
       fos.write(generateData(key, position, length));
-    } finally {
-      fos.close();
     }
     simpleCache.commitFile(file, length);
   }
@@ -413,11 +410,8 @@ public class SimpleCacheTest {
   private static void assertCachedDataReadCorrect(CacheSpan cacheSpan) throws IOException {
     assertThat(cacheSpan.isCached).isTrue();
     byte[] expected = generateData(cacheSpan.key, (int) cacheSpan.position, (int) cacheSpan.length);
-    FileInputStream inputStream = new FileInputStream(cacheSpan.file);
-    try {
+    try (FileInputStream inputStream = new FileInputStream(cacheSpan.file)) {
       assertThat(toByteArray(inputStream)).isEqualTo(expected);
-    } finally {
-      inputStream.close();
     }
   }
 

@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">ສະ​ແດງຕົວຄວບ​ຄຸມ​ເຄື່ອງ​ຫຼິ້ນ</string>
+  <string name="exo_controls_hide">ເຊື່ອງຕົວຄວບ​ຄຸມ​ເຄື່ອງ​ຫຼິ້ນ</string>
   <string name="exo_controls_previous_description">ເພງກ່ອນໜ້າ</string>
   <string name="exo_controls_next_description">ເພງຕໍ່ໄປ</string>
   <string name="exo_controls_pause_description">ຢຸດຊົ່ວຄາວ</string>

@@ -27,6 +27,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.PowerManager;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
@@ -162,9 +163,10 @@ public final class Requirements implements Parcelable {
   }
 
   private static boolean isInternetConnectivityValidated(ConnectivityManager connectivityManager) {
-    if (Util.SDK_INT < 23) {
-      // TODO Check internet connectivity using http://clients3.google.com/generate_204 on API
-      // levels prior to 23.
+    // It's possible to query NetworkCapabilities from API level 23, but RequirementsWatcher only
+    // fires an event to update its Requirements when NetworkCapabilities change from API level 24.
+    // Since Requirements won't be updated, we assume connectivity is validated on API level 23.
+    if (Util.SDK_INT < 24) {
       return true;
     }
     Network activeNetwork = connectivityManager.getActiveNetwork();
@@ -173,14 +175,12 @@ public final class Requirements implements Parcelable {
     }
     NetworkCapabilities networkCapabilities =
         connectivityManager.getNetworkCapabilities(activeNetwork);
-    boolean validated =
-        networkCapabilities == null
-            || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
-    return !validated;
+    return networkCapabilities != null
+        && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }

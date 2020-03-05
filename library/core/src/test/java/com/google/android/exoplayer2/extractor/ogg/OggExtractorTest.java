@@ -15,13 +15,11 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
-import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
-import com.google.android.exoplayer2.testutil.OggTestData;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.IOException;
 import org.junit.Test;
@@ -60,7 +58,7 @@ public final class OggExtractorTest {
             OggTestData.buildOggHeader(0x02, 0, 1000, 1),
             TestUtil.createByteArray(7), // Laces
             new byte[] {0x01, 'v', 'o', 'r', 'b', 'i', 's'});
-    assertThat(sniff(data)).isTrue();
+    assertSniff(data, /* expectedResult= */ true);
   }
 
   @Test
@@ -70,7 +68,7 @@ public final class OggExtractorTest {
             OggTestData.buildOggHeader(0x02, 0, 1000, 1),
             TestUtil.createByteArray(5), // Laces
             new byte[] {0x7F, 'F', 'L', 'A', 'C'});
-    assertThat(sniff(data)).isTrue();
+    assertSniff(data, /* expectedResult= */ true);
   }
 
   @Test
@@ -78,13 +76,13 @@ public final class OggExtractorTest {
     byte[] data =
         TestUtil.joinByteArrays(
             OggTestData.buildOggHeader(0x02, 0, 1000, 0x00), new byte[] {'O', 'p', 'u', 's'});
-    assertThat(sniff(data)).isFalse();
+    assertSniff(data, /* expectedResult= */ false);
   }
 
   @Test
   public void testSniffFailsInvalidOggHeader() throws Exception {
     byte[] data = OggTestData.buildOggHeader(0x00, 0, 1000, 0x00);
-    assertThat(sniff(data)).isFalse();
+    assertSniff(data, /* expectedResult= */ false);
   }
 
   @Test
@@ -94,16 +92,17 @@ public final class OggExtractorTest {
             OggTestData.buildOggHeader(0x02, 0, 1000, 1),
             TestUtil.createByteArray(7), // Laces
             new byte[] {0x7F, 'X', 'o', 'r', 'b', 'i', 's'});
-    assertThat(sniff(data)).isFalse();
+    assertSniff(data, /* expectedResult= */ false);
   }
 
   @Test
   public void testSniffFailsEOF() throws Exception {
     byte[] data = OggTestData.buildOggHeader(0x02, 0, 1000, 0x00);
-    assertThat(sniff(data)).isFalse();
+    assertSniff(data, /* expectedResult= */ false);
   }
 
-  private boolean sniff(byte[] data) throws InterruptedException, IOException {
+  private void assertSniff(byte[] data, boolean expectedResult)
+      throws InterruptedException, IOException {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
             .setData(data)
@@ -111,6 +110,6 @@ public final class OggExtractorTest {
             .setSimulateUnknownLength(true)
             .setSimulatePartialReads(true)
             .build();
-    return TestUtil.sniffTestData(OGG_EXTRACTOR_FACTORY.create(), input);
+    ExtractorAsserts.assertSniff(OGG_EXTRACTOR_FACTORY.create(), input, expectedResult);
   }
 }

@@ -19,11 +19,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import android.view.View;
-import android.view.ViewGroup;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdError;
@@ -313,14 +313,14 @@ public final class ImaAdsLoader
    */
   private static final int IMA_AD_STATE_PAUSED = 2;
 
-  private final @Nullable Uri adTagUri;
-  private final @Nullable String adsResponse;
+  @Nullable private final Uri adTagUri;
+  @Nullable private final String adsResponse;
   private final int vastLoadTimeoutMs;
   private final int mediaLoadTimeoutMs;
   private final boolean focusSkipButtonWhenAvailable;
   private final int mediaBitrate;
-  private final @Nullable Set<UiElement> adUiElements;
-  private final @Nullable AdEventListener adEventListener;
+  @Nullable private final Set<UiElement> adUiElements;
+  @Nullable private final AdEventListener adEventListener;
   private final ImaFactory imaFactory;
   private final Timeline.Period period;
   private final List<VideoAdPlayerCallback> adCallbacks;
@@ -428,7 +428,7 @@ public final class ImaAdsLoader
    * @deprecated Use {@link ImaAdsLoader.Builder}.
    */
   @Deprecated
-  public ImaAdsLoader(Context context, Uri adTagUri, ImaSdkSettings imaSdkSettings) {
+  public ImaAdsLoader(Context context, Uri adTagUri, @Nullable ImaSdkSettings imaSdkSettings) {
     this(
         context,
         adTagUri,
@@ -646,6 +646,11 @@ public final class ImaAdsLoader
   public void release() {
     pendingAdRequestContext = null;
     if (adsManager != null) {
+      adsManager.removeAdErrorListener(this);
+      adsManager.removeAdEventListener(this);
+      if (adEventListener != null) {
+        adsManager.removeAdEventListener(adEventListener);
+      }
       adsManager.destroy();
       adsManager = null;
     }
@@ -957,8 +962,7 @@ public final class ImaAdsLoader
   // Player.EventListener implementation.
 
   @Override
-  public void onTimelineChanged(
-      Timeline timeline, @Nullable Object manifest, @Player.TimelineChangeReason int reason) {
+  public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
     if (timeline.isEmpty()) {
       // The player is being reset or contains no media.
       return;
@@ -978,7 +982,7 @@ public final class ImaAdsLoader
   }
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+  public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
     if (adsManager == null) {
       return;
     }

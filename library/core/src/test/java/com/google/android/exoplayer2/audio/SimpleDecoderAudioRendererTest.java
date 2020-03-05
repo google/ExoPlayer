@@ -24,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -54,20 +55,27 @@ public class SimpleDecoderAudioRendererTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    audioRenderer = new SimpleDecoderAudioRenderer(null, null, null, false, mockAudioSink) {
-      @Override
-      protected int supportsFormatInternal(DrmSessionManager<ExoMediaCrypto> drmSessionManager,
-          Format format) {
-        return FORMAT_HANDLED;
-      }
+    audioRenderer =
+        new SimpleDecoderAudioRenderer(null, null, null, false, mockAudioSink) {
+          @Override
+          @FormatSupport
+          protected int supportsFormatInternal(
+              @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
+            return FORMAT_HANDLED;
+          }
 
-      @Override
-      protected SimpleDecoder<DecoderInputBuffer, ? extends SimpleOutputBuffer,
-          ? extends AudioDecoderException> createDecoder(Format format, ExoMediaCrypto mediaCrypto)
-          throws AudioDecoderException {
-        return new FakeDecoder();
-      }
-    };
+          @Override
+          protected SimpleDecoder<
+                  DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
+              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
+            return new FakeDecoder();
+          }
+
+          @Override
+          protected Format getOutputFormat() {
+            return FORMAT;
+          }
+        };
   }
 
   @Config(sdk = 19)

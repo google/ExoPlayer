@@ -17,11 +17,10 @@ package com.google.android.exoplayer2.ext.mediasession;
 
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.Player;
@@ -129,10 +128,10 @@ public final class TimelineQueueEditor
    * @param sourceFactory The {@link MediaSourceFactory} to build media sources.
    */
   public TimelineQueueEditor(
-      @NonNull MediaControllerCompat mediaController,
-      @NonNull ConcatenatingMediaSource queueMediaSource,
-      @NonNull QueueDataAdapter queueDataAdapter,
-      @NonNull MediaSourceFactory sourceFactory) {
+      MediaControllerCompat mediaController,
+      ConcatenatingMediaSource queueMediaSource,
+      QueueDataAdapter queueDataAdapter,
+      MediaSourceFactory sourceFactory) {
     this(mediaController, queueMediaSource, queueDataAdapter, sourceFactory,
         new MediaIdEqualityChecker());
   }
@@ -147,11 +146,11 @@ public final class TimelineQueueEditor
    * @param equalityChecker The {@link MediaDescriptionEqualityChecker} to match queue items.
    */
   public TimelineQueueEditor(
-      @NonNull MediaControllerCompat mediaController,
-      @NonNull ConcatenatingMediaSource queueMediaSource,
-      @NonNull QueueDataAdapter queueDataAdapter,
-      @NonNull MediaSourceFactory sourceFactory,
-      @NonNull MediaDescriptionEqualityChecker equalityChecker) {
+      MediaControllerCompat mediaController,
+      ConcatenatingMediaSource queueMediaSource,
+      QueueDataAdapter queueDataAdapter,
+      MediaSourceFactory sourceFactory,
+      MediaDescriptionEqualityChecker equalityChecker) {
     this.mediaController = mediaController;
     this.queueMediaSource = queueMediaSource;
     this.queueDataAdapter = queueDataAdapter;
@@ -166,7 +165,7 @@ public final class TimelineQueueEditor
 
   @Override
   public void onAddQueueItem(Player player, MediaDescriptionCompat description, int index) {
-    MediaSource mediaSource = sourceFactory.createMediaSource(description);
+    @Nullable MediaSource mediaSource = sourceFactory.createMediaSource(description);
     if (mediaSource != null) {
       queueDataAdapter.add(index, description);
       queueMediaSource.addMediaSource(index, mediaSource);
@@ -192,9 +191,9 @@ public final class TimelineQueueEditor
       Player player,
       ControlDispatcher controlDispatcher,
       String command,
-      Bundle extras,
-      ResultReceiver cb) {
-    if (!COMMAND_MOVE_QUEUE_ITEM.equals(command)) {
+      @Nullable Bundle extras,
+      @Nullable ResultReceiver cb) {
+    if (!COMMAND_MOVE_QUEUE_ITEM.equals(command) || extras == null) {
       return false;
     }
     int from = extras.getInt(EXTRA_FROM_INDEX, C.INDEX_UNSET);

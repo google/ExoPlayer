@@ -1,8 +1,28 @@
 # Proguard rules specific to the core module.
 
+# Constant folding for resource integers may mean that a resource passed to this method appears to be unused. Keep the method to prevent this from happening.
+-keep class com.google.android.exoplayer2.upstream.RawResourceDataSource {
+  public static android.net.Uri buildRawResourceUri(int);
+}
+
+# Methods accessed via reflection in DefaultExtractorsFactory
+-dontnote com.google.android.exoplayer2.ext.flac.FlacLibrary
+-keepclassmembers class com.google.android.exoplayer2.ext.flac.FlacLibrary {
+  public static boolean isAvailable();
+}
+
+# Some members of this class are being accessed from native methods. Keep them unobfuscated.
+-keep class com.google.android.exoplayer2.video.VideoDecoderOutputBuffer {
+  *;
+}
+
 # Constructors accessed via reflection in DefaultRenderersFactory
 -dontnote com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer
 -keepclassmembers class com.google.android.exoplayer2.ext.vp9.LibvpxVideoRenderer {
+  <init>(long, android.os.Handler, com.google.android.exoplayer2.video.VideoRendererEventListener, int);
+}
+-dontnote com.google.android.exoplayer2.ext.av1.Libgav1VideoRenderer
+-keepclassmembers class com.google.android.exoplayer2.ext.av1.Libgav1VideoRenderer {
   <init>(long, android.os.Handler, com.google.android.exoplayer2.video.VideoRendererEventListener, int);
 }
 -dontnote com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer
@@ -48,21 +68,17 @@
 -dontnote com.google.android.exoplayer2.source.dash.DashMediaSource$Factory
 -keepclasseswithmembers class com.google.android.exoplayer2.source.dash.DashMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
-  ** setStreamKeys(java.util.List);
-  com.google.android.exoplayer2.source.dash.DashMediaSource createMediaSource(android.net.Uri);
 }
 -dontnote com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory
 -keepclasseswithmembers class com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
-  ** setStreamKeys(java.util.List);
-  com.google.android.exoplayer2.source.hls.HlsMediaSource createMediaSource(android.net.Uri);
 }
 -dontnote com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory
 -keepclasseswithmembers class com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
-  ** setStreamKeys(java.util.List);
-  com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource createMediaSource(android.net.Uri);
 }
 
-# Don't warn about checkerframework
+# Don't warn about checkerframework and Kotlin annotations
 -dontwarn org.checkerframework.**
+-dontwarn kotlin.annotations.jvm.**
+-dontwarn javax.annotation.**

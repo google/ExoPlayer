@@ -14,6 +14,8 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">הצגת פקדי הנגן</string>
+  <string name="exo_controls_hide">הסתרת פקדי הנגן</string>
   <string name="exo_controls_previous_description">הרצועה הקודמת</string>
   <string name="exo_controls_next_description">הרצועה הבאה</string>
   <string name="exo_controls_pause_description">השהיה</string>

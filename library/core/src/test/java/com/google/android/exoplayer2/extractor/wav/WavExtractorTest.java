@@ -28,4 +28,9 @@ public final class WavExtractorTest {
   public void testSample() throws Exception {
     ExtractorAsserts.assertBehavior(WavExtractor::new, "wav/sample.wav");
   }
+
+  @Test
+  public void testSampleImaAdpcm() throws Exception {
+    ExtractorAsserts.assertBehavior(WavExtractor::new, "wav/sample_ima_adpcm.wav");
+  }
 }

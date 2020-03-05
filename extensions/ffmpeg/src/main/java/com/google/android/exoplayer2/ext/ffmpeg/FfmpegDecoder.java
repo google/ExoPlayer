@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -42,7 +43,7 @@ import java.util.List;
   private static final int DECODER_ERROR_OTHER = -2;
 
   private final String codecName;
-  private final @Nullable byte[] extraData;
+  @Nullable private final byte[] extraData;
   private final @C.Encoding int encoding;
   private final int outputBufferSize;
 
@@ -63,9 +64,7 @@ import java.util.List;
       throw new FfmpegDecoderException("Failed to load decoder native libraries.");
     }
     Assertions.checkNotNull(format.sampleMimeType);
-    codecName =
-        Assertions.checkNotNull(
-            FfmpegLibrary.getCodecName(format.sampleMimeType, format.pcmEncoding));
+    codecName = Assertions.checkNotNull(FfmpegLibrary.getCodecName(format.sampleMimeType));
     extraData = getExtraData(format.sampleMimeType, format.initializationData);
     encoding = outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
     outputBufferSize = outputFloat ? OUTPUT_BUFFER_SIZE_32BIT : OUTPUT_BUFFER_SIZE_16BIT;
@@ -106,7 +105,7 @@ import java.util.List;
         return new FfmpegDecoderException("Error resetting (see logcat).");
       }
     }
-    ByteBuffer inputData = inputBuffer.data;
+    ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     int inputSize = inputData.limit();
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputBufferSize);
     int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, outputBufferSize);
@@ -132,8 +131,8 @@ import java.util.List;
       }
       hasOutputFormat = true;
     }
-    outputBuffer.data.position(0);
-    outputBuffer.data.limit(result);
+    outputData.position(0);
+    outputData.limit(result);
     return null;
   }
 
@@ -144,16 +143,12 @@ import java.util.List;
     nativeContext = 0;
   }
 
-  /**
-   * Returns the channel count of output audio. May only be called after {@link #decode}.
-   */
+  /** Returns the channel count of output audio. */
   public int getChannelCount() {
     return channelCount;
   }
 
-  /**
-   * Returns the sample rate of output audio. May only be called after {@link #decode}.
-   */
+  /** Returns the sample rate of output audio. */
   public int getSampleRate() {
     return sampleRate;
   }
