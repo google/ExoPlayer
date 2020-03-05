@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -62,6 +63,8 @@ public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
   private static final String TAG = "SampleChooserActivity";
+  private static final String GROUP_POSITION_PREFERENCE_KEY = "SAMPLE_CHOOSER_GROUP_POSITION";
+  private static final String CHILD_POSITION_PREFERENCE_KEY = "SAMPLE_CHOOSER_CHILD_POSITION";
 
   private boolean useExtensionRenderers;
   private DownloadTracker downloadTracker;
@@ -69,13 +72,15 @@ public class SampleChooserActivity extends AppCompatActivity
   private MenuItem preferExtensionDecodersMenuItem;
   private MenuItem randomAbrMenuItem;
   private MenuItem tunnelingMenuItem;
+  private ExpandableListView sampleListView;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.sample_chooser_activity);
     sampleAdapter = new SampleAdapter();
-    ExpandableListView sampleListView = findViewById(R.id.sample_list);
+    sampleListView = findViewById(R.id.sample_list);
+
     sampleListView.setAdapter(sampleAdapter);
     sampleListView.setOnChildClickListener(this);
 
@@ -163,11 +168,32 @@ public class SampleChooserActivity extends AppCompatActivity
           .show();
     }
     sampleAdapter.setSampleGroups(groups);
+
+    SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+
+    int groupPosition = -1;
+    int childPosition = -1;
+    try {
+      groupPosition = preferences.getInt(GROUP_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
+      childPosition = preferences.getInt(CHILD_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
+    } catch (ClassCastException e) {
+      android.util.Log.w(TAG, "Saved position is not an int. Will not restore position.", e);
+    }
+    if (groupPosition != -1 && childPosition != -1) {
+      sampleListView.expandGroup(groupPosition); // shouldExpandGroup does not work without this.
+      sampleListView.setSelectedChild(groupPosition, childPosition, /* shouldExpandGroup= */ true);
+    }
   }
 
   @Override
   public boolean onChildClick(
       ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
+    // Save the selected item first to be able to restore it if the tested code crashes.
+    SharedPreferences.Editor prefEditor = getPreferences(MODE_PRIVATE).edit();
+    prefEditor.putInt(GROUP_POSITION_PREFERENCE_KEY, groupPosition);
+    prefEditor.putInt(CHILD_POSITION_PREFERENCE_KEY, childPosition);
+    prefEditor.apply();
+
     Sample sample = (Sample) view.getTag();
     Intent intent = new Intent(this, PlayerActivity.class);
     intent.putExtra(
