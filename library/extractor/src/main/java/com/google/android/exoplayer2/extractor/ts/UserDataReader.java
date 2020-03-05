@@ -51,17 +51,14 @@ import java.util.List;
               || MimeTypes.APPLICATION_CEA708.equals(channelMimeType),
           "Invalid closed caption mime type provided: " + channelMimeType);
       output.format(
-          Format.createTextSampleFormat(
-              idGenerator.getFormatId(),
-              channelMimeType,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              channelFormat.selectionFlags,
-              channelFormat.language,
-              channelFormat.accessibilityChannel,
-              /* drmInitData= */ null,
-              Format.OFFSET_SAMPLE_RELATIVE,
-              channelFormat.initializationData));
+          new Format.Builder()
+              .setId(idGenerator.getFormatId())
+              .setSampleMimeType(channelMimeType)
+              .setSelectionFlags(channelFormat.selectionFlags)
+              .setLanguage(channelFormat.language)
+              .setAccessibilityChannel(channelFormat.accessibilityChannel)
+              .setInitializationData(channelFormat.initializationData)
+              .build());
       outputs[i] = output;
     }
   }

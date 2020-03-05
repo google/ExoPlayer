@@ -15,17 +15,11 @@
  */
 package com.google.android.exoplayer2;
 
-import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.DrmSession;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -83,13 +77,19 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void enable(RendererConfiguration configuration, Format[] formats,
-      SampleStream stream, long positionUs, boolean joining, long offsetUs)
+  public final void enable(
+      RendererConfiguration configuration,
+      Format[] formats,
+      SampleStream stream,
+      long positionUs,
+      boolean joining,
+      boolean mayRenderStartOfStream,
+      long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
-    onEnabled(joining);
+    onEnabled(joining, mayRenderStartOfStream);
     replaceStream(formats, stream, offsetUs);
     onPositionReset(positionUs, joining);
   }
@@ -194,27 +194,30 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Called when the renderer is enabled.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
+   * @param mayRenderStartOfStream Whether this renderer is allowed to render the start of the
+   *     stream even if the state is not {@link #STATE_STARTED} yet.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onEnabled(boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 
   /**
    * Called when the renderer's stream has changed. This occurs when the renderer is enabled after
-   * {@link #onEnabled(boolean)} has been called, and also when the stream has been replaced whilst
-   * the renderer is enabled or started.
-   * <p>
-   * The default implementation is a no-op.
+   * {@link #onEnabled(boolean, boolean)} has been called, and also when the stream has been
+   * replaced whilst the renderer is enabled or started.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param formats The enabled formats.
-   * @param offsetUs The offset that will be added to the timestamps of buffers read via
-   *     {@link #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input
-   *     buffers have monotonically increasing timestamps.
+   * @param offsetUs The offset that will be added to the timestamps of buffers read via {@link
+   *     #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input buffers have
+   *     monotonically increasing timestamps.
    * @throws ExoPlaybackException If an error occurs.
    */
   protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
@@ -299,35 +302,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return configuration;
   }
 
-  /** Returns a {@link DrmSession} ready for assignment, handling resource management. */
-  @Nullable
-  protected final <T extends ExoMediaCrypto> DrmSession<T> getUpdatedSourceDrmSession(
-      @Nullable Format oldFormat,
-      Format newFormat,
-      @Nullable DrmSessionManager<T> drmSessionManager,
-      @Nullable DrmSession<T> existingSourceSession)
-      throws ExoPlaybackException {
-    boolean drmInitDataChanged =
-        !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
-    if (!drmInitDataChanged) {
-      return existingSourceSession;
-    }
-    @Nullable DrmSession<T> newSourceDrmSession = null;
-    if (newFormat.drmInitData != null) {
-      if (drmSessionManager == null) {
-        throw createRendererException(
-            new IllegalStateException("Media requires a DrmSessionManager"), newFormat);
-      }
-      newSourceDrmSession =
-          drmSessionManager.acquireSession(
-              Assertions.checkNotNull(Looper.myLooper()), newFormat.drmInitData);
-    }
-    if (existingSourceSession != null) {
-      existingSourceSession.release();
-    }
-    return newSourceDrmSession;
-  }
-
   /**
    * Returns the index of the renderer within the player.
    */
@@ -387,7 +361,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     } else if (result == C.RESULT_FORMAT_READ) {
       Format format = formatHolder.format;
       if (format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {
-        format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + streamOffsetUs);
+        format =
+            format
+                .buildUpon()
+                .setSubsampleOffsetUs(format.subsampleOffsetUs + streamOffsetUs)
+                .build();
         formatHolder.format = format;
       }
     }
@@ -411,26 +389,4 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   protected final boolean isSourceReady() {
     return hasReadStreamToEnd() ? streamIsFinal : stream.isReady();
   }
-
-  /**
-   * Returns whether {@code drmSessionManager} supports the specified {@code drmInitData}, or true
-   * if {@code drmInitData} is null.
-   *
-   * @param drmSessionManager The drm session manager.
-   * @param drmInitData {@link DrmInitData} of the format to check for support.
-   * @return Whether {@code drmSessionManager} supports the specified {@code drmInitData}, or
-   *     true if {@code drmInitData} is null.
-   */
-  protected static boolean supportsFormatDrm(@Nullable DrmSessionManager<?> drmSessionManager,
-      @Nullable DrmInitData drmInitData) {
-    if (drmInitData == null) {
-      // Content is unencrypted.
-      return true;
-    } else if (drmSessionManager == null) {
-      // Content is encrypted, but no drm session manager is available.
-      return false;
-    }
-    return drmSessionManager.canAcquireSession(drmInitData);
-  }
-
 }

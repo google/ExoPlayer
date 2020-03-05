@@ -94,8 +94,7 @@ public final class FakeAdaptiveDataSet extends FakeDataSet {
       String uri = dataSet.getUri(trackGroupIndex);
       int chunkIndex = (int) getCurrentIndex();
       Segment fakeDataChunk = Util.castNonNull(dataSet.getData(uri)).getSegments().get(chunkIndex);
-      return new DataSpec(
-          Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length, /* key= */ null);
+      return new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length);
     }
 
     @Override

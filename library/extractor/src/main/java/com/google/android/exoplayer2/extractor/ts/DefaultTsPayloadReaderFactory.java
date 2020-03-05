@@ -80,7 +80,10 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    * delimiters (AUDs).
    */
   public static final int FLAG_DETECT_ACCESS_UNITS = 1 << 3;
-  /** Prevents the creation of {@link SpliceInfoSectionReader} instances. */
+  /**
+   * Prevents the creation of {@link SectionPayloadReader}s for splice information sections
+   * (SCTE-35).
+   */
   public static final int FLAG_IGNORE_SPLICE_INFO_STREAM = 1 << 4;
   /**
    * Whether the list of {@code closedCaptionFormats} passed to {@link
@@ -112,7 +115,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
     this(
         flags,
         Collections.singletonList(
-            Format.createTextSampleFormat(null, MimeTypes.APPLICATION_CEA608, 0, null)));
+            new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA608).build()));
   }
 
   /**
@@ -135,8 +138,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
     return new SparseArray<>();
   }
 
-  @Nullable
   @Override
+  @Nullable
   public TsPayloadReader createPayloadReader(int streamType, EsInfo esInfo) {
     switch (streamType) {
       case TsExtractor.TS_STREAM_TYPE_MPA:
@@ -170,22 +173,25 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
         return new PesReader(new H265Reader(buildSeiReader(esInfo)));
       case TsExtractor.TS_STREAM_TYPE_SPLICE_INFO:
         return isSet(FLAG_IGNORE_SPLICE_INFO_STREAM)
-            ? null : new SectionReader(new SpliceInfoSectionReader());
+            ? null
+            : new SectionReader(new PassthroughSectionPayloadReader(MimeTypes.APPLICATION_SCTE35));
       case TsExtractor.TS_STREAM_TYPE_ID3:
         return new PesReader(new Id3Reader());
       case TsExtractor.TS_STREAM_TYPE_DVBSUBS:
         return new PesReader(
             new DvbSubtitleReader(esInfo.dvbSubtitleInfos));
+      case TsExtractor.TS_STREAM_TYPE_AIT:
+        return new SectionReader(new PassthroughSectionPayloadReader(MimeTypes.APPLICATION_AIT));
       default:
         return null;
     }
   }
 
   /**
-   * If {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS} is set, returns a {@link SeiReader} for
-   * {@link #closedCaptionFormats}. If unset, parses the PMT descriptor information and returns a
-   * {@link SeiReader} for the declared formats, or {@link #closedCaptionFormats} if the descriptor
-   * is not present.
+   * If {@link #FLAG_OVERRIDE_CAPTION_DESCRIPTORS} is set, returns a {@link SeiReader} for {@link
+   * #closedCaptionFormats}. If unset, parses the PMT descriptor information and returns a {@link
+   * SeiReader} for the declared formats, or {@link #closedCaptionFormats} if the descriptor is not
+   * present.
    *
    * @param esInfo The {@link EsInfo} passed to {@link #createPayloadReader(int, EsInfo)}.
    * @return A {@link SeiReader} for closed caption tracks.
@@ -258,17 +264,12 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
           }
 
           closedCaptionFormats.add(
-              Format.createTextSampleFormat(
-                  /* id= */ null,
-                  mimeType,
-                  /* codecs= */ null,
-                  /* bitrate= */ Format.NO_VALUE,
-                  /* selectionFlags= */ 0,
-                  language,
-                  accessibilityChannel,
-                  /* drmInitData= */ null,
-                  Format.OFFSET_SAMPLE_RELATIVE,
-                  initializationData));
+              new Format.Builder()
+                  .setSampleMimeType(mimeType)
+                  .setLanguage(language)
+                  .setAccessibilityChannel(accessibilityChannel)
+                  .setInitializationData(initializationData)
+                  .build());
         }
       } else {
         // Unknown descriptor. Ignore.

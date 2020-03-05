@@ -182,8 +182,8 @@ public final class FlacStreamMetadata {
     return maxBlockSizeSamples * channels * (bitsPerSample / 8);
   }
 
-  /** Returns the bit-rate of the FLAC stream. */
-  public int getBitRate() {
+  /** Returns the bitrate of the stream after it's decoded into PCM. */
+  public int getDecodedBitrate() {
     return bitsPerSample * sampleRate * channels;
   }
 
@@ -239,23 +239,14 @@ public final class FlacStreamMetadata {
     streamMarkerAndInfoBlock[4] = (byte) 0x80;
     int maxInputSize = maxFrameSize > 0 ? maxFrameSize : Format.NO_VALUE;
     @Nullable Metadata metadataWithId3 = getMetadataCopyWithAppendedEntriesFrom(id3Metadata);
-
-    return Format.createAudioSampleFormat(
-        /* id= */ null,
-        MimeTypes.AUDIO_FLAC,
-        /* codecs= */ null,
-        getBitRate(),
-        maxInputSize,
-        channels,
-        sampleRate,
-        /* pcmEncoding= */ Format.NO_VALUE,
-        /* encoderDelay= */ 0,
-        /* encoderPadding= */ 0,
-        /* initializationData= */ Collections.singletonList(streamMarkerAndInfoBlock),
-        /* drmInitData= */ null,
-        /* selectionFlags= */ 0,
-        /* language= */ null,
-        metadataWithId3);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_FLAC)
+        .setMaxInputSize(maxInputSize)
+        .setChannelCount(channels)
+        .setSampleRate(sampleRate)
+        .setInitializationData(Collections.singletonList(streamMarkerAndInfoBlock))
+        .setMetadata(metadataWithId3)
+        .build();
   }
 
   /** Returns a copy of the content metadata with entries from {@code other} appended. */

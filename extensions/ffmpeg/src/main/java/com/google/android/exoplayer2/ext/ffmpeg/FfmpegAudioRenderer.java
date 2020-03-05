@@ -18,18 +18,15 @@ package com.google.android.exoplayer2.ext.ffmpeg;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.util.Collections;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -85,22 +82,19 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
     super(
         eventHandler,
         eventListener,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false,
         audioSink);
     this.enableFloatOutput = enableFloatOutput;
   }
 
   @Override
   @FormatSupport
-  protected int supportsFormatInternal(
-      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
+  protected int supportsFormatInternal(Format format) {
     Assertions.checkNotNull(format.sampleMimeType);
     if (!FfmpegLibrary.isAvailable()) {
       return FORMAT_UNSUPPORTED_TYPE;
     } else if (!FfmpegLibrary.supportsFormat(format.sampleMimeType) || !isOutputSupported(format)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
-    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+    } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
       return FORMAT_UNSUPPORTED_DRM;
     } else {
       return FORMAT_HANDLED;
@@ -109,7 +103,7 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
 
   @Override
   @AdaptiveSupport
-  public final int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+  public final int supportsMixedMimeTypeAdaptation() {
     return ADAPTIVE_NOT_SEAMLESS;
   }
 
@@ -127,22 +121,12 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   public Format getOutputFormat() {
     Assertions.checkNotNull(decoder);
-    int channelCount = decoder.getChannelCount();
-    int sampleRate = decoder.getSampleRate();
-    @C.PcmEncoding int encoding = decoder.getEncoding();
-    return Format.createAudioSampleFormat(
-        /* id= */ null,
-        MimeTypes.AUDIO_RAW,
-        /* codecs= */ null,
-        Format.NO_VALUE,
-        Format.NO_VALUE,
-        channelCount,
-        sampleRate,
-        encoding,
-        Collections.emptyList(),
-        /* drmInitData= */ null,
-        /* selectionFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(decoder.getChannelCount())
+        .setSampleRate(decoder.getSampleRate())
+        .setPcmEncoding(decoder.getEncoding())
+        .build();
   }
 
   private boolean isOutputSupported(Format inputFormat) {

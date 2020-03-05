@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ext.okhttp;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -86,16 +85,12 @@ public class OkHttpDataSourceTest {
     dataSpecRequestProperties.put("5", dataSpecValue);
 
     DataSpec dataSpec =
-        new DataSpec(
-            /* uri= */ Uri.parse("http://www.google.com"),
-            /* httpMethod= */ 1,
-            /* httpBody= */ null,
-            /* absoluteStreamPosition= */ 1000,
-            /* position= */ 1000,
-            /* length= */ 5000,
-            /* key= */ null,
-            /* flags= */ 0,
-            dataSpecRequestProperties);
+        new DataSpec.Builder()
+            .setUri("http://www.google.com")
+            .setPosition(1000)
+            .setLength(5000)
+            .setHttpRequestHeaders(dataSpecRequestProperties)
+            .build();
 
     Mockito.doAnswer(
             invocation -> {

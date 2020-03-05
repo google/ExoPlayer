@@ -353,6 +353,7 @@ import com.google.android.exoplayer2.util.Assertions;
   public MediaPeriodInfo getUpdatedMediaPeriodInfo(Timeline timeline, MediaPeriodInfo info) {
     MediaPeriodId id = info.id;
     boolean isLastInPeriod = isLastInPeriod(id);
+    boolean isLastInWindow = isLastInWindow(timeline, id);
     boolean isLastInTimeline = isLastInTimeline(timeline, id, isLastInPeriod);
     timeline.getPeriodByUid(info.id.periodUid, period);
     long durationUs =
@@ -368,6 +369,7 @@ import com.google.android.exoplayer2.util.Assertions;
         info.endPositionUs,
         durationUs,
         isLastInPeriod,
+        isLastInWindow,
         isLastInTimeline);
   }
 
@@ -735,6 +737,7 @@ import com.google.android.exoplayer2.util.Assertions;
         /* endPositionUs= */ C.TIME_UNSET,
         durationUs,
         /* isLastInTimelinePeriod= */ false,
+        /* isLastInTimelineWindow= */ false,
         /* isFinal= */ false);
   }
 
@@ -744,9 +747,11 @@ import com.google.android.exoplayer2.util.Assertions;
       long startPositionUs,
       long requestedContentPositionUs,
       long windowSequenceNumber) {
+    timeline.getPeriodByUid(periodUid, period);
     int nextAdGroupIndex = period.getAdGroupIndexAfterPositionUs(startPositionUs);
     MediaPeriodId id = new MediaPeriodId(periodUid, windowSequenceNumber, nextAdGroupIndex);
     boolean isLastInPeriod = isLastInPeriod(id);
+    boolean isLastInWindow = isLastInWindow(timeline, id);
     boolean isLastInTimeline = isLastInTimeline(timeline, id, isLastInPeriod);
     long endPositionUs =
         nextAdGroupIndex != C.INDEX_UNSET
@@ -763,11 +768,21 @@ import com.google.android.exoplayer2.util.Assertions;
         endPositionUs,
         durationUs,
         isLastInPeriod,
+        isLastInWindow,
         isLastInTimeline);
   }
 
   private boolean isLastInPeriod(MediaPeriodId id) {
     return !id.isAd() && id.nextAdGroupIndex == C.INDEX_UNSET;
+  }
+
+  private boolean isLastInWindow(Timeline timeline, MediaPeriodId id) {
+    if (!isLastInPeriod(id)) {
+      return false;
+    }
+    int windowIndex = timeline.getPeriodByUid(id.periodUid, period).windowIndex;
+    int periodIndex = timeline.getIndexOfPeriod(id.periodUid);
+    return timeline.getWindow(windowIndex, window).lastPeriodIndex == periodIndex;
   }
 
   private boolean isLastInTimeline(

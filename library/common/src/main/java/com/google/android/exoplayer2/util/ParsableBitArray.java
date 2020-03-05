@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.util;
 
+import com.google.android.exoplayer2.C;
+import java.nio.charset.Charset;
+
 /**
  * Wraps a byte array, providing methods that allow it to be read as a bitstream.
  */
@@ -275,6 +278,31 @@ public final class ParsableBitArray {
     Assertions.checkState(bitOffset == 0);
     byteOffset += length;
     assertValidOffset();
+  }
+
+  /**
+   * Reads the next {@code length} bytes as a UTF-8 string. Must only be called when the position is
+   * byte aligned.
+   *
+   * @param length The number of bytes to read.
+   * @return The string encoded by the bytes in UTF-8.
+   */
+  public String readBytesAsString(int length) {
+    return readBytesAsString(length, Charset.forName(C.UTF8_NAME));
+  }
+
+  /**
+   * Reads the next {@code length} bytes as a string encoded in {@link Charset}. Must only be called
+   * when the position is byte aligned.
+   *
+   * @param length The number of bytes to read.
+   * @param charset The character set of the encoded characters.
+   * @return The string encoded by the bytes in the specified character set.
+   */
+  public String readBytesAsString(int length, Charset charset) {
+    byte[] bytes = new byte[length];
+    readBytes(bytes, 0, length);
+    return new String(bytes, charset);
   }
 
   /**

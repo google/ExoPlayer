@@ -595,7 +595,7 @@ public abstract class DownloadService extends Service {
   }
 
   @Override
-  public int onStartCommand(Intent intent, int flags, int startId) {
+  public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
     lastStartId = startId;
     taskRemoved = false;
     @Nullable String intentAction = null;
@@ -617,7 +617,9 @@ public abstract class DownloadService extends Service {
         // Do nothing.
         break;
       case ACTION_ADD_DOWNLOAD:
-        @Nullable DownloadRequest downloadRequest = intent.getParcelableExtra(KEY_DOWNLOAD_REQUEST);
+        @Nullable
+        DownloadRequest downloadRequest =
+            Assertions.checkNotNull(intent).getParcelableExtra(KEY_DOWNLOAD_REQUEST);
         if (downloadRequest == null) {
           Log.e(TAG, "Ignored ADD_DOWNLOAD: Missing " + KEY_DOWNLOAD_REQUEST + " extra");
         } else {
@@ -642,7 +644,7 @@ public abstract class DownloadService extends Service {
         downloadManager.pauseDownloads();
         break;
       case ACTION_SET_STOP_REASON:
-        if (!intent.hasExtra(KEY_STOP_REASON)) {
+        if (!Assertions.checkNotNull(intent).hasExtra(KEY_STOP_REASON)) {
           Log.e(TAG, "Ignored SET_STOP_REASON: Missing " + KEY_STOP_REASON + " extra");
         } else {
           int stopReason = intent.getIntExtra(KEY_STOP_REASON, /* defaultValue= */ 0);
@@ -650,7 +652,9 @@ public abstract class DownloadService extends Service {
         }
         break;
       case ACTION_SET_REQUIREMENTS:
-        @Nullable Requirements requirements = intent.getParcelableExtra(KEY_REQUIREMENTS);
+        @Nullable
+        Requirements requirements =
+            Assertions.checkNotNull(intent).getParcelableExtra(KEY_REQUIREMENTS);
         if (requirements == null) {
           Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
@@ -693,8 +697,8 @@ public abstract class DownloadService extends Service {
   /**
    * Throws {@link UnsupportedOperationException} because this service is not designed to be bound.
    */
-  @Nullable
   @Override
+  @Nullable
   public final IBinder onBind(Intent intent) {
     throw new UnsupportedOperationException();
   }

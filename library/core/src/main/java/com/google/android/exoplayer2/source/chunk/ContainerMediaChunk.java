@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
@@ -67,7 +68,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       DataSpec dataSpec,
       Format trackFormat,
       int trackSelectionReason,
-      Object trackSelectionData,
+      @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs,
       long clippedStartTimeUs,
@@ -126,7 +127,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
       ExtractorInput input =
           new DefaultExtractorInput(
-              dataSource, loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
+              dataSource, loadDataSpec.position, dataSource.open(loadDataSpec));
       // Load and decode the sample data.
       try {
         Extractor extractor = extractorWrapper.extractor;
@@ -136,7 +137,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
         }
         Assertions.checkState(result != Extractor.RESULT_SEEK);
       } finally {
-        nextLoadPosition = input.getPosition() - dataSpec.absoluteStreamPosition;
+        nextLoadPosition = input.getPosition() - dataSpec.position;
       }
     } finally {
       Util.closeQuietly(dataSource);

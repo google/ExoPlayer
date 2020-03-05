@@ -33,6 +33,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ControlDispatcher;
+import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
@@ -67,13 +69,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li><b>{@code rewind_increment}</b> - The duration of the rewind applied when the user taps the
  *       rewind button, in milliseconds. Use zero to disable the rewind button.
  *       <ul>
- *         <li>Corresponding method: {@link #setRewindIncrementMs(int)}
- *         <li>Default: {@link #DEFAULT_REWIND_MS}
+ *         <li>Corresponding method: {@link #setControlDispatcher(ControlDispatcher)}
+ *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_REWIND_MS}
  *       </ul>
  *   <li><b>{@code fastforward_increment}</b> - Like {@code rewind_increment}, but for fast forward.
  *       <ul>
- *         <li>Corresponding method: {@link #setFastForwardIncrementMs(int)}
- *         <li>Default: {@link #DEFAULT_FAST_FORWARD_MS}
+ *         <li>Corresponding method: {@link #setControlDispatcher(ControlDispatcher)}
+ *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_FAST_FORWARD_MS}
  *       </ul>
  *   <li><b>{@code repeat_toggle_modes}</b> - A flagged enumeration value specifying which repeat
  *       mode toggle options are enabled. Valid values are: {@code none}, {@code one}, {@code all},
@@ -135,8 +137,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * application {@code res/layout*} directories. These layouts will override the one provided by the
  * ExoPlayer library, and will be inflated for use by PlayerControlView. The view identifies and
  * binds its children by looking for the following ids:
- *
- * <p>
  *
  * <ul>
  *   <li><b>{@code exo_play}</b> - The play button.
@@ -246,10 +246,6 @@ public class PlayerControlView extends FrameLayout {
     void onProgressUpdate(long position, long bufferedPosition);
   }
 
-  /** The default fast forward increment, in milliseconds. */
-  public static final int DEFAULT_FAST_FORWARD_MS = 15000;
-  /** The default rewind increment, in milliseconds. */
-  public static final int DEFAULT_REWIND_MS = 5000;
   /** The default show timeout, in milliseconds. */
   public static final int DEFAULT_SHOW_TIMEOUT_MS = 5000;
   /** The default repeat toggle modes. */
@@ -260,7 +256,6 @@ public class PlayerControlView extends FrameLayout {
   /** The maximum number of windows that can be shown in a multi-window time bar. */
   public static final int MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR = 100;
 
-  private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
   /** The maximum interval between time bar position updates. */
   private static final int MAX_UPDATE_INTERVAL_MS = 1000;
 
@@ -307,8 +302,6 @@ public class PlayerControlView extends FrameLayout {
   private boolean showMultiWindowTimeBar;
   private boolean multiWindowTimeBar;
   private boolean scrubbing;
-  private int rewindMs;
-  private int fastForwardMs;
   private int showTimeoutMs;
   private int timeBarMinUpdateIntervalMs;
   private @RepeatModeUtil.RepeatToggleModes int repeatToggleModes;
@@ -344,13 +337,13 @@ public class PlayerControlView extends FrameLayout {
       @Nullable AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
     int controllerLayoutId = R.layout.exo_player_control_view;
-    rewindMs = DEFAULT_REWIND_MS;
-    fastForwardMs = DEFAULT_FAST_FORWARD_MS;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
     timeBarMinUpdateIntervalMs = DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS;
     hideAtMs = C.TIME_UNSET;
     showShuffleButton = false;
+    int rewindMs = DefaultControlDispatcher.DEFAULT_REWIND_MS;
+    int fastForwardMs = DefaultControlDispatcher.DEFAULT_FAST_FORWARD_MS;
     if (playbackAttrs != null) {
       TypedArray a =
           context
@@ -384,7 +377,8 @@ public class PlayerControlView extends FrameLayout {
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
     componentListener = new ComponentListener();
-    controlDispatcher = new com.google.android.exoplayer2.DefaultControlDispatcher();
+    controlDispatcher =
+        new com.google.android.exoplayer2.DefaultControlDispatcher(fastForwardMs, rewindMs);
     updateProgressAction = this::updateProgress;
     hideAction = this::hide;
 
@@ -589,37 +583,39 @@ public class PlayerControlView extends FrameLayout {
   /**
    * Sets the {@link com.google.android.exoplayer2.ControlDispatcher}.
    *
-   * @param controlDispatcher The {@link com.google.android.exoplayer2.ControlDispatcher}, or null
-   *     to use {@link com.google.android.exoplayer2.DefaultControlDispatcher}.
+   * @param controlDispatcher The {@link com.google.android.exoplayer2.ControlDispatcher}.
    */
-  public void setControlDispatcher(
-      @Nullable com.google.android.exoplayer2.ControlDispatcher controlDispatcher) {
-    this.controlDispatcher =
-        controlDispatcher == null
-            ? new com.google.android.exoplayer2.DefaultControlDispatcher()
-            : controlDispatcher;
+  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
+    if (this.controlDispatcher != controlDispatcher) {
+      this.controlDispatcher = controlDispatcher;
+      updateNavigation();
+    }
   }
 
   /**
-   * Sets the rewind increment in milliseconds.
-   *
-   * @param rewindMs The rewind increment in milliseconds. A non-positive value will cause the
-   *     rewind button to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setRewindIncrementMs(int rewindMs) {
-    this.rewindMs = rewindMs;
-    updateNavigation();
+    if (controlDispatcher instanceof DefaultControlDispatcher) {
+      ((DefaultControlDispatcher) controlDispatcher).setRewindIncrementMs(rewindMs);
+      updateNavigation();
+    }
   }
 
   /**
-   * Sets the fast forward increment in milliseconds.
-   *
-   * @param fastForwardMs The fast forward increment in milliseconds. A non-positive value will
-   *     cause the fast forward button to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setFastForwardIncrementMs(int fastForwardMs) {
-    this.fastForwardMs = fastForwardMs;
-    updateNavigation();
+    if (controlDispatcher instanceof DefaultControlDispatcher) {
+      ((DefaultControlDispatcher) controlDispatcher).setFastForwardIncrementMs(fastForwardMs);
+      updateNavigation();
+    }
   }
 
   /**
@@ -830,8 +826,8 @@ public class PlayerControlView extends FrameLayout {
         boolean isSeekable = window.isSeekable;
         enableSeeking = isSeekable;
         enablePrevious = isSeekable || !window.isDynamic || player.hasPrevious();
-        enableRewind = isSeekable && rewindMs > 0;
-        enableFastForward = isSeekable && fastForwardMs > 0;
+        enableRewind = isSeekable && controlDispatcher.isRewindEnabled();
+        enableFastForward = isSeekable && controlDispatcher.isFastForwardEnabled();
         enableNext = window.isDynamic || player.hasNext();
       }
     }
@@ -1042,59 +1038,6 @@ public class PlayerControlView extends FrameLayout {
     view.setVisibility(VISIBLE);
   }
 
-  private void previous(Player player) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    timeline.getWindow(windowIndex, window);
-    int previousWindowIndex = player.getPreviousWindowIndex();
-    if (previousWindowIndex != C.INDEX_UNSET
-        && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
-            || (window.isDynamic && !window.isSeekable))) {
-      seekTo(player, previousWindowIndex, C.TIME_UNSET);
-    } else {
-      seekTo(player, windowIndex, /* positionMs= */ 0);
-    }
-  }
-
-  private void next(Player player) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    int nextWindowIndex = player.getNextWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      seekTo(player, nextWindowIndex, C.TIME_UNSET);
-    } else if (timeline.getWindow(windowIndex, window).isDynamic) {
-      seekTo(player, windowIndex, C.TIME_UNSET);
-    }
-  }
-
-  private void rewind(Player player) {
-    if (player.isCurrentWindowSeekable() && rewindMs > 0) {
-      seekToOffset(player, -rewindMs);
-    }
-  }
-
-  private void fastForward(Player player) {
-    if (player.isCurrentWindowSeekable() && fastForwardMs > 0) {
-      seekToOffset(player, fastForwardMs);
-    }
-  }
-
-  private void seekToOffset(Player player, long offsetMs) {
-    long positionMs = player.getCurrentPosition() + offsetMs;
-    long durationMs = player.getDuration();
-    if (durationMs != C.TIME_UNSET) {
-      positionMs = Math.min(positionMs, durationMs);
-    }
-    positionMs = Math.max(positionMs, 0);
-    seekTo(player, player.getCurrentWindowIndex(), positionMs);
-  }
-
   private void seekToTimeBarPosition(Player player, long positionMs) {
     int windowIndex;
     Timeline timeline = player.getCurrentTimeline();
@@ -1183,9 +1126,9 @@ public class PlayerControlView extends FrameLayout {
     }
     if (event.getAction() == KeyEvent.ACTION_DOWN) {
       if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
-        fastForward(player);
+        controlDispatcher.dispatchFastForward(player);
       } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
-        rewind(player);
+        controlDispatcher.dispatchRewind(player);
       } else if (event.getRepeatCount() == 0) {
         switch (keyCode) {
           case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
@@ -1198,10 +1141,10 @@ public class PlayerControlView extends FrameLayout {
             controlDispatcher.dispatchSetPlayWhenReady(player, false);
             break;
           case KeyEvent.KEYCODE_MEDIA_NEXT:
-            next(player);
+            controlDispatcher.dispatchNext(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-            previous(player);
+            controlDispatcher.dispatchPrevious(player);
             break;
           default:
             break;
@@ -1276,7 +1219,14 @@ public class PlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
+      updatePlayPauseButton();
+      updateProgress();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
       updatePlayPauseButton();
       updateProgress();
     }
@@ -1317,13 +1267,13 @@ public class PlayerControlView extends FrameLayout {
         return;
       }
       if (nextButton == view) {
-        next(player);
+        controlDispatcher.dispatchNext(player);
       } else if (previousButton == view) {
-        previous(player);
+        controlDispatcher.dispatchPrevious(player);
       } else if (fastForwardButton == view) {
-        fastForward(player);
+        controlDispatcher.dispatchFastForward(player);
       } else if (rewindButton == view) {
-        rewind(player);
+        controlDispatcher.dispatchRewind(player);
       } else if (playButton == view) {
         if (player.getPlaybackState() == Player.STATE_IDLE) {
           if (playbackPreparer != null) {

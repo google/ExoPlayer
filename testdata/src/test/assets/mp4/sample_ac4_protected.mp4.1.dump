@@ -1,0 +1,97 @@
+seekMap:
+  isSeekable = true
+  duration = 760000
+  getPosition(0) = [[timeUs=0, position=950]]
+  getPosition(1) = [[timeUs=0, position=950]]
+  getPosition(380000) = [[timeUs=0, position=950]]
+  getPosition(760000) = [[timeUs=0, position=950]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 5632
+  sample count = 13
+  format 0:
+    id = 1
+    sampleMimeType = audio/ac4
+    channelCount = 2
+    sampleRate = 48000
+    language = und
+    drmInitData = -1683793742
+  sample 0:
+    time = 240000
+    flags = 1073741825
+    data = length 384, hash 87F3C13B
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 1:
+    time = 280000
+    flags = 1073741825
+    data = length 384, hash 54333DC5
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 2:
+    time = 320000
+    flags = 1073741825
+    data = length 384, hash 1C49C4B3
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 3:
+    time = 360000
+    flags = 1073741825
+    data = length 384, hash 5FDC324F
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 4:
+    time = 400000
+    flags = 1073741825
+    data = length 384, hash B2A7F444
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 5:
+    time = 440000
+    flags = 1073741825
+    data = length 512, hash 5FD06C1E
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 6:
+    time = 480000
+    flags = 1073741825
+    data = length 537, hash 7ABBDCB
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 7:
+    time = 520000
+    flags = 1073741825
+    data = length 616, hash 3F657E23
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 8:
+    time = 560000
+    flags = 1073741825
+    data = length 453, hash 8FCF0529
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 9:
+    time = 600000
+    flags = 1073741825
+    data = length 383, hash 7F8C9E19
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 10:
+    time = 640000
+    flags = 1073741825
+    data = length 410, hash 3727858D
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 11:
+    time = 680000
+    flags = 1073741825
+    data = length 391, hash E2931212
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+  sample 12:
+    time = 720000
+    flags = 1073741825
+    data = length 410, hash 63017D46
+    crypto mode = 1
+    encryption key = length 16, hash 9FDDEA52
+tracksEnded = true

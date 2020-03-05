@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.media.NotProvisionedException;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -25,6 +24,7 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
@@ -46,7 +46,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** A {@link DrmSession} that supports playbacks using {@link ExoMediaDrm}. */
-@TargetApi(18)
+@RequiresApi(18)
 /* package */ class DefaultDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
 
   /** Thrown when an unexpected exception or error is thrown during provisioning or key requests. */

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.ttml;
 
 import android.text.Layout.Alignment;
+import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
@@ -28,14 +29,21 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.text.SpanUtil;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
+import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.SpanUtil;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
 
 /**
  * Package internal utility class to render styled <code>TtmlNode</code>s.
  */
 /* package */ final class TtmlRenderUtil {
+
+  private static final String TAG = "TtmlRenderUtil";
 
   @Nullable
   public static TtmlStyle resolveStyle(
@@ -71,8 +79,8 @@ import java.util.Map;
     return style;
   }
 
-  public static void applyStylesToSpan(SpannableStringBuilder builder,
-      int start, int end, TtmlStyle style) {
+  public static void applyStylesToSpan(
+      Spannable builder, int start, int end, TtmlStyle style, @Nullable TtmlNode parent) {
 
     if (style.getStyle() != TtmlStyle.UNSPECIFIED) {
       builder.setSpan(new StyleSpan(style.getStyle()), start, end,
@@ -108,6 +116,53 @@ import java.util.Map;
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
+    switch (style.getRubyType()) {
+      case TtmlStyle.RUBY_TYPE_BASE:
+        // look for the sibling RUBY_TEXT and add it as span between start & end.
+        @Nullable TtmlNode containerNode = findRubyContainerNode(parent);
+        if (containerNode == null) {
+          // No matching container node
+          break;
+        }
+        @Nullable TtmlNode textNode = findRubyTextNode(containerNode);
+        if (textNode == null) {
+          // no matching text node
+          break;
+        }
+        String rubyText;
+        if (textNode.getChildCount() == 1 && textNode.getChild(0).text != null) {
+          rubyText = Util.castNonNull(textNode.getChild(0).text);
+        } else {
+          Log.i(TAG, "Skipping rubyText node without exactly one text child.");
+          break;
+        }
+
+        // TODO: Get rubyPosition from `textNode` when TTML inheritance is implemented.
+        @RubySpan.Position
+        int rubyPosition =
+            containerNode.style != null
+                ? containerNode.style.getRubyPosition()
+                : RubySpan.POSITION_UNKNOWN;
+        builder.setSpan(
+            new RubySpan(rubyText, rubyPosition), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        break;
+      case TtmlStyle.RUBY_TYPE_DELIMITER:
+        // TODO: Add support for this when RubySpan supports parenthetical text. For now, just
+        // fall through and delete the text.
+      case TtmlStyle.RUBY_TYPE_TEXT:
+        // We can't just remove the text directly from `builder` here because TtmlNode has fixed
+        // ideas of where every node starts and ends (nodeStartsByRegion and nodeEndsByRegion) so
+        // all these indices become invalid if we mutate the underlying string at this point.
+        // Instead we add a special span that's then handled in TtmlNode#cleanUpText.
+        builder.setSpan(new DeleteTextSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        break;
+      case TtmlStyle.RUBY_TYPE_CONTAINER:
+      case TtmlStyle.UNSPECIFIED:
+      default:
+        // Do nothing
+        break;
+    }
+
     @Nullable Alignment textAlign = style.getTextAlign();
     if (textAlign != null) {
       SpanUtil.addOrReplaceSpan(
@@ -154,6 +209,35 @@ import java.util.Map;
         // Do nothing.
         break;
     }
+  }
+
+  @Nullable
+  private static TtmlNode findRubyTextNode(TtmlNode rubyContainerNode) {
+    Deque<TtmlNode> childNodesStack = new ArrayDeque<>();
+    childNodesStack.push(rubyContainerNode);
+    while (!childNodesStack.isEmpty()) {
+      TtmlNode childNode = childNodesStack.pop();
+      if (childNode.style != null && childNode.style.getRubyType() == TtmlStyle.RUBY_TYPE_TEXT) {
+        return childNode;
+      }
+      for (int i = childNode.getChildCount() - 1; i >= 0; i--) {
+        childNodesStack.push(childNode.getChild(i));
+      }
+    }
+
+    return null;
+  }
+
+  @Nullable
+  private static TtmlNode findRubyContainerNode(@Nullable TtmlNode node) {
+    while (node != null) {
+      @Nullable TtmlStyle style = node.style;
+      if (style != null && style.getRubyType() == TtmlStyle.RUBY_TYPE_CONTAINER) {
+        return node;
+      }
+      node = node.parent;
+    }
+    return null;
   }
 
   /**

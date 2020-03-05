@@ -23,12 +23,13 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * A {@link MediaCodecAdapter} that operates the {@link MediaCodec} in asynchronous mode.
  *
- * <p>The AsynchronousMediaCodecAdapter routes callbacks to the current Thread's {@link Looper}
+ * <p>The AsynchronousMediaCodecAdapter routes callbacks to the current thread's {@link Looper}
  * obtained via {@link Looper#myLooper()}
  */
 @RequiresApi(21)
@@ -71,8 +72,9 @@ import com.google.android.exoplayer2.util.Assertions;
 
   @Override
   public void queueSecureInputBuffer(
-      int index, int offset, MediaCodec.CryptoInfo info, long presentationTimeUs, int flags) {
-    codec.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
+      int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
+    codec.queueSecureInputBuffer(
+        index, offset, info.getFrameworkCryptoInfo(), presentationTimeUs, flags);
   }
 
   @Override

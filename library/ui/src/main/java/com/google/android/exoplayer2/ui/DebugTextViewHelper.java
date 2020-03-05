@@ -79,7 +79,13 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
   // Player.EventListener implementation.
 
   @Override
-  public final void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+  public final void onPlaybackStateChanged(@Player.State int playbackState) {
+    updateAndPost();
+  }
+
+  @Override
+  public final void onPlayWhenReadyChanged(
+      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int playbackState) {
     updateAndPost();
   }
 
@@ -151,6 +157,10 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
         + format.height
         + getPixelAspectRatioString(format.pixelWidthHeightRatio)
         + getDecoderCountersBufferCountString(decoderCounters)
+        + " vfpo: "
+        + getVideoFrameProcessingOffsetAverageString(
+            decoderCounters.totalVideoFrameProcessingOffsetUs,
+            decoderCounters.videoFrameProcessingOffsetCount)
         + ")";
   }
 
@@ -191,4 +201,13 @@ public class DebugTextViewHelper implements Player.EventListener, Runnable {
         : (" par:" + String.format(Locale.US, "%.02f", pixelAspectRatio));
   }
 
+  private static String getVideoFrameProcessingOffsetAverageString(
+      long totalOffsetUs, int frameCount) {
+    if (frameCount == 0) {
+      return "N/A";
+    } else {
+      long averageUs = (long) ((double) totalOffsetUs / frameCount);
+      return String.valueOf(averageUs);
+    }
+  }
 }

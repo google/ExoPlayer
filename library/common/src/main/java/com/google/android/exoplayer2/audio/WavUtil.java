@@ -61,6 +61,7 @@ public final class WavUtil {
         return TYPE_PCM;
       case C.ENCODING_PCM_FLOAT:
         return TYPE_FLOAT;
+      case C.ENCODING_PCM_16BIT_BIG_ENDIAN: // Not TYPE_PCM, because TYPE_PCM is little endian.
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:

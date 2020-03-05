@@ -42,7 +42,7 @@ public final class SpliceInfoDecoderTest {
   }
 
   @Test
-  public void testWrappedAroundTimeSignalCommand() {
+  public void wrappedAroundTimeSignalCommand() {
     byte[] rawTimeSignalSection = new byte[] {
         0, // table_id.
         (byte) 0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).

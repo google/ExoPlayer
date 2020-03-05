@@ -27,10 +27,11 @@ import com.google.android.exoplayer2.util.Util;
   @VisibleForTesting
   /* package */ static final long MIN_TIME_BETWEEN_POINTS_US = C.MICROS_PER_SECOND / 10;
 
-  private final long durationUs;
   private final long dataEndPosition;
   private final LongArray timesUs;
   private final LongArray positions;
+
+  private long durationUs;
 
   public IndexSeeker(long durationUs, long dataStartPosition, long dataEndPosition) {
     this.durationUs = durationUs;
@@ -103,5 +104,9 @@ import com.google.android.exoplayer2.util.Util;
   public boolean isTimeUsInIndex(long timeUs) {
     long lastIndexedTimeUs = timesUs.get(timesUs.size() - 1);
     return timeUs - lastIndexedTimeUs < MIN_TIME_BETWEEN_POINTS_US;
+  }
+
+  /* package */ void setDurationUs(long durationUs) {
+    this.durationUs = durationUs;
   }
 }

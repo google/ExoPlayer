@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.text.webvtt;
 import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.graphics.Color;
 import android.text.Spanned;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.span.RubySpan;
@@ -30,7 +31,7 @@ import org.junit.runner.RunWith;
 public final class WebvttCueParserTest {
 
   @Test
-  public void testParseStrictValidClassesAndTrailingTokens() throws Exception {
+  public void parseStrictValidClassesAndTrailingTokens() throws Exception {
     Spanned text = parseCueText("<v.first.loud Esme>"
         + "This <u.style1.style2 some stuff>is</u> text with <b.foo><i.bar>html</i></b> tags");
 
@@ -41,7 +42,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseStrictValidUnsupportedTagsStrippedOut() throws Exception {
+  public void parseStrictValidUnsupportedTagsStrippedOut() throws Exception {
     Spanned text = parseCueText("<v.first.loud Esme>This <unsupported>is</unsupported> text with "
         + "<notsupp><invalid>html</invalid></notsupp> tags");
 
@@ -50,7 +51,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseRubyTag() throws Exception {
+  public void parseRubyTag() throws Exception {
     Spanned text =
         parseCueText("Some <ruby>base text<rt>with ruby</rt></ruby> and undecorated text");
 
@@ -62,7 +63,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseRubyTagWithNoTextTag() throws Exception {
+  public void parseRubyTagWithNoTextTag() throws Exception {
     Spanned text = parseCueText("Some <ruby>base text with no ruby text</ruby>");
 
     assertThat(text.toString()).isEqualTo("Some base text with no ruby text");
@@ -70,7 +71,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseRubyTagWithEmptyTextTag() throws Exception {
+  public void parseRubyTagWithEmptyTextTag() throws Exception {
     Spanned text = parseCueText("Some <ruby>base text with<rt></rt></ruby> empty ruby text");
 
     assertThat(text.toString()).isEqualTo("Some base text with empty ruby text");
@@ -80,7 +81,48 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseWellFormedUnclosedEndAtCueEnd() throws Exception {
+  public void parseDefaultTextColor() throws Exception {
+    Spanned text = parseCueText("In this sentence <c.red>this text</c> is red");
+
+    assertThat(text.toString()).isEqualTo("In this sentence this text is red");
+    assertThat(text)
+        .hasForegroundColorSpanBetween(
+            "In this sentence ".length(), "In this sentence this text".length())
+        .withColor(Color.RED);
+  }
+
+  @Test
+  public void parseUnsupportedDefaultTextColor() throws Exception {
+    Spanned text = parseCueText("In this sentence <c.papayawhip>this text</c> is not papaya");
+
+    assertThat(text.toString()).isEqualTo("In this sentence this text is not papaya");
+    assertThat(text).hasNoSpans();
+  }
+
+  @Test
+  public void parseDefaultBackgroundColor() throws Exception {
+    Spanned text = parseCueText("In this sentence <c.bg_cyan>this text</c> has a cyan background");
+
+    assertThat(text.toString()).isEqualTo("In this sentence this text has a cyan background");
+    assertThat(text)
+        .hasBackgroundColorSpanBetween(
+            "In this sentence ".length(), "In this sentence this text".length())
+        .withColor(Color.CYAN);
+  }
+
+  @Test
+  public void parseUnsupportedDefaultBackgroundColor() throws Exception {
+    Spanned text =
+        parseCueText(
+            "In this sentence <c.bg_papayawhip>this text</c> doesn't have a papaya background");
+
+    assertThat(text.toString())
+        .isEqualTo("In this sentence this text doesn't have a papaya background");
+    assertThat(text).hasNoSpans();
+  }
+
+  @Test
+  public void parseWellFormedUnclosedEndAtCueEnd() throws Exception {
     Spanned text = parseCueText("An <u some trailing stuff>unclosed u tag with "
         + "<i>italic</i> inside");
 
@@ -93,7 +135,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseWellFormedUnclosedEndAtParent() throws Exception {
+  public void parseWellFormedUnclosedEndAtParent() throws Exception {
     Spanned text = parseCueText("An italic tag with unclosed <i><u>underline</i> inside");
 
     assertThat(text.toString()).isEqualTo("An italic tag with unclosed underline inside");
@@ -108,7 +150,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseMalformedNestedElements() throws Exception {
+  public void parseMalformedNestedElements() throws Exception {
     Spanned text = parseCueText("<b><u>Overlapping u <i>and</u> i tags</i></b>");
 
     String expectedText = "Overlapping u and i tags";
@@ -121,7 +163,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseCloseNonExistingTag() throws Exception {
+  public void parseCloseNonExistingTag() throws Exception {
     Spanned text = parseCueText("foo<b>bar</i>baz</b>buzz");
     assertThat(text.toString()).isEqualTo("foobarbazbuzz");
 
@@ -130,49 +172,49 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseEmptyTagName() throws Exception {
+  public void parseEmptyTagName() throws Exception {
     Spanned text = parseCueText("An empty <>tag");
     assertThat(text.toString()).isEqualTo("An empty tag");
   }
 
   @Test
-  public void testParseEntities() throws Exception {
+  public void parseEntities() throws Exception {
     Spanned text = parseCueText("&amp; &gt; &lt; &nbsp;");
     assertThat(text.toString()).isEqualTo("& > <  ");
   }
 
   @Test
-  public void testParseEntitiesUnsupported() throws Exception {
+  public void parseEntitiesUnsupported() throws Exception {
     Spanned text = parseCueText("&noway; &sure;");
     assertThat(text.toString()).isEqualTo(" ");
   }
 
   @Test
-  public void testParseEntitiesNotTerminated() throws Exception {
+  public void parseEntitiesNotTerminated() throws Exception {
     Spanned text = parseCueText("&amp here comes text");
     assertThat(text.toString()).isEqualTo("& here comes text");
   }
 
   @Test
-  public void testParseEntitiesNotTerminatedUnsupported() throws Exception {
+  public void parseEntitiesNotTerminatedUnsupported() throws Exception {
     Spanned text = parseCueText("&surenot here comes text");
     assertThat(text.toString()).isEqualTo(" here comes text");
   }
 
   @Test
-  public void testParseEntitiesNotTerminatedNoSpace() throws Exception {
+  public void parseEntitiesNotTerminatedNoSpace() throws Exception {
     Spanned text = parseCueText("&surenot");
     assertThat(text.toString()).isEqualTo("&surenot");
   }
 
   @Test
-  public void testParseVoidTag() throws Exception {
+  public void parseVoidTag() throws Exception {
     Spanned text = parseCueText("here comes<br/> text<br/>");
     assertThat(text.toString()).isEqualTo("here comes text");
   }
 
   @Test
-  public void testParseMultipleTagsOfSameKind() {
+  public void parseMultipleTagsOfSameKind() {
     Spanned text = parseCueText("blah <b>blah</b> blah <b>foo</b>");
 
     assertThat(text.toString()).isEqualTo("blah blah blah foo");
@@ -181,7 +223,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseInvalidVoidSlash() {
+  public void parseInvalidVoidSlash() {
     Spanned text = parseCueText("blah <b/.st1.st2 trailing stuff> blah");
 
     assertThat(text.toString()).isEqualTo("blah  blah");
@@ -189,7 +231,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseMonkey() throws Exception {
+  public void parseMonkey() throws Exception {
     Spanned text = parseCueText("< u>An unclosed u tag with <<<<< i>italic</u></u></u></u    >"
         + "</i><u><u> inside");
     assertThat(text.toString()).isEqualTo("An unclosed u tag with italic inside");
@@ -199,7 +241,7 @@ public final class WebvttCueParserTest {
   }
 
   @Test
-  public void testParseCornerCases() throws Exception {
+  public void parseCornerCases() throws Exception {
     Spanned text = parseCueText(">");
     assertThat(text.toString()).isEqualTo(">");
 

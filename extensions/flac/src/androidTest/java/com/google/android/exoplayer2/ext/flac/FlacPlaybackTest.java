@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -41,8 +42,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class FlacPlaybackTest {
 
-  private static final String BEAR_FLAC_16BIT = "bear-flac-16bit.mka";
-  private static final String BEAR_FLAC_24BIT = "bear-flac-24bit.mka";
+  private static final String BEAR_FLAC_16BIT = "mka/bear-flac-16bit.mka";
+  private static final String BEAR_FLAC_24BIT = "mka/bear-flac-24bit.mka";
 
   @Before
   public void setUp() {
@@ -88,8 +89,8 @@ public class FlacPlaybackTest {
     private final Uri uri;
     private final AudioSink audioSink;
 
-    private ExoPlayer player;
-    private ExoPlaybackException playbackException;
+    @Nullable private ExoPlayer player;
+    @Nullable private ExoPlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context, AudioSink audioSink) {
       this.uri = uri;
@@ -121,7 +122,7 @@ public class FlacPlaybackTest {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       if (playbackState == Player.STATE_ENDED
           || (playbackState == Player.STATE_IDLE && playbackException != null)) {
         player.release();

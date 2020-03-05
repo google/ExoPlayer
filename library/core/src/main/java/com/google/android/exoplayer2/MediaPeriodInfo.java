@@ -53,6 +53,8 @@ import com.google.android.exoplayer2.util.Util;
    * period corresponding to a timeline period without ads).
    */
   public final boolean isLastInTimelinePeriod;
+  /** Whether this is the last media period in its timeline window. */
+  public final boolean isLastInTimelineWindow;
   /**
    * Whether this is the last media period in the entire timeline. If true, {@link
    * #isLastInTimelinePeriod} will also be true.
@@ -66,6 +68,7 @@ import com.google.android.exoplayer2.util.Util;
       long endPositionUs,
       long durationUs,
       boolean isLastInTimelinePeriod,
+      boolean isLastInTimelineWindow,
       boolean isFinal) {
     this.id = id;
     this.startPositionUs = startPositionUs;
@@ -73,6 +76,7 @@ import com.google.android.exoplayer2.util.Util;
     this.endPositionUs = endPositionUs;
     this.durationUs = durationUs;
     this.isLastInTimelinePeriod = isLastInTimelinePeriod;
+    this.isLastInTimelineWindow = isLastInTimelineWindow;
     this.isFinal = isFinal;
   }
 
@@ -90,6 +94,7 @@ import com.google.android.exoplayer2.util.Util;
             endPositionUs,
             durationUs,
             isLastInTimelinePeriod,
+            isLastInTimelineWindow,
             isFinal);
   }
 
@@ -107,6 +112,7 @@ import com.google.android.exoplayer2.util.Util;
             endPositionUs,
             durationUs,
             isLastInTimelinePeriod,
+            isLastInTimelineWindow,
             isFinal);
   }
 
@@ -124,6 +130,7 @@ import com.google.android.exoplayer2.util.Util;
         && endPositionUs == that.endPositionUs
         && durationUs == that.durationUs
         && isLastInTimelinePeriod == that.isLastInTimelinePeriod
+        && isLastInTimelineWindow == that.isLastInTimelineWindow
         && isFinal == that.isFinal
         && Util.areEqual(id, that.id);
   }
@@ -137,6 +144,7 @@ import com.google.android.exoplayer2.util.Util;
     result = 31 * result + (int) endPositionUs;
     result = 31 * result + (int) durationUs;
     result = 31 * result + (isLastInTimelinePeriod ? 1 : 0);
+    result = 31 * result + (isLastInTimelineWindow ? 1 : 0);
     result = 31 * result + (isFinal ? 1 : 0);
     return result;
   }

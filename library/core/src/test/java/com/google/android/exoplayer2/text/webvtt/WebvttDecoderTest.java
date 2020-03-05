@@ -57,7 +57,7 @@ public class WebvttDecoderTest {
   @Rule public final Expect expect = Expect.create();
 
   @Test
-  public void testDecodeEmpty() throws IOException {
+  public void decodeEmpty() throws IOException {
     WebvttDecoder decoder = new WebvttDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_FILE);
     try {
@@ -69,7 +69,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeTypical() throws Exception {
+  public void decodeTypical() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -86,7 +86,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeWithBom() throws Exception {
+  public void decodeWithBom() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_BOM);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -103,7 +103,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithBadTimestamps() throws Exception {
+  public void decodeTypicalWithBadTimestamps() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_BAD_TIMESTAMPS);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -120,7 +120,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithIds() throws Exception {
+  public void decodeTypicalWithIds() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_IDS_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -137,7 +137,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithComments() throws Exception {
+  public void decodeTypicalWithComments() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(TYPICAL_WITH_COMMENTS_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -154,7 +154,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeWithTags() throws Exception {
+  public void decodeWithTags() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_TAGS_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(8);
@@ -181,7 +181,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeWithPositioning() throws Exception {
+  public void decodeWithPositioning() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_POSITIONING_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
@@ -249,7 +249,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeWithVertical() throws Exception {
+  public void decodeWithVertical() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_VERTICAL_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -274,7 +274,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testDecodeWithBadCueHeader() throws Exception {
+  public void decodeWithBadCueHeader() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_BAD_CUE_HEADER_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -291,7 +291,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testWebvttWithCssStyle() throws Exception {
+  public void webvttWithCssStyle() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_STYLES);
 
     Spanned firstCueText = getUniqueSpanTextAt(subtitle, 0);
@@ -323,7 +323,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testWithComplexCssSelectors() throws Exception {
+  public void withComplexCssSelectors() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_COMPLEX_SELECTORS);
     Spanned firstCueText = getUniqueSpanTextAt(subtitle, /* timeUs= */ 0);
     assertThat(firstCueText).hasUnderlineSpanBetween(0, firstCueText.length());
@@ -362,7 +362,7 @@ public class WebvttDecoderTest {
   }
 
   @Test
-  public void testWebvttWithCssTextCombineUpright() throws Exception {
+  public void webvttWithCssTextCombineUpright() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_CSS_TEXT_COMBINE_UPRIGHT);
 
     Spanned firstCueText = getUniqueSpanTextAt(subtitle, 500_000);

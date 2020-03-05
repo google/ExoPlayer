@@ -47,4 +47,9 @@ public final class Mp4ExtractorTest {
   public void testMp4SampleWithAc4Track() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_ac4.mp4");
   }
+
+  @Test
+  public void testMp4SampleWithEac3Track() throws Exception {
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_eac3.mp4");
+  }
 }

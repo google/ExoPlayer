@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.DataReader;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +64,7 @@ import java.io.InputStream;
  *       (regardless of {@code allowEndOfInput}).
  * </ul>
  */
-public interface ExtractorInput {
+public interface ExtractorInput extends DataReader {
 
   /**
    * Reads up to {@code length} bytes from the input and resets the peek position.

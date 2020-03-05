@@ -34,7 +34,7 @@ public class TimedValueQueueTest {
   }
 
   @Test
-  public void testAddAndPollValues() {
+  public void addAndPollValues() {
     queue.add(0, "a");
     queue.add(1, "b");
     queue.add(2, "c");
@@ -44,7 +44,7 @@ public class TimedValueQueueTest {
   }
 
   @Test
-  public void testBufferCapacityIncreasesAutomatically() {
+  public void bufferCapacityIncreasesAutomatically() {
     queue = new TimedValueQueue<>(1);
     for (int i = 0; i < 20; i++) {
       queue.add(i, "" + i);
@@ -56,7 +56,7 @@ public class TimedValueQueueTest {
   }
 
   @Test
-  public void testTimeDiscontinuityClearsValues() {
+  public void timeDiscontinuityClearsValues() {
     queue.add(1, "b");
     queue.add(2, "c");
     queue.add(0, "a");
@@ -65,7 +65,7 @@ public class TimedValueQueueTest {
   }
 
   @Test
-  public void testTimeDiscontinuityOnFullBufferClearsValues() {
+  public void timeDiscontinuityOnFullBufferClearsValues() {
     queue = new TimedValueQueue<>(2);
     queue.add(1, "b");
     queue.add(3, "c");
@@ -75,7 +75,7 @@ public class TimedValueQueueTest {
   }
 
   @Test
-  public void testPollReturnsClosestValue() {
+  public void pollReturnsClosestValue() {
     queue.add(0, "a");
     queue.add(3, "b");
     assertThat(queue.poll(2)).isEqualTo("b");
@@ -83,7 +83,7 @@ public class TimedValueQueueTest {
   }
 
   @Test
-  public void testPollRemovesPreviousValues() {
+  public void pollRemovesPreviousValues() {
     queue.add(0, "a");
     queue.add(1, "b");
     queue.add(2, "c");
@@ -92,7 +92,7 @@ public class TimedValueQueueTest {
   }
 
   @Test
-  public void testPollFloorReturnsClosestPreviousValue() {
+  public void pollFloorReturnsClosestPreviousValue() {
     queue.add(0, "a");
     queue.add(3, "b");
     assertThat(queue.pollFloor(2)).isEqualTo("a");
@@ -102,7 +102,7 @@ public class TimedValueQueueTest {
   }
 
   @Test
-  public void testPollFloorRemovesPreviousValues() {
+  public void pollFloorRemovesPreviousValues() {
     queue.add(0, "a");
     queue.add(1, "b");
     queue.add(2, "c");

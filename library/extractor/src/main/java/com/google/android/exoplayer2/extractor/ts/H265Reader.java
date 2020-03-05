@@ -233,10 +233,10 @@ public final class H265Reader implements ElementaryStreamReader {
       NalUnitTargetBuffer sps,
       NalUnitTargetBuffer pps) {
     // Build codec-specific data.
-    byte[] csd = new byte[vps.nalLength + sps.nalLength + pps.nalLength];
-    System.arraycopy(vps.nalData, 0, csd, 0, vps.nalLength);
-    System.arraycopy(sps.nalData, 0, csd, vps.nalLength, sps.nalLength);
-    System.arraycopy(pps.nalData, 0, csd, vps.nalLength + sps.nalLength, pps.nalLength);
+    byte[] csdData = new byte[vps.nalLength + sps.nalLength + pps.nalLength];
+    System.arraycopy(vps.nalData, 0, csdData, 0, vps.nalLength);
+    System.arraycopy(sps.nalData, 0, csdData, vps.nalLength, sps.nalLength);
+    System.arraycopy(pps.nalData, 0, csdData, vps.nalLength + sps.nalLength, pps.nalLength);
 
     // Parse the SPS NAL unit, as per H.265/HEVC (2014) 7.3.2.2.1.
     ParsableNalUnitBitArray bitArray = new ParsableNalUnitBitArray(sps.nalData, 0, sps.nalLength);
@@ -336,9 +336,14 @@ public final class H265Reader implements ElementaryStreamReader {
       }
     }
 
-    return Format.createVideoSampleFormat(formatId, MimeTypes.VIDEO_H265, null, Format.NO_VALUE,
-        Format.NO_VALUE, picWidthInLumaSamples, picHeightInLumaSamples, Format.NO_VALUE,
-        Collections.singletonList(csd), Format.NO_VALUE, pixelWidthHeightRatio, null);
+    return new Format.Builder()
+        .setId(formatId)
+        .setSampleMimeType(MimeTypes.VIDEO_H265)
+        .setWidth(picWidthInLumaSamples)
+        .setHeight(picHeightInLumaSamples)
+        .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+        .setInitializationData(Collections.singletonList(csdData))
+        .build();
   }
 
   /**

@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,18 +42,11 @@ public class FlacExtractorSeekTest {
   private static final String TEST_FILE_UNSEEKABLE = "flac/bear_no_seek_table_no_num_samples.flac";
   private static final int DURATION_US = 2_741_000;
 
-  private FlacExtractor extractor;
-  private FakeExtractorOutput extractorOutput;
-  private DefaultDataSource dataSource;
-
-  @Before
-  public void setUp() throws Exception {
-    extractor = new FlacExtractor();
-    extractorOutput = new FakeExtractorOutput();
-    dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
-            .createDataSource();
-  }
+  private FlacExtractor extractor = new FlacExtractor();
+  private FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
+  private DefaultDataSource dataSource =
+      new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+          .createDataSource();
 
   @Test
   public void flacExtractorReads_seekTable_returnSeekableSeekMap()

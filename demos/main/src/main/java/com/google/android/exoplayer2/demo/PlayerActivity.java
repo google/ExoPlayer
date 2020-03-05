@@ -298,7 +298,7 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   @Override
-  public void onSaveInstanceState(Bundle outState) {
+  public void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
     updateTrackSelectorParameters();
     updateStartPosition();
@@ -442,11 +442,11 @@ public class PlayerActivity extends AppCompatActivity
           return Collections.emptyList();
         }
         Format subtitleFormat =
-            Format.createTextSampleFormat(
-                /* id= */ null,
-                subtitleInfo.mimeType,
-                C.SELECTION_FLAG_DEFAULT,
-                subtitleInfo.language);
+            new Format.Builder()
+                .setSampleMimeType(subtitleInfo.mimeType)
+                .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                .setLanguage(subtitleInfo.language)
+                .build();
         MediaSource subtitleMediaSource =
             new SingleSampleMediaSource.Factory(dataSourceFactory)
                 .createMediaSource(subtitleInfo.uri, subtitleFormat, C.TIME_UNSET);
@@ -628,13 +628,15 @@ public class PlayerActivity extends AppCompatActivity
                 DrmSessionManager.getDummyDrmSessionManager();
 
             @Override
+            @NonNull
             public MediaSourceFactory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
               this.drmSessionManager = drmSessionManager;
               return this;
             }
 
             @Override
-            public MediaSource createMediaSource(Uri uri) {
+            @NonNull
+            public MediaSource createMediaSource(@NonNull Uri uri) {
               return PlayerActivity.this.createLeafMediaSource(
                   uri, /* extension=*/ null, drmSessionManager);
             }
@@ -689,7 +691,7 @@ public class PlayerActivity extends AppCompatActivity
   private class PlayerEventListener implements Player.EventListener {
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       if (playbackState == Player.STATE_ENDED) {
         showControls();
       }
@@ -697,7 +699,7 @@ public class PlayerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPlayerError(ExoPlaybackException e) {
+    public void onPlayerError(@NonNull ExoPlaybackException e) {
       if (isBehindLiveWindow(e)) {
         clearStartPosition();
         initializePlayer();
@@ -709,7 +711,8 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     @SuppressWarnings("ReferenceEquality")
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    public void onTracksChanged(
+        @NonNull TrackGroupArray trackGroups, @NonNull TrackSelectionArray trackSelections) {
       updateButtonVisibility();
       if (trackGroups != lastSeenTrackGroupArray) {
         MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
@@ -731,7 +734,8 @@ public class PlayerActivity extends AppCompatActivity
   private class PlayerErrorMessageProvider implements ErrorMessageProvider<ExoPlaybackException> {
 
     @Override
-    public Pair<Integer, String> getErrorMessage(ExoPlaybackException e) {
+    @NonNull
+    public Pair<Integer, String> getErrorMessage(@NonNull ExoPlaybackException e) {
       String errorString = getString(R.string.error_generic);
       if (e.type == ExoPlaybackException.TYPE_RENDERER) {
         Exception cause = e.getRendererException();

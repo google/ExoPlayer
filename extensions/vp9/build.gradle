@@ -29,9 +29,12 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
-    sourceSets.main {
-        jniLibs.srcDir 'src/main/libs'
-        jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
+    sourceSets {
+        main {
+            jniLibs.srcDir 'src/main/libs'
+            jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
+        }
+        androidTest.assets.srcDir '../../testdata/src/test/assets/'
     }
 
     testOptions.unitTests.includeAndroidResources = true

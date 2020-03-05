@@ -228,12 +228,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   }
 
   protected static DataSpec getCompressibleDataSpec(Uri uri) {
-    return new DataSpec(
-        uri,
-        /* absoluteStreamPosition= */ 0,
-        /* length= */ C.LENGTH_UNSET,
-        /* key= */ null,
-        /* flags= */ DataSpec.FLAG_ALLOW_GZIP);
+    return new DataSpec.Builder().setUri(uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
   }
 
   private static void mergeSegments(List<Segment> segments, CacheKeyFactory keyFactory) {
@@ -267,7 +262,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private static boolean canMergeSegments(DataSpec dataSpec1, DataSpec dataSpec2) {
     return dataSpec1.uri.equals(dataSpec2.uri)
         && dataSpec1.length != C.LENGTH_UNSET
-        && (dataSpec1.absoluteStreamPosition + dataSpec1.length == dataSpec2.absoluteStreamPosition)
+        && (dataSpec1.position + dataSpec1.length == dataSpec2.position)
         && Util.areEqual(dataSpec1.key, dataSpec2.key)
         && dataSpec1.flags == dataSpec2.flags
         && dataSpec1.httpMethod == dataSpec2.httpMethod

@@ -32,8 +32,12 @@ public final class FakeTimeline extends Timeline {
    */
   public static final class TimelineWindowDefinition {
 
-    /** Default test window duration in microseconds. */
+    /** Default window duration in microseconds. */
     public static final long DEFAULT_WINDOW_DURATION_US = 10 * C.MICROS_PER_SECOND;
+
+    /** Default offset of a window in its first period in microseconds. */
+    public static final long DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US =
+        10_000 * C.MICROS_PER_SECOND;
 
     public final int periodCount;
     public final Object id;
@@ -42,6 +46,8 @@ public final class FakeTimeline extends Timeline {
     public final boolean isLive;
     public final boolean isPlaceholder;
     public final long durationUs;
+    public final long defaultPositionUs;
+    public final long windowOffsetInFirstPeriodUs;
     public final AdPlaybackState adPlaybackState;
 
     /**
@@ -59,6 +65,8 @@ public final class FakeTimeline extends Timeline {
           /* isLive= */ false,
           /* isPlaceholder= */ true,
           /* durationUs= */ C.TIME_UNSET,
+          /* defaultPositionUs= */ 0,
+          /* windowOffsetInFirstPeriodUs= */ 0,
           AdPlaybackState.NONE);
     }
 
@@ -126,6 +134,8 @@ public final class FakeTimeline extends Timeline {
           /* isLive= */ isDynamic,
           /* isPlaceholder= */ false,
           durationUs,
+          /* defaultPositionUs= */ 0,
+          DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
           adPlaybackState);
     }
 
@@ -140,6 +150,9 @@ public final class FakeTimeline extends Timeline {
      * @param isLive Whether the window is live.
      * @param isPlaceholder Whether the window is a placeholder.
      * @param durationUs The duration of the window in microseconds.
+     * @param defaultPositionUs The default position of the window in microseconds.
+     * @param windowOffsetInFirstPeriodUs The offset of the window in the first period, in
+     *     microseconds.
      * @param adPlaybackState The ad playback state.
      */
     public TimelineWindowDefinition(
@@ -150,7 +163,10 @@ public final class FakeTimeline extends Timeline {
         boolean isLive,
         boolean isPlaceholder,
         long durationUs,
+        long defaultPositionUs,
+        long windowOffsetInFirstPeriodUs,
         AdPlaybackState adPlaybackState) {
+      Assertions.checkArgument(durationUs != C.TIME_UNSET || periodCount == 1);
       this.periodCount = periodCount;
       this.id = id;
       this.isSeekable = isSeekable;
@@ -158,6 +174,8 @@ public final class FakeTimeline extends Timeline {
       this.isLive = isLive;
       this.isPlaceholder = isPlaceholder;
       this.durationUs = durationUs;
+      this.defaultPositionUs = defaultPositionUs;
+      this.windowOffsetInFirstPeriodUs = windowOffsetInFirstPeriodUs;
       this.adPlaybackState = adPlaybackState;
     }
   }
@@ -252,11 +270,11 @@ public final class FakeTimeline extends Timeline {
         windowDefinition.isSeekable,
         windowDefinition.isDynamic,
         windowDefinition.isLive,
-        /* defaultPositionUs= */ 0,
+        windowDefinition.defaultPositionUs,
         windowDefinition.durationUs,
         periodOffsets[windowIndex],
         periodOffsets[windowIndex + 1] - 1,
-        /* positionInFirstPeriodUs= */ 0);
+        windowDefinition.windowOffsetInFirstPeriodUs);
     window.isPlaceholder = windowDefinition.isPlaceholder;
     return window;
   }
@@ -273,8 +291,20 @@ public final class FakeTimeline extends Timeline {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
     Object id = setIds ? windowPeriodIndex : null;
     Object uid = setIds ? Pair.create(windowDefinition.id, windowPeriodIndex) : null;
-    long periodDurationUs = windowDefinition.durationUs / windowDefinition.periodCount;
-    long positionInWindowUs = periodDurationUs * windowPeriodIndex;
+    // Arbitrarily set period duration by distributing window duration equally among all periods.
+    long periodDurationUs =
+        windowDefinition.durationUs == C.TIME_UNSET
+            ? C.TIME_UNSET
+            : windowDefinition.durationUs / windowDefinition.periodCount;
+    long positionInWindowUs;
+    if (windowPeriodIndex == 0) {
+      if (windowDefinition.durationUs != C.TIME_UNSET) {
+        periodDurationUs += windowDefinition.windowOffsetInFirstPeriodUs;
+      }
+      positionInWindowUs = -windowDefinition.windowOffsetInFirstPeriodUs;
+    } else {
+      positionInWindowUs = periodDurationUs * windowPeriodIndex;
+    }
     return period.set(
         id,
         uid,

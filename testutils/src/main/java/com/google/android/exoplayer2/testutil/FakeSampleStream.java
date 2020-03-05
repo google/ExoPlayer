@@ -91,7 +91,7 @@ public final class FakeSampleStream implements SampleStream {
   @Nullable private final EventDispatcher eventDispatcher;
 
   private Format format;
-  private int timeUs;
+  private long timeUs;
   private boolean readFormat;
   private boolean readEOSBuffer;
 
@@ -108,6 +108,7 @@ public final class FakeSampleStream implements SampleStream {
     this(
         format,
         eventDispatcher,
+        /* firstSampleTimeUs= */ 0,
         /* timeUsIncrement= */ 0,
         shouldOutputSample
             ? SINGLE_SAMPLE_THEN_END_OF_STREAM
@@ -120,6 +121,7 @@ public final class FakeSampleStream implements SampleStream {
    *
    * @param format The {@link Format} to output.
    * @param eventDispatcher An {@link EventDispatcher} to notify of read events.
+   * @param firstSampleTimeUs The time at which samples will start being output, in microseconds.
    * @param timeUsIncrement The time each sample should increase by, in microseconds.
    * @param fakeSampleStreamItems The {@link FakeSampleStreamItem items} to customize the return
    *     values of {@link #readData(FormatHolder, DecoderInputBuffer, boolean)}. Note that once an
@@ -128,11 +130,13 @@ public final class FakeSampleStream implements SampleStream {
   public FakeSampleStream(
       Format format,
       @Nullable EventDispatcher eventDispatcher,
+      long firstSampleTimeUs,
       int timeUsIncrement,
       FakeSampleStreamItem... fakeSampleStreamItems) {
     this.format = format;
     this.eventDispatcher = eventDispatcher;
     this.fakeSampleStreamItems = new ArrayDeque<>(Arrays.asList(fakeSampleStreamItems));
+    this.timeUs = firstSampleTimeUs;
     this.timeUsIncrement = timeUsIncrement;
   }
 
@@ -142,7 +146,7 @@ public final class FakeSampleStream implements SampleStream {
    * @param timeUs The time at which samples will start being output, in microseconds.
    * @param fakeSampleStreamItems The {@link FakeSampleStreamItem items} to provide.
    */
-  public void resetSampleStreamItems(int timeUs, FakeSampleStreamItem... fakeSampleStreamItems) {
+  public void resetSampleStreamItems(long timeUs, FakeSampleStreamItem... fakeSampleStreamItems) {
     this.fakeSampleStreamItems.clear();
     this.fakeSampleStreamItems.addAll(Arrays.asList(fakeSampleStreamItems));
     this.timeUs = timeUs;

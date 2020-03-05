@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.Log;
@@ -537,6 +538,40 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               break;
           }
           break;
+        case TtmlNode.ATTR_TTS_RUBY:
+          switch (Util.toLowerInvariant(attributeValue)) {
+            case TtmlNode.RUBY_CONTAINER:
+              style = createIfNull(style).setRubyType(TtmlStyle.RUBY_TYPE_CONTAINER);
+              break;
+            case TtmlNode.RUBY_BASE:
+            case TtmlNode.RUBY_BASE_CONTAINER:
+              style = createIfNull(style).setRubyType(TtmlStyle.RUBY_TYPE_BASE);
+              break;
+            case TtmlNode.RUBY_TEXT:
+            case TtmlNode.RUBY_TEXT_CONTAINER:
+              style = createIfNull(style).setRubyType(TtmlStyle.RUBY_TYPE_TEXT);
+              break;
+            case TtmlNode.RUBY_DELIMITER:
+              style = createIfNull(style).setRubyType(TtmlStyle.RUBY_TYPE_DELIMITER);
+              break;
+            default:
+              // ignore
+              break;
+          }
+          break;
+        case TtmlNode.ATTR_TTS_RUBY_POSITION:
+          switch (Util.toLowerInvariant(attributeValue)) {
+            case TtmlNode.RUBY_BEFORE:
+              style = createIfNull(style).setRubyPosition(RubySpan.POSITION_OVER);
+              break;
+            case TtmlNode.RUBY_AFTER:
+              style = createIfNull(style).setRubyPosition(RubySpan.POSITION_UNDER);
+              break;
+            default:
+              // ignore
+              break;
+          }
+          break;
         case TtmlNode.ATTR_TTS_TEXT_DECORATION:
           switch (Util.toLowerInvariant(attributeValue)) {
             case TtmlNode.LINETHROUGH:
@@ -650,8 +685,9 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         endTime = parent.endTimeUs;
       }
     }
+
     return TtmlNode.buildNode(
-        parser.getName(), startTime, endTime, style, styleIds, regionId, imageId);
+        parser.getName(), startTime, endTime, style, styleIds, regionId, imageId, parent);
   }
 
   private static boolean isSupportedTag(String tag) {

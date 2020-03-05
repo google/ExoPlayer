@@ -61,15 +61,12 @@ public final class DvbSubtitleReader implements ElementaryStreamReader {
       idGenerator.generateNewId();
       TrackOutput output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_TEXT);
       output.format(
-          Format.createImageSampleFormat(
-              idGenerator.getFormatId(),
-              MimeTypes.APPLICATION_DVBSUBS,
-              /* codecs= */ null,
-              Format.NO_VALUE,
-              /* selectionFlags= */ 0,
-              Collections.singletonList(subtitleInfo.initializationData),
-              subtitleInfo.language,
-              /* drmInitData= */ null));
+          new Format.Builder()
+              .setId(idGenerator.getFormatId())
+              .setSampleMimeType(MimeTypes.APPLICATION_DVBSUBS)
+              .setInitializationData(Collections.singletonList(subtitleInfo.initializationData))
+              .setLanguage(subtitleInfo.language)
+              .build());
       outputs[i] = output;
     }
   }

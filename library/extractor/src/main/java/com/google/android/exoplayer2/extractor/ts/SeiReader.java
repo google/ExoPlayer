@@ -52,17 +52,14 @@ public final class SeiReader {
           "Invalid closed caption mime type provided: " + channelMimeType);
       String formatId = channelFormat.id != null ? channelFormat.id : idGenerator.getFormatId();
       output.format(
-          Format.createTextSampleFormat(
-              formatId,
-              channelMimeType,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              channelFormat.selectionFlags,
-              channelFormat.language,
-              channelFormat.accessibilityChannel,
-              /* drmInitData= */ null,
-              Format.OFFSET_SAMPLE_RELATIVE,
-              channelFormat.initializationData));
+          new Format.Builder()
+              .setId(formatId)
+              .setSampleMimeType(channelMimeType)
+              .setSelectionFlags(channelFormat.selectionFlags)
+              .setLanguage(channelFormat.language)
+              .setAccessibilityChannel(channelFormat.accessibilityChannel)
+              .setInitializationData(channelFormat.initializationData)
+              .build());
       outputs[i] = output;
     }
   }

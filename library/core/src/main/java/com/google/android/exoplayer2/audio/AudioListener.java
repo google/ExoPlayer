@@ -38,4 +38,11 @@ public interface AudioListener {
    * @param volume The new volume, with 0 being silence and 1 being unity gain.
    */
   default void onVolumeChanged(float volume) {}
+
+  /**
+   * Called when skipping silences is enabled or disabled in the audio stream.
+   *
+   * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+   */
+  default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
 }

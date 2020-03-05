@@ -1,0 +1,109 @@
+seekMap:
+  isSeekable = false
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=0]]
+numberOfTracks = 2
+track 330:
+  total output bytes = 9928
+  sample count = 19
+  format 0:
+    id = 1031/330
+    sampleMimeType = audio/eac3
+    channelCount = 2
+    sampleRate = 48000
+    language = fr
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 512, hash E47547D4
+  sample 1:
+    time = 32000
+    flags = 1
+    data = length 512, hash F6A537AC
+  sample 2:
+    time = 64000
+    flags = 1
+    data = length 512, hash 97391682
+  sample 3:
+    time = 96000
+    flags = 1
+    data = length 512, hash CFD3B665
+  sample 4:
+    time = 128000
+    flags = 1
+    data = length 512, hash 2E79A3AF
+  sample 5:
+    time = 160000
+    flags = 1
+    data = length 512, hash 2C24E2A3
+  sample 6:
+    time = 192000
+    flags = 1
+    data = length 512, hash 5BCB9661
+  sample 7:
+    time = 224000
+    flags = 1
+    data = length 512, hash 943ACBF2
+  sample 8:
+    time = 256000
+    flags = 1
+    data = length 512, hash B248E943
+  sample 9:
+    time = 288000
+    flags = 1
+    data = length 512, hash EC2DD86F
+  sample 10:
+    time = 320000
+    flags = 1
+    data = length 512, hash A659332F
+  sample 11:
+    time = 352000
+    flags = 1
+    data = length 512, hash CB641607
+  sample 12:
+    time = 384000
+    flags = 1
+    data = length 512, hash 157489A0
+  sample 13:
+    time = 416000
+    flags = 1
+    data = length 512, hash A37CB66E
+  sample 14:
+    time = 448000
+    flags = 1
+    data = length 512, hash 932F07D4
+  sample 15:
+    time = 480000
+    flags = 1
+    data = length 512, hash 91F50161
+  sample 16:
+    time = 512000
+    flags = 1
+    data = length 512, hash 7F9D6CCB
+  sample 17:
+    time = 544000
+    flags = 1
+    data = length 512, hash 3955F015
+  sample 18:
+    time = 576000
+    flags = 1
+    data = length 512, hash A8E5C938
+track 370:
+  total output bytes = 1413
+  sample count = 3
+  format 0:
+    sampleMimeType = application/vnd.dvb.ait
+    subsampleOffsetUs = -43622564033
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 471, hash B189052F
+  sample 1:
+    time = 192000
+    flags = 1
+    data = length 471, hash B189052F
+  sample 2:
+    time = 384000
+    flags = 1
+    data = length 471, hash B189052F
+tracksEnded = true

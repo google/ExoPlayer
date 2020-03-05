@@ -15,17 +15,16 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
@@ -141,7 +140,10 @@ public final class AdtsReader implements ElementaryStreamReader {
       idGenerator.generateNewId();
       id3Output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
       id3Output.format(
-          Format.createSampleFormat(idGenerator.getFormatId(), MimeTypes.APPLICATION_ID3));
+          new Format.Builder()
+              .setId(idGenerator.getFormatId())
+              .setSampleMimeType(MimeTypes.APPLICATION_ID3)
+              .build());
     } else {
       id3Output = new DummyTrackOutput();
     }
@@ -467,14 +469,19 @@ public final class AdtsReader implements ElementaryStreamReader {
       int channelConfig = adtsScratch.readBits(3);
 
       byte[] audioSpecificConfig =
-          CodecSpecificDataUtil.buildAacAudioSpecificConfig(
+          AacUtil.buildAudioSpecificConfig(
               audioObjectType, firstFrameSampleRateIndex, channelConfig);
-      Pair<Integer, Integer> audioParams = CodecSpecificDataUtil.parseAacAudioSpecificConfig(
-          audioSpecificConfig);
-
-      Format format = Format.createAudioSampleFormat(formatId, MimeTypes.AUDIO_AAC, null,
-          Format.NO_VALUE, Format.NO_VALUE, audioParams.second, audioParams.first,
-          Collections.singletonList(audioSpecificConfig), null, 0, language);
+      AacUtil.Config aacConfig = AacUtil.parseAudioSpecificConfig(audioSpecificConfig);
+      Format format =
+          new Format.Builder()
+              .setId(formatId)
+              .setSampleMimeType(MimeTypes.AUDIO_AAC)
+              .setCodecs(aacConfig.codecs)
+              .setChannelCount(aacConfig.channelCount)
+              .setSampleRate(aacConfig.sampleRateHz)
+              .setInitializationData(Collections.singletonList(audioSpecificConfig))
+              .setLanguage(language)
+              .build();
       // In this class a sample is an access unit, but the MediaFormat sample rate specifies the
       // number of PCM audio samples per second.
       sampleDurationUs = (C.MICROS_PER_SECOND * 1024) / format.sampleRate;

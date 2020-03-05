@@ -49,6 +49,7 @@ public class FakeRenderer extends BaseRenderer {
 
   private long playbackPositionUs;
   private long lastSamplePositionUs;
+  private boolean hasPendingBuffer;
 
   public boolean isEnded;
   public int positionResetCount;
@@ -67,6 +68,7 @@ public class FakeRenderer extends BaseRenderer {
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     playbackPositionUs = positionUs;
     lastSamplePositionUs = Long.MIN_VALUE;
+    hasPendingBuffer = false;
     positionResetCount++;
     isEnded = false;
   }
@@ -77,32 +79,40 @@ public class FakeRenderer extends BaseRenderer {
       return;
     }
     playbackPositionUs = positionUs;
-    while (lastSamplePositionUs < positionUs + SOURCE_READAHEAD_US) {
-      FormatHolder formatHolder = getFormatHolder();
-      buffer.clear();
-      int result = readSource(formatHolder, buffer, false);
-      if (result == C.RESULT_FORMAT_READ) {
-        formatReadCount++;
-        assertThat(expectedFormats).contains(formatHolder.format);
-        onFormatChanged(Assertions.checkNotNull(formatHolder.format));
-      } else if (result == C.RESULT_BUFFER_READ) {
-        if (buffer.isEndOfStream()) {
-          isEnded = true;
+    while (true) {
+      if (!hasPendingBuffer) {
+        FormatHolder formatHolder = getFormatHolder();
+        buffer.clear();
+        int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
+        if (result == C.RESULT_FORMAT_READ) {
+          formatReadCount++;
+          assertThat(expectedFormats).contains(formatHolder.format);
+          onFormatChanged(Assertions.checkNotNull(formatHolder.format));
+        } else if (result == C.RESULT_BUFFER_READ) {
+          if (buffer.isEndOfStream()) {
+            isEnded = true;
+            return;
+          }
+          hasPendingBuffer = true;
+        } else {
+          Assertions.checkState(result == C.RESULT_NOTHING_READ);
+          return;
+        }
+      }
+      if (hasPendingBuffer) {
+        if (!shouldProcessBuffer(buffer.timeUs, positionUs)) {
           return;
         }
         lastSamplePositionUs = buffer.timeUs;
         sampleBufferReadCount++;
-        onBufferRead();
-      } else {
-        Assertions.checkState(result == C.RESULT_NOTHING_READ);
-        return;
+        hasPendingBuffer = false;
       }
     }
   }
 
   @Override
   public boolean isReady() {
-    return lastSamplePositionUs >= playbackPositionUs || isSourceReady();
+    return lastSamplePositionUs >= playbackPositionUs || hasPendingBuffer || isSourceReady();
   }
 
   @Override
@@ -121,6 +131,14 @@ public class FakeRenderer extends BaseRenderer {
   /** Called when the renderer reads a new format. */
   protected void onFormatChanged(Format format) {}
 
-  /** Called when the renderer read a sample from the buffer. */
-  protected void onBufferRead() {}
+  /**
+   * Called before the renderer processes a buffer.
+   *
+   * @param bufferTimeUs The buffer timestamp, in microseconds.
+   * @param playbackPositionUs The playback position, in microseconds
+   * @return Whether the buffer should be processed.
+   */
+  protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
+    return bufferTimeUs < playbackPositionUs + SOURCE_READAHEAD_US;
+  }
 }

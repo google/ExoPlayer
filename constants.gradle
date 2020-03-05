@@ -1,4 +1,4 @@
-// Copyright (C) 2017 The Android Open Source Project
+// Copyright 2017 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.11.2'
-    releaseVersionCode = 2011002
+    releaseVersion = '2.11.3'
+    releaseVersionCode = 2011003
     minSdkVersion = 16
     appTargetSdkVersion = 29
-    targetSdkVersion = 28 // TODO: Bump once b/143232359 is resolved
+    targetSdkVersion = 28 // TODO: Bump once b/143232359 is resolved. Also fix TODOs in UtilTest.
     compileSdkVersion = 29
     dexmakerVersion = '2.21.0'
     junitVersion = '4.13-rc-2'

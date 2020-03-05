@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -48,6 +47,7 @@ import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
@@ -568,7 +568,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             chunkIndex < mediaChunks.size()
                 ? mediaChunks.get(chunkIndex).trackFormat
                 : Assertions.checkNotNull(upstreamTrackFormat);
-        format = format.copyWithManifestFormatInfo(trackFormat);
+        format = format.withManifestFormatInfo(trackFormat);
       }
       formatHolder.format = format;
     }
@@ -1009,7 +1009,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private void updateSampleStreams(@NullableType SampleStream[] streams) {
     hlsSampleStreams.clear();
-    for (SampleStream stream : streams) {
+    for (@Nullable SampleStream stream : streams) {
       if (stream != null) {
         hlsSampleStreams.add((HlsSampleStream) stream);
       }
@@ -1069,7 +1069,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     for (int i = 0; i < trackGroupCount; i++) {
       for (int queueIndex = 0; queueIndex < sampleQueues.length; queueIndex++) {
         SampleQueue sampleQueue = sampleQueues[queueIndex];
-        if (formatsMatch(sampleQueue.getUpstreamFormat(), trackGroups.get(i).getFormat(0))) {
+        Format upstreamFormat = Assertions.checkStateNotNull(sampleQueue.getUpstreamFormat());
+        if (formatsMatch(upstreamFormat, trackGroups.get(i).getFormat(0))) {
           trackGroupToSampleQueueIndex[i] = queueIndex;
           break;
         }
@@ -1118,7 +1119,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int primaryExtractorTrackIndex = C.INDEX_UNSET;
     int extractorTrackCount = sampleQueues.length;
     for (int i = 0; i < extractorTrackCount; i++) {
-      String sampleMimeType = sampleQueues[i].getUpstreamFormat().sampleMimeType;
+      @Nullable
+      String sampleMimeType =
+          Assertions.checkStateNotNull(sampleQueues[i].getUpstreamFormat()).sampleMimeType;
       int trackType;
       if (MimeTypes.isVideo(sampleMimeType)) {
         trackType = C.TRACK_TYPE_VIDEO;
@@ -1153,11 +1156,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // Construct the set of exposed track groups.
     TrackGroup[] trackGroups = new TrackGroup[extractorTrackCount];
     for (int i = 0; i < extractorTrackCount; i++) {
-      Format sampleFormat = sampleQueues[i].getUpstreamFormat();
+      Format sampleFormat = Assertions.checkStateNotNull(sampleQueues[i].getUpstreamFormat());
       if (i == primaryExtractorTrackIndex) {
         Format[] formats = new Format[chunkSourceTrackCount];
         if (chunkSourceTrackCount == 1) {
-          formats[0] = sampleFormat.copyWithManifestFormatInfo(chunkSourceTrackGroup.getFormat(0));
+          formats[0] = sampleFormat.withManifestFormatInfo(chunkSourceTrackGroup.getFormat(0));
         } else {
           for (int j = 0; j < chunkSourceTrackCount; j++) {
             formats[j] = deriveFormat(chunkSourceTrackGroup.getFormat(j), sampleFormat, true);
@@ -1166,6 +1169,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         trackGroups[i] = new TrackGroup(formats);
         primaryTrackGroupIndex = i;
       } else {
+        @Nullable
         Format trackFormat =
             primaryExtractorTrackType == C.TRACK_TYPE_VIDEO
                     && MimeTypes.isAudio(sampleFormat.sampleMimeType)
@@ -1265,38 +1269,50 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * @param playlistFormat The format information obtained from the master playlist.
    * @param sampleFormat The format information obtained from the samples.
-   * @param propagateBitrate Whether the bitrate from the playlist format should be included in the
-   *     derived format.
+   * @param propagateBitrates Whether the bitrates from the playlist format should be included in
+   *     the derived format.
    * @return The derived track format.
    */
   private static Format deriveFormat(
-      @Nullable Format playlistFormat, Format sampleFormat, boolean propagateBitrate) {
+      @Nullable Format playlistFormat, Format sampleFormat, boolean propagateBitrates) {
     if (playlistFormat == null) {
       return sampleFormat;
     }
-    int bitrate = propagateBitrate ? playlistFormat.bitrate : Format.NO_VALUE;
-    int channelCount =
-        playlistFormat.channelCount != Format.NO_VALUE
-            ? playlistFormat.channelCount
-            : sampleFormat.channelCount;
+
     int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
-    String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
-    String mimeType = MimeTypes.getMediaMimeType(codecs);
-    if (mimeType == null) {
-      mimeType = sampleFormat.sampleMimeType;
+    @Nullable String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
+    @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+
+    Format.Builder formatBuilder =
+        sampleFormat
+            .buildUpon()
+            .setId(playlistFormat.id)
+            .setLabel(playlistFormat.label)
+            .setLanguage(playlistFormat.language)
+            .setSelectionFlags(playlistFormat.selectionFlags)
+            .setAverageBitrate(propagateBitrates ? playlistFormat.averageBitrate : Format.NO_VALUE)
+            .setPeakBitrate(propagateBitrates ? playlistFormat.peakBitrate : Format.NO_VALUE)
+            .setCodecs(codecs)
+            .setWidth(playlistFormat.width)
+            .setHeight(playlistFormat.height);
+
+    if (sampleMimeType != null) {
+      formatBuilder.setSampleMimeType(sampleMimeType);
     }
-    return sampleFormat.copyWithContainerInfo(
-        playlistFormat.id,
-        playlistFormat.label,
-        mimeType,
-        codecs,
-        playlistFormat.metadata,
-        bitrate,
-        playlistFormat.width,
-        playlistFormat.height,
-        channelCount,
-        playlistFormat.selectionFlags,
-        playlistFormat.language);
+
+    if (playlistFormat.channelCount != Format.NO_VALUE) {
+      formatBuilder.setChannelCount(playlistFormat.channelCount);
+    }
+
+    if (playlistFormat.metadata != null) {
+      Metadata metadata = playlistFormat.metadata;
+      if (sampleFormat.metadata != null) {
+        metadata = sampleFormat.metadata.copyWithAppendedEntriesFrom(metadata);
+      }
+      formatBuilder.setMetadata(metadata);
+    }
+
+    return formatBuilder.build();
   }
 
   private static boolean isMediaChunk(Chunk chunk) {
@@ -1304,8 +1320,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   private static boolean formatsMatch(Format manifestFormat, Format sampleFormat) {
-    String manifestFormatMimeType = manifestFormat.sampleMimeType;
-    String sampleFormatMimeType = sampleFormat.sampleMimeType;
+    @Nullable String manifestFormatMimeType = manifestFormat.sampleMimeType;
+    @Nullable String sampleFormatMimeType = sampleFormat.sampleMimeType;
     int manifestFormatTrackType = MimeTypes.getTrackType(manifestFormatMimeType);
     if (manifestFormatTrackType != C.TRACK_TYPE_TEXT) {
       return manifestFormatTrackType == MimeTypes.getTrackType(sampleFormatMimeType);
@@ -1342,6 +1358,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       invalidateUpstreamFormatAdjustment();
     }
 
+    @SuppressWarnings("ReferenceEquality")
     @Override
     public Format getAdjustedUpstreamFormat(Format format) {
       @Nullable
@@ -1353,8 +1370,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           drmInitData = overridingDrmInitData;
         }
       }
-      return super.getAdjustedUpstreamFormat(
-          format.copyWithAdjustments(drmInitData, getAdjustedMetadata(format.metadata)));
+      @Nullable Metadata metadata = getAdjustedMetadata(format.metadata);
+      if (drmInitData != format.drmInitData || metadata != format.metadata) {
+        format = format.buildUpon().setDrmInitData(drmInitData).setMetadata(metadata).build();
+      }
+      return super.getAdjustedUpstreamFormat(format);
     }
 
     /**
@@ -1401,9 +1421,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     // TODO(ibaker): Create a Formats util class with common constants like this.
     private static final Format ID3_FORMAT =
-        Format.createSampleFormat(/* id= */ null, MimeTypes.APPLICATION_ID3);
+        new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_ID3).build();
     private static final Format EMSG_FORMAT =
-        Format.createSampleFormat(/* id= */ null, MimeTypes.APPLICATION_EMSG);
+        new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_EMSG).build();
 
     private final EventMessageDecoder emsgDecoder;
     private final TrackOutput delegate;
@@ -1439,7 +1459,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     @Override
-    public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+    public int sampleData(DataReader input, int length, boolean allowEndOfInput)
         throws IOException, InterruptedException {
       ensureBufferCapacity(bufferPosition + length);
       int numBytesRead = input.read(buffer, bufferPosition, length);

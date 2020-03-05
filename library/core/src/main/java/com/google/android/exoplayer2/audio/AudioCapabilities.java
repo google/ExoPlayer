@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.audio;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -25,11 +24,11 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.provider.Settings.Global;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
 /** Represents the set of audio formats that a device is capable of playing. */
-@TargetApi(21)
 public final class AudioCapabilities {
 
   private static final int DEFAULT_MAX_CHANNEL_COUNT = 8;
@@ -117,10 +116,10 @@ public final class AudioCapabilities {
   /**
    * Returns whether this device supports playback of the specified audio {@code encoding}.
    *
-   * @param encoding One of {@link android.media.AudioFormat}'s {@code ENCODING_*} constants.
+   * @param encoding One of {@link C.Encoding}'s {@code ENCODING_*} constants.
    * @return Whether this device supports playback the specified audio {@code encoding}.
    */
-  public boolean supportsEncoding(int encoding) {
+  public boolean supportsEncoding(@C.Encoding int encoding) {
     return Arrays.binarySearch(supportedEncodings, encoding) >= 0;
   }
 

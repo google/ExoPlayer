@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.text.cea;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -185,7 +184,7 @@ import java.util.PriorityQueue;
     private long queuedInputBufferCount;
 
     @Override
-    public int compareTo(@NonNull CeaInputBuffer other) {
+    public int compareTo(CeaInputBuffer other) {
       if (isEndOfStream() != other.isEndOfStream()) {
         return isEndOfStream() ? 1 : -1;
       }

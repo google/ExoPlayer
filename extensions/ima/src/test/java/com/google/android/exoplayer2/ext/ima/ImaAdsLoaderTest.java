@@ -39,11 +39,13 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.SinglePeriodTimeline;
+import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
 import com.google.android.exoplayer2.source.ads.SinglePeriodAdTimeline;
+import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.io.IOException;
 import java.util.Arrays;
@@ -63,8 +65,11 @@ public class ImaAdsLoaderTest {
 
   private static final long CONTENT_DURATION_US = 10 * C.MICROS_PER_SECOND;
   private static final Timeline CONTENT_TIMELINE =
-      new SinglePeriodTimeline(
-          CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false);
+      new FakeTimeline(
+          new TimelineWindowDefinition(
+              /* isSeekable= */ true, /* isDynamic= */ false, CONTENT_DURATION_US));
+  private static final long CONTENT_PERIOD_DURATION_US =
+      CONTENT_TIMELINE.getPeriod(/* periodIndex= */ 0, new Period()).durationUs;
   private static final Uri TEST_URI = Uri.EMPTY;
   private static final long TEST_AD_DURATION_US = 5 * C.MICROS_PER_SECOND;
   private static final long[][] PREROLL_ADS_DURATIONS_US = new long[][] {{TEST_AD_DURATION_US}};
@@ -143,9 +148,9 @@ public class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            new AdPlaybackState(/* adGroupTimesUs= */ 0)
+            new AdPlaybackState(/* adGroupTimesUs...= */ 0)
                 .withAdDurationsUs(PREROLL_ADS_DURATIONS_US)
-                .withContentDurationUs(CONTENT_DURATION_US));
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
   @Test
@@ -213,8 +218,8 @@ public class ImaAdsLoaderTest {
     // Verify that the preroll ad has been marked as played.
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            new AdPlaybackState(/* adGroupTimesUs= */ 0)
-                .withContentDurationUs(CONTENT_DURATION_US)
+            new AdPlaybackState(/* adGroupTimesUs...= */ 0)
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, /* uri= */ TEST_URI)
                 .withAdDurationsUs(PREROLL_ADS_DURATIONS_US)

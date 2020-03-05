@@ -250,7 +250,7 @@ public final class FlacExtractor implements Extractor {
     SeekMap seekMap;
     if (haveSeekTable) {
       seekMap = new FlacSeekMap(streamMetadata.getDurationUs(), decoderJni);
-    } else if (streamLength != C.LENGTH_UNSET) {
+    } else if (streamLength != C.LENGTH_UNSET && streamMetadata.totalSamples > 0) {
       long firstFramePosition = decoderJni.getDecodePosition();
       binarySearchSeeker =
           new FlacBinarySearchSeeker(
@@ -266,22 +266,16 @@ public final class FlacExtractor implements Extractor {
   private static void outputFormat(
       FlacStreamMetadata streamMetadata, @Nullable Metadata metadata, TrackOutput output) {
     Format mediaFormat =
-        Format.createAudioSampleFormat(
-            /* id= */ null,
-            MimeTypes.AUDIO_RAW,
-            /* codecs= */ null,
-            streamMetadata.getBitRate(),
-            streamMetadata.getMaxDecodedFrameSize(),
-            streamMetadata.channels,
-            streamMetadata.sampleRate,
-            getPcmEncoding(streamMetadata.bitsPerSample),
-            /* encoderDelay= */ 0,
-            /* encoderPadding= */ 0,
-            /* initializationData= */ null,
-            /* drmInitData= */ null,
-            /* selectionFlags= */ 0,
-            /* language= */ null,
-            metadata);
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.AUDIO_RAW)
+            .setAverageBitrate(streamMetadata.getDecodedBitrate())
+            .setPeakBitrate(streamMetadata.getDecodedBitrate())
+            .setMaxInputSize(streamMetadata.getMaxDecodedFrameSize())
+            .setChannelCount(streamMetadata.channels)
+            .setSampleRate(streamMetadata.sampleRate)
+            .setPcmEncoding(getPcmEncoding(streamMetadata.bitsPerSample))
+            .setMetadata(metadata)
+            .build();
     output.format(mediaFormat);
   }
 

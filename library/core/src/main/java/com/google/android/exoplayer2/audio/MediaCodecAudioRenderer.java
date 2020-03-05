@@ -22,7 +22,6 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
-import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -34,7 +33,6 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
@@ -42,8 +40,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -71,13 +67,6 @@ import java.util.List;
  */
 public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
 
-  /**
-   * Maximum number of tracked pending stream change times. Generally there is zero or one pending
-   * stream change. We track more to allow for pending changes that have fewer samples than the
-   * codec latency.
-   */
-  private static final int MAX_PENDING_STREAM_CHANGE_COUNT = 10;
-
   private static final String TAG = "MediaCodecAudioRenderer";
   /**
    * Custom key used to indicate bits per sample by some decoders on Vivo devices. For example
@@ -88,7 +77,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private final Context context;
   private final EventDispatcher eventDispatcher;
   private final AudioSink audioSink;
-  private final long[] pendingStreamChangeTimesUs;
 
   private int codecMaxInputSize;
   private boolean passthroughEnabled;
@@ -99,48 +87,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
-  private long lastInputTimeUs;
-  private int pendingStreamChangeCount;
 
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
    */
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(Context context, MediaCodecSelector mediaCodecSelector) {
     this(
         context,
         mediaCodecSelector,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false);
-  }
-
-  /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public MediaCodecAudioRenderer(
-      Context context,
-      MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys) {
-    this(
-        context,
-        mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         /* eventHandler= */ null,
         /* eventListener= */ null);
   }
@@ -152,7 +107,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    */
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
@@ -161,43 +115,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     this(
         context,
         mediaCodecSelector,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false,
-        eventHandler,
-        eventListener);
-  }
-
-  /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public MediaCodecAudioRenderer(
-      Context context,
-      MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
-      @Nullable Handler eventHandler,
-      @Nullable AudioRendererEventListener eventListener) {
-    this(
-        context,
-        mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         eventHandler,
         eventListener,
         (AudioCapabilities) null);
@@ -206,13 +123,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -220,17 +130,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     default capabilities (no encoded audio passthrough support) should be assumed.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process PCM audio before
    *     output.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
    */
-  @Deprecated
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       @Nullable AudioCapabilities audioCapabilities,
@@ -238,8 +141,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     this(
         context,
         mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         eventHandler,
         eventListener,
         new DefaultAudioSink(audioCapabilities, audioProcessors));
@@ -248,36 +149,20 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioSink The sink to which audio will be output.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
    */
-  @Deprecated
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioSink audioSink) {
     this(
         context,
         mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         /* enableDecoderFallback= */ false,
         eventHandler,
         eventListener,
@@ -295,52 +180,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioSink The sink to which audio will be output.
    */
-  @SuppressWarnings("deprecation")
   public MediaCodecAudioRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
-      boolean enableDecoderFallback,
-      @Nullable Handler eventHandler,
-      @Nullable AudioRendererEventListener eventListener,
-      AudioSink audioSink) {
-    this(
-        context,
-        mediaCodecSelector,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false,
-        enableDecoderFallback,
-        eventHandler,
-        eventListener,
-        audioSink);
-  }
-
-  /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
-   *     initialization fails. This may result in using a decoder that is slower/less efficient than
-   *     the primary decoder.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param audioSink The sink to which audio will be output.
-   * @deprecated Use {@link #MediaCodecAudioRenderer(Context, MediaCodecSelector, boolean, Handler,
-   *     AudioRendererEventListener, AudioSink)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
-   */
-  @Deprecated
-  public MediaCodecAudioRenderer(
-      Context context,
-      MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       boolean enableDecoderFallback,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
@@ -348,14 +190,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     super(
         C.TRACK_TYPE_AUDIO,
         mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         enableDecoderFallback,
         /* assumedMinimumCodecOperatingRate= */ 44100);
     this.context = context.getApplicationContext();
     this.audioSink = audioSink;
-    lastInputTimeUs = C.TIME_UNSET;
-    pendingStreamChangeTimesUs = new long[MAX_PENDING_STREAM_CHANGE_COUNT];
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     audioSink.setListener(new AudioSinkListener());
   }
@@ -364,7 +202,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Capabilities
   protected int supportsFormat(
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
@@ -374,10 +211,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     boolean supportsFormatDrm =
-        format.drmInitData == null
-            || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType)
-            || (format.exoMediaCryptoType == null
-                && supportsFormatDrm(drmSessionManager, format.drmInitData));
+        format.drmInitData == null || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType);
     if (supportsFormatDrm
         && allowPassthrough(format.channelCount, mimeType)
         && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
@@ -442,8 +276,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   /**
    * Returns whether encoded audio passthrough should be used for playing back the input format.
-   * This implementation returns true if the {@link AudioSink} indicates that encoded audio output
-   * is supported.
    *
    * @param channelCount The number of channels in the input media, or {@link Format#NO_VALUE} if
    *     not known.
@@ -610,6 +442,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    */
   @C.Encoding
   protected int getPassthroughEncoding(int channelCount, String mimeType) {
+    if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
+      // PCM passthrough is not supported.
+      return C.ENCODING_INVALID;
+    }
     if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
       // E-AC3 JOC is object-based so the output channel count is arbitrary.
       if (audioSink.supportsOutput(/* channelCount= */ Format.NO_VALUE, C.ENCODING_E_AC3_JOC)) {
@@ -633,30 +469,32 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * order to spatialize the audio channels. For this use case, any {@link Virtualizer} instances
    * should be released in {@link #onDisabled()} (if not before).
    *
-   * @see AudioSink.Listener#onAudioSessionId(int)
+   * <p>See {@link AudioSink.Listener#onAudioSessionId(int)}.
    */
   protected void onAudioSessionId(int audioSessionId) {
     // Do nothing.
   }
 
-  /**
-   * @see AudioSink.Listener#onPositionDiscontinuity()
-   */
+  /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
   protected void onAudioTrackPositionDiscontinuity() {
     // Do nothing.
   }
 
-  /**
-   * @see AudioSink.Listener#onUnderrun(int, long, long)
-   */
-  protected void onAudioTrackUnderrun(int bufferSize, long bufferSizeMs,
-      long elapsedSinceLastFeedMs) {
+  /** See {@link AudioSink.Listener#onUnderrun(int, long, long)}. */
+  protected void onAudioTrackUnderrun(
+      int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+    // Do nothing.
+  }
+
+  /** See {@link AudioSink.Listener#onSkipSilenceEnabledChanged(boolean)}. */
+  protected void onAudioTrackSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
     // Do nothing.
   }
 
   @Override
-  protected void onEnabled(boolean joining) throws ExoPlaybackException {
-    super.onEnabled(joining);
+  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+      throws ExoPlaybackException {
+    super.onEnabled(joining, mayRenderStartOfStream);
     eventDispatcher.enabled(decoderCounters);
     int tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
     if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
@@ -667,30 +505,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
-    super.onStreamChanged(formats, offsetUs);
-    if (lastInputTimeUs != C.TIME_UNSET) {
-      if (pendingStreamChangeCount == pendingStreamChangeTimesUs.length) {
-        Log.w(
-            TAG,
-            "Too many stream changes, so dropping change at "
-                + pendingStreamChangeTimesUs[pendingStreamChangeCount - 1]);
-      } else {
-        pendingStreamChangeCount++;
-      }
-      pendingStreamChangeTimesUs[pendingStreamChangeCount - 1] = lastInputTimeUs;
-    }
-  }
-
-  @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
     audioSink.flush();
     currentPositionUs = positionUs;
     allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
-    lastInputTimeUs = C.TIME_UNSET;
-    pendingStreamChangeCount = 0;
   }
 
   @Override
@@ -709,8 +529,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onDisabled() {
     try {
-      lastInputTimeUs = C.TIME_UNSET;
-      pendingStreamChangeCount = 0;
       audioSink.flush();
     } finally {
       try {
@@ -769,22 +587,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
       allowFirstBufferPositionDiscontinuity = false;
     }
-    lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
   }
 
-  @CallSuper
   @Override
-  protected void onProcessedOutputBuffer(long presentationTimeUs) {
-    while (pendingStreamChangeCount != 0 && presentationTimeUs >= pendingStreamChangeTimesUs[0]) {
-      audioSink.handleDiscontinuity();
-      pendingStreamChangeCount--;
-      System.arraycopy(
-          pendingStreamChangeTimesUs,
-          /* srcPos= */ 1,
-          pendingStreamChangeTimesUs,
-          /* destPos= */ 0,
-          pendingStreamChangeCount);
-    }
+  protected void onProcessedStreamChange() {
+    super.onProcessedStreamChange();
+    audioSink.handleDiscontinuity();
   }
 
   @Override
@@ -795,6 +603,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,
+      int sampleCount,
       long bufferPresentationTimeUs,
       boolean isDecodeOnlyBuffer,
       boolean isLastBuffer,
@@ -803,8 +612,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (codecNeedsEosBufferTimestampWorkaround
         && bufferPresentationTimeUs == 0
         && (bufferFlags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0
-        && lastInputTimeUs != C.TIME_UNSET) {
-      bufferPresentationTimeUs = lastInputTimeUs;
+        && getLargestQueuedPresentationTimeUs() != C.TIME_UNSET) {
+      bufferPresentationTimeUs = getLargestQueuedPresentationTimeUs();
     }
 
     if (passthroughEnabled && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
@@ -820,16 +629,20 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return true;
     }
 
+    boolean fullyConsumed;
     try {
-      if (audioSink.handleBuffer(buffer, bufferPresentationTimeUs)) {
-        codec.releaseOutputBuffer(bufferIndex, false);
-        decoderCounters.renderedOutputBufferCount++;
-        return true;
-      }
+      fullyConsumed = audioSink.handleBuffer(buffer, bufferPresentationTimeUs, sampleCount);
     } catch (AudioSink.InitializationException | AudioSink.WriteException e) {
       // TODO(internal: b/145658993) Use outputFormat instead.
       throw createRendererException(e, inputFormat);
     }
+
+    if (fullyConsumed) {
+      codec.releaseOutputBuffer(bufferIndex, false);
+      decoderCounters.renderedOutputBufferCount++;
+      return true;
+    }
+
     return false;
   }
 
@@ -1031,6 +844,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
     }
 
+    @Override
+    public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
+      eventDispatcher.skipSilenceEnabledChanged(skipSilenceEnabled);
+      onAudioTrackSkipSilenceEnabledChanged(skipSilenceEnabled);
+    }
   }
-
 }

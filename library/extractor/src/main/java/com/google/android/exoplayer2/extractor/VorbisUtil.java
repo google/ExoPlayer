@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -37,27 +38,54 @@ public final class VorbisUtil {
     }
   }
 
-  /** Vorbis identification header. */
+  /**
+   * Vorbis identification header.
+   *
+   * @see <a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
+   *     spec/Identification header</a>
+   */
   public static final class VorbisIdHeader {
 
-    public final long version;
+    /** The {@code vorbis_version} field. */
+    public final int version;
+    /** The {@code audio_channels} field. */
     public final int channels;
-    public final long sampleRate;
-    public final int bitrateMax;
+    /** The {@code audio_sample_rate} field. */
+    public final int sampleRate;
+    /** The {@code bitrate_maximum} field, or {@link Format#NO_VALUE} if not greater than zero. */
+    public final int bitrateMaximum;
+    /** The {@code bitrate_nominal} field, or {@link Format#NO_VALUE} if not greater than zero. */
     public final int bitrateNominal;
-    public final int bitrateMin;
+    /** The {@code bitrate_minimum} field, or {@link Format#NO_VALUE} if not greater than zero. */
+    public final int bitrateMinimum;
+    /** The {@code blocksize_0} field. */
     public final int blockSize0;
+    /** The {@code blocksize_1} field. */
     public final int blockSize1;
+    /** The {@code framing_flag} field. */
     public final boolean framingFlag;
+    /** The raw header data. */
     public final byte[] data;
 
+    /**
+     * @param version See {@link #version}.
+     * @param channels See {@link #channels}.
+     * @param sampleRate See {@link #sampleRate}.
+     * @param bitrateMaximum See {@link #bitrateMaximum}.
+     * @param bitrateNominal See {@link #bitrateNominal}.
+     * @param bitrateMinimum See {@link #bitrateMinimum}.
+     * @param blockSize0 See {@link #version}.
+     * @param blockSize1 See {@link #blockSize1}.
+     * @param framingFlag See {@link #framingFlag}.
+     * @param data See {@link #data}.
+     */
     public VorbisIdHeader(
-        long version,
+        int version,
         int channels,
-        long sampleRate,
-        int bitrateMax,
+        int sampleRate,
+        int bitrateMaximum,
         int bitrateNominal,
-        int bitrateMin,
+        int bitrateMinimum,
         int blockSize0,
         int blockSize1,
         boolean framingFlag,
@@ -65,17 +93,13 @@ public final class VorbisUtil {
       this.version = version;
       this.channels = channels;
       this.sampleRate = sampleRate;
-      this.bitrateMax = bitrateMax;
+      this.bitrateMaximum = bitrateMaximum;
       this.bitrateNominal = bitrateNominal;
-      this.bitrateMin = bitrateMin;
+      this.bitrateMinimum = bitrateMinimum;
       this.blockSize0 = blockSize0;
       this.blockSize1 = blockSize1;
       this.framingFlag = framingFlag;
       this.data = data;
-    }
-
-    public int getApproximateBitrate() {
-      return bitrateNominal == 0 ? (bitrateMin + bitrateMax) / 2 : bitrateNominal;
     }
   }
 
@@ -128,13 +152,21 @@ public final class VorbisUtil {
 
     verifyVorbisHeaderCapturePattern(0x01, headerData, false);
 
-    long version = headerData.readLittleEndianUnsignedInt();
+    int version = headerData.readLittleEndianUnsignedIntToInt();
     int channels = headerData.readUnsignedByte();
-    long sampleRate = headerData.readLittleEndianUnsignedInt();
-    int bitrateMax = headerData.readLittleEndianInt();
+    int sampleRate = headerData.readLittleEndianUnsignedIntToInt();
+    int bitrateMaximum = headerData.readLittleEndianInt();
+    if (bitrateMaximum <= 0) {
+      bitrateMaximum = Format.NO_VALUE;
+    }
     int bitrateNominal = headerData.readLittleEndianInt();
-    int bitrateMin = headerData.readLittleEndianInt();
-
+    if (bitrateNominal <= 0) {
+      bitrateNominal = Format.NO_VALUE;
+    }
+    int bitrateMinimum = headerData.readLittleEndianInt();
+    if (bitrateMinimum <= 0) {
+      bitrateMinimum = Format.NO_VALUE;
+    }
     int blockSize = headerData.readUnsignedByte();
     int blockSize0 = (int) Math.pow(2, blockSize & 0x0F);
     int blockSize1 = (int) Math.pow(2, (blockSize & 0xF0) >> 4);
@@ -143,8 +175,17 @@ public final class VorbisUtil {
     // raw data of Vorbis setup header has to be passed to decoder as CSD buffer #1
     byte[] data = Arrays.copyOf(headerData.data, headerData.limit());
 
-    return new VorbisIdHeader(version, channels, sampleRate, bitrateMax, bitrateNominal, bitrateMin,
-        blockSize0, blockSize1, framingFlag, data);
+    return new VorbisIdHeader(
+        version,
+        channels,
+        sampleRate,
+        bitrateMaximum,
+        bitrateNominal,
+        bitrateMinimum,
+        blockSize0,
+        blockSize1,
+        framingFlag,
+        data);
   }
 
   /**

@@ -41,6 +41,11 @@ android {
         }
     }
 
+    sourceSets {
+        androidTest.assets.srcDir '../../testdata/src/test/assets/'
+        test.assets.srcDir '../../testdata/src/test/assets/'
+    }
+
     testOptions.unitTests.includeAndroidResources = true
 }
 

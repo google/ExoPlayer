@@ -2064,18 +2064,20 @@ public class MatroskaExtractor implements Extractor {
           throw new ParserException("Unrecognized codec identifier.");
       }
 
-      int type;
-      Format format;
       @C.SelectionFlags int selectionFlags = 0;
       selectionFlags |= flagDefault ? C.SELECTION_FLAG_DEFAULT : 0;
       selectionFlags |= flagForced ? C.SELECTION_FLAG_FORCED : 0;
+
+      int type;
+      Format.Builder formatBuilder = new Format.Builder();
       // TODO: Consider reading the name elements of the tracks and, if present, incorporating them
       // into the trackId passed when creating the formats.
       if (MimeTypes.isAudio(mimeType)) {
         type = C.TRACK_TYPE_AUDIO;
-        format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
-            Format.NO_VALUE, maxInputSize, channelCount, sampleRate, pcmEncoding,
-            initializationData, drmInitData, selectionFlags, language);
+        formatBuilder
+            .setChannelCount(channelCount)
+            .setSampleRate(sampleRate)
+            .setPcmEncoding(pcmEncoding);
       } else if (MimeTypes.isVideo(mimeType)) {
         type = C.TRACK_TYPE_VIDEO;
         if (displayUnit == Track.DISPLAY_UNIT_PIXELS) {
@@ -2086,9 +2088,9 @@ public class MatroskaExtractor implements Extractor {
         if (displayWidth != Format.NO_VALUE && displayHeight != Format.NO_VALUE) {
           pixelWidthHeightRatio = ((float) (height * displayWidth)) / (width * displayHeight);
         }
-        ColorInfo colorInfo = null;
+        @Nullable ColorInfo colorInfo = null;
         if (hasColorInfo) {
-          byte[] hdrStaticInfo = getHdrStaticInfo();
+          @Nullable byte[] hdrStaticInfo = getHdrStaticInfo();
           colorInfo = new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo);
         }
         int rotationDegrees = Format.NO_VALUE;
@@ -2117,52 +2119,39 @@ public class MatroskaExtractor implements Extractor {
             rotationDegrees = 270;
           }
         }
-        format =
-            Format.createVideoSampleFormat(
-                Integer.toString(trackId),
-                mimeType,
-                /* codecs= */ null,
-                /* bitrate= */ Format.NO_VALUE,
-                maxInputSize,
-                width,
-                height,
-                /* frameRate= */ Format.NO_VALUE,
-                initializationData,
-                rotationDegrees,
-                pixelWidthHeightRatio,
-                projectionData,
-                stereoMode,
-                colorInfo,
-                drmInitData);
+        formatBuilder
+            .setWidth(width)
+            .setHeight(height)
+            .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+            .setRotationDegrees(rotationDegrees)
+            .setProjectionData(projectionData)
+            .setStereoMode(stereoMode)
+            .setColorInfo(colorInfo);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
-        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, selectionFlags,
-            language, drmInitData);
       } else if (MimeTypes.TEXT_SSA.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
         initializationData = new ArrayList<>(2);
         initializationData.add(SSA_DIALOGUE_FORMAT);
         initializationData.add(codecPrivate);
-        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
-            Format.NO_VALUE, selectionFlags, language, Format.NO_VALUE, drmInitData,
-            Format.OFFSET_SAMPLE_RELATIVE, initializationData);
       } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)
           || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
-        format =
-            Format.createImageSampleFormat(
-                Integer.toString(trackId),
-                mimeType,
-                null,
-                Format.NO_VALUE,
-                selectionFlags,
-                initializationData,
-                language,
-                drmInitData);
       } else {
         throw new ParserException("Unexpected MIME type.");
       }
+
+      Format format =
+          formatBuilder
+              .setId(trackId)
+              .setSampleMimeType(mimeType)
+              .setMaxInputSize(maxInputSize)
+              .setLanguage(language)
+              .setSelectionFlags(selectionFlags)
+              .setInitializationData(initializationData)
+              .setDrmInitData(drmInitData)
+              .build();
 
       this.output = output.track(number, type);
       this.output.format(format);
@@ -2328,7 +2317,5 @@ public class MatroskaExtractor implements Extractor {
         throw new ParserException("Error parsing MS/ACM codec private");
       }
     }
-
   }
-
 }

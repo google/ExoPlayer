@@ -44,7 +44,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testBase64Data() throws IOException {
+  public void base64Data() throws IOException {
     DataSpec dataSpec = buildDataSpec(DATA_SCHEME_URI);
     assertDataSourceContent(
         schemeDataDataSource,
@@ -55,7 +55,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testAsciiData() throws IOException {
+  public void asciiData() throws IOException {
     assertDataSourceContent(
         schemeDataDataSource,
         buildDataSpec("data:,A%20brief%20note"),
@@ -63,7 +63,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testPartialReads() throws IOException {
+  public void partialReads() throws IOException {
     byte[] buffer = new byte[18];
     DataSpec dataSpec = buildDataSpec("data:,012345678901234567");
     assertThat(schemeDataDataSource.open(dataSpec)).isEqualTo(18);
@@ -76,7 +76,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testSequentialRangeRequests() throws IOException {
+  public void sequentialRangeRequests() throws IOException {
     DataSpec dataSpec =
         buildDataSpec(DATA_SCHEME_URI, /* position= */ 1, /* length= */ C.LENGTH_UNSET);
     assertDataSourceContent(
@@ -97,7 +97,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testInvalidStartPositionRequest() throws IOException {
+  public void invalidStartPositionRequest() throws IOException {
     try {
       // Try to open a range starting one byte beyond the resource's length.
       schemeDataDataSource.open(
@@ -109,7 +109,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testRangeExceedingResourceLengthRequest() throws IOException {
+  public void rangeExceedingResourceLengthRequest() throws IOException {
     try {
       // Try to open a range exceeding the resource's length.
       schemeDataDataSource.open(
@@ -121,7 +121,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testIncorrectScheme() {
+  public void incorrectScheme() {
     try {
       schemeDataDataSource.open(buildDataSpec("http://www.google.com"));
       fail();
@@ -131,7 +131,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void testMalformedData() {
+  public void malformedData() {
     try {
       schemeDataDataSource.open(buildDataSpec("data:text/plain;base64,,This%20is%20Content"));
       fail();
@@ -151,7 +151,7 @@ public final class DataSchemeDataSourceTest {
   }
 
   private static DataSpec buildDataSpec(String uriString, int position, int length) {
-    return new DataSpec(Uri.parse(uriString), position, length, /* key= */ null);
+    return new DataSpec(Uri.parse(uriString), position, length);
   }
 
   /**

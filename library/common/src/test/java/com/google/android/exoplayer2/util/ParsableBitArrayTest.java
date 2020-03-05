@@ -16,9 +16,12 @@
 package com.google.android.exoplayer2.util;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import java.nio.charset.Charset;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -274,6 +277,35 @@ public final class ParsableBitArrayTest {
     assertThat(testArray.getBytePosition()).isEqualTo(2);
     assertThat(testArray.getPosition()).isEqualTo(16);
     assertThat(testArray.readBits(8)).isEqualTo(0x5F);
+  }
+
+  @Test
+  public void testReadBytesAsStringDefaultsToUtf8() {
+    byte[] testData = "a non-åscii strìng".getBytes(Charset.forName(C.UTF8_NAME));
+    ParsableBitArray testArray = new ParsableBitArray(testData);
+
+    testArray.skipBytes(2);
+    assertThat(testArray.readBytesAsString(testData.length - 2)).isEqualTo("non-åscii strìng");
+  }
+
+  @Test
+  public void testReadBytesAsStringExplicitCharset() {
+    byte[] testData = "a non-åscii strìng".getBytes(Charset.forName(C.UTF16_NAME));
+    ParsableBitArray testArray = new ParsableBitArray(testData);
+
+    testArray.skipBytes(6);
+    assertThat(testArray.readBytesAsString(testData.length - 6, Charset.forName(C.UTF16_NAME)))
+        .isEqualTo("non-åscii strìng");
+  }
+
+  @Test
+  public void testReadBytesNotByteAligned() {
+    String testString = "test string";
+    byte[] testData = testString.getBytes(Charset.forName(C.UTF8_NAME));
+    ParsableBitArray testArray = new ParsableBitArray(testData);
+
+    testArray.skipBit();
+    assertThrows(IllegalStateException.class, () -> testArray.readBytesAsString(2));
   }
 
   @Test

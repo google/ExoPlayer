@@ -32,6 +32,7 @@ import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -41,7 +42,6 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
@@ -49,7 +49,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -87,9 +86,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private static final int[] STANDARD_LONG_EDGE_VIDEO_PX = new int[] {
       1920, 1600, 1440, 1280, 960, 854, 640, 540, 480};
 
-  // Generally there is zero or one pending output stream offset. We track more offsets to allow for
-  // pending output streams that have fewer frames than the codec latency.
-  private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
   /**
    * Scale factor for the initial maximum input size used to configure the codec in non-adaptive
    * playbacks. See {@link #getCodecMaxValues(MediaCodecInfo, Format, Format[])}.
@@ -125,8 +121,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsNoPostProcessWorkaround;
-  private final long[] pendingOutputStreamOffsetsUs;
-  private final long[] pendingOutputStreamSwitchTimesUs;
 
   private CodecMaxValues codecMaxValues;
   private boolean codecNeedsSetOutputSurfaceWorkaround;
@@ -135,7 +129,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private Surface surface;
   private Surface dummySurface;
   @VideoScalingMode private int scalingMode;
-  private boolean renderedFirstFrame;
+  private boolean renderedFirstFrameAfterReset;
+  private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
+  private boolean renderedFirstFrameAfterEnable;
   private long initialPositionUs;
   private long joiningDeadlineMs;
   private long droppedFrameAccumulationStartTimeMs;
@@ -143,6 +139,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private int consecutiveDroppedFrameCount;
   private int buffersInCodecCount;
   private long lastRenderTimeUs;
+  private long totalVideoFrameProcessingOffsetUs;
+  private int videoFrameProcessingOffsetCount;
 
   private int pendingRotationDegrees;
   private float pendingPixelWidthHeightRatio;
@@ -159,10 +157,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private boolean tunneling;
   private int tunnelingAudioSessionId;
   /* package */ @Nullable OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
-
-  private long lastInputTimeUs;
-  private long outputStreamOffsetUs;
-  private int pendingOutputStreamOffsetCount;
   @Nullable private VideoFrameMetadataListener frameMetadataListener;
 
   /**
@@ -201,7 +195,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  @SuppressWarnings("deprecation")
   public MediaCodecVideoRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
@@ -213,51 +206,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         context,
         mediaCodecSelector,
         allowedJoiningTimeMs,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false,
-        eventHandler,
-        eventListener,
-        maxDroppedFramesToNotify);
-  }
-
-  /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
-   *     can attempt to seamlessly join an ongoing playback.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
-   * @deprecated Use {@link #MediaCodecVideoRenderer(Context, MediaCodecSelector, long, boolean,
-   *     Handler, VideoRendererEventListener, int)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public MediaCodecVideoRenderer(
-      Context context,
-      MediaCodecSelector mediaCodecSelector,
-      long allowedJoiningTimeMs,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
-      @Nullable Handler eventHandler,
-      @Nullable VideoRendererEventListener eventListener,
-      int maxDroppedFramesToNotify) {
-    this(
-        context,
-        mediaCodecSelector,
-        allowedJoiningTimeMs,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         /* enableDecoderFallback= */ false,
         eventHandler,
         eventListener,
@@ -278,58 +226,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  @SuppressWarnings("deprecation")
   public MediaCodecVideoRenderer(
       Context context,
       MediaCodecSelector mediaCodecSelector,
       long allowedJoiningTimeMs,
-      boolean enableDecoderFallback,
-      @Nullable Handler eventHandler,
-      @Nullable VideoRendererEventListener eventListener,
-      int maxDroppedFramesToNotify) {
-    this(
-        context,
-        mediaCodecSelector,
-        allowedJoiningTimeMs,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false,
-        enableDecoderFallback,
-        eventHandler,
-        eventListener,
-        maxDroppedFramesToNotify);
-  }
-
-  /**
-   * @param context A context.
-   * @param mediaCodecSelector A decoder selector.
-   * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
-   *     can attempt to seamlessly join an ongoing playback.
-   * @param drmSessionManager For use with encrypted content. May be null if support for encrypted
-   *     content is not required.
-   * @param playClearSamplesWithoutKeys Encrypted media may contain clear (un-encrypted) regions.
-   *     For example a media file may start with a short clear region so as to allow playback to
-   *     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-   *     permitted to play clear regions of encrypted media files before {@code drmSessionManager}
-   *     has obtained the keys necessary to decrypt encrypted regions of the media.
-   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
-   *     initialization fails. This may result in using a decoder that is slower/less efficient than
-   *     the primary decoder.
-   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
-   *     null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
-   *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
-   * @deprecated Use {@link #MediaCodecVideoRenderer(Context, MediaCodecSelector, long, boolean,
-   *     Handler, VideoRendererEventListener, int)} instead, and pass DRM-related parameters to the
-   *     {@link MediaSource} factories.
-   */
-  @Deprecated
-  public MediaCodecVideoRenderer(
-      Context context,
-      MediaCodecSelector mediaCodecSelector,
-      long allowedJoiningTimeMs,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       boolean enableDecoderFallback,
       @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener,
@@ -337,8 +237,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     super(
         C.TRACK_TYPE_VIDEO,
         mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         enableDecoderFallback,
         /* assumedMinimumCodecOperatingRate= */ 30);
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
@@ -347,10 +245,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
-    pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
-    pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
-    outputStreamOffsetUs = C.TIME_UNSET;
-    lastInputTimeUs = C.TIME_UNSET;
     joiningDeadlineMs = C.TIME_UNSET;
     currentWidth = Format.NO_VALUE;
     currentHeight = Format.NO_VALUE;
@@ -364,7 +258,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Capabilities
   protected int supportsFormat(
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
@@ -393,10 +286,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
     }
     boolean supportsFormatDrm =
-        drmInitData == null
-            || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType)
-            || (format.exoMediaCryptoType == null
-                && supportsFormatDrm(drmSessionManager, drmInitData));
+        drmInitData == null || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType);
     if (!supportsFormatDrm) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
     }
@@ -472,8 +362,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void onEnabled(boolean joining) throws ExoPlaybackException {
-    super.onEnabled(joining);
+  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+      throws ExoPlaybackException {
+    super.onEnabled(joining, mayRenderStartOfStream);
     int oldTunnelingAudioSessionId = tunnelingAudioSessionId;
     tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
     tunneling = tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET;
@@ -482,23 +373,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     eventDispatcher.enabled(decoderCounters);
     frameReleaseTimeHelper.enable();
-  }
-
-  @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
-    if (outputStreamOffsetUs == C.TIME_UNSET) {
-      outputStreamOffsetUs = offsetUs;
-    } else {
-      if (pendingOutputStreamOffsetCount == pendingOutputStreamOffsetsUs.length) {
-        Log.w(TAG, "Too many stream changes, so dropping offset: "
-            + pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1]);
-      } else {
-        pendingOutputStreamOffsetCount++;
-      }
-      pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1] = offsetUs;
-      pendingOutputStreamSwitchTimesUs[pendingOutputStreamOffsetCount - 1] = lastInputTimeUs;
-    }
-    super.onStreamChanged(formats, offsetUs);
+    mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
+    renderedFirstFrameAfterEnable = false;
   }
 
   @Override
@@ -507,11 +383,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearRenderedFirstFrame();
     initialPositionUs = C.TIME_UNSET;
     consecutiveDroppedFrameCount = 0;
-    lastInputTimeUs = C.TIME_UNSET;
-    if (pendingOutputStreamOffsetCount != 0) {
-      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1];
-      pendingOutputStreamOffsetCount = 0;
-    }
     if (joining) {
       setJoiningDeadlineMs();
     } else {
@@ -521,8 +392,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   public boolean isReady() {
-    if (super.isReady() && (renderedFirstFrame || (dummySurface != null && surface == dummySurface)
-        || getCodec() == null || tunneling)) {
+    if (super.isReady()
+        && (renderedFirstFrameAfterReset
+            || (dummySurface != null && surface == dummySurface)
+            || getCodec() == null
+            || tunneling)) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = C.TIME_UNSET;
       return true;
@@ -545,20 +419,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     droppedFrames = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
     lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
+    totalVideoFrameProcessingOffsetUs = 0;
+    videoFrameProcessingOffsetCount = 0;
   }
 
   @Override
   protected void onStopped() {
     joiningDeadlineMs = C.TIME_UNSET;
     maybeNotifyDroppedFrames();
+    maybeNotifyVideoFrameProcessingOffset();
     super.onStopped();
   }
 
   @Override
   protected void onDisabled() {
-    lastInputTimeUs = C.TIME_UNSET;
-    outputStreamOffsetUs = C.TIME_UNSET;
-    pendingOutputStreamOffsetCount = 0;
     currentMediaFormat = null;
     clearReportedVideoSize();
     clearRenderedFirstFrame();
@@ -679,7 +553,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             deviceNeedsNoPostProcessWorkaround,
             tunnelingAudioSessionId);
     if (surface == null) {
-      Assertions.checkState(shouldUseDummySurface(codecInfo));
+      if (!shouldUseDummySurface(codecInfo)) {
+        throw new IllegalStateException();
+      }
       if (dummySurface == null) {
         dummySurface = DummySurface.newInstanceV17(context, codecInfo.secure);
       }
@@ -759,7 +635,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!tunneling) {
       buffersInCodecCount++;
     }
-    lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
     if (Util.SDK_INT < 23 && tunneling) {
       // In tunneled mode before API 23 we don't have a way to know when the buffer is output, so
       // treat it as if it were output immediately.
@@ -788,9 +663,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 + 1
             : outputMediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
     processOutputFormat(codec, mediaFormatWidth, mediaFormatHeight);
+    maybeNotifyVideoFrameProcessingOffset();
   }
 
   @Override
+  @TargetApi(29) // codecHandlesHdr10PlusOutOfBandMetadata is false if Util.SDK_INT < 29
   protected void handleInputBufferSupplementalData(DecoderInputBuffer buffer)
       throws ExoPlaybackException {
     if (!codecHandlesHdr10PlusOutOfBandMetadata) {
@@ -815,7 +692,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         byte[] hdr10PlusInfo = new byte[data.remaining()];
         data.get(hdr10PlusInfo);
         data.position(0);
-        // If codecHandlesHdr10PlusOutOfBandMetadata is true, this is an API 29 or later build.
         setHdr10PlusInfoV29(getCodec(), hdr10PlusInfo);
       }
     }
@@ -829,6 +705,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,
+      int sampleCount,
       long bufferPresentationTimeUs,
       boolean isDecodeOnlyBuffer,
       boolean isLastBuffer,
@@ -838,6 +715,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       initialPositionUs = positionUs;
     }
 
+    long outputStreamOffsetUs = getOutputStreamOffsetUs();
     long presentationTimeUs = bufferPresentationTimeUs - outputStreamOffsetUs;
 
     if (isDecodeOnlyBuffer && !isLastBuffer) {
@@ -850,6 +728,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
         skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
+        decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
         return true;
       }
       return false;
@@ -858,11 +737,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
     long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderTimeUs;
     boolean isStarted = getState() == STATE_STARTED;
+    boolean shouldRenderFirstFrame =
+        !renderedFirstFrameAfterEnable
+            ? (isStarted || mayRenderFirstFrameAfterEnableIfNotStarted)
+            : !renderedFirstFrameAfterReset;
     // Don't force output until we joined and the position reached the current stream.
     boolean forceRenderOutputBuffer =
         joiningDeadlineMs == C.TIME_UNSET
             && positionUs >= outputStreamOffsetUs
-            && (!renderedFirstFrame
+            && (shouldRenderFirstFrame
                 || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
     if (forceRenderOutputBuffer) {
       long releaseTimeNs = System.nanoTime();
@@ -872,6 +755,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
       }
+      decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
       return true;
     }
 
@@ -904,6 +788,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
       }
+      decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
       return true;
     }
 
@@ -913,6 +798,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         notifyFrameMetadataListener(
             presentationTimeUs, adjustedReleaseTimeNs, format, currentMediaFormat);
         renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, adjustedReleaseTimeNs);
+        decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
         return true;
       }
     } else {
@@ -932,6 +818,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         notifyFrameMetadataListener(
             presentationTimeUs, adjustedReleaseTimeNs, format, currentMediaFormat);
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
+        decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
         return true;
       }
     }
@@ -970,15 +857,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
-  /**
-   * Returns the offset that should be subtracted from {@code bufferPresentationTimeUs} in {@link
-   * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, long, boolean, boolean,
-   * Format)} to get the playback position with respect to the media.
-   */
-  protected long getOutputStreamOffsetUs() {
-    return outputStreamOffsetUs;
-  }
-
   /** Called when a buffer was processed in tunneling mode. */
   protected void onProcessedTunneledBuffer(long presentationTimeUs) {
     @Nullable Format format = updateOutputFormatForTime(presentationTimeUs);
@@ -995,35 +873,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     setPendingOutputEndOfStream();
   }
 
-  /**
-   * Called when an output buffer is successfully processed.
-   *
-   * @param presentationTimeUs The timestamp associated with the output buffer.
-   */
   @CallSuper
   @Override
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
+    super.onProcessedOutputBuffer(presentationTimeUs);
     if (!tunneling) {
       buffersInCodecCount--;
     }
-    while (pendingOutputStreamOffsetCount != 0
-        && presentationTimeUs >= pendingOutputStreamSwitchTimesUs[0]) {
-      outputStreamOffsetUs = pendingOutputStreamOffsetsUs[0];
-      pendingOutputStreamOffsetCount--;
-      System.arraycopy(
-          pendingOutputStreamOffsetsUs,
-          /* srcPos= */ 1,
-          pendingOutputStreamOffsetsUs,
-          /* destPos= */ 0,
-          pendingOutputStreamOffsetCount);
-      System.arraycopy(
-          pendingOutputStreamSwitchTimesUs,
-          /* srcPos= */ 1,
-          pendingOutputStreamSwitchTimesUs,
-          /* destPos= */ 0,
-          pendingOutputStreamOffsetCount);
-      clearRenderedFirstFrame();
-    }
+  }
+
+  @Override
+  protected void onProcessedStreamChange() {
+    super.onProcessedStreamChange();
+    clearRenderedFirstFrame();
   }
 
   /**
@@ -1180,7 +1042,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    * @param releaseTimeNs The wallclock time at which the frame should be displayed, in nanoseconds.
    */
-  @TargetApi(21)
+  @RequiresApi(21)
   protected void renderOutputBufferV21(
       MediaCodec codec, int index, long presentationTimeUs, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
@@ -1206,7 +1068,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void clearRenderedFirstFrame() {
-    renderedFirstFrame = false;
+    renderedFirstFrameAfterReset = false;
     // The first frame notification is triggered by renderOutputBuffer or renderOutputBufferV21 for
     // non-tunneled playback, onQueueInputBuffer for tunneled playback prior to API level 23, and
     // OnFrameRenderedListenerV23.onFrameRenderedListener for tunneled playback on API level 23 and
@@ -1221,14 +1083,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /* package */ void maybeNotifyRenderedFirstFrame() {
-    if (!renderedFirstFrame) {
-      renderedFirstFrame = true;
+    renderedFirstFrameAfterEnable = true;
+    if (!renderedFirstFrameAfterReset) {
+      renderedFirstFrameAfterReset = true;
       eventDispatcher.renderedFirstFrame(surface);
     }
   }
 
   private void maybeRenotifyRenderedFirstFrame() {
-    if (renderedFirstFrame) {
+    if (renderedFirstFrameAfterReset) {
       eventDispatcher.renderedFirstFrame(surface);
     }
   }
@@ -1271,6 +1134,22 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
+  private void maybeNotifyVideoFrameProcessingOffset() {
+    Format outputFormat = getCurrentOutputFormat();
+    if (outputFormat != null) {
+      long totalOffsetDelta =
+          decoderCounters.totalVideoFrameProcessingOffsetUs - totalVideoFrameProcessingOffsetUs;
+      int countDelta =
+          decoderCounters.videoFrameProcessingOffsetCount - videoFrameProcessingOffsetCount;
+      if (countDelta != 0) {
+        eventDispatcher.reportVideoFrameProcessingOffset(
+            totalOffsetDelta, countDelta, outputFormat);
+        totalVideoFrameProcessingOffsetUs = decoderCounters.totalVideoFrameProcessingOffsetUs;
+        videoFrameProcessingOffsetCount = decoderCounters.videoFrameProcessingOffsetCount;
+      }
+    }
+  }
+
   private static boolean isBufferLate(long earlyUs) {
     // Class a buffer as late if it should have been presented more than 30 ms ago.
     return earlyUs < -30000;
@@ -1281,19 +1160,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     return earlyUs < -500000;
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static void setHdr10PlusInfoV29(MediaCodec codec, byte[] hdr10PlusInfo) {
     Bundle codecParameters = new Bundle();
     codecParameters.putByteArray(MediaCodec.PARAMETER_KEY_HDR10_PLUS_INFO, hdr10PlusInfo);
     codec.setParameters(codecParameters);
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private static void setOutputSurfaceV23(MediaCodec codec, Surface surface) {
     codec.setOutputSurface(surface);
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static void configureTunnelingV21(MediaFormat mediaFormat, int tunnelingAudioSessionId) {
     mediaFormat.setFeatureEnabled(CodecCapabilities.FEATURE_TunneledPlayback, true);
     mediaFormat.setInteger(MediaFormat.KEY_AUDIO_SESSION_ID, tunnelingAudioSessionId);
@@ -1314,6 +1193,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @return The framework {@link MediaFormat} that should be used to configure the decoder.
    */
   @SuppressLint("InlinedApi")
+  @TargetApi(21) // tunnelingAudioSessionId is unset if Util.SDK_INT < 21
   protected MediaFormat getMediaFormat(
       Format format,
       String codecMimeType,
@@ -1797,7 +1677,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private final class OnFrameRenderedListenerV23
       implements MediaCodec.OnFrameRenderedListener, Handler.Callback {
 

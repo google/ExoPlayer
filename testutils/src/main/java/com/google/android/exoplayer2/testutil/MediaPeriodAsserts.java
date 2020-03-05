@@ -187,7 +187,7 @@ public final class MediaPeriodAsserts {
   }
 
   private static TrackGroupArray getTrackGroups(MediaPeriod mediaPeriod) {
-    AtomicReference<TrackGroupArray> trackGroupArray = new AtomicReference<>(null);
+    AtomicReference<TrackGroupArray> trackGroupArray = new AtomicReference<>();
     DummyMainThread dummyMainThread = new DummyMainThread();
     ConditionVariable preparedCondition = new ConditionVariable();
     dummyMainThread.runOnMainThread(
@@ -231,8 +231,8 @@ public final class MediaPeriodAsserts {
       return C.SELECTION_REASON_UNKNOWN;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public Object getSelectionData() {
       return null;
     }

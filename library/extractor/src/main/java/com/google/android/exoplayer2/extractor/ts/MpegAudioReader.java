@@ -188,18 +188,14 @@ public final class MpegAudioReader implements ElementaryStreamReader {
     if (!hasOutputFormat) {
       frameDurationUs = (C.MICROS_PER_SECOND * header.samplesPerFrame) / header.sampleRate;
       Format format =
-          Format.createAudioSampleFormat(
-              formatId,
-              header.mimeType,
-              null,
-              Format.NO_VALUE,
-              MpegAudioUtil.MAX_FRAME_SIZE_BYTES,
-              header.channels,
-              header.sampleRate,
-              null,
-              null,
-              0,
-              language);
+          new Format.Builder()
+              .setId(formatId)
+              .setSampleMimeType(header.mimeType)
+              .setMaxInputSize(MpegAudioUtil.MAX_FRAME_SIZE_BYTES)
+              .setChannelCount(header.channels)
+              .setSampleRate(header.sampleRate)
+              .setLanguage(language)
+              .build();
       output.format(format);
       hasOutputFormat = true;
     }

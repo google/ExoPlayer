@@ -272,7 +272,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     // Player.EventListener implementation.
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       notifyStateChanged();
     }
 

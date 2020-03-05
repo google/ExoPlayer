@@ -256,19 +256,12 @@ public final class AmrExtractor implements Extractor {
       String mimeType = isWideBand ? MimeTypes.AUDIO_AMR_WB : MimeTypes.AUDIO_AMR_NB;
       int sampleRate = isWideBand ? SAMPLE_RATE_WB : SAMPLE_RATE_NB;
       trackOutput.format(
-          Format.createAudioSampleFormat(
-              /* id= */ null,
-              mimeType,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              MAX_FRAME_SIZE_BYTES,
-              /* channelCount= */ 1,
-              sampleRate,
-              /* pcmEncoding= */ Format.NO_VALUE,
-              /* initializationData= */ null,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null));
+          new Format.Builder()
+              .setSampleMimeType(mimeType)
+              .setMaxInputSize(MAX_FRAME_SIZE_BYTES)
+              .setChannelCount(1)
+              .setSampleRate(sampleRate)
+              .build());
     }
   }
 

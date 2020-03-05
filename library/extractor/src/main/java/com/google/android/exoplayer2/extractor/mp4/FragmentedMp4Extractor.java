@@ -114,7 +114,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
   private static final Format EMSG_FORMAT =
-      Format.createSampleFormat(null, MimeTypes.APPLICATION_EMSG);
+      new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_EMSG).build();
 
   // Parser states.
   private static final int STATE_READING_ATOM_HEADER = 0;
@@ -1504,7 +1504,9 @@ public class FragmentedMp4Extractor implements Extractor {
       TrackEncryptionBox encryptionBox =
           track.getSampleDescriptionEncryptionBox(fragment.header.sampleDescriptionIndex);
       @Nullable String schemeType = encryptionBox != null ? encryptionBox.schemeType : null;
-      output.format(track.format.copyWithDrmInitData(drmInitData.copyWithSchemeType(schemeType)));
+      DrmInitData updatedDrmInitData = drmInitData.copyWithSchemeType(schemeType);
+      Format format = track.format.buildUpon().setDrmInitData(updatedDrmInitData).build();
+      output.format(format);
     }
 
     /** Resets the current fragment and sample indices. */

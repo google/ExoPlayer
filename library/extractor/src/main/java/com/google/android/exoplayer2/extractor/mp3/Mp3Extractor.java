@@ -216,42 +216,16 @@ public final class Mp3Extractor implements Extractor {
   public int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException, InterruptedException {
     assertInitialized();
-    if (synchronizedHeaderData == 0) {
-      try {
-        synchronize(input, false);
-      } catch (EOFException e) {
-        return RESULT_END_OF_INPUT;
+    int readResult = readInternal(input);
+    if (readResult == RESULT_END_OF_INPUT && seeker instanceof IndexSeeker) {
+      // Duration is exact when index seeker is used.
+      long durationUs = computeTimeUs(samplesRead);
+      if (seeker.getDurationUs() != durationUs) {
+        ((IndexSeeker) seeker).setDurationUs(durationUs);
+        extractorOutput.seekMap(seeker);
       }
     }
-    if (seeker == null) {
-      seeker = computeSeeker(input);
-      extractorOutput.seekMap(seeker);
-      currentTrackOutput.format(
-          Format.createAudioSampleFormat(
-              /* id= */ null,
-              synchronizedHeader.mimeType,
-              /* codecs= */ null,
-              /* bitrate= */ Format.NO_VALUE,
-              MpegAudioUtil.MAX_FRAME_SIZE_BYTES,
-              synchronizedHeader.channels,
-              synchronizedHeader.sampleRate,
-              /* pcmEncoding= */ Format.NO_VALUE,
-              gaplessInfoHolder.encoderDelay,
-              gaplessInfoHolder.encoderPadding,
-              /* initializationData= */ null,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null,
-              (flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata));
-      firstSamplePosition = input.getPosition();
-    } else if (firstSamplePosition != 0) {
-      long inputPosition = input.getPosition();
-      if (inputPosition < firstSamplePosition) {
-        // Skip past the seek frame.
-        input.skipFully((int) (firstSamplePosition - inputPosition));
-      }
-    }
-    return readSample(input);
+    return readResult;
   }
 
   /**
@@ -264,6 +238,39 @@ public final class Mp3Extractor implements Extractor {
   }
 
   // Internal methods.
+
+  @RequiresNonNull({"extractorOutput", "currentTrackOutput", "realTrackOutput"})
+  private int readInternal(ExtractorInput input) throws IOException, InterruptedException {
+    if (synchronizedHeaderData == 0) {
+      try {
+        synchronize(input, false);
+      } catch (EOFException e) {
+        return RESULT_END_OF_INPUT;
+      }
+    }
+    if (seeker == null) {
+      seeker = computeSeeker(input);
+      extractorOutput.seekMap(seeker);
+      currentTrackOutput.format(
+          new Format.Builder()
+              .setSampleMimeType(synchronizedHeader.mimeType)
+              .setMaxInputSize(MpegAudioUtil.MAX_FRAME_SIZE_BYTES)
+              .setChannelCount(synchronizedHeader.channels)
+              .setSampleRate(synchronizedHeader.sampleRate)
+              .setEncoderDelay(gaplessInfoHolder.encoderDelay)
+              .setEncoderPadding(gaplessInfoHolder.encoderPadding)
+              .setMetadata((flags & FLAG_DISABLE_ID3_METADATA) != 0 ? null : metadata)
+              .build());
+      firstSamplePosition = input.getPosition();
+    } else if (firstSamplePosition != 0) {
+      long inputPosition = input.getPosition();
+      if (inputPosition < firstSamplePosition) {
+        // Skip past the seek frame.
+        input.skipFully((int) (firstSamplePosition - inputPosition));
+      }
+    }
+    return readSample(input);
+  }
 
   @RequiresNonNull({"currentTrackOutput", "realTrackOutput", "seeker"})
   private int readSample(ExtractorInput extractorInput) throws IOException, InterruptedException {

@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
 
 /**
  * A {@link MediaSource} that masks the {@link Timeline} with a placeholder until the actual media
@@ -59,7 +58,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     this.useLazyPreparation = useLazyPreparation && mediaSource.isSingleWindow();
     window = new Timeline.Window();
     period = new Timeline.Period();
-    Timeline initialTimeline = mediaSource.getInitialTimeline();
+    @Nullable Timeline initialTimeline = mediaSource.getInitialTimeline();
     if (initialTimeline != null) {
       timeline =
           MaskingTimeline.createWithRealTimeline(
@@ -84,15 +83,15 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     }
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Object getTag() {
     return mediaSource.getTag();
   }
 
   @Override
   @SuppressWarnings("MissingSuperCall")
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
+  public void maybeThrowSourceInfoRefreshError() {
     // Do nothing. Source info refresh errors will be thrown when calling
     // MaskingMediaPeriod.maybeThrowPrepareError.
   }
@@ -141,6 +140,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   @Override
   protected synchronized void onChildSourceInfoRefreshed(
       Void id, MediaSource mediaSource, Timeline newTimeline) {
+    @Nullable MediaPeriodId idForMaskingPeriodPreparation = null;
     if (isPrepared) {
       timeline = timeline.cloneWithUpdatedTimeline(newTimeline);
     } else if (newTimeline.isEmpty()) {
@@ -183,18 +183,21 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
       if (unpreparedMaskingMediaPeriod != null) {
         MaskingMediaPeriod maskingPeriod = unpreparedMaskingMediaPeriod;
         maskingPeriod.overridePreparePositionUs(periodPositionUs);
-        MediaPeriodId idInSource =
+        idForMaskingPeriodPreparation =
             maskingPeriod.id.copyWithPeriodUid(getInternalPeriodUid(maskingPeriod.id.periodUid));
-        maskingPeriod.createPeriod(idInSource);
       }
     }
     hasRealTimeline = true;
     isPrepared = true;
     refreshSourceInfo(this.timeline);
+    if (idForMaskingPeriodPreparation != null) {
+      Assertions.checkNotNull(unpreparedMaskingMediaPeriod)
+          .createPeriod(idForMaskingPeriodPreparation);
+    }
   }
 
-  @Nullable
   @Override
+  @Nullable
   protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       Void id, MediaPeriodId mediaPeriodId) {
     return mediaPeriodId.copyWithPeriodUid(getExternalPeriodUid(mediaPeriodId.periodUid));

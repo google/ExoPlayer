@@ -17,11 +17,11 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 
-import android.annotation.TargetApi;
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.view.Surface;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -270,7 +270,7 @@ import java.util.List;
                 C.WIDEVINE_UUID,
                 frameworkMediaDrm,
                 drmCallback,
-                /* optionalKeyRequestParameters= */ null,
+                /* keyRequestParameters= */ null,
                 /* multiSession= */ false,
                 DefaultDrmSessionManager.INITIAL_DRM_REQUEST_RETRY_COUNT);
         if (!useL1Widevine) {
@@ -458,10 +458,10 @@ import java.util.List;
   }
 
   /**
-   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be
-   * executed for API level < 18.
+   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be executed
+   * for API level < 18.
    */
-  @TargetApi(18)
+  @RequiresApi(18)
   private static final class MediaDrmBuilder {
 
     public static MediaDrm build () {

@@ -33,6 +33,8 @@ android {
         }
     }
 
+    sourceSets.test.assets.srcDir '../../testdata/src/test/assets/'
+
     testOptions.unitTests.includeAndroidResources = true
 }
 
@@ -43,6 +45,7 @@ dependencies {
     implementation project(modulePrefix + 'library-common')
     testImplementation project(modulePrefix + 'library-core')
     testImplementation project(modulePrefix + 'testutils')
+    testImplementation project(modulePrefix + 'testdata')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 

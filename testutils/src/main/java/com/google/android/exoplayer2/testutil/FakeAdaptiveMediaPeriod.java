@@ -142,7 +142,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
 
   @Override
   protected SampleStream createSampleStream(
-      TrackSelection trackSelection, EventDispatcher eventDispatcher) {
+      long positionUs, TrackSelection trackSelection, EventDispatcher eventDispatcher) {
     FakeChunkSource chunkSource =
         chunkSourceFactory.createChunkSource(trackSelection, durationUs, transferListener);
     return new ChunkSampleStream<>(
@@ -152,7 +152,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
         chunkSource,
         /* callback= */ this,
         allocator,
-        /* positionUs= */ 0,
+        positionUs,
         /* drmSessionManager= */ DrmSessionManager.getDummyDrmSessionManager(),
         new DefaultLoadErrorHandlingPolicy(/* minimumLoadableRetryCount= */ 3),
         eventDispatcher);

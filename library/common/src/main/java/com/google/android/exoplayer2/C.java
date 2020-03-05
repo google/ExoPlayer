@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
@@ -23,6 +22,7 @@ import android.media.AudioManager;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -160,6 +160,11 @@ public final class C {
     ENCODING_PCM_32BIT,
     ENCODING_PCM_FLOAT,
     ENCODING_MP3,
+    ENCODING_AAC_LC,
+    ENCODING_AAC_HE_V1,
+    ENCODING_AAC_HE_V2,
+    ENCODING_AAC_XHE,
+    ENCODING_AAC_ELD,
     ENCODING_AC3,
     ENCODING_E_AC3,
     ENCODING_E_AC3_JOC,
@@ -205,6 +210,16 @@ public final class C {
   public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;
   /** @see AudioFormat#ENCODING_MP3 */
   public static final int ENCODING_MP3 = AudioFormat.ENCODING_MP3;
+  /** @see AudioFormat#ENCODING_AAC_LC */
+  public static final int ENCODING_AAC_LC = AudioFormat.ENCODING_AAC_LC;
+  /** @see AudioFormat#ENCODING_AAC_HE_V1 */
+  public static final int ENCODING_AAC_HE_V1 = AudioFormat.ENCODING_AAC_HE_V1;
+  /** @see AudioFormat#ENCODING_AAC_HE_V2 */
+  public static final int ENCODING_AAC_HE_V2 = AudioFormat.ENCODING_AAC_HE_V2;
+  /** @see AudioFormat#ENCODING_AAC_XHE */
+  public static final int ENCODING_AAC_XHE = AudioFormat.ENCODING_AAC_XHE;
+  /** @see AudioFormat#ENCODING_AAC_ELD */
+  public static final int ENCODING_AAC_ELD = AudioFormat.ENCODING_AAC_ELD;
   /** @see AudioFormat#ENCODING_AC3 */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
   /** @see AudioFormat#ENCODING_E_AC3 */
@@ -947,6 +962,37 @@ public final class C {
   public static final int NETWORK_TYPE_OTHER = 8;
 
   /**
+   * Mode specifying whether the player should hold a WakeLock and a WifiLock. One of {@link
+   * #WAKE_MODE_NONE}, {@link #WAKE_MODE_LOCAL} and {@link #WAKE_MODE_NETWORK}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({WAKE_MODE_NONE, WAKE_MODE_LOCAL, WAKE_MODE_NETWORK})
+  public @interface WakeMode {}
+  /**
+   * A wake mode that will not cause the player to hold any locks.
+   *
+   * <p>This is suitable for applications that do not play media with the screen off.
+   */
+  public static final int WAKE_MODE_NONE = 0;
+  /**
+   * A wake mode that will cause the player to hold a {@link android.os.PowerManager.WakeLock}
+   * during playback.
+   *
+   * <p>This is suitable for applications that play media with the screen off and do not load media
+   * over wifi.
+   */
+  public static final int WAKE_MODE_LOCAL = 1;
+  /**
+   * A wake mode that will cause the player to hold a {@link android.os.PowerManager.WakeLock} and a
+   * {@link android.net.wifi.WifiManager.WifiLock} during playback.
+   *
+   * <p>This is suitable for applications that play media with the screen off and may load media
+   * over wifi.
+   */
+  public static final int WAKE_MODE_NETWORK = 2;
+
+  /**
    * Track role flags. Possible flag values are {@link #ROLE_FLAG_MAIN}, {@link
    * #ROLE_FLAG_ALTERNATE}, {@link #ROLE_FLAG_SUPPLEMENTARY}, {@link #ROLE_FLAG_COMMENTARY}, {@link
    * #ROLE_FLAG_DUB}, {@link #ROLE_FLAG_EMERGENCY}, {@link #ROLE_FLAG_CAPTION}, {@link
@@ -1047,7 +1093,7 @@ public final class C {
    *
    * @see AudioManager#generateAudioSessionId()
    */
-  @TargetApi(21)
+  @RequiresApi(21)
   public static int generateAudioSessionIdV21(Context context) {
     return ((AudioManager) context.getSystemService(Context.AUDIO_SERVICE))
         .generateAudioSessionId();

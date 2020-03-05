@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import java.io.IOException;
@@ -61,9 +62,10 @@ public final class TtmlDecoderTest {
   private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
   private static final String VERTICAL_TEXT_FILE = "ttml/vertical_text.xml";
   private static final String TEXT_COMBINE_FILE = "ttml/text_combine.xml";
+  private static final String RUBIES_FILE = "ttml/rubies.xml";
 
   @Test
-  public void testInlineAttributes() throws IOException, SubtitleDecoderException {
+  public void inlineAttributes() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -82,7 +84,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testInheritInlineAttributes() throws IOException, SubtitleDecoderException {
+  public void inheritInlineAttributes() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -111,7 +113,7 @@ public final class TtmlDecoderTest {
    * @throws IOException thrown if reading subtitle file fails.
    */
   @Test
-  public void testLime() throws IOException, SubtitleDecoderException {
+  public void lime() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -126,7 +128,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testInheritGlobalStyle() throws IOException, SubtitleDecoderException {
+  public void inheritGlobalStyle() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
@@ -141,7 +143,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testInheritGlobalStyleOverriddenByInlineAttributes()
+  public void inheritGlobalStyleOverriddenByInlineAttributes()
       throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_OVERRIDE_TTML_FILE);
 
@@ -175,7 +177,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testInheritGlobalAndParent() throws IOException, SubtitleDecoderException {
+  public void inheritGlobalAndParent() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_GLOBAL_AND_PARENT_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -214,7 +216,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testInheritMultipleStyles() throws IOException, SubtitleDecoderException {
+  public void inheritMultipleStyles() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
@@ -229,7 +231,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testInheritMultipleStylesWithoutLocalAttributes()
+  public void inheritMultipleStylesWithoutLocalAttributes()
       throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
@@ -251,8 +253,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testMergeMultipleStylesWithParentStyle()
-      throws IOException, SubtitleDecoderException {
+  public void mergeMultipleStylesWithParentStyle() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
@@ -274,7 +275,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testMultipleRegions() throws IOException, SubtitleDecoderException {
+  public void multipleRegions() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(MULTIPLE_REGIONS_TTML_FILE);
 
     List<Cue> cues = subtitle.getCues(1_000_000);
@@ -323,7 +324,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testEmptyStyleAttribute() throws IOException, SubtitleDecoderException {
+  public void emptyStyleAttribute() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
@@ -336,7 +337,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testNonexistingStyleId() throws IOException, SubtitleDecoderException {
+  public void nonexistingStyleId() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
@@ -349,7 +350,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testNonExistingAndExistingStyleIdWithRedundantSpaces()
+  public void nonExistingAndExistingStyleIdWithRedundantSpaces()
       throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
@@ -364,7 +365,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testMultipleChaining() throws IOException, SubtitleDecoderException {
+  public void multipleChaining() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(CHAIN_MULTIPLE_STYLES_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
@@ -388,7 +389,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testNoUnderline() throws IOException, SubtitleDecoderException {
+  public void noUnderline() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -404,7 +405,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testNoLinethrough() throws IOException, SubtitleDecoderException {
+  public void noLinethrough() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -420,7 +421,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testFontSizeSpans() throws IOException, SubtitleDecoderException {
+  public void fontSizeSpans() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(10);
@@ -447,7 +448,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testFontSizeWithMissingUnitIsIgnored() throws IOException, SubtitleDecoderException {
+  public void fontSizeWithMissingUnitIsIgnored() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_MISSING_UNIT_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
@@ -459,7 +460,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testFontSizeWithInvalidValueIsIgnored() throws IOException, SubtitleDecoderException {
+  public void fontSizeWithInvalidValueIsIgnored() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_INVALID_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
@@ -481,7 +482,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testFontSizeWithEmptyValueIsIgnored() throws IOException, SubtitleDecoderException {
+  public void fontSizeWithEmptyValueIsIgnored() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_EMPTY_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
@@ -493,7 +494,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testFrameRate() throws IOException, SubtitleDecoderException {
+  public void frameRate() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FRAME_RATE_TTML_FILE);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
@@ -504,7 +505,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testBitmapPercentageRegion() throws IOException, SubtitleDecoderException {
+  public void bitmapPercentageRegion() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(BITMAP_REGION_FILE);
 
     Cue cue = getOnlyCueAtTimeUs(subtitle, 1_000_000);
@@ -533,7 +534,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testBitmapPixelRegion() throws IOException, SubtitleDecoderException {
+  public void bitmapPixelRegion() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(BITMAP_PIXEL_REGION_FILE);
 
     Cue cue = getOnlyCueAtTimeUs(subtitle, 1_000_000);
@@ -554,7 +555,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testBitmapUnsupportedRegion() throws IOException, SubtitleDecoderException {
+  public void bitmapUnsupportedRegion() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(BITMAP_UNSUPPORTED_REGION_FILE);
 
     Cue cue = getOnlyCueAtTimeUs(subtitle, 1_000_000);
@@ -575,7 +576,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testVerticalText() throws IOException, SubtitleDecoderException {
+  public void verticalText() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(VERTICAL_TEXT_FILE);
 
     Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
@@ -589,7 +590,7 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testTextCombine() throws IOException, SubtitleDecoderException {
+  public void textCombine() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(TEXT_COMBINE_FILE);
 
     Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
@@ -604,6 +605,38 @@ public final class TtmlDecoderTest {
 
     Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
     assertThat(thirdCue).hasNoHorizontalTextInVerticalContextSpanBetween(0, thirdCue.length());
+  }
+
+  @Test
+  public void testRubies() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(RUBIES_FILE);
+
+    Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(firstCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("1st rubies", RubySpan.POSITION_OVER);
+    assertThat(firstCue)
+        .hasRubySpanBetween("Cue with annotated ".length(), "Cue with annotated text".length())
+        .withTextAndPosition("2nd rubies", RubySpan.POSITION_UNKNOWN);
+
+    Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(secondCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("rubies", RubySpan.POSITION_UNKNOWN);
+
+    Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(thirdCue).hasNoRubySpanBetween(0, thirdCue.length());
+
+    Spanned fourthCue = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
+    assertThat(fourthCue.toString()).isEqualTo("Cue with text.");
+    assertThat(fourthCue).hasNoRubySpanBetween(0, fourthCue.length());
+
+    Spanned fifthCue = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
+    assertThat(fifthCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(fifthCue).hasNoRubySpanBetween(0, fifthCue.length());
   }
 
   private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {

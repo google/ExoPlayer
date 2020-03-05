@@ -104,18 +104,14 @@ public final class Ac4Util {
       ParsableByteArray data, String trackId, String language, @Nullable DrmInitData drmInitData) {
     data.skipBytes(1); // ac4_dsi_version, bitstream_version[0:5]
     int sampleRate = ((data.readUnsignedByte() & 0x20) >> 5 == 1) ? 48000 : 44100;
-    return Format.createAudioSampleFormat(
-        trackId,
-        MimeTypes.AUDIO_AC4,
-        /* codecs= */ null,
-        /* bitrate= */ Format.NO_VALUE,
-        /* maxInputSize= */ Format.NO_VALUE,
-        CHANNEL_COUNT_2,
-        sampleRate,
-        /* initializationData= */ null,
-        drmInitData,
-        /* selectionFlags= */ 0,
-        language);
+    return new Format.Builder()
+        .setId(trackId)
+        .setSampleMimeType(MimeTypes.AUDIO_AC4)
+        .setChannelCount(CHANNEL_COUNT_2)
+        .setSampleRate(sampleRate)
+        .setDrmInitData(drmInitData)
+        .setLanguage(language)
+        .build();
   }
 
   /**

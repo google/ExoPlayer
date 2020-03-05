@@ -163,18 +163,14 @@ public final class Ac3Util {
     if ((nextByte & 0x04) != 0) { // lfeon
       channelCount++;
     }
-    return Format.createAudioSampleFormat(
-        trackId,
-        MimeTypes.AUDIO_AC3,
-        /* codecs= */ null,
-        Format.NO_VALUE,
-        Format.NO_VALUE,
-        channelCount,
-        sampleRate,
-        /* initializationData= */ null,
-        drmInitData,
-        /* selectionFlags= */ 0,
-        language);
+    return new Format.Builder()
+        .setId(trackId)
+        .setSampleMimeType(MimeTypes.AUDIO_AC3)
+        .setChannelCount(channelCount)
+        .setSampleRate(sampleRate)
+        .setDrmInitData(drmInitData)
+        .setLanguage(language)
+        .build();
   }
 
   /**
@@ -218,18 +214,14 @@ public final class Ac3Util {
         mimeType = MimeTypes.AUDIO_E_AC3_JOC;
       }
     }
-    return Format.createAudioSampleFormat(
-        trackId,
-        mimeType,
-        /* codecs= */ null,
-        Format.NO_VALUE,
-        Format.NO_VALUE,
-        channelCount,
-        sampleRate,
-        /* initializationData= */ null,
-        drmInitData,
-        /* selectionFlags= */ 0,
-        language);
+    return new Format.Builder()
+        .setId(trackId)
+        .setSampleMimeType(mimeType)
+        .setChannelCount(channelCount)
+        .setSampleRate(sampleRate)
+        .setDrmInitData(drmInitData)
+        .setLanguage(language)
+        .build();
   }
 
   /**

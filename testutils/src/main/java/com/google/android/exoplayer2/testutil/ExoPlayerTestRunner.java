@@ -62,32 +62,21 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
     /** A generic video {@link Format} which can be used to set up media sources and renderers. */
     public static final Format VIDEO_FORMAT =
-        Format.createVideoSampleFormat(
-            /* id= */ null,
-            /* sampleMimeType= */ MimeTypes.VIDEO_H264,
-            /* codecs= */ null,
-            /* bitrate= */ 800_000,
-            /* maxInputSize= */ Format.NO_VALUE,
-            /* width= */ 1280,
-            /* height= */ 720,
-            /* frameRate= */ Format.NO_VALUE,
-            /* initializationData= */ null,
-            /* drmInitData= */ null);
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_H264)
+            .setAverageBitrate(800_000)
+            .setWidth(1280)
+            .setHeight(720)
+            .build();
 
     /** A generic audio {@link Format} which can be used to set up media sources and renderers. */
     public static final Format AUDIO_FORMAT =
-        Format.createAudioSampleFormat(
-            /* id= */ null,
-            /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
-            /* codecs= */ null,
-            /* bitrate= */ 100_000,
-            /* maxInputSize= */ Format.NO_VALUE,
-            /* channelCount= */ 2,
-            /* sampleRate= */ 44100,
-            /* initializationData=*/ null,
-            /* drmInitData= */ null,
-            /* selectionFlags= */ 0,
-            /* language= */ null);
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.AUDIO_AAC)
+            .setAverageBitrate(100_000)
+            .setChannelCount(2)
+            .setSampleRate(44100)
+            .build();
 
     private Clock clock;
     private Timeline timeline;
@@ -371,8 +360,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
                 videoRendererEventListener,
                 audioRendererEventListener,
                 textRendererOutput,
-                metadataRendererOutput,
-                drmSessionManager) -> renderers;
+                metadataRendererOutput) -> renderers;
       }
       if (loadControl == null) {
         loadControl = new DefaultLoadControl();
@@ -609,8 +597,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the playback states reported by {@link
-   * Player.EventListener#onPlayerStateChanged(boolean, int)} are equal to the provided playback
-   * states.
+   * Player.EventListener#onPlaybackStateChanged(int)} are equal to the provided playback states.
    */
   public void assertPlaybackStatesEqual(Integer... states) {
     assertThat(playbackStates).containsExactlyElementsIn(Arrays.asList(states)).inOrder();
@@ -706,7 +693,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+  public void onPlaybackStateChanged(@Player.State int playbackState) {
     playbackStates.add(playbackState);
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED

@@ -50,9 +50,9 @@ public final class EventMessage implements Metadata.Entry {
   @VisibleForTesting public static final String SCTE35_SCHEME_ID = "urn:scte:scte35:2014:bin";
 
   private static final Format ID3_FORMAT =
-      Format.createSampleFormat(/* id= */ null, MimeTypes.APPLICATION_ID3);
+      new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_ID3).build();
   private static final Format SCTE35_FORMAT =
-      Format.createSampleFormat(/* id= */ null, MimeTypes.APPLICATION_SCTE35);
+      new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_SCTE35).build();
 
   /** The message scheme. */
   public final String schemeIdUri;

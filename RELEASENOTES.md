@@ -3,10 +3,23 @@
 ### dev-v2 (not yet released) ###
 
 * Core library:
+  * The `DefaultLoadControl` default minimum buffer is set to 50 seconds,
+    equal to the default maximum buffer. `DefaultLoadControl` applies the
+    same behavior for audio and video.
+  * Add API in `AnalyticsListener` to report video frame processing offset.
+    `MediaCodecVideoRenderer` reports the event.
+  * Add fields `videoFrameProcessingOffsetUsSum` and
+    `videoFrameProcessingOffsetUsCount` in `DecoderCounters` to compute
+    the average video frame processing offset.
   * Add playlist API ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
   * Add `play` and `pause` methods to `Player`.
   * Add `Player.getCurrentLiveOffset` to conveniently return the live offset.
   * Add `Player.onPlayWhenReadyChanged` with reasons.
+  * Add `Player.onPlaybackStateChanged` and deprecate
+    `Player.onPlayerStateChanged`.
+  * Deprecate and rename `getPlaybackError` to `getPlayerError` for consistency.
+  * Deprecate and rename `onLoadingChanged` to `onIsLoadingChanged` for
+    consistency.
   * Make `MediaSourceEventListener.LoadEventInfo` and
     `MediaSourceEventListener.MediaLoadData` top-level classes.
   * Rename `MediaCodecRenderer.onOutputFormatChanged` to
@@ -15,6 +28,19 @@
   * Move player message-related constants from `C` to `Renderer`, to avoid
     having the constants class depend on player/renderer classes.
   * Split out `common` and `extractor` submodules.
+  * Allow to explicitly send `PlayerMessage`s at the end of a stream.
+  * Add `DataSpec.Builder` and deprecate most `DataSpec` constructors.
+  * Add `DataSpec.customData` to allow applications to pass custom data through
+    `DataSource` chains.
+  * Add a sample count parameter to `MediaCodecRenderer.processOutputBuffer`
+    and `AudioSink.handleBuffer` to allow batching multiple encoded frames
+    in one buffer.
+  * Add a `Format.Builder` and deprecate all `Format.create*` methods and most
+    `Format.copyWith*` methods.
+  * Split `Format.bitrate` into `Format.averageBitrate` and `Format.peakBitrate`
+    ([#2863](https://github.com/google/ExoPlayer/issues/2863)).
+  * Add optional automatic `WifiLock` handling to `SimpleExoPlayer`
+    ([#6914](https://github.com/google/ExoPlayer/issues/6914)).
 * Text:
   * Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
     later).
@@ -24,9 +50,21 @@
     (rendering is coming later).
   * Fix `SubtitlePainter` to render `EDGE_TYPE_OUTLINE` using the correct color
     ([#6724](https://github.com/google/ExoPlayer/pull/6724)).
-* DRM: Add support for attaching DRM sessions to clear content in the demo app.
-* HLS: Fix playback of DRM protected content that uses key rotation
-  ([#6903](https://github.com/google/ExoPlayer/issues/6903)).
+  * Add support for WebVTT default
+    [text](https://www.w3.org/TR/webvtt1/#default-text-color) and
+    [background](https://www.w3.org/TR/webvtt1/#default-text-background) colors
+    ([PR #4178](https://github.com/google/ExoPlayer/pull/4178),
+    [issue #6581](https://github.com/google/ExoPlayer/issues/6581)).
+  * Catch-and-log all fatal exceptions in `TextRenderer` instead of re-throwing,
+    allowing playback to continue even if subtitles fail
+    ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
+  * Parse `tts:ruby` and `tts:rubyPosition` properties in TTML subtitles
+    (rendering is coming later).
+* DRM:
+  * Add support for attaching DRM sessions to clear content in the demo app.
+  * Remove `DrmSessionManager` references from all renderers.
+    `DrmSessionManager` must be injected into the MediaSources using the
+    MediaSources factories.
 * Downloads: Merge downloads in `SegmentDownloader` to improve overall download
   speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 * MP3: Add `IndexSeeker` for accurate seeks in VBR streams
@@ -39,8 +77,25 @@
 * Testing
   * Upgrade Truth dependency from 0.44 to 1.0.
   * Upgrade to JUnit 4.13-rc-2.
+* UI
+  * Move logic of prev, next, fast forward and rewind to ControlDispatcher
+    ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
+* Demo apps: Add
+  [GL demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/gl) to
+  show how to render video to a `GLSurfaceView` while applying a GL shader.
+  ([#6920](https://github.com/google/ExoPlayer/issues/6920)).
+* Metadata: Add minimal DVB Application Information Table (AIT) support
+    ([#6922](https://github.com/google/ExoPlayer/pull/6922)).
 
-### 2.11.2 (TBD) ###
+### 2.11.3 (2020-02-19) ###
+
+* SmoothStreaming: Fix regression that broke playback in 2.11.2
+  ([#6981](https://github.com/google/ExoPlayer/issues/6981)).
+* DRM: Fix issue switching from protected content that uses a 16-byte
+  initialization vector to one that uses an 8-byte initialization vector
+  ([#6982](https://github.com/google/ExoPlayer/issues/6982)).
+
+### 2.11.2 (2020-02-13) ###
 
 * Add Java FLAC extractor
   ([#6406](https://github.com/google/ExoPlayer/issues/6406)).
@@ -56,6 +111,8 @@
     [#6798](https://github.com/google/ExoPlayer/issues/6798)).
   * Fix `DownloadHelper.createMediaSource` to use `customCacheKey` when creating
     `ProgressiveMediaSource` instances.
+* DRM: Fix `NullPointerException` when playing DRM-protected content
+  ([#6951](https://github.com/google/ExoPlayer/issues/6951)).
 * Metadata:
   * Update `IcyDecoder` to try ISO-8859-1 decoding if UTF-8 decoding fails.
     Also change `IcyInfo.rawMetadata` from `String` to `byte[]` to allow
@@ -63,12 +120,15 @@
     ([#6753](https://github.com/google/ExoPlayer/issues/6753)).
   * Select multiple metadata tracks if multiple metadata renderers are available
     ([#6676](https://github.com/google/ExoPlayer/issues/6676)).
+  * Add support for ID3 genres added in Wimamp 5.6 (2010).
 * UI:
   * Show ad group markers in `DefaultTimeBar` even if they are after the end
     of the current window
     ([#6552](https://github.com/google/ExoPlayer/issues/6552)).
   * Don't use notification chronometer if playback speed is != 1.0
     ([#6816](https://github.com/google/ExoPlayer/issues/6816)).
+* HLS: Fix playback of DRM protected content that uses key rotation
+  ([#6903](https://github.com/google/ExoPlayer/issues/6903)).
 * WAV:
   * Support IMA ADPCM encoded data.
   * Improve support for G.711 A-law and mu-law encoded data.
@@ -90,7 +150,10 @@
   This issue caused FLAC streams with other bit depths to sound like white noise
   on earlier releases, but only when embedded in a non-FLAC container such as
   Matroska or MP4.
-* Add support for ID3 genres added in Wimamp 5.6 (2010).
+* Demo apps: Add
+  [GL demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/gl) to
+  show how to render video to a `GLSurfaceView` while applying a GL shader.
+  ([#6920](https://github.com/google/ExoPlayer/issues/6920)).
 
 ### 2.11.1 (2019-12-20) ###
 

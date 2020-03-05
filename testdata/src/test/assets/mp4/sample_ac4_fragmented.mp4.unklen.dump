@@ -1,0 +1,94 @@
+seekMap:
+  isSeekable = true
+  duration = 760000
+  getPosition(0) = [[timeUs=0, position=685]]
+  getPosition(1) = [[timeUs=0, position=685]]
+  getPosition(380000) = [[timeUs=0, position=685]]
+  getPosition(760000) = [[timeUs=0, position=685]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 7613
+  sample count = 19
+  format 0:
+    id = 1
+    sampleMimeType = audio/ac4
+    channelCount = 2
+    sampleRate = 48000
+    language = und
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 367, hash D2762FA
+  sample 1:
+    time = 40000
+    flags = 1
+    data = length 367, hash BDD3224A
+  sample 2:
+    time = 80000
+    flags = 1
+    data = length 367, hash 9302227B
+  sample 3:
+    time = 120000
+    flags = 1
+    data = length 367, hash 72996003
+  sample 4:
+    time = 160000
+    flags = 1
+    data = length 367, hash 88AE5A1B
+  sample 5:
+    time = 200000
+    flags = 1
+    data = length 367, hash E5346FE3
+  sample 6:
+    time = 240000
+    flags = 1
+    data = length 367, hash CE558362
+  sample 7:
+    time = 280000
+    flags = 1
+    data = length 367, hash 51AD3043
+  sample 8:
+    time = 320000
+    flags = 1
+    data = length 367, hash EB72E95B
+  sample 9:
+    time = 360000
+    flags = 1
+    data = length 367, hash 47F8FF23
+  sample 10:
+    time = 400000
+    flags = 1
+    data = length 367, hash 8133883D
+  sample 11:
+    time = 440000
+    flags = 1
+    data = length 495, hash E14BDFEE
+  sample 12:
+    time = 480000
+    flags = 1
+    data = length 520, hash FEE56928
+  sample 13:
+    time = 520000
+    flags = 1
+    data = length 599, hash 41F496C5
+  sample 14:
+    time = 560000
+    flags = 1
+    data = length 436, hash 76D6404
+  sample 15:
+    time = 600000
+    flags = 1
+    data = length 366, hash 56D49D4D
+  sample 16:
+    time = 640000
+    flags = 1
+    data = length 393, hash 822FC8
+  sample 17:
+    time = 680000
+    flags = 1
+    data = length 374, hash FA8AE217
+  sample 18:
+    time = 720000
+    flags = 1
+    data = length 393, hash 8506A1B
+tracksEnded = true

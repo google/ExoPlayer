@@ -99,23 +99,21 @@ import java.util.ArrayList;
       return true;
     }
 
-    ArrayList<byte[]> codecInitialisationData = new ArrayList<>();
-    codecInitialisationData.add(vorbisSetup.idHeader.data);
-    codecInitialisationData.add(vorbisSetup.setupHeaderData);
+    VorbisUtil.VorbisIdHeader idHeader = vorbisSetup.idHeader;
+
+    ArrayList<byte[]> codecInitializationData = new ArrayList<>();
+    codecInitializationData.add(idHeader.data);
+    codecInitializationData.add(vorbisSetup.setupHeaderData);
 
     setupData.format =
-        Format.createAudioSampleFormat(
-            null,
-            MimeTypes.AUDIO_VORBIS,
-            /* codecs= */ null,
-            this.vorbisSetup.idHeader.bitrateNominal,
-            Format.NO_VALUE,
-            this.vorbisSetup.idHeader.channels,
-            (int) this.vorbisSetup.idHeader.sampleRate,
-            codecInitialisationData,
-            null,
-            /* selectionFlags= */ 0,
-            /* language= */ null);
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.AUDIO_VORBIS)
+            .setAverageBitrate(idHeader.bitrateNominal)
+            .setPeakBitrate(idHeader.bitrateMaximum)
+            .setChannelCount(idHeader.channels)
+            .setSampleRate(idHeader.sampleRate)
+            .setInitializationData(codecInitializationData)
+            .build();
     return true;
   }
 

@@ -19,6 +19,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.view.KeyEvent;
 import android.view.View;
+import androidx.annotation.NonNull;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -267,7 +268,7 @@ import java.util.Map;
   // Player.EventListener implementation.
 
   @Override
-  public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+  public void onPlaybackStateChanged(@Player.State int playbackState) {
     updateCurrentItemIndex();
   }
 
@@ -277,12 +278,13 @@ import java.util.Map;
   }
 
   @Override
-  public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
+  public void onTimelineChanged(@NonNull Timeline timeline, @TimelineChangeReason int reason) {
     updateCurrentItemIndex();
   }
 
   @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+  public void onTracksChanged(
+      @NonNull TrackGroupArray trackGroups, @NonNull TrackSelectionArray trackSelections) {
     if (currentPlayer == exoPlayer && trackGroups != lastSeenTrackGroupArray) {
       MappingTrackSelector.MappedTrackInfo mappedTrackInfo =
           trackSelector.getCurrentMappedTrackInfo();

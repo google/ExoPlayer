@@ -27,6 +27,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -49,7 +50,12 @@ public class DedicatedThreadAsyncMediaCodecAdapterTest {
   public void setUp() throws IOException {
     codec = MediaCodec.createByCodecName("h264");
     handlerThread = new TestHandlerThread("TestHandlerThread");
-    adapter = new DedicatedThreadAsyncMediaCodecAdapter(codec, handlerThread);
+    adapter =
+        new DedicatedThreadAsyncMediaCodecAdapter(
+            codec,
+            /* enableAsynchronousQueueing= */ false,
+            /* trackType= */ C.TRACK_TYPE_VIDEO,
+            handlerThread);
     adapter.setCodecStartRunnable(() -> {});
     bufferInfo = new MediaCodec.BufferInfo();
   }

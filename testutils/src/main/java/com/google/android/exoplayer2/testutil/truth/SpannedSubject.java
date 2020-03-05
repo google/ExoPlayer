@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.truth.Fact;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import java.util.ArrayList;
@@ -84,9 +85,7 @@ public final class SpannedSubject extends Subject {
     Object[] spans = actual.getSpans(0, actual.length(), Object.class);
     if (spans.length > 0) {
       failWithoutActual(
-          simpleFact("Expected no spans"),
-          fact("in text", actual),
-          fact("but found", getAllSpansAsString(actual)));
+          simpleFact("Expected no spans"), fact("in text", actual), actualSpansFact());
     }
   }
 
@@ -615,7 +614,7 @@ public final class SpannedSubject extends Subject {
                   "Found unexpected %ss between start=%s,end=%s",
                   spanClazz.getSimpleName(), start, end)),
           simpleFact("expected none"),
-          fact("but found", getAllSpansAsString(actual)));
+          actualSpansFact());
     }
   }
 
@@ -641,7 +640,17 @@ public final class SpannedSubject extends Subject {
         simpleFact("No matching span found"),
         fact("in text", actual),
         fact("expected", getSpanAsString(start, end, spanType, spannedSubstring)),
-        fact("but found", getAllSpansAsString(actual)));
+        actualSpansFact());
+  }
+
+  @RequiresNonNull("actual")
+  private Fact actualSpansFact() {
+    String actualSpans = getAllSpansAsString(actual);
+    if (actualSpans.isEmpty()) {
+      return Fact.simpleFact("but found no spans");
+    } else {
+      return Fact.fact("but found", actualSpans);
+    }
   }
 
   private static String getAllSpansAsString(Spanned spanned) {

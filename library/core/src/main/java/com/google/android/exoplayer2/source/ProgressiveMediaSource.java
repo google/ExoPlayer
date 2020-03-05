@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -28,7 +29,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import java.io.IOException;
 
 /**
  * Provides one period that loads data from a {@link Uri} and extracted using an {@link Extractor}.
@@ -205,6 +205,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   private final int continueLoadingCheckIntervalBytes;
   @Nullable private final Object tag;
 
+  private boolean timelineIsPlaceholder;
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
   private boolean timelineIsLive;
@@ -227,6 +228,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     this.loadableLoadErrorHandlingPolicy = loadableLoadErrorHandlingPolicy;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
+    this.timelineIsPlaceholder = true;
     this.timelineDurationUs = C.TIME_UNSET;
     this.tag = tag;
   }
@@ -241,11 +243,11 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
     drmSessionManager.prepare();
-    notifySourceInfoRefreshed(timelineDurationUs, timelineIsSeekable, timelineIsLive);
+    notifySourceInfoRefreshed();
   }
 
   @Override
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
+  public void maybeThrowSourceInfoRefreshError() {
     // Do nothing.
   }
 
@@ -284,30 +286,47 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   public void onSourceInfoRefreshed(long durationUs, boolean isSeekable, boolean isLive) {
     // If we already have the duration from a previous source info refresh, use it.
     durationUs = durationUs == C.TIME_UNSET ? timelineDurationUs : durationUs;
-    if (timelineDurationUs == durationUs
+    if (!timelineIsPlaceholder
+        && timelineDurationUs == durationUs
         && timelineIsSeekable == isSeekable
         && timelineIsLive == isLive) {
       // Suppress no-op source info changes.
       return;
     }
-    notifySourceInfoRefreshed(durationUs, isSeekable, isLive);
+    timelineDurationUs = durationUs;
+    timelineIsSeekable = isSeekable;
+    timelineIsLive = isLive;
+    timelineIsPlaceholder = false;
+    notifySourceInfoRefreshed();
   }
 
   // Internal methods.
 
-  private void notifySourceInfoRefreshed(long durationUs, boolean isSeekable, boolean isLive) {
-    timelineDurationUs = durationUs;
-    timelineIsSeekable = isSeekable;
-    timelineIsLive = isLive;
+  private void notifySourceInfoRefreshed() {
     // TODO: Split up isDynamic into multiple fields to indicate which values may change. Then
     // indicate that the duration may change until it's known. See [internal: b/69703223].
-    refreshSourceInfo(
+    Timeline timeline =
         new SinglePeriodTimeline(
             timelineDurationUs,
             timelineIsSeekable,
             /* isDynamic= */ false,
             /* isLive= */ timelineIsLive,
             /* manifest= */ null,
-            tag));
+            tag);
+    if (timelineIsPlaceholder) {
+      // TODO: Actually prepare the extractors during prepatation so that we don't need a
+      // placeholder. See https://github.com/google/ExoPlayer/issues/4727.
+      timeline =
+          new ForwardingTimeline(timeline) {
+            @Override
+            public Window getWindow(
+                int windowIndex, Window window, long defaultPositionProjectionUs) {
+              super.getWindow(windowIndex, window, defaultPositionProjectionUs);
+              window.isPlaceholder = true;
+              return window;
+            }
+          };
+    }
+    refreshSourceInfo(timeline);
   }
 }

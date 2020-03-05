@@ -77,18 +77,12 @@ import java.util.List;
       putNativeOrderLong(initializationData, DEFAULT_SEEK_PRE_ROLL_SAMPLES);
 
       setupData.format =
-          Format.createAudioSampleFormat(
-              null,
-              MimeTypes.AUDIO_OPUS,
-              /* codecs= */ null,
-              Format.NO_VALUE,
-              Format.NO_VALUE,
-              channelCount,
-              SAMPLE_RATE,
-              initializationData,
-              /* drmInitData= */ null,
-              /* selectionFlags= */ 0,
-              /* language= */ null);
+          new Format.Builder()
+              .setSampleMimeType(MimeTypes.AUDIO_OPUS)
+              .setChannelCount(channelCount)
+              .setSampleRate(SAMPLE_RATE)
+              .setInitializationData(initializationData)
+              .build();
       headerRead = true;
     } else {
       boolean headerPacket = packet.readInt() == OPUS_CODE;

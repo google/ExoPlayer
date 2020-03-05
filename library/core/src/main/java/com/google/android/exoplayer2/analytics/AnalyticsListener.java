@@ -124,14 +124,20 @@ public interface AnalyticsListener {
   }
 
   /**
-   * Called when the player state changed.
-   *
-   * @param eventTime The event time.
-   * @param playWhenReady Whether the playback will proceed when ready.
-   * @param playbackState The new {@link Player.State playback state}.
+   * @deprecated Use {@link #onPlaybackStateChanged(EventTime, int)} and {@link
+   *     #onPlayWhenReadyChanged(EventTime, boolean, int)} instead.
    */
+  @Deprecated
   default void onPlayerStateChanged(
       EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {}
+
+  /**
+   * Called when the playback state changed.
+   *
+   * @param eventTime The event time.
+   * @param state The new {@link Player.State playback state}.
+   */
+  default void onPlaybackStateChanged(EventTime eventTime, @Player.State int state) {}
 
   /**
    * Called when the value changed that indicates whether playback will proceed when ready.
@@ -221,6 +227,13 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param isLoading Whether the player is loading.
    */
+  @SuppressWarnings("deprecation")
+  default void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {
+    onLoadingChanged(eventTime, isLoading);
+  }
+
+  /** @deprecated Use {@link #onIsLoadingChanged(EventTime, boolean)} instead. */
+  @Deprecated
   default void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
 
   /**
@@ -438,6 +451,14 @@ public interface AnalyticsListener {
       EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
 
   /**
+   * Called when skipping silences is enabled or disabled in the audio stream.
+   *
+   * @param eventTime The event time.
+   * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+   */
+  default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+
+  /**
    * Called after video frames have been dropped.
    *
    * @param eventTime The event time.
@@ -447,6 +468,30 @@ public interface AnalyticsListener {
    *     (whichever was more recent), and not from when the first of the reported drops occurred.
    */
   default void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
+
+  /**
+   * Called when there is an update to the video frame processing offset reported by a video
+   * renderer.
+   *
+   * <p>Video processing offset represents how early a video frame is processed compared to the
+   * player's current position. For each video frame, the offset is calculated as <em>P<sub>vf</sub>
+   * - P<sub>pl</sub></em> where <em>P<sub>vf</sub></em> is the presentation timestamp of the video
+   * frame and <em>P<sub>pl</sub></em> is the current position of the player. Positive values
+   * indicate the frame was processed early enough whereas negative values indicate that the
+   * player's position had progressed beyond the frame's timestamp when the frame was processed (and
+   * the frame was probably dropped).
+   *
+   * <p>The renderer reports the sum of video processing offset samples (one sample per processed
+   * video frame: dropped, skipped or rendered) and the total number of samples (frames).
+   *
+   * @param eventTime The event time.
+   * @param totalProcessingOffsetUs The sum of video frame processing offset samples for all video
+   *     frames processed by the renderer in microseconds.
+   * @param frameCount The number to samples included in the {@code totalProcessingOffsetUs}.
+   * @param format The current output {@link Format} rendered by the video renderer.
+   */
+  default void onVideoFrameProcessingOffset(
+      EventTime eventTime, long totalProcessingOffsetUs, int frameCount, Format format) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time

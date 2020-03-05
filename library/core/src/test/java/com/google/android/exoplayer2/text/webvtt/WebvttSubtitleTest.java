@@ -75,7 +75,7 @@ public class WebvttSubtitleTest {
                   /* endTimeUs= */ 3_000_000)));
 
   @Test
-  public void testEventCount() {
+  public void eventCount() {
     assertThat(emptySubtitle.getEventTimeCount()).isEqualTo(0);
     assertThat(simpleSubtitle.getEventTimeCount()).isEqualTo(4);
     assertThat(overlappingSubtitle.getEventTimeCount()).isEqualTo(4);
@@ -83,17 +83,17 @@ public class WebvttSubtitleTest {
   }
 
   @Test
-  public void testSimpleSubtitleEventTimes() {
+  public void simpleSubtitleEventTimes() {
     testSubtitleEventTimesHelper(simpleSubtitle);
   }
 
   @Test
-  public void testSimpleSubtitleEventIndices() {
+  public void simpleSubtitleEventIndices() {
     testSubtitleEventIndicesHelper(simpleSubtitle);
   }
 
   @Test
-  public void testSimpleSubtitleText() {
+  public void simpleSubtitleText() {
     // Test before first subtitle
     assertSingleCueEmpty(simpleSubtitle.getCues(0));
     assertSingleCueEmpty(simpleSubtitle.getCues(500_000));
@@ -121,17 +121,17 @@ public class WebvttSubtitleTest {
   }
 
   @Test
-  public void testOverlappingSubtitleEventTimes() {
+  public void overlappingSubtitleEventTimes() {
     testSubtitleEventTimesHelper(overlappingSubtitle);
   }
 
   @Test
-  public void testOverlappingSubtitleEventIndices() {
+  public void overlappingSubtitleEventIndices() {
     testSubtitleEventIndicesHelper(overlappingSubtitle);
   }
 
   @Test
-  public void testOverlappingSubtitleText() {
+  public void overlappingSubtitleText() {
     // Test before first subtitle
     assertSingleCueEmpty(overlappingSubtitle.getCues(0));
     assertSingleCueEmpty(overlappingSubtitle.getCues(500_000));
@@ -162,17 +162,17 @@ public class WebvttSubtitleTest {
   }
 
   @Test
-  public void testNestedSubtitleEventTimes() {
+  public void nestedSubtitleEventTimes() {
     testSubtitleEventTimesHelper(nestedSubtitle);
   }
 
   @Test
-  public void testNestedSubtitleEventIndices() {
+  public void nestedSubtitleEventIndices() {
     testSubtitleEventIndicesHelper(nestedSubtitle);
   }
 
   @Test
-  public void testNestedSubtitleText() {
+  public void nestedSubtitleText() {
     // Test before first subtitle
     assertSingleCueEmpty(nestedSubtitle.getCues(0));
     assertSingleCueEmpty(nestedSubtitle.getCues(500_000));

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -54,8 +53,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <h3>Attributes</h3>
  *
  * The following attributes can be set on a DefaultTimeBar when used in a layout XML file:
- *
- * <p>
  *
  * <ul>
  *   <li><b>{@code bar_height}</b> - Dimension for the height of the time bar.
@@ -204,6 +201,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private int lastCoarseScrubXPosition;
   private @MonotonicNonNull Rect lastExclusionRectangle;
 
+  private float scrubberScale;
   private boolean scrubbing;
   private long scrubPosition;
   private long duration;
@@ -327,6 +325,7 @@ public class DefaultTimeBar extends View implements TimeBar {
           (Math.max(scrubberDisabledSize, Math.max(scrubberEnabledSize, scrubberDraggedSize)) + 1)
               / 2;
     }
+    scrubberScale = 1.0f;
     duration = C.TIME_UNSET;
     keyTimeIncrement = C.TIME_UNSET;
     keyCountIncrement = DEFAULT_INCREMENT_COUNT;
@@ -354,6 +353,18 @@ public class DefaultTimeBar extends View implements TimeBar {
    */
   public void setScrubberColor(@ColorInt int scrubberColor) {
     scrubberPaint.setColor(scrubberColor);
+    invalidate(seekBounds);
+  }
+
+  /**
+   * Sets the scale factor for the scrubber handle. Scrubber enabled size, scrubber disabled size,
+   * scrubber dragged size are scaled by the scale factor. If scrubber drawable is set, the scale
+   * factor isn't applied.
+   *
+   * @param scrubberScale The scale factor for the scrubber handle.
+   */
+  public void setScrubberScale(float scrubberScale) {
+    this.scrubberScale = scrubberScale;
     invalidate(seekBounds);
   }
 
@@ -626,7 +637,6 @@ public class DefaultTimeBar extends View implements TimeBar {
     event.setClassName(ACCESSIBILITY_CLASS_NAME);
   }
 
-  @TargetApi(21)
   @Override
   public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
     super.onInitializeAccessibilityNodeInfo(info);
@@ -816,7 +826,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     if (scrubberDrawable == null) {
       int scrubberSize = (scrubbing || isFocused()) ? scrubberDraggedSize
           : (isEnabled() ? scrubberEnabledSize : scrubberDisabledSize);
-      int playheadRadius = scrubberSize / 2;
+      int playheadRadius = (int) ((scrubberSize * scrubberScale) / 2);
       canvas.drawCircle(playheadX, playheadY, playheadRadius, scrubberPaint);
     } else {
       int scrubberDrawableWidth = scrubberDrawable.getIntrinsicWidth();

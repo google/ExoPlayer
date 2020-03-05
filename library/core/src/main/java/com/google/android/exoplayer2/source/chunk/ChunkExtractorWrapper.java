@@ -23,10 +23,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -197,13 +197,13 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
 
     @Override
     public void format(Format format) {
-      sampleFormat = manifestFormat != null ? format.copyWithManifestFormatInfo(manifestFormat)
-          : format;
+      sampleFormat =
+          manifestFormat != null ? format.withManifestFormatInfo(manifestFormat) : format;
       castNonNull(trackOutput).format(sampleFormat);
     }
 
     @Override
-    public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
+    public int sampleData(DataReader input, int length, boolean allowEndOfInput)
         throws IOException, InterruptedException {
       return castNonNull(trackOutput).sampleData(input, length, allowEndOfInput);
     }

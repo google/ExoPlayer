@@ -123,7 +123,7 @@ public class DownloadHelperTest {
     FakeRenderer audioRenderer = new FakeRenderer(audioFormatUs, audioFormatZh);
     FakeRenderer textRenderer = new FakeRenderer(textFormatUs, textFormatZh);
     RenderersFactory renderersFactory =
-        (handler, videoListener, audioListener, metadata, text, drm) ->
+        (handler, videoListener, audioListener, metadata, text) ->
             new Renderer[] {textRenderer, audioRenderer, videoRenderer};
 
     downloadHelper =
@@ -454,40 +454,25 @@ public class DownloadHelperTest {
   }
 
   private static Format createVideoFormat(int bitrate) {
-    return Format.createVideoSampleFormat(
-        /* id= */ null,
-        /* sampleMimeType= */ MimeTypes.VIDEO_H264,
-        /* codecs= */ null,
-        /* bitrate= */ bitrate,
-        /* maxInputSize= */ Format.NO_VALUE,
-        /* width= */ 480,
-        /* height= */ 360,
-        /* frameRate= */ Format.NO_VALUE,
-        /* initializationData= */ null,
-        /* drmInitData= */ null);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.VIDEO_H264)
+        .setAverageBitrate(bitrate)
+        .build();
   }
 
   private static Format createAudioFormat(String language) {
-    return Format.createAudioSampleFormat(
-        /* id= */ null,
-        /* sampleMimeType= */ MimeTypes.AUDIO_AAC,
-        /* codecs= */ null,
-        /* bitrate= */ 48000,
-        /* maxInputSize= */ Format.NO_VALUE,
-        /* channelCount= */ 2,
-        /* sampleRate */ 44100,
-        /* initializationData= */ null,
-        /* drmInitData= */ null,
-        /* selectionFlags= */ C.SELECTION_FLAG_DEFAULT,
-        /* language= */ language);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_AAC)
+        .setLanguage(language)
+        .build();
   }
 
   private static Format createTextFormat(String language) {
-    return Format.createTextSampleFormat(
-        /* id= */ null,
-        /* sampleMimeType= */ MimeTypes.TEXT_VTT,
-        /* selectionFlags= */ C.SELECTION_FLAG_DEFAULT,
-        /* language= */ language);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.TEXT_VTT)
+        .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+        .setLanguage(language)
+        .build();
   }
 
   private static void assertSingleTrackSelectionEquals(

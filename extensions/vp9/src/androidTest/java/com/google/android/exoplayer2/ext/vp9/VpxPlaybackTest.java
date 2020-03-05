@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -41,10 +42,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class VpxPlaybackTest {
 
-  private static final String BEAR_URI = "asset:///bear-vp9.webm";
-  private static final String BEAR_ODD_DIMENSIONS_URI = "asset:///bear-vp9-odd-dimensions.webm";
-  private static final String ROADTRIP_10BIT_URI = "asset:///roadtrip-vp92-10bit.webm";
-  private static final String INVALID_BITSTREAM_URI = "asset:///invalid-bitstream.webm";
+  private static final String BEAR_URI = "asset:///vp9/bear-vp9.webm";
+  private static final String BEAR_ODD_DIMENSIONS_URI = "asset:///vp9/bear-vp9-odd-dimensions.webm";
+  private static final String ROADTRIP_10BIT_URI = "asset:///vp9/roadtrip-vp92-10bit.webm";
+  private static final String INVALID_BITSTREAM_URI = "asset:///vp9/invalid-bitstream.webm";
 
   private static final String TAG = "VpxPlaybackTest";
 
@@ -102,8 +103,8 @@ public class VpxPlaybackTest {
     private final Context context;
     private final Uri uri;
 
-    private ExoPlayer player;
-    private ExoPlaybackException playbackException;
+    @Nullable private ExoPlayer player;
+    @Nullable private ExoPlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context) {
       this.uri = uri;
@@ -137,7 +138,7 @@ public class VpxPlaybackTest {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       if (playbackState == Player.STATE_ENDED
           || (playbackState == Player.STATE_IDLE && playbackException != null)) {
         player.release();

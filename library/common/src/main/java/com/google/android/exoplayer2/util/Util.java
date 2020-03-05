@@ -19,7 +19,6 @@ import static android.content.Context.UI_MODE_SERVICE;
 
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.UiModeManager;
 import android.content.ComponentName;
@@ -47,6 +46,7 @@ import android.view.Display;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
@@ -178,7 +178,6 @@ public final class Util {
    * @param uris {@link Uri}s that may require {@link permission#READ_EXTERNAL_STORAGE} to read.
    * @return Whether a permission request was made.
    */
-  @TargetApi(23)
   public static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri... uris) {
     if (Util.SDK_INT < 23) {
       return false;
@@ -203,7 +202,6 @@ public final class Util {
    * @param uris A list of URIs that will be loaded.
    * @return Whether it may be possible to load the given URIs.
    */
-  @TargetApi(24)
   public static boolean checkCleartextTrafficPermitted(Uri... uris) {
     if (Util.SDK_INT < 24) {
       // We assume cleartext traffic is permitted.
@@ -1255,6 +1253,22 @@ public final class Util {
   }
 
   /**
+   * Returns a string containing a lower-case hex representation of the bytes provided.
+   *
+   * @param bytes The byte data to convert to hex.
+   * @return A String containing the hex representation of {@code bytes}.
+   */
+  public static String toHexString(byte[] bytes) {
+    StringBuilder result = new StringBuilder(bytes.length * 2);
+    for (int i = 0; i < bytes.length; i++) {
+      result
+          .append(Character.forDigit((bytes[i] >> 4) & 0xF, 16))
+          .append(Character.forDigit(bytes[i] & 0xF, 16));
+    }
+    return result.toString();
+  }
+
+  /**
    * Returns a string with comma delimited simple names of each object's class.
    *
    * @param objects The objects whose simple class names should be comma delimited and returned.
@@ -2058,14 +2072,14 @@ public final class Util {
     }
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private static void getDisplaySizeV23(Display display, Point outSize) {
     Display.Mode mode = display.getMode();
     outSize.x = mode.getPhysicalWidth();
     outSize.y = mode.getPhysicalHeight();
   }
 
-  @TargetApi(17)
+  @RequiresApi(17)
   private static void getDisplaySizeV17(Display display, Point outSize) {
     display.getRealSize(outSize);
   }
@@ -2081,12 +2095,12 @@ public final class Util {
         : new String[] {getLocaleLanguageTag(config.locale)};
   }
 
-  @TargetApi(24)
+  @RequiresApi(24)
   private static String[] getSystemLocalesV24(Configuration config) {
     return Util.split(config.getLocales().toLanguageTags(), ",");
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static String getLocaleLanguageTagV21(Locale locale) {
     return locale.toLanguageTag();
   }
