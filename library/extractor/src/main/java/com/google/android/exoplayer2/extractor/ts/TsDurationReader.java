@@ -74,11 +74,9 @@ import java.io.IOException;
    * @param pcrPid The PID of the packet stream within this TS stream that contains PCR values.
    * @return One of the {@code RESULT_} values defined in {@link Extractor}.
    * @throws IOException If an error occurred reading from the input.
-   * @throws InterruptedException If the thread was interrupted.
    */
   public @Extractor.ReadResult int readDuration(
-      ExtractorInput input, PositionHolder seekPositionHolder, int pcrPid)
-      throws IOException, InterruptedException {
+      ExtractorInput input, PositionHolder seekPositionHolder, int pcrPid) throws IOException {
     if (pcrPid <= 0) {
       return finishReadDuration(input);
     }
@@ -124,7 +122,7 @@ import java.io.IOException;
   }
 
   private int readFirstPcrValue(ExtractorInput input, PositionHolder seekPositionHolder, int pcrPid)
-      throws IOException, InterruptedException {
+      throws IOException {
     int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength());
     int searchStartPosition = 0;
     if (input.getPosition() != searchStartPosition) {
@@ -159,7 +157,7 @@ import java.io.IOException;
   }
 
   private int readLastPcrValue(ExtractorInput input, PositionHolder seekPositionHolder, int pcrPid)
-      throws IOException, InterruptedException {
+      throws IOException {
     long inputLength = input.getLength();
     int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, inputLength);
     long searchStartPosition = inputLength - bytesToSearch;

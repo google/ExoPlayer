@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -297,7 +298,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public void load() throws IOException, InterruptedException {
+  public void load() throws IOException {
     // output == null means init() hasn't been called.
     Assertions.checkNotNull(output);
     if (extractor == null && previousExtractor != null) {
@@ -317,7 +318,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   // Internal methods.
 
   @RequiresNonNull("output")
-  private void maybeLoadInitData() throws IOException, InterruptedException {
+  private void maybeLoadInitData() throws IOException {
     if (!initDataLoadRequired) {
       return;
     }
@@ -330,9 +331,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @RequiresNonNull("output")
-  private void loadMedia() throws IOException, InterruptedException {
+  private void loadMedia() throws IOException {
     if (!isMasterTimestampSource) {
-      timestampAdjuster.waitUntilInitialized();
+      try {
+        timestampAdjuster.waitUntilInitialized();
+      } catch (InterruptedException e) {
+        throw new InterruptedIOException();
+      }
     } else if (timestampAdjuster.getFirstSampleTimestampUs() == TimestampAdjuster.DO_NOT_OFFSET) {
       // We're the master and we haven't set the desired first sample timestamp yet.
       timestampAdjuster.setFirstSampleTimestampUs(startTimeUs);
@@ -347,8 +352,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   @RequiresNonNull("output")
   private void feedDataToExtractor(
-      DataSource dataSource, DataSpec dataSpec, boolean dataIsEncrypted)
-      throws IOException, InterruptedException {
+      DataSource dataSource, DataSpec dataSpec, boolean dataIsEncrypted) throws IOException {
     // If we previously fed part of this chunk to the extractor, we need to skip it this time. For
     // encrypted content we need to skip the data by reading it through the source, so as to ensure
     // correct decryption of the remainder of the chunk. For clear content, we can request the
@@ -383,7 +387,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @RequiresNonNull("output")
   @EnsuresNonNull("extractor")
   private DefaultExtractorInput prepareExtraction(DataSource dataSource, DataSpec dataSpec)
-      throws IOException, InterruptedException {
+      throws IOException {
     long bytesToRead = dataSource.open(dataSpec);
     DefaultExtractorInput extractorInput =
         new DefaultExtractorInput(dataSource, dataSpec.position, bytesToRead);
@@ -421,16 +425,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   /**
-   * Peek the presentation timestamp of the first sample in the chunk from an ID3 PRIV as defined
-   * in the HLS spec, version 20, Section 3.4. Returns {@link C#TIME_UNSET} if the frame is not
-   * found. This method only modifies the peek position.
+   * Peek the presentation timestamp of the first sample in the chunk from an ID3 PRIV as defined in
+   * the HLS spec, version 20, Section 3.4. Returns {@link C#TIME_UNSET} if the frame is not found.
+   * This method only modifies the peek position.
    *
    * @param input The {@link ExtractorInput} to obtain the PRIV frame from.
    * @return The parsed, adjusted timestamp in microseconds
    * @throws IOException If an error occurred peeking from the input.
-   * @throws InterruptedException If the thread was interrupted.
    */
-  private long peekId3PrivTimestamp(ExtractorInput input) throws IOException, InterruptedException {
+  private long peekId3PrivTimestamp(ExtractorInput input) throws IOException {
     input.resetPeekPosition();
     try {
       input.peekFully(scratchId3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH);

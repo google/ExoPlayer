@@ -57,16 +57,15 @@ public interface Extractor {
   /**
    * Returns whether this extractor can extract samples from the {@link ExtractorInput}, which must
    * provide data from the start of the stream.
-   * <p>
-   * If {@code true} is returned, the {@code input}'s reading position may have been modified.
+   *
+   * <p>If {@code true} is returned, the {@code input}'s reading position may have been modified.
    * Otherwise, only its peek position may have been modified.
    *
    * @param input The {@link ExtractorInput} from which data should be peeked/read.
    * @return Whether this extractor can read the provided input.
    * @throws IOException If an error occurred reading from the input.
-   * @throws InterruptedException If the thread was interrupted.
    */
-  boolean sniff(ExtractorInput input) throws IOException, InterruptedException;
+  boolean sniff(ExtractorInput input) throws IOException;
 
   /**
    * Initializes the extractor with an {@link ExtractorOutput}. Called at most once.
@@ -89,20 +88,18 @@ public interface Extractor {
    * {@link #RESULT_SEEK} is returned. If the extractor reached the end of the data provided by the
    * {@link ExtractorInput}, then {@link #RESULT_END_OF_INPUT} is returned.
    *
-   * <p>When this method throws an {@link IOException} or an {@link InterruptedException},
-   * extraction may continue by providing an {@link ExtractorInput} with an unchanged {@link
-   * ExtractorInput#getPosition() read position} to a subsequent call to this method.
+   * <p>When this method throws an {@link IOException}, extraction may continue by providing an
+   * {@link ExtractorInput} with an unchanged {@link ExtractorInput#getPosition() read position} to
+   * a subsequent call to this method.
    *
    * @param input The {@link ExtractorInput} from which data should be read.
    * @param seekPosition If {@link #RESULT_SEEK} is returned, this holder is updated to hold the
    *     position of the required data.
    * @return One of the {@code RESULT_} values defined in this interface.
    * @throws IOException If an error occurred reading from the input.
-   * @throws InterruptedException If the thread was interrupted.
    */
   @ReadResult
-  int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException;
+  int read(ExtractorInput input, PositionHolder seekPosition) throws IOException;
 
   /**
    * Notifies the extractor that a seek has occurred.

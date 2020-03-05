@@ -167,7 +167,7 @@ public final class OggPacketTest {
   }
 
   @Test
-  public void parseRealFile() throws IOException, InterruptedException {
+  public void parseRealFile() throws IOException {
     byte[] data = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TEST_FILE);
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
     int packetCounter = 0;
@@ -187,18 +187,17 @@ public final class OggPacketTest {
   }
 
   private void assertReadPacket(FakeExtractorInput extractorInput, byte[] expected)
-      throws IOException, InterruptedException {
+      throws IOException {
     assertThat(readPacket(extractorInput)).isTrue();
     ParsableByteArray payload = oggPacket.getPayload();
     assertThat(Arrays.copyOf(payload.data, payload.limit())).isEqualTo(expected);
   }
 
-  private void assertReadEof(FakeExtractorInput extractorInput)
-      throws IOException, InterruptedException {
+  private void assertReadEof(FakeExtractorInput extractorInput) throws IOException {
     assertThat(readPacket(extractorInput)).isFalse();
   }
 
-  private boolean readPacket(FakeExtractorInput input) throws InterruptedException, IOException {
+  private boolean readPacket(FakeExtractorInput input) throws IOException {
     while (true) {
       try {
         return oggPacket.populate(input);

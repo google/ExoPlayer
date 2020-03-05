@@ -43,8 +43,7 @@ public final class DummyTrackOutput implements TrackOutput {
   }
 
   @Override
-  public int sampleData(DataReader input, int length, boolean allowEndOfInput)
-      throws IOException, InterruptedException {
+  public int sampleData(DataReader input, int length, boolean allowEndOfInput) throws IOException {
     int bytesToSkipByReading = Math.min(readBuffer.length, length);
     int bytesSkipped = input.read(readBuffer, /* offset= */ 0, bytesToSkipByReading);
     if (bytesSkipped == C.RESULT_END_OF_INPUT) {

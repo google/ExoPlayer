@@ -134,7 +134,7 @@ public final class FlacExtractor implements Extractor {
   }
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     FlacMetadataReader.peekId3Metadata(input, /* parseData= */ false);
     return FlacMetadataReader.checkAndPeekStreamMarker(input);
   }
@@ -148,7 +148,7 @@ public final class FlacExtractor implements Extractor {
 
   @Override
   public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+      throws IOException {
     switch (state) {
       case STATE_READ_ID3_METADATA:
         readId3Metadata(input);
@@ -191,24 +191,23 @@ public final class FlacExtractor implements Extractor {
 
   // Private methods.
 
-  private void readId3Metadata(ExtractorInput input) throws IOException, InterruptedException {
+  private void readId3Metadata(ExtractorInput input) throws IOException {
     id3Metadata = FlacMetadataReader.readId3Metadata(input, /* parseData= */ !id3MetadataDisabled);
     state = STATE_GET_STREAM_MARKER_AND_INFO_BLOCK_BYTES;
   }
 
-  private void getStreamMarkerAndInfoBlockBytes(ExtractorInput input)
-      throws IOException, InterruptedException {
+  private void getStreamMarkerAndInfoBlockBytes(ExtractorInput input) throws IOException {
     input.peekFully(streamMarkerAndInfoBlock, 0, streamMarkerAndInfoBlock.length);
     input.resetPeekPosition();
     state = STATE_READ_STREAM_MARKER;
   }
 
-  private void readStreamMarker(ExtractorInput input) throws IOException, InterruptedException {
+  private void readStreamMarker(ExtractorInput input) throws IOException {
     FlacMetadataReader.readStreamMarker(input);
     state = STATE_READ_METADATA_BLOCKS;
   }
 
-  private void readMetadataBlocks(ExtractorInput input) throws IOException, InterruptedException {
+  private void readMetadataBlocks(ExtractorInput input) throws IOException {
     boolean isLastMetadataBlock = false;
     FlacMetadataReader.FlacStreamMetadataHolder metadataHolder =
         new FlacMetadataReader.FlacStreamMetadataHolder(flacStreamMetadata);
@@ -226,7 +225,7 @@ public final class FlacExtractor implements Extractor {
     state = STATE_GET_FRAME_START_MARKER;
   }
 
-  private void getFrameStartMarker(ExtractorInput input) throws IOException, InterruptedException {
+  private void getFrameStartMarker(ExtractorInput input) throws IOException {
     frameStartMarker = FlacMetadataReader.getFrameStartMarker(input);
     castNonNull(extractorOutput)
         .seekMap(
@@ -238,7 +237,7 @@ public final class FlacExtractor implements Extractor {
   }
 
   private @ReadResult int readFrames(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+      throws IOException {
     Assertions.checkNotNull(trackOutput);
     Assertions.checkNotNull(flacStreamMetadata);
 

@@ -1460,7 +1460,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     @Override
     public int sampleData(DataReader input, int length, boolean allowEndOfInput)
-        throws IOException, InterruptedException {
+        throws IOException {
       ensureBufferCapacity(bufferPosition + length);
       int numBytesRead = input.read(buffer, bufferPosition, length);
       if (numBytesRead == C.RESULT_END_OF_INPUT) {

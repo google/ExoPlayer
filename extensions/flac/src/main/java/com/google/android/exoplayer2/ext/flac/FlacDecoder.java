@@ -63,7 +63,7 @@ import java.util.List;
       streamMetadata = decoderJni.decodeStreamMetadata();
     } catch (ParserException e) {
       throw new FlacDecoderException("Failed to decode StreamInfo", e);
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
       // Never happens.
       throw new IllegalStateException(e);
     }
@@ -107,7 +107,7 @@ import java.util.List;
       decoderJni.decodeSample(outputData);
     } catch (FlacDecoderJni.FlacFrameDecodeException e) {
       return new FlacDecoderException("Frame decoding failed", e);
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
       // Never happens.
       throw new IllegalStateException(e);
     }

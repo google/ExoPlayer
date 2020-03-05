@@ -82,10 +82,8 @@ import java.io.IOException;
    * @return Whether the read was successful. The read fails if the end of the input is encountered
    *     without reading data.
    * @throws IOException If reading data fails or the stream is invalid.
-   * @throws InterruptedException If the thread is interrupted.
    */
-  public boolean populate(ExtractorInput input, boolean quiet)
-      throws IOException, InterruptedException {
+  public boolean populate(ExtractorInput input, boolean quiet) throws IOException {
     scratch.reset();
     reset();
     boolean hasEnoughBytes = input.getLength() == C.LENGTH_UNSET

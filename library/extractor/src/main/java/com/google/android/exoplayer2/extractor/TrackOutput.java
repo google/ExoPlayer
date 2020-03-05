@@ -111,10 +111,8 @@ public interface TrackOutput {
    *     should be considered an error, causing an {@link EOFException} to be thrown.
    * @return The number of bytes appended.
    * @throws IOException If an error occurred reading from the input.
-   * @throws InterruptedException If the thread was interrupted.
    */
-  int sampleData(DataReader input, int length, boolean allowEndOfInput)
-      throws IOException, InterruptedException;
+  int sampleData(DataReader input, int length, boolean allowEndOfInput) throws IOException;
 
   /**
    * Called to write sample data to the output.

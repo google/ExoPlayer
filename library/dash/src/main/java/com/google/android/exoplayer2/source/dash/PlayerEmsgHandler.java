@@ -296,7 +296,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
     @Override
     public int sampleData(DataReader input, int length, boolean allowEndOfInput)
-        throws IOException, InterruptedException {
+        throws IOException {
       return sampleQueue.sampleData(input, length, allowEndOfInput);
     }
 

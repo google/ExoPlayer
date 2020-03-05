@@ -89,8 +89,7 @@ public final class OggExtractorTest {
     assertSniff(data, /* expectedResult= */ false);
   }
 
-  private void assertSniff(byte[] data, boolean expectedResult)
-      throws InterruptedException, IOException {
+  private void assertSniff(byte[] data, boolean expectedResult) throws IOException {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
             .setData(data)

@@ -39,10 +39,8 @@ import java.io.IOException;
     scratch = new ParsableByteArray(8);
   }
 
-  /**
-   * @see com.google.android.exoplayer2.extractor.Extractor#sniff(ExtractorInput)
-   */
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  /** @see com.google.android.exoplayer2.extractor.Extractor#sniff(ExtractorInput) */
+  public boolean sniff(ExtractorInput input) throws IOException {
     long inputLength = input.getLength();
     int bytesToSearch = (int) (inputLength == C.LENGTH_UNSET || inputLength > SEARCH_LENGTH
         ? SEARCH_LENGTH : inputLength);
@@ -86,10 +84,8 @@ import java.io.IOException;
     return peekLength == headerStart + headerSize;
   }
 
-  /**
-   * Peeks a variable-length unsigned EBML integer from the input.
-   */
-  private long readUint(ExtractorInput input) throws IOException, InterruptedException {
+  /** Peeks a variable-length unsigned EBML integer from the input. */
+  private long readUint(ExtractorInput input) throws IOException {
     input.peekFully(scratch.data, 0, 1);
     int value = scratch.data[0] & 0xFF;
     if (value == 0) {

@@ -96,7 +96,7 @@ public final class FlvExtractor implements Extractor {
   }
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     // Check if file starts with "FLV" tag
     input.peekFully(scratch.data, 0, 3);
     scratch.setPosition(0);
@@ -144,8 +144,7 @@ public final class FlvExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException,
-      InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     Assertions.checkStateNotNull(extractorOutput); // Asserts that init has been called.
     while (true) {
       switch (state) {
@@ -180,10 +179,9 @@ public final class FlvExtractor implements Extractor {
    * @param input The {@link ExtractorInput} from which to read.
    * @return True if header was read successfully. False if the end of stream was reached.
    * @throws IOException If an error occurred reading or parsing data from the source.
-   * @throws InterruptedException If the thread was interrupted.
    */
   @RequiresNonNull("extractorOutput")
-  private boolean readFlvHeader(ExtractorInput input) throws IOException, InterruptedException {
+  private boolean readFlvHeader(ExtractorInput input) throws IOException {
     if (!input.readFully(headerBuffer.data, 0, FLV_HEADER_SIZE, true)) {
       // We've reached the end of the stream.
       return false;
@@ -215,9 +213,8 @@ public final class FlvExtractor implements Extractor {
    *
    * @param input The {@link ExtractorInput} from which to read.
    * @throws IOException If an error occurred skipping data from the source.
-   * @throws InterruptedException If the thread was interrupted.
    */
-  private void skipToTagHeader(ExtractorInput input) throws IOException, InterruptedException {
+  private void skipToTagHeader(ExtractorInput input) throws IOException {
     input.skipFully(bytesToNextTagHeader);
     bytesToNextTagHeader = 0;
     state = STATE_READING_TAG_HEADER;
@@ -229,9 +226,8 @@ public final class FlvExtractor implements Extractor {
    * @param input The {@link ExtractorInput} from which to read.
    * @return True if tag header was read successfully. Otherwise, false.
    * @throws IOException If an error occurred reading or parsing data from the source.
-   * @throws InterruptedException If the thread was interrupted.
    */
-  private boolean readTagHeader(ExtractorInput input) throws IOException, InterruptedException {
+  private boolean readTagHeader(ExtractorInput input) throws IOException {
     if (!input.readFully(tagHeaderBuffer.data, 0, FLV_TAG_HEADER_SIZE, true)) {
       // We've reached the end of the stream.
       return false;
@@ -253,10 +249,9 @@ public final class FlvExtractor implements Extractor {
    * @param input The {@link ExtractorInput} from which to read.
    * @return True if the data was consumed by a reader. False if it was skipped.
    * @throws IOException If an error occurred reading or parsing data from the source.
-   * @throws InterruptedException If the thread was interrupted.
    */
   @RequiresNonNull("extractorOutput")
-  private boolean readTagData(ExtractorInput input) throws IOException, InterruptedException {
+  private boolean readTagData(ExtractorInput input) throws IOException {
     boolean wasConsumed = true;
     boolean wasSampleOutput = false;
     long timestampUs = getCurrentTimestampUs();
@@ -287,8 +282,7 @@ public final class FlvExtractor implements Extractor {
     return wasConsumed;
   }
 
-  private ParsableByteArray prepareTagData(ExtractorInput input) throws IOException,
-      InterruptedException {
+  private ParsableByteArray prepareTagData(ExtractorInput input) throws IOException {
     if (tagDataSize > tagData.capacity()) {
       tagData.reset(new byte[Math.max(tagData.capacity() * 2, tagDataSize)], 0);
     } else {

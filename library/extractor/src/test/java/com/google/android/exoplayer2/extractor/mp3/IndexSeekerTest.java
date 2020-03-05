@@ -157,7 +157,7 @@ public class IndexSeekerTest {
       FakeTrackOutput trackOutput,
       long targetSeekTimeUs,
       int firstFrameIndexAfterSeek)
-      throws IOException, InterruptedException {
+      throws IOException {
     FakeTrackOutput expectedTrackOutput = getExpectedTrackOutput(fileName);
     int exactFrameIndex = getFrameIndex(expectedTrackOutput, targetSeekTimeUs);
     long exactFrameTimeUs = expectedTrackOutput.getSampleTimeUs(exactFrameIndex);
@@ -168,7 +168,7 @@ public class IndexSeekerTest {
 
   private static void assertFirstFrameAfterSeekHasCorrectData(
       String fileName, FakeTrackOutput trackOutput, int firstFrameIndexAfterSeek)
-      throws IOException, InterruptedException {
+      throws IOException {
     FakeTrackOutput expectedTrackOutput = getExpectedTrackOutput(fileName);
     long foundTimeUs = trackOutput.getSampleTimeUs(firstFrameIndexAfterSeek);
     int foundFrameIndex = getFrameIndex(expectedTrackOutput, foundTimeUs);
@@ -181,8 +181,7 @@ public class IndexSeekerTest {
         expectedTrackOutput.getSampleCryptoData(foundFrameIndex));
   }
 
-  private static FakeTrackOutput getExpectedTrackOutput(String fileName)
-      throws IOException, InterruptedException {
+  private static FakeTrackOutput getExpectedTrackOutput(String fileName) throws IOException {
     return extractAllSamplesFromFile(
             new Mp3Extractor(FLAG_ENABLE_INDEX_SEEKING),
             ApplicationProvider.getApplicationContext(),

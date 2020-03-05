@@ -63,10 +63,8 @@ public final class Loader implements LoaderErrorThrower {
      * Performs the load, returning on completion or cancellation.
      *
      * @throws IOException If the input could not be loaded.
-     * @throws InterruptedException If the thread was interrupted.
      */
-    void load() throws IOException, InterruptedException;
-
+    void load() throws IOException;
   }
 
   /**
@@ -399,12 +397,6 @@ public final class Loader implements LoaderErrorThrower {
       } catch (IOException e) {
         if (!released) {
           obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
-        }
-      } catch (InterruptedException e) {
-        // The load was canceled.
-        Assertions.checkState(canceled);
-        if (!released) {
-          sendEmptyMessage(MSG_END_OF_SOURCE);
         }
       } catch (Exception e) {
         // This should never happen, but handle it anyway.

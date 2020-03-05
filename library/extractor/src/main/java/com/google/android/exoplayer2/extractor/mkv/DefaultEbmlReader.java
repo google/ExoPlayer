@@ -79,7 +79,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public boolean read(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean read(ExtractorInput input) throws IOException {
     Assertions.checkStateNotNull(processor);
     while (true) {
       MasterElement head = masterElementsStack.peek();
@@ -160,11 +160,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @throws EOFException If the end of input was encountered when searching for the next level 1
    *     element.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread is interrupted.
    */
   @RequiresNonNull("processor")
-  private long maybeResyncToNextLevel1Element(ExtractorInput input)
-      throws IOException, InterruptedException {
+  private long maybeResyncToNextLevel1Element(ExtractorInput input) throws IOException {
     input.resetPeekPosition();
     while (true) {
       input.peekFully(scratch, 0, MAX_ID_BYTES);
@@ -187,10 +185,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param byteLength The length of the integer being read.
    * @return The read integer value.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread is interrupted.
    */
-  private long readInteger(ExtractorInput input, int byteLength)
-      throws IOException, InterruptedException {
+  private long readInteger(ExtractorInput input, int byteLength) throws IOException {
     input.readFully(scratch, 0, byteLength);
     long value = 0;
     for (int i = 0; i < byteLength; i++) {
@@ -206,10 +202,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param byteLength The length of the float being read.
    * @return The read float value.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread is interrupted.
    */
-  private double readFloat(ExtractorInput input, int byteLength)
-      throws IOException, InterruptedException {
+  private double readFloat(ExtractorInput input, int byteLength) throws IOException {
     long integerValue = readInteger(input, byteLength);
     double floatValue;
     if (byteLength == VALID_FLOAT32_ELEMENT_SIZE_BYTES) {
@@ -228,10 +222,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param byteLength The length of the string being read, including zero padding.
    * @return The read string value.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread is interrupted.
    */
-  private String readString(ExtractorInput input, int byteLength)
-      throws IOException, InterruptedException {
+  private static String readString(ExtractorInput input, int byteLength) throws IOException {
     if (byteLength == 0) {
       return "";
     }

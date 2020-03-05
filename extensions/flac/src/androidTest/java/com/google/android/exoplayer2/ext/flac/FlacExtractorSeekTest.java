@@ -49,8 +49,7 @@ public final class FlacExtractorSeekTest {
           .createDataSource();
 
   @Test
-  public void flacExtractorReads_seekTable_returnSeekableSeekMap()
-      throws IOException, InterruptedException {
+  public void flacExtractorReads_seekTable_returnSeekableSeekMap() throws IOException {
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE_SEEK_TABLE);
 
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -61,7 +60,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void seeking_seekTable_handlesSeekToZero() throws IOException, InterruptedException {
+  public void seeking_seekTable_handlesSeekToZero() throws IOException {
     String fileName = TEST_FILE_SEEK_TABLE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -78,7 +77,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void seeking_seekTable_handlesSeekToEoF() throws IOException, InterruptedException {
+  public void seeking_seekTable_handlesSeekToEoF() throws IOException {
     String fileName = TEST_FILE_SEEK_TABLE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -95,7 +94,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void seeking_seekTable_handlesSeekingBackward() throws IOException, InterruptedException {
+  public void seeking_seekTable_handlesSeekingBackward() throws IOException {
     String fileName = TEST_FILE_SEEK_TABLE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -114,7 +113,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void seeking_seekTable_handlesSeekingForward() throws IOException, InterruptedException {
+  public void seeking_seekTable_handlesSeekingForward() throws IOException {
     String fileName = TEST_FILE_SEEK_TABLE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -133,8 +132,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void flacExtractorReads_binarySearch_returnSeekableSeekMap()
-      throws IOException, InterruptedException {
+  public void flacExtractorReads_binarySearch_returnSeekableSeekMap() throws IOException {
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE_BINARY_SEARCH);
 
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -145,7 +143,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void seeking_binarySearch_handlesSeekToZero() throws IOException, InterruptedException {
+  public void seeking_binarySearch_handlesSeekToZero() throws IOException {
     String fileName = TEST_FILE_BINARY_SEARCH;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -162,7 +160,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void seeking_binarySearch_handlesSeekToEoF() throws IOException, InterruptedException {
+  public void seeking_binarySearch_handlesSeekToEoF() throws IOException {
     String fileName = TEST_FILE_BINARY_SEARCH;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -179,8 +177,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void seeking_binarySearch_handlesSeekingBackward()
-      throws IOException, InterruptedException {
+  public void seeking_binarySearch_handlesSeekingBackward() throws IOException {
     String fileName = TEST_FILE_BINARY_SEARCH;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -199,8 +196,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void seeking_binarySearch_handlesSeekingForward()
-      throws IOException, InterruptedException {
+  public void seeking_binarySearch_handlesSeekingForward() throws IOException {
     String fileName = TEST_FILE_BINARY_SEARCH;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -219,8 +215,7 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void flacExtractorReads_unseekable_returnUnseekableSeekMap()
-      throws IOException, InterruptedException {
+  public void flacExtractorReads_unseekable_returnUnseekableSeekMap() throws IOException {
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE_UNSEEKABLE);
 
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -235,7 +230,7 @@ public final class FlacExtractorSeekTest {
       FakeTrackOutput trackOutput,
       long targetSeekTimeUs,
       int firstFrameIndexAfterSeek)
-      throws IOException, InterruptedException {
+      throws IOException {
     FakeTrackOutput expectedTrackOutput = getExpectedTrackOutput(fileName);
     int expectedFrameIndex = getFrameIndex(expectedTrackOutput, targetSeekTimeUs);
 
@@ -252,7 +247,7 @@ public final class FlacExtractorSeekTest {
       FakeTrackOutput trackOutput,
       long targetSeekTimeUs,
       int firstFrameIndexAfterSeek)
-      throws IOException, InterruptedException {
+      throws IOException {
     FakeTrackOutput expectedTrackOutput = getExpectedTrackOutput(fileName);
     int maxFrameIndex = getFrameIndex(expectedTrackOutput, targetSeekTimeUs);
 
@@ -276,8 +271,7 @@ public final class FlacExtractorSeekTest {
     assertThat(frameFound).isTrue();
   }
 
-  private static FakeTrackOutput getExpectedTrackOutput(String fileName)
-      throws IOException, InterruptedException {
+  private static FakeTrackOutput getExpectedTrackOutput(String fileName) throws IOException {
     return TestUtil.extractAllSamplesFromFile(
             new FlacExtractor(), ApplicationProvider.getApplicationContext(), fileName)
         .trackOutputs

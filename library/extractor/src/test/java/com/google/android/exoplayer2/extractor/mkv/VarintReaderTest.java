@@ -85,7 +85,7 @@ public final class VarintReaderTest {
   private static final long VALUE_8_BYTE_MAX_WITH_MASK = 0x1FFFFFFFFFFFFFFL;
 
   @Test
-  public void readVarintEndOfInputAtStart() throws IOException, InterruptedException {
+  public void readVarintEndOfInputAtStart() throws IOException {
     VarintReader reader = new VarintReader();
     // Build an input with no data.
     ExtractorInput input = new FakeExtractorInput.Builder()
@@ -104,7 +104,7 @@ public final class VarintReaderTest {
   }
 
   @Test
-  public void readVarintExceedsMaximumAllowedLength() throws IOException, InterruptedException {
+  public void readVarintExceedsMaximumAllowedLength() throws IOException {
     VarintReader reader = new VarintReader();
     ExtractorInput input = new FakeExtractorInput.Builder()
         .setData(DATA_8_BYTE_0)
@@ -115,7 +115,7 @@ public final class VarintReaderTest {
   }
 
   @Test
-  public void readVarint() throws IOException, InterruptedException {
+  public void readVarint() throws IOException {
     VarintReader reader = new VarintReader();
     testReadVarint(reader, true, DATA_1_BYTE_0, 1, 0);
     testReadVarint(reader, true, DATA_2_BYTE_0, 2, 0);
@@ -152,7 +152,7 @@ public final class VarintReaderTest {
   }
 
   @Test
-  public void readVarintFlaky() throws IOException, InterruptedException {
+  public void readVarintFlaky() throws IOException {
     VarintReader reader = new VarintReader();
     testReadVarintFlaky(reader, true, DATA_1_BYTE_0, 1, 0);
     testReadVarintFlaky(reader, true, DATA_2_BYTE_0, 2, 0);
@@ -188,8 +188,9 @@ public final class VarintReaderTest {
     testReadVarintFlaky(reader, false, DATA_8_BYTE_MAX, 8, VALUE_8_BYTE_MAX_WITH_MASK);
   }
 
-  private static void testReadVarint(VarintReader reader, boolean removeMask, byte[] data,
-      int expectedLength, long expectedValue) throws IOException, InterruptedException {
+  private static void testReadVarint(
+      VarintReader reader, boolean removeMask, byte[] data, int expectedLength, long expectedValue)
+      throws IOException {
     ExtractorInput input = new FakeExtractorInput.Builder()
         .setData(data)
         .setSimulateUnknownLength(true)
@@ -199,8 +200,9 @@ public final class VarintReaderTest {
     assertThat(result).isEqualTo(expectedValue);
   }
 
-  private static void testReadVarintFlaky(VarintReader reader, boolean removeMask, byte[] data,
-      int expectedLength, long expectedValue) throws IOException, InterruptedException {
+  private static void testReadVarintFlaky(
+      VarintReader reader, boolean removeMask, byte[] data, int expectedLength, long expectedValue)
+      throws IOException {
     ExtractorInput input = new FakeExtractorInput.Builder()
         .setData(data)
         .setSimulateUnknownLength(true)

@@ -190,7 +190,7 @@ public final class TsExtractor implements Extractor {
   // Extractor implementation.
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     byte[] buffer = tsPacketBuffer.data;
     input.peekFully(buffer, 0, TS_PACKET_SIZE * SNIFF_TS_PACKET_COUNT);
     for (int startPosCandidate = 0; startPosCandidate < TS_PACKET_SIZE; startPosCandidate++) {
@@ -253,7 +253,7 @@ public final class TsExtractor implements Extractor {
 
   @Override
   public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+      throws IOException {
     long inputLength = input.getLength();
     if (tracksEnded) {
       boolean canReadDuration = inputLength != C.LENGTH_UNSET && mode != MODE_HLS;
@@ -372,8 +372,7 @@ public final class TsExtractor implements Extractor {
     }
   }
 
-  private boolean fillBufferWithAtLeastOnePacket(ExtractorInput input)
-      throws IOException, InterruptedException {
+  private boolean fillBufferWithAtLeastOnePacket(ExtractorInput input) throws IOException {
     byte[] data = tsPacketBuffer.data;
     // Shift bytes to the start of the buffer if there isn't enough space left at the end.
     if (BUFFER_SIZE - tsPacketBuffer.getPosition() < TS_PACKET_SIZE) {

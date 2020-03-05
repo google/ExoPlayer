@@ -71,15 +71,14 @@ public final class RawCcExtractor implements Extractor {
   }
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     dataScratch.reset();
     input.peekFully(dataScratch.data, 0, HEADER_SIZE);
     return dataScratch.readInt() == HEADER_ID;
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     Assertions.checkStateNotNull(trackOutput); // Asserts that init has been called.
     while (true) {
       switch (parserState) {
@@ -118,7 +117,7 @@ public final class RawCcExtractor implements Extractor {
     // Do nothing
   }
 
-  private boolean parseHeader(ExtractorInput input) throws IOException, InterruptedException {
+  private boolean parseHeader(ExtractorInput input) throws IOException {
     dataScratch.reset();
     if (input.readFully(dataScratch.data, 0, HEADER_SIZE, true)) {
       if (dataScratch.readInt() != HEADER_ID) {
@@ -132,8 +131,7 @@ public final class RawCcExtractor implements Extractor {
     }
   }
 
-  private boolean parseTimestampAndSampleCount(ExtractorInput input) throws IOException,
-      InterruptedException {
+  private boolean parseTimestampAndSampleCount(ExtractorInput input) throws IOException {
     dataScratch.reset();
     if (version == 0) {
       if (!input.readFully(dataScratch.data, 0, TIMESTAMP_SIZE_V0 + 1, true)) {
@@ -156,7 +154,7 @@ public final class RawCcExtractor implements Extractor {
   }
 
   @RequiresNonNull("trackOutput")
-  private void parseSamples(ExtractorInput input) throws IOException, InterruptedException {
+  private void parseSamples(ExtractorInput input) throws IOException {
     for (; remainingSampleCount > 0; remainingSampleCount--) {
       dataScratch.reset();
       input.readFully(dataScratch.data, 0, 3);

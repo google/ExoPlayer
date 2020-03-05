@@ -170,7 +170,7 @@ public final class DefaultOggSeekerTest {
   }
 
   @Test
-  public void readGranuleOfLastPage() throws IOException, InterruptedException {
+  public void readGranuleOfLastPage() throws IOException {
     // This test stream has three headers with granule numbers 20000, 40000 and 60000.
     byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/three_headers");
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);
@@ -200,8 +200,7 @@ public final class DefaultOggSeekerTest {
     }
   }
 
-  private static void skipToNextPage(ExtractorInput extractorInput)
-      throws IOException, InterruptedException {
+  private static void skipToNextPage(ExtractorInput extractorInput) throws IOException {
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
             /* streamReader= */ new FlacReader(),
@@ -221,7 +220,7 @@ public final class DefaultOggSeekerTest {
   }
 
   private static void assertReadGranuleOfLastPage(FakeExtractorInput input, int expected)
-      throws IOException, InterruptedException {
+      throws IOException {
     DefaultOggSeeker oggSeeker =
         new DefaultOggSeeker(
             /* streamReader= */ new FlacReader(),
@@ -251,7 +250,7 @@ public final class DefaultOggSeekerTest {
 
   private static long seekTo(
       FakeExtractorInput input, DefaultOggSeeker oggSeeker, long targetGranule, int initialPosition)
-      throws IOException, InterruptedException {
+      throws IOException {
     long nextSeekPosition = initialPosition;
     oggSeeker.startSeek(targetGranule);
     int count = 0;

@@ -44,7 +44,7 @@ public class OggExtractor implements Extractor {
   private boolean streamReaderInitialized;
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     try {
       return sniffInternal(input);
     } catch (ParserException e) {
@@ -70,8 +70,7 @@ public class OggExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     Assertions.checkStateNotNull(output); // Asserts that init has been called.
     if (streamReader == null) {
       if (!sniffInternal(input)) {
@@ -89,7 +88,7 @@ public class OggExtractor implements Extractor {
   }
 
   @EnsuresNonNullIf(expression = "streamReader", result = true)
-  private boolean sniffInternal(ExtractorInput input) throws IOException, InterruptedException {
+  private boolean sniffInternal(ExtractorInput input) throws IOException {
     OggPageHeader header = new OggPageHeader();
     if (!header.populate(input, true) || (header.type & 0x02) != 0x02) {
       return false;

@@ -100,7 +100,7 @@ import java.nio.ByteBuffer;
 
     @Override
     public TimestampSearchResult searchForTimestamp(ExtractorInput input, long targetSampleIndex)
-        throws IOException, InterruptedException {
+        throws IOException {
       ByteBuffer outputBuffer = outputFrameHolder.byteBuffer;
       long searchPosition = input.getPosition();
       decoderJni.reset(searchPosition);

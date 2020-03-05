@@ -169,7 +169,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * @param input An {@link ExtractorInput} from which to read the encryption data.
    */
-  public void fillEncryptionData(ExtractorInput input) throws IOException, InterruptedException {
+  public void fillEncryptionData(ExtractorInput input) throws IOException {
     input.readFully(sampleEncryptionData.data, 0, sampleEncryptionData.limit());
     sampleEncryptionData.setPosition(0);
     sampleEncryptionDataNeedsFill = false;

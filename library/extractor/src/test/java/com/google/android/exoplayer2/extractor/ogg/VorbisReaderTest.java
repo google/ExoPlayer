@@ -56,8 +56,7 @@ public final class VorbisReaderTest {
   }
 
   @Test
-  public void readSetupHeaders_withIOExceptions_readSuccess()
-      throws IOException, InterruptedException {
+  public void readSetupHeaders_withIOExceptions_readSuccess() throws IOException {
     // initial two pages of bytes which by spec contain the three Vorbis header packets:
     // identification, comment and setup header.
     byte[] data =
@@ -99,7 +98,7 @@ public final class VorbisReaderTest {
   }
 
   private static VorbisSetup readSetupHeaders(VorbisReader reader, ExtractorInput input)
-      throws IOException, InterruptedException {
+      throws IOException {
     OggPacket oggPacket = new OggPacket();
     while (true) {
       try {

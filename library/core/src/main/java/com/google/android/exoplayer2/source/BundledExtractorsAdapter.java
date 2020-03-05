@@ -51,7 +51,7 @@ import java.io.IOException;
 
   @Override
   public void init(DataSource dataSource, long position, long length, ExtractorOutput output)
-      throws IOException, InterruptedException {
+      throws IOException {
     extractorInput = new DefaultExtractorInput(dataSource, position, length);
     if (extractor != null) {
       return;
@@ -109,7 +109,7 @@ import java.io.IOException;
   }
 
   @Override
-  public int read(PositionHolder positionHolder) throws IOException, InterruptedException {
+  public int read(PositionHolder positionHolder) throws IOException {
     return Assertions.checkNotNull(extractor)
         .read(Assertions.checkNotNull(extractorInput), positionHolder);
   }

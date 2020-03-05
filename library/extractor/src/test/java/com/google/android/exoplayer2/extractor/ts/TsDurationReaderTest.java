@@ -71,8 +71,7 @@ public final class TsDurationReaderTest {
   }
 
   @Test
-  public void readDuration_midStream_returnsCorrectDuration()
-      throws IOException, InterruptedException {
+  public void readDuration_midStream_returnsCorrectDuration() throws IOException {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
             .setData(

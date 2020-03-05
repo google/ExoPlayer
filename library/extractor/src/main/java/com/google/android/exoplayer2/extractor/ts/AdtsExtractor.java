@@ -120,7 +120,7 @@ public final class AdtsExtractor implements Extractor {
   // Extractor implementation.
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     // Skip any ID3 headers.
     int startPosition = peekId3Header(input);
 
@@ -179,8 +179,7 @@ public final class AdtsExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     Assertions.checkStateNotNull(extractorOutput); // Asserts that init has been called.
 
     long inputLength = input.getLength();
@@ -212,7 +211,7 @@ public final class AdtsExtractor implements Extractor {
     return RESULT_CONTINUE;
   }
 
-  private int peekId3Header(ExtractorInput input) throws IOException, InterruptedException {
+  private int peekId3Header(ExtractorInput input) throws IOException {
     int firstFramePosition = 0;
     while (true) {
       input.peekFully(scratch.data, /* offset= */ 0, ID3_HEADER_LENGTH);
@@ -256,8 +255,7 @@ public final class AdtsExtractor implements Extractor {
     hasOutputSeekMap = true;
   }
 
-  private void calculateAverageFrameSize(ExtractorInput input)
-      throws IOException, InterruptedException {
+  private void calculateAverageFrameSize(ExtractorInput input) throws IOException {
     if (hasCalculatedAverageFrameSize) {
       return;
     }

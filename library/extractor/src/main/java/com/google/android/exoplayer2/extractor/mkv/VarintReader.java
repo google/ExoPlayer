@@ -56,15 +56,15 @@ import java.io.IOException;
   }
 
   /**
-   * Reads an EBML variable-length integer (varint) from an {@link ExtractorInput} such that
-   * reading can be resumed later if an error occurs having read only some of it.
-   * <p>
-   * If an value is successfully read, then the reader will automatically reset itself ready to
+   * Reads an EBML variable-length integer (varint) from an {@link ExtractorInput} such that reading
+   * can be resumed later if an error occurs having read only some of it.
+   *
+   * <p>If an value is successfully read, then the reader will automatically reset itself ready to
    * read another value.
-   * <p>
-   * If an {@link IOException} or {@link InterruptedException} is throw, the read can be resumed
-   * later by calling this method again, passing an {@link ExtractorInput} providing data starting
-   * where the previous one left off.
+   *
+   * <p>If an {@link IOException} is thrown, the read can be resumed later by calling this method
+   * again, passing an {@link ExtractorInput} providing data starting where the previous one left
+   * off.
    *
    * @param input The {@link ExtractorInput} from which the integer should be read.
    * @param allowEndOfInput True if encountering the end of the input having read no data is
@@ -76,10 +76,13 @@ import java.io.IOException;
    *     and the end of the input was encountered, or {@link C#RESULT_MAX_LENGTH_EXCEEDED} if the
    *     length of the varint exceeded maximumAllowedLength.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread is interrupted.
    */
-  public long readUnsignedVarint(ExtractorInput input, boolean allowEndOfInput,
-      boolean removeLengthMask, int maximumAllowedLength) throws IOException, InterruptedException {
+  public long readUnsignedVarint(
+      ExtractorInput input,
+      boolean allowEndOfInput,
+      boolean removeLengthMask,
+      int maximumAllowedLength)
+      throws IOException {
     if (state == STATE_BEGIN_READING) {
       // Read the first byte to establish the length.
       if (!input.readFully(scratch, 0, 1, allowEndOfInput)) {

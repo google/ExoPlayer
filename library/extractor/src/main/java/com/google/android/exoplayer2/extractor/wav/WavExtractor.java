@@ -61,7 +61,7 @@ public final class WavExtractor implements Extractor {
   }
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     return WavHeaderReader.peek(input) != null;
   }
 
@@ -85,8 +85,7 @@ public final class WavExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     assertInitialized();
     if (outputWriter == null) {
       WavHeader header = WavHeaderReader.peek(input);
@@ -176,10 +175,8 @@ public final class WavExtractor implements Extractor {
      * @param bytesLeft The number of sample data bytes left to be read from the input.
      * @return Whether the end of the sample data has been reached.
      * @throws IOException If an error occurs reading from the input.
-     * @throws InterruptedException If the thread has been interrupted.
      */
-    boolean sampleData(ExtractorInput input, long bytesLeft)
-        throws IOException, InterruptedException;
+    boolean sampleData(ExtractorInput input, long bytesLeft) throws IOException;
   }
 
   private static final class PassthroughOutputWriter implements OutputWriter {
@@ -253,8 +250,7 @@ public final class WavExtractor implements Extractor {
     }
 
     @Override
-    public boolean sampleData(ExtractorInput input, long bytesLeft)
-        throws IOException, InterruptedException {
+    public boolean sampleData(ExtractorInput input, long bytesLeft) throws IOException {
       // Write sample data until we've reached the target sample size, or the end of the data.
       boolean endOfSampleData = bytesLeft == 0;
       while (!endOfSampleData && pendingOutputBytes < targetSampleSizeBytes) {
@@ -397,8 +393,7 @@ public final class WavExtractor implements Extractor {
     }
 
     @Override
-    public boolean sampleData(ExtractorInput input, long bytesLeft)
-        throws IOException, InterruptedException {
+    public boolean sampleData(ExtractorInput input, long bytesLeft) throws IOException {
       // Calculate the number of additional frames that we need on the output side to complete a
       // sample of the target size.
       int targetFramesRemaining =

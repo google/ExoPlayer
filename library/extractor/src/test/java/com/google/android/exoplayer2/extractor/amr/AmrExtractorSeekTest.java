@@ -56,8 +56,7 @@ public final class AmrExtractorSeekTest {
   }
 
   @Test
-  public void amrExtractorReads_returnSeekableSeekMap_forNarrowBandAmr()
-      throws IOException, InterruptedException {
+  public void amrExtractorReads_returnSeekableSeekMap_forNarrowBandAmr() throws IOException {
     String fileName = NARROW_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -77,7 +76,7 @@ public final class AmrExtractorSeekTest {
 
   @Test
   public void seeking_handlesSeekingToPositionInFile_extractsCorrectFrame_forNarrowBandAmr()
-      throws IOException, InterruptedException {
+      throws IOException {
     String fileName = NARROW_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -103,8 +102,7 @@ public final class AmrExtractorSeekTest {
   }
 
   @Test
-  public void seeking_handlesSeekToEoF_extractsLastFrame_forNarrowBandAmr()
-      throws IOException, InterruptedException {
+  public void seeking_handlesSeekToEoF_extractsLastFrame_forNarrowBandAmr() throws IOException {
     String fileName = NARROW_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -131,7 +129,7 @@ public final class AmrExtractorSeekTest {
 
   @Test
   public void seeking_handlesSeekingBackward_extractsCorrectFrames_forNarrowBandAmr()
-      throws IOException, InterruptedException {
+      throws IOException {
     String fileName = NARROW_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -160,7 +158,7 @@ public final class AmrExtractorSeekTest {
 
   @Test
   public void seeking_handlesSeekingForward_extractsCorrectFrames_forNarrowBandAmr()
-      throws IOException, InterruptedException {
+      throws IOException {
     String fileName = NARROW_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -189,7 +187,7 @@ public final class AmrExtractorSeekTest {
 
   @Test
   public void seeking_handlesRandomSeeks_extractsCorrectFrames_forNarrowBandAmr()
-      throws IOException, InterruptedException {
+      throws IOException {
     String fileName = NARROW_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -217,8 +215,7 @@ public final class AmrExtractorSeekTest {
   }
 
   @Test
-  public void amrExtractorReads_returnSeekableSeekMap_forWideBandAmr()
-      throws IOException, InterruptedException {
+  public void amrExtractorReads_returnSeekableSeekMap_forWideBandAmr() throws IOException {
     String fileName = WIDE_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -238,7 +235,7 @@ public final class AmrExtractorSeekTest {
 
   @Test
   public void seeking_handlesSeekingToPositionInFile_extractsCorrectFrame_forWideBandAmr()
-      throws IOException, InterruptedException {
+      throws IOException {
     String fileName = WIDE_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -264,8 +261,7 @@ public final class AmrExtractorSeekTest {
   }
 
   @Test
-  public void seeking_handlesSeekToEoF_extractsLastFrame_forWideBandAmr()
-      throws IOException, InterruptedException {
+  public void seeking_handlesSeekToEoF_extractsLastFrame_forWideBandAmr() throws IOException {
     String fileName = WIDE_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =
@@ -292,7 +288,7 @@ public final class AmrExtractorSeekTest {
 
   @Test
   public void seeking_handlesSeekingBackward_extractsCorrectFrames_forWideBandAmr()
-      throws IOException, InterruptedException {
+      throws IOException {
     String fileName = WIDE_BAND_AMR_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     expectedTrackOutput =

@@ -268,7 +268,7 @@ public class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     return Sniffer.sniffFragmented(input);
   }
 
@@ -303,8 +303,7 @@ public class FragmentedMp4Extractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     while (true) {
       switch (parserState) {
         case STATE_READING_ATOM_HEADER:
@@ -331,7 +330,7 @@ public class FragmentedMp4Extractor implements Extractor {
     atomHeaderBytesRead = 0;
   }
 
-  private boolean readAtomHeader(ExtractorInput input) throws IOException, InterruptedException {
+  private boolean readAtomHeader(ExtractorInput input) throws IOException {
     if (atomHeaderBytesRead == 0) {
       // Read the standard length atom header.
       if (!input.readFully(atomHeader.data, 0, Atom.HEADER_SIZE, true)) {
@@ -419,7 +418,7 @@ public class FragmentedMp4Extractor implements Extractor {
     return true;
   }
 
-  private void readAtomPayload(ExtractorInput input) throws IOException, InterruptedException {
+  private void readAtomPayload(ExtractorInput input) throws IOException {
     int atomPayloadSize = (int) atomSize - atomHeaderBytesRead;
     if (atomData != null) {
       input.readFully(atomData.data, Atom.HEADER_SIZE, atomPayloadSize);
@@ -1170,7 +1169,7 @@ public class FragmentedMp4Extractor implements Extractor {
         new ChunkIndex(sizes, offsets, durationsUs, timesUs));
   }
 
-  private void readEncryptionData(ExtractorInput input) throws IOException, InterruptedException {
+  private void readEncryptionData(ExtractorInput input) throws IOException {
     TrackBundle nextTrackBundle = null;
     long nextDataOffset = Long.MAX_VALUE;
     int trackBundlesSize = trackBundles.size();
@@ -1208,9 +1207,8 @@ public class FragmentedMp4Extractor implements Extractor {
    * @return Whether a sample was read. The read sample may have been output or skipped. False
    *     indicates that there are no samples left to read in the current mdat.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread is interrupted.
    */
-  private boolean readSample(ExtractorInput input) throws IOException, InterruptedException {
+  private boolean readSample(ExtractorInput input) throws IOException {
     if (parserState == STATE_READING_SAMPLE_START) {
       if (currentTrackBundle == null) {
         @Nullable TrackBundle currentTrackBundle = getNextFragmentRun(trackBundles);

@@ -38,12 +38,11 @@ import java.io.IOException;
    * @param input Input stream to peek the WAV header from.
    * @throws ParserException If the input file is an incorrect RIFF WAV.
    * @throws IOException If peeking from the input fails.
-   * @throws InterruptedException If interrupted while peeking from input.
    * @return A new {@code WavHeader} peeked from {@code input}, or null if the input is not a
    *     supported WAV format.
    */
   @Nullable
-  public static WavHeader peek(ExtractorInput input) throws IOException, InterruptedException {
+  public static WavHeader peek(ExtractorInput input) throws IOException {
     Assertions.checkNotNull(input);
 
     // Allocate a scratch buffer large enough to store the format chunk.
@@ -108,10 +107,8 @@ import java.io.IOException;
    * @return The byte positions at which the data starts (inclusive) and ends (exclusive).
    * @throws ParserException If an error occurs parsing chunks.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from input.
    */
-  public static Pair<Long, Long> skipToData(ExtractorInput input)
-      throws IOException, InterruptedException {
+  public static Pair<Long, Long> skipToData(ExtractorInput input) throws IOException {
     Assertions.checkNotNull(input);
 
     // Make sure the peek position is set to the read position before we peek the first header.
@@ -174,11 +171,10 @@ import java.io.IOException;
      * @param input Input stream to peek the chunk header from.
      * @param scratch Buffer for temporary use.
      * @throws IOException If peeking from the input fails.
-     * @throws InterruptedException If interrupted while peeking from input.
      * @return A new {@code ChunkHeader} peeked from {@code input}.
      */
     public static ChunkHeader peek(ExtractorInput input, ParsableByteArray scratch)
-        throws IOException, InterruptedException {
+        throws IOException {
       input.peekFully(scratch.data, /* offset= */ 0, /* length= */ SIZE_IN_BYTES);
       scratch.setPosition(0);
 

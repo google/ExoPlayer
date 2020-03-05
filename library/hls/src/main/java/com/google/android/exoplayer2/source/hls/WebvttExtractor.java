@@ -72,7 +72,7 @@ public final class WebvttExtractor implements Extractor {
   // Extractor implementation.
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     // Check whether there is a header without BOM.
     input.peekFully(
         sampleData, /* offset= */ 0, /* length= */ HEADER_MIN_LENGTH, /* allowEndOfInput= */ false);
@@ -108,8 +108,7 @@ public final class WebvttExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     // output == null suggests init() hasn't been called
     Assertions.checkNotNull(output);
     int currentFileSize = (int) input.getLength();

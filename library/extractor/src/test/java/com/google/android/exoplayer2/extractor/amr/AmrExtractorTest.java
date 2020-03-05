@@ -42,7 +42,7 @@ public final class AmrExtractorTest {
   private static final Random RANDOM = new Random(1234);
 
   @Test
-  public void sniff_nonAmrSignature_returnFalse() throws IOException, InterruptedException {
+  public void sniff_nonAmrSignature_returnFalse() throws IOException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
     FakeExtractorInput input = fakeExtractorInputWithData(Util.getUtf8Bytes("0#!AMR\n123"));
 
@@ -51,7 +51,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void read_nonAmrSignature_throwParserException() throws IOException, InterruptedException {
+  public void read_nonAmrSignature_throwParserException() throws IOException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
     FakeExtractorInput input = fakeExtractorInputWithData(Util.getUtf8Bytes("0#!AMR-WB\n"));
 
@@ -64,8 +64,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void read_amrNb_returnParserException_forInvalidFrameType()
-      throws IOException, InterruptedException {
+  public void read_amrNb_returnParserException_forInvalidFrameType() throws IOException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
     // Frame type 12-14 for narrow band is reserved for future usage.
@@ -82,8 +81,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void read_amrWb_returnParserException_forInvalidFrameType()
-      throws IOException, InterruptedException {
+  public void read_amrWb_returnParserException_forInvalidFrameType() throws IOException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
     // Frame type 10-13 for wide band is reserved for future usage.
@@ -100,8 +98,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void read_amrNb_returnEndOfInput_ifInputEncountersEoF()
-      throws IOException, InterruptedException {
+  public void read_amrNb_returnEndOfInput_ifInputEncountersEoF() throws IOException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
     byte[] amrFrame = newNarrowBandAmrFrameWithType(3);
@@ -116,8 +113,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void read_amrWb_returnEndOfInput_ifInputEncountersEoF()
-      throws IOException, InterruptedException {
+  public void read_amrWb_returnEndOfInput_ifInputEncountersEoF() throws IOException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
     byte[] amrFrame = newWideBandAmrFrameWithType(5);
@@ -132,8 +128,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void read_amrNb_returnParserException_forInvalidFrameHeader()
-      throws IOException, InterruptedException {
+  public void read_amrNb_returnParserException_forInvalidFrameHeader() throws IOException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
     byte[] invalidHeaderFrame = newNarrowBandAmrFrameWithType(4);
@@ -154,8 +149,7 @@ public final class AmrExtractorTest {
   }
 
   @Test
-  public void read_amrWb_returnParserException_forInvalidFrameHeader()
-      throws IOException, InterruptedException {
+  public void read_amrWb_returnParserException_forInvalidFrameHeader() throws IOException {
     AmrExtractor amrExtractor = setupAmrExtractorWithOutput();
 
     byte[] invalidHeaderFrame = newWideBandAmrFrameWithType(6);

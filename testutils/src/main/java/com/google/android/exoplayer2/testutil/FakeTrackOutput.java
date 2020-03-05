@@ -67,8 +67,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   }
 
   @Override
-  public int sampleData(DataReader input, int length, boolean allowEndOfInput)
-      throws IOException, InterruptedException {
+  public int sampleData(DataReader input, int length, boolean allowEndOfInput) throws IOException {
     byte[] newData = new byte[length];
     int bytesAppended = input.read(newData, 0, length);
     if (bytesAppended == C.RESULT_END_OF_INPUT) {

@@ -30,7 +30,6 @@ public interface DataReader {
    *     may be less than {@code length} because the end of the input (or available data) was
    *     reached, the method was interrupted, or the operation was aborted early for another reason.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread has been interrupted.
    */
-  int read(byte[] target, int offset, int length) throws IOException, InterruptedException;
+  int read(byte[] target, int offset, int length) throws IOException;
 }

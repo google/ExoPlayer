@@ -113,14 +113,13 @@ public final class FlacExtractor implements Extractor {
   }
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     id3Metadata = FlacMetadataReader.peekId3Metadata(input, /* parseData= */ !id3MetadataDisabled);
     return FlacMetadataReader.checkAndPeekStreamMarker(input);
   }
 
   @Override
-  public int read(final ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(final ExtractorInput input, PositionHolder seekPosition) throws IOException {
     if (input.getPosition() == 0 && !id3MetadataDisabled && id3Metadata == null) {
       id3Metadata = FlacMetadataReader.peekId3Metadata(input, /* parseData= */ true);
     }
@@ -185,7 +184,7 @@ public final class FlacExtractor implements Extractor {
   @RequiresNonNull({"decoderJni", "extractorOutput", "trackOutput"}) // Requires initialized.
   @EnsuresNonNull({"streamMetadata", "outputFrameHolder"}) // Ensures stream metadata decoded.
   @SuppressWarnings({"contracts.postcondition.not.satisfied"})
-  private void decodeStreamMetadata(ExtractorInput input) throws InterruptedException, IOException {
+  private void decodeStreamMetadata(ExtractorInput input) throws IOException {
     if (streamMetadataDecoded) {
       return;
     }
@@ -225,7 +224,7 @@ public final class FlacExtractor implements Extractor {
       ParsableByteArray outputBuffer,
       OutputFrameHolder outputFrameHolder,
       TrackOutput trackOutput)
-      throws InterruptedException, IOException {
+      throws IOException {
     int seekResult = binarySearchSeeker.handlePendingSeek(input, seekPosition);
     ByteBuffer outputByteBuffer = outputFrameHolder.byteBuffer;
     if (seekResult == RESULT_CONTINUE && outputByteBuffer.limit() > 0) {
