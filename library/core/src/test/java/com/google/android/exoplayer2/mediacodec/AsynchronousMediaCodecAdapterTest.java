@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.mediacodec;
 import static com.google.android.exoplayer2.testutil.TestUtil.assertBufferInfosEqual;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
@@ -33,8 +34,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Shadows;
+import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link AsynchronousMediaCodecAdapter}. */
+@LooperMode(LEGACY)
 @RunWith(AndroidJUnit4.class)
 public class AsynchronousMediaCodecAdapterTest {
   private AsynchronousMediaCodecAdapter adapter;
@@ -96,7 +99,7 @@ public class AsynchronousMediaCodecAdapterTest {
         () -> adapter.getMediaCodecCallback().onInputBufferAvailable(codec, /* index=*/ 1));
 
     // Wait until all tasks have been handled.
-    Shadows.shadowOf(handlerThread.getLooper()).idle();
+    Shadows.shadowOf(looper).idle();
     assertThat(adapter.dequeueInputBufferIndex()).isEqualTo(1);
   }
 
@@ -113,7 +116,7 @@ public class AsynchronousMediaCodecAdapterTest {
     adapter.flush();
 
     // Wait until all tasks have been handled.
-    Shadows.shadowOf(handlerThread.getLooper()).idle();
+    Shadows.shadowOf(looper).idle();
     assertThrows(
         IllegalStateException.class,
         () -> {
@@ -165,7 +168,7 @@ public class AsynchronousMediaCodecAdapterTest {
         () -> adapter.getMediaCodecCallback().onOutputBufferAvailable(codec, /* index=*/ 1, info1));
 
     // Wait until all tasks have been handled.
-    Shadows.shadowOf(handlerThread.getLooper()).idle();
+    Shadows.shadowOf(looper).idle();
     assertThat(adapter.dequeueOutputBufferIndex(bufferInfo)).isEqualTo(1);
     assertBufferInfosEqual(info1, bufferInfo);
   }
@@ -183,7 +186,7 @@ public class AsynchronousMediaCodecAdapterTest {
     adapter.flush();
 
     // Wait until all tasks have been handled.
-    Shadows.shadowOf(handlerThread.getLooper()).idle();
+    Shadows.shadowOf(looper).idle();
     assertThrows(IllegalStateException.class, () -> adapter.dequeueOutputBufferIndex(bufferInfo));
   }
 
@@ -220,7 +223,7 @@ public class AsynchronousMediaCodecAdapterTest {
     adapter.flush();
 
     // Wait until all tasks have been handled.
-    Shadows.shadowOf(handlerThread.getLooper()).idle();
+    Shadows.shadowOf(looper).idle();
     assertThat(adapter.getOutputFormat()).isEqualTo(format);
   }
 
@@ -233,7 +236,7 @@ public class AsynchronousMediaCodecAdapterTest {
     adapter.shutdown();
 
     // Wait until all tasks have been handled.
-    Shadows.shadowOf(handlerThread.getLooper()).idle();
+    Shadows.shadowOf(looper).idle();
     assertThat(onCodecStartCalled.get()).isEqualTo(1);
   }
 }
