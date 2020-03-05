@@ -112,7 +112,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
 
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
-  public final void load() throws IOException, InterruptedException {
+  public final void load() throws IOException {
     if (nextLoadPosition == 0) {
       // Configure the output and set it as the target for the extractor wrapper.
       BaseMediaChunkOutput output = getOutput();

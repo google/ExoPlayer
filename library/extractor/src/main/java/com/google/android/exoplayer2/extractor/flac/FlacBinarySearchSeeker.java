@@ -73,7 +73,7 @@ import java.io.IOException;
 
     @Override
     public TimestampSearchResult searchForTimestamp(ExtractorInput input, long targetSampleNumber)
-        throws IOException, InterruptedException {
+        throws IOException {
       long searchPosition = input.getPosition();
 
       // Find left frame.
@@ -110,10 +110,8 @@ import java.io.IOException;
      *     the stream if no frame was found.
      * @throws IOException If peeking from the input fails. In this case, there is no guarantee on
      *     the peek position.
-     * @throws InterruptedException If interrupted while peeking from input. In this case, there is
-     *     no guarantee on the peek position.
      */
-    private long findNextFrame(ExtractorInput input) throws IOException, InterruptedException {
+    private long findNextFrame(ExtractorInput input) throws IOException {
       while (input.getPeekPosition() < input.getLength() - FlacConstants.MIN_FRAME_HEADER_SIZE
           && !FlacFrameReader.checkFrameHeaderFromPeek(
               input, flacStreamMetadata, frameStartMarker, sampleNumberHolder)) {

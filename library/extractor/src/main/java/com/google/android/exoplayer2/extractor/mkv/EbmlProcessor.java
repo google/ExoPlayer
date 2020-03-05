@@ -130,21 +130,18 @@ public interface EbmlProcessor {
 
   /**
    * Called when a binary element is encountered.
-   * <p>
-   * The element header (containing the element ID and content size) will already have been read.
-   * Implementations are required to consume the whole remainder of the element, which is
-   * {@code contentSize} bytes in length, before returning. Implementations are permitted to fail
-   * (by throwing an exception) having partially consumed the data, however if they do this, they
-   * must consume the remainder of the content when called again.
+   *
+   * <p>The element header (containing the element ID and content size) will already have been read.
+   * Implementations are required to consume the whole remainder of the element, which is {@code
+   * contentSize} bytes in length, before returning. Implementations are permitted to fail (by
+   * throwing an exception) having partially consumed the data, however if they do this, they must
+   * consume the remainder of the content when called again.
    *
    * @param id The element ID.
    * @param contentsSize The element's content size.
    * @param input The {@link ExtractorInput} from which data should be read.
    * @throws ParserException If a parsing error occurs.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread is interrupted.
    */
-  void binaryElement(int id, int contentsSize, ExtractorInput input)
-      throws IOException, InterruptedException;
-
+  void binaryElement(int id, int contentsSize, ExtractorInput input) throws IOException;
 }

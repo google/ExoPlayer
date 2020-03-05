@@ -66,10 +66,8 @@ import java.io.IOException;
    * @param input The extractor input from which to peek data. The peek position will be modified.
    * @return Whether the input appears to be in the fragmented MP4 format.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread has been interrupted.
    */
-  public static boolean sniffFragmented(ExtractorInput input)
-      throws IOException, InterruptedException {
+  public static boolean sniffFragmented(ExtractorInput input) throws IOException {
     return sniffInternal(input, true);
   }
 
@@ -80,15 +78,13 @@ import java.io.IOException;
    * @param input The extractor input from which to peek data. The peek position will be modified.
    * @return Whether the input appears to be in the unfragmented MP4 format.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread has been interrupted.
    */
-  public static boolean sniffUnfragmented(ExtractorInput input)
-      throws IOException, InterruptedException {
+  public static boolean sniffUnfragmented(ExtractorInput input) throws IOException {
     return sniffInternal(input, false);
   }
 
   private static boolean sniffInternal(ExtractorInput input, boolean fragmented)
-      throws IOException, InterruptedException {
+      throws IOException {
     long inputLength = input.getLength();
     int bytesToSearch = (int) (inputLength == C.LENGTH_UNSET || inputLength > SEARCH_LENGTH
         ? SEARCH_LENGTH : inputLength);

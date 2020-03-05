@@ -68,7 +68,7 @@ public final class Ac4Extractor implements Extractor {
   // Extractor implementation.
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     // Skip any ID3 headers.
     ParsableByteArray scratch = new ParsableByteArray(ID3_HEADER_LENGTH);
     int startPosition = 0;
@@ -132,8 +132,7 @@ public final class Ac4Extractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     int bytesRead = input.read(sampleData.data, /* offset= */ 0, /* length= */ READ_BUFFER_SIZE);
     if (bytesRead == C.RESULT_END_OF_INPUT) {
       return RESULT_END_OF_INPUT;

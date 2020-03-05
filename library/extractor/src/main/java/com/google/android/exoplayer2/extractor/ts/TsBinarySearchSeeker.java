@@ -74,7 +74,7 @@ import java.io.IOException;
 
     @Override
     public TimestampSearchResult searchForTimestamp(ExtractorInput input, long targetTimestamp)
-        throws IOException, InterruptedException {
+        throws IOException {
       long inputPosition = input.getPosition();
       int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
 

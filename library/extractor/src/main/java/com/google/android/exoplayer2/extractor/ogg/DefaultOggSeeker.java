@@ -88,7 +88,7 @@ import java.io.IOException;
   }
 
   @Override
-  public long read(ExtractorInput input) throws IOException, InterruptedException {
+  public long read(ExtractorInput input) throws IOException {
     switch (state) {
       case STATE_IDLE:
         return -1;
@@ -148,9 +148,8 @@ import java.io.IOException;
    * @return The byte position from which data should be provided for the next step, or {@link
    *     C#POSITION_UNSET} if the search has converged.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    */
-  private long getNextSeekPosition(ExtractorInput input) throws IOException, InterruptedException {
+  private long getNextSeekPosition(ExtractorInput input) throws IOException {
     if (start == end) {
       return C.POSITION_UNSET;
     }
@@ -199,10 +198,8 @@ import java.io.IOException;
    * @param input The {@link ExtractorInput} to read from.
    * @throws ParserException If populating the page header fails.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    */
-  private void skipToPageOfTargetGranule(ExtractorInput input)
-      throws IOException, InterruptedException {
+  private void skipToPageOfTargetGranule(ExtractorInput input) throws IOException {
     pageHeader.populate(input, /* quiet= */ false);
     while (pageHeader.granulePosition <= targetGranule) {
       input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
@@ -218,11 +215,10 @@ import java.io.IOException;
    *
    * @param input The {@code ExtractorInput} to skip to the next page.
    * @throws IOException If peeking/reading from the input fails.
-   * @throws InterruptedException If the thread is interrupted.
    * @throws EOFException If the next page can't be found before the end of the input.
    */
   @VisibleForTesting
-  void skipToNextPage(ExtractorInput input) throws IOException, InterruptedException {
+  void skipToNextPage(ExtractorInput input) throws IOException {
     if (!skipToNextPage(input, payloadEndPosition)) {
       // Not found until eof.
       throw new EOFException();
@@ -236,10 +232,8 @@ import java.io.IOException;
    * @param limit The limit up to which the search should take place.
    * @return Whether the next page was found.
    * @throws IOException If peeking/reading from the input fails.
-   * @throws InterruptedException If interrupted while peeking/reading from the input.
    */
-  private boolean skipToNextPage(ExtractorInput input, long limit)
-      throws IOException, InterruptedException {
+  private boolean skipToNextPage(ExtractorInput input, long limit) throws IOException {
     limit = Math.min(limit + 3, payloadEndPosition);
     byte[] buffer = new byte[2048];
     int peekLength = buffer.length;
@@ -275,10 +269,9 @@ import java.io.IOException;
    * @param input The {@link ExtractorInput} to read from.
    * @return The total number of samples of this input.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If the thread is interrupted.
    */
   @VisibleForTesting
-  long readGranuleOfLastPage(ExtractorInput input) throws IOException, InterruptedException {
+  long readGranuleOfLastPage(ExtractorInput input) throws IOException {
     skipToNextPage(input);
     pageHeader.reset();
     while ((pageHeader.type & 0x04) != 0x04 && input.getPosition() < payloadEndPosition) {

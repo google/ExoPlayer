@@ -49,10 +49,9 @@ public abstract class BinarySearchSeeker {
      * @param targetTimestamp The target timestamp.
      * @return A {@link TimestampSearchResult} that describes the result of the search.
      * @throws IOException If an error occurred reading from the input.
-     * @throws InterruptedException If the thread was interrupted.
      */
     TimestampSearchResult searchForTimestamp(ExtractorInput input, long targetTimestamp)
-        throws IOException, InterruptedException;
+        throws IOException;
 
     /** Called when a seek operation finishes. */
     default void onSeekFinished() {}
@@ -169,10 +168,9 @@ public abstract class BinarySearchSeeker {
    *     to hold the position of the required seek.
    * @return One of the {@code RESULT_} values defined in {@link Extractor}.
    * @throws IOException If an error occurred reading from the input.
-   * @throws InterruptedException If the thread was interrupted.
    */
   public int handlePendingSeek(ExtractorInput input, PositionHolder seekPositionHolder)
-      throws InterruptedException, IOException {
+      throws IOException {
     while (true) {
       SeekOperationParams seekOperationParams =
           Assertions.checkStateNotNull(this.seekOperationParams);
@@ -241,7 +239,7 @@ public abstract class BinarySearchSeeker {
   }
 
   protected final boolean skipInputUntilPosition(ExtractorInput input, long position)
-      throws IOException, InterruptedException {
+      throws IOException {
     long bytesToSkip = position - input.getPosition();
     if (bytesToSkip >= 0 && bytesToSkip <= MAX_SKIP_BYTES) {
       input.skipFully((int) bytesToSkip);

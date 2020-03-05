@@ -52,11 +52,9 @@ public final class ExtractorAsserts {
    * @param input The extractor input.
    * @param expectedResult The expected return value.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    */
   public static void assertSniff(
-      Extractor extractor, FakeExtractorInput input, boolean expectedResult)
-      throws IOException, InterruptedException {
+      Extractor extractor, FakeExtractorInput input, boolean expectedResult) throws IOException {
     while (true) {
       try {
         assertThat(extractor.sniff(input)).isEqualTo(expectedResult);
@@ -82,10 +80,8 @@ public final class ExtractorAsserts {
    *     class which is to be tested.
    * @param file The path to the input sample.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    */
-  public static void assertBehavior(ExtractorFactory factory, String file)
-      throws IOException, InterruptedException {
+  public static void assertBehavior(ExtractorFactory factory, String file) throws IOException {
     assertBehavior(factory, file, ApplicationProvider.getApplicationContext());
   }
 
@@ -104,10 +100,9 @@ public final class ExtractorAsserts {
    * @param file The path to the input sample.
    * @param context To be used to load the sample file.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    */
   public static void assertBehavior(ExtractorFactory factory, String file, Context context)
-      throws IOException, InterruptedException {
+      throws IOException {
     assertBehavior(factory, file, context, file);
   }
 
@@ -127,11 +122,10 @@ public final class ExtractorAsserts {
    * @param context To be used to load the sample file.
    * @param dumpFilesPrefix The dump files prefix appended to the dump files path.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    */
   public static void assertBehavior(
       ExtractorFactory factory, String file, Context context, String dumpFilesPrefix)
-      throws IOException, InterruptedException {
+      throws IOException {
     // Check behavior prior to initialization.
     Extractor extractor = factory.create();
     extractor.seek(0, 0);
@@ -153,11 +147,10 @@ public final class ExtractorAsserts {
    * @param data Content of the input file.
    * @param context To be used to load the sample file.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    */
   public static void assertOutput(
       ExtractorFactory factory, String dumpFilesPrefix, byte[] data, Context context)
-      throws IOException, InterruptedException {
+      throws IOException {
     assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, false, false);
     assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, false, true);
     assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, true, false);
@@ -184,7 +177,6 @@ public final class ExtractorAsserts {
    * @param simulatePartialReads Whether to simulate partial reads.
    * @return The {@link FakeExtractorOutput} used in the test.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    */
   public static FakeExtractorOutput assertOutput(
       Extractor extractor,
@@ -195,7 +187,7 @@ public final class ExtractorAsserts {
       boolean simulateIOErrors,
       boolean simulateUnknownLength,
       boolean simulatePartialReads)
-      throws IOException, InterruptedException {
+      throws IOException {
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data)
         .setSimulateIOErrors(simulateIOErrors)
         .setSimulateUnknownLength(simulateUnknownLength)
@@ -254,7 +246,6 @@ public final class ExtractorAsserts {
    * @param context To be used to load the sample file.
    * @param expectedThrowable Expected {@link Throwable} class.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
    */
   public static void assertThrows(
@@ -262,7 +253,7 @@ public final class ExtractorAsserts {
       String sampleFile,
       Context context,
       Class<? extends Throwable> expectedThrowable)
-      throws IOException, InterruptedException {
+      throws IOException {
     byte[] fileData = TestUtil.getByteArray(context, sampleFile);
     assertThrows(factory, fileData, expectedThrowable);
   }
@@ -276,12 +267,11 @@ public final class ExtractorAsserts {
    * @param fileData Content of the input file.
    * @param expectedThrowable Expected {@link Throwable} class.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    * @see #assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)
    */
   private static void assertThrows(
       ExtractorFactory factory, byte[] fileData, Class<? extends Throwable> expectedThrowable)
-      throws IOException, InterruptedException {
+      throws IOException {
     assertThrows(factory.create(), fileData, expectedThrowable, false, false, false);
     assertThrows(factory.create(), fileData, expectedThrowable,  true, false, false);
     assertThrows(factory.create(), fileData, expectedThrowable, false,  true, false);
@@ -302,7 +292,6 @@ public final class ExtractorAsserts {
    * @param simulateUnknownLength If true simulates unknown input length.
    * @param simulatePartialReads If true simulates partial reads.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If interrupted while reading from the input.
    */
   private static void assertThrows(
       Extractor extractor,
@@ -311,7 +300,7 @@ public final class ExtractorAsserts {
       boolean simulateIOErrors,
       boolean simulateUnknownLength,
       boolean simulatePartialReads)
-      throws IOException, InterruptedException {
+      throws IOException {
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(fileData)
         .setSimulateIOErrors(simulateIOErrors)
         .setSimulateUnknownLength(simulateUnknownLength)
@@ -329,17 +318,22 @@ public final class ExtractorAsserts {
 
   private ExtractorAsserts() {}
 
-  private static FakeExtractorOutput consumeTestData(Extractor extractor, FakeExtractorInput input,
-      long timeUs, boolean retryFromStartIfLive) throws IOException, InterruptedException {
+  private static FakeExtractorOutput consumeTestData(
+      Extractor extractor, FakeExtractorInput input, long timeUs, boolean retryFromStartIfLive)
+      throws IOException {
     FakeExtractorOutput output = new FakeExtractorOutput();
     extractor.init(output);
     consumeTestData(extractor, input, timeUs, output, retryFromStartIfLive);
     return output;
   }
 
-  private static void consumeTestData(Extractor extractor, FakeExtractorInput input, long timeUs,
-      FakeExtractorOutput output, boolean retryFromStartIfLive)
-      throws IOException, InterruptedException {
+  private static void consumeTestData(
+      Extractor extractor,
+      FakeExtractorInput input,
+      long timeUs,
+      FakeExtractorOutput output,
+      boolean retryFromStartIfLive)
+      throws IOException {
     extractor.seek(input.getPosition(), timeUs);
     PositionHolder seekPositionHolder = new PositionHolder();
     int readResult = Extractor.RESULT_CONTINUE;

@@ -470,7 +470,7 @@ public class SampleQueue implements TrackOutput {
 
   @Override
   public final int sampleData(DataReader input, int length, boolean allowEndOfInput)
-      throws IOException, InterruptedException {
+      throws IOException {
     return sampleDataQueue.sampleData(input, length, allowEndOfInput);
   }
 

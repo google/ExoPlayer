@@ -420,7 +420,7 @@ public class MatroskaExtractor implements Extractor {
   }
 
   @Override
-  public final boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public final boolean sniff(ExtractorInput input) throws IOException {
     return new Sniffer().sniff(input);
   }
 
@@ -448,8 +448,7 @@ public class MatroskaExtractor implements Extractor {
   }
 
   @Override
-  public final int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public final int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     haveOutputSample = false;
     boolean continueReading = true;
     while (continueReading && !haveOutputSample) {
@@ -1051,8 +1050,7 @@ public class MatroskaExtractor implements Extractor {
    * @see EbmlProcessor#binaryElement(int, int, ExtractorInput)
    */
   @CallSuper
-  protected void binaryElement(int id, int contentSize, ExtractorInput input)
-      throws IOException, InterruptedException {
+  protected void binaryElement(int id, int contentSize, ExtractorInput input) throws IOException {
     switch (id) {
       case ID_SEEK_ID:
         Arrays.fill(seekEntryIdBytes.data, (byte) 0);
@@ -1231,7 +1229,7 @@ public class MatroskaExtractor implements Extractor {
 
   protected void handleBlockAdditionalData(
       Track track, int blockAdditionalId, ExtractorInput input, int contentSize)
-      throws IOException, InterruptedException {
+      throws IOException {
     if (blockAdditionalId == BLOCK_ADDITIONAL_ID_VP9_ITU_T_35
         && CODEC_ID_VP9.equals(track.codecId)) {
       blockAdditionalData.reset(contentSize);
@@ -1282,8 +1280,7 @@ public class MatroskaExtractor implements Extractor {
    * Ensures {@link #scratch} contains at least {@code requiredLength} bytes of data, reading from
    * the extractor input if necessary.
    */
-  private void readScratch(ExtractorInput input, int requiredLength)
-      throws IOException, InterruptedException {
+  private void readScratch(ExtractorInput input, int requiredLength) throws IOException {
     if (scratch.limit() >= requiredLength) {
       return;
     }
@@ -1303,10 +1300,8 @@ public class MatroskaExtractor implements Extractor {
    * @param size The size of the sample data on the input side.
    * @return The final size of the written sample.
    * @throws IOException If an error occurs reading from the input.
-   * @throws InterruptedException If the thread is interrupted.
    */
-  private int writeSampleData(ExtractorInput input, Track track, int size)
-      throws IOException, InterruptedException {
+  private int writeSampleData(ExtractorInput input, Track track, int size) throws IOException {
     if (CODEC_ID_SUBRIP.equals(track.codecId)) {
       writeSubtitleSampleData(input, SUBRIP_PREFIX, size);
       return finishWriteSampleData();
@@ -1506,7 +1501,7 @@ public class MatroskaExtractor implements Extractor {
   }
 
   private void writeSubtitleSampleData(ExtractorInput input, byte[] samplePrefix, int size)
-      throws IOException, InterruptedException {
+      throws IOException {
     int sizeWithPrefix = samplePrefix.length + size;
     if (subtitleSample.capacity() < sizeWithPrefix) {
       // Initialize subripSample to contain the required prefix and have space to hold a subtitle
@@ -1581,7 +1576,7 @@ public class MatroskaExtractor implements Extractor {
    * pending {@link #sampleStrippedBytes} and any remaining data read from {@code input}.
    */
   private void writeToTarget(ExtractorInput input, byte[] target, int offset, int length)
-      throws IOException, InterruptedException {
+      throws IOException {
     int pendingStrippedBytes = Math.min(length, sampleStrippedBytes.bytesLeft());
     input.readFully(target, offset + pendingStrippedBytes, length - pendingStrippedBytes);
     if (pendingStrippedBytes > 0) {
@@ -1594,7 +1589,7 @@ public class MatroskaExtractor implements Extractor {
    * {@link #sampleStrippedBytes} or data read from {@code input}.
    */
   private int writeToOutput(ExtractorInput input, TrackOutput output, int length)
-      throws IOException, InterruptedException {
+      throws IOException {
     int bytesWritten;
     int strippedBytesLeft = sampleStrippedBytes.bytesLeft();
     if (strippedBytesLeft > 0) {
@@ -1774,8 +1769,7 @@ public class MatroskaExtractor implements Extractor {
     }
 
     @Override
-    public void binaryElement(int id, int contentsSize, ExtractorInput input)
-        throws IOException, InterruptedException {
+    public void binaryElement(int id, int contentsSize, ExtractorInput input) throws IOException {
       MatroskaExtractor.this.binaryElement(id, contentsSize, input);
     }
   }
@@ -1803,7 +1797,7 @@ public class MatroskaExtractor implements Extractor {
       chunkSampleCount = 0;
     }
 
-    public void startSample(ExtractorInput input) throws IOException, InterruptedException {
+    public void startSample(ExtractorInput input) throws IOException {
       if (foundSyncframe) {
         return;
       }

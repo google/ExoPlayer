@@ -177,8 +177,7 @@ import java.util.Arrays;
     return totalBytesWritten;
   }
 
-  public int sampleData(DataReader input, int length, boolean allowEndOfInput)
-      throws IOException, InterruptedException {
+  public int sampleData(DataReader input, int length, boolean allowEndOfInput) throws IOException {
     length = preAppend(length);
     int bytesAppended =
         input.read(

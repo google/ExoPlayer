@@ -341,11 +341,10 @@ public class TestUtil {
    * @return The extracted {@link SeekMap}.
    * @throws IOException If an error occurred reading from the input, or if the extractor finishes
    *     reading from input without extracting any {@link SeekMap}.
-   * @throws InterruptedException If the thread was interrupted.
    */
   public static SeekMap extractSeekMap(
       Extractor extractor, FakeExtractorOutput output, DataSource dataSource, Uri uri)
-      throws IOException, InterruptedException {
+      throws IOException {
     ExtractorInput input = getExtractorInputFromPosition(dataSource, /* position= */ 0, uri);
     extractor.init(output);
     PositionHolder positionHolder = new PositionHolder();
@@ -382,11 +381,9 @@ public class TestUtil {
    * @return The {@link FakeTrackOutput} containing the extracted samples.
    * @throws IOException If an error occurred reading from the input, or if the extractor finishes
    *     reading from input without extracting any {@link SeekMap}.
-   * @throws InterruptedException If the thread was interrupted.
    */
   public static FakeExtractorOutput extractAllSamplesFromFile(
-      Extractor extractor, Context context, String fileName)
-      throws IOException, InterruptedException {
+      Extractor extractor, Context context, String fileName) throws IOException {
     byte[] data = TestUtil.getByteArray(context, fileName);
     FakeExtractorOutput expectedOutput = new FakeExtractorOutput();
     extractor.init(expectedOutput);
@@ -428,7 +425,7 @@ public class TestUtil {
       DataSource dataSource,
       FakeTrackOutput trackOutput,
       Uri uri)
-      throws IOException, InterruptedException {
+      throws IOException {
     int numSampleBeforeSeek = trackOutput.getSampleCount();
     SeekMap.SeekPoints seekPoints = seekMap.getSeekPoints(seekTimeUs);
 

@@ -91,7 +91,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       TimestampAdjuster timestampAdjuster,
       Map<String, List<String>> responseHeaders,
       ExtractorInput extractorInput)
-      throws InterruptedException, IOException {
+      throws IOException {
 
     if (previousExtractor != null) {
       // A extractor has already been successfully used. Return one of the same type.
@@ -315,7 +315,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   }
 
   private static boolean sniffQuietly(Extractor extractor, ExtractorInput input)
-      throws InterruptedException, IOException {
+      throws IOException {
     boolean result = false;
     try {
       result = extractor.sniff(input);

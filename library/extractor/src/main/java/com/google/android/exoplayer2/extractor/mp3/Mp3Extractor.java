@@ -182,7 +182,7 @@ public final class Mp3Extractor implements Extractor {
   // Extractor implementation.
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     return synchronize(input, true);
   }
 
@@ -213,8 +213,7 @@ public final class Mp3Extractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     assertInitialized();
     int readResult = readInternal(input);
     if (readResult == RESULT_END_OF_INPUT && seeker instanceof IndexSeeker) {
@@ -240,7 +239,7 @@ public final class Mp3Extractor implements Extractor {
   // Internal methods.
 
   @RequiresNonNull({"extractorOutput", "currentTrackOutput", "realTrackOutput"})
-  private int readInternal(ExtractorInput input) throws IOException, InterruptedException {
+  private int readInternal(ExtractorInput input) throws IOException {
     if (synchronizedHeaderData == 0) {
       try {
         synchronize(input, false);
@@ -273,7 +272,7 @@ public final class Mp3Extractor implements Extractor {
   }
 
   @RequiresNonNull({"currentTrackOutput", "realTrackOutput", "seeker"})
-  private int readSample(ExtractorInput extractorInput) throws IOException, InterruptedException {
+  private int readSample(ExtractorInput extractorInput) throws IOException {
     if (sampleBytesRemaining == 0) {
       extractorInput.resetPeekPosition();
       if (peekEndOfStreamOrHeader(extractorInput)) {
@@ -329,8 +328,7 @@ public final class Mp3Extractor implements Extractor {
     return basisTimeUs + samplesRead * C.MICROS_PER_SECOND / synchronizedHeader.sampleRate;
   }
 
-  private boolean synchronize(ExtractorInput input, boolean sniffing)
-      throws IOException, InterruptedException {
+  private boolean synchronize(ExtractorInput input, boolean sniffing) throws IOException {
     int validFrameCount = 0;
     int candidateSynchronizedHeaderData = 0;
     int peekedId3Bytes = 0;
@@ -407,8 +405,7 @@ public final class Mp3Extractor implements Extractor {
    * Returns whether the extractor input is peeking the end of the stream. If {@code false},
    * populates the scratch buffer with the next four bytes.
    */
-  private boolean peekEndOfStreamOrHeader(ExtractorInput extractorInput)
-      throws IOException, InterruptedException {
+  private boolean peekEndOfStreamOrHeader(ExtractorInput extractorInput) throws IOException {
     if (seeker != null) {
       long dataEndPosition = seeker.getDataEndPosition();
       if (dataEndPosition != C.POSITION_UNSET
@@ -424,7 +421,7 @@ public final class Mp3Extractor implements Extractor {
     }
   }
 
-  private Seeker computeSeeker(ExtractorInput input) throws IOException, InterruptedException {
+  private Seeker computeSeeker(ExtractorInput input) throws IOException {
     // Read past any seek frame and set the seeker based on metadata or a seek frame. Metadata
     // takes priority as it can provide greater precision.
     Seeker seekFrameSeeker = maybeReadSeekFrame(input);
@@ -471,11 +468,9 @@ public final class Mp3Extractor implements Extractor {
    * @return A {@link Seeker} if seeking metadata was present and valid, or {@code null} otherwise.
    * @throws IOException Thrown if there was an error reading from the stream. Not expected if the
    *     next two frames were already peeked during synchronization.
-   * @throws InterruptedException Thrown if reading from the stream was interrupted. Not expected if
-   *     the next two frames were already peeked during synchronization.
    */
   @Nullable
-  private Seeker maybeReadSeekFrame(ExtractorInput input) throws IOException, InterruptedException {
+  private Seeker maybeReadSeekFrame(ExtractorInput input) throws IOException {
     ParsableByteArray frame = new ParsableByteArray(synchronizedHeader.frameSize);
     input.peekFully(frame.data, 0, synchronizedHeader.frameSize);
     int xingBase = (synchronizedHeader.version & 1) != 0
@@ -509,11 +504,8 @@ public final class Mp3Extractor implements Extractor {
     return seeker;
   }
 
-  /**
-   * Peeks the next frame and returns a {@link ConstantBitrateSeeker} based on its bitrate.
-   */
-  private Seeker getConstantBitrateSeeker(ExtractorInput input)
-      throws IOException, InterruptedException {
+  /** Peeks the next frame and returns a {@link ConstantBitrateSeeker} based on its bitrate. */
+  private Seeker getConstantBitrateSeeker(ExtractorInput input) throws IOException {
     input.peekFully(scratch.data, 0, 4);
     scratch.setPosition(0);
     synchronizedHeader.setForHeaderData(scratch.readInt());

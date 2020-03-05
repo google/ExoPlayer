@@ -307,8 +307,7 @@ public class FlacFrameReaderTest {
   }
 
   private ExtractorInput buildExtractorInputReadingFromFirstFrame(
-      String file, FlacStreamMetadataHolder streamMetadataHolder)
-      throws IOException, InterruptedException {
+      String file, FlacStreamMetadataHolder streamMetadataHolder) throws IOException {
     ExtractorInput input = buildExtractorInput(file);
 
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE);

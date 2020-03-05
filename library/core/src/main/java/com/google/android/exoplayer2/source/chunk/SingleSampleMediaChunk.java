@@ -91,7 +91,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
-  public void load() throws IOException, InterruptedException {
+  public void load() throws IOException {
     BaseMediaChunkOutput output = getOutput();
     output.setSampleOffsetUs(0);
     TrackOutput trackOutput = output.track(0, trackType);

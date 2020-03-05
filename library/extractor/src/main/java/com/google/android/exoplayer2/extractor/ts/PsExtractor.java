@@ -89,7 +89,7 @@ public final class PsExtractor implements Extractor {
   // Extractor implementation.
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     byte[] scratch = new byte[14];
     input.peekFully(scratch, 0, 14);
 
@@ -162,8 +162,7 @@ public final class PsExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     Assertions.checkStateNotNull(output); // Asserts init has been called.
 
     long inputLength = input.getLength();

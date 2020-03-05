@@ -101,11 +101,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  /**
-   * @see Extractor#read(ExtractorInput, PositionHolder)
-   */
-  final int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  /** @see Extractor#read(ExtractorInput, PositionHolder) */
+  final int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     switch (state) {
       case STATE_READ_HEADERS:
         return readHeaders(input);
@@ -121,7 +118,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private int readHeaders(ExtractorInput input) throws IOException, InterruptedException {
+  private int readHeaders(ExtractorInput input) throws IOException {
     boolean readingHeaders = true;
     while (readingHeaders) {
       if (!oggPacket.populate(input)) {
@@ -166,8 +163,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return Extractor.RESULT_CONTINUE;
   }
 
-  private int readPayload(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  private int readPayload(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     long position = oggSeeker.read(input);
     if (position >= 0) {
       seekPosition.position = position;
@@ -238,8 +234,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param setupData Setup data to be filled.
    * @return Whether the packet contains header data.
    */
-  protected abstract boolean readHeaders(ParsableByteArray packet, long position,
-      SetupData setupData) throws IOException, InterruptedException;
+  protected abstract boolean readHeaders(
+      ParsableByteArray packet, long position, SetupData setupData) throws IOException;
 
   /**
    * Called on end of seeking.

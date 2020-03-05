@@ -93,7 +93,7 @@ public final class FlacFrameReader {
       FlacStreamMetadata flacStreamMetadata,
       int frameStartMarker,
       SampleNumberHolder sampleNumberHolder)
-      throws IOException, InterruptedException {
+      throws IOException {
     long originalPeekPosition = input.getPeekPosition();
 
     byte[] frameStartBytes = new byte[2];
@@ -132,11 +132,9 @@ public final class FlacFrameReader {
    * @return The frame first sample number.
    * @throws ParserException If an error occurs parsing the sample number.
    * @throws IOException If peeking from the input fails.
-   * @throws InterruptedException If interrupted while peeking from input.
    */
   public static long getFirstSampleNumber(
-      ExtractorInput input, FlacStreamMetadata flacStreamMetadata)
-      throws IOException, InterruptedException {
+      ExtractorInput input, FlacStreamMetadata flacStreamMetadata) throws IOException {
     input.resetPeekPosition();
     input.advancePeekPosition(1);
     byte[] blockingStrategyByte = new byte[1];

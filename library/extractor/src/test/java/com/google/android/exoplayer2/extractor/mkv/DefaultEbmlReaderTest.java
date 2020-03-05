@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 public class DefaultEbmlReaderTest {
 
   @Test
-  public void masterElement() throws IOException, InterruptedException {
+  public void masterElement() throws IOException {
     ExtractorInput input = createTestInput(0x1A, 0x45, 0xDF, 0xA3, 0x84, 0x42, 0x85, 0x81, 0x01);
     TestProcessor expected = new TestProcessor();
     expected.startMasterElement(TestProcessor.ID_EBML, 5, 4);
@@ -43,7 +43,7 @@ public class DefaultEbmlReaderTest {
   }
 
   @Test
-  public void masterElementEmpty() throws IOException, InterruptedException {
+  public void masterElementEmpty() throws IOException {
     ExtractorInput input = createTestInput(0x18, 0x53, 0x80, 0x67, 0x80);
     TestProcessor expected = new TestProcessor();
     expected.startMasterElement(TestProcessor.ID_SEGMENT, 5, 0);
@@ -52,7 +52,7 @@ public class DefaultEbmlReaderTest {
   }
 
   @Test
-  public void unsignedIntegerElement() throws IOException, InterruptedException {
+  public void unsignedIntegerElement() throws IOException {
     // 0xFE is chosen because for signed integers it should be interpreted as -2
     ExtractorInput input = createTestInput(0x42, 0xF7, 0x81, 0xFE);
     TestProcessor expected = new TestProcessor();
@@ -61,7 +61,7 @@ public class DefaultEbmlReaderTest {
   }
 
   @Test
-  public void unsignedIntegerElementLarge() throws IOException, InterruptedException {
+  public void unsignedIntegerElementLarge() throws IOException {
     ExtractorInput input =
         createTestInput(0x42, 0xF7, 0x88, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
     TestProcessor expected = new TestProcessor();
@@ -70,8 +70,7 @@ public class DefaultEbmlReaderTest {
   }
 
   @Test
-  public void unsignedIntegerElementTooLargeBecomesNegative()
-      throws IOException, InterruptedException {
+  public void unsignedIntegerElementTooLargeBecomesNegative() throws IOException {
     ExtractorInput input =
         createTestInput(0x42, 0xF7, 0x88, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
     TestProcessor expected = new TestProcessor();
@@ -80,7 +79,7 @@ public class DefaultEbmlReaderTest {
   }
 
   @Test
-  public void stringElement() throws IOException, InterruptedException {
+  public void stringElement() throws IOException {
     ExtractorInput input = createTestInput(0x42, 0x82, 0x86, 0x41, 0x62, 0x63, 0x31, 0x32, 0x33);
     TestProcessor expected = new TestProcessor();
     expected.stringElement(TestProcessor.ID_DOC_TYPE, "Abc123");
@@ -96,7 +95,7 @@ public class DefaultEbmlReaderTest {
   }
 
   @Test
-  public void stringElementEmpty() throws IOException, InterruptedException {
+  public void stringElementEmpty() throws IOException {
     ExtractorInput input = createTestInput(0x42, 0x82, 0x80);
     TestProcessor expected = new TestProcessor();
     expected.stringElement(TestProcessor.ID_DOC_TYPE, "");
@@ -104,7 +103,7 @@ public class DefaultEbmlReaderTest {
   }
 
   @Test
-  public void floatElementFourBytes() throws IOException, InterruptedException {
+  public void floatElementFourBytes() throws IOException {
     ExtractorInput input =
         createTestInput(0x44, 0x89, 0x84, 0x3F, 0x80, 0x00, 0x00);
     TestProcessor expected = new TestProcessor();
@@ -113,7 +112,7 @@ public class DefaultEbmlReaderTest {
   }
 
   @Test
-  public void floatElementEightBytes() throws IOException, InterruptedException {
+  public void floatElementEightBytes() throws IOException {
     ExtractorInput input =
         createTestInput(0x44, 0x89, 0x88, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
     TestProcessor expected = new TestProcessor();
@@ -122,7 +121,7 @@ public class DefaultEbmlReaderTest {
   }
 
   @Test
-  public void binaryElement() throws IOException, InterruptedException {
+  public void binaryElement() throws IOException {
     ExtractorInput input =
         createTestInput(0xA3, 0x88, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08);
     TestProcessor expected = new TestProcessor();
@@ -134,7 +133,7 @@ public class DefaultEbmlReaderTest {
   }
 
   private static void assertEvents(ExtractorInput input, List<String> expectedEvents)
-      throws IOException, InterruptedException {
+      throws IOException {
     DefaultEbmlReader reader = new DefaultEbmlReader();
     TestProcessor output = new TestProcessor();
     reader.init(output);
@@ -232,8 +231,7 @@ public class DefaultEbmlReaderTest {
     }
 
     @Override
-    public void binaryElement(int id, int contentSize, ExtractorInput input)
-        throws IOException, InterruptedException {
+    public void binaryElement(int id, int contentSize, ExtractorInput input) throws IOException {
       byte[] bytes = new byte[contentSize];
       input.readFully(bytes, 0, contentSize);
       events.add(formatEvent(id, "bytes=" + Arrays.toString(bytes)));

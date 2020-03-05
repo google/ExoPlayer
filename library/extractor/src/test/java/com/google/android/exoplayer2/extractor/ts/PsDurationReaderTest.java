@@ -47,7 +47,7 @@ public final class PsDurationReaderTest {
   }
 
   @Test
-  public void readDuration_returnsCorrectDuration() throws IOException, InterruptedException {
+  public void readDuration_returnsCorrectDuration() throws IOException {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
             .setData(
@@ -66,8 +66,7 @@ public final class PsDurationReaderTest {
   }
 
   @Test
-  public void readDuration_midStream_returnsCorrectDuration()
-      throws IOException, InterruptedException {
+  public void readDuration_midStream_returnsCorrectDuration() throws IOException {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
             .setData(

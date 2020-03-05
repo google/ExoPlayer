@@ -55,9 +55,8 @@ import java.util.Arrays;
    * @return {@code true} if the read was successful. The read fails if the end of the input is
    *     encountered without reading data.
    * @throws IOException If reading from the input fails.
-   * @throws InterruptedException If the thread is interrupted.
    */
-  public boolean populate(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean populate(ExtractorInput input) throws IOException {
     Assertions.checkState(input != null);
 
     if (populated) {

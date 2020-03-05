@@ -77,7 +77,6 @@ public interface HlsExtractorFactory {
    *     extractor's {@link Extractor#read(ExtractorInput, PositionHolder)}. Must only be used to
    *     call {@link Extractor#sniff(ExtractorInput)}.
    * @return A {@link Result}.
-   * @throws InterruptedException If the thread is interrupted while sniffing.
    * @throws IOException If an I/O error is encountered while sniffing.
    */
   Result createExtractor(
@@ -88,5 +87,5 @@ public interface HlsExtractorFactory {
       TimestampAdjuster timestampAdjuster,
       Map<String, List<String>> responseHeaders,
       ExtractorInput sniffingExtractorInput)
-      throws InterruptedException, IOException;
+      throws IOException;
 }

@@ -43,12 +43,11 @@ public final class Id3Peeker {
    * @return The first ID3 tag decoded into a {@link Metadata} object. May be null if ID3 tag is not
    *     present in the input.
    * @throws IOException If an error occurred peeking from the input.
-   * @throws InterruptedException If the thread was interrupted.
    */
   @Nullable
   public Metadata peekId3Data(
       ExtractorInput input, @Nullable Id3Decoder.FramePredicate id3FramePredicate)
-      throws IOException, InterruptedException {
+      throws IOException {
     int peekedId3Bytes = 0;
     @Nullable Metadata metadata = null;
     while (true) {

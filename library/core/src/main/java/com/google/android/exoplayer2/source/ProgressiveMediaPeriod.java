@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -950,7 +951,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public void load() throws IOException, InterruptedException {
+    public void load() throws IOException {
       int result = Extractor.RESULT_CONTINUE;
       while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
         try {
@@ -978,7 +979,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             pendingExtractorSeek = false;
           }
           while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-            loadCondition.block();
+            try {
+              loadCondition.block();
+            } catch (InterruptedException e) {
+              throw new InterruptedIOException();
+            }
             result = progressiveMediaExtractor.read(positionHolder);
             long currentInputPosition = progressiveMediaExtractor.getCurrentInputPosition();
             if (currentInputPosition > position + continueLoadingCheckIntervalBytes) {

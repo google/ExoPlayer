@@ -160,7 +160,7 @@ public final class AmrExtractor implements Extractor {
   // Extractor implementation.
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     return readAmrHeader(input);
   }
 
@@ -172,8 +172,7 @@ public final class AmrExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     assertInitialized();
     if (input.getPosition() == 0) {
       if (!readAmrHeader(input)) {
@@ -227,7 +226,7 @@ public final class AmrExtractor implements Extractor {
    * @param input The {@link ExtractorInput} from which data should be peeked/read.
    * @return Whether the AMR header has been read.
    */
-  private boolean readAmrHeader(ExtractorInput input) throws IOException, InterruptedException {
+  private boolean readAmrHeader(ExtractorInput input) throws IOException {
     if (peekAmrSignature(input, amrSignatureNb)) {
       isWideBand = false;
       input.skipFully(amrSignatureNb.length);
@@ -241,8 +240,8 @@ public final class AmrExtractor implements Extractor {
   }
 
   /** Peeks from the beginning of the input to see if the given AMR signature exists. */
-  private boolean peekAmrSignature(ExtractorInput input, byte[] amrSignature)
-      throws IOException, InterruptedException {
+  private static boolean peekAmrSignature(ExtractorInput input, byte[] amrSignature)
+      throws IOException {
     input.resetPeekPosition();
     byte[] header = new byte[amrSignature.length];
     input.peekFully(header, 0, amrSignature.length);
@@ -266,7 +265,7 @@ public final class AmrExtractor implements Extractor {
   }
 
   @RequiresNonNull("trackOutput")
-  private int readSample(ExtractorInput extractorInput) throws IOException, InterruptedException {
+  private int readSample(ExtractorInput extractorInput) throws IOException {
     if (currentSampleBytesRemaining == 0) {
       try {
         currentSampleSize = peekNextSampleSize(extractorInput);
@@ -304,8 +303,7 @@ public final class AmrExtractor implements Extractor {
     return RESULT_CONTINUE;
   }
 
-  private int peekNextSampleSize(ExtractorInput extractorInput)
-      throws IOException, InterruptedException {
+  private int peekNextSampleSize(ExtractorInput extractorInput) throws IOException {
     extractorInput.resetPeekPosition();
     extractorInput.peekFully(scratch, /* offset= */ 0, /* length= */ 1);
 

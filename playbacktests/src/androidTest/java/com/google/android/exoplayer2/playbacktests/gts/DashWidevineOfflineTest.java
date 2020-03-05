@@ -188,7 +188,7 @@ public final class DashWidevineOfflineTest {
     testRunner.setActionSchedule(schedule).run();
   }
 
-  private void downloadLicense() throws InterruptedException, DrmSessionException, IOException {
+  private void downloadLicense() throws IOException {
     DataSource dataSource = httpDataSourceFactory.createDataSource();
     DashManifest dashManifest = DashUtil.loadManifest(dataSource,
         Uri.parse(DashTestData.WIDEVINE_H264_MANIFEST));

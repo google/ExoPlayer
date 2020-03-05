@@ -83,7 +83,7 @@ public final class InitializationChunk extends Chunk {
 
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
-  public void load() throws IOException, InterruptedException {
+  public void load() throws IOException {
     if (nextLoadPosition == 0) {
       extractorWrapper.init(
           trackOutputProvider, /* startTimeUs= */ C.TIME_UNSET, /* endTimeUs= */ C.TIME_UNSET);

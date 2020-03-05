@@ -80,11 +80,10 @@ public final class DashUtil {
    * @param period The {@link Period}.
    * @return The loaded {@link DrmInitData}, or null if none is defined.
    * @throws IOException Thrown when there is an error while loading.
-   * @throws InterruptedException Thrown if the thread was interrupted.
    */
   @Nullable
   public static DrmInitData loadDrmInitData(DataSource dataSource, Period period)
-      throws IOException, InterruptedException {
+      throws IOException {
     int primaryTrackType = C.TRACK_TYPE_VIDEO;
     Representation representation = getFirstRepresentation(period, primaryTrackType);
     if (representation == null) {
@@ -110,12 +109,10 @@ public final class DashUtil {
    * @param representation The representation which initialization chunk belongs to.
    * @return the sample {@link Format} of the given representation.
    * @throws IOException Thrown when there is an error while loading.
-   * @throws InterruptedException Thrown if the thread was interrupted.
    */
   @Nullable
   public static Format loadSampleFormat(
-      DataSource dataSource, int trackType, Representation representation)
-      throws IOException, InterruptedException {
+      DataSource dataSource, int trackType, Representation representation) throws IOException {
     ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, trackType,
         representation, false);
     return extractorWrapper == null
@@ -134,12 +131,10 @@ public final class DashUtil {
    * @return The {@link ChunkIndex} of the given representation, or null if no initialization or
    *     index data exists.
    * @throws IOException Thrown when there is an error while loading.
-   * @throws InterruptedException Thrown if the thread was interrupted.
    */
   @Nullable
   public static ChunkIndex loadChunkIndex(
-      DataSource dataSource, int trackType, Representation representation)
-      throws IOException, InterruptedException {
+      DataSource dataSource, int trackType, Representation representation) throws IOException {
     ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, trackType,
         representation, true);
     return extractorWrapper == null ? null : (ChunkIndex) extractorWrapper.getSeekMap();
@@ -157,12 +152,11 @@ public final class DashUtil {
    * @return A {@link ChunkExtractorWrapper} for the {@code representation}, or null if no
    *     initialization or (if requested) index data exists.
    * @throws IOException Thrown when there is an error while loading.
-   * @throws InterruptedException Thrown if the thread was interrupted.
    */
   @Nullable
   private static ChunkExtractorWrapper loadInitializationData(
       DataSource dataSource, int trackType, Representation representation, boolean loadIndex)
-      throws IOException, InterruptedException {
+      throws IOException {
     RangedUri initializationUri = representation.getInitializationUri();
     if (initializationUri == null) {
       return null;
@@ -188,9 +182,12 @@ public final class DashUtil {
     return extractorWrapper;
   }
 
-  private static void loadInitializationData(DataSource dataSource,
-      Representation representation, ChunkExtractorWrapper extractorWrapper, RangedUri requestUri)
-      throws IOException, InterruptedException {
+  private static void loadInitializationData(
+      DataSource dataSource,
+      Representation representation,
+      ChunkExtractorWrapper extractorWrapper,
+      RangedUri requestUri)
+      throws IOException {
     DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri);
     InitializationChunk initializationChunk = new InitializationChunk(dataSource, dataSpec,
         representation.format, C.SELECTION_REASON_UNKNOWN, null /* trackSelectionData */,

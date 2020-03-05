@@ -81,11 +81,9 @@ import java.io.IOException;
    *     to hold the position of the required seek.
    * @return One of the {@code RESULT_} values defined in {@link Extractor}.
    * @throws IOException If an error occurred reading from the input.
-   * @throws InterruptedException If the thread was interrupted.
    */
   public @Extractor.ReadResult int readDuration(
-      ExtractorInput input, PositionHolder seekPositionHolder)
-      throws IOException, InterruptedException {
+      ExtractorInput input, PositionHolder seekPositionHolder) throws IOException {
     if (!isLastScrValueRead) {
       return readLastScrValue(input, seekPositionHolder);
     }
@@ -137,7 +135,7 @@ import java.io.IOException;
   }
 
   private int readFirstScrValue(ExtractorInput input, PositionHolder seekPositionHolder)
-      throws IOException, InterruptedException {
+      throws IOException {
     int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength());
     int searchStartPosition = 0;
     if (input.getPosition() != searchStartPosition) {
@@ -173,7 +171,7 @@ import java.io.IOException;
   }
 
   private int readLastScrValue(ExtractorInput input, PositionHolder seekPositionHolder)
-      throws IOException, InterruptedException {
+      throws IOException {
     long inputLength = input.getLength();
     int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, inputLength);
     long searchStartPosition = inputLength - bytesToSearch;

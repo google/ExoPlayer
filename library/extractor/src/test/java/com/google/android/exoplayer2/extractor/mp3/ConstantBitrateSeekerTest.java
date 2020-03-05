@@ -57,7 +57,7 @@ public class ConstantBitrateSeekerTest {
   }
 
   @Test
-  public void mp3ExtractorReads_returnSeekableCbrSeeker() throws IOException, InterruptedException {
+  public void mp3ExtractorReads_returnSeekableCbrSeeker() throws IOException {
     Uri fileUri = TestUtil.buildAssetUri(CONSTANT_FRAME_SIZE_TEST_FILE);
 
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -68,7 +68,7 @@ public class ConstantBitrateSeekerTest {
   }
 
   @Test
-  public void seeking_handlesSeekToZero() throws IOException, InterruptedException {
+  public void seeking_handlesSeekToZero() throws IOException {
     String fileName = CONSTANT_FRAME_SIZE_TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -85,7 +85,7 @@ public class ConstantBitrateSeekerTest {
   }
 
   @Test
-  public void seeking_handlesSeekToEoF() throws IOException, InterruptedException {
+  public void seeking_handlesSeekToEoF() throws IOException {
     String fileName = CONSTANT_FRAME_SIZE_TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -102,7 +102,7 @@ public class ConstantBitrateSeekerTest {
   }
 
   @Test
-  public void seeking_handlesSeekingBackward() throws IOException, InterruptedException {
+  public void seeking_handlesSeekingBackward() throws IOException {
     String fileName = CONSTANT_FRAME_SIZE_TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -121,7 +121,7 @@ public class ConstantBitrateSeekerTest {
   }
 
   @Test
-  public void seeking_handlesSeekingForward() throws IOException, InterruptedException {
+  public void seeking_handlesSeekingForward() throws IOException {
     String fileName = CONSTANT_FRAME_SIZE_TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -140,8 +140,7 @@ public class ConstantBitrateSeekerTest {
   }
 
   @Test
-  public void seeking_variableFrameSize_seeksNearlyExactlyToCorrectFrame()
-      throws IOException, InterruptedException {
+  public void seeking_variableFrameSize_seeksNearlyExactlyToCorrectFrame() throws IOException {
     String fileName = VARIABLE_FRAME_SIZE_TEST_FILE;
     Uri fileUri = TestUtil.buildAssetUri(fileName);
     SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
@@ -162,7 +161,7 @@ public class ConstantBitrateSeekerTest {
       FakeTrackOutput trackOutput,
       long targetSeekTimeUs,
       int firstFrameIndexAfterSeek)
-      throws IOException, InterruptedException {
+      throws IOException {
     FakeTrackOutput expectedTrackOutput = getExpectedTrackOutput(fileName);
     int exactFrameIndex = getFrameIndex(expectedTrackOutput, targetSeekTimeUs);
 
@@ -175,7 +174,7 @@ public class ConstantBitrateSeekerTest {
       FakeTrackOutput trackOutput,
       long targetSeekTimeUs,
       int firstFrameIndexAfterSeek)
-      throws IOException, InterruptedException {
+      throws IOException {
     FakeTrackOutput expectedTrackOutput = getExpectedTrackOutput(fileName);
     int exactFrameIndex = getFrameIndex(expectedTrackOutput, targetSeekTimeUs);
 
@@ -197,8 +196,7 @@ public class ConstantBitrateSeekerTest {
     assertThat(foundPreviousFrame || foundExactFrame || foundNextFrame).isTrue();
   }
 
-  private static FakeTrackOutput getExpectedTrackOutput(String fileName)
-      throws IOException, InterruptedException {
+  private static FakeTrackOutput getExpectedTrackOutput(String fileName) throws IOException {
     return TestUtil.extractAllSamplesFromFile(
             new Mp3Extractor(), ApplicationProvider.getApplicationContext(), fileName)
         .trackOutputs

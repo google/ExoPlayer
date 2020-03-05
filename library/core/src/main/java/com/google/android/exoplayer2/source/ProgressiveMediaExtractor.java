@@ -35,10 +35,9 @@ import java.io.IOException;
    *     extractor.
    * @throws UnrecognizedInputFormatException Thrown if the input format could not be detected.
    * @throws IOException Thrown if the input could not be read.
-   * @throws InterruptedException Thrown if the thread was interrupted.
    */
   void init(DataSource dataSource, long position, long length, ExtractorOutput output)
-      throws IOException, InterruptedException;
+      throws IOException;
 
   /** Releases any held resources. */
   void release();
@@ -71,7 +70,6 @@ import java.io.IOException;
    *     hold the position of the required data.
    * @return One of the {@link Extractor}{@code .RESULT_*} values.
    * @throws IOException If an error occurred reading from the input.
-   * @throws InterruptedException If the thread was interrupted.
    */
-  int read(PositionHolder positionHolder) throws IOException, InterruptedException;
+  int read(PositionHolder positionHolder) throws IOException;
 }

@@ -77,7 +77,7 @@ public abstract class DataChunk extends Chunk {
   }
 
   @Override
-  public final void load() throws IOException, InterruptedException {
+  public final void load() throws IOException {
     try {
       dataSource.open(dataSpec);
       int limit = 0;

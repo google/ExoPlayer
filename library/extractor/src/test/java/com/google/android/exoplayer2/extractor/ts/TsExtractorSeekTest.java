@@ -53,7 +53,7 @@ public final class TsExtractorSeekTest {
   private PositionHolder positionHolder;
 
   @Before
-  public void setUp() throws IOException, InterruptedException {
+  public void setUp() throws IOException {
     positionHolder = new PositionHolder();
     expectedTrackOutput =
         TestUtil.extractAllSamplesFromFile(
@@ -67,8 +67,7 @@ public final class TsExtractorSeekTest {
   }
 
   @Test
-  public void tsExtractorReads_nonSeekTableFile_returnSeekableSeekMap()
-      throws IOException, InterruptedException {
+  public void tsExtractorReads_nonSeekTableFile_returnSeekableSeekMap() throws IOException {
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
     TsExtractor extractor = new TsExtractor();
 
@@ -82,7 +81,7 @@ public final class TsExtractorSeekTest {
 
   @Test
   public void handlePendingSeek_handlesSeekingToPositionInFile_extractsCorrectFrame()
-      throws IOException, InterruptedException {
+      throws IOException {
     TsExtractor extractor = new TsExtractor();
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
@@ -101,8 +100,7 @@ public final class TsExtractorSeekTest {
   }
 
   @Test
-  public void handlePendingSeek_handlesSeekToEoF_extractsLastFrame()
-      throws IOException, InterruptedException {
+  public void handlePendingSeek_handlesSeekToEoF_extractsLastFrame() throws IOException {
     TsExtractor extractor = new TsExtractor();
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
@@ -122,8 +120,7 @@ public final class TsExtractorSeekTest {
   }
 
   @Test
-  public void handlePendingSeek_handlesSeekingBackward_extractsCorrectFrame()
-      throws IOException, InterruptedException {
+  public void handlePendingSeek_handlesSeekingBackward_extractsCorrectFrame() throws IOException {
     TsExtractor extractor = new TsExtractor();
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
@@ -145,8 +142,7 @@ public final class TsExtractorSeekTest {
   }
 
   @Test
-  public void handlePendingSeek_handlesSeekingForward_extractsCorrectFrame()
-      throws IOException, InterruptedException {
+  public void handlePendingSeek_handlesSeekingForward_extractsCorrectFrame() throws IOException {
     TsExtractor extractor = new TsExtractor();
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
@@ -168,8 +164,7 @@ public final class TsExtractorSeekTest {
   }
 
   @Test
-  public void handlePendingSeek_handlesRandomSeeks_extractsCorrectFrame()
-      throws IOException, InterruptedException {
+  public void handlePendingSeek_handlesRandomSeeks_extractsCorrectFrame() throws IOException {
     TsExtractor extractor = new TsExtractor();
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
@@ -192,7 +187,7 @@ public final class TsExtractorSeekTest {
 
   @Test
   public void handlePendingSeek_handlesRandomSeeksAfterReadingFileOnce_extractsCorrectFrame()
-      throws IOException, InterruptedException {
+      throws IOException {
     TsExtractor extractor = new TsExtractor();
     Uri fileUri = TestUtil.buildAssetUri(TEST_FILE);
 
@@ -217,8 +212,7 @@ public final class TsExtractorSeekTest {
   // Internal methods
 
   private void readInputFileOnce(
-      TsExtractor extractor, FakeExtractorOutput extractorOutput, Uri fileUri)
-      throws IOException, InterruptedException {
+      TsExtractor extractor, FakeExtractorOutput extractorOutput, Uri fileUri) throws IOException {
     extractor.init(extractorOutput);
     int readResult = Extractor.RESULT_CONTINUE;
     ExtractorInput input = TestUtil.getExtractorInputFromPosition(dataSource, 0, fileUri);
