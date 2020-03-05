@@ -1830,6 +1830,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         handleFrameRendered(presentationTimeUs);
       }
+      decoderCounters.renderedOutputBufferCount++;
     }
 
     @Override
