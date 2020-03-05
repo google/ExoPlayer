@@ -90,6 +90,7 @@
     ([#6920](https://github.com/google/ExoPlayer/issues/6920)).
 *   Metadata: Add minimal DVB Application Information Table (AIT) support
     ([#6922](https://github.com/google/ExoPlayer/pull/6922)).
+*   The demo app startup selected item is the last played one.
 
 ### 2.11.3 (2020-02-19) ###
 
