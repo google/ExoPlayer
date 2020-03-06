@@ -56,7 +56,8 @@ public final class MediaItem {
     @Nullable private String mediaId;
     @Nullable private Uri sourceUri;
     @Nullable private String extension;
-    @Nullable private UriBundle drmLicenseUri;
+    @Nullable private Uri drmLicenseUri;
+    private Map<String, String> drmLicenseRequestHeaders;
     @Nullable private UUID drmUuid;
     private boolean drmMultiSession;
     private List<StreamKey> streamKeys;
@@ -65,14 +66,13 @@ public final class MediaItem {
     /** Creates a builder. */
     public Builder() {
       streamKeys = Collections.emptyList();
+      drmLicenseRequestHeaders = Collections.emptyMap();
     }
 
     /**
      * Sets the optional media id which identifies the media item. If not specified, {@code
      * #setSourceUri} must be called and the string representation of {@link
      * PlaybackProperties#sourceUri} is used as the media id.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setMediaId(@Nullable String mediaId) {
       this.mediaId = mediaId;
@@ -81,8 +81,6 @@ public final class MediaItem {
 
     /**
      * Sets the optional source uri. If not specified, {@link #setMediaId(String)} must be called.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setSourceUri(@Nullable String sourceUri) {
       return setSourceUri(sourceUri == null ? null : Uri.parse(sourceUri));
@@ -91,8 +89,6 @@ public final class MediaItem {
     /**
      * Sets the optional source {@link Uri}. If not specified, {@link #setMediaId(String)} must be
      * called.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setSourceUri(@Nullable Uri sourceUri) {
       this.sourceUri = sourceUri;
@@ -107,25 +103,9 @@ public final class MediaItem {
      *
      * <p>If a {@link PlaybackProperties#sourceUri} is set, the extension is used to create a {@link
      * PlaybackProperties} object. Otherwise it will be ignored.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setExtension(@Nullable String extension) {
       this.extension = extension;
-      return this;
-    }
-
-    /**
-     * Sets the optional license server {@link UriBundle}. If a license uri is set, the {@link
-     * DrmConfiguration#uuid} needs to be specified as well.
-     *
-     * <p>if a {@link PlaybackProperties#sourceUri} is set, the drm license uri is used to create a
-     * {@link PlaybackProperties} object. Otherwise it will be ignored.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
-     */
-    public Builder setDrmLicenseUri(@Nullable UriBundle licenseUri) {
-      drmLicenseUri = licenseUri;
       return this;
     }
 
@@ -135,11 +115,9 @@ public final class MediaItem {
      *
      * <p>If a {@link PlaybackProperties#sourceUri} is set, the drm license uri is used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setDrmLicenseUri(@Nullable Uri licenseUri) {
-      drmLicenseUri = licenseUri == null ? null : new UriBundle(licenseUri);
+      drmLicenseUri = licenseUri;
       return this;
     }
 
@@ -149,11 +127,23 @@ public final class MediaItem {
      *
      * <p>If a {@link PlaybackProperties#sourceUri} is set, the drm license uri is used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setDrmLicenseUri(@Nullable String licenseUri) {
-      drmLicenseUri = licenseUri == null ? null : new UriBundle(Uri.parse(licenseUri));
+      drmLicenseUri = licenseUri == null ? null : Uri.parse(licenseUri);
+      return this;
+    }
+
+    /**
+     * Sets the optional request headers attached to the drm license request.
+     *
+     * <p>If no valid drm configuration is specified, the drm license request headers are ignored.
+     */
+    public Builder setDrmLicenseRequestHeaders(
+        @Nullable Map<String, String> drmLicenseRequestHeaders) {
+      this.drmLicenseRequestHeaders =
+          drmLicenseRequestHeaders != null && !drmLicenseRequestHeaders.isEmpty()
+              ? drmLicenseRequestHeaders
+              : Collections.emptyMap();
       return this;
     }
 
@@ -163,8 +153,6 @@ public final class MediaItem {
      *
      * <p>If a {@link PlaybackProperties#sourceUri} is set, the drm system uuid is used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setDrmUuid(@Nullable UUID uuid) {
       drmUuid = uuid;
@@ -176,8 +164,6 @@ public final class MediaItem {
      *
      * <p>If a {@link PlaybackProperties#sourceUri} is set, the drm multi session flag is used to
      * create a {@link PlaybackProperties} object. Otherwise it will be ignored.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setDrmMultiSession(boolean multiSession) {
       drmMultiSession = multiSession;
@@ -190,8 +176,6 @@ public final class MediaItem {
      *
      * <p>If a {@link PlaybackProperties#sourceUri} is set, the stream keys are used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setStreamKeys(@Nullable List<StreamKey> streamKeys) {
       this.streamKeys =
@@ -208,8 +192,6 @@ public final class MediaItem {
      *
      * <p>If a {@link PlaybackProperties#sourceUri} is set, the tag is used to create a {@link
      * PlaybackProperties} object. Otherwise it will be ignored.
-     *
-     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setTag(@Nullable Object tag) {
       this.tag = tag;
@@ -218,8 +200,6 @@ public final class MediaItem {
 
     /**
      * Returns a new {@link MediaItem} instance with the current builder values.
-     *
-     * @throws IllegalStateException If a required property is not set.
      */
     public MediaItem build() {
       Assertions.checkState(drmLicenseUri == null || drmUuid != null);
@@ -230,66 +210,14 @@ public final class MediaItem {
                 sourceUri,
                 extension,
                 drmUuid != null
-                    ? new DrmConfiguration(drmUuid, drmLicenseUri, drmMultiSession)
+                    ? new DrmConfiguration(
+                        drmUuid, drmLicenseUri, drmLicenseRequestHeaders, drmMultiSession)
                     : null,
                 streamKeys,
                 tag);
         mediaId = mediaId != null ? mediaId : sourceUri.toString();
       }
       return new MediaItem(Assertions.checkNotNull(mediaId), playbackProperties);
-    }
-  }
-
-  /** Bundles a resource's URI with headers to attach to any request to that URI. */
-  public static final class UriBundle {
-
-    /** An empty {@link UriBundle}. */
-    public static final UriBundle EMPTY = new UriBundle(Uri.EMPTY);
-
-    /** A URI. */
-    public final Uri uri;
-
-    /** The headers to attach to any request for the given URI. */
-    public final Map<String, String> requestHeaders;
-
-    /**
-     * Creates an instance with no request headers.
-     *
-     * @param uri See {@link #uri}.
-     */
-    public UriBundle(Uri uri) {
-      this(uri, Collections.emptyMap());
-    }
-
-    /**
-     * Creates an instance with the given URI and request headers.
-     *
-     * @param uri See {@link #uri}.
-     * @param requestHeaders See {@link #requestHeaders}.
-     */
-    public UriBundle(Uri uri, Map<String, String> requestHeaders) {
-      this.uri = uri;
-      this.requestHeaders = Collections.unmodifiableMap(new HashMap<>(requestHeaders));
-    }
-
-    @Override
-    public boolean equals(@Nullable Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (other == null || getClass() != other.getClass()) {
-        return false;
-      }
-
-      UriBundle uriBundle = (UriBundle) other;
-      return uri.equals(uriBundle.uri) && requestHeaders.equals(uriBundle.requestHeaders);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = uri.hashCode();
-      result = 31 * result + requestHeaders.hashCode();
-      return result;
     }
   }
 
@@ -303,7 +231,10 @@ public final class MediaItem {
      * Optional license server {@link Uri}. If {@code null} then the license server must be
      * specified by the media.
      */
-    @Nullable public final UriBundle licenseUri;
+    @Nullable public final Uri licenseUri;
+
+    /** The headers to attach to the request for the license uri. */
+    public final Map<String, String> requestHeaders;
 
     /** Whether the drm configuration is multi session enabled. */
     public final boolean multiSession;
@@ -313,11 +244,17 @@ public final class MediaItem {
      *
      * @param uuid See {@link #uuid}.
      * @param licenseUri See {@link #licenseUri}.
+     * @param requestHeaders See {@link #requestHeaders}.
      * @param multiSession See {@link #multiSession}.
      */
-    public DrmConfiguration(UUID uuid, @Nullable UriBundle licenseUri, boolean multiSession) {
+    public DrmConfiguration(
+        UUID uuid,
+        @Nullable Uri licenseUri,
+        Map<String, String> requestHeaders,
+        boolean multiSession) {
       this.uuid = uuid;
       this.licenseUri = licenseUri;
+      this.requestHeaders = Collections.unmodifiableMap(new HashMap<>(requestHeaders));
       this.multiSession = multiSession;
     }
 
@@ -333,6 +270,7 @@ public final class MediaItem {
       DrmConfiguration other = (DrmConfiguration) obj;
       return uuid.equals(other.uuid)
           && Util.areEqual(licenseUri, other.licenseUri)
+          && Util.areEqual(requestHeaders, other.requestHeaders)
           && multiSession == other.multiSession;
     }
 
@@ -340,6 +278,7 @@ public final class MediaItem {
     public int hashCode() {
       int result = uuid.hashCode();
       result = 31 * result + (licenseUri != null ? licenseUri.hashCode() : 0);
+      result = 31 * result + requestHeaders.hashCode();
       result = 31 * result + (multiSession ? 1 : 0);
       return result;
     }

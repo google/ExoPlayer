@@ -280,9 +280,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private MediaDrmCallback createHttpMediaDrmCallback(MediaItem.DrmConfiguration drmConfiguration) {
     Assertions.checkNotNull(drmConfiguration.licenseUri);
     HttpMediaDrmCallback drmCallback =
-        new HttpMediaDrmCallback(
-            drmConfiguration.licenseUri.uri.toString(), drmHttpDataSourceFactory);
-    for (Map.Entry<String, String> entry : drmConfiguration.licenseUri.requestHeaders.entrySet()) {
+        new HttpMediaDrmCallback(drmConfiguration.licenseUri.toString(), drmHttpDataSourceFactory);
+    for (Map.Entry<String, String> entry : drmConfiguration.requestHeaders.entrySet()) {
       drmCallback.setKeyRequestProperty(entry.getKey(), entry.getValue());
     }
     return drmCallback;
