@@ -564,6 +564,9 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
       case MSG_SET_SKIP_SILENCE_ENABLED:
         audioSink.setSkipSilenceEnabled((Boolean) message);
         break;
+      case MSG_SET_AUDIO_SESSION_ID:
+        audioSink.setAudioSessionId((Integer) message);
+        break;
       default:
         super.handleMessage(messageType, message);
         break;

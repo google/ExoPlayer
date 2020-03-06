@@ -673,6 +673,21 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void setAudioSessionId(int audioSessionId) {
+    verifyApplicationThread();
+    this.audioSessionId = audioSessionId;
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
+        player
+            .createMessage(renderer)
+            .setType(Renderer.MSG_SET_AUDIO_SESSION_ID)
+            .setPayload(audioSessionId)
+            .send();
+      }
+    }
+  }
+
+  @Override
   public int getAudioSessionId() {
     return audioSessionId;
   }
