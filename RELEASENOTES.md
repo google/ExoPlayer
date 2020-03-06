@@ -19,6 +19,8 @@
     *   Add `Player.onPlayWhenReadyChanged` with reasons.
     *   Add `Player.onPlaybackStateChanged` and deprecate
         `Player.onPlayerStateChanged`.
+    *   Add `Player.setAudioSessionId` to set the session ID attached to the
+        `AudioTrack`.
     *   Deprecate and rename `getPlaybackError` to `getPlayerError` for
         consistency.
     *   Deprecate and rename `onLoadingChanged` to `onIsLoadingChanged` for

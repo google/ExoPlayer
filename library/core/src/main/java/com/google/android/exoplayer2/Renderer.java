@@ -132,6 +132,12 @@ public interface Renderer extends PlayerMessage.Target {
    */
   int MSG_SET_SKIP_SILENCE_ENABLED = 101;
   /**
+   * A type of a message that can be passed to an audio renderer via {@link
+   * ExoPlayer#createMessage(Target)}. The message payload should be an {@link Integer} instance
+   * representing the audio session ID that will be attached to the underlying audio track.
+   */
+  int MSG_SET_AUDIO_SESSION_ID = 102;
+  /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.
    */
