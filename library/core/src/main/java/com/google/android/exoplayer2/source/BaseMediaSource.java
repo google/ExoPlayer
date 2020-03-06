@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
@@ -137,6 +138,16 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void removeEventListener(MediaSourceEventListener eventListener) {
+    eventDispatcher.removeEventListener(eventListener);
+  }
+
+  @Override
+  public final void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener) {
+    eventDispatcher.addEventListener(handler, eventListener);
+  }
+
+  @Override
+  public final void removeDrmEventListener(DrmSessionEventListener eventListener) {
     eventDispatcher.removeEventListener(eventListener);
   }
 
