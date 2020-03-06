@@ -791,6 +791,18 @@ public final class DashMediaSource extends BaseMediaSource {
     manifestLoadPending &= manifest.dynamic;
     manifestLoadStartTimestampMs = elapsedRealtimeMs - loadDurationMs;
     manifestLoadEndTimestampMs = elapsedRealtimeMs;
+    boolean isRedirect = !loadable.getUri().equals(this.manifestUri);
+    if (isRedirect) {
+      synchronized (manifestUriLock) {
+        // This condition checks that replaceManifestUri wasn't called between the start and end of
+        // this load. If it was, we ignore the manifest location and prefer the manual replacement.
+        @SuppressWarnings("ReferenceEquality")
+        boolean isSameUriInstance = loadable.dataSpec.uri == manifestUri;
+        if (isSameUriInstance) {
+          manifestUri = loadable.getUri();
+        }
+      }
+    }
     if (manifest.location != null) {
       synchronized (manifestUriLock) {
         // This condition checks that replaceManifestUri wasn't called between the start and end of
