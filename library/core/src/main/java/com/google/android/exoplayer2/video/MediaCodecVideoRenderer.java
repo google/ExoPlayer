@@ -71,7 +71,7 @@ import java.util.List;
  *   <li>Message with type {@link #MSG_SET_SCALING_MODE} to set the video scaling mode. The message
  *       payload should be one of the integer scaling modes in {@link VideoScalingMode}. Note that
  *       the scaling mode only applies if the {@link Surface} targeted by this renderer is owned by
- *       a {@link android.view.SurfaceView}.
+ *       a {@link android.view.SurfaceView}decoderCounters.renderedOutputBufferCount++;.
  * </ul>
  */
 public class MediaCodecVideoRenderer extends MediaCodecRenderer {
@@ -863,6 +863,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (format != null) {
       processOutputFormat(getCodec(), format.width, format.height);
     }
+    decoderCounters.renderedOutputBufferCount++;
     maybeNotifyVideoSizeChanged();
     maybeNotifyRenderedFirstFrame();
     onProcessedOutputBuffer(presentationTimeUs);
@@ -1710,7 +1711,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         handleFrameRendered(presentationTimeUs);
       }
-      decoderCounters.renderedOutputBufferCount++;
     }
 
     @Override
