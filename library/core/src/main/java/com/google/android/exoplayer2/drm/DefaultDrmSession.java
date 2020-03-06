@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
@@ -258,7 +259,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public void acquire() {
+  public void acquire(@Nullable MediaSourceEventDispatcher eventDispatcher) {
     Assertions.checkState(referenceCount >= 0);
     if (++referenceCount == 1) {
       Assertions.checkState(state == STATE_OPENING);
@@ -272,7 +273,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public void release() {
+  public void release(@Nullable MediaSourceEventDispatcher eventDispatcher) {
     if (--referenceCount == 0) {
       // Assigning null to various non-null variables for clean-up.
       state = STATE_RELEASED;
@@ -288,7 +289,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (sessionId != null) {
         mediaDrm.closeSession(sessionId);
         sessionId = null;
-        eventDispatcher.dispatch(DefaultDrmSessionEventListener::onDrmSessionReleased);
+        this.eventDispatcher.dispatch(DefaultDrmSessionEventListener::onDrmSessionReleased);
       }
       releaseCallback.onSessionReleased(this);
     }

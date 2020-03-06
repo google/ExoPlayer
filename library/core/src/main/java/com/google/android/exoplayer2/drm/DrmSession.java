@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import android.media.MediaDrm;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -30,8 +31,11 @@ import java.util.Map;
 public interface DrmSession<T extends ExoMediaCrypto> {
 
   /**
-   * Invokes {@code newSession's} {@link #acquire()} and {@code previousSession's} {@link
-   * #release()} in that order. Null arguments are ignored. Does nothing if {@code previousSession}
+   * Acquires {@code newSession} then releases {@code previousSession}.
+   *
+   * <p>Invokes {@code newSession's} {@link #acquire(MediaSourceEventDispatcher)} and {@code
+   * previousSession's} {@link #release(MediaSourceEventDispatcher)} in that order (passing {@code
+   * eventDispatcher = null}). Null arguments are ignored. Does nothing if {@code previousSession}
    * and {@code newSession} are the same session.
    */
   static <T extends ExoMediaCrypto> void replaceSession(
@@ -41,10 +45,10 @@ public interface DrmSession<T extends ExoMediaCrypto> {
       return;
     }
     if (newSession != null) {
-      newSession.acquire();
+      newSession.acquire(/* eventDispatcher= */ null);
     }
     if (previousSession != null) {
-      previousSession.release();
+      previousSession.release(/* eventDispatcher= */ null);
     }
   }
 
@@ -132,13 +136,20 @@ public interface DrmSession<T extends ExoMediaCrypto> {
 
   /**
    * Increments the reference count. When the caller no longer needs to use the instance, it must
-   * call {@link #release()} to decrement the reference count.
+   * call {@link #release(MediaSourceEventDispatcher)} to decrement the reference count.
+   *
+   * @param eventDispatcher The {@link MediaSourceEventDispatcher} used to route DRM-related events
+   *     dispatched from this session, or null if no event handling is needed.
    */
-  void acquire();
+  void acquire(@Nullable MediaSourceEventDispatcher eventDispatcher);
 
   /**
    * Decrements the reference count. If the reference count drops to 0 underlying resources are
    * released, and the instance cannot be re-used.
+   *
+   * @param eventDispatcher The {@link MediaSourceEventDispatcher} to disconnect when the session is
+   *     released (the same instance (possibly null) that was passed by the caller to {@link
+   *     #acquire(MediaSourceEventDispatcher)}).
    */
-  void release();
+  void release(@Nullable MediaSourceEventDispatcher eventDispatcher);
 }
