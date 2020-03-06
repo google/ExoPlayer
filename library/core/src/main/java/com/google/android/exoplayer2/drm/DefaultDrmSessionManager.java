@@ -239,7 +239,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   private final ExoMediaDrm.Provider<T> exoMediaDrmProvider;
   private final MediaDrmCallback callback;
   private final HashMap<String, String> keyRequestParameters;
-  private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
+  private final EventDispatcher<DrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
   private final int[] useDrmSessionsForClearContentTrackTypes;
   private final boolean playClearSamplesWithoutKeys;
@@ -367,21 +367,21 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   /**
-   * Adds a {@link DefaultDrmSessionEventListener} to listen to drm session events.
+   * Adds a {@link DrmSessionEventListener} to listen to drm session events.
    *
    * @param handler A handler to use when delivering events to {@code eventListener}.
    * @param eventListener A listener of events.
    */
-  public final void addListener(Handler handler, DefaultDrmSessionEventListener eventListener) {
+  public final void addListener(Handler handler, DrmSessionEventListener eventListener) {
     eventDispatcher.addListener(handler, eventListener);
   }
 
   /**
-   * Removes a {@link DefaultDrmSessionEventListener} from the list of drm session event listeners.
+   * Removes a {@link DrmSessionEventListener} from the list of drm session event listeners.
    *
    * @param eventListener The listener to remove.
    */
-  public final void removeListener(DefaultDrmSessionEventListener eventListener) {
+  public final void removeListener(DrmSessionEventListener eventListener) {
     eventDispatcher.removeListener(eventListener);
   }
 
