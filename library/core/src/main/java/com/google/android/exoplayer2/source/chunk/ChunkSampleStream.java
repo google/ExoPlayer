@@ -131,13 +131,14 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     int[] trackTypes = new int[1 + embeddedTrackCount];
     SampleQueue[] sampleQueues = new SampleQueue[1 + embeddedTrackCount];
 
-    primarySampleQueue = new SampleQueue(allocator, drmSessionManager);
+    primarySampleQueue = new SampleQueue(allocator, drmSessionManager, eventDispatcher);
     trackTypes[0] = primaryTrackType;
     sampleQueues[0] = primarySampleQueue;
 
     for (int i = 0; i < embeddedTrackCount; i++) {
       SampleQueue sampleQueue =
-          new SampleQueue(allocator, DrmSessionManager.getDummyDrmSessionManager());
+          new SampleQueue(
+              allocator, DrmSessionManager.getDummyDrmSessionManager(), eventDispatcher);
       embeddedSampleQueues[i] = sampleQueue;
       sampleQueues[i + 1] = sampleQueue;
       trackTypes[i + 1] = this.embeddedTrackTypes[i];

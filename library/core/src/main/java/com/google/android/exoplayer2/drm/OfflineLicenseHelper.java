@@ -26,8 +26,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
@@ -41,6 +41,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   private final ConditionVariable conditionVariable;
   private final DefaultDrmSessionManager<T> drmSessionManager;
   private final HandlerThread handlerThread;
+  private final MediaSourceEventDispatcher eventDispatcher;
 
   /**
    * Instantiates a new instance which uses Widevine CDM. Call {@link #release()} when the instance
@@ -49,14 +50,18 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
    *     their own license URL.
    * @param httpDataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param eventDispatcher A {@link MediaSourceEventDispatcher} used to distribute DRM-related
+   *     events.
    * @return A new instance which uses Widevine CDM.
    * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
    *     instantiated.
    */
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
-      String defaultLicenseUrl, Factory httpDataSourceFactory)
+      String defaultLicenseUrl,
+      HttpDataSource.Factory httpDataSourceFactory,
+      MediaSourceEventDispatcher eventDispatcher)
       throws UnsupportedDrmException {
-    return newWidevineInstance(defaultLicenseUrl, false, httpDataSourceFactory, null);
+    return newWidevineInstance(defaultLicenseUrl, false, httpDataSourceFactory, eventDispatcher);
   }
 
   /**
@@ -68,15 +73,24 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
    *     include their own license URL.
    * @param httpDataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param eventDispatcher A {@link MediaSourceEventDispatcher} used to distribute DRM-related
+   *     events.
    * @return A new instance which uses Widevine CDM.
    * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
    *     instantiated.
    */
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
-      String defaultLicenseUrl, boolean forceDefaultLicenseUrl, Factory httpDataSourceFactory)
+      String defaultLicenseUrl,
+      boolean forceDefaultLicenseUrl,
+      HttpDataSource.Factory httpDataSourceFactory,
+      MediaSourceEventDispatcher eventDispatcher)
       throws UnsupportedDrmException {
-    return newWidevineInstance(defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory,
-        null);
+    return newWidevineInstance(
+        defaultLicenseUrl,
+        forceDefaultLicenseUrl,
+        httpDataSourceFactory,
+        /* optionalKeyRequestParameters= */ null,
+        eventDispatcher);
   }
 
   /**
@@ -89,6 +103,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    *     include their own license URL.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link MediaDrm#getKeyRequest}. May be null.
+   * @param eventDispatcher A {@link MediaSourceEventDispatcher} used to distribute DRM-related
+   *     events.
    * @return A new instance which uses Widevine CDM.
    * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
    *     instantiated.
@@ -97,14 +113,16 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
-      Factory httpDataSourceFactory,
-      @Nullable Map<String, String> optionalKeyRequestParameters)
+      HttpDataSource.Factory httpDataSourceFactory,
+      @Nullable Map<String, String> optionalKeyRequestParameters,
+      MediaSourceEventDispatcher eventDispatcher)
       throws UnsupportedDrmException {
     return new OfflineLicenseHelper<>(
         C.WIDEVINE_UUID,
         FrameworkMediaDrm.DEFAULT_PROVIDER,
         new HttpMediaDrmCallback(defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory),
-        optionalKeyRequestParameters);
+        optionalKeyRequestParameters,
+        eventDispatcher);
   }
 
   /**
@@ -115,6 +133,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param callback Performs key and provisioning requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link MediaDrm#getKeyRequest}. May be null.
+   * @param eventDispatcher A {@link MediaSourceEventDispatcher} used to distribute DRM-related
+   *     events.
    * @see DefaultDrmSessionManager.Builder
    */
   @SuppressWarnings("unchecked")
@@ -122,7 +142,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
       UUID uuid,
       ExoMediaDrm.Provider<T> mediaDrmProvider,
       MediaDrmCallback callback,
-      @Nullable Map<String, String> optionalKeyRequestParameters) {
+      @Nullable Map<String, String> optionalKeyRequestParameters,
+      MediaSourceEventDispatcher eventDispatcher) {
     handlerThread = new HandlerThread("OfflineLicenseHelper");
     handlerThread.start();
     conditionVariable = new ConditionVariable();
@@ -158,6 +179,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
                 .setKeyRequestParameters(optionalKeyRequestParameters)
                 .build(callback);
     drmSessionManager.addListener(new Handler(handlerThread.getLooper()), eventListener);
+    this.eventDispatcher = eventDispatcher;
   }
 
   /**
@@ -216,7 +238,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     DrmSessionException error = drmSession.getError();
     Pair<Long, Long> licenseDurationRemainingSec =
         WidevineUtil.getLicenseDurationRemainingSec(drmSession);
-    drmSession.release();
+    drmSession.release(eventDispatcher);
     drmSessionManager.release();
     if (error != null) {
       if (error.getCause() instanceof KeysExpiredException) {
@@ -242,7 +264,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
         drmInitData);
     DrmSessionException error = drmSession.getError();
     byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
-    drmSession.release();
+    drmSession.release(eventDispatcher);
     drmSessionManager.release();
     if (error != null) {
       throw error;
@@ -254,8 +276,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
       @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, DrmInitData drmInitData) {
     drmSessionManager.setMode(licenseMode, offlineLicenseKeySetId);
     conditionVariable.close();
-    DrmSession<T> drmSession = drmSessionManager.acquireSession(handlerThread.getLooper(),
-        drmInitData);
+    DrmSession<T> drmSession =
+        drmSessionManager.acquireSession(handlerThread.getLooper(), eventDispatcher, drmInitData);
     // Block current thread until key loading is finished
     conditionVariable.block();
     return drmSession;

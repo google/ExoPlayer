@@ -675,7 +675,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return sampleQueues[i];
       }
     }
-    SampleQueue trackOutput = new SampleQueue(allocator, drmSessionManager);
+    SampleQueue trackOutput = new SampleQueue(allocator, drmSessionManager, eventDispatcher);
     trackOutput.setUpstreamFormatChangeListener(this);
     @NullableType
     TrackId[] sampleQueueTrackIds = Arrays.copyOf(this.sampleQueueTrackIds, trackCount + 1);

@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -907,7 +908,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
     FormatAdjustingSampleQueue trackOutput =
-        new FormatAdjustingSampleQueue(allocator, drmSessionManager, overridingDrmInitData);
+        new FormatAdjustingSampleQueue(
+            allocator, drmSessionManager, eventDispatcher, overridingDrmInitData);
     if (isAudioVideo) {
       trackOutput.setDrmInitData(drmInitData);
     }
@@ -1348,8 +1350,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     public FormatAdjustingSampleQueue(
         Allocator allocator,
         DrmSessionManager<?> drmSessionManager,
+        MediaSourceEventDispatcher eventDispatcher,
         Map<String, DrmInitData> overridingDrmInitData) {
-      super(allocator, drmSessionManager);
+      super(allocator, drmSessionManager, eventDispatcher);
       this.overridingDrmInitData = overridingDrmInitData;
     }
 
