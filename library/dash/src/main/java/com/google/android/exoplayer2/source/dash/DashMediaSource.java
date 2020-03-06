@@ -802,6 +802,12 @@ public final class DashMediaSource extends BaseMediaSource {
         }
       }
     }
+    boolean isRedirect = !loadable.getUri().equals(this.manifestUri);
+    if (isRedirect) {
+      synchronized (manifestUriLock) {
+        manifestUri = loadable.getUri();
+      }
+    }
 
     if (oldPeriodCount == 0) {
       if (manifest.dynamic) {
