@@ -46,12 +46,17 @@ public class Period {
   public final List<EventStream> eventStreams;
 
   /**
+   * The asset identifier for this period, if one exists
+   */
+  @Nullable public final Descriptor assetIdentifier;
+
+  /**
    * @param id The period identifier. May be null.
    * @param startMs The start time of the period in milliseconds.
    * @param adaptationSets The adaptation sets belonging to the period.
    */
   public Period(@Nullable String id, long startMs, List<AdaptationSet> adaptationSets) {
-    this(id, startMs, adaptationSets, Collections.emptyList());
+    this(id, startMs, adaptationSets, Collections.emptyList(), null);
   }
 
   /**
@@ -62,10 +67,23 @@ public class Period {
    */
   public Period(@Nullable String id, long startMs, List<AdaptationSet> adaptationSets,
       List<EventStream> eventStreams) {
+    this(id, startMs, adaptationSets, eventStreams, null);
+  }
+
+  /**
+   * @param id The period identifier. May be null.
+   * @param startMs The start time of the period in milliseconds.
+   * @param adaptationSets The adaptation sets belonging to the period.
+   * @param eventStreams The {@link EventStream}s belonging to the period.
+   * @param assetIdentifier The asset identifier for this period
+   */
+  public Period(@Nullable String id, long startMs, List<AdaptationSet> adaptationSets,
+      List<EventStream> eventStreams, @Nullable Descriptor assetIdentifier) {
     this.id = id;
     this.startMs = startMs;
     this.adaptationSets = Collections.unmodifiableList(adaptationSets);
     this.eventStreams = Collections.unmodifiableList(eventStreams);
+    this.assetIdentifier = assetIdentifier;
   }
 
   /**
