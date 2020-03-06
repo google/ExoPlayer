@@ -489,7 +489,9 @@ public class PlayerActivity extends AppCompatActivity
         return null;
       }
       builder
-          .setDrmLicenseUri(createLicenseUriBundle(parameters.drmInfo))
+          .setDrmLicenseUri(parameters.drmInfo.drmLicenseUrl)
+          .setDrmLicenseRequestHeaders(
+              createLicenseHeaders(parameters.drmInfo.drmKeyRequestProperties))
           .setDrmUuid(parameters.drmInfo.drmScheme)
           .setDrmMultiSession(parameters.drmInfo.drmMultiSession);
       drmSessionForClearTypes = parameters.drmInfo.drmSessionForClearTypes;
@@ -509,16 +511,16 @@ public class PlayerActivity extends AppCompatActivity
         .createMediaSource(builder.build());
   }
 
-  private static MediaItem.UriBundle createLicenseUriBundle(Sample.DrmInfo drmInfo) {
-    Uri licenseUri = Uri.parse(drmInfo.drmLicenseUrl);
-    if (drmInfo.drmKeyRequestProperties == null || drmInfo.drmKeyRequestProperties.length == 0) {
-      return new MediaItem.UriBundle(licenseUri);
+  @Nullable
+  private Map<String, String> createLicenseHeaders(@Nullable String[] drmKeyRequestProperties) {
+    if (drmKeyRequestProperties == null || drmKeyRequestProperties.length == 0) {
+      return null;
     }
     Map<String, String> headers = new HashMap<>();
-    for (int i = 0; i < drmInfo.drmKeyRequestProperties.length; i += 2) {
-      headers.put(drmInfo.drmKeyRequestProperties[i], drmInfo.drmKeyRequestProperties[i + 1]);
+    for (int i = 0; i < drmKeyRequestProperties.length; i += 2) {
+      headers.put(drmKeyRequestProperties[i], drmKeyRequestProperties[i + 1]);
     }
-    return new MediaItem.UriBundle(licenseUri, headers);
+    return headers;
   }
 
   private void releasePlayer() {

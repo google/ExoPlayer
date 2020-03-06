@@ -22,7 +22,9 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.StreamKey;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -79,19 +81,23 @@ public class MediaItemTest {
 
   @Test
   public void builderSetDrmConfig_setsAllProperties() {
-    MediaItem.UriBundle licenseUri = new MediaItem.UriBundle(Uri.parse(URI_STRING));
-
+    Uri licenseUri = Uri.parse(URI_STRING);
+    Map<String, String> requestHeaders = new HashMap<>();
+    requestHeaders.put("Referer", "http://www.google.com");
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setSourceUri(URI_STRING)
             .setDrmUuid(C.WIDEVINE_UUID)
             .setDrmLicenseUri(licenseUri)
+            .setDrmLicenseRequestHeaders(requestHeaders)
             .setDrmMultiSession(/* multiSession= */ true)
             .build();
 
     assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
     assertThat(mediaItem.playbackProperties.drmConfiguration.uuid).isEqualTo(C.WIDEVINE_UUID);
     assertThat(mediaItem.playbackProperties.drmConfiguration.licenseUri).isEqualTo(licenseUri);
+    assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)
+        .isEqualTo(requestHeaders);
     assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isTrue();
   }
 
@@ -103,7 +109,7 @@ public class MediaItemTest {
             new MediaItem.Builder()
                 .setSourceUri(URI_STRING)
                 // missing uuid
-                .setDrmLicenseUri(new MediaItem.UriBundle(Uri.parse(URI_STRING)))
+                .setDrmLicenseUri(Uri.parse(URI_STRING))
                 .build());
   }
 
