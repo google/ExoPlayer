@@ -147,8 +147,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
     handlerThread = new HandlerThread("OfflineLicenseHelper");
     handlerThread.start();
     conditionVariable = new ConditionVariable();
-    DefaultDrmSessionEventListener eventListener =
-        new DefaultDrmSessionEventListener() {
+    DrmSessionEventListener eventListener =
+        new DrmSessionEventListener() {
           @Override
           public void onDrmKeysLoaded() {
             conditionVariable.open();

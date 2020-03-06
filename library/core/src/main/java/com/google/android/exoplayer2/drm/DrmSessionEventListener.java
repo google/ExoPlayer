@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.drm;
 
 import com.google.android.exoplayer2.Player;
 
-/** Listener of {@link DefaultDrmSessionManager} events. */
-public interface DefaultDrmSessionEventListener {
+/** Listener of {@link DrmSessionManager} events. */
+public interface DrmSessionEventListener {
 
   /** Called each time a drm session is acquired. */
   default void onDrmSessionAcquired() {}
