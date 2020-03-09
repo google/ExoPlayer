@@ -15,13 +15,6 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
-import android.util.SparseIntArray;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -37,9 +30,9 @@ import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
@@ -55,15 +48,26 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+
+import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
+
+import android.content.Context;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
+import android.util.SparseIntArray;
+
+import androidx.annotation.Nullable;
 
 /**
  * A helper for initializing and removing downloads.
@@ -929,22 +933,15 @@ public final class DownloadHelper {
       if (drmSessionManager != null) {
         factory.setDrmSessionManager(drmSessionManager);
       }
-      try {
-        Object factory = constructor.newInstance(dataSourceFactory);
-        if (factory instanceof HlsMediaSource.Factory) {
-          // ExoPlayer attempts to read the first chunk to obtain codec info - not possible for PRM.
-          // This makes ExoPlayer check the playlist for codec info before attempting to read a chunk,
-          // with HlsMediaPeriod changed to handle situations when that info is missing.
-          ((HlsMediaSource.Factory) factory).setAllowChunklessPreparation(true);
-        }
-        if (streamKeys != null) {
-          factory.setStreamKeys(streamKeys);
-        }
-
-        return (MediaSource) Assertions.checkNotNull(createMethod.invoke(factory, uri));
-      } catch (Exception e) {
-        throw new IllegalStateException("Failed to instantiate media source.", e);
-      
+      if (factory instanceof HlsMediaSource.Factory) {
+        // ExoPlayer attempts to read the first chunk to obtain codec info - not possible for PRM.
+        // This makes ExoPlayer check the playlist for codec info before attempting to read a chunk,
+        // with HlsMediaPeriod changed to handle situations when that info is missing.
+        ((HlsMediaSource.Factory) factory).setAllowChunklessPreparation(true);
+      }
+      if (streamKeys != null) {
+        factory.setStreamKeys(streamKeys);
+      }
       return Assertions.checkNotNull(factory.createMediaSource(uri));
     } catch (Exception e) {
       throw new IllegalStateException("Failed to instantiate media source.", e);
@@ -952,7 +949,7 @@ public final class DownloadHelper {
   }
 
   private static final class MediaPreparer
-      implements MediaSourceCaller, MediaPeriod.Callback, Handler.Callback {
+        implements MediaSourceCaller, MediaPeriod.Callback, Handler.Callback {
 
     private static final int MESSAGE_PREPARE_SOURCE = 0;
     private static final int MESSAGE_CHECK_FOR_FAILURE = 1;

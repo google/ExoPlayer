@@ -15,15 +15,6 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.media.MediaDrm;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -47,6 +38,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.media.MediaDrm;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import nagra.otv.sdk.ext.WidevinePsshDataBuilderParser;
 
 /** A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}. */
@@ -379,11 +381,11 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       // useful if DefaultDrmSession instances were aware of one another's state, which is not
       // implemented. Or if custom renderers are being used that allow playback to proceed before
       // keys, which seems unlikely to be true in practice.
-      exoMediaDrmProvider.acquire(uuid).setPropertyString("sessionSharing", "enable");
+      exoMediaDrmProvider.acquireExoMediaDrm(uuid).setPropertyString("sessionSharing", "enable");
     }
-    exoMediaDrmProvider.acquire(uuid).setOnEventListener(new MediaDrmEventListener());
+    exoMediaDrmProvider.acquireExoMediaDrm(uuid).setOnEventListener(new MediaDrmEventListener());
     if (Util.SDK_INT >= 23) {
-      exoMediaDrmProvider.acquire(uuid).setOnKeyStatusChangeListener(new MediaDrmOnKeyStatusChangeListener());
+      exoMediaDrmProvider.acquireExoMediaDrm(uuid).setOnKeyStatusChangeListener(new MediaDrmOnKeyStatusChangeListener());
     }
   }
 

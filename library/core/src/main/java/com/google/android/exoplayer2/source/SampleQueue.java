@@ -15,10 +15,6 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.os.Looper;
-import androidx.annotation.CallSuper;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -34,6 +30,12 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+
+import android.os.Looper;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 /** A queue of media samples. */
 public class SampleQueue implements TrackOutput {
@@ -472,7 +474,7 @@ public class SampleQueue implements TrackOutput {
   }
 
   @Override
-  public final void sampleData(ParsableByteArray buffer, int length) {
+  public void sampleData(ParsableByteArray buffer, int length) {
     sampleDataQueue.sampleData(buffer, length);
   }
 

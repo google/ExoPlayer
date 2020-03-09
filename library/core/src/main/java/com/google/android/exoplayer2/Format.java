@@ -15,10 +15,6 @@
  */
 package com.google.android.exoplayer2;
 
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -30,6 +26,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.Nullable;
 
 /**
  * Representation of a media format.
@@ -151,9 +152,6 @@ public final class Format implements Parcelable {
    */
   public final int encoderPadding;
 
-  /** A Bundle of custom parameters. Could be null or empty */
-  public final Bundle params;
-
   // Audio and text specific.
   /**
    * Indicates if the video is wide aspect ratio (16:9) or not (4:3)
@@ -212,39 +210,7 @@ public final class Format implements Parcelable {
         frameRate,
         initializationData,
         selectionFlags,
-        /* roleFlags= */ 0,
-        /* params= */ null);
-  }
-
-  public static Format createVideoContainerFormat(
-      @Nullable String id,
-      @Nullable String label,
-      @Nullable String containerMimeType,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      @Nullable Metadata metadata,
-      int bitrate,
-      int width,
-      int height,
-      float frameRate,
-      @Nullable List<byte[]> initializationData,
-      @C.SelectionFlags int selectionFlags,
-      @C.RoleFlags int roleFlags) {
-    return createVideoContainerFormat(
-        id,
-        label,
-        containerMimeType,
-        sampleMimeType,
-        codecs,
-        metadata,
-        bitrate,
-        width,
-        height,
-        frameRate,
-        initializationData,
-        selectionFlags,
-        roleFlags,
-        /* params= */ null);
+        /* roleFlags= */ 0);
   }
 
   public static Format createVideoContainerFormat(
@@ -260,8 +226,7 @@ public final class Format implements Parcelable {
       float frameRate,
       @Nullable List<byte[]> initializationData,
       @C.SelectionFlags int selectionFlags,
-      @C.RoleFlags int roleFlags,
-      Bundle params) {
+      @C.RoleFlags int roleFlags) {
     return new Format(
         id,
         label,
@@ -687,28 +652,6 @@ public final class Format implements Parcelable {
       int bitrate,
       @C.SelectionFlags int selectionFlags,
       @Nullable String language,
-      int accessibilityChannel,
-      @Nullable DrmInitData drmInitData) {
-    return createTextSampleFormat(
-        id,
-        sampleMimeType,
-        codecs,
-        bitrate,
-        selectionFlags,
-        language,
-        accessibilityChannel,
-        drmInitData,
-        OFFSET_SAMPLE_RELATIVE,
-        Collections.emptyList());
-  }
-
-  public static Format createTextSampleFormat(
-      @Nullable String id,
-      @Nullable String sampleMimeType,
-      @Nullable String codecs,
-      int bitrate,
-      @C.SelectionFlags int selectionFlags,
-      @Nullable String language,
       @Nullable DrmInitData drmInitData,
       long subsampleOffsetUs) {
     return createTextSampleFormat(
@@ -732,8 +675,7 @@ public final class Format implements Parcelable {
       @C.SelectionFlags int selectionFlags,
       String language,
       int accessibilityChannel,
-      DrmInitData drmInitData,
-      Bundle params) {
+      DrmInitData drmInitData) {
     return new Format(
         id,
         /* label= */ null,
@@ -763,7 +705,7 @@ public final class Format implements Parcelable {
         /* encoderPadding= */ NO_VALUE,
         language,
         accessibilityChannel,
-        params);
+        /* exoMediaCryptoType= */ null);
   }
 
   public static Format createTextSampleFormat(
@@ -1817,7 +1759,6 @@ public final class Format implements Parcelable {
     // Audio and text specific.
     dest.writeString(language);
     dest.writeInt(accessibilityChannel);
-    dest.writeBundle(params);
   }
 
   public static final Creator<Format> CREATOR = new Creator<Format>() {
