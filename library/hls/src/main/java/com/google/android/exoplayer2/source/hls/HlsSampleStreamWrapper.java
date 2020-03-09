@@ -820,15 +820,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   /**
    * Initializes the wrapper for loading a chunk.
-   *
    * @param chunkUid The chunk's uid.
+   * @param loadingChunk the Chunk that is about to start loading.
    * @param shouldSpliceIn Whether the samples parsed from the chunk should be spliced into any
    *     samples already queued to the wrapper.
    */
-  public void init(int chunkUid, boolean shouldSpliceIn) {
+  public void init(int chunkUid, HlsMediaChunk loadingChunk, boolean shouldSpliceIn) {
     this.chunkUid = chunkUid;
-    for (SampleQueue sampleQueue : sampleQueues) {
+    for (HlsCheckedSampleQueue sampleQueue : sampleQueues) {
       sampleQueue.sourceId(chunkUid);
+      sampleQueue.setCurrentLoadingChunk(loadingChunk);
     }
     if (shouldSpliceIn) {
       for (SampleQueue sampleQueue : sampleQueues) {
@@ -1342,7 +1343,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return new DummyTrackOutput();
   }
 
-  private static final class FormatAdjustingSampleQueue extends SampleQueue {
+  private static final class FormatAdjustingSampleQueue extends HlsCheckedSampleQueue {
 
     private final Map<String, DrmInitData> overridingDrmInitData;
     @Nullable private DrmInitData drmInitData;
