@@ -59,6 +59,7 @@ import com.google.android.exoplayer2.util.Log;
         return;
       }
       wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, WIFI_LOCK_TAG);
+      wifiLock.setReferenceCounted(false);
     }
 
     this.enabled = enabled;
@@ -85,10 +86,8 @@ import com.google.android.exoplayer2.util.Log;
     }
 
     if (enabled && stayAwake) {
-      if (!wifiLock.isHeld()) {
-        wifiLock.acquire();
-      }
-    } else if (wifiLock.isHeld()) {
+      wifiLock.acquire();
+    } else {
       wifiLock.release();
     }
   }
