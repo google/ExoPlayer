@@ -686,10 +686,10 @@ public class SimpleExoPlayer extends BasePlayer
       }
     }
 
+    audioFocusManager.setAudioAttributes(handleAudioFocus ? audioAttributes : null);
+    boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
-    int playerCommand =
-        audioFocusManager.setAudioAttributes(
-            handleAudioFocus ? audioAttributes : null, getPlayWhenReady(), getPlaybackState());
+    int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, getPlaybackState());
     updatePlayWhenReady(getPlayWhenReady(), playerCommand);
   }
 
@@ -1190,7 +1190,7 @@ public class SimpleExoPlayer extends BasePlayer
     this.mediaSource = mediaSource;
     mediaSource.addEventListener(eventHandler, analyticsCollector);
     @AudioFocusManager.PlayerCommand
-    int playerCommand = audioFocusManager.handlePrepare(getPlayWhenReady());
+    int playerCommand = audioFocusManager.updateAudioFocus(getPlayWhenReady(), Player.STATE_BUFFERING);
     updatePlayWhenReady(getPlayWhenReady(), playerCommand);
     player.prepare(mediaSource, resetPosition, resetState);
   }
@@ -1199,7 +1199,7 @@ public class SimpleExoPlayer extends BasePlayer
   public void setPlayWhenReady(boolean playWhenReady) {
     verifyApplicationThread();
     @AudioFocusManager.PlayerCommand
-    int playerCommand = audioFocusManager.handleSetPlayWhenReady(playWhenReady, getPlaybackState());
+    int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, getPlaybackState());
     updatePlayWhenReady(playWhenReady, playerCommand);
   }
 
@@ -1278,6 +1278,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void stop(boolean reset) {
     verifyApplicationThread();
+    audioFocusManager.updateAudioFocus(getPlayWhenReady(), Player.STATE_IDLE);
     player.stop(reset);
     if (mediaSource != null) {
       mediaSource.removeEventListener(analyticsCollector);
@@ -1286,7 +1287,6 @@ public class SimpleExoPlayer extends BasePlayer
         mediaSource = null;
       }
     }
-    audioFocusManager.handleStop();
     currentCues = Collections.emptyList();
   }
 
@@ -1294,7 +1294,7 @@ public class SimpleExoPlayer extends BasePlayer
   public void release() {
     verifyApplicationThread();
     audioBecomingNoisyManager.setEnabled(false);
-    audioFocusManager.handleStop();
+    audioFocusManager.updateAudioFocus(/* playWhenReady= */ false, Player.STATE_IDLE);
     wakeLockManager.setStayAwake(false);
     wifiLockManager.setStayAwake(false);
     player.release();
