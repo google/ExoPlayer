@@ -809,7 +809,7 @@ public final class DashMediaSource extends BaseMediaSource {
         // this load. If it was, we ignore the manifest location and prefer the manual replacement.
         @SuppressWarnings("ReferenceEquality")
         boolean isSameUriInstance = loadable.dataSpec.uri == manifestUri;
-        if (isSameUriInstance) {
+        if (isSameUriInstance || isRedirect) {
           manifestUri = manifest.location;
         }
       }
