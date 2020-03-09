@@ -47,6 +47,9 @@
         ([#2863](https://github.com/google/ExoPlayer/issues/2863)).
     *   Add optional automatic `WifiLock` handling to `SimpleExoPlayer`
         ([#6914](https://github.com/google/ExoPlayer/issues/6914)).
+    *   Add option to `MergingMediaSource` to adjust the time offsets between
+        the merged sources
+        ([#6103](https://github.com/google/ExoPlayer/issues/6103)).
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
