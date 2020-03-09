@@ -94,21 +94,6 @@ import java.util.Map;
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
-   * A media source factory to which calls to {@link #createMediaSource(MediaItem)} calls are
-   * delegated by the {@link DefaultMediaSourceFactory}.
-   */
-  public interface Delegate extends MediaSourceFactory {
-    /**
-     * Sets an optional {@link LoadErrorHandlingPolicy}.
-     *
-     * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
-     * @return This factory, for convenience.
-     */
-    MediaSourceFactory setLoadErrorHandlingPolicy(
-        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy);
-  }
-
-  /**
    * Creates a new instance with the given {@link Context}.
    *
    * <p>This is functionally equivalent with calling {@code #newInstance(Context,
@@ -134,7 +119,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return new DefaultMediaSourceFactory(context, dataSourceFactory);
   }
 
-  private final SparseArray<Delegate> mediaSourceFactories;
+  private final SparseArray<MediaSourceFactory> mediaSourceFactories;
   @C.ContentType private final int[] supportedTypes;
   private final String userAgent;
 
@@ -287,42 +272,43 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return drmCallback;
   }
 
-  private static SparseArray<Delegate> loadDelegates(DataSource.Factory dataSourceFactory) {
-    SparseArray<Delegate> delegates = new SparseArray<>();
+  private static SparseArray<MediaSourceFactory> loadDelegates(
+      DataSource.Factory dataSourceFactory) {
+    SparseArray<MediaSourceFactory> factories = new SparseArray<>();
     // LINT.IfChange
     try {
-      Class<? extends DefaultMediaSourceFactory.Delegate> factoryClazz =
+      Class<? extends MediaSourceFactory> factoryClazz =
           Class.forName("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory")
-              .asSubclass(DefaultMediaSourceFactory.Delegate.class);
-      delegates.put(
+              .asSubclass(MediaSourceFactory.class);
+      factories.put(
           C.TYPE_DASH,
           factoryClazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory));
     } catch (Exception e) {
       // Expected if the app was built without the dash module.
     }
     try {
-      Class<? extends DefaultMediaSourceFactory.Delegate> factoryClazz =
+      Class<? extends MediaSourceFactory> factoryClazz =
           Class.forName(
                   "com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory")
-              .asSubclass(DefaultMediaSourceFactory.Delegate.class);
-      delegates.put(
+              .asSubclass(MediaSourceFactory.class);
+      factories.put(
           C.TYPE_SS,
           factoryClazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory));
     } catch (Exception e) {
       // Expected if the app was built without the smoothstreaming module.
     }
     try {
-      Class<? extends DefaultMediaSourceFactory.Delegate> factoryClazz =
+      Class<? extends MediaSourceFactory> factoryClazz =
           Class.forName("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory")
-              .asSubclass(DefaultMediaSourceFactory.Delegate.class);
-      delegates.put(
+              .asSubclass(MediaSourceFactory.class);
+      factories.put(
           C.TYPE_HLS,
           factoryClazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory));
     } catch (Exception e) {
       // Expected if the app was built without the hls module.
     }
     // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
-    delegates.put(C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory));
-    return delegates;
+    factories.put(C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory));
+    return factories;
   }
 }

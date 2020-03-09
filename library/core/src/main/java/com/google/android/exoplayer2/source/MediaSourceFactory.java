@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.util.List;
 
 /** Factory for creating {@link MediaSource}s from URIs. */
@@ -40,6 +41,15 @@ public interface MediaSourceFactory {
    * @return This factory, for convenience.
    */
   MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager<?> drmSessionManager);
+
+  /**
+   * Sets an optional {@link LoadErrorHandlingPolicy}.
+   *
+   * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
+   * @return This factory, for convenience.
+   */
+  MediaSourceFactory setLoadErrorHandlingPolicy(
+      @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy);
 
   /**
    * Returns the {@link C.ContentType content types} supported by media sources created by this
