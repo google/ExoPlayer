@@ -136,6 +136,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
      */
+    @Override
     public Factory setLoadErrorHandlingPolicy(
         @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
       this.loadErrorHandlingPolicy =
