@@ -96,6 +96,7 @@
 *   Metadata: Add minimal DVB Application Information Table (AIT) support
     ([#6922](https://github.com/google/ExoPlayer/pull/6922)).
 *   The demo app startup selected item is the last played one.
+*   Add support for x86_64 for the ffmpeg extension.
 
 ### 2.11.3 (2020-02-19) ###
 
