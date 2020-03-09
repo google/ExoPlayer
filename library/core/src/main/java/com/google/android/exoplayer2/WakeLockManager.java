@@ -61,6 +61,7 @@ import com.google.android.exoplayer2.util.Log;
           return;
         }
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG);
+        wakeLock.setReferenceCounted(false);
       }
     }
 
@@ -92,10 +93,8 @@ import com.google.android.exoplayer2.util.Log;
     }
 
     if (enabled && stayAwake) {
-      if (!wakeLock.isHeld()) {
-        wakeLock.acquire();
-      }
-    } else if (wakeLock.isHeld()) {
+      wakeLock.acquire();
+    } else {
       wakeLock.release();
     }
   }
