@@ -369,16 +369,10 @@ public interface Renderer extends PlayerMessage.Target {
    * {@link SampleStream} in sync with the specified media positions.
    *
    * <p>The renderer may also render the very start of the media at the current position (e.g. the
-   * first frame of a video stream) while still in the {@link #STATE_ENABLED} state. It's not
-   * allowed to do that in the following two cases:
-   *
-   * <ol>
-   *   <li>The initial start of the media after calling {@link #enable(RendererConfiguration,
-   *       Format[], SampleStream, long, boolean, boolean, long)} with {@code
-   *       mayRenderStartOfStream} set to {@code false}.
-   *   <li>The start of a new stream after calling {@link #replaceStream(Format[], SampleStream,
-   *       long)}.
-   * </ol>
+   * first frame of a video stream) while still in the {@link #STATE_ENABLED} state, unless it's the
+   * initial start of the media after calling {@link #enable(RendererConfiguration, Format[],
+   * SampleStream, long, boolean, boolean, long)} with {@code mayRenderStartOfStream} set to {@code
+   * false}.
    *
    * <p>This method should return quickly, and should not block if the renderer is unable to make
    * useful progress.

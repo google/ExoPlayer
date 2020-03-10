@@ -1040,10 +1040,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
       if (!newPlayingPeriodHolder.prepared) {
         newPlayingPeriodHolder.info =
             newPlayingPeriodHolder.info.copyWithStartPositionUs(periodPositionUs);
-      } else if (newPlayingPeriodHolder.hasEnabledTracks) {
-        periodPositionUs = newPlayingPeriodHolder.mediaPeriod.seekToUs(periodPositionUs);
-        newPlayingPeriodHolder.mediaPeriod.discardBuffer(
-            periodPositionUs - backBufferDurationUs, retainBackBufferFromKeyframe);
+      } else {
+        if (newPlayingPeriodHolder.info.durationUs != C.TIME_UNSET
+            && periodPositionUs >= newPlayingPeriodHolder.info.durationUs) {
+          // Make sure seek position doesn't exceed period duration.
+          periodPositionUs = Math.max(0, newPlayingPeriodHolder.info.durationUs - 1);
+        }
+        if (newPlayingPeriodHolder.hasEnabledTracks) {
+          periodPositionUs = newPlayingPeriodHolder.mediaPeriod.seekToUs(periodPositionUs);
+          newPlayingPeriodHolder.mediaPeriod.discardBuffer(
+              periodPositionUs - backBufferDurationUs, retainBackBufferFromKeyframe);
+        }
       }
       resetRendererPosition(periodPositionUs);
       maybeContinueLoading();
@@ -1862,7 +1869,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       playbackInfo =
           handlePositionDiscontinuity(
               playbackInfo.periodId,
-              playbackInfo.positionUs,
+              loadingPeriodHolder.info.startPositionUs,
               playbackInfo.requestedContentPositionUs);
     }
     maybeContinueLoading();
