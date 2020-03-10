@@ -1000,6 +1000,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       processOutputFormat(getCodec(), format.width, format.height);
     }
     maybeNotifyVideoSizeChanged();
+    decoderCounters.renderedOutputBufferCount++;
     maybeNotifyRenderedFirstFrame();
     onProcessedOutputBuffer(presentationTimeUs);
   }
