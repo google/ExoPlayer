@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,11 +36,14 @@ public class DefaultMediaSourceFactoryTest {
   private static final String URI_MEDIA = "http://exoplayer.dev/video";
 
   @Test
-  public void createMediaSource_withExtension_smoothstreamingSource() {
+  public void createMediaSource_withMimeType_smoothstreamingSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_MEDIA).setExtension("ism").build();
+        new MediaItem.Builder()
+            .setSourceUri(URI_MEDIA)
+            .setMimeType(MimeTypes.APPLICATION_SS)
+            .build();
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
     assertThat(mediaSource).isInstanceOf(SsMediaSource.class);
   }
@@ -50,7 +54,11 @@ public class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_MEDIA).setExtension("ism").setTag(tag).build();
+        new MediaItem.Builder()
+            .setSourceUri(URI_MEDIA)
+            .setMimeType(MimeTypes.APPLICATION_SS)
+            .setTag(tag)
+            .build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 

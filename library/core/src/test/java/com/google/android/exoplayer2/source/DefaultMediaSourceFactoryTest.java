@@ -31,11 +31,10 @@ public final class DefaultMediaSourceFactoryTest {
   private static final String URI_MEDIA = "http://exoplayer.dev/video";
 
   @Test
-  public void createMediaSource_withExtension_progressiveSource() {
+  public void createMediaSource_withoutMimeType_progressiveSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_MEDIA).setExtension("mp4").build();
+    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA).build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 

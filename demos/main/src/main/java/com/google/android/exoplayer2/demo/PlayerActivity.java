@@ -473,9 +473,7 @@ public class PlayerActivity extends AppCompatActivity
   @Nullable
   private MediaSource createLeafMediaSource(UriSample parameters) {
     MediaItem.Builder builder = new MediaItem.Builder().setSourceUri(parameters.uri);
-    if (parameters.extension != null) {
-      builder.setExtension(parameters.extension);
-    }
+    builder.setMimeType(Sample.inferAdaptiveStreamMimeType(parameters.uri, parameters.extension));
     int[] drmSessionForClearTypes = new int[0];
     HttpDataSource.Factory drmDataSourceFactory = null;
     if (parameters.drmInfo != null) {

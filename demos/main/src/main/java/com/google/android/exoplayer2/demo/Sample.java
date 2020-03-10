@@ -35,12 +35,38 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
 /* package */ abstract class Sample {
+
+  /**
+   * Returns the mime type which is one of {@link MimeTypes#APPLICATION_MPD} for DASH, {@link
+   * MimeTypes#APPLICATION_M3U8} for HLS, {@link MimeTypes#APPLICATION_SS} for SmoothStreaming or
+   * {@code null} for all other streams.
+   *
+   * @param uri The uri of the stream.
+   * @param extension The extension
+   * @return The adaptive mime type or {@code null} for non-adaptive streams.
+   */
+  @Nullable
+  public static String inferAdaptiveStreamMimeType(Uri uri, @Nullable String extension) {
+    @C.ContentType int contentType = Util.inferContentType(uri, extension);
+    switch (contentType) {
+      case C.TYPE_DASH:
+        return MimeTypes.APPLICATION_MPD;
+      case C.TYPE_HLS:
+        return MimeTypes.APPLICATION_M3U8;
+      case C.TYPE_SS:
+        return MimeTypes.APPLICATION_SS;
+      case C.TYPE_OTHER:
+      default:
+        return null;
+    }
+  }
 
   public static final class UriSample extends Sample {
 

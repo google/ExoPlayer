@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -34,6 +35,7 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.List;
@@ -47,19 +49,20 @@ import java.util.Map;
  *
  * <ul>
  *   <li>{@code DashMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#sourceUri
- *       sourceUri} ends in '.mpd' or if its {@link MediaItem.PlaybackProperties#extension extension
- *       field} is explicitly set to 'mpd' (Requires the <a
+ *       sourceUri} ends in '.mpd' or if its {@link MediaItem.PlaybackProperties#mimeType mimeType
+ *       field} is explicitly set to {@link MimeTypes#APPLICATION_MPD} (Requires the <a
  *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-dash module
  *       to be added</a> to the app).
  *   <li>{@code HlsMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#sourceUri
- *       sourceUri} ends in '.m3u8' or if its {@link MediaItem.PlaybackProperties#extension
- *       extension field} is explicitly set to 'hls' (Requires the <a
+ *       sourceUri} ends in '.m3u8' or if its {@link MediaItem.PlaybackProperties#mimeType mimeType
+ *       field} is explicitly set to {@link MimeTypes#APPLICATION_M3U8} (Requires the <a
  *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-hls module to
  *       be added</a> to the app).
  *   <li>{@code SsMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#sourceUri
  *       sourceUri} ends in '.ism', '.ism/Manifest' or if its {@link
- *       MediaItem.PlaybackProperties#extension extension field} is explicitly set to 'ism'
- *       (Requires the <a href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">
+ *       MediaItem.PlaybackProperties#mimeType mimeType field} is explicitly set to {@link
+ *       MimeTypes#APPLICATION_SS} (Requires the <a
+ *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">
  *       exoplayer-smoothstreaming module to be added</a> to the app).
  *   <li>{@link ProgressiveMediaSource.Factory} serves as a fallback if the item's {@link
  *       MediaItem.PlaybackProperties#sourceUri sourceUri} doesn't match one of the above. It tries
@@ -231,8 +234,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     Assertions.checkNotNull(mediaItem.playbackProperties);
     @C.ContentType
     int type =
-        Util.inferContentType(
-            mediaItem.playbackProperties.sourceUri, mediaItem.playbackProperties.extension);
+        inferContentType(
+            mediaItem.playbackProperties.sourceUri, mediaItem.playbackProperties.mimeType);
     @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
     Assertions.checkNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);
@@ -310,5 +313,21 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
     factories.put(C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory));
     return factories;
+  }
+
+  private static int inferContentType(Uri sourceUri, @Nullable String mimeType) {
+    if (mimeType == null) {
+      return Util.inferContentType(sourceUri);
+    }
+    switch (mimeType) {
+      case MimeTypes.APPLICATION_MPD:
+        return C.TYPE_DASH;
+      case MimeTypes.APPLICATION_M3U8:
+        return C.TYPE_HLS;
+      case MimeTypes.APPLICATION_SS:
+        return C.TYPE_SS;
+      default:
+        return Util.inferContentType(sourceUri);
+    }
   }
 }
