@@ -78,15 +78,15 @@ public final class Mp3Extractor implements Extractor {
    */
   public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING = 1;
   /**
-   * Flag to force index seeking, consisting in building a time-to-byte mapping as the file is read.
+   * Flag to force index seeking, in which a time-to-byte mapping is built as the file is read.
    *
    * <p>This seeker may require to scan a significant portion of the file to compute a seek point.
-   * Therefore, it should only be used if:
+   * Therefore, it should only be used if one of the following is true:
    *
    * <ul>
-   *   <li>the file is small, or
-   *   <li>the bitrate is variable (or the type of bitrate is unknown) and the seeking metadata
-   *       provided in the file is not precise enough (or is not present).
+   *   <li>The file is small.
+   *   <li>The bitrate is variable (or it's unknown whether it's variable) and the file does not
+   *       provide precise enough seeking metadata.
    * </ul>
    */
   public static final int FLAG_ENABLE_INDEX_SEEKING = 1 << 1;
@@ -135,9 +135,7 @@ public final class Mp3Extractor implements Extractor {
 
   private @MonotonicNonNull ExtractorOutput extractorOutput;
   private @MonotonicNonNull TrackOutput realTrackOutput;
-  // currentTrackOutput is set to skippingTrackOutput or to realTrackOutput, depending if the data
-  // read must be sent to the output.
-  private @MonotonicNonNull TrackOutput currentTrackOutput;
+  private TrackOutput currentTrackOutput; // skippingTrackOutput or realTrackOutput.
 
   private int synchronizedHeaderData;
 
@@ -177,6 +175,7 @@ public final class Mp3Extractor implements Extractor {
     basisTimeUs = C.TIME_UNSET;
     id3Peeker = new Id3Peeker();
     skippingTrackOutput = new DummyTrackOutput();
+    currentTrackOutput = skippingTrackOutput;
   }
 
   // Extractor implementation.
@@ -238,7 +237,7 @@ public final class Mp3Extractor implements Extractor {
 
   // Internal methods.
 
-  @RequiresNonNull({"extractorOutput", "currentTrackOutput", "realTrackOutput"})
+  @RequiresNonNull({"extractorOutput", "realTrackOutput"})
   private int readInternal(ExtractorInput input) throws IOException {
     if (synchronizedHeaderData == 0) {
       try {
@@ -271,7 +270,7 @@ public final class Mp3Extractor implements Extractor {
     return readSample(input);
   }
 
-  @RequiresNonNull({"currentTrackOutput", "realTrackOutput", "seeker"})
+  @RequiresNonNull({"realTrackOutput", "seeker"})
   private int readSample(ExtractorInput extractorInput) throws IOException {
     if (sampleBytesRemaining == 0) {
       extractorInput.resetPeekPosition();
@@ -512,10 +511,9 @@ public final class Mp3Extractor implements Extractor {
     return new ConstantBitrateSeeker(input.getLength(), input.getPosition(), synchronizedHeader);
   }
 
-  @EnsuresNonNull({"extractorOutput", "currentTrackOutput", "realTrackOutput"})
+  @EnsuresNonNull({"extractorOutput", "realTrackOutput"})
   private void assertInitialized() {
     Assertions.checkStateNotNull(realTrackOutput);
-    Util.castNonNull(currentTrackOutput);
     Util.castNonNull(extractorOutput);
   }
 
