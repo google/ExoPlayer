@@ -55,7 +55,7 @@ public final class MediaItem {
 
     @Nullable private String mediaId;
     @Nullable private Uri sourceUri;
-    @Nullable private String extension;
+    @Nullable private String mimeType;
     @Nullable private Uri drmLicenseUri;
     private Map<String, String> drmLicenseRequestHeaders;
     @Nullable private UUID drmUuid;
@@ -70,7 +70,7 @@ public final class MediaItem {
     }
 
     /**
-     * Sets the optional media id which identifies the media item. If not specified, {@code
+     * Sets the optional media id which identifies the media item. If not specified, {@link
      * #setSourceUri} must be called and the string representation of {@link
      * PlaybackProperties#sourceUri} is used as the media id.
      */
@@ -96,16 +96,17 @@ public final class MediaItem {
     }
 
     /**
-     * Sets the optional extension of the item.
+     * Sets the optional mime type.
      *
-     * <p>The extension can be used to disambiguate media items that have a uri which does not allow
-     * to infer the actual media type.
+     * <p>The mime type may be used as a hint for inferring the type of the media item.
      *
-     * <p>If a {@link PlaybackProperties#sourceUri} is set, the extension is used to create a {@link
+     * <p>If a {@link PlaybackProperties#sourceUri} is set, the mime type is used to create a {@link
      * PlaybackProperties} object. Otherwise it will be ignored.
+     *
+     * @param mimeType The mime type.
      */
-    public Builder setExtension(@Nullable String extension) {
-      this.extension = extension;
+    public Builder setMimeType(@Nullable String mimeType) {
+      this.mimeType = mimeType;
       return this;
     }
 
@@ -208,7 +209,7 @@ public final class MediaItem {
         playbackProperties =
             new PlaybackProperties(
                 sourceUri,
-                extension,
+                mimeType,
                 drmUuid != null
                     ? new DrmConfiguration(
                         drmUuid, drmLicenseUri, drmLicenseRequestHeaders, drmMultiSession)
@@ -291,12 +292,12 @@ public final class MediaItem {
     public final Uri sourceUri;
 
     /**
-     * The optional extension of the item, or {@code null} if unspecified.
+     * The optional mime type of the item, or {@code null} if unspecified.
      *
-     * <p>The extension can be used to disambiguate media items that have a uri which does not allow
+     * <p>The mime type can be used to disambiguate media items that have a uri which does not allow
      * to infer the actual media type.
      */
-    @Nullable public final String extension;
+    @Nullable public final String mimeType;
 
     /** Optional {@link DrmConfiguration} for the media. */
     @Nullable public final DrmConfiguration drmConfiguration;
@@ -313,12 +314,12 @@ public final class MediaItem {
 
     public PlaybackProperties(
         Uri sourceUri,
-        @Nullable String extension,
+        @Nullable String mimeType,
         @Nullable DrmConfiguration drmConfiguration,
         List<StreamKey> streamKeys,
         @Nullable Object tag) {
       this.sourceUri = sourceUri;
-      this.extension = extension;
+      this.mimeType = mimeType;
       this.drmConfiguration = drmConfiguration;
       this.streamKeys = streamKeys;
       this.tag = tag;
@@ -335,7 +336,7 @@ public final class MediaItem {
       PlaybackProperties other = (PlaybackProperties) obj;
 
       return sourceUri.equals(other.sourceUri)
-          && Util.areEqual(extension, other.extension)
+          && Util.areEqual(mimeType, other.mimeType)
           && Util.areEqual(drmConfiguration, other.drmConfiguration)
           && Util.areEqual(streamKeys, other.streamKeys)
           && Util.areEqual(tag, other.tag);
@@ -344,7 +345,7 @@ public final class MediaItem {
     @Override
     public int hashCode() {
       int result = sourceUri.hashCode();
-      result = 31 * result + (extension == null ? 0 : extension.hashCode());
+      result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
       result = 31 * result + (drmConfiguration == null ? 0 : drmConfiguration.hashCode());
       result = 31 * result + streamKeys.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());

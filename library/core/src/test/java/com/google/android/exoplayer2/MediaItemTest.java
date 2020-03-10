@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,18 +59,21 @@ public class MediaItemTest {
   }
 
   @Test
-  public void builderSetExtension_isNullByDefault() {
+  public void builderSetMimeType_isNullByDefault() {
     MediaItem mediaItem = MediaItem.fromUri(URI_STRING);
 
-    assertThat(mediaItem.playbackProperties.extension).isNull();
+    assertThat(mediaItem.playbackProperties.mimeType).isNull();
   }
 
   @Test
-  public void builderSetExtension_setsExtension() {
+  public void builderSetMimeType_setsMimeType() {
     MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_STRING).setExtension("mpd").build();
+        new MediaItem.Builder()
+            .setSourceUri(URI_STRING)
+            .setMimeType(MimeTypes.APPLICATION_MPD)
+            .build();
 
-    assertThat(mediaItem.playbackProperties.extension).isEqualTo("mpd");
+    assertThat(mediaItem.playbackProperties.mimeType).isEqualTo(MimeTypes.APPLICATION_MPD);
   }
 
   @Test
