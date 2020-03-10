@@ -184,7 +184,7 @@ public final class MediaPeriodQueueTest {
     advance();
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* periodUid= */ firstPeriodUid,
-        /* startPositionUs= */ CONTENT_DURATION_US,
+        /* startPositionUs= */ CONTENT_DURATION_US - 1,
         /* requestedContentPositionUs= */ CONTENT_DURATION_US,
         /* endPositionUs= */ C.TIME_UNSET,
         /* durationUs= */ CONTENT_DURATION_US,
@@ -209,7 +209,7 @@ public final class MediaPeriodQueueTest {
     setAdGroupFailedToLoad(/* adGroupIndex= */ 0);
     assertGetNextMediaPeriodInfoReturnsContentMediaPeriod(
         /* periodUid= */ firstPeriodUid,
-        /* startPositionUs= */ CONTENT_DURATION_US,
+        /* startPositionUs= */ CONTENT_DURATION_US - 1,
         /* requestedContentPositionUs= */ CONTENT_DURATION_US,
         /* endPositionUs= */ C.TIME_UNSET,
         /* durationUs= */ CONTENT_DURATION_US,

@@ -976,6 +976,70 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void seekBeforePreparationCompletes_seeksToCorrectPosition() throws Exception {
+    CountDownLatch createPeriodCalledCountDownLatch = new CountDownLatch(1);
+    FakeMediaPeriod[] fakeMediaPeriodHolder = new FakeMediaPeriod[1];
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    FakeMediaSource mediaSource =
+        new FakeMediaSource(/* timeline= */ null, Builder.VIDEO_FORMAT) {
+          @Override
+          protected FakeMediaPeriod createFakeMediaPeriod(
+              MediaPeriodId id,
+              TrackGroupArray trackGroupArray,
+              Allocator allocator,
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener transferListener) {
+            // Defer completing preparation of the period until seek has been sent.
+            fakeMediaPeriodHolder[0] =
+                new FakeMediaPeriod(trackGroupArray, eventDispatcher, /* deferOnPrepared= */ true);
+            createPeriodCalledCountDownLatch.countDown();
+            return fakeMediaPeriodHolder[0];
+          }
+        };
+    AtomicLong positionWhenReady = new AtomicLong();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            // Ensure we use the MaskingMediaPeriod by delaying the initial timeline update.
+            .delay(1)
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline))
+            .waitForTimelineChanged()
+            // Block until createPeriod has been called on the fake media source.
+            .executeRunnable(
+                () -> {
+                  try {
+                    createPeriodCalledCountDownLatch.await();
+                  } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                  }
+                })
+            // Seek before preparation completes.
+            .seek(5000)
+            // Complete preparation of the fake media period.
+            .executeRunnable(() -> fakeMediaPeriodHolder[0].setPreparationComplete())
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    positionWhenReady.set(player.getCurrentPosition());
+                  }
+                })
+            .play()
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .initialSeek(/* windowIndex= */ 0, /* positionMs= */ 2000)
+        .setMediaSources(mediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(positionWhenReady.get()).isAtLeast(5000);
+  }
+
+  @Test
   public void stopDoesNotResetPosition() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     final long[] positionHolder = new long[1];

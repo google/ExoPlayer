@@ -255,7 +255,7 @@ public final class SimpleDecoderVideoRendererTest {
     verify(eventListener).onRenderedFirstFrame(any());
   }
 
-  // TODO: First frame of replaced stream are not yet reported.
+  // TODO: Fix rendering of first frame at stream transition.
   @Ignore
   @Test
   public void replaceStream_whenStarted_rendersFirstFrameOfNewStream() throws Exception {
@@ -286,7 +286,7 @@ public final class SimpleDecoderVideoRendererTest {
     renderer.start();
 
     boolean replacedStream = false;
-    for (int i = 0; i < 200; i += 10) {
+    for (int i = 0; i <= 10; i++) {
       renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && renderer.hasReadStreamToEnd()) {
         renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
@@ -299,6 +299,8 @@ public final class SimpleDecoderVideoRendererTest {
     verify(eventListener, times(2)).onRenderedFirstFrame(any());
   }
 
+  // TODO: Fix rendering of first frame at stream transition.
+  @Ignore
   @Test
   public void replaceStream_whenNotStarted_doesNotRenderFirstFrameOfNewStream() throws Exception {
     FakeSampleStream fakeSampleStream1 =
@@ -327,7 +329,7 @@ public final class SimpleDecoderVideoRendererTest {
         /* offsetUs */ 0);
 
     boolean replacedStream = false;
-    for (int i = 0; i < 200; i += 10) {
+    for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && renderer.hasReadStreamToEnd()) {
         renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
@@ -338,5 +340,10 @@ public final class SimpleDecoderVideoRendererTest {
     }
 
     verify(eventListener).onRenderedFirstFrame(any());
+
+    // Render to streamOffsetUs and verify the new first frame gets rendered.
+    renderer.render(/* positionUs= */ 100, SystemClock.elapsedRealtime() * 1000);
+
+    verify(eventListener, times(2)).onRenderedFirstFrame(any());
   }
 }

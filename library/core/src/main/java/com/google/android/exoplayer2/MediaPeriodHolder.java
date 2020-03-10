@@ -171,9 +171,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     prepared = true;
     trackGroups = mediaPeriod.getTrackGroups();
     TrackSelectorResult selectorResult = selectTracks(playbackSpeed, timeline);
+    long requestedStartPositionUs = info.startPositionUs;
+    if (info.durationUs != C.TIME_UNSET && requestedStartPositionUs >= info.durationUs) {
+      // Make sure start position doesn't exceed period duration.
+      requestedStartPositionUs = Math.max(0, info.durationUs - 1);
+    }
     long newStartPositionUs =
         applyTrackSelection(
-            selectorResult, info.startPositionUs, /* forceRecreateStreams= */ false);
+            selectorResult, requestedStartPositionUs, /* forceRecreateStreams= */ false);
     rendererPositionOffsetUs += info.startPositionUs - newStartPositionUs;
     info = info.copyWithStartPositionUs(newStartPositionUs);
   }

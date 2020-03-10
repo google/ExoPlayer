@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A {@link MediaSource} that masks the {@link Timeline} with a placeholder until the actual media
@@ -143,6 +144,11 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     @Nullable MediaPeriodId idForMaskingPeriodPreparation = null;
     if (isPrepared) {
       timeline = timeline.cloneWithUpdatedTimeline(newTimeline);
+      if (unpreparedMaskingMediaPeriod != null) {
+        // Reset override in case the duration changed and we need to update our override.
+        setPreparePositionOverrideToUnpreparedMaskingPeriod(
+            unpreparedMaskingMediaPeriod.getPreparePositionOverrideUs());
+      }
     } else if (newTimeline.isEmpty()) {
       timeline =
           hasRealTimeline
@@ -182,7 +188,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
               : MaskingTimeline.createWithRealTimeline(newTimeline, windowUid, periodUid);
       if (unpreparedMaskingMediaPeriod != null) {
         MaskingMediaPeriod maskingPeriod = unpreparedMaskingMediaPeriod;
-        maskingPeriod.overridePreparePositionUs(periodPositionUs);
+        setPreparePositionOverrideToUnpreparedMaskingPeriod(periodPositionUs);
         idForMaskingPeriodPreparation =
             maskingPeriod.id.copyWithPeriodUid(getInternalPeriodUid(maskingPeriod.id.periodUid));
       }
@@ -223,6 +229,19 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
             && timeline.replacedInternalPeriodUid.equals(internalPeriodUid)
         ? MaskingTimeline.DUMMY_EXTERNAL_PERIOD_UID
         : internalPeriodUid;
+  }
+
+  @RequiresNonNull("unpreparedMaskingMediaPeriod")
+  private void setPreparePositionOverrideToUnpreparedMaskingPeriod(long preparePositionOverrideUs) {
+    MaskingMediaPeriod maskingPeriod = unpreparedMaskingMediaPeriod;
+    long periodDurationUs = timeline.getPeriodByUid(maskingPeriod.id.periodUid, period).durationUs;
+    if (periodDurationUs != C.TIME_UNSET) {
+      // Ensure the overridden position doesn't exceed the period duration.
+      if (preparePositionOverrideUs >= periodDurationUs) {
+        preparePositionOverrideUs = Math.max(0, periodDurationUs - 1);
+      }
+    }
+    maskingPeriod.overridePreparePositionUs(preparePositionOverrideUs);
   }
 
   /**

@@ -674,13 +674,14 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
         .containsExactly(window0Period1Seq0, window1Period0Seq1);
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(window0Period1Seq0);
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(window0Period1Seq0);
+    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES))
+        .containsExactly(window0Period1Seq0, period1Seq0);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
         .containsExactly(window0Period1Seq0, window1Period0Seq1, period1Seq0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(window0Period1Seq0, window1Period0Seq1, period1Seq0);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
-        .containsExactly(window0Period1Seq0);
+        .containsExactly(window0Period1Seq0, period1Seq0);
     listener.assertNoMoreEvents();
   }
 
@@ -1216,8 +1217,8 @@ public final class AnalyticsCollectorTest {
     private Format format;
     private long streamOffsetUs;
     private boolean renderedFirstFrameAfterReset;
-    private boolean mayRenderFirstFrameAfterStreamChangeIfNotStarted;
-    private boolean renderedFirstFrameAfterStreamChange;
+    private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
+    private boolean renderedFirstFrameAfterEnable;
 
     public FakeVideoRenderer(Handler handler, VideoRendererEventListener eventListener) {
       super(ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
@@ -1230,8 +1231,8 @@ public final class AnalyticsCollectorTest {
         throws ExoPlaybackException {
       super.onEnabled(joining, mayRenderStartOfStream);
       eventDispatcher.enabled(decoderCounters);
-      mayRenderFirstFrameAfterStreamChangeIfNotStarted = mayRenderStartOfStream;
-      renderedFirstFrameAfterStreamChange = false;
+      mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
+      renderedFirstFrameAfterEnable = false;
     }
 
     @Override
@@ -1240,8 +1241,6 @@ public final class AnalyticsCollectorTest {
       streamOffsetUs = offsetUs;
       if (renderedFirstFrameAfterReset) {
         renderedFirstFrameAfterReset = false;
-        renderedFirstFrameAfterStreamChange = false;
-        mayRenderFirstFrameAfterStreamChangeIfNotStarted = false;
       }
     }
 
@@ -1279,9 +1278,8 @@ public final class AnalyticsCollectorTest {
     protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
       boolean shouldProcess = super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
       boolean shouldRenderFirstFrame =
-          !renderedFirstFrameAfterStreamChange
-              ? (getState() == Renderer.STATE_STARTED
-                  || mayRenderFirstFrameAfterStreamChangeIfNotStarted)
+          !renderedFirstFrameAfterEnable
+              ? (getState() == Renderer.STATE_STARTED || mayRenderFirstFrameAfterEnableIfNotStarted)
               : !renderedFirstFrameAfterReset;
       shouldProcess |= shouldRenderFirstFrame && playbackPositionUs >= streamOffsetUs;
       if (shouldProcess && !renderedFirstFrameAfterReset) {
@@ -1289,7 +1287,7 @@ public final class AnalyticsCollectorTest {
             format.width, format.height, format.rotationDegrees, format.pixelWidthHeightRatio);
         eventDispatcher.renderedFirstFrame(/* surface= */ null);
         renderedFirstFrameAfterReset = true;
-        renderedFirstFrameAfterStreamChange = true;
+        renderedFirstFrameAfterEnable = true;
       }
       return shouldProcess;
     }

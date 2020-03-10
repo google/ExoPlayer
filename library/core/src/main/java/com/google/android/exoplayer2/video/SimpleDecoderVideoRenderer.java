@@ -275,7 +275,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
   protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
     // TODO: This shouldn't just update the output stream offset as long as there are still buffers
     // of the previous stream in the decoder. It should also make sure to render the first frame of
-    // the next stream if the playback position reached the new stream and the renderer is started.
+    // the next stream if the playback position reached the new stream.
     outputStreamOffsetUs = offsetUs;
     super.onStreamChanged(formats, offsetUs);
   }

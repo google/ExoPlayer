@@ -730,6 +730,10 @@ import com.google.android.exoplayer2.util.Assertions;
         adIndexInAdGroup == period.getFirstAdIndexToPlay(adGroupIndex)
             ? period.getAdResumePositionUs()
             : 0;
+    if (durationUs != C.TIME_UNSET && startPositionUs >= durationUs) {
+      // Ensure start position doesn't exceed duration.
+      startPositionUs = Math.max(0, durationUs - 1);
+    }
     return new MediaPeriodInfo(
         id,
         startPositionUs,
@@ -761,6 +765,10 @@ import com.google.android.exoplayer2.util.Assertions;
         endPositionUs == C.TIME_UNSET || endPositionUs == C.TIME_END_OF_SOURCE
             ? period.durationUs
             : endPositionUs;
+    if (durationUs != C.TIME_UNSET && startPositionUs >= durationUs) {
+      // Ensure start position doesn't exceed duration.
+      startPositionUs = Math.max(0, durationUs - 1);
+    }
     return new MediaPeriodInfo(
         id,
         startPositionUs,
