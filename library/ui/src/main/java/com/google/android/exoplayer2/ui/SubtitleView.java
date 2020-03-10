@@ -80,9 +80,9 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    *   <li>{@link #VIEW_TYPE_WEB}
    * </ul>
    */
-  @IntDef
   @Documented
   @Retention(SOURCE)
+  @IntDef({VIEW_TYPE_TEXT, VIEW_TYPE_WEB})
   public @interface ViewType {}
 
   private @ViewType int viewType;
@@ -128,19 +128,24 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    *
    * <p>NOTE: {@link #VIEW_TYPE_WEB} is currently very experimental, and doesn't support most
    * styling and layout properties of {@link Cue}.
+   *
+   * @param viewType The {@link ViewType} to use.
    */
-  public void setViewType(@ViewType int newViewType) {
-    if (viewType == newViewType) {
+  public void setViewType(@ViewType int viewType) {
+    if (this.viewType == viewType) {
       return;
     }
-    if (newViewType == VIEW_TYPE_TEXT) {
-      setView(new SubtitleTextView(getContext()));
-    } else if (newViewType == VIEW_TYPE_WEB) {
-      setView(new SubtitleWebView(getContext()));
-    } else {
-      throw new IllegalArgumentException();
+    switch (viewType) {
+      case VIEW_TYPE_TEXT:
+        setView(new SubtitleTextView(getContext()));
+        break;
+      case VIEW_TYPE_WEB:
+        setView(new SubtitleWebView(getContext()));
+        break;
+      default:
+        throw new IllegalArgumentException();
     }
-    viewType = newViewType;
+    this.viewType = viewType;
   }
 
   private <T extends View & Output> void setView(T view) {
