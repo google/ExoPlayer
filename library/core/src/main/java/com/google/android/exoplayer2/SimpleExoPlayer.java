@@ -1704,6 +1704,20 @@ public class SimpleExoPlayer extends BasePlayer
     }
   }
 
+  @SuppressWarnings("SuspiciousMethodCalls")
+  private void notifySkipSilenceEnabledChanged() {
+    for (AudioListener listener : audioListeners) {
+      // Prevent duplicate notification if a listener is both a AudioRendererEventListener and
+      // a AudioListener, as they have the same method signature.
+      if (!audioDebugListeners.contains(listener)) {
+        listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
+      }
+    }
+    for (AudioRendererEventListener listener : audioDebugListeners) {
+      listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
+    }
+  }
+
   private void updatePlayWhenReady(
       boolean playWhenReady,
       @AudioFocusManager.PlayerCommand int playerCommand,
@@ -1715,17 +1729,6 @@ public class SimpleExoPlayer extends BasePlayer
             ? Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
             : Player.PLAYBACK_SUPPRESSION_REASON_NONE;
     player.setPlayWhenReady(playWhenReady, playbackSuppressionReason, playWhenReadyChangeReason);
-  }
-
-  private void verifyApplicationThread() {
-    if (Looper.myLooper() != getApplicationLooper()) {
-      Log.w(
-          TAG,
-          "Player is accessed on the wrong thread. See "
-              + "https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
-          hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
-      hasNotifiedFullWrongThreadWarning = true;
-    }
   }
 
   private void updateWakeAndWifiLock() {
@@ -1746,24 +1749,21 @@ public class SimpleExoPlayer extends BasePlayer
     }
   }
 
+  private void verifyApplicationThread() {
+    if (Looper.myLooper() != getApplicationLooper()) {
+      Log.w(
+          TAG,
+          "Player is accessed on the wrong thread. See "
+              + "https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
+          hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
+      hasNotifiedFullWrongThreadWarning = true;
+    }
+  }
+
   private static int getPlayWhenReadyChangeReason(boolean playWhenReady, int playerCommand) {
     return playWhenReady && playerCommand != AudioFocusManager.PLAYER_COMMAND_PLAY_WHEN_READY
         ? PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS
         : PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST;
-  }
-
-  @SuppressWarnings("SuspiciousMethodCalls")
-  private void notifySkipSilenceEnabledChanged() {
-    for (AudioListener listener : audioListeners) {
-      // Prevent duplicate notification if a listener is both a AudioRendererEventListener and
-      // a AudioListener, as they have the same method signature.
-      if (!audioDebugListeners.contains(listener)) {
-        listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
-      }
-    }
-    for (AudioRendererEventListener listener : audioDebugListeners) {
-      listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
-    }
   }
 
   private final class ComponentListener

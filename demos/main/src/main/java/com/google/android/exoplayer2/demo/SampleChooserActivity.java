@@ -177,7 +177,7 @@ public class SampleChooserActivity extends AppCompatActivity
       groupPosition = preferences.getInt(GROUP_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
       childPosition = preferences.getInt(CHILD_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
     } catch (ClassCastException e) {
-      android.util.Log.w(TAG, "Saved position is not an int. Will not restore position.", e);
+      Log.w(TAG, "Saved position is not an int. Will not restore position.", e);
     }
     if (groupPosition != -1 && childPosition != -1) {
       sampleListView.expandGroup(groupPosition); // shouldExpandGroup does not work without this.
