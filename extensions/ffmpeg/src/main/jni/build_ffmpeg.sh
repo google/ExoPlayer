@@ -32,7 +32,7 @@ COMMON_OPTIONS="
     --disable-postproc
     --disable-avfilter
     --disable-symver
-    --enable-avresample
+    --disable-avresample
     --enable-swresample
     "
 TOOLCHAIN_PREFIX="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin"

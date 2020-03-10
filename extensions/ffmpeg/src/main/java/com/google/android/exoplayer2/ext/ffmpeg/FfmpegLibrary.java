@@ -33,7 +33,7 @@ public final class FfmpegLibrary {
   private static final String TAG = "FfmpegLibrary";
 
   private static final LibraryLoader LOADER =
-      new LibraryLoader("avutil", "avresample", "swresample", "avcodec", "ffmpeg");
+      new LibraryLoader("avutil", "swresample", "avcodec", "ffmpeg");
 
   private FfmpegLibrary() {}
 
