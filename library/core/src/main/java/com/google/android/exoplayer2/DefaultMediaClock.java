@@ -26,22 +26,20 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
  */
 /* package */ final class DefaultMediaClock implements MediaClock {
 
-  /**
-   * Listener interface to be notified of changes to the active playback parameters.
-   */
-  public interface PlaybackParameterListener {
+  /** Listener interface to be notified of changes to the active playback speed. */
+  public interface PlaybackSpeedListener {
 
     /**
-     * Called when the active playback parameters changed. Will not be called for {@link
-     * #setPlaybackParameters(PlaybackParameters)}.
+     * Called when the active playback speed changed. Will not be called for {@link
+     * #setPlaybackSpeed(float)}.
      *
-     * @param newPlaybackParameters The newly active {@link PlaybackParameters}.
+     * @param newPlaybackSpeed The newly active playback speed.
      */
-    void onPlaybackParametersChanged(PlaybackParameters newPlaybackParameters);
+    void onPlaybackSpeedChanged(float newPlaybackSpeed);
   }
 
   private final StandaloneMediaClock standaloneClock;
-  private final PlaybackParameterListener listener;
+  private final PlaybackSpeedListener listener;
 
   @Nullable private Renderer rendererClockSource;
   @Nullable private MediaClock rendererClock;
@@ -49,14 +47,13 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
   private boolean standaloneClockIsStarted;
 
   /**
-   * Creates a new instance with listener for playback parameter changes and a {@link Clock} to use
-   * for the standalone clock implementation.
+   * Creates a new instance with listener for playback speed changes and a {@link Clock} to use for
+   * the standalone clock implementation.
    *
-   * @param listener A {@link PlaybackParameterListener} to listen for playback parameter
-   *     changes.
+   * @param listener A {@link PlaybackSpeedListener} to listen for playback speed changes.
    * @param clock A {@link Clock}.
    */
-  public DefaultMediaClock(PlaybackParameterListener listener, Clock clock) {
+  public DefaultMediaClock(PlaybackSpeedListener listener, Clock clock) {
     this.listener = listener;
     this.standaloneClock = new StandaloneMediaClock(clock);
     isUsingStandaloneClock = true;
@@ -96,7 +93,7 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
    *     clock is already provided.
    */
   public void onRendererEnabled(Renderer renderer) throws ExoPlaybackException {
-    MediaClock rendererMediaClock = renderer.getMediaClock();
+    @Nullable MediaClock rendererMediaClock = renderer.getMediaClock();
     if (rendererMediaClock != null && rendererMediaClock != rendererClock) {
       if (rendererClock != null) {
         throw ExoPlaybackException.createForUnexpected(
@@ -104,7 +101,7 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
       }
       this.rendererClock = rendererMediaClock;
       this.rendererClockSource = renderer;
-      rendererClock.setPlaybackParameters(standaloneClock.getPlaybackParameters());
+      rendererClock.setPlaybackSpeed(standaloneClock.getPlaybackSpeed());
     }
   }
 
@@ -140,19 +137,19 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
   }
 
   @Override
-  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
+  public void setPlaybackSpeed(float playbackSpeed) {
     if (rendererClock != null) {
-      rendererClock.setPlaybackParameters(playbackParameters);
-      playbackParameters = rendererClock.getPlaybackParameters();
+      rendererClock.setPlaybackSpeed(playbackSpeed);
+      playbackSpeed = rendererClock.getPlaybackSpeed();
     }
-    standaloneClock.setPlaybackParameters(playbackParameters);
+    standaloneClock.setPlaybackSpeed(playbackSpeed);
   }
 
   @Override
-  public PlaybackParameters getPlaybackParameters() {
+  public float getPlaybackSpeed() {
     return rendererClock != null
-        ? rendererClock.getPlaybackParameters()
-        : standaloneClock.getPlaybackParameters();
+        ? rendererClock.getPlaybackSpeed()
+        : standaloneClock.getPlaybackSpeed();
   }
 
   private void syncClocks(boolean isReadingAhead) {
@@ -177,10 +174,10 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
     }
     // Continuously sync stand-alone clock to renderer clock so that it can take over if needed.
     standaloneClock.resetPosition(rendererClockPositionUs);
-    PlaybackParameters playbackParameters = rendererClock.getPlaybackParameters();
-    if (!playbackParameters.equals(standaloneClock.getPlaybackParameters())) {
-      standaloneClock.setPlaybackParameters(playbackParameters);
-      listener.onPlaybackParametersChanged(playbackParameters);
+    float playbackSpeed = rendererClock.getPlaybackSpeed();
+    if (playbackSpeed != standaloneClock.getPlaybackSpeed()) {
+      standaloneClock.setPlaybackSpeed(playbackSpeed);
+      listener.onPlaybackSpeedChanged(playbackSpeed);
     }
   }
 

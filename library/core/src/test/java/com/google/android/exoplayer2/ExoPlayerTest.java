@@ -256,11 +256,11 @@ public final class ExoPlayerTest {
           }
 
           @Override
-          public void setPlaybackParameters(PlaybackParameters playbackParameters) {}
+          public void setPlaybackSpeed(float playbackSpeed) {}
 
           @Override
-          public PlaybackParameters getPlaybackParameters() {
-            return PlaybackParameters.DEFAULT;
+          public float getPlaybackSpeed() {
+            return Player.DEFAULT_PLAYBACK_SPEED;
           }
 
           @Override
@@ -3217,11 +3217,11 @@ public final class ExoPlayerTest {
           }
 
           @Override
-          public void setPlaybackParameters(PlaybackParameters playbackParameters) {}
+          public void setPlaybackSpeed(float playbackSpeed) {}
 
           @Override
-          public PlaybackParameters getPlaybackParameters() {
-            return PlaybackParameters.DEFAULT;
+          public float getPlaybackSpeed() {
+            return Player.DEFAULT_PLAYBACK_SPEED;
           }
         };
     ActionSchedule actionSchedule =

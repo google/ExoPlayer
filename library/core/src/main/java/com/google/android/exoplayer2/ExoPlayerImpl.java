@@ -562,7 +562,7 @@ import java.util.concurrent.TimeoutException;
     pendingSetPlaybackSpeedAcks++;
     this.playbackSpeed = playbackSpeed;
     PlaybackParameters playbackParameters = new PlaybackParameters(playbackSpeed);
-    internalPlayer.setPlaybackParameters(playbackParameters);
+    internalPlayer.setPlaybackSpeed(playbackSpeed);
     notifyListeners(
         listener -> {
           listener.onPlaybackParametersChanged(playbackParameters);
