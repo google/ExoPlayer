@@ -1008,7 +1008,7 @@ public class PlayerControlView extends FrameLayout {
       mediaTimeDelayMs = Math.min(mediaTimeDelayMs, mediaTimeUntilNextFullSecondMs);
 
       // Calculate the delay until the next update in real time, taking playbackSpeed into account.
-      float playbackSpeed = player.getPlaybackParameters().speed;
+      float playbackSpeed = player.getPlaybackSpeed();
       long delayMs =
           playbackSpeed > 0 ? (long) (mediaTimeDelayMs / playbackSpeed) : MAX_UPDATE_INTERVAL_MS;
 
