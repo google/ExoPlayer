@@ -548,6 +548,7 @@ public final class ExoPlayerTest {
             // only on seek processed callback).
             .seek(5)
             .seek(60)
+            .waitForSeekProcessed()
             .play()
             .build();
     final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
@@ -2790,6 +2791,7 @@ public final class ExoPlayerTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
+            .waitForSeekProcessed()
             .play()
             .build();
     List<TrackGroupArray> trackGroupsList = new ArrayList<>();
@@ -4268,6 +4270,55 @@ public final class ExoPlayerTest {
     assertArrayEquals(new long[] {0, 2}, windowCounts);
     assertArrayEquals(new int[] {seekToWindowIndex, seekToWindowIndex}, currentWindowIndices);
     assertArrayEquals(new long[] {5_000, 5_000}, currentPlaybackPositions);
+  }
+
+  @Test
+  public void setPlayWhenReady_keepsCurrentPosition() throws Exception {
+    AtomicLong positionAfterSetPlayWhenReady = new AtomicLong(C.TIME_UNSET);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .playUntilPosition(0, 5000)
+            .play()
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    positionAfterSetPlayWhenReady.set(player.getCurrentPosition());
+                  }
+                })
+            .build();
+    new Builder()
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(positionAfterSetPlayWhenReady.get()).isAtLeast(5000);
+  }
+
+  @Test
+  public void setShuffleOrder_keepsCurrentPosition() throws Exception {
+    AtomicLong positionAfterSetShuffleOrder = new AtomicLong(C.TIME_UNSET);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .playUntilPosition(0, 5000)
+            .setShuffleOrder(new FakeShuffleOrder(/* length= */ 1))
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    positionAfterSetShuffleOrder.set(player.getCurrentPosition());
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(positionAfterSetShuffleOrder.get()).isAtLeast(5000);
   }
 
   @Test
