@@ -622,9 +622,7 @@ public abstract class Action {
       super(
           tag,
           "SetPlaybackParameters:"
-              + (playbackParameters == null
-                  ? "null"
-                  : playbackParameters.speed + ":" + playbackParameters.skipSilence));
+              + (playbackParameters == null ? "null" : playbackParameters.speed));
       this.playbackParameters = playbackParameters;
     }
 

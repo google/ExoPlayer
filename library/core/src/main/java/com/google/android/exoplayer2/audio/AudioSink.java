@@ -276,6 +276,7 @@ public interface AudioSink {
   void setPlaybackParameters(PlaybackParameters playbackParameters);
 
   /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
+  @SuppressWarnings("deprecation")
   @Deprecated
   PlaybackParameters getPlaybackParameters();
 

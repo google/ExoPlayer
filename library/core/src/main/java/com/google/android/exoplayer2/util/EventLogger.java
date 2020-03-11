@@ -149,9 +149,12 @@ public class EventLogger implements AnalyticsListener {
     logd(
         eventTime,
         "playbackParameters",
-        Util.formatInvariant(
-            "speed=%.2f, skipSilence=%s",
-            playbackParameters.speed, playbackParameters.skipSilence));
+        Util.formatInvariant("speed=%.2f", playbackParameters.speed));
+  }
+
+  @Override
+  public void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {
+    logd(eventTime, "playbackSpeed", Float.toString(playbackSpeed));
   }
 
   @Override

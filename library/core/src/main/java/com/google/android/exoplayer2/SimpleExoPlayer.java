@@ -853,23 +853,19 @@ public class SimpleExoPlayer extends BasePlayer
     this.priorityTaskManager = priorityTaskManager;
   }
 
-  /**
-   * Sets the {@link PlaybackParams} governing audio playback.
-   *
-   * @deprecated Use {@link #setPlaybackParameters(PlaybackParameters)}.
-   * @param params The {@link PlaybackParams}, or null to clear any previously set parameters.
-   */
+  /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
+  @SuppressWarnings("deprecation")
   @Deprecated
   @RequiresApi(23)
   public void setPlaybackParams(@Nullable PlaybackParams params) {
-    PlaybackParameters playbackParameters;
+    float playbackSpeed;
     if (params != null) {
       params.allowDefaults();
-      playbackParameters = new PlaybackParameters(params.getSpeed());
+      playbackSpeed = params.getSpeed();
     } else {
-      playbackParameters = null;
+      playbackSpeed = 1.0f;
     }
-    setPlaybackParameters(playbackParameters);
+    setPlaybackSpeed(playbackSpeed);
   }
 
   /** Returns the video format currently being played, or null if no video is being played. */
@@ -1390,24 +1386,37 @@ public class SimpleExoPlayer extends BasePlayer
     player.seekTo(windowIndex, positionMs);
   }
 
+  /**
+   * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
+   *     instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     verifyApplicationThread();
-    boolean newSkipSilenceEnabled =
-        playbackParameters != null
-            ? playbackParameters.skipSilence
-            : PlaybackParameters.DEFAULT.skipSilence;
-    if (skipSilenceEnabled != newSkipSilenceEnabled) {
-      skipSilenceEnabled = newSkipSilenceEnabled;
-      notifySkipSilenceEnabledChanged();
-    }
     player.setPlaybackParameters(playbackParameters);
   }
 
+  /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   public PlaybackParameters getPlaybackParameters() {
     verifyApplicationThread();
     return player.getPlaybackParameters();
+  }
+
+  @Override
+  public void setPlaybackSpeed(float playbackSpeed) {
+    verifyApplicationThread();
+    player.setPlaybackSpeed(playbackSpeed);
+  }
+
+  @Override
+  public float getPlaybackSpeed() {
+    verifyApplicationThread();
+    return player.getPlaybackSpeed();
   }
 
   @Override

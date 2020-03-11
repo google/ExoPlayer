@@ -158,12 +158,11 @@ public final class DefaultAudioSink implements AudioSink {
      * @deprecated Use {@link #applyPlaybackSpeed(float)} and {@link
      *     #applySkipSilenceEnabled(boolean)} instead.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     @Override
     public PlaybackParameters applyPlaybackParameters(PlaybackParameters playbackParameters) {
-      return new PlaybackParameters(
-          applyPlaybackSpeed(playbackParameters.speed),
-          applySkipSilenceEnabled(playbackParameters.skipSilence));
+      return new PlaybackParameters(applyPlaybackSpeed(playbackParameters.speed));
     }
 
     @Override
@@ -866,19 +865,20 @@ public final class DefaultAudioSink implements AudioSink {
    * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
    *     instead.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    setPlaybackSpeedAndSkipSilence(playbackParameters.speed, playbackParameters.skipSilence);
+    setPlaybackSpeedAndSkipSilence(playbackParameters.speed, getSkipSilenceEnabled());
   }
 
   /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
+  @SuppressWarnings("deprecation")
   @Deprecated
   @Override
   public PlaybackParameters getPlaybackParameters() {
     MediaPositionParameters mediaPositionParameters = getMediaPositionParameters();
-    return new PlaybackParameters(
-        mediaPositionParameters.playbackSpeed, mediaPositionParameters.skipSilence);
+    return new PlaybackParameters(mediaPositionParameters.playbackSpeed);
   }
 
   @Override
