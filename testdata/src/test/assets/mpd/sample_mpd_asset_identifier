@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:mpeg:DASH:schema:MPD:2011" xmlns:yt="http://youtube.com/yt/2012/10/10" xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd" minBufferTime="PT1.500S" profiles="urn:mpeg:dash:profile:isoff-main:2011" type="dynamic" availabilityStartTime="2016-10-14T17:00:17" timeShiftBufferDepth="PT7200.000S" minimumUpdatePeriod="PT2.000S" yt:earliestMediaSequence="0" yt:mpdRequestTime="2016-10-14T18:29:17.082" yt:mpdResponseTime="2016-10-14T18:29:17.194">
+ <Period start="PT0.000S" yt:segmentIngestTime="2016-10-14T17:00:14.257">
+   <AssetIdentifier schemeIdUri="urn:org:dashif:asset-id:2013" value="md:cid:EIDR:10.5240%2f0EFB-02CD-126E-8092-1E49-W" id="uniqueId"/>
+  <SegmentTemplate startNumber="0" timescale="1000" media="sq/$Number$">
+   <SegmentTimeline>
+    <S d="2002" t="6009" r="2"/>
+   </SegmentTimeline>
+  </SegmentTemplate>
+  <AdaptationSet id="0" mimeType="audio/mp4" subsegmentAlignment="true">
+   <Role schemeIdUri="urn:mpeg:DASH:role:2011" value="main"/>
+   <Representation id="140" codecs="mp4a.40.2" audioSamplingRate="48000" startWithSAP="1" bandwidth="144000">
+    <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
+    <BaseURL>http://www.dummy.url/</BaseURL>
+   </Representation>
+  </AdaptationSet>
+  <AdaptationSet id="1" mimeType="video/mp4" subsegmentAlignment="true">
+   <Role schemeIdUri="urn:mpeg:DASH:role:2011" value="main"/>
+   <Representation id="133" codecs="avc1.4d4015" width="426" height="240" startWithSAP="1" maxPlayoutRate="1" bandwidth="258000" frameRate="30">
+    <BaseURL>http://www.dummy.url/</BaseURL>
+   </Representation>
+  </AdaptationSet>
+ </Period>
+</MPD>
