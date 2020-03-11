@@ -32,6 +32,7 @@
 *   UI:
     *   Fix `DefaultTimeBar` to respect touch transformations
         ([#7303](https://github.com/google/ExoPlayer/issues/7303)).
+    *   Add `showScrubber` and `hideScrubber` methods to `DefaultTimeBar`.
     *   Update `TrackSelectionDialogBuilder` to use AndroidX Compat Dialog
         ([#7357](https://github.com/google/ExoPlayer/issues/7357)).
 *   Text: Use anti-aliasing and bitmap filtering when displaying bitmap
