@@ -17,7 +17,6 @@ package com.google.android.exoplayer2;
 
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
@@ -59,10 +58,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public final TrackSelectorResult trackSelectorResult;
   /** The {@link MediaPeriodId} of the currently loading media period in the {@link #timeline}. */
   public final MediaPeriodId loadingMediaPeriodId;
-  /** Whether playback should proceed when {@link #playbackState} == {@link Player#STATE_READY}. */
-  public final boolean playWhenReady;
-  /** Reason why playback is suppressed even though {@link #playWhenReady} is {@code true}. */
-  @PlaybackSuppressionReason public final int playbackSuppressionReason;
 
   /**
    * Position up to which media is buffered in {@link #loadingMediaPeriodId) relative to the start
@@ -99,8 +94,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         TrackGroupArray.EMPTY,
         emptyTrackSelectorResult,
         DUMMY_MEDIA_PERIOD_ID,
-        /* playWhenReady= */ false,
-        Player.PLAYBACK_SUPPRESSION_REASON_NONE,
         /* bufferedPositionUs= */ 0,
         /* totalBufferedDurationUs= */ 0,
         /* positionUs= */ 0);
@@ -131,8 +124,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       TrackGroupArray trackGroups,
       TrackSelectorResult trackSelectorResult,
       MediaPeriodId loadingMediaPeriodId,
-      boolean playWhenReady,
-      @PlaybackSuppressionReason int playbackSuppressionReason,
       long bufferedPositionUs,
       long totalBufferedDurationUs,
       long positionUs) {
@@ -145,8 +136,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.trackGroups = trackGroups;
     this.trackSelectorResult = trackSelectorResult;
     this.loadingMediaPeriodId = loadingMediaPeriodId;
-    this.playWhenReady = playWhenReady;
-    this.playbackSuppressionReason = playbackSuppressionReason;
     this.bufferedPositionUs = bufferedPositionUs;
     this.totalBufferedDurationUs = totalBufferedDurationUs;
     this.positionUs = positionUs;
@@ -188,8 +177,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         trackGroups,
         trackSelectorResult,
         loadingMediaPeriodId,
-        playWhenReady,
-        playbackSuppressionReason,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs);
@@ -213,8 +200,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         trackGroups,
         trackSelectorResult,
         loadingMediaPeriodId,
-        playWhenReady,
-        playbackSuppressionReason,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs);
@@ -238,8 +223,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         trackGroups,
         trackSelectorResult,
         loadingMediaPeriodId,
-        playWhenReady,
-        playbackSuppressionReason,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs);
@@ -263,8 +246,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         trackGroups,
         trackSelectorResult,
         loadingMediaPeriodId,
-        playWhenReady,
-        playbackSuppressionReason,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs);
@@ -288,8 +269,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         trackGroups,
         trackSelectorResult,
         loadingMediaPeriodId,
-        playWhenReady,
-        playbackSuppressionReason,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs);
@@ -313,37 +292,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         trackGroups,
         trackSelectorResult,
         loadingMediaPeriodId,
-        playWhenReady,
-        playbackSuppressionReason,
-        bufferedPositionUs,
-        totalBufferedDurationUs,
-        positionUs);
-  }
-
-  /**
-   * Copies playback info with new information about whether playback should proceed when ready.
-   *
-   * @param playWhenReady Whether playback should proceed when {@link #playbackState} == {@link
-   *     Player#STATE_READY}.
-   * @param playbackSuppressionReason Reason why playback is suppressed even though {@link
-   *     #playWhenReady} is {@code true}.
-   * @return Copied playback info with new information.
-   */
-  @CheckResult
-  public PlaybackInfo copyWithPlayWhenReady(
-      boolean playWhenReady, @PlaybackSuppressionReason int playbackSuppressionReason) {
-    return new PlaybackInfo(
-        timeline,
-        periodId,
-        requestedContentPositionUs,
-        playbackState,
-        playbackError,
-        isLoading,
-        trackGroups,
-        trackSelectorResult,
-        loadingMediaPeriodId,
-        playWhenReady,
-        playbackSuppressionReason,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs);

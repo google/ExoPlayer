@@ -421,8 +421,6 @@ public final class MediaPeriodQueueTest {
             /* trackGroups= */ null,
             /* trackSelectorResult= */ null,
             /* loadingMediaPeriodId= */ null,
-            /* playWhenReady= */ false,
-            Player.PLAYBACK_SUPPRESSION_REASON_NONE,
             /* bufferedPositionUs= */ 0,
             /* totalBufferedDurationUs= */ 0,
             /* positionUs= */ 0);

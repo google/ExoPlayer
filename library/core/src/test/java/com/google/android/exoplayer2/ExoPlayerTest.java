@@ -548,7 +548,6 @@ public final class ExoPlayerTest {
             // only on seek processed callback).
             .seek(5)
             .seek(60)
-            .waitForSeekProcessed()
             .play()
             .build();
     final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
@@ -2791,7 +2790,6 @@ public final class ExoPlayerTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
-            .waitForSeekProcessed()
             .play()
             .build();
     List<TrackGroupArray> trackGroupsList = new ArrayList<>();
