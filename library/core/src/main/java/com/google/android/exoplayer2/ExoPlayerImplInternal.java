@@ -24,7 +24,7 @@ import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParameterListener;
+import com.google.android.exoplayer2.DefaultMediaClock.PlaybackSpeedListener;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
@@ -57,7 +57,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         MediaPeriod.Callback,
         TrackSelector.InvalidationListener,
         Playlist.PlaylistInfoRefreshListener,
-        PlaybackParameterListener,
+        PlaybackSpeedListener,
         PlayerMessage.Sender {
 
   private static final String TAG = "ExoPlayerImplInternal";
@@ -71,7 +71,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_SET_PLAY_WHEN_READY = 1;
   private static final int MSG_DO_SOME_WORK = 2;
   private static final int MSG_SEEK_TO = 3;
-  private static final int MSG_SET_PLAYBACK_PARAMETERS = 4;
+  private static final int MSG_SET_PLAYBACK_SPEED = 4;
   private static final int MSG_SET_SEEK_PARAMETERS = 5;
   private static final int MSG_STOP = 6;
   private static final int MSG_RELEASE = 7;
@@ -83,7 +83,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_SET_FOREGROUND_MODE = 13;
   private static final int MSG_SEND_MESSAGE = 14;
   private static final int MSG_SEND_MESSAGE_TO_TARGET_THREAD = 15;
-  private static final int MSG_PLAYBACK_PARAMETERS_CHANGED_INTERNAL = 16;
+  private static final int MSG_PLAYBACK_SPEED_CHANGED_INTERNAL = 16;
   private static final int MSG_SET_MEDIA_SOURCES = 17;
   private static final int MSG_ADD_MEDIA_SOURCES = 18;
   private static final int MSG_MOVE_MEDIA_SOURCES = 19;
@@ -224,8 +224,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         .sendToTarget();
   }
 
-  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    handler.obtainMessage(MSG_SET_PLAYBACK_PARAMETERS, playbackParameters).sendToTarget();
+  public void setPlaybackSpeed(float playbackSpeed) {
+    handler.obtainMessage(MSG_SET_PLAYBACK_SPEED, playbackSpeed).sendToTarget();
   }
 
   public void setSeekParameters(SeekParameters seekParameters) {
@@ -365,11 +365,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
     handler.sendEmptyMessage(MSG_TRACK_SELECTION_INVALIDATED);
   }
 
-  // DefaultMediaClock.PlaybackParameterListener implementation.
+  // DefaultMediaClock.PlaybackSpeedListener implementation.
 
   @Override
-  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    sendPlaybackParametersChangedInternal(playbackParameters, /* acknowledgeCommand= */ false);
+  public void onPlaybackSpeedChanged(float playbackSpeed) {
+    sendPlaybackSpeedChangedInternal(playbackSpeed, /* acknowledgeCommand= */ false);
   }
 
   // Handler.Callback implementation.
@@ -401,8 +401,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         case MSG_SEEK_TO:
           seekToInternal((SeekPosition) msg.obj);
           break;
-        case MSG_SET_PLAYBACK_PARAMETERS:
-          setPlaybackParametersInternal((PlaybackParameters) msg.obj);
+        case MSG_SET_PLAYBACK_SPEED:
+          setPlaybackSpeedInternal((Float) msg.obj);
           break;
         case MSG_SET_SEEK_PARAMETERS:
           setSeekParametersInternal((SeekParameters) msg.obj);
@@ -426,9 +426,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         case MSG_TRACK_SELECTION_INVALIDATED:
           reselectTracksInternal();
           break;
-        case MSG_PLAYBACK_PARAMETERS_CHANGED_INTERNAL:
-          handlePlaybackParameters(
-              (PlaybackParameters) msg.obj, /* acknowledgeCommand= */ msg.arg1 != 0);
+        case MSG_PLAYBACK_SPEED_CHANGED_INTERNAL:
+          handlePlaybackSpeed((Float) msg.obj, /* acknowledgeCommand= */ msg.arg1 != 0);
           break;
         case MSG_SEND_MESSAGE:
           sendMessageInternal((PlayerMessage) msg.obj);
@@ -1089,10 +1088,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
     notifyTrackSelectionDiscontinuity();
   }
 
-  private void setPlaybackParametersInternal(PlaybackParameters playbackParameters) {
-    mediaClock.setPlaybackParameters(playbackParameters);
-    sendPlaybackParametersChangedInternal(
-        mediaClock.getPlaybackParameters(), /* acknowledgeCommand= */ true);
+  private void setPlaybackSpeedInternal(float playbackSpeed) {
+    mediaClock.setPlaybackSpeed(playbackSpeed);
+    sendPlaybackSpeedChangedInternal(mediaClock.getPlaybackSpeed(), /* acknowledgeCommand= */ true);
   }
 
   private void setSeekParametersInternal(SeekParameters seekParameters) {
@@ -1419,7 +1417,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void reselectTracksInternal() throws ExoPlaybackException {
-    float playbackSpeed = mediaClock.getPlaybackParameters().speed;
+    float playbackSpeed = mediaClock.getPlaybackSpeed();
     // Reselect tracks on each period in turn, until the selection changes.
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     MediaPeriodHolder readingPeriodHolder = queue.getReadingPeriod();
@@ -1542,7 +1540,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     boolean bufferedToEnd = loadingHolder.isFullyBuffered() && loadingHolder.info.isFinal;
     return bufferedToEnd
         || loadControl.shouldStartPlayback(
-            getTotalBufferedDurationUs(), mediaClock.getPlaybackParameters().speed, rebuffering);
+            getTotalBufferedDurationUs(), mediaClock.getPlaybackSpeed(), rebuffering);
   }
 
   private boolean isTimelineReady() {
@@ -1871,8 +1869,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
     MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
-    loadingPeriodHolder.handlePrepared(
-        mediaClock.getPlaybackParameters().speed, playbackInfo.timeline);
+    loadingPeriodHolder.handlePrepared(mediaClock.getPlaybackSpeed(), playbackInfo.timeline);
     updateLoadControlTrackSelection(
         loadingPeriodHolder.getTrackGroups(), loadingPeriodHolder.getTrackSelectorResult());
     if (loadingPeriodHolder == queue.getPlayingPeriod()) {
@@ -1897,17 +1894,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
     maybeContinueLoading();
   }
 
-  private void handlePlaybackParameters(
-      PlaybackParameters playbackParameters, boolean acknowledgeCommand)
+  private void handlePlaybackSpeed(float playbackSpeed, boolean acknowledgeCommand)
       throws ExoPlaybackException {
     eventHandler
-        .obtainMessage(
-            MSG_PLAYBACK_SPEED_CHANGED, acknowledgeCommand ? 1 : 0, 0, playbackParameters.speed)
+        .obtainMessage(MSG_PLAYBACK_SPEED_CHANGED, acknowledgeCommand ? 1 : 0, 0, playbackSpeed)
         .sendToTarget();
-    updateTrackSelectionPlaybackSpeed(playbackParameters.speed);
+    updateTrackSelectionPlaybackSpeed(playbackSpeed);
     for (Renderer renderer : renderers) {
       if (renderer != null) {
-        renderer.setOperatingRate(playbackParameters.speed);
+        renderer.setOperatingRate(playbackSpeed);
       }
     }
   }
@@ -1933,8 +1928,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       // where playback gets stuck.
       return true;
     }
-    float playbackSpeed = mediaClock.getPlaybackParameters().speed;
-    return loadControl.shouldContinueLoading(bufferedDurationUs, playbackSpeed);
+    return loadControl.shouldContinueLoading(bufferedDurationUs, mediaClock.getPlaybackSpeed());
   }
 
   private boolean isLoadingPossible() {
@@ -2123,14 +2117,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
     loadControl.onTracksSelected(renderers, trackGroups, trackSelectorResult.selections);
   }
 
-  private void sendPlaybackParametersChangedInternal(
-      PlaybackParameters playbackParameters, boolean acknowledgeCommand) {
+  private void sendPlaybackSpeedChangedInternal(float playbackSpeed, boolean acknowledgeCommand) {
     handler
         .obtainMessage(
-            MSG_PLAYBACK_PARAMETERS_CHANGED_INTERNAL,
-            acknowledgeCommand ? 1 : 0,
-            0,
-            playbackParameters)
+            MSG_PLAYBACK_SPEED_CHANGED_INTERNAL, acknowledgeCommand ? 1 : 0, 0, playbackSpeed)
         .sendToTarget();
   }
 
