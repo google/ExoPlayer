@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -129,7 +128,7 @@ public final class MediaSessionConnector {
 
   /**
    * The name of the {@link PlaybackStateCompat} float extra with the value of {@link
-   * PlaybackParameters#speed}.
+   * Player#getPlaybackSpeed()}.
    */
   public static final String EXTRAS_SPEED = "EXO_SPEED";
 
@@ -766,9 +765,9 @@ public final class MediaSessionConnector {
         queueNavigator != null
             ? queueNavigator.getActiveQueueItemId(player)
             : MediaSessionCompat.QueueItem.UNKNOWN_ID;
-    PlaybackParameters playbackParameters = player.getPlaybackParameters();
-    extras.putFloat(EXTRAS_SPEED, playbackParameters.speed);
-    float sessionPlaybackSpeed = player.isPlaying() ? playbackParameters.speed : 0f;
+    float playbackSpeed = player.getPlaybackSpeed();
+    extras.putFloat(EXTRAS_SPEED, playbackSpeed);
+    float sessionPlaybackSpeed = player.isPlaying() ? playbackSpeed : 0f;
     builder
         .setActions(buildPrepareActions() | buildPlaybackActions(player))
         .setActiveQueueItemId(activeQueueItemId)
@@ -1133,7 +1132,7 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+    public void onPlaybackSpeedChanged(float playbackSpeed) {
       invalidateMediaSessionPlaybackState();
     }
 

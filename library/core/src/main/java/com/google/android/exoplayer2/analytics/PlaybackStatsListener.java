@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
@@ -133,6 +132,7 @@ public final class PlaybackStatsListener
    */
   @Nullable
   public PlaybackStats getPlaybackStats() {
+    @Nullable
     PlaybackStatsTracker activeStatsTracker =
         activeAdPlayback != null
             ? playbackStatsTrackers.get(activeAdPlayback)
@@ -323,9 +323,8 @@ public final class PlaybackStatsListener
   }
 
   @Override
-  public void onPlaybackParametersChanged(
-      EventTime eventTime, PlaybackParameters playbackParameters) {
-    playbackSpeed = playbackParameters.speed;
+  public void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {
+    this.playbackSpeed = playbackSpeed;
     sessionManager.updateSessions(eventTime);
     for (PlaybackStatsTracker tracker : playbackStatsTrackers.values()) {
       tracker.onPlaybackSpeedChanged(eventTime, playbackSpeed);
