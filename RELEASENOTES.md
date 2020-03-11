@@ -76,7 +76,10 @@
         MediaSources factories.
 *   Downloads: Merge downloads in `SegmentDownloader` to improve overall
     download speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
-*   DASH: Parse period `AssetIdentifier` elements.
+*   DASH:
+    *   Update the manifest URI to avoid repeated HTTP redirects
+        ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
+    *   Parse period `AssetIdentifier` elements.
 *   MP3: Add `IndexSeeker` for accurate seeks in VBR streams
     ([#6787](https://github.com/google/ExoPlayer/issues/6787)). This seeker is
     enabled by passing `FLAG_ENABLE_INDEX_SEEKING` to the `Mp3Extractor`. It may
