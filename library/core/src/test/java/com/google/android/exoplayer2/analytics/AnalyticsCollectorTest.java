@@ -26,7 +26,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -76,7 +75,7 @@ public final class AnalyticsCollectorTest {
   private static final int EVENT_POSITION_DISCONTINUITY = 2;
   private static final int EVENT_SEEK_STARTED = 3;
   private static final int EVENT_SEEK_PROCESSED = 4;
-  private static final int EVENT_PLAYBACK_PARAMETERS_CHANGED = 5;
+  private static final int EVENT_PLAYBACK_SPEED_CHANGED = 5;
   private static final int EVENT_REPEAT_MODE_CHANGED = 6;
   private static final int EVENT_SHUFFLE_MODE_CHANGED = 7;
   private static final int EVENT_LOADING_CHANGED = 8;
@@ -1464,10 +1463,10 @@ public final class AnalyticsCollectorTest {
       reportedEvents.add(new ReportedEvent(EVENT_SEEK_PROCESSED, eventTime));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void onPlaybackParametersChanged(
-        EventTime eventTime, PlaybackParameters playbackParameters) {
-      reportedEvents.add(new ReportedEvent(EVENT_PLAYBACK_PARAMETERS_CHANGED, eventTime));
+    public void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {
+      reportedEvents.add(new ReportedEvent(EVENT_PLAYBACK_SPEED_CHANGED, eventTime));
     }
 
     @Override

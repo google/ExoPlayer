@@ -64,7 +64,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   // External messages
   public static final int MSG_PLAYBACK_INFO_CHANGED = 0;
-  public static final int MSG_PLAYBACK_PARAMETERS_CHANGED = 1;
+  public static final int MSG_PLAYBACK_SPEED_CHANGED = 1;
 
   // Internal messages
   private static final int MSG_PREPARE = 0;
@@ -1902,7 +1902,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       throws ExoPlaybackException {
     eventHandler
         .obtainMessage(
-            MSG_PLAYBACK_PARAMETERS_CHANGED, acknowledgeCommand ? 1 : 0, 0, playbackParameters)
+            MSG_PLAYBACK_SPEED_CHANGED, acknowledgeCommand ? 1 : 0, 0, playbackParameters.speed)
         .sendToTarget();
     updateTrackSelectionPlaybackSpeed(playbackParameters.speed);
     for (Renderer renderer : renderers) {

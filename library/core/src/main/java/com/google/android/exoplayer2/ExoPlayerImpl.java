@@ -78,8 +78,8 @@ import java.util.concurrent.TimeoutException;
   @DiscontinuityReason private int pendingDiscontinuityReason;
   @PlayWhenReadyChangeReason private int pendingPlayWhenReadyChangeReason;
   private boolean foregroundMode;
-  private int pendingSetPlaybackParametersAcks;
-  private PlaybackParameters playbackParameters;
+  private int pendingSetPlaybackSpeedAcks;
+  private float playbackSpeed;
   private SeekParameters seekParameters;
   private ShuffleOrder shuffleOrder;
 
@@ -132,7 +132,7 @@ import java.util.concurrent.TimeoutException;
             new TrackSelection[renderers.length],
             null);
     period = new Timeline.Period();
-    playbackParameters = PlaybackParameters.DEFAULT;
+    playbackSpeed = Player.DEFAULT_PLAYBACK_SPEED;
     seekParameters = SeekParameters.DEFAULT;
     maskingWindowIndex = C.INDEX_UNSET;
     eventHandler =
@@ -535,24 +535,44 @@ import java.util.concurrent.TimeoutException;
     notifyListeners(listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK));
   }
 
+  /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
-    if (playbackParameters == null) {
-      playbackParameters = PlaybackParameters.DEFAULT;
-    }
-    if (this.playbackParameters.equals(playbackParameters)) {
+    setPlaybackSpeed(
+        playbackParameters != null ? playbackParameters.speed : Player.DEFAULT_PLAYBACK_SPEED);
+  }
+
+  /** @deprecated Use {@link #getPlaybackSpeed()} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
+  @Override
+  public PlaybackParameters getPlaybackParameters() {
+    return new PlaybackParameters(playbackSpeed);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Override
+  public void setPlaybackSpeed(float playbackSpeed) {
+    Assertions.checkState(playbackSpeed > 0);
+    if (this.playbackSpeed == playbackSpeed) {
       return;
     }
-    pendingSetPlaybackParametersAcks++;
-    this.playbackParameters = playbackParameters;
+    pendingSetPlaybackSpeedAcks++;
+    this.playbackSpeed = playbackSpeed;
+    PlaybackParameters playbackParameters = new PlaybackParameters(playbackSpeed);
     internalPlayer.setPlaybackParameters(playbackParameters);
-    PlaybackParameters playbackParametersToNotify = playbackParameters;
-    notifyListeners(listener -> listener.onPlaybackParametersChanged(playbackParametersToNotify));
+    notifyListeners(
+        listener -> {
+          listener.onPlaybackParametersChanged(playbackParameters);
+          listener.onPlaybackSpeedChanged(playbackSpeed);
+        });
   }
 
   @Override
-  public PlaybackParameters getPlaybackParameters() {
-    return playbackParameters;
+  public float getPlaybackSpeed() {
+    return playbackSpeed;
   }
 
   @Override
@@ -764,8 +784,8 @@ import java.util.concurrent.TimeoutException;
       case ExoPlayerImplInternal.MSG_PLAYBACK_INFO_CHANGED:
         handlePlaybackInfo((ExoPlayerImplInternal.PlaybackInfoUpdate) msg.obj);
         break;
-      case ExoPlayerImplInternal.MSG_PLAYBACK_PARAMETERS_CHANGED:
-        handlePlaybackParameters((PlaybackParameters) msg.obj, /* operationAck= */ msg.arg1 != 0);
+      case ExoPlayerImplInternal.MSG_PLAYBACK_SPEED_CHANGED:
+        handlePlaybackSpeed((Float) msg.obj, /* operationAck= */ msg.arg1 != 0);
         break;
       default:
         throw new IllegalStateException();
@@ -781,15 +801,19 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
-  private void handlePlaybackParameters(
-      PlaybackParameters playbackParameters, boolean operationAck) {
+  @SuppressWarnings("deprecation")
+  private void handlePlaybackSpeed(float playbackSpeed, boolean operationAck) {
     if (operationAck) {
-      pendingSetPlaybackParametersAcks--;
+      pendingSetPlaybackSpeedAcks--;
     }
-    if (pendingSetPlaybackParametersAcks == 0) {
-      if (!this.playbackParameters.equals(playbackParameters)) {
-        this.playbackParameters = playbackParameters;
-        notifyListeners(listener -> listener.onPlaybackParametersChanged(playbackParameters));
+    if (pendingSetPlaybackSpeedAcks == 0) {
+      if (this.playbackSpeed != playbackSpeed) {
+        this.playbackSpeed = playbackSpeed;
+        notifyListeners(
+            listener -> {
+              listener.onPlaybackParametersChanged(new PlaybackParameters(playbackSpeed));
+              listener.onPlaybackSpeedChanged(playbackSpeed);
+            });
       }
     }
   }

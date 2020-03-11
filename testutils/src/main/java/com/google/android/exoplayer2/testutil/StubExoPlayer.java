@@ -256,13 +256,29 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
     throw new UnsupportedOperationException();
   }
 
+  /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     throw new UnsupportedOperationException();
   }
 
+  /** @deprecated Use {@link #getPlaybackSpeed()} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   public PlaybackParameters getPlaybackParameters() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setPlaybackSpeed(float playbackSpeed) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public float getPlaybackSpeed() {
     throw new UnsupportedOperationException();
   }
 

@@ -197,13 +197,21 @@ public interface AnalyticsListener {
   default void onSeekProcessed(EventTime eventTime) {}
 
   /**
-   * Called when the playback parameters changed.
-   *
-   * @param eventTime The event time.
-   * @param playbackParameters The new playback parameters.
+   * @deprecated Use {@link #onPlaybackSpeedChanged(EventTime, float)} and {@link
+   *     #onSkipSilenceEnabledChanged(EventTime, boolean)} instead.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   default void onPlaybackParametersChanged(
       EventTime eventTime, PlaybackParameters playbackParameters) {}
+
+  /**
+   * Called when the playback speed changes.
+   *
+   * @param eventTime The event time.
+   * @param playbackSpeed The playback speed.
+   */
+  default void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {}
 
   /**
    * Called when the repeat mode changed.

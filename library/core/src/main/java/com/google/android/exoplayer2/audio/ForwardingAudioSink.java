@@ -99,18 +99,19 @@ public class ForwardingAudioSink implements AudioSink {
    * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
    *     instead.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   @Override
   public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    sink.setPlaybackSpeed(playbackParameters.speed);
-    sink.setSkipSilenceEnabled(playbackParameters.skipSilence);
+    sink.setPlaybackParameters(playbackParameters);
   }
 
   /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
+  @SuppressWarnings("deprecation")
   @Deprecated
   @Override
   public PlaybackParameters getPlaybackParameters() {
-    return new PlaybackParameters(sink.getPlaybackSpeed(), sink.getSkipSilenceEnabled());
+    return sink.getPlaybackParameters();
   }
 
   @Override

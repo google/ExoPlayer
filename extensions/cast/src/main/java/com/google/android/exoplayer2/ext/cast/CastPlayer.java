@@ -406,14 +406,30 @@ public final class CastPlayer extends BasePlayer {
     flushNotifications();
   }
 
+  /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     // Unsupported by the RemoteMediaClient API. Do nothing.
   }
 
+  /** @deprecated Use {@link #getPlaybackSpeed()} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   public PlaybackParameters getPlaybackParameters() {
     return PlaybackParameters.DEFAULT;
+  }
+
+  @Override
+  public void setPlaybackSpeed(float playbackSpeed) {
+    // Unsupported by the RemoteMediaClient API. Do nothing.
+  }
+
+  @Override
+  public float getPlaybackSpeed() {
+    return Player.DEFAULT_PLAYBACK_SPEED;
   }
 
   @Override

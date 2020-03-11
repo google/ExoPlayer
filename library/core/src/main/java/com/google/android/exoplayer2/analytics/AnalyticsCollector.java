@@ -531,11 +531,25 @@ public class AnalyticsCollector
     }
   }
 
+  /**
+   * @deprecated Use {@link #onPlaybackSpeedChanged(float)} and {@link
+   *     #onSkipSilenceEnabledChanged(boolean)} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   public final void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
       listener.onPlaybackParametersChanged(eventTime, playbackParameters);
+    }
+  }
+
+  @Override
+  public void onPlaybackSpeedChanged(float playbackSpeed) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onPlaybackSpeedChanged(eventTime, playbackSpeed);
     }
   }
 
