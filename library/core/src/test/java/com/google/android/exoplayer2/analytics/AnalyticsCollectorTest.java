@@ -315,7 +315,6 @@ public final class AnalyticsCollectorTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
-            .waitForSeekProcessed()
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource, actionSchedule);
@@ -328,8 +327,8 @@ public final class AnalyticsCollectorTest {
             WINDOW_0 /* setPlayWhenReady=false */,
             period0 /* READY */,
             period1 /* BUFFERING */,
-            period1 /* setPlayWhenReady=true */,
             period1 /* READY */,
+            period1 /* setPlayWhenReady=true */,
             period1 /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, period0 /* SOURCE_UPDATE */);
@@ -467,9 +466,6 @@ public final class AnalyticsCollectorTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .setMediaSources(/* resetPosition= */ false, mediaSource2)
-            .waitForTimelineChanged()
-            // Wait until loading started to prevent flakiness caused by loading finishing too fast.
-            .waitForIsLoading(true)
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource1, actionSchedule);
@@ -490,7 +486,7 @@ public final class AnalyticsCollectorTest {
             WINDOW_0 /* setPlayWhenReady=false */,
             period0Seq0 /* READY */,
             WINDOW_0 /* BUFFERING */,
-            period0Seq1 /* setPlayWhenReady=true */,
+            WINDOW_0 /* setPlayWhenReady=true */,
             period0Seq1 /* READY */,
             period0Seq1 /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
@@ -549,8 +545,6 @@ public final class AnalyticsCollectorTest {
             .waitForPlaybackState(Player.STATE_IDLE)
             .seek(/* positionMs= */ 0)
             .prepare()
-            // Wait until loading started to assert loading events without flakiness.
-            .waitForIsLoading(true)
             .play()
             .waitForPlaybackState(Player.STATE_ENDED)
             .build();
@@ -704,8 +698,6 @@ public final class AnalyticsCollectorTest {
             .waitForIsLoading(true)
             .waitForIsLoading(false)
             .removeMediaItem(/* index= */ 0)
-            .waitForPlaybackState(Player.STATE_BUFFERING)
-            .waitForPlaybackState(Player.STATE_READY)
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(fakeMediaSource, actionSchedule);
@@ -727,8 +719,8 @@ public final class AnalyticsCollectorTest {
             WINDOW_0 /* BUFFERING */,
             period0Seq0 /* READY */,
             period0Seq1 /* BUFFERING */,
-            period0Seq1 /* READY */,
             period0Seq1 /* setPlayWhenReady=true */,
+            period0Seq1 /* READY */,
             period0Seq1 /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(
@@ -823,19 +815,6 @@ public final class AnalyticsCollectorTest {
                   }
                 })
             .pause()
-            // Ensure everything is preloaded.
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
             .waitForPlaybackState(Player.STATE_READY)
             // Wait in each content part to ensure previously triggered events get a chance to be
             // delivered. This prevents flakiness caused by playback progressing too fast.
@@ -1039,8 +1018,6 @@ public final class AnalyticsCollectorTest {
             .waitForIsLoading(false)
             // Seek behind the midroll.
             .seek(6 * C.MICROS_PER_SECOND)
-            // Wait until loading started again to assert loading events without flakiness.
-            .waitForIsLoading(true)
             .play()
             .waitForPlaybackState(Player.STATE_ENDED)
             .build();
@@ -1070,8 +1047,8 @@ public final class AnalyticsCollectorTest {
             WINDOW_0 /* setPlayWhenReady=false */,
             WINDOW_0 /* BUFFERING */,
             contentBeforeMidroll /* READY */,
+            contentAfterMidroll /* setPlayWhenReady=true */,
             midrollAd /* BUFFERING */,
-            midrollAd /* setPlayWhenReady=true */,
             midrollAd /* READY */,
             contentAfterMidroll /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
