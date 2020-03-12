@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MaskingMediaPeriod;
 import com.google.android.exoplayer2.source.MaskingMediaSource;
@@ -425,9 +426,10 @@ import java.util.Set;
     MediaSource mediaSource = holder.mediaSource;
     MediaSource.MediaSourceCaller caller =
         (source, timeline) -> playlistInfoListener.onPlaylistUpdateRequested();
-    MediaSourceEventListener eventListener = new ForwardingEventListener(holder);
+    ForwardingEventListener eventListener = new ForwardingEventListener(holder);
     childSources.put(holder, new MediaSourceAndListener(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Util.createHandler(), eventListener);
+    mediaSource.addDrmEventListener(Util.createHandler(), eventListener);
     mediaSource.prepareSource(caller, mediaTransferListener);
   }
 
@@ -588,7 +590,8 @@ import java.util.Set;
     }
   }
 
-  private final class ForwardingEventListener implements MediaSourceEventListener {
+  private final class ForwardingEventListener
+      implements MediaSourceEventListener, DrmSessionEventListener {
 
     private final Playlist.MediaSourceHolder id;
     private EventDispatcher eventDispatcher;
@@ -597,6 +600,8 @@ import java.util.Set;
       eventDispatcher = Playlist.this.eventDispatcher;
       this.id = id;
     }
+
+    // MediaSourceEventListener implementation
 
     @Override
     public void onMediaPeriodCreated(int windowIndex, MediaSource.MediaPeriodId mediaPeriodId) {
@@ -683,6 +688,50 @@ import java.util.Set;
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
         eventDispatcher.downstreamFormatChanged(mediaLoadData);
       }
+    }
+
+    // DrmSessionEventListener implementation
+
+    @Override
+    public void onDrmSessionAcquired() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionAcquired(),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmKeysLoaded() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysLoaded(),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmSessionManagerError(Exception error) {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionManagerError(error),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmKeysRestored() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRestored(),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmKeysRemoved() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRemoved(),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmSessionReleased() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionReleased(),
+          DrmSessionEventListener.class);
     }
 
     /** Updates the event dispatcher and returns whether the event should be dispatched. */
