@@ -1059,15 +1059,12 @@ public final class ImaAdsLoader
 
     // IMA indexes any remaining midroll ad pods from 1. A preroll (if present) has index 0.
     // Store an index offset as we want to index all ads (including skipped ones) from 0.
-    if (adGroupIndexForPosition == 0 && adGroupTimesUs[0] == 0) {
-      // We are playing a preroll.
-      podIndexOffset = 0;
-    } else if (adGroupIndexForPosition == C.INDEX_UNSET) {
+    if (adGroupIndexForPosition == C.INDEX_UNSET) {
       // There's no ad to play which means there's no preroll.
       podIndexOffset = -1;
     } else {
-      // We are playing a midroll and any ads before it were skipped.
-      podIndexOffset = adGroupIndexForPosition - 1;
+      // There's a preroll, so no need to offset indices.
+      podIndexOffset = 0;
     }
 
     if (adGroupIndexForPosition != C.INDEX_UNSET && hasMidrollAdGroups(adGroupTimesUs)) {
