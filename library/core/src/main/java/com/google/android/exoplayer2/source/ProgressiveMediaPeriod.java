@@ -976,7 +976,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             icyTrackOutput = icyTrack();
             icyTrackOutput.format(ICY_FORMAT);
           }
-          progressiveMediaExtractor.init(extractorDataSource, position, length, extractorOutput);
+          progressiveMediaExtractor.init(
+              extractorDataSource, uri, position, length, extractorOutput);
 
           if (icyHeaders != null) {
             progressiveMediaExtractor.disableSeekingOnMp3Streams();

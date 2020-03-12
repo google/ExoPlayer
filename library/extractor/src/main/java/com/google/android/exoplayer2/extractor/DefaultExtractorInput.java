@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.extractor;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
@@ -24,9 +24,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.Arrays;
 
-/**
- * An {@link ExtractorInput} that wraps a {@link DataSource}.
- */
+/** An {@link ExtractorInput} that wraps a {@link DataReader}. */
 public final class DefaultExtractorInput implements ExtractorInput {
 
   private static final int PEEK_MIN_FREE_SPACE_AFTER_RESIZE = 64 * 1024;
@@ -34,7 +32,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
   private static final int SCRATCH_SPACE_SIZE = 4096;
 
   private final byte[] scratchSpace;
-  private final DataSource dataSource;
+  private final DataReader dataReader;
   private final long streamLength;
 
   private long position;
@@ -43,12 +41,12 @@ public final class DefaultExtractorInput implements ExtractorInput {
   private int peekBufferLength;
 
   /**
-   * @param dataSource The wrapped {@link DataSource}.
+   * @param dataReader The wrapped {@link DataReader}.
    * @param position The initial position in the stream.
    * @param length The length of the stream, or {@link C#LENGTH_UNSET} if it is unknown.
    */
-  public DefaultExtractorInput(DataSource dataSource, long position, long length) {
-    this.dataSource = dataSource;
+  public DefaultExtractorInput(DataReader dataReader, long position, long length) {
+    this.dataReader = dataReader;
     this.position = position;
     this.streamLength = length;
     peekBuffer = new byte[PEEK_MIN_FREE_SPACE_AFTER_RESIZE];
@@ -60,7 +58,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
     int bytesRead = readFromPeekBuffer(target, offset, length);
     if (bytesRead == 0) {
       bytesRead =
-          readFromDataSource(
+          readFromUpstream(
               target, offset, length, /* bytesAlreadyRead= */ 0, /* allowEndOfInput= */ true);
     }
     commitBytesRead(bytesRead);
@@ -72,7 +70,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
       throws IOException {
     int bytesRead = readFromPeekBuffer(target, offset, length);
     while (bytesRead < length && bytesRead != C.RESULT_END_OF_INPUT) {
-      bytesRead = readFromDataSource(target, offset, length, bytesRead, allowEndOfInput);
+      bytesRead = readFromUpstream(target, offset, length, bytesRead, allowEndOfInput);
     }
     commitBytesRead(bytesRead);
     return bytesRead != C.RESULT_END_OF_INPUT;
@@ -88,7 +86,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
     int bytesSkipped = skipFromPeekBuffer(length);
     if (bytesSkipped == 0) {
       bytesSkipped =
-          readFromDataSource(scratchSpace, 0, Math.min(length, scratchSpace.length), 0, true);
+          readFromUpstream(scratchSpace, 0, Math.min(length, scratchSpace.length), 0, true);
     }
     commitBytesRead(bytesSkipped);
     return bytesSkipped;
@@ -100,7 +98,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
     while (bytesSkipped < length && bytesSkipped != C.RESULT_END_OF_INPUT) {
       int minLength = Math.min(length, bytesSkipped + scratchSpace.length);
       bytesSkipped =
-          readFromDataSource(scratchSpace, -bytesSkipped, minLength, bytesSkipped, allowEndOfInput);
+          readFromUpstream(scratchSpace, -bytesSkipped, minLength, bytesSkipped, allowEndOfInput);
     }
     commitBytesRead(bytesSkipped);
     return bytesSkipped != C.RESULT_END_OF_INPUT;
@@ -118,7 +116,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
     int bytesPeeked;
     if (peekBufferRemainingBytes == 0) {
       bytesPeeked =
-          readFromDataSource(
+          readFromUpstream(
               peekBuffer,
               peekBufferPosition,
               length,
@@ -156,8 +154,8 @@ public final class DefaultExtractorInput implements ExtractorInput {
     ensureSpaceForPeek(length);
     int bytesPeeked = peekBufferLength - peekBufferPosition;
     while (bytesPeeked < length) {
-      bytesPeeked = readFromDataSource(peekBuffer, peekBufferPosition, length, bytesPeeked,
-          allowEndOfInput);
+      bytesPeeked =
+          readFromUpstream(peekBuffer, peekBufferPosition, length, bytesPeeked, allowEndOfInput);
       if (bytesPeeked == C.RESULT_END_OF_INPUT) {
         return false;
       }
@@ -259,7 +257,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
   }
 
   /**
-   * Starts or continues a read from the data source.
+   * Starts or continues a read from the data reader.
    *
    * @param target A target array into which data should be written.
    * @param offset The offset into the target array at which to write.
@@ -275,13 +273,13 @@ public final class DefaultExtractorInput implements ExtractorInput {
    *     read and {@code allowEndOfInput} is false.
    * @throws IOException If an error occurs reading from the input.
    */
-  private int readFromDataSource(
+  private int readFromUpstream(
       byte[] target, int offset, int length, int bytesAlreadyRead, boolean allowEndOfInput)
       throws IOException {
     if (Thread.interrupted()) {
       throw new InterruptedIOException();
     }
-    int bytesRead = dataSource.read(target, offset + bytesAlreadyRead, length - bytesAlreadyRead);
+    int bytesRead = dataReader.read(target, offset + bytesAlreadyRead, length - bytesAlreadyRead);
     if (bytesRead == C.RESULT_END_OF_INPUT) {
       if (bytesAlreadyRead == 0 && allowEndOfInput) {
         return C.RESULT_END_OF_INPUT;
