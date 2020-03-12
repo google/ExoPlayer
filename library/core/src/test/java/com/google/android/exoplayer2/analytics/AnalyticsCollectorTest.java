@@ -262,8 +262,6 @@ public final class AnalyticsCollectorTest {
             WINDOW_0 /* setPlayWhenReady */,
             WINDOW_0 /* BUFFERING */,
             period0 /* READY */,
-            period1 /* BUFFERING */,
-            period1 /* READY */,
             period1 /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, period0 /* SOURCE_UPDATE */);
@@ -312,6 +310,11 @@ public final class AnalyticsCollectorTest {
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
+            // Wait until second period has fully loaded to assert loading events without flakiness.
+            .waitForIsLoading(true)
+            .waitForIsLoading(false)
+            .waitForIsLoading(true)
+            .waitForIsLoading(false)
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
             .waitForSeekProcessed()
@@ -357,12 +360,13 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_MEDIA_PERIOD_RELEASED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_READING_STARTED)).containsExactly(period0, period1);
     assertThat(listener.getEvents(EVENT_DECODER_ENABLED))
-        .containsExactly(period0 /* video */, period1 /* audio */);
+        .containsExactly(period0 /* video */, period1 /* audio */, period1 /* audio */);
     assertThat(listener.getEvents(EVENT_DECODER_INIT))
         .containsExactly(period0 /* video */, period1 /* audio */);
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
         .containsExactly(period0 /* video */, period1 /* audio */);
-    assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_DECODER_DISABLED))
+        .containsExactly(period0 /* video */, period0 /* audio */);
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0);
@@ -402,8 +406,6 @@ public final class AnalyticsCollectorTest {
             period0 /* BUFFERING */,
             period0 /* READY */,
             period0 /* setPlayWhenReady=true */,
-            period1Seq2 /* BUFFERING */,
-            period1Seq2 /* READY */,
             period1Seq2 /* ENDED */);
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(WINDOW_0 /* PLAYLIST_CHANGED */, period0 /* SOURCE_UPDATE */);
@@ -429,7 +431,7 @@ public final class AnalyticsCollectorTest {
             period1Seq1 /* media */,
             period1Seq2 /* media */);
     assertThat(listener.getEvents(EVENT_DOWNSTREAM_FORMAT_CHANGED))
-        .containsExactly(period0, period1Seq1, period1Seq2, period1Seq2);
+        .containsExactly(period0, period1Seq1, period1Seq1, period1Seq2, period1Seq2);
     assertThat(listener.getEvents(EVENT_MEDIA_PERIOD_CREATED))
         .containsExactly(period0, period1Seq1, period1Seq2);
     assertThat(listener.getEvents(EVENT_MEDIA_PERIOD_RELEASED))
@@ -437,21 +439,22 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_READING_STARTED))
         .containsExactly(period0, period1Seq1, period1Seq2);
     assertThat(listener.getEvents(EVENT_DECODER_ENABLED))
-        .containsExactly(period0, period0, period1Seq2);
+        .containsExactly(period0, period1, period0, period1Seq2);
     assertThat(listener.getEvents(EVENT_DECODER_INIT))
-        .containsExactly(period0, period1Seq1, period1Seq2, period1Seq2);
+        .containsExactly(period0, period1Seq1, period1Seq1, period1Seq2, period1Seq2);
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
-        .containsExactly(period0, period1Seq1, period1Seq2, period1Seq2);
-    assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period1Seq2);
+        .containsExactly(period0, period1Seq1, period1Seq1, period1Seq2, period1Seq2);
+    assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0, period0);
+    assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID))
+        .containsExactly(period1Seq1, period1Seq2);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES))
-        .containsExactly(period0, period1Seq2, period1Seq2);
+        .containsExactly(period0, period1Seq2);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
         .containsExactly(period0, period1Seq1, period0, period1Seq2);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
         .containsExactly(period0, period1Seq1, period0, period1Seq2);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
-        .containsExactly(period0, period1Seq2, period1Seq2);
+        .containsExactly(period0, period1Seq2);
     listener.assertNoMoreEvents();
   }
 
@@ -749,11 +752,13 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period0Seq0, period1Seq1);
     assertThat(listener.getEvents(EVENT_MEDIA_PERIOD_RELEASED)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_READING_STARTED)).containsExactly(period0Seq0, period0Seq1);
-    assertThat(listener.getEvents(EVENT_DECODER_ENABLED)).containsExactly(period0Seq0, period0Seq1);
+    assertThat(listener.getEvents(EVENT_DECODER_ENABLED))
+        .containsExactly(period0Seq0, period0Seq1, period0Seq1);
     assertThat(listener.getEvents(EVENT_DECODER_INIT)).containsExactly(period0Seq0, period0Seq1);
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
         .containsExactly(period0Seq0, period0Seq1);
-    assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0Seq0);
+    assertThat(listener.getEvents(EVENT_DECODER_DISABLED))
+        .containsExactly(period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0Seq1);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
         .containsExactly(period0Seq0, period0Seq1);

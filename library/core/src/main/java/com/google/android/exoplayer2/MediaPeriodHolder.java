@@ -51,6 +51,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public boolean hasEnabledTracks;
   /** {@link MediaPeriodInfo} about this media period. */
   public MediaPeriodInfo info;
+  /**
+   * Whether all required renderers have been enabled with the {@link #sampleStreams} for this
+   * {@link #mediaPeriod}. This means either {@link Renderer#enable(RendererConfiguration, Format[],
+   * SampleStream, long, boolean, boolean, long)} or {@link Renderer#replaceStream(Format[],
+   * SampleStream, long)} has been called.
+   */
+  public boolean allRenderersEnabled;
 
   private final boolean[] mayRetainStreamFlags;
   private final RendererCapabilities[] rendererCapabilities;
