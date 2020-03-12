@@ -557,4 +557,23 @@ public interface ExoPlayer extends Player {
    *     idle state.
    */
   void setForegroundMode(boolean foregroundMode);
+
+  /**
+   * Sets whether to pause playback at the end of each media item.
+   *
+   * <p>This means the player will pause at the end of each window in the current {@link
+   * #getCurrentTimeline() timeline}. Listeners will be informed by a call to {@link
+   * Player.EventListener#onPlayWhenReadyChanged(boolean, int)} with the reason {@link
+   * Player#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM} when this happens.
+   *
+   * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
+   */
+  void setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems);
+
+  /**
+   * Returns whether the player pauses playback at the end of each media item.
+   *
+   * @see #setPauseAtEndOfMediaItems(boolean)
+   */
+  boolean getPauseAtEndOfMediaItems();
 }

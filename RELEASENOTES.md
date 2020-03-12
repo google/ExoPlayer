@@ -25,6 +25,9 @@
         consistency.
     *   Deprecate and rename `onLoadingChanged` to `onIsLoadingChanged` for
         consistency.
+    *   Add `ExoPlayer.setPauseAtEndOfMediaItems` to let the player pause at the
+        end of each media item
+        ([#5660](https://github.com/google/ExoPlayer/issues/5660)).
     *   Make `MediaSourceEventListener.LoadEventInfo` and
         `MediaSourceEventListener.MediaLoadData` top-level classes.
     *   Rename `MediaCodecRenderer.onOutputFormatChanged` to

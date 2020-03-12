@@ -82,6 +82,7 @@ import java.util.concurrent.TimeoutException;
   private float playbackSpeed;
   private SeekParameters seekParameters;
   private ShuffleOrder shuffleOrder;
+  private boolean pauseAtEndOfMediaItems;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -434,6 +435,20 @@ import java.util.concurrent.TimeoutException;
         playWhenReady,
         PLAYBACK_SUPPRESSION_REASON_NONE,
         PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+  }
+
+  @Override
+  public void setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
+    if (this.pauseAtEndOfMediaItems == pauseAtEndOfMediaItems) {
+      return;
+    }
+    this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
+    internalPlayer.setPauseAtEndOfWindow(pauseAtEndOfMediaItems);
+  }
+
+  @Override
+  public boolean getPauseAtEndOfMediaItems() {
+    return pauseAtEndOfMediaItems;
   }
 
   @SuppressWarnings("deprecation")

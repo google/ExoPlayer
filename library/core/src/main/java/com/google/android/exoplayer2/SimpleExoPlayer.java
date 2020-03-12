@@ -1350,6 +1350,18 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
+    verifyApplicationThread();
+    player.setPauseAtEndOfMediaItems(pauseAtEndOfMediaItems);
+  }
+
+  @Override
+  public boolean getPauseAtEndOfMediaItems() {
+    verifyApplicationThread();
+    return player.getPauseAtEndOfMediaItems();
+  }
+
+  @Override
   public @RepeatMode int getRepeatMode() {
     verifyApplicationThread();
     return player.getRepeatMode();

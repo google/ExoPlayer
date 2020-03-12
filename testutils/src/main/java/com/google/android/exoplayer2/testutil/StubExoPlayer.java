@@ -391,4 +391,14 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   public void setForegroundMode(boolean foregroundMode) {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public void setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean getPauseAtEndOfMediaItems() {
+    throw new UnsupportedOperationException();
+  }
 }
