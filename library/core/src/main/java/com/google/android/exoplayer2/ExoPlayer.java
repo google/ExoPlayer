@@ -24,8 +24,10 @@ import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
@@ -138,6 +140,7 @@ public interface ExoPlayer extends Player {
 
     private Clock clock;
     private TrackSelector trackSelector;
+    private MediaSourceFactory mediaSourceFactory;
     private LoadControl loadControl;
     private BandwidthMeter bandwidthMeter;
     private Looper looper;
@@ -154,6 +157,7 @@ public interface ExoPlayer extends Player {
      *
      * <ul>
      *   <li>{@link TrackSelector}: {@link DefaultTrackSelector}
+     *   <li>{@link MediaSourceFactory}: {@link DefaultMediaSourceFactory}
      *   <li>{@link LoadControl}: {@link DefaultLoadControl}
      *   <li>{@link BandwidthMeter}: {@link DefaultBandwidthMeter#getSingletonInstance(Context)}
      *   <li>{@link Looper}: The {@link Looper} associated with the current thread, or the {@link
@@ -171,6 +175,7 @@ public interface ExoPlayer extends Player {
       this(
           renderers,
           new DefaultTrackSelector(context),
+          DefaultMediaSourceFactory.newInstance(context),
           new DefaultLoadControl(),
           DefaultBandwidthMeter.getSingletonInstance(context),
           Util.getLooper(),
@@ -188,6 +193,7 @@ public interface ExoPlayer extends Player {
      *
      * @param renderers The {@link Renderer Renderers} to be used by the player.
      * @param trackSelector A {@link TrackSelector}.
+     * @param mediaSourceFactory A {@link MediaSourceFactory}.
      * @param loadControl A {@link LoadControl}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
      * @param looper A {@link Looper} that must be used for all calls to the player.
@@ -198,6 +204,7 @@ public interface ExoPlayer extends Player {
     public Builder(
         Renderer[] renderers,
         TrackSelector trackSelector,
+        MediaSourceFactory mediaSourceFactory,
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
         Looper looper,
@@ -207,6 +214,7 @@ public interface ExoPlayer extends Player {
       Assertions.checkArgument(renderers.length > 0);
       this.renderers = renderers;
       this.trackSelector = trackSelector;
+      this.mediaSourceFactory = mediaSourceFactory;
       this.loadControl = loadControl;
       this.bandwidthMeter = bandwidthMeter;
       this.looper = looper;
@@ -240,6 +248,19 @@ public interface ExoPlayer extends Player {
     public Builder setTrackSelector(TrackSelector trackSelector) {
       Assertions.checkState(!buildCalled);
       this.trackSelector = trackSelector;
+      return this;
+    }
+
+    /**
+     * Sets the {@link MediaSourceFactory} that will be used by the player.
+     *
+     * @param mediaSourceFactory A {@link MediaSourceFactory}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
+      Assertions.checkState(!buildCalled);
+      this.mediaSourceFactory = mediaSourceFactory;
       return this;
     }
 
@@ -331,7 +352,7 @@ public interface ExoPlayer extends Player {
     /**
      * Builds an {@link ExoPlayer} instance.
      *
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@code build} has already been called.
      */
     public ExoPlayer build() {
       Assertions.checkState(!buildCalled);
@@ -340,6 +361,7 @@ public interface ExoPlayer extends Player {
           new ExoPlayerImpl(
               renderers,
               trackSelector,
+              mediaSourceFactory,
               loadControl,
               bandwidthMeter,
               analyticsCollector,
@@ -362,9 +384,6 @@ public interface ExoPlayer extends Player {
   @Deprecated
   void retry();
 
-  /** Prepares the player. */
-  void prepare();
-
   /** @deprecated Use {@link #setMediaSource(MediaSource)} and {@link #prepare()} instead. */
   @Deprecated
   void prepare(MediaSource mediaSource);
@@ -374,6 +393,9 @@ public interface ExoPlayer extends Player {
    */
   @Deprecated
   void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
+
+  /** Prepares the player. */
+  void prepare();
 
   /**
    * Clears the playlist, adds the specified {@link MediaSource MediaSources} and resets the
@@ -461,6 +483,93 @@ public interface ExoPlayer extends Player {
    * @param mediaSources The {@link MediaSource MediaSources} to add.
    */
   void addMediaSources(int index, List<MediaSource> mediaSources);
+
+  /**
+   * Clears the playlist, adds the specified {@link MediaItem MediaItems} and resets the position to
+   * the default position.
+   *
+   * @param mediaItems The new {@link MediaItem MediaItems}.
+   */
+  void setMediaItems(List<MediaItem> mediaItems);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaItem MediaItems}.
+   *
+   * @param mediaItems The new {@link MediaItem MediaItems}.
+   * @param resetPosition Whether the playback position should be reset to the default position in
+   *     the first {@link Timeline.Window}. If false, playback will start from the position defined
+   *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
+   */
+  void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaItem MediaItems}.
+   *
+   * @param mediaItems The new {@link MediaItem MediaItems}.
+   * @param startWindowIndex The window index to start playback from. If {@link C#INDEX_UNSET} is
+   *     passed, the current position is not reset.
+   * @param startPositionMs The position in milliseconds to start playback from. If {@link
+   *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
+   *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
+   *     position is not reset at all.
+   */
+  void setMediaItems(List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs);
+
+  /**
+   * Clears the playlist, adds the specified {@link MediaItem} and resets the position to the
+   * default position.
+   *
+   * @param mediaItem The new {@link MediaItem}.
+   */
+  void setMediaItem(MediaItem mediaItem);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaItem}.
+   *
+   * @param mediaItem The new {@link MediaItem}.
+   * @param startPositionMs The position in milliseconds to start playback from.
+   */
+  void setMediaItem(MediaItem mediaItem, long startPositionMs);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaItem}.
+   *
+   * @param mediaItem The new {@link MediaItem}.
+   * @param resetPosition Whether the playback position should be reset to the default position. If
+   *     false, playback will start from the position defined by {@link #getCurrentWindowIndex()}
+   *     and {@link #getCurrentPosition()}.
+   */
+  void setMediaItem(MediaItem mediaItem, boolean resetPosition);
+
+  /**
+   * Adds a media item to the end of the playlist.
+   *
+   * @param mediaItem The {@link MediaItem} to add.
+   */
+  void addMediaItem(MediaItem mediaItem);
+
+  /**
+   * Adds a media item at the given index of the playlist.
+   *
+   * @param index The index at which to add the item.
+   * @param mediaItem The {@link MediaItem} to add.
+   */
+  void addMediaItem(int index, MediaItem mediaItem);
+
+  /**
+   * Adds a list of media items to the end of the playlist.
+   *
+   * @param mediaItems The {@link MediaItem MediaItems} to add.
+   */
+  void addMediaItems(List<MediaItem> mediaItems);
+
+  /**
+   * Adds a list of media items at the given index of the playlist.
+   *
+   * @param index The index at which to add the media items.
+   * @param mediaItems The {@link MediaItem MediaItems} to add.
+   */
+  void addMediaItems(int index, List<MediaItem> mediaItems);
 
   /**
    * Moves the media item at the current index to the new index.
