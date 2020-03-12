@@ -49,7 +49,7 @@ public final class TsExtractorTest {
   }
 
   @Test
-  public void testSampleScte35() throws Exception {
+  public void sampleScte35() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_scte35.ts");
   }
 
