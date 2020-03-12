@@ -15,11 +15,12 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataReader;
 import java.io.IOException;
 
 /** Extracts the contents of a container file from a progressive media stream. */
@@ -28,15 +29,16 @@ import java.io.IOException;
   /**
    * Initializes the underlying infrastructure for reading from the input.
    *
-   * @param dataSource The {@link DataSource} from which data should be read.
-   * @param position The initial position of the {@code dataSource} in the stream.
+   * @param dataReader The {@link DataReader} from which data should be read.
+   * @param uri The {@link Uri} from which the media is obtained.
+   * @param position The initial position of the {@code dataReader} in the stream.
    * @param length The length of the stream, or {@link C#LENGTH_UNSET} if length is unknown.
    * @param output The {@link ExtractorOutput} that will be used to initialize the selected
    *     extractor.
    * @throws UnrecognizedInputFormatException Thrown if the input format could not be detected.
    * @throws IOException Thrown if the input could not be read.
    */
-  void init(DataSource dataSource, long position, long length, ExtractorOutput output)
+  void init(DataReader dataReader, Uri uri, long position, long length, ExtractorOutput output)
       throws IOException;
 
   /** Releases any held resources. */
