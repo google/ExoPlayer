@@ -39,7 +39,7 @@ public class CastTimelineTrackerTest {
 
   /** Tests that duration of the current media info is correctly propagated to the timeline. */
   @Test
-  public void testGetCastTimelinePersistsDuration() {
+  public void getCastTimelinePersistsDuration() {
     CastTimelineTracker tracker = new CastTimelineTracker();
 
     RemoteMediaClient remoteMediaClient =

@@ -126,7 +126,7 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testBuilder_overridesPlayerType() {
+  public void builder_overridesPlayerType() {
     when(imaSdkSettings.getPlayerType()).thenReturn("test player type");
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
 
@@ -134,7 +134,7 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testStart_setsAdUiViewGroup() {
+  public void start_setsAdUiViewGroup() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
 
@@ -143,7 +143,7 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testStart_withPlaceholderContent_initializedAdsLoader() {
+  public void start_withPlaceholderContent_initializedAdsLoader() {
     Timeline placeholderTimeline = new DummyTimeline(/* tag= */ null);
     setupPlayback(placeholderTimeline, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
@@ -153,7 +153,7 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testStart_updatesAdPlaybackState() {
+  public void start_updatesAdPlaybackState() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
 
@@ -165,14 +165,14 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testStartAfterRelease() {
+  public void startAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.release();
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
   }
 
   @Test
-  public void testStartAndCallbacksAfterRelease() {
+  public void startAndCallbacksAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.release();
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
@@ -199,7 +199,7 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testPlayback_withPrerollAd_marksAdAsPlayed() {
+  public void playback_withPrerollAd_marksAdAsPlayed() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
 
     // Load the preroll ad.
@@ -239,7 +239,7 @@ public class ImaAdsLoaderTest {
   }
 
   @Test
-  public void testStop_unregistersAllVideoControlOverlays() {
+  public void stop_unregistersAllVideoControlOverlays() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_ADS_DURATIONS_US, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
     imaAdsLoader.requestAds(adViewGroup);
