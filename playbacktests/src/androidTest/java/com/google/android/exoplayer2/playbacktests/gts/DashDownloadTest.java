@@ -87,7 +87,7 @@ public final class DashDownloadTest {
   // Download tests
 
   @Test
-  public void testDownload() throws Exception {
+  public void download() throws Exception {
     DashDownloader dashDownloader = downloadContent();
     dashDownloader.download(/* progressListener= */ null);
 
