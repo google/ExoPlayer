@@ -19,6 +19,7 @@ import android.os.Handler;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.UnknownNull;
@@ -110,9 +111,10 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     Assertions.checkArgument(!childSources.containsKey(id));
     MediaSourceCaller caller =
         (source, timeline) -> onChildSourceInfoRefreshed(id, source, timeline);
-    MediaSourceEventListener eventListener = new ForwardingEventListener(id);
+    ForwardingEventListener eventListener = new ForwardingEventListener(id);
     childSources.put(id, new MediaSourceAndListener(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Assertions.checkNotNull(eventHandler), eventListener);
+    mediaSource.addDrmEventListener(Assertions.checkNotNull(eventHandler), eventListener);
     mediaSource.prepareSource(caller, mediaTransferListener);
     if (!isEnabled()) {
       mediaSource.disable(caller);
@@ -216,7 +218,8 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     }
   }
 
-  private final class ForwardingEventListener implements MediaSourceEventListener {
+  private final class ForwardingEventListener
+      implements MediaSourceEventListener, DrmSessionEventListener {
 
     @UnknownNull private final T id;
     private EventDispatcher eventDispatcher;
@@ -225,6 +228,8 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
       this.eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
       this.id = id;
     }
+
+    // MediaSourceEventListener implementation
 
     @Override
     public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
@@ -314,6 +319,50 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
         eventDispatcher.downstreamFormatChanged(maybeUpdateMediaLoadData(mediaLoadData));
       }
+    }
+
+    // DrmSessionEventListener implementation
+
+    @Override
+    public void onDrmSessionAcquired() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionAcquired(),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmKeysLoaded() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysLoaded(),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmSessionManagerError(Exception error) {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionManagerError(error),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmKeysRestored() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRestored(),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmKeysRemoved() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRemoved(),
+          DrmSessionEventListener.class);
+    }
+
+    @Override
+    public void onDrmSessionReleased() {
+      eventDispatcher.dispatch(
+          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionReleased(),
+          DrmSessionEventListener.class);
     }
 
     /** Updates the event dispatcher and returns whether the event should be dispatched. */
