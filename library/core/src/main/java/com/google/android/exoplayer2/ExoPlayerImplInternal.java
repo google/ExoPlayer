@@ -871,9 +871,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
 
     if (playbackInfo.playbackState == Player.STATE_BUFFERING) {
-      for (Renderer renderer : renderers) {
-        if (isRendererEnabled(renderer)) {
-          renderer.maybeThrowStreamError();
+      for (int i = 0; i < renderers.length; i++) {
+        if (isRendererEnabled(renderers[i])
+            && renderers[i].getStream() == playingPeriodHolder.sampleStreams[i]) {
+          renderers[i].maybeThrowStreamError();
         }
       }
     }
@@ -1042,8 +1043,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
         while (queue.getPlayingPeriod() != newPlayingPeriodHolder) {
           queue.advancePlayingPeriod();
         }
+        queue.removeAfter(newPlayingPeriodHolder);
         newPlayingPeriodHolder.setRendererOffset(/* rendererPositionOffsetUs= */ 0);
-        enablePlayingPeriodRenderers();
+        enableRenderers();
       }
     }
 
@@ -1669,6 +1671,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     maybeUpdateLoadingPeriod();
     maybeUpdateReadingPeriod();
+    maybeUpdateReadingRenderers();
     maybeUpdatePlayingPeriod();
   }
 
@@ -1704,7 +1707,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
-  private void maybeUpdateReadingPeriod() throws ExoPlaybackException {
+  private void maybeUpdateReadingPeriod() {
     @Nullable MediaPeriodHolder readingPeriodHolder = queue.getReadingPeriod();
     if (readingPeriodHolder == null) {
       return;
@@ -1733,8 +1736,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return;
     }
 
-    if (!readingPeriodHolder.getNext().prepared) {
-      // The successor is not prepared yet.
+    if (!readingPeriodHolder.getNext().prepared
+        && rendererPositionUs < readingPeriodHolder.getNext().getStartPositionRendererTime()) {
+      // The successor is not prepared yet and playback hasn't reached the transition point.
       return;
     }
 
@@ -1742,45 +1746,75 @@ import java.util.concurrent.atomic.AtomicBoolean;
     readingPeriodHolder = queue.advanceReadingPeriod();
     TrackSelectorResult newTrackSelectorResult = readingPeriodHolder.getTrackSelectorResult();
 
-    if (readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET) {
+    if (readingPeriodHolder.prepared
+        && readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET) {
       // The new period starts with a discontinuity, so the renderers will play out all data, then
       // be disabled and re-enabled when they start playing the next period.
       setAllRendererStreamsFinal();
       return;
     }
     for (int i = 0; i < renderers.length; i++) {
-      Renderer renderer = renderers[i];
-      boolean rendererWasEnabled = oldTrackSelectorResult.isRendererEnabled(i);
-      if (rendererWasEnabled && !renderer.isCurrentStreamFinal()) {
-        // The renderer is enabled and its stream is not final, so we still have a chance to replace
-        // the sample streams.
-        TrackSelection newSelection = newTrackSelectorResult.selections.get(i);
-        boolean newRendererEnabled = newTrackSelectorResult.isRendererEnabled(i);
+      boolean oldRendererEnabled = oldTrackSelectorResult.isRendererEnabled(i);
+      boolean newRendererEnabled = newTrackSelectorResult.isRendererEnabled(i);
+      if (oldRendererEnabled && !renderers[i].isCurrentStreamFinal()) {
         boolean isNoSampleRenderer = rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_NONE;
         RendererConfiguration oldConfig = oldTrackSelectorResult.rendererConfigurations[i];
         RendererConfiguration newConfig = newTrackSelectorResult.rendererConfigurations[i];
-        if (newRendererEnabled && newConfig.equals(oldConfig) && !isNoSampleRenderer) {
-          // Replace the renderer's SampleStream so the transition to playing the next period can
-          // be seamless.
-          // This should be avoided for no-sample renderer, because skipping ahead for such
-          // renderer doesn't have any benefit (the renderer does not consume the sample stream),
-          // and it will change the provided rendererOffsetUs while the renderer is still
-          // rendering from the playing media period.
-          Format[] formats = getFormats(newSelection);
-          renderer.replaceStream(
-              formats,
-              readingPeriodHolder.sampleStreams[i],
-              readingPeriodHolder.getRendererOffset());
-        } else {
+        if (!newRendererEnabled || !newConfig.equals(oldConfig) || isNoSampleRenderer) {
           // The renderer will be disabled when transitioning to playing the next period, because
           // there's no new selection, or because a configuration change is required, or because
           // it's a no-sample renderer for which rendererOffsetUs should be updated only when
           // starting to play the next period. Mark the SampleStream as final to play out any
           // remaining data.
-          renderer.setCurrentStreamFinal();
+          renderers[i].setCurrentStreamFinal();
         }
       }
     }
+  }
+
+  private void maybeUpdateReadingRenderers() throws ExoPlaybackException {
+    @Nullable MediaPeriodHolder readingPeriod = queue.getReadingPeriod();
+    if (readingPeriod == null
+        || queue.getPlayingPeriod() == readingPeriod
+        || readingPeriod.allRenderersEnabled) {
+      // Not reading ahead or all renderers updated.
+      return;
+    }
+    if (replaceStreamsOrDisableRendererForTransition()) {
+      enableRenderers();
+    }
+  }
+
+  private boolean replaceStreamsOrDisableRendererForTransition() throws ExoPlaybackException {
+    MediaPeriodHolder readingPeriodHolder = queue.getReadingPeriod();
+    TrackSelectorResult newTrackSelectorResult = readingPeriodHolder.getTrackSelectorResult();
+    boolean needsToWaitForRendererToEnd = false;
+    for (int i = 0; i < renderers.length; i++) {
+      Renderer renderer = renderers[i];
+      if (!isRendererEnabled(renderer)) {
+        continue;
+      }
+      boolean rendererIsReadingOldStream =
+          renderer.getStream() != readingPeriodHolder.sampleStreams[i];
+      boolean rendererShouldBeEnabled = newTrackSelectorResult.isRendererEnabled(i);
+      if (rendererShouldBeEnabled && !rendererIsReadingOldStream) {
+        // All done.
+        continue;
+      }
+      if (!renderer.isCurrentStreamFinal()) {
+        // The renderer stream is not final, so we can replace the sample streams immediately.
+        Format[] formats = getFormats(newTrackSelectorResult.selections.get(i));
+        renderer.replaceStream(
+            formats, readingPeriodHolder.sampleStreams[i], readingPeriodHolder.getRendererOffset());
+      } else if (renderer.isEnded()) {
+        // The renderer has finished playback, so we can disable it now.
+        disableRenderer(renderer);
+      } else {
+        // We need to wait until rendering finished before disabling the renderer.
+        needsToWaitForRendererToEnd = true;
+      }
+    }
+    return !needsToWaitForRendererToEnd;
   }
 
   private void maybeUpdatePlayingPeriod() throws ExoPlaybackException {
@@ -1791,13 +1825,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         maybeNotifyPlaybackInfoChanged();
       }
       MediaPeriodHolder oldPlayingPeriodHolder = queue.getPlayingPeriod();
-      if (oldPlayingPeriodHolder == queue.getReadingPeriod()) {
-        // The reading period hasn't advanced yet, so we can't seamlessly replace the SampleStreams
-        // anymore and need to re-enable the renderers. Set all current streams final to do that.
-        setAllRendererStreamsFinal();
-      }
-      boolean[] rendererWasEnabledFlags = new boolean[renderers.length];
-      disablePlayingPeriodRenderersForTransition(rendererWasEnabledFlags);
       MediaPeriodHolder newPlayingPeriodHolder = queue.advancePlayingPeriod();
       playbackInfo =
           handlePositionDiscontinuity(
@@ -1810,7 +1837,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
               : Player.DISCONTINUITY_REASON_AD_INSERTION;
       playbackInfoUpdate.setPositionDiscontinuity(discontinuityReason);
       resetPendingPauseAtEndOfPeriod();
-      enableRenderers(rendererWasEnabledFlags);
       updatePlaybackPositions();
       advancedPlayingPeriod = true;
     }
@@ -1834,14 +1860,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       return false;
     }
     MediaPeriodHolder nextPlayingPeriodHolder = playingPeriodHolder.getNext();
-    if (nextPlayingPeriodHolder == null) {
-      return false;
-    }
-    MediaPeriodHolder readingPeriodHolder = queue.getReadingPeriod();
-    if (playingPeriodHolder == readingPeriodHolder && !hasReadingPeriodFinishedReading()) {
-      return false;
-    }
-    return rendererPositionUs >= nextPlayingPeriodHolder.getStartPositionRendererTime();
+    return nextPlayingPeriodHolder != null
+        && rendererPositionUs >= nextPlayingPeriodHolder.getStartPositionRendererTime()
+        && nextPlayingPeriodHolder.allRenderersEnabled;
   }
 
   private boolean hasReadingPeriodFinishedReading() {
@@ -1881,7 +1902,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (loadingPeriodHolder == queue.getPlayingPeriod()) {
       // This is the first prepared period, so update the position and the renderers.
       resetRendererPosition(loadingPeriodHolder.info.startPositionUs);
-      enablePlayingPeriodRenderers();
+      enableRenderers();
       playbackInfo =
           handlePositionDiscontinuity(
               playbackInfo.periodId,
@@ -1992,32 +2013,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
         trackSelectorResult);
   }
 
-  private void disablePlayingPeriodRenderersForTransition(boolean[] outRendererWasEnabledFlags)
-      throws ExoPlaybackException {
-    MediaPeriodHolder oldPlayingPeriodHolder = Assertions.checkNotNull(queue.getPlayingPeriod());
-    MediaPeriodHolder newPlayingPeriodHolder =
-        Assertions.checkNotNull(oldPlayingPeriodHolder.getNext());
-    for (int i = 0; i < renderers.length; i++) {
-      Renderer renderer = renderers[i];
-      outRendererWasEnabledFlags[i] = isRendererEnabled(renderer);
-      if (outRendererWasEnabledFlags[i]
-          && (!newPlayingPeriodHolder.getTrackSelectorResult().isRendererEnabled(i)
-              || (renderer.isCurrentStreamFinal()
-                  && renderer.getStream() == oldPlayingPeriodHolder.sampleStreams[i]))) {
-        // The renderer should be disabled before playing the next period, either because it's not
-        // needed to play the next period, or because we need to re-enable it as its current stream
-        // is final and it's not reading ahead.
-        disableRenderer(renderer);
-      }
-    }
-  }
-
-  private void enablePlayingPeriodRenderers() throws ExoPlaybackException {
+  private void enableRenderers() throws ExoPlaybackException {
     enableRenderers(/* rendererWasEnabledFlags= */ new boolean[renderers.length]);
   }
 
   private void enableRenderers(boolean[] rendererWasEnabledFlags) throws ExoPlaybackException {
-    TrackSelectorResult trackSelectorResult = queue.getPlayingPeriod().getTrackSelectorResult();
+    MediaPeriodHolder readingMediaPeriod = queue.getReadingPeriod();
+    TrackSelectorResult trackSelectorResult = readingMediaPeriod.getTrackSelectorResult();
     // Reset all disabled renderers before enabling any new ones. This makes sure resources released
     // by the disabled renderers will be available to renderers that are being enabled.
     for (int i = 0; i < renderers.length; i++) {
@@ -2031,6 +2033,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         enableRenderer(i, rendererWasEnabledFlags[i]);
       }
     }
+    readingMediaPeriod.allRenderersEnabled = true;
   }
 
   private void enableRenderer(int rendererIndex, boolean wasRendererEnabled)
@@ -2039,8 +2042,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (isRendererEnabled(renderer)) {
       return;
     }
-    MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
-    TrackSelectorResult trackSelectorResult = playingPeriodHolder.getTrackSelectorResult();
+    MediaPeriodHolder periodHolder = queue.getReadingPeriod();
+    boolean mayRenderStartOfStream = periodHolder == queue.getPlayingPeriod();
+    TrackSelectorResult trackSelectorResult = periodHolder.getTrackSelectorResult();
     RendererConfiguration rendererConfiguration =
         trackSelectorResult.rendererConfigurations[rendererIndex];
     TrackSelection newSelection = trackSelectorResult.selections.get(rendererIndex);
@@ -2054,11 +2058,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
     renderer.enable(
         rendererConfiguration,
         formats,
-        playingPeriodHolder.sampleStreams[rendererIndex],
+        periodHolder.sampleStreams[rendererIndex],
         rendererPositionUs,
         joining,
-        /* mayRenderStartOfStream= */ true,
-        playingPeriodHolder.getRendererOffset());
+        mayRenderStartOfStream,
+        periodHolder.getRendererOffset());
     mediaClock.onRendererEnabled(renderer);
     // Start the renderer if playing.
     if (playing) {
