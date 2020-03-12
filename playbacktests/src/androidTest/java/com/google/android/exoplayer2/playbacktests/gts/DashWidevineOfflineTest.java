@@ -98,7 +98,7 @@ public final class DashWidevineOfflineTest {
   // Offline license tests
 
   @Test
-  public void testWidevineOfflineLicenseV22() throws Exception {
+  public void widevineOfflineLicenseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -111,7 +111,7 @@ public final class DashWidevineOfflineTest {
   }
 
   @Test
-  public void testWidevineOfflineReleasedLicenseV22() throws Throwable {
+  public void widevineOfflineReleasedLicenseV22() throws Throwable {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -138,7 +138,7 @@ public final class DashWidevineOfflineTest {
   }
 
   @Test
-  public void testWidevineOfflineExpiredLicenseV22() throws Exception {
+  public void widevineOfflineExpiredLicenseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
@@ -168,7 +168,7 @@ public final class DashWidevineOfflineTest {
   }
 
   @Test
-  public void testWidevineOfflineLicenseExpiresOnPauseV22() throws Exception {
+  public void widevineOfflineLicenseExpiresOnPauseV22() throws Exception {
     if (Util.SDK_INT < 22) {
       return; // Pass.
     }
