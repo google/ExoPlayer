@@ -36,7 +36,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testSample() throws Exception {
+  public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear.flac",
@@ -45,7 +45,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testSampleWithId3HeaderAndId3Enabled() throws Exception {
+  public void sampleWithId3HeaderAndId3Enabled() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_with_id3.flac",
@@ -54,7 +54,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testSampleWithId3HeaderAndId3Disabled() throws Exception {
+  public void sampleWithId3HeaderAndId3Disabled() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new FlacExtractor(FlacExtractor.FLAG_DISABLE_ID3_METADATA),
         /* file= */ "flac/bear_with_id3.flac",
@@ -63,7 +63,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testSampleUnseekable() throws Exception {
+  public void sampleUnseekable() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_no_seek_table_no_num_samples.flac",
@@ -72,7 +72,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testSampleWithVorbisComments() throws Exception {
+  public void sampleWithVorbisComments() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_with_vorbis_comments.flac",
@@ -81,7 +81,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testSampleWithPicture() throws Exception {
+  public void sampleWithPicture() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_with_picture.flac",
@@ -90,7 +90,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testOneMetadataBlock() throws Exception {
+  public void oneMetadataBlock() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_one_metadata_block.flac",
@@ -99,7 +99,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testNoMinMaxFrameSize() throws Exception {
+  public void noMinMaxFrameSize() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_no_min_max_frame_size.flac",
@@ -108,7 +108,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testNoNumSamples() throws Exception {
+  public void noNumSamples() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_no_num_samples.flac",
@@ -117,7 +117,7 @@ public class FlacExtractorTest {
   }
 
   @Test
-  public void testUncommonSampleRate() throws Exception {
+  public void uncommonSampleRate() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_uncommon_sample_rate.flac",

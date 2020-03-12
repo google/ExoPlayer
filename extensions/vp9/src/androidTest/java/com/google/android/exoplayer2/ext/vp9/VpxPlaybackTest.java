@@ -57,12 +57,12 @@ public class VpxPlaybackTest {
   }
 
   @Test
-  public void testBasicPlayback() throws Exception {
+  public void basicPlayback() throws Exception {
     playUri(BEAR_URI);
   }
 
   @Test
-  public void testOddDimensionsPlayback() throws Exception {
+  public void oddDimensionsPlayback() throws Exception {
     playUri(BEAR_ODD_DIMENSIONS_URI);
   }
 
@@ -77,7 +77,7 @@ public class VpxPlaybackTest {
   }
 
   @Test
-  public void testInvalidBitstream() {
+  public void invalidBitstream() {
     try {
       playUri(INVALID_BITSTREAM_URI);
       fail();

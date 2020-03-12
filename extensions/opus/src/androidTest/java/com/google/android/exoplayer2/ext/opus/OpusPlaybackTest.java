@@ -48,7 +48,7 @@ public class OpusPlaybackTest {
   }
 
   @Test
-  public void testBasicPlayback() throws Exception {
+  public void basicPlayback() throws Exception {
     playUri(BEAR_OPUS_URI);
   }
 
