@@ -66,7 +66,7 @@ public class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void testCreateMediaSource_withPath_hlsSource() {
+  public void createMediaSource_withPath_hlsSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + "/file.m3u8").build();

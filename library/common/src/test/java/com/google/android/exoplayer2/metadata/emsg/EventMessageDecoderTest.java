@@ -54,7 +54,7 @@ public final class EventMessageDecoderTest {
   }
 
   @Test
-  public void testDecodeEventMessage_failsIfPositionNonZero() {
+  public void decodeEventMessage_failsIfPositionNonZero() {
     EventMessageDecoder decoder = new EventMessageDecoder();
     MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
     buffer.data.position(1);
@@ -63,7 +63,7 @@ public final class EventMessageDecoderTest {
   }
 
   @Test
-  public void testDecodeEventMessage_failsIfBufferHasNoArray() {
+  public void decodeEventMessage_failsIfBufferHasNoArray() {
     EventMessageDecoder decoder = new EventMessageDecoder();
     MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
     buffer.data = buffer.data.asReadOnlyBuffer();
@@ -72,7 +72,7 @@ public final class EventMessageDecoderTest {
   }
 
   @Test
-  public void testDecodeEventMessage_failsIfArrayOffsetNonZero() {
+  public void decodeEventMessage_failsIfArrayOffsetNonZero() {
     EventMessageDecoder decoder = new EventMessageDecoder();
     MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
     buffer.data.position(1);

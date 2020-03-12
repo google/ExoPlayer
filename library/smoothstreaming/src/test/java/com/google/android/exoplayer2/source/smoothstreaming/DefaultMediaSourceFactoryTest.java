@@ -77,7 +77,7 @@ public class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void testCreateMediaSource_withManifestPath_smoothstreamingSource() {
+  public void createMediaSource_withManifestPath_smoothstreamingSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + ".ism/Manifest").build();
