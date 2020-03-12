@@ -21,7 +21,6 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Event dispatcher which forwards events to a list of registered listeners.
@@ -51,21 +50,21 @@ public class MediaSourceEventDispatcher {
   @Nullable public final MediaPeriodId mediaPeriodId;
 
   // TODO: Make these private when MediaSourceEventListener.EventDispatcher is deleted.
-  protected final CopyOnWriteArrayList<ListenerAndHandler> listenerAndHandlers;
+  protected final CopyOnWriteMultiset<ListenerAndHandler> listenerAndHandlers;
   // TODO: Define exactly what this means, and check it's always set correctly.
   protected final long mediaTimeOffsetMs;
 
   /** Creates an event dispatcher. */
   public MediaSourceEventDispatcher() {
     this(
-        /* listenerAndHandlers= */ new CopyOnWriteArrayList<>(),
+        /* listenerAndHandlers= */ new CopyOnWriteMultiset<>(),
         /* windowIndex= */ 0,
         /* mediaPeriodId= */ null,
         /* mediaTimeOffsetMs= */ 0);
   }
 
   protected MediaSourceEventDispatcher(
-      CopyOnWriteArrayList<ListenerAndHandler> listenerAndHandlers,
+      CopyOnWriteMultiset<ListenerAndHandler> listenerAndHandlers,
       int windowIndex,
       @Nullable MediaPeriodId mediaPeriodId,
       long mediaTimeOffsetMs) {
@@ -119,7 +118,7 @@ public class MediaSourceEventDispatcher {
   /** Dispatches {@code event} to all registered listeners of type {@code listenerClass}. */
   @SuppressWarnings("unchecked") // The cast is gated with listenerClass.isInstance()
   public <T> void dispatch(EventWithPeriodId<T> event, Class<T> listenerClass) {
-    for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+    for (ListenerAndHandler listenerAndHandler : listenerAndHandlers.elementSet()) {
       if (listenerClass.isInstance(listenerAndHandler.listener)) {
         postOrRun(
             listenerAndHandler.handler,
@@ -150,6 +149,26 @@ public class MediaSourceEventDispatcher {
     public ListenerAndHandler(Handler handler, Object listener) {
       this.handler = handler;
       this.listener = listener;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof ListenerAndHandler)) {
+        return false;
+      }
+
+      // We deliberately only consider listener (and not handler) in equals() and hashcode()
+      // because the handler used to process the callbacks is an implementation detail.
+      ListenerAndHandler that = (ListenerAndHandler) o;
+      return listener.equals(that.listener);
+    }
+
+    @Override
+    public int hashCode() {
+      return listener.hashCode();
     }
   }
 }

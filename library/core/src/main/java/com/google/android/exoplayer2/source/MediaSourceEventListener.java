@@ -23,12 +23,12 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.CopyOnWriteMultiset;
 import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Interface for callbacks to be notified of {@link MediaSource} events. */
 public interface MediaSourceEventListener {
@@ -173,8 +173,8 @@ public interface MediaSourceEventListener {
       super();
     }
 
-    public EventDispatcher(
-        CopyOnWriteArrayList<ListenerAndHandler> listeners,
+    private EventDispatcher(
+        CopyOnWriteMultiset<ListenerAndHandler> listeners,
         int windowIndex,
         @Nullable MediaPeriodId mediaPeriodId,
         long mediaTimeOffsetMs) {
