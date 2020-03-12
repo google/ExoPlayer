@@ -665,6 +665,8 @@ public class EventLogger implements AnalyticsListener {
         return "REMOTE";
       case Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST:
         return "USER_REQUEST";
+      case Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM:
+        return "END_OF_MEDIA_ITEM";
       default:
         return "?";
     }

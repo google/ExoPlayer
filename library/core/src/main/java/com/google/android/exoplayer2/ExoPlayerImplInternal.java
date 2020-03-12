@@ -845,12 +845,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 || playingPeriodDurationUs <= playbackInfo.positionUs);
     if (finishedRendering && pendingPauseAtEndOfPeriod) {
       pendingPauseAtEndOfPeriod = false;
-      // TODO: Add new change reason for timed pause requests.
       setPlayWhenReadyInternal(
           /* playWhenReady= */ false,
           playbackInfo.playbackSuppressionReason,
           /* operationAck= */ false,
-          Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+          Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM);
     }
     if (finishedRendering && playingPeriodHolder.info.isFinal) {
       setState(Player.STATE_ENDED);
@@ -1548,7 +1547,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     long playingPeriodDurationUs = playingPeriodHolder.info.durationUs;
     return playingPeriodHolder.prepared
         && (playingPeriodDurationUs == C.TIME_UNSET
-            || playbackInfo.positionUs < playingPeriodDurationUs);
+            || playbackInfo.positionUs < playingPeriodDurationUs
+            || !shouldPlayWhenReady());
   }
 
   private void maybeThrowSourceInfoRefreshError() throws IOException {

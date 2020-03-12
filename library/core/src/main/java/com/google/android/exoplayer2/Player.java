@@ -603,8 +603,9 @@ public interface Player {
    * Reasons for {@link #getPlayWhenReady() playWhenReady} changes. One of {@link
    * #PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST}, {@link
    * #PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS}, {@link
-   * #PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY} or {@link
-   * #PLAY_WHEN_READY_CHANGE_REASON_REMOTE}.
+   * #PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY}, {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_REMOTE} or {@link
+   * #PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -612,10 +613,11 @@ public interface Player {
     PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
     PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS,
     PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY,
-    PLAY_WHEN_READY_CHANGE_REASON_REMOTE
+    PLAY_WHEN_READY_CHANGE_REASON_REMOTE,
+    PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM
   })
   @interface PlayWhenReadyChangeReason {}
-  /** Playback has been started or paused by the user. */
+  /** Playback has been started or paused by a call to {@link #setPlayWhenReady(boolean)}. */
   int PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST = 1;
   /** Playback has been paused because of a loss of audio focus. */
   int PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS = 2;
@@ -623,6 +625,8 @@ public interface Player {
   int PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY = 3;
   /** Playback has been started or paused because of a remote change. */
   int PLAY_WHEN_READY_CHANGE_REASON_REMOTE = 4;
+  /** Playback has been paused at the end of a media item. */
+  int PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM = 5;
 
   /**
    * Reason why playback is suppressed even though {@link #getPlayWhenReady()} is {@code true}. One

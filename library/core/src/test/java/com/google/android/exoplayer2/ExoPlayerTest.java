@@ -5990,6 +5990,85 @@ public final class ExoPlayerTest {
     assertThat(windowIndexAfterFinalEndedState.get()).isEqualTo(1);
   }
 
+  @Test
+  public void pauseAtEndOfMediaItems_pausesPlaybackBeforeTransitioningToTheNextItem()
+      throws Exception {
+    TimelineWindowDefinition timelineWindowDefinition =
+        new TimelineWindowDefinition(
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* durationUs= */ 10 * C.MICROS_PER_SECOND);
+    MediaSource mediaSource = new FakeMediaSource(new FakeTimeline(timelineWindowDefinition));
+    AtomicInteger playbackStateAfterPause = new AtomicInteger(C.INDEX_UNSET);
+    AtomicLong positionAfterPause = new AtomicLong(C.TIME_UNSET);
+    AtomicInteger windowIndexAfterPause = new AtomicInteger(C.INDEX_UNSET);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .waitForPlayWhenReady(true)
+            .waitForPlayWhenReady(false)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playbackStateAfterPause.set(player.getPlaybackState());
+                    windowIndexAfterPause.set(player.getCurrentWindowIndex());
+                    positionAfterPause.set(player.getContentPosition());
+                  }
+                })
+            .play()
+            .build();
+    new Builder()
+        .setPauseAtEndOfMediaItems(true)
+        .setMediaSources(mediaSource, mediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(playbackStateAfterPause.get()).isEqualTo(Player.STATE_READY);
+    assertThat(windowIndexAfterPause.get()).isEqualTo(0);
+    assertThat(positionAfterPause.get()).isEqualTo(10_000);
+  }
+
+  @Test
+  public void pauseAtEndOfMediaItems_pausesPlaybackWhenEnded() throws Exception {
+    TimelineWindowDefinition timelineWindowDefinition =
+        new TimelineWindowDefinition(
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* durationUs= */ 10 * C.MICROS_PER_SECOND);
+    MediaSource mediaSource = new FakeMediaSource(new FakeTimeline(timelineWindowDefinition));
+    AtomicInteger playbackStateAfterPause = new AtomicInteger(C.INDEX_UNSET);
+    AtomicLong positionAfterPause = new AtomicLong(C.TIME_UNSET);
+    AtomicInteger windowIndexAfterPause = new AtomicInteger(C.INDEX_UNSET);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .waitForPlayWhenReady(true)
+            .waitForPlayWhenReady(false)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playbackStateAfterPause.set(player.getPlaybackState());
+                    windowIndexAfterPause.set(player.getCurrentWindowIndex());
+                    positionAfterPause.set(player.getContentPosition());
+                  }
+                })
+            .build();
+    new Builder()
+        .setPauseAtEndOfMediaItems(true)
+        .setMediaSources(mediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(playbackStateAfterPause.get()).isEqualTo(Player.STATE_ENDED);
+    assertThat(windowIndexAfterPause.get()).isEqualTo(0);
+    assertThat(positionAfterPause.get()).isEqualTo(10_000);
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {

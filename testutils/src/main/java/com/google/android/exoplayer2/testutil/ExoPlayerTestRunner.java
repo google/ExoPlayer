@@ -93,6 +93,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     private AnalyticsListener analyticsListener;
     private Integer expectedPlayerEndedCount;
     private boolean useLazyPreparation;
+    private boolean pauseAtEndOfMediaItems;
     private int initialWindowIndex;
     private long initialPositionMs;
     private boolean skipSettingMediaSources;
@@ -191,6 +192,17 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
      */
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
       this.useLazyPreparation = useLazyPreparation;
+      return this;
+    }
+
+    /**
+     * Sets whether to enable pausing at the end of media items.
+     *
+     * @param pauseAtEndOfMediaItems Whether to pause at the end of media items.
+     * @return This builder.
+     */
+    public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
+      this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
       return this;
     }
 
@@ -385,6 +397,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
           mediaSources,
           skipSettingMediaSources,
           useLazyPreparation,
+          pauseAtEndOfMediaItems,
           renderersFactory,
           trackSelector,
           loadControl,
@@ -420,6 +433,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private final ArrayList<Integer> playbackStates;
   private final boolean skipSettingMediaSources;
   private final boolean useLazyPreparation;
+  private final boolean pauseAtEndOfMediaItems;
 
   private SimpleExoPlayer player;
   private Exception exception;
@@ -434,6 +448,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
       List<MediaSource> mediaSources,
       boolean skipSettingMediaSources,
       boolean useLazyPreparation,
+      boolean pauseAtEndOfMediaItems,
       RenderersFactory renderersFactory,
       DefaultTrackSelector trackSelector,
       LoadControl loadControl,
@@ -449,6 +464,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     this.mediaSources = mediaSources;
     this.skipSettingMediaSources = skipSettingMediaSources;
     this.useLazyPreparation = useLazyPreparation;
+    this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     this.renderersFactory = renderersFactory;
     this.trackSelector = trackSelector;
     this.loadControl = loadControl;
@@ -508,6 +524,9 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
             }
             if (analyticsListener != null) {
               player.addAnalyticsListener(analyticsListener);
+            }
+            if (pauseAtEndOfMediaItems) {
+              player.setPauseAtEndOfMediaItems(true);
             }
             player.play();
             if (actionSchedule != null) {
