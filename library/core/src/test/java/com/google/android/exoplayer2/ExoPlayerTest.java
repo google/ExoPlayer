@@ -963,8 +963,8 @@ public final class ExoPlayerTest {
                     throw new IllegalStateException(e);
                   }
                 })
-            // Set playback parameters (while the fake media period is not yet prepared).
-            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2f))
+            // Set playback speed (while the fake media period is not yet prepared).
+            .setPlaybackSpeed(2f)
             // Complete preparation of the fake media period.
             .executeRunnable(() -> fakeMediaPeriodHolder[0].setPreparationComplete())
             .build();
@@ -3177,17 +3177,17 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .setPlaybackParameters(new PlaybackParameters(1.1f))
-            .setPlaybackParameters(new PlaybackParameters(1.2f))
-            .setPlaybackParameters(new PlaybackParameters(1.3f))
+            .setPlaybackSpeed(1.1f)
+            .setPlaybackSpeed(1.2f)
+            .setPlaybackSpeed(1.3f)
             .play()
             .build();
-    List<PlaybackParameters> reportedPlaybackParameters = new ArrayList<>();
+    List<Float> reportedPlaybackSpeeds = new ArrayList<>();
     EventListener listener =
         new EventListener() {
           @Override
-          public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-            reportedPlaybackParameters.add(playbackParameters);
+          public void onPlaybackSpeedChanged(float playbackSpeed) {
+            reportedPlaybackSpeeds.add(playbackSpeed);
           }
         };
     new ExoPlayerTestRunner.Builder()
@@ -3197,12 +3197,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilEnded(TIMEOUT_MS);
 
-    assertThat(reportedPlaybackParameters)
-        .containsExactly(
-            new PlaybackParameters(1.1f),
-            new PlaybackParameters(1.2f),
-            new PlaybackParameters(1.3f))
-        .inOrder();
+    assertThat(reportedPlaybackSpeeds).containsExactly(1.1f, 1.2f, 1.3f).inOrder();
   }
 
   @Test
@@ -3228,17 +3223,17 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .setPlaybackParameters(new PlaybackParameters(1.1f))
-            .setPlaybackParameters(new PlaybackParameters(1.2f))
-            .setPlaybackParameters(new PlaybackParameters(1.3f))
+            .setPlaybackSpeed(1.1f)
+            .setPlaybackSpeed(1.2f)
+            .setPlaybackSpeed(1.3f)
             .play()
             .build();
-    List<PlaybackParameters> reportedPlaybackParameters = new ArrayList<>();
+    List<Float> reportedPlaybackParameters = new ArrayList<>();
     EventListener listener =
         new EventListener() {
           @Override
-          public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-            reportedPlaybackParameters.add(playbackParameters);
+          public void onPlaybackSpeedChanged(float playbackSpeed) {
+            reportedPlaybackParameters.add(playbackSpeed);
           }
         };
     new ExoPlayerTestRunner.Builder()
@@ -3251,11 +3246,7 @@ public final class ExoPlayerTest {
         .blockUntilEnded(TIMEOUT_MS);
 
     assertThat(reportedPlaybackParameters)
-        .containsExactly(
-            new PlaybackParameters(1.1f),
-            new PlaybackParameters(1.2f),
-            new PlaybackParameters(1.3f),
-            PlaybackParameters.DEFAULT)
+        .containsExactly(1.1f, 1.2f, 1.3f, Player.DEFAULT_PLAYBACK_SPEED)
         .inOrder();
   }
 
