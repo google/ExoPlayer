@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
@@ -136,6 +137,37 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public void setMediaItem(MediaItem mediaItem) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaItems(List<MediaItem> mediaItems) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setMediaItems(
+      List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setMediaSource(MediaSource mediaSource) {
     throw new UnsupportedOperationException();
   }
@@ -163,6 +195,26 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   @Override
   public void setMediaSources(
       List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaItem(MediaItem mediaItem) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaItem(int index, MediaItem mediaItem) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaItems(List<MediaItem> mediaItems) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void addMediaItems(int index, List<MediaItem> mediaItems) {
     throw new UnsupportedOperationException();
   }
 

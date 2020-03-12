@@ -18,6 +18,7 @@ package com.google.android.exoplayer2;
 import android.content.Context;
 import android.os.Looper;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -197,6 +198,7 @@ public final class ExoPlayerFactory {
         context,
         renderersFactory,
         trackSelector,
+        DefaultMediaSourceFactory.newInstance(context),
         loadControl,
         bandwidthMeter,
         analyticsCollector,
@@ -251,6 +253,7 @@ public final class ExoPlayerFactory {
     return new ExoPlayerImpl(
         renderers,
         trackSelector,
+        DefaultMediaSourceFactory.newInstance(context),
         loadControl,
         bandwidthMeter,
         /* analyticsCollector= */ null,
