@@ -57,7 +57,7 @@ public class DefaultLoadControl implements LoadControl {
   public static final int DEFAULT_TARGET_BUFFER_BYTES = C.LENGTH_UNSET;
 
   /** The default prioritization of buffer time constraints over size constraints. */
-  public static final boolean DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS = true;
+  public static final boolean DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS = false;
 
   /** The default back buffer duration in milliseconds. */
   public static final int DEFAULT_BACK_BUFFER_DURATION_MS = 0;
@@ -66,10 +66,10 @@ public class DefaultLoadControl implements LoadControl {
   public static final boolean DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME = false;
 
   /** A default size in bytes for a video buffer. */
-  public static final int DEFAULT_VIDEO_BUFFER_SIZE = 500 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
+  public static final int DEFAULT_VIDEO_BUFFER_SIZE = 2000 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
 
   /** A default size in bytes for an audio buffer. */
-  public static final int DEFAULT_AUDIO_BUFFER_SIZE = 54 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
+  public static final int DEFAULT_AUDIO_BUFFER_SIZE = 200 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
 
   /** A default size in bytes for a text buffer. */
   public static final int DEFAULT_TEXT_BUFFER_SIZE = 2 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
