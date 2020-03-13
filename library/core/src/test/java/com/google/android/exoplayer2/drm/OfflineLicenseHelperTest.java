@@ -25,6 +25,7 @@ import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import java.util.HashMap;
 import org.junit.After;
 import org.junit.Before;
@@ -55,6 +56,7 @@ public class OfflineLicenseHelperTest {
             C.WIDEVINE_UUID,
             new ExoMediaDrm.AppManagedProvider<>(mediaDrm),
             mediaDrmCallback,
+            new DefaultLoadErrorHandlingPolicy(),
             null);
   }
 

@@ -21,13 +21,16 @@ import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Collections;
 import java.util.Map;
@@ -58,7 +61,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
       String defaultLicenseUrl, Factory httpDataSourceFactory)
       throws UnsupportedDrmException {
-    return newWidevineInstance(defaultLicenseUrl, false, httpDataSourceFactory, null);
+    return newWidevineInstance(defaultLicenseUrl, false, httpDataSourceFactory,
+        new DefaultLoadErrorHandlingPolicy(), null);
   }
 
   /**
@@ -78,7 +82,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
       String defaultLicenseUrl, boolean forceDefaultLicenseUrl, Factory httpDataSourceFactory)
       throws UnsupportedDrmException {
     return newWidevineInstance(defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory,
-        null);
+        new DefaultLoadErrorHandlingPolicy(), null);
   }
 
   /**
@@ -89,6 +93,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    *     their own license URL.
    * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
    *     include their own license URL.
+   * @param loadErrorHandlingPolicy The load error handling policy for key and provisioning
+   *     requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link MediaDrm#getKeyRequest}. May be null.
    * @return A new instance which uses Widevine CDM.
@@ -100,12 +106,14 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
       Factory httpDataSourceFactory,
+      @NonNull LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       @Nullable Map<String, String> optionalKeyRequestParameters)
       throws UnsupportedDrmException {
     return new OfflineLicenseHelper<>(
         C.WIDEVINE_UUID,
         FrameworkMediaDrm.DEFAULT_PROVIDER,
         new HttpMediaDrmCallback(defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory),
+        loadErrorHandlingPolicy,
         optionalKeyRequestParameters);
   }
 
@@ -115,6 +123,8 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param uuid The UUID of the drm scheme.
    * @param mediaDrmProvider A {@link ExoMediaDrm.Provider}.
    * @param callback Performs key and provisioning requests.
+   * @param loadErrorHandlingPolicy The load error handling policy for key and provisioning
+   *    *     requests.
    * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
    *     to {@link MediaDrm#getKeyRequest}. May be null.
    * @see DefaultDrmSessionManager.Builder
@@ -124,6 +134,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
       UUID uuid,
       ExoMediaDrm.Provider<T> mediaDrmProvider,
       MediaDrmCallback callback,
+      @NonNull LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       @Nullable Map<String, String> optionalKeyRequestParameters) {
     handlerThread = new HandlerThread("OfflineLicenseHelper");
     handlerThread.start();
@@ -157,6 +168,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
         (DefaultDrmSessionManager<T>)
             new DefaultDrmSessionManager.Builder()
                 .setUuidAndExoMediaDrmProvider(uuid, mediaDrmProvider)
+                .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy)
                 .setKeyRequestParameters(optionalKeyRequestParameters)
                 .build(callback);
     drmSessionManager.addListener(new Handler(handlerThread.getLooper()), eventListener);
