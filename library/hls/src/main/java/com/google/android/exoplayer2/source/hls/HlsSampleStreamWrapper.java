@@ -129,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ArrayList<HlsSampleStream> hlsSampleStreams;
   private final Map<String, DrmInitData> overridingDrmInitData;
 
-  private FormatAdjustingSampleQueue[] sampleQueues;
+  private HlsSampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
   private Set<Integer> sampleQueueMappingDoneByType;
   private SparseIntArray sampleQueueIndicesByType;
@@ -209,7 +209,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleQueueTrackIds = new int[0];
     sampleQueueMappingDoneByType = new HashSet<>(MAPPABLE_TYPES.size());
     sampleQueueIndicesByType = new SparseIntArray(MAPPABLE_TYPES.size());
-    sampleQueues = new FormatAdjustingSampleQueue[0];
+    sampleQueues = new HlsSampleQueue[0];
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
     mediaChunks = new ArrayList<>();
@@ -827,7 +827,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   public void init(int chunkUid, HlsMediaChunk loadingChunk, boolean shouldSpliceIn) {
     this.chunkUid = chunkUid;
-    for (HlsCheckedSampleQueue sampleQueue : sampleQueues) {
+    for (HlsSampleQueue sampleQueue : sampleQueues) {
       sampleQueue.sourceId(chunkUid);
       sampleQueue.setCurrentLoadingChunk(loadingChunk);
     }
@@ -908,8 +908,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int trackCount = sampleQueues.length;
 
     boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
-    FormatAdjustingSampleQueue trackOutput =
-        new FormatAdjustingSampleQueue(
+    HlsSampleQueue trackOutput =
+        new HlsSampleQueue(
             allocator, drmSessionManager, eventDispatcher, overridingDrmInitData);
     if (isAudioVideo) {
       trackOutput.setDrmInitData(drmInitData);
@@ -1341,82 +1341,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static DummyTrackOutput createDummyTrackOutput(int id, int type) {
     Log.w(TAG, "Unmapped track with id " + id + " of type " + type);
     return new DummyTrackOutput();
-  }
-
-  private static final class FormatAdjustingSampleQueue extends HlsCheckedSampleQueue {
-
-    private final Map<String, DrmInitData> overridingDrmInitData;
-    @Nullable private DrmInitData drmInitData;
-
-    public FormatAdjustingSampleQueue(
-        Allocator allocator,
-        DrmSessionManager<?> drmSessionManager,
-        MediaSourceEventDispatcher eventDispatcher,
-        Map<String, DrmInitData> overridingDrmInitData) {
-      super(allocator, drmSessionManager, eventDispatcher);
-      this.overridingDrmInitData = overridingDrmInitData;
-    }
-
-    public void setDrmInitData(@Nullable DrmInitData drmInitData) {
-      this.drmInitData = drmInitData;
-      invalidateUpstreamFormatAdjustment();
-    }
-
-    @SuppressWarnings("ReferenceEquality")
-    @Override
-    public Format getAdjustedUpstreamFormat(Format format) {
-      @Nullable
-      DrmInitData drmInitData = this.drmInitData != null ? this.drmInitData : format.drmInitData;
-      if (drmInitData != null) {
-        @Nullable
-        DrmInitData overridingDrmInitData = this.overridingDrmInitData.get(drmInitData.schemeType);
-        if (overridingDrmInitData != null) {
-          drmInitData = overridingDrmInitData;
-        }
-      }
-      @Nullable Metadata metadata = getAdjustedMetadata(format.metadata);
-      if (drmInitData != format.drmInitData || metadata != format.metadata) {
-        format = format.buildUpon().setDrmInitData(drmInitData).setMetadata(metadata).build();
-      }
-      return super.getAdjustedUpstreamFormat(format);
-    }
-
-    /**
-     * Strips the private timestamp frame from metadata, if present. See:
-     * https://github.com/google/ExoPlayer/issues/5063
-     */
-    @Nullable
-    private Metadata getAdjustedMetadata(@Nullable Metadata metadata) {
-      if (metadata == null) {
-        return null;
-      }
-      int length = metadata.length();
-      int transportStreamTimestampMetadataIndex = C.INDEX_UNSET;
-      for (int i = 0; i < length; i++) {
-        Metadata.Entry metadataEntry = metadata.get(i);
-        if (metadataEntry instanceof PrivFrame) {
-          PrivFrame privFrame = (PrivFrame) metadataEntry;
-          if (HlsMediaChunk.PRIV_TIMESTAMP_FRAME_OWNER.equals(privFrame.owner)) {
-            transportStreamTimestampMetadataIndex = i;
-            break;
-          }
-        }
-      }
-      if (transportStreamTimestampMetadataIndex == C.INDEX_UNSET) {
-        return metadata;
-      }
-      if (length == 1) {
-        return null;
-      }
-      Metadata.Entry[] newMetadataEntries = new Metadata.Entry[length - 1];
-      for (int i = 0; i < length; i++) {
-        if (i != transportStreamTimestampMetadataIndex) {
-          int newIndex = i < transportStreamTimestampMetadataIndex ? i : i - 1;
-          newMetadataEntries[newIndex] = metadata.get(i);
-        }
-      }
-      return new Metadata(newMetadataEntries);
-    }
   }
 
   private static class EmsgUnwrappingTrackOutput implements TrackOutput {
