@@ -72,6 +72,9 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
   @Nullable private SurfaceTexture surfaceTexture;
   @Nullable private Surface surface;
   @Nullable private Player.VideoComponent videoComponent;
+  private boolean useSensorRotation;
+  private boolean isStarted;
+  private boolean isOrientationListenerRegistered;
 
   public SphericalGLSurfaceView(Context context) {
     this(context, null);
@@ -104,6 +107,7 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
     WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = Assertions.checkNotNull(windowManager).getDefaultDisplay();
     orientationListener = new OrientationListener(display, touchTracker, renderer);
+    useSensorRotation = true;
 
     setEGLContextClientVersion(2);
     setRenderer(renderer);
@@ -145,20 +149,23 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
     touchTracker.setSingleTapListener(listener);
   }
 
+  /** Sets whether to use the orientation sensor for rotation (if available). */
+  public void setUseSensorRotation(boolean useSensorRotation) {
+    this.useSensorRotation = useSensorRotation;
+    updateOrientationListenerRegistration();
+  }
+
   @Override
   public void onResume() {
     super.onResume();
-    if (orientationSensor != null) {
-      sensorManager.registerListener(
-          orientationListener, orientationSensor, SensorManager.SENSOR_DELAY_FASTEST);
-    }
+    isStarted = true;
+    updateOrientationListenerRegistration();
   }
 
   @Override
   public void onPause() {
-    if (orientationSensor != null) {
-      sensorManager.unregisterListener(orientationListener);
-    }
+    isStarted = false;
+    updateOrientationListenerRegistration();
     super.onPause();
   }
 
@@ -179,6 +186,20 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
             surface = null;
           }
         });
+  }
+
+  private void updateOrientationListenerRegistration() {
+    boolean enabled = useSensorRotation && isStarted;
+    if (orientationSensor == null || enabled == isOrientationListenerRegistered) {
+      return;
+    }
+    if (enabled) {
+      sensorManager.registerListener(
+          orientationListener, orientationSensor, SensorManager.SENSOR_DELAY_FASTEST);
+    } else {
+      sensorManager.unregisterListener(orientationListener);
+    }
+    isOrientationListenerRegistered = enabled;
   }
 
   // Called on GL thread.
