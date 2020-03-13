@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
-import com.google.android.exoplayer2.source.UnreportedDiscontinuityException;
+import com.google.android.exoplayer2.source.UnexpectedDiscontinuityException;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -379,10 +379,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
           result = extractor.read(input, DUMMY_POSITION_HOLDER);
         }
-      } catch (UnreportedDiscontinuityException e) {
-        Log.d(TAG, "Unreported discontinuity at timeUs: "+ e.timesUs + " uri: " + dataSpec.uri);
-        throw new IOException("Timestamp error", e);
-        
+      } catch (UnexpectedDiscontinuityException e) {
+        Log.d(TAG, "UnexpectedDiscontinuityException - recovering by discarding balance of segment", e);
+        throw new IOException("load aborted for segment - " + e.dataSpec + " unexpected discontinuity", e);
       } finally {
         nextLoadPosition = (int) (input.getPosition() - dataSpec.position);
       }
