@@ -133,6 +133,10 @@ public final class DataSpec {
     /**
      * Sets the {@link DataSpec#httpRequestHeaders}. The default value is an empty map.
      *
+     * <p>Note: {@code Range}, {@code Accept-Encoding} and {@code User-Agent} should not be set with
+     * this method, since they are set directly by {@link HttpDataSource} implementations. See
+     * {@link DataSpec#httpRequestHeaders} for more details.
+     *
      * @param httpRequestHeaders The {@link DataSpec#httpRequestHeaders}.
      * @return The builder.
      */
@@ -325,7 +329,27 @@ public final class DataSpec {
    */
   @Nullable public final byte[] httpBody;
 
-  /** Immutable map containing the headers to use in HTTP requests. */
+  /**
+   * Additional HTTP headers to use when requesting the data.
+   *
+   * <p>Note: This map is for additional headers specific to the data being requested. It does not
+   * include headers that are set directly by {@link HttpDataSource} implementations. In particular,
+   * this means the following headers are not included:
+   *
+   * <ul>
+   *   <li>{@code Range}: {@link HttpDataSource} implementations derive the {@code Range} header
+   *       from {@link #position} and {@link #length}.
+   *   <li>{@code Accept-Encoding}: {@link HttpDataSource} implementations derive the {@code
+   *       Accept-Encoding} header based on whether {@link #flags} includes {@link
+   *       #FLAG_ALLOW_GZIP}.
+   *   <li>{@code User-Agent}: {@link HttpDataSource} implementations set the {@code User-Agent}
+   *       header directly.
+   *   <li>Other headers set at the {@link HttpDataSource} layer. I.e., headers set using {@link
+   *       HttpDataSource#setRequestProperty(String, String)}, and using {@link
+   *       HttpDataSource.RequestProperties#set(String, String)} on the default properties obtained
+   *       from {@link HttpDataSource.Factory#getDefaultRequestProperties()}.
+   * </ul>
+   */
   public final Map<String, String> httpRequestHeaders;
 
   /**
