@@ -265,6 +265,9 @@
     ([#5749](https://github.com/google/ExoPlayer/issues/5749)).
   * Add option to set preferred text role flags using
     `DefaultTrackSelector.ParametersBuilder.setPreferredTextRoleFlags`.
+* LoadControl:
+  * Default `prioritizeTimeOverSizeThresholds` to false to prevent OOM errors
+    ([#6647](https://github.com/google/ExoPlayer/issues/6647)).
 * Android 10:
   * Set `compileSdkVersion` to 29 to enable use of Android 10 APIs.
   * Expose new `isHardwareAccelerated`, `isSoftwareOnly` and `isVendor` flags

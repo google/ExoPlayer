@@ -68,8 +68,7 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void
-      testContinueLoadingOnceBufferingStopped_andBufferAlmostEmpty_evenIfMinBufferNotReached() {
+  public void continueLoadingOnceBufferingStopped_andBufferAlmostEmpty_evenIfMinBufferNotReached() {
     builder.setBufferDurationsMs(
         /* minBufferMs= */ 0,
         /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
@@ -84,6 +83,7 @@ public class DefaultLoadControlTest {
 
   @Test
   public void shouldContinueLoadingWithTargetBufferBytesReached_untilMinBufferReached() {
+    builder.setPrioritizeTimeOverSizeThresholds(true);
     builder.setBufferDurationsMs(
         /* minBufferMs= */ (int) C.usToMs(MIN_BUFFER_US),
         /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
@@ -99,7 +99,8 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void shouldNeverContinueLoading_ifMaxBufferReachedAndNotPrioritizeTimeOverSize() {
+  public void
+      shouldContinueLoading_withTargetBufferBytesReachedAndNotPrioritizeTimeOverSize_returnsTrueAsSoonAsTargetBufferReached() {
     builder.setPrioritizeTimeOverSizeThresholds(false);
     createDefaultLoadControl();
 
