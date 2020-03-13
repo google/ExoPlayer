@@ -97,6 +97,9 @@
     *   Add `showScrubber` and `hideScrubber` methods to DefaultTimeBar.
     *   Move logic of prev, next, fast forward and rewind to ControlDispatcher
         ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
+    *   Add an option to set whether to use the orientation sensor for rotation
+        in spherical playbacks
+        ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
 *   Demo apps: Add
     [GL demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/gl) to
     show how to render video to a `GLSurfaceView` while applying a GL shader.

@@ -77,8 +77,8 @@
       <enum name="always" value="2"/>
     </attr>
     <attr name="keep_content_on_player_reset" format="boolean"/>
+    <attr name="use_sensor_rotation" format="boolean"/>
     <attr name="player_layout_id" format="reference"/>
-
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->
     <attr name="resize_mode"/>
