@@ -29,6 +29,7 @@ include modulePrefix + 'testutils'
 include modulePrefix + 'testdata'
 include modulePrefix + 'extension-av1'
 include modulePrefix + 'extension-ffmpeg'
+include modulePrefix + 'extension-ffmpegvideo'
 include modulePrefix + 'extension-flac'
 include modulePrefix + 'extension-gvr'
 include modulePrefix + 'extension-ima'
@@ -55,6 +56,7 @@ project(modulePrefix + 'testutils').projectDir = new File(rootDir, 'testutils')
 project(modulePrefix + 'testdata').projectDir = new File(rootDir, 'testdata')
 project(modulePrefix + 'extension-av1').projectDir = new File(rootDir, 'extensions/av1')
 project(modulePrefix + 'extension-ffmpeg').projectDir = new File(rootDir, 'extensions/ffmpeg')
+project(modulePrefix + 'extension-ffmpegvideo').projectDir = new File(rootDir, 'extensions/ffmpegvideo')
 project(modulePrefix + 'extension-flac').projectDir = new File(rootDir, 'extensions/flac')
 project(modulePrefix + 'extension-gvr').projectDir = new File(rootDir, 'extensions/gvr')
 project(modulePrefix + 'extension-ima').projectDir = new File(rootDir, 'extensions/ima')
