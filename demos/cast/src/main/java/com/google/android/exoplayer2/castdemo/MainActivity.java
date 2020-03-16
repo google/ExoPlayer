@@ -37,10 +37,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.dynamite.DynamiteModule;
@@ -206,9 +208,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBindViewHolder(QueueItemViewHolder holder, int position) {
-      holder.item = playerManager.getItem(position);
+      holder.item = Assertions.checkNotNull(playerManager.getItem(position));
+
       TextView view = holder.textView;
-      view.setText(holder.item.title);
+      view.setText(holder.item.mediaMetadata.title);
       // TODO: Solve coloring using the theme's ColorStateList.
       view.setTextColor(
           ColorUtils.setAlphaComponent(
@@ -305,7 +308,7 @@ public class MainActivity extends AppCompatActivity
     @NonNull
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
       View view = super.getView(position, convertView, parent);
-      ((TextView) view).setText(getItem(position).title);
+      ((TextView) view).setText(Util.castNonNull(getItem(position)).mediaMetadata.title);
       return view;
     }
   }

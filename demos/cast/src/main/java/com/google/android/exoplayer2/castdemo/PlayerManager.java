@@ -16,11 +16,11 @@
 package com.google.android.exoplayer2.castdemo;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.KeyEvent;
 import android.view.View;
 import androidx.annotation.NonNull;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.EventListener;
@@ -28,34 +28,22 @@ import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
-import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
-import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.DefaultMediaItemConverter;
-import com.google.android.exoplayer2.ext.cast.MediaItem;
 import com.google.android.exoplayer2.ext.cast.MediaItemConverter;
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.dash.DashMediaSource;
-import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
-import java.util.Map;
 
 /** Manages players and an internal media queue for the demo app. */
 /* package */ class PlayerManager implements EventListener, SessionAvailabilityListener {
@@ -78,6 +66,7 @@ import java.util.Map;
   private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
       new DefaultHttpDataSourceFactory(USER_AGENT);
 
+  private final DefaultMediaSourceFactory defaultMediaSourceFactory;
   private final PlayerView localPlayerView;
   private final PlayerControlView castControlView;
   private final DefaultTrackSelector trackSelector;
@@ -117,6 +106,7 @@ import java.util.Map;
 
     trackSelector = new DefaultTrackSelector(context);
     exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
+    defaultMediaSourceFactory = DefaultMediaSourceFactory.newInstance(context, DATA_SOURCE_FACTORY);
     exoPlayer.addListener(this);
     localPlayerView.setPlayer(exoPlayer);
 
@@ -151,7 +141,7 @@ import java.util.Map;
    */
   public void addItem(MediaItem item) {
     mediaQueue.add(item);
-    concatenatingMediaSource.addMediaSource(buildMediaSource(item));
+    concatenatingMediaSource.addMediaSource(defaultMediaSourceFactory.createMediaSource(item));
     if (currentPlayer == castPlayer) {
       castPlayer.addItems(mediaItemConverter.toMediaQueueItem(item));
     }
@@ -399,63 +389,5 @@ import java.util.Map;
       this.currentItemIndex = currentItemIndex;
       listener.onQueuePositionChanged(oldIndex, currentItemIndex);
     }
-  }
-
-  private MediaSource buildMediaSource(MediaItem item) {
-    Uri uri = item.uri;
-    String mimeType = item.mimeType;
-    if (mimeType == null) {
-      throw new IllegalArgumentException("mimeType is required");
-    }
-
-    DrmSessionManager<ExoMediaCrypto> drmSessionManager =
-        DrmSessionManager.getDummyDrmSessionManager();
-    MediaItem.DrmConfiguration drmConfiguration = item.drmConfiguration;
-    if (drmConfiguration != null && Util.SDK_INT >= 18) {
-      String licenseServerUrl =
-          drmConfiguration.licenseUri != null ? drmConfiguration.licenseUri.toString() : "";
-      HttpMediaDrmCallback drmCallback =
-          new HttpMediaDrmCallback(licenseServerUrl, DATA_SOURCE_FACTORY);
-      for (Map.Entry<String, String> requestHeader : drmConfiguration.requestHeaders.entrySet()) {
-        drmCallback.setKeyRequestProperty(requestHeader.getKey(), requestHeader.getValue());
-      }
-      drmSessionManager =
-          new DefaultDrmSessionManager.Builder()
-              .setMultiSession(/* multiSession= */ true)
-              .setUuidAndExoMediaDrmProvider(
-                  drmConfiguration.uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
-              .build(drmCallback);
-    }
-
-    MediaSource createdMediaSource;
-    switch (mimeType) {
-      case DemoUtil.MIME_TYPE_SS:
-        createdMediaSource =
-            new SsMediaSource.Factory(DATA_SOURCE_FACTORY)
-                .setDrmSessionManager(drmSessionManager)
-                .createMediaSource(uri);
-        break;
-      case DemoUtil.MIME_TYPE_DASH:
-        createdMediaSource =
-            new DashMediaSource.Factory(DATA_SOURCE_FACTORY)
-                .setDrmSessionManager(drmSessionManager)
-                .createMediaSource(uri);
-        break;
-      case DemoUtil.MIME_TYPE_HLS:
-        createdMediaSource =
-            new HlsMediaSource.Factory(DATA_SOURCE_FACTORY)
-                .setDrmSessionManager(drmSessionManager)
-                .createMediaSource(uri);
-        break;
-      case DemoUtil.MIME_TYPE_VIDEO_MP4:
-        createdMediaSource =
-            new ProgressiveMediaSource.Factory(DATA_SOURCE_FACTORY)
-                .setDrmSessionManager(drmSessionManager)
-                .createMediaSource(uri);
-        break;
-      default:
-        throw new IllegalArgumentException("mimeType is unsupported: " + mimeType);
-    }
-    return createdMediaSource;
   }
 }

@@ -62,6 +62,7 @@ public final class MediaItem {
     private boolean drmMultiSession;
     private List<StreamKey> streamKeys;
     @Nullable private Object tag;
+    @Nullable private MediaMetadata mediaMetadata;
 
     /** Creates a builder. */
     public Builder() {
@@ -199,6 +200,12 @@ public final class MediaItem {
       return this;
     }
 
+    /** Sets the media metadata. */
+    public Builder setMediaMetadata(MediaMetadata mediaMetadata) {
+      this.mediaMetadata = mediaMetadata;
+      return this;
+    }
+
     /**
      * Returns a new {@link MediaItem} instance with the current builder values.
      */
@@ -218,7 +225,10 @@ public final class MediaItem {
                 tag);
         mediaId = mediaId != null ? mediaId : sourceUri.toString();
       }
-      return new MediaItem(Assertions.checkNotNull(mediaId), playbackProperties);
+      return new MediaItem(
+          Assertions.checkNotNull(mediaId),
+          playbackProperties,
+          mediaMetadata != null ? mediaMetadata : new MediaMetadata.Builder().build());
     }
   }
 
@@ -240,15 +250,7 @@ public final class MediaItem {
     /** Whether the drm configuration is multi session enabled. */
     public final boolean multiSession;
 
-    /**
-     * Creates an instance.
-     *
-     * @param uuid See {@link #uuid}.
-     * @param licenseUri See {@link #licenseUri}.
-     * @param requestHeaders See {@link #requestHeaders}.
-     * @param multiSession See {@link #multiSession}.
-     */
-    public DrmConfiguration(
+    private DrmConfiguration(
         UUID uuid,
         @Nullable Uri licenseUri,
         Map<String, String> requestHeaders,
@@ -312,7 +314,7 @@ public final class MediaItem {
      */
     @Nullable public final Object tag;
 
-    public PlaybackProperties(
+    private PlaybackProperties(
         Uri sourceUri,
         @Nullable String mimeType,
         @Nullable DrmConfiguration drmConfiguration,
@@ -356,12 +358,19 @@ public final class MediaItem {
   /** Identifies the media item. */
   public final String mediaId;
 
-  /** Optional playback properties. */
+  /** Optional playback properties. Maybe be {@code null} if shared over process boundaries. */
   @Nullable public final PlaybackProperties playbackProperties;
 
-  private MediaItem(String mediaId, @Nullable PlaybackProperties playbackProperties) {
+  /** The media metadata. */
+  public final MediaMetadata mediaMetadata;
+
+  private MediaItem(
+      String mediaId,
+      @Nullable PlaybackProperties playbackProperties,
+      MediaMetadata mediaMetadata) {
     this.mediaId = mediaId;
     this.playbackProperties = playbackProperties;
+    this.mediaMetadata = mediaMetadata;
   }
 
   @Override
@@ -376,13 +385,15 @@ public final class MediaItem {
     MediaItem other = (MediaItem) o;
 
     return Util.areEqual(mediaId, other.mediaId)
-        && Util.areEqual(playbackProperties, other.playbackProperties);
+        && Util.areEqual(playbackProperties, other.playbackProperties)
+        && Util.areEqual(mediaMetadata, other.mediaMetadata);
   }
 
   @Override
   public int hashCode() {
     int result = mediaId.hashCode();
     result = 31 * result + (playbackProperties != null ? playbackProperties.hashCode() : 0);
+    result = 31 * result + mediaMetadata.hashCode();
     return result;
   }
 }

@@ -48,6 +48,7 @@ public class MediaItemTest {
 
     assertThat(mediaItem.playbackProperties.sourceUri.toString()).isEqualTo(URI_STRING);
     assertThat(mediaItem.mediaId).isEqualTo(URI_STRING);
+    assertThat(mediaItem.mediaMetadata).isNotNull();
   }
 
   @Test
@@ -143,5 +144,15 @@ public class MediaItemTest {
     MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_STRING).setTag(tag).build();
 
     assertThat(mediaItem.playbackProperties.tag).isEqualTo(tag);
+  }
+
+  @Test
+  public void builderSetMediaMetadata_setsMetadata() {
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
+
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_STRING).setMediaMetadata(mediaMetadata).build();
+
+    assertThat(mediaItem.mediaMetadata).isEqualTo(mediaMetadata);
   }
 }
