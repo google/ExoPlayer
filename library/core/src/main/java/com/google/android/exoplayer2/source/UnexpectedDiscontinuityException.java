@@ -27,7 +27,9 @@ import com.google.android.exoplayer2.upstream.DataSpec;
  * chunk source (the origin server).
  *
  * For HLS, the origin server is required to break segments at continuity boundaries by the HLS Pantos spec
- * (EXT-X-DISCONTINUITY {@see https://tools.ietf.org/html/draft-pantos-hls-rfc8216bis-04#section-4.4.2.3})
+ * (EXT-X-DISCONTINUITY {@see https://tools.ietf.org/html/draft-pantos-hls-rfc8216bis-04#section-4.4.2.3}).
+ * In DASH, segments must be divided into periods when there are timestamp discontinuities
+ * {@see https://www.w3.org/2018/12/webmediaguidelines.html#server-side-ad-insertion}
  *
  */
 public final class UnexpectedDiscontinuityException extends RuntimeException {
