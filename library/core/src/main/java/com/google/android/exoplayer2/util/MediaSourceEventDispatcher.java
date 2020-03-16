@@ -117,6 +117,10 @@ public class MediaSourceEventDispatcher {
   /**
    * Removes a listener from the event dispatcher.
    *
+   * <p>If there are duplicate registrations of {@code {eventListener, listenerClass}} this will
+   * only remove one (so events dispatched to {@code listenerClass} will still be passed to {@code
+   * eventListener}).
+   *
    * @param eventListener The listener to be removed.
    * @param listenerClass The listener type passed to {@link #addEventListener(Handler, Object,
    *     Class)}.
@@ -126,6 +130,7 @@ public class MediaSourceEventDispatcher {
       if (listenerInfo.listener == eventListener
           && listenerInfo.listenerClass.equals(listenerClass)) {
         listenerInfos.remove(listenerInfo);
+        return;
       }
     }
   }
