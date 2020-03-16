@@ -698,6 +698,9 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void setAudioSessionId(int audioSessionId) {
     verifyApplicationThread();
+    if (this.audioSessionId == audioSessionId) {
+      return;
+    }
     this.audioSessionId = audioSessionId;
     for (Renderer renderer : renderers) {
       if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
@@ -707,6 +710,9 @@ public class SimpleExoPlayer extends BasePlayer
             .setPayload(audioSessionId)
             .send();
       }
+    }
+    if (audioSessionId != C.AUDIO_SESSION_ID_UNSET) {
+      notifyAudioSessionIdSet();
     }
   }
 
@@ -1816,6 +1822,19 @@ public class SimpleExoPlayer extends BasePlayer
     }
   }
 
+  private void notifyAudioSessionIdSet() {
+    for (AudioListener audioListener : audioListeners) {
+      // Prevent duplicate notification if a listener is both a AudioRendererEventListener and
+      // a AudioListener, as they have the same method signature.
+      if (!audioDebugListeners.contains(audioListener)) {
+        audioListener.onAudioSessionId(audioSessionId);
+      }
+    }
+    for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
+      audioDebugListener.onAudioSessionId(audioSessionId);
+    }
+  }
+
   @SuppressWarnings("SuspiciousMethodCalls")
   private void notifySkipSilenceEnabledChanged() {
     for (AudioListener listener : audioListeners) {
@@ -1986,16 +2005,7 @@ public class SimpleExoPlayer extends BasePlayer
         return;
       }
       audioSessionId = sessionId;
-      for (AudioListener audioListener : audioListeners) {
-        // Prevent duplicate notification if a listener is both a AudioRendererEventListener and
-        // a AudioListener, as they have the same method signature.
-        if (!audioDebugListeners.contains(audioListener)) {
-          audioListener.onAudioSessionId(sessionId);
-        }
-      }
-      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioSessionId(sessionId);
-      }
+      notifyAudioSessionIdSet();
     }
 
     @Override
