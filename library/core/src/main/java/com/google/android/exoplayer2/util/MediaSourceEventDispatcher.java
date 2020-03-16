@@ -50,25 +50,25 @@ public class MediaSourceEventDispatcher {
   @Nullable public final MediaPeriodId mediaPeriodId;
 
   // TODO: Make these private when MediaSourceEventListener.EventDispatcher is deleted.
-  protected final CopyOnWriteMultiset<ListenerAndHandler> listenerAndHandlers;
+  protected final CopyOnWriteMultiset<ListenerInfo> listenerInfos;
   // TODO: Define exactly what this means, and check it's always set correctly.
   protected final long mediaTimeOffsetMs;
 
   /** Creates an event dispatcher. */
   public MediaSourceEventDispatcher() {
     this(
-        /* listenerAndHandlers= */ new CopyOnWriteMultiset<>(),
+        /* listenerInfos= */ new CopyOnWriteMultiset<>(),
         /* windowIndex= */ 0,
         /* mediaPeriodId= */ null,
         /* mediaTimeOffsetMs= */ 0);
   }
 
   protected MediaSourceEventDispatcher(
-      CopyOnWriteMultiset<ListenerAndHandler> listenerAndHandlers,
+      CopyOnWriteMultiset<ListenerInfo> listenerInfos,
       int windowIndex,
       @Nullable MediaPeriodId mediaPeriodId,
       long mediaTimeOffsetMs) {
-    this.listenerAndHandlers = listenerAndHandlers;
+    this.listenerInfos = listenerInfos;
     this.windowIndex = windowIndex;
     this.mediaPeriodId = mediaPeriodId;
     this.mediaTimeOffsetMs = mediaTimeOffsetMs;
@@ -87,30 +87,45 @@ public class MediaSourceEventDispatcher {
   public MediaSourceEventDispatcher withParameters(
       int windowIndex, @Nullable MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
     return new MediaSourceEventDispatcher(
-        listenerAndHandlers, windowIndex, mediaPeriodId, mediaTimeOffsetMs);
+        listenerInfos, windowIndex, mediaPeriodId, mediaTimeOffsetMs);
   }
 
   /**
    * Adds a listener to the event dispatcher.
    *
+   * <p>Calls to {@link #dispatch(EventWithPeriodId, Class)} will propagate to {@code eventListener}
+   * if the {@code listenerClass} types are equal.
+   *
+   * <p>The same listener instance can be added multiple times with different {@code listenerClass}
+   * values (i.e. if the instance implements multiple listener interfaces).
+   *
+   * <p>Duplicate {@code {eventListener, listenerClass}} pairs are also permitted. In this case an
+   * event dispatched to {@code listenerClass} will only be passed to the {@code eventListener}
+   * once.
+   *
    * @param handler A handler on the which listener events will be posted.
    * @param eventListener The listener to be added.
+   * @param listenerClass The type used to register the listener. Can be a superclass of {@code
+   *     eventListener}.
    */
-  public void addEventListener(Handler handler, Object eventListener) {
+  public <T> void addEventListener(Handler handler, T eventListener, Class<T> listenerClass) {
     Assertions.checkNotNull(handler);
     Assertions.checkNotNull(eventListener);
-    listenerAndHandlers.add(new ListenerAndHandler(handler, eventListener));
+    listenerInfos.add(new ListenerInfo(handler, eventListener, listenerClass));
   }
 
   /**
    * Removes a listener from the event dispatcher.
    *
    * @param eventListener The listener to be removed.
+   * @param listenerClass The listener type passed to {@link #addEventListener(Handler, Object,
+   *     Class)}.
    */
-  public void removeEventListener(Object eventListener) {
-    for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-      if (listenerAndHandler.listener == eventListener) {
-        listenerAndHandlers.remove(listenerAndHandler);
+  public <T> void removeEventListener(T eventListener, Class<T> listenerClass) {
+    for (ListenerInfo listenerInfo : listenerInfos) {
+      if (listenerInfo.listener == eventListener
+          && listenerInfo.listenerClass.equals(listenerClass)) {
+        listenerInfos.remove(listenerInfo);
       }
     }
   }
@@ -118,11 +133,11 @@ public class MediaSourceEventDispatcher {
   /** Dispatches {@code event} to all registered listeners of type {@code listenerClass}. */
   @SuppressWarnings("unchecked") // The cast is gated with listenerClass.isInstance()
   public <T> void dispatch(EventWithPeriodId<T> event, Class<T> listenerClass) {
-    for (ListenerAndHandler listenerAndHandler : listenerAndHandlers.elementSet()) {
-      if (listenerClass.isInstance(listenerAndHandler.listener)) {
+    for (ListenerInfo listenerInfo : listenerInfos.elementSet()) {
+      if (listenerInfo.listenerClass.equals(listenerClass)) {
         postOrRun(
-            listenerAndHandler.handler,
-            () -> event.sendTo((T) listenerAndHandler.listener, windowIndex, mediaPeriodId));
+            listenerInfo.handler,
+            () -> event.sendTo((T) listenerInfo.listener, windowIndex, mediaPeriodId));
       }
     }
   }
@@ -140,15 +155,17 @@ public class MediaSourceEventDispatcher {
     return mediaTimeMs == C.TIME_UNSET ? C.TIME_UNSET : mediaTimeOffsetMs + mediaTimeMs;
   }
 
-  /** Container class for a {@link Handler} and {@code listener} object. */
-  protected static final class ListenerAndHandler {
+  /** Container class for a {@link Handler}, {@code listener} and {@code listenerClass}. */
+  protected static final class ListenerInfo {
 
     public final Handler handler;
     public final Object listener;
+    public final Class<?> listenerClass;
 
-    public ListenerAndHandler(Handler handler, Object listener) {
+    public ListenerInfo(Handler handler, Object listener, Class<?> listenerClass) {
       this.handler = handler;
       this.listener = listener;
+      this.listenerClass = listenerClass;
     }
 
     @Override
@@ -156,19 +173,21 @@ public class MediaSourceEventDispatcher {
       if (this == o) {
         return true;
       }
-      if (!(o instanceof ListenerAndHandler)) {
+      if (!(o instanceof ListenerInfo)) {
         return false;
       }
 
-      // We deliberately only consider listener (and not handler) in equals() and hashcode()
-      // because the handler used to process the callbacks is an implementation detail.
-      ListenerAndHandler that = (ListenerAndHandler) o;
-      return listener.equals(that.listener);
+      ListenerInfo that = (ListenerInfo) o;
+
+      // We deliberately only consider listener and listenerClass (and not handler) in equals() and
+      // hashcode() because the handler used to process the callbacks is an implementation detail.
+      return listener.equals(that.listener) && listenerClass.equals(that.listenerClass);
     }
 
     @Override
     public int hashCode() {
-      return listener.hashCode();
+      int result = 31 * listener.hashCode();
+      return result + 31 * listenerClass.hashCode();
     }
   }
 }

@@ -143,12 +143,12 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener) {
-    eventDispatcher.addEventListener(handler, eventListener);
+    eventDispatcher.addEventListener(handler, eventListener, DrmSessionEventListener.class);
   }
 
   @Override
   public final void removeDrmEventListener(DrmSessionEventListener eventListener) {
-    eventDispatcher.removeEventListener(eventListener);
+    eventDispatcher.removeEventListener(eventListener, DrmSessionEventListener.class);
   }
 
   @Override

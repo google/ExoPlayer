@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
+import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -174,7 +175,7 @@ public interface MediaSourceEventListener {
     }
 
     private EventDispatcher(
-        CopyOnWriteMultiset<ListenerAndHandler> listeners,
+        CopyOnWriteMultiset<ListenerInfo> listeners,
         int windowIndex,
         @Nullable MediaPeriodId mediaPeriodId,
         long mediaTimeOffsetMs) {
@@ -184,8 +185,34 @@ public interface MediaSourceEventListener {
     @Override
     public EventDispatcher withParameters(
         int windowIndex, @Nullable MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
-      return new EventDispatcher(
-          listenerAndHandlers, windowIndex, mediaPeriodId, mediaTimeOffsetMs);
+      return new EventDispatcher(listenerInfos, windowIndex, mediaPeriodId, mediaTimeOffsetMs);
+    }
+
+    /**
+     * Adds a {@link MediaSourceEventListener} to the event dispatcher.
+     *
+     * <p>This is equivalent to {@link #addEventListener(Handler, Object, Class)} with {@code
+     * listenerClass = MediaSourceEventListener.class} and is intended to ease the transition to
+     * using {@link MediaSourceEventDispatcher} everywhere.
+     *
+     * @param handler A handler on the which listener events will be posted.
+     * @param eventListener The listener to be added.
+     */
+    public void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
+      addEventListener(handler, eventListener, MediaSourceEventListener.class);
+    }
+
+    /**
+     * Removes a {@link MediaSourceEventListener} from the event dispatcher.
+     *
+     * <p>This is equivalent to {@link #removeEventListener(Object, Class)} with {@code
+     * listenerClass = MediaSourceEventListener.class} and is intended to ease the transition to
+     * using {@link MediaSourceEventDispatcher} everywhere.
+     *
+     * @param eventListener The listener to be removed.
+     */
+    public void removeEventListener(MediaSourceEventListener eventListener) {
+      removeEventListener(eventListener, MediaSourceEventListener.class);
     }
 
     public void mediaPeriodCreated() {
