@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -160,6 +161,26 @@ public class MediaSourceEventDispatcherTest {
         MediaSourceEventListener::onMediaPeriodCreated, MediaSourceEventListener.class);
 
     verify(mediaAndDrmEventListener).onMediaPeriodCreated(WINDOW_INDEX, MEDIA_PERIOD_ID);
+  }
+
+  @Test
+  public void listenersAreCountedBasedOnListenerAndType() {
+    // Add the listener twice and remove it once.
+    eventDispatcher.addEventListener(
+        Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
+    eventDispatcher.addEventListener(
+        Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
+    eventDispatcher.removeEventListener(mediaSourceEventListener, MediaSourceEventListener.class);
+
+    eventDispatcher.dispatch(
+        MediaSourceEventListener::onMediaPeriodCreated, MediaSourceEventListener.class);
+
+    verify(mediaSourceEventListener).onMediaPeriodCreated(WINDOW_INDEX, MEDIA_PERIOD_ID);
+
+    // Remove it a second time and confirm the events stop being propagated.
+    eventDispatcher.removeEventListener(mediaSourceEventListener, MediaSourceEventListener.class);
+
+    verifyNoMoreInteractions(mediaSourceEventListener);
   }
 
   private interface MediaAndDrmEventListener
