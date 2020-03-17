@@ -62,6 +62,11 @@ import java.util.List;
  *   <li>Message with type {@link #MSG_SET_AUX_EFFECT_INFO} to set the auxiliary effect. The message
  *       payload should be an {@link AuxEffectInfo} instance that will configure the underlying
  *       audio track.
+ *   <li>Message with type {@link #MSG_SET_SKIP_SILENCE_ENABLED} to enable or disable skipping
+ *       silences. The message payload should be a {@link Boolean}.
+ *   <li>Message with type {@link #MSG_SET_AUDIO_SESSION_ID} to set the audio session ID. The
+ *       message payload should be a session ID {@link Integer} that will be attached to the
+ *       underlying audio track.
  * </ul>
  */
 public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
