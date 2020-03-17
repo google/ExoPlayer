@@ -32,7 +32,7 @@ public final class VpxOutputBuffer extends VideoDecoderOutputBuffer {
    *
    * @param owner Buffer owner.
    */
-  public VpxOutputBuffer(VideoDecoderOutputBuffer.Owner owner) {
+  public VpxOutputBuffer(Owner<VideoDecoderOutputBuffer> owner) {
     super(owner);
   }
 }

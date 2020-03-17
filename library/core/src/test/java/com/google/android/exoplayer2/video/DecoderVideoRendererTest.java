@@ -47,10 +47,10 @@ import org.mockito.junit.MockitoRule;
 import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowLooper;
 
-/** Unit test for {@link SimpleDecoderVideoRenderer}. */
+/** Unit test for {@link DecoderVideoRenderer}. */
 @LooperMode(LooperMode.Mode.PAUSED)
 @RunWith(AndroidJUnit4.class)
-public final class SimpleDecoderVideoRendererTest {
+public final class DecoderVideoRendererTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
   private static final Format H264_FORMAT =
@@ -60,13 +60,13 @@ public final class SimpleDecoderVideoRendererTest {
           .setHeight(1080)
           .build();
 
-  private SimpleDecoderVideoRenderer renderer;
+  private DecoderVideoRenderer renderer;
   @Mock private VideoRendererEventListener eventListener;
 
   @Before
   public void setUp() {
     renderer =
-        new SimpleDecoderVideoRenderer(
+        new DecoderVideoRenderer(
             /* allowedJoiningTimeMs= */ 0,
             new Handler(),
             eventListener,

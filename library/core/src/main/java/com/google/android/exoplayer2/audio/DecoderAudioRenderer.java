@@ -29,9 +29,9 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -47,7 +47,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Decodes and renders audio using a {@link SimpleDecoder}.
+ * Decodes and renders audio using a {@link Decoder}.
  *
  * <p>This renderer accepts the following messages sent via {@link ExoPlayer#createMessage(Target)}
  * on the playback thread:
@@ -68,7 +68,7 @@ import java.lang.annotation.RetentionPolicy;
  *       underlying audio track.
  * </ul>
  */
-public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements MediaClock {
+public abstract class DecoderAudioRenderer extends BaseRenderer implements MediaClock {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -105,8 +105,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private int encoderPadding;
 
   @Nullable
-  private SimpleDecoder<
-          DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
+  private Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
       decoder;
 
   @Nullable private DecoderInputBuffer inputBuffer;
@@ -125,7 +124,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
   private boolean outputStreamEnded;
   private boolean waitingForKeys;
 
-  public SimpleDecoderAudioRenderer() {
+  public DecoderAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
   }
 
@@ -135,7 +134,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
-  public SimpleDecoderAudioRenderer(
+  public DecoderAudioRenderer(
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
@@ -154,7 +153,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    *     default capabilities (no encoded audio passthrough support) should be assumed.
    * @param audioProcessors Optional {@link AudioProcessor}s that will process audio before output.
    */
-  public SimpleDecoderAudioRenderer(
+  public DecoderAudioRenderer(
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       @Nullable AudioCapabilities audioCapabilities,
@@ -168,7 +167,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioSink The sink to which audio will be output.
    */
-  public SimpleDecoderAudioRenderer(
+  public DecoderAudioRenderer(
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioSink audioSink) {
@@ -306,7 +305,7 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
    * @return The decoder.
    * @throws AudioDecoderException If an error occurred creating a suitable decoder.
    */
-  protected abstract SimpleDecoder<
+  protected abstract Decoder<
           DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
       createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
           throws AudioDecoderException;
@@ -689,14 +688,14 @@ public abstract class SimpleDecoderAudioRenderer extends BaseRenderer implements
     @Override
     public void onAudioSessionId(int audioSessionId) {
       eventDispatcher.audioSessionId(audioSessionId);
-      SimpleDecoderAudioRenderer.this.onAudioSessionId(audioSessionId);
+      DecoderAudioRenderer.this.onAudioSessionId(audioSessionId);
     }
 
     @Override
     public void onPositionDiscontinuity() {
       onAudioTrackPositionDiscontinuity();
       // We are out of sync so allow currentPositionUs to jump backwards.
-      SimpleDecoderAudioRenderer.this.allowPositionDiscontinuity = true;
+      DecoderAudioRenderer.this.allowPositionDiscontinuity = true;
     }
 
     @Override

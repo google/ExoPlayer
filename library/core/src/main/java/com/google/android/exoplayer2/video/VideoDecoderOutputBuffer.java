@@ -23,17 +23,6 @@ import java.nio.ByteBuffer;
 /** Video decoder output buffer containing video frame data. */
 public class VideoDecoderOutputBuffer extends OutputBuffer {
 
-  /** Buffer owner. */
-  public interface Owner {
-
-    /**
-     * Releases the buffer.
-     *
-     * @param outputBuffer Output buffer.
-     */
-    void releaseOutputBuffer(VideoDecoderOutputBuffer outputBuffer);
-  }
-
   // LINT.IfChange
   public static final int COLORSPACE_UNKNOWN = 0;
   public static final int COLORSPACE_BT601 = 1;
@@ -68,14 +57,14 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
    */
   @Nullable public ByteBuffer supplementalData;
 
-  private final Owner owner;
+  private final Owner<VideoDecoderOutputBuffer> owner;
 
   /**
    * Creates VideoDecoderOutputBuffer.
    *
    * @param owner Buffer owner.
    */
-  public VideoDecoderOutputBuffer(Owner owner) {
+  public VideoDecoderOutputBuffer(Owner<VideoDecoderOutputBuffer> owner) {
     this.owner = owner;
   }
 

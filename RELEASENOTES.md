@@ -53,6 +53,9 @@
     *   Add option to `MergingMediaSource` to adjust the time offsets between
         the merged sources
         ([#6103](https://github.com/google/ExoPlayer/issues/6103)).
+    *   `SimpleDecoderVideoRenderer` and `SimpleDecoderAudioRenderer` renamed to
+        `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
+        generalized to work with `Decoder` rather than `SimpleDecoder`.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).

@@ -21,7 +21,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayDeque;
 
-/** Base class for {@link Decoder}s that use their own decode thread. */
+/**
+ * Base class for {@link Decoder}s that use their own decode thread and decode each input buffer
+ * immediately into a corresponding output buffer.
+ */
 @SuppressWarnings("UngroupedOverloads")
 public abstract class SimpleDecoder<
         I extends DecoderInputBuffer, O extends OutputBuffer, E extends Exception>
