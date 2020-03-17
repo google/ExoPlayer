@@ -89,10 +89,10 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   @FormatSupport
   protected int supportsFormatInternal(Format format) {
-    Assertions.checkNotNull(format.sampleMimeType);
-    if (!FfmpegLibrary.isAvailable()) {
+    String mimeType = Assertions.checkNotNull(format.sampleMimeType);
+    if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!FfmpegLibrary.supportsFormat(format.sampleMimeType) || !isOutputSupported(format)) {
+    } else if (!FfmpegLibrary.supportsFormat(mimeType) || !isOutputSupported(format)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
       return FORMAT_UNSUPPORTED_DRM;
