@@ -15,15 +15,14 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.util.MediaClock;
 
 /** Fake abstract {@link Renderer} which is also a {@link MediaClock}. */
 public abstract class FakeMediaClockRenderer extends FakeRenderer implements MediaClock {
 
-  public FakeMediaClockRenderer(Format... expectedFormats) {
-    super(expectedFormats);
+  public FakeMediaClockRenderer(int trackType) {
+    super(trackType);
   }
 
   @Override

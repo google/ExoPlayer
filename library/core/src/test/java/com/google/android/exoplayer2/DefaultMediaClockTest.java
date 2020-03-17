@@ -399,6 +399,7 @@ public class DefaultMediaClockTest {
         boolean isEnded,
         boolean hasReadStreamToEnd)
         throws ExoPlaybackException {
+      super(C.TRACK_TYPE_UNKNOWN);
       this.playbackSpeed = playbackSpeed;
       this.playbackSpeedIsMutable = playbackSpeedIsMutable;
       this.isReady = isReady;
