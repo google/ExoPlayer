@@ -84,6 +84,9 @@ public class DefaultLoadControl implements LoadControl {
   public static final int DEFAULT_MUXED_BUFFER_SIZE =
       DEFAULT_VIDEO_BUFFER_SIZE + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
 
+  /** The buffer size in bytes that will be used as a minimum target buffer in all cases. */
+  public static final int DEFAULT_MIN_BUFFER_SIZE = 200 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
+
   /** Builder for {@link DefaultLoadControl}. */
   public static final class Builder {
 
@@ -316,7 +319,7 @@ public class DefaultLoadControl implements LoadControl {
     this.targetBufferBytes =
         targetBufferBytesOverwrite != C.LENGTH_UNSET
             ? targetBufferBytesOverwrite
-            : DEFAULT_MUXED_BUFFER_SIZE;
+            : DEFAULT_MIN_BUFFER_SIZE;
     this.prioritizeTimeOverSizeThresholds = prioritizeTimeOverSizeThresholds;
     this.backBufferDurationUs = C.msToUs(backBufferDurationMs);
     this.retainBackBufferFromKeyframe = retainBackBufferFromKeyframe;
@@ -410,13 +413,13 @@ public class DefaultLoadControl implements LoadControl {
         targetBufferSize += getDefaultBufferSize(renderers[i].getTrackType());
       }
     }
-    return targetBufferSize;
+    return Math.max(DEFAULT_MIN_BUFFER_SIZE, targetBufferSize);
   }
 
   private void reset(boolean resetAllocator) {
     targetBufferBytes =
         targetBufferBytesOverwrite == C.LENGTH_UNSET
-            ? DEFAULT_MUXED_BUFFER_SIZE
+            ? DEFAULT_MIN_BUFFER_SIZE
             : targetBufferBytesOverwrite;
     isBuffering = false;
     if (resetAllocator) {
