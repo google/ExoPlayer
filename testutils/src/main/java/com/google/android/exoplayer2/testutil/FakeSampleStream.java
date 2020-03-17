@@ -164,7 +164,7 @@ public final class FakeSampleStream implements SampleStream {
 
   @Override
   public boolean isReady() {
-    return true;
+    return !readFormat || readEOSBuffer || !fakeSampleStreamItems.isEmpty();
   }
 
   @Override
