@@ -305,7 +305,10 @@ public final class AnalyticsCollectorTest {
   public void seekToOtherPeriod() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT),
+            new FakeMediaSource(
+                SINGLE_PERIOD_TIMELINE,
+                ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
+                ExoPlayerTestRunner.Builder.AUDIO_FORMAT),
             new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.AUDIO_FORMAT));
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
@@ -315,7 +318,6 @@ public final class AnalyticsCollectorTest {
             .waitForIsLoading(false)
             .waitForIsLoading(true)
             .waitForIsLoading(false)
-            .waitForPlaybackState(Player.STATE_READY)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
             .waitForSeekProcessed()
             .play()
@@ -355,19 +357,19 @@ public final class AnalyticsCollectorTest {
             WINDOW_1 /* manifest */,
             period1 /* media */);
     assertThat(listener.getEvents(EVENT_DOWNSTREAM_FORMAT_CHANGED))
-        .containsExactly(period0 /* video */, period1 /* audio */);
+        .containsExactly(period0 /* video */, period0 /* audio */, period1 /* audio */);
     assertThat(listener.getEvents(EVENT_MEDIA_PERIOD_CREATED)).containsExactly(period0, period1);
     assertThat(listener.getEvents(EVENT_MEDIA_PERIOD_RELEASED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_READING_STARTED)).containsExactly(period0, period1);
     assertThat(listener.getEvents(EVENT_DECODER_ENABLED))
-        .containsExactly(period0 /* video */, period1 /* audio */, period1 /* audio */);
+        .containsExactly(period0 /* video */, period0 /* audio */, period1 /* audio */);
     assertThat(listener.getEvents(EVENT_DECODER_INIT))
-        .containsExactly(period0 /* video */, period1 /* audio */);
+        .containsExactly(period0 /* video */, period0 /* audio */, period1 /* audio */);
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
-        .containsExactly(period0 /* video */, period1 /* audio */);
+        .containsExactly(period0 /* video */, period0 /* audio */, period1 /* audio */);
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED))
         .containsExactly(period0 /* video */, period0 /* audio */);
-    assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period1);
+    assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period0, period1);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0);
     listener.assertNoMoreEvents();
@@ -1668,6 +1670,16 @@ public final class AnalyticsCollectorTest {
         this.eventType = eventType;
         this.eventWindowAndPeriodId =
             new EventWindowAndPeriodId(eventTime.windowIndex, eventTime.mediaPeriodId);
+      }
+
+      @Override
+      public String toString() {
+        return "ReportedEvent{"
+            + "type="
+            + eventType
+            + ", windowAndPeriodId="
+            + eventWindowAndPeriodId
+            + '}';
       }
     }
   }
