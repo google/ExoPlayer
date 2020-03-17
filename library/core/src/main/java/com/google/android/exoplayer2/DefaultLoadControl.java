@@ -84,7 +84,10 @@ public class DefaultLoadControl implements LoadControl {
   public static final int DEFAULT_MUXED_BUFFER_SIZE =
       DEFAULT_VIDEO_BUFFER_SIZE + DEFAULT_AUDIO_BUFFER_SIZE + DEFAULT_TEXT_BUFFER_SIZE;
 
-  /** The buffer size in bytes that will be used as a minimum target buffer in all cases. */
+  /**
+   * The buffer size in bytes that will be used as a minimum target buffer in all cases. This is
+   * also the default target buffer before tracks are selected.
+   */
   public static final int DEFAULT_MIN_BUFFER_SIZE = 200 * C.DEFAULT_BUFFER_SEGMENT_SIZE;
 
   /** Builder for {@link DefaultLoadControl}. */
