@@ -46,7 +46,9 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -365,7 +367,16 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
       }
       if (renderersFactory == null) {
         if (renderers == null) {
-          renderers = new Renderer[] {new FakeRenderer(supportedFormats)};
+          Set<Integer> trackTypes = new HashSet<>();
+          for (Format format : supportedFormats) {
+            trackTypes.add(MimeTypes.getTrackType(format.sampleMimeType));
+          }
+          renderers = new Renderer[trackTypes.size()];
+          int i = 0;
+          for (int trackType : trackTypes) {
+            renderers[i] = new FakeRenderer(trackType);
+            i++;
+          }
         }
         renderersFactory =
             (eventHandler,

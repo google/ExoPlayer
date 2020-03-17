@@ -119,9 +119,9 @@ public class DownloadHelperTest {
 
   @Before
   public void setUp() {
-    FakeRenderer videoRenderer = new FakeRenderer(VIDEO_FORMAT_LOW, VIDEO_FORMAT_HIGH);
-    FakeRenderer audioRenderer = new FakeRenderer(audioFormatUs, audioFormatZh);
-    FakeRenderer textRenderer = new FakeRenderer(textFormatUs, textFormatZh);
+    FakeRenderer videoRenderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
+    FakeRenderer audioRenderer = new FakeRenderer(C.TRACK_TYPE_AUDIO);
+    FakeRenderer textRenderer = new FakeRenderer(C.TRACK_TYPE_TEXT);
     RenderersFactory renderersFactory =
         (handler, videoListener, audioListener, metadata, text) ->
             new Renderer[] {textRenderer, audioRenderer, videoRenderer};

@@ -1248,7 +1248,7 @@ public final class AnalyticsCollectorTest {
     private boolean renderedFirstFrameAfterEnable;
 
     public FakeVideoRenderer(Handler handler, VideoRendererEventListener eventListener) {
-      super(ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
+      super(C.TRACK_TYPE_VIDEO);
       eventDispatcher = new VideoRendererEventListener.EventDispatcher(handler, eventListener);
       decoderCounters = new DecoderCounters();
     }
@@ -1327,7 +1327,7 @@ public final class AnalyticsCollectorTest {
     private boolean notifiedAudioSessionId;
 
     public FakeAudioRenderer(Handler handler, AudioRendererEventListener eventListener) {
-      super(ExoPlayerTestRunner.Builder.AUDIO_FORMAT);
+      super(C.TRACK_TYPE_AUDIO);
       eventDispatcher = new AudioRendererEventListener.EventDispatcher(handler, eventListener);
       decoderCounters = new DecoderCounters();
     }
