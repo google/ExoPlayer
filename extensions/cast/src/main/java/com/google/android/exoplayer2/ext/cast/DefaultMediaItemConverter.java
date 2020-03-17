@@ -44,6 +44,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
 
   @Override
   public MediaItem toMediaItem(MediaQueueItem item) {
+    // `item` came from `toMediaQueueItem()` so the custom JSON data must be set.
     return getMediaItem(Assertions.checkNotNull(item.getMedia().getCustomData()));
   }
 
