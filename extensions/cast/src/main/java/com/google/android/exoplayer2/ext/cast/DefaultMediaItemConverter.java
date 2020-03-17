@@ -44,7 +44,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
 
   @Override
   public MediaItem toMediaItem(MediaQueueItem item) {
-    return getMediaItem(item.getMedia().getCustomData());
+    return getMediaItem(Assertions.checkNotNull(item.getMedia().getCustomData()));
   }
 
   @Override
