@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
-import com.google.android.exoplayer2.video.SimpleDecoderVideoRenderer;
+import com.google.android.exoplayer2.video.DecoderVideoRenderer;
 import com.google.android.exoplayer2.video.VideoDecoderException;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
@@ -52,7 +52,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  *       VideoDecoderOutputBufferRenderer}, or null.
  * </ul>
  */
-public class LibvpxVideoRenderer extends SimpleDecoderVideoRenderer {
+public class LibvpxVideoRenderer extends DecoderVideoRenderer {
 
   /** The number of input buffers. */
   private final int numInputBuffers;

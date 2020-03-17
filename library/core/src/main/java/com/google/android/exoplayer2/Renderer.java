@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.SimpleDecoderVideoRenderer;
+import com.google.android.exoplayer2.video.DecoderVideoRenderer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -115,7 +115,7 @@ public interface Renderer extends PlayerMessage.Target {
   @SuppressWarnings("deprecation")
   int MSG_SET_CAMERA_MOTION_LISTENER = C.MSG_SET_CAMERA_MOTION_LISTENER;
   /**
-   * The type of a message that can be passed to a {@link SimpleDecoderVideoRenderer} via {@link
+   * The type of a message that can be passed to a {@link DecoderVideoRenderer} via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link
    * VideoDecoderOutputBufferRenderer}, or null.
    *

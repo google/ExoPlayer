@@ -42,21 +42,21 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.annotation.Config;
 
-/** Unit test for {@link SimpleDecoderAudioRenderer}. */
+/** Unit test for {@link DecoderAudioRenderer}. */
 @RunWith(AndroidJUnit4.class)
-public class SimpleDecoderAudioRendererTest {
+public class DecoderAudioRendererTest {
 
   private static final Format FORMAT =
       new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_RAW).build();
 
   @Mock private AudioSink mockAudioSink;
-  private SimpleDecoderAudioRenderer audioRenderer;
+  private DecoderAudioRenderer audioRenderer;
 
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     audioRenderer =
-        new SimpleDecoderAudioRenderer(null, null, mockAudioSink) {
+        new DecoderAudioRenderer(null, null, mockAudioSink) {
           @Override
           @FormatSupport
           protected int supportsFormatInternal(Format format) {
@@ -132,7 +132,7 @@ public class SimpleDecoderAudioRendererTest {
 
     @Override
     protected SimpleOutputBuffer createOutputBuffer() {
-      return new SimpleOutputBuffer(this);
+      return new SimpleOutputBuffer(this::releaseOutputBuffer);
     }
 
     @Override

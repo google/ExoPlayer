@@ -26,9 +26,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -41,8 +41,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** Decodes and renders video using a {@link SimpleDecoder}. */
-public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
+/** Decodes and renders video using a {@link Decoder}. */
+public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   /** Decoder reinitialization states. */
   @Documented
@@ -76,7 +76,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
 
   private Format inputFormat;
   private Format outputFormat;
-  private SimpleDecoder<
+  private Decoder<
           VideoDecoderInputBuffer,
           ? extends VideoDecoderOutputBuffer,
           ? extends VideoDecoderException>
@@ -125,7 +125,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
    */
-  protected SimpleDecoderVideoRenderer(
+  protected DecoderVideoRenderer(
       long allowedJoiningTimeMs,
       @Nullable Handler eventHandler,
       @Nullable VideoRendererEventListener eventListener,
@@ -490,7 +490,7 @@ public abstract class SimpleDecoderVideoRenderer extends BaseRenderer {
    * @return The decoder.
    * @throws VideoDecoderException If an error occurred creating a suitable decoder.
    */
-  protected abstract SimpleDecoder<
+  protected abstract Decoder<
           VideoDecoderInputBuffer,
           ? extends VideoDecoderOutputBuffer,
           ? extends VideoDecoderException>
