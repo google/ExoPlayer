@@ -70,6 +70,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_DEFINE = "#EXT-X-DEFINE";
   private static final String TAG_STREAM_INF = "#EXT-X-STREAM-INF";
   private static final String TAG_STREAM_IFRAME = "#EXT-X-I-FRAME-STREAM-INF";
+  private static final String TAG_IFRAME = "#EXT-X-I-FRAMES-ONLY";
   private static final String TAG_MEDIA = "#EXT-X-MEDIA";
   private static final String TAG_TARGET_DURATION = "#EXT-X-TARGETDURATION";
   private static final String TAG_DISCONTINUITY = "#EXT-X-DISCONTINUITY";
@@ -560,7 +561,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long targetDurationUs = C.TIME_UNSET;
     boolean hasIndependentSegmentsTag = masterPlaylist.hasIndependentSegments;
     boolean hasEndTag = false;
-    Segment initializationSegment = null;
+    @Nullable Segment initializationSegment = null;
     HashMap<String, String> variableDefinitions = new HashMap<>();
     List<Segment> segments = new ArrayList<>();
     List<String> tags = new ArrayList<>();
@@ -574,6 +575,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long segmentStartTimeUs = 0;
     long segmentByteRangeOffset = 0;
     long segmentByteRangeLength = C.LENGTH_UNSET;
+    boolean isExplicitInitSegment = false;   // Was declared (TAG_INIT_SEGMENT) vs implied.
+    boolean isIframeOnly = false;
+
     long segmentMediaSequence = 0;
     boolean hasGapTag = false;
 
@@ -625,6 +629,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 segmentByteRangeLength,
                 fullSegmentEncryptionKeyUri,
                 fullSegmentEncryptionIV);
+        isExplicitInitSegment = false;
         segmentByteRangeOffset = 0;
         segmentByteRangeLength = C.LENGTH_UNSET;
       } else if (line.startsWith(TAG_TARGET_DURATION)) {
@@ -706,6 +711,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasIndependentSegmentsTag = true;
       } else if (line.equals(TAG_ENDLIST)) {
         hasEndTag = true;
+      } else if (line.equals(TAG_IFRAME)) {
+        isIframeOnly = true;
       } else if (!line.startsWith("#")) {
         String segmentEncryptionIV;
         if (fullSegmentEncryptionKeyUri == null) {
@@ -716,9 +723,34 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           segmentEncryptionIV = Long.toHexString(segmentMediaSequence);
         }
 
+        String segmentResourseUri = replaceVariableReferences(line, variableDefinitions);
+
         segmentMediaSequence++;
         if (segmentByteRangeLength == C.LENGTH_UNSET) {
           segmentByteRangeOffset = 0;
+        } else if (isIframeOnly) {
+          // If the I-Frame segment is byte-ranged then check if there is an initialization segment, if not,
+          // per the spec (https://tools.ietf.org/html/draft-pantos-hls-rfc8216bis-04#section-4.4.3.6)
+          // it is assumed to be "located between the start of the resource and the offset of the
+          // first I-frame segment"
+
+          // Wipe previous implict init segment if base resource URI changes
+          if (isExplicitInitSegment && initializationSegment != null) {
+            if (! segmentResourseUri.equals(initializationSegment.url)) {
+              initializationSegment = null;
+            }
+          }
+
+          if (initializationSegment == null) {
+            isExplicitInitSegment = true;
+            initializationSegment = new Segment(
+                segmentResourseUri,
+                0,
+                segmentByteRangeOffset - 1,
+                null,   // TODO encryption same as segment?
+                null
+            );
+          }
         }
 
         if (cachedDrmInitData == null && !currentSchemeDatas.isEmpty()) {
@@ -735,7 +767,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
         segments.add(
             new Segment(
-                replaceVariableReferences(line, variableDefinitions),
+                segmentResourseUri,
                 initializationSegment,
                 segmentTitle,
                 segmentDurationUs,
