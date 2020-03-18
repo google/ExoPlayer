@@ -27,7 +27,7 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.OfflineLicenseHelper;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
@@ -54,7 +54,7 @@ public final class DashWidevineOfflineTest {
 
   private DashTestRunner testRunner;
   private DefaultHttpDataSourceFactory httpDataSourceFactory;
-  private OfflineLicenseHelper<FrameworkMediaCrypto> offlineLicenseHelper;
+  private OfflineLicenseHelper<ExoMediaCrypto> offlineLicenseHelper;
   private byte[] offlineLicenseKeySetId;
 
   @Rule public ActivityTestRule<HostActivity> testRule = new ActivityTestRule<>(HostActivity.class);
@@ -69,6 +69,7 @@ public final class DashWidevineOfflineTest {
             .setFullPlaybackNoSeeking(true)
             .setCanIncludeAdditionalVideoFormats(false)
             .setAudioVideoFormats(
+
                 DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
                 DashTestData.WIDEVINE_H264_CDD_FIXED);
 

@@ -88,16 +88,19 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
     /**
      * Sets the key request parameters to pass as the last argument to {@link
-     * ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}.
+     * ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null if not parameters need to
+     * be passed.
      *
      * <p>Custom data for PlayReady should be set under {@link #PLAYREADY_CUSTOM_DATA_KEY}.
      *
      * @param keyRequestParameters A map with parameters.
      * @return This builder.
      */
-    public Builder setKeyRequestParameters(Map<String, String> keyRequestParameters) {
+    public Builder setKeyRequestParameters(@Nullable Map<String, String> keyRequestParameters) {
       this.keyRequestParameters.clear();
-      this.keyRequestParameters.putAll(Assertions.checkNotNull(keyRequestParameters));
+      if (keyRequestParameters != null) {
+        this.keyRequestParameters.putAll(keyRequestParameters);
+      }
       return this;
     }
 
