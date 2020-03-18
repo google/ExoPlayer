@@ -224,30 +224,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
   }
 
-  /** Thrown when a failure occurs in the decoder. */
-  public static class DecoderException extends Exception {
-
-    /** The {@link MediaCodecInfo} of the decoder that failed. Null if unknown. */
-    @Nullable public final MediaCodecInfo codecInfo;
-
-    /** An optional developer-readable diagnostic information string. May be null. */
-    @Nullable public final String diagnosticInfo;
-
-    public DecoderException(Throwable cause, @Nullable MediaCodecInfo codecInfo) {
-      super("Decoder failed: " + (codecInfo == null ? null : codecInfo.name), cause);
-      this.codecInfo = codecInfo;
-      diagnosticInfo = Util.SDK_INT >= 21 ? getDiagnosticInfoV21(cause) : null;
-    }
-
-    @RequiresApi(21)
-    private static String getDiagnosticInfoV21(Throwable cause) {
-      if (cause instanceof CodecException) {
-        return ((CodecException) cause).getDiagnosticInfo();
-      }
-      return null;
-    }
-  }
-
   /** Indicates no codec operating rate should be set. */
   protected static final float CODEC_OPERATING_RATE_UNSET = -1;
 
@@ -926,9 +902,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     mediaCryptoRequiresSecureDecoder = false;
   }
 
-  protected DecoderException createDecoderException(
+  protected MediaCodecDecoderException createDecoderException(
       Throwable cause, @Nullable MediaCodecInfo codecInfo) {
-    return new DecoderException(cause, codecInfo);
+    return new MediaCodecDecoderException(cause, codecInfo);
   }
 
   /** Reads into {@link #flagsOnlyBuffer} and returns whether a {@link Format} was read. */

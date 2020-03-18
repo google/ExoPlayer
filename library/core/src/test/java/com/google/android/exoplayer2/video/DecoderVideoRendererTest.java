@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
@@ -128,10 +129,10 @@ public final class DecoderVideoRendererTest {
           protected SimpleDecoder<
                   VideoDecoderInputBuffer,
                   ? extends VideoDecoderOutputBuffer,
-                  ? extends VideoDecoderException>
+                  ? extends DecoderException>
               createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
             return new SimpleDecoder<
-                VideoDecoderInputBuffer, VideoDecoderOutputBuffer, VideoDecoderException>(
+                VideoDecoderInputBuffer, VideoDecoderOutputBuffer, DecoderException>(
                 new VideoDecoderInputBuffer[10], new VideoDecoderOutputBuffer[10]) {
               @Override
               protected VideoDecoderInputBuffer createInputBuffer() {
@@ -144,13 +145,13 @@ public final class DecoderVideoRendererTest {
               }
 
               @Override
-              protected VideoDecoderException createUnexpectedDecodeException(Throwable error) {
-                return new VideoDecoderException("error", error);
+              protected DecoderException createUnexpectedDecodeException(Throwable error) {
+                return new DecoderException("error", error);
               }
 
               @Nullable
               @Override
-              protected VideoDecoderException decode(
+              protected DecoderException decode(
                   VideoDecoderInputBuffer inputBuffer,
                   VideoDecoderOutputBuffer outputBuffer,
                   boolean reset) {
