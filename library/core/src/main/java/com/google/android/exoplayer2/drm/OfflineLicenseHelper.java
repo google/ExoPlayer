@@ -22,13 +22,11 @@ import android.os.HandlerThread;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
-import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
@@ -53,15 +51,16 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param eventDispatcher A {@link MediaSourceEventDispatcher} used to distribute DRM-related
    *     events.
    * @return A new instance which uses Widevine CDM.
-   * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
-   *     instantiated.
    */
-  public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
+  public static OfflineLicenseHelper<ExoMediaCrypto> newWidevineInstance(
       String defaultLicenseUrl,
       HttpDataSource.Factory httpDataSourceFactory,
-      MediaSourceEventDispatcher eventDispatcher)
-      throws UnsupportedDrmException {
-    return newWidevineInstance(defaultLicenseUrl, false, httpDataSourceFactory, eventDispatcher);
+      MediaSourceEventDispatcher eventDispatcher) {
+    return newWidevineInstance(
+        defaultLicenseUrl,
+        /* forceDefaultLicenseUrl= */ false,
+        httpDataSourceFactory,
+        eventDispatcher);
   }
 
   /**
@@ -76,15 +75,12 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param eventDispatcher A {@link MediaSourceEventDispatcher} used to distribute DRM-related
    *     events.
    * @return A new instance which uses Widevine CDM.
-   * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
-   *     instantiated.
    */
-  public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
+  public static OfflineLicenseHelper<ExoMediaCrypto> newWidevineInstance(
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
       HttpDataSource.Factory httpDataSourceFactory,
-      MediaSourceEventDispatcher eventDispatcher)
-      throws UnsupportedDrmException {
+      MediaSourceEventDispatcher eventDispatcher) {
     return newWidevineInstance(
         defaultLicenseUrl,
         forceDefaultLicenseUrl,
@@ -106,37 +102,29 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
    * @param eventDispatcher A {@link MediaSourceEventDispatcher} used to distribute DRM-related
    *     events.
    * @return A new instance which uses Widevine CDM.
-   * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
-   *     instantiated.
    * @see DefaultDrmSessionManager.Builder
    */
-  public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
+  @SuppressWarnings("unchecked")
+  public static OfflineLicenseHelper<ExoMediaCrypto> newWidevineInstance(
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
       HttpDataSource.Factory httpDataSourceFactory,
       @Nullable Map<String, String> optionalKeyRequestParameters,
-      MediaSourceEventDispatcher eventDispatcher)
-      throws UnsupportedDrmException {
+      MediaSourceEventDispatcher eventDispatcher) {
     return new OfflineLicenseHelper<>(
-        C.WIDEVINE_UUID,
-        FrameworkMediaDrm.DEFAULT_PROVIDER,
-        new HttpMediaDrmCallback(defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory),
-        optionalKeyRequestParameters,
+        new DefaultDrmSessionManager.Builder()
+            .setKeyRequestParameters(optionalKeyRequestParameters)
+            .build(
+                new HttpMediaDrmCallback(
+                    defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory)),
         eventDispatcher);
   }
 
   /**
-   * Constructs an instance. Call {@link #release()} when the instance is no longer required.
-   *
-   * @param uuid The UUID of the drm scheme.
-   * @param mediaDrmProvider A {@link ExoMediaDrm.Provider}.
-   * @param callback Performs key and provisioning requests.
-   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link MediaDrm#getKeyRequest}. May be null.
-   * @param eventDispatcher A {@link MediaSourceEventDispatcher} used to distribute DRM-related
-   *     events.
-   * @see DefaultDrmSessionManager.Builder
+   * @deprecated Use {@link #OfflineLicenseHelper(DefaultDrmSessionManager,
+   *     MediaSourceEventDispatcher)} instead.
    */
+  @Deprecated
   @SuppressWarnings("unchecked")
   public OfflineLicenseHelper(
       UUID uuid,
@@ -144,6 +132,27 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
       MediaDrmCallback callback,
       @Nullable Map<String, String> optionalKeyRequestParameters,
       MediaSourceEventDispatcher eventDispatcher) {
+    this(
+        (DefaultDrmSessionManager<T>)
+            new DefaultDrmSessionManager.Builder()
+                .setUuidAndExoMediaDrmProvider(uuid, mediaDrmProvider)
+                .setKeyRequestParameters(optionalKeyRequestParameters)
+                .build(callback),
+        eventDispatcher);
+  }
+
+  /**
+   * Constructs an instance. Call {@link #release()} when the instance is no longer required.
+   *
+   * @param defaultDrmSessionManager The {@link DefaultDrmSessionManager} used to download licenses.
+   * @param eventDispatcher A {@link MediaSourceEventDispatcher} used to distribute DRM-related
+   *     events.
+   */
+  public OfflineLicenseHelper(
+      DefaultDrmSessionManager<T> defaultDrmSessionManager,
+      MediaSourceEventDispatcher eventDispatcher) {
+    this.drmSessionManager = defaultDrmSessionManager;
+    this.eventDispatcher = eventDispatcher;
     handlerThread = new HandlerThread("OfflineLicenseHelper");
     handlerThread.start();
     conditionVariable = new ConditionVariable();
@@ -169,17 +178,7 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
             conditionVariable.open();
           }
         };
-    if (optionalKeyRequestParameters == null) {
-      optionalKeyRequestParameters = Collections.emptyMap();
-    }
-    drmSessionManager =
-        (DefaultDrmSessionManager<T>)
-            new DefaultDrmSessionManager.Builder()
-                .setUuidAndExoMediaDrmProvider(uuid, mediaDrmProvider)
-                .setKeyRequestParameters(optionalKeyRequestParameters)
-                .build(callback);
     drmSessionManager.addListener(new Handler(handlerThread.getLooper()), eventListener);
-    this.eventDispatcher = eventDispatcher;
   }
 
   /**
