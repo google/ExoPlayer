@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.mediacodec.MediaCodecDecoderException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
@@ -94,23 +95,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   /** Magic frame render timestamp that indicates the EOS in tunneling mode. */
   private static final long TUNNELING_EOS_PRESENTATION_TIME_US = Long.MAX_VALUE;
-
-  /** A {@link DecoderException} with additional surface information. */
-  public static final class VideoDecoderException extends DecoderException {
-
-    /** The {@link System#identityHashCode(Object)} of the surface when the exception occurred. */
-    public final int surfaceIdentityHashCode;
-
-    /** Whether the surface was valid when the exception occurred. */
-    public final boolean isSurfaceValid;
-
-    public VideoDecoderException(
-        Throwable cause, @Nullable MediaCodecInfo codecInfo, @Nullable Surface surface) {
-      super(cause, codecInfo);
-      surfaceIdentityHashCode = System.identityHashCode(surface);
-      isSurfaceValid = surface == null || surface.isValid();
-    }
-  }
 
   private static boolean evaluatedDeviceNeedsSetOutputSurfaceWorkaround;
   private static boolean deviceNeedsSetOutputSurfaceWorkaround;
@@ -1303,9 +1287,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected DecoderException createDecoderException(
+  protected MediaCodecDecoderException createDecoderException(
       Throwable cause, @Nullable MediaCodecInfo codecInfo) {
-    return new VideoDecoderException(cause, codecInfo, surface);
+    return new MediaCodecVideoDecoderException(cause, codecInfo, surface);
   }
 
   /**

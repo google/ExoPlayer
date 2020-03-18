@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -77,9 +78,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   private Format inputFormat;
   private Format outputFormat;
   private Decoder<
-          VideoDecoderInputBuffer,
-          ? extends VideoDecoderOutputBuffer,
-          ? extends VideoDecoderException>
+          VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
       decoder;
   private VideoDecoderInputBuffer inputBuffer;
   private VideoDecoderOutputBuffer outputBuffer;
@@ -179,7 +178,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
-      } catch (VideoDecoderException e) {
+      } catch (DecoderException e) {
         throw createRendererException(e, inputFormat);
       }
       decoderCounters.ensureUpdated();
@@ -488,14 +487,11 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    * @param mediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted content.
    *     May be null and can be ignored if decoder does not handle encrypted content.
    * @return The decoder.
-   * @throws VideoDecoderException If an error occurred creating a suitable decoder.
+   * @throws DecoderException If an error occurred creating a suitable decoder.
    */
   protected abstract Decoder<
-          VideoDecoderInputBuffer,
-          ? extends VideoDecoderOutputBuffer,
-          ? extends VideoDecoderException>
-      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
-          throws VideoDecoderException;
+          VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
+      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) throws DecoderException;
 
   /**
    * Renders the specified output buffer.
@@ -506,11 +502,11 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    * @param outputBuffer {@link VideoDecoderOutputBuffer} to render.
    * @param presentationTimeUs Presentation time in microseconds.
    * @param outputFormat Output {@link Format}.
-   * @throws VideoDecoderException If an error occurs when rendering the output buffer.
+   * @throws DecoderException If an error occurs when rendering the output buffer.
    */
   protected void renderOutputBuffer(
       VideoDecoderOutputBuffer outputBuffer, long presentationTimeUs, Format outputFormat)
-      throws VideoDecoderException {
+      throws DecoderException {
     lastRenderTimeUs = C.msToUs(SystemClock.elapsedRealtime() * 1000);
     int bufferMode = outputBuffer.mode;
     boolean renderSurface = bufferMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && surface != null;
@@ -538,10 +534,10 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    *
    * @param outputBuffer {@link VideoDecoderOutputBuffer} to render.
    * @param surface Output {@link Surface}.
-   * @throws VideoDecoderException If an error occurs when rendering the output buffer.
+   * @throws DecoderException If an error occurs when rendering the output buffer.
    */
   protected abstract void renderOutputBufferToSurface(
-      VideoDecoderOutputBuffer outputBuffer, Surface surface) throws VideoDecoderException;
+      VideoDecoderOutputBuffer outputBuffer, Surface surface) throws DecoderException;
 
   /**
    * Sets output surface.
@@ -651,12 +647,12 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
           decoderInitializedTimestamp,
           decoderInitializedTimestamp - decoderInitializingTimestamp);
       decoderCounters.decoderInitCount++;
-    } catch (VideoDecoderException e) {
+    } catch (DecoderException e) {
       throw createRendererException(e, inputFormat);
     }
   }
 
-  private boolean feedInputBuffer() throws VideoDecoderException, ExoPlaybackException {
+  private boolean feedInputBuffer() throws DecoderException, ExoPlaybackException {
     if (decoder == null
         || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
         || inputStreamEnded) {
@@ -732,7 +728,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs draining the output buffer.
    */
   private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
-      throws ExoPlaybackException, VideoDecoderException {
+      throws ExoPlaybackException, DecoderException {
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
@@ -774,7 +770,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
    */
   private boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs)
-      throws ExoPlaybackException, VideoDecoderException {
+      throws ExoPlaybackException, DecoderException {
     if (initialPositionUs == C.TIME_UNSET) {
       initialPositionUs = positionUs;
     }

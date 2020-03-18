@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -105,7 +106,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   private int encoderPadding;
 
   @Nullable
-  private Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
+  private Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>
       decoder;
 
   @Nullable private DecoderInputBuffer inputBuffer;
@@ -260,8 +261,10 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
         while (drainOutputBuffer()) {}
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
-      } catch (AudioDecoderException | AudioSink.ConfigurationException
-          | AudioSink.InitializationException | AudioSink.WriteException e) {
+      } catch (DecoderException
+          | AudioSink.ConfigurationException
+          | AudioSink.InitializationException
+          | AudioSink.WriteException e) {
         throw createRendererException(e, inputFormat);
       }
       decoderCounters.ensureUpdated();
@@ -303,12 +306,11 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
    * @param mediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted content.
    *     Maybe null and can be ignored if decoder does not handle encrypted content.
    * @return The decoder.
-   * @throws AudioDecoderException If an error occurred creating a suitable decoder.
+   * @throws DecoderException If an error occurred creating a suitable decoder.
    */
   protected abstract Decoder<
-          DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
-      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
-          throws AudioDecoderException;
+          DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>
+      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) throws DecoderException;
 
   /**
    * Returns the format of audio buffers output by the decoder. Will not be called until the first
@@ -327,9 +329,9 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
     return false;
   }
 
-  private boolean drainOutputBuffer() throws ExoPlaybackException, AudioDecoderException,
-      AudioSink.ConfigurationException, AudioSink.InitializationException,
-      AudioSink.WriteException {
+  private boolean drainOutputBuffer()
+      throws ExoPlaybackException, DecoderException, AudioSink.ConfigurationException,
+          AudioSink.InitializationException, AudioSink.WriteException {
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {
@@ -374,7 +376,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
     return false;
   }
 
-  private boolean feedInputBuffer() throws AudioDecoderException, ExoPlaybackException {
+  private boolean feedInputBuffer() throws DecoderException, ExoPlaybackException {
     if (decoder == null || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
         || inputStreamEnded) {
       // We need to reinitialize the decoder or the input stream has ended.
@@ -607,7 +609,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
       eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
       decoderCounters.decoderInitCount++;
-    } catch (AudioDecoderException e) {
+    } catch (DecoderException e) {
       throw createRendererException(e, inputFormat);
     }
   }

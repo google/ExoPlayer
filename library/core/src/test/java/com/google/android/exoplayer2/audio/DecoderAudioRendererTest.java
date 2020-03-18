@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
@@ -65,7 +66,7 @@ public class DecoderAudioRendererTest {
 
           @Override
           protected SimpleDecoder<
-                  DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
+                  DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>
               createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
             return new FakeDecoder();
           }
@@ -114,7 +115,7 @@ public class DecoderAudioRendererTest {
   }
 
   private static final class FakeDecoder
-      extends SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, AudioDecoderException> {
+      extends SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, DecoderException> {
 
     public FakeDecoder() {
       super(new DecoderInputBuffer[1], new SimpleOutputBuffer[1]);
@@ -136,13 +137,13 @@ public class DecoderAudioRendererTest {
     }
 
     @Override
-    protected AudioDecoderException createUnexpectedDecodeException(Throwable error) {
-      return new AudioDecoderException("Unexpected decode error", error);
+    protected DecoderException createUnexpectedDecodeException(Throwable error) {
+      return new DecoderException("Unexpected decode error", error);
     }
 
     @Override
-    protected AudioDecoderException decode(DecoderInputBuffer inputBuffer,
-        SimpleOutputBuffer outputBuffer, boolean reset) {
+    protected DecoderException decode(
+        DecoderInputBuffer inputBuffer, SimpleOutputBuffer outputBuffer, boolean reset) {
       if (inputBuffer.isEndOfStream()) {
         outputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
       }

@@ -26,13 +26,13 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.DecoderVideoRenderer;
-import com.google.android.exoplayer2.video.VideoDecoderException;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
@@ -141,11 +141,8 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
 
   @Override
   protected SimpleDecoder<
-          VideoDecoderInputBuffer,
-          ? extends VideoDecoderOutputBuffer,
-          ? extends VideoDecoderException>
-      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
-          throws VideoDecoderException {
+          VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
+      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) throws DecoderException {
     TraceUtil.beginSection("createGav1Decoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;

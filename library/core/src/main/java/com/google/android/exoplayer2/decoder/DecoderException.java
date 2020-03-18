@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.video;
+package com.google.android.exoplayer2.decoder;
 
-/** Thrown when a video decoder error occurs. */
-public class VideoDecoderException extends Exception {
+/** Thrown when a {@link Decoder} error occurs. */
+public class DecoderException extends Exception {
 
-  /**
-   * Creates an instance with the given message.
-   *
-   * @param message The detail message for this exception.
-   */
-  public VideoDecoderException(String message) {
+  /** @param message The detail message for this exception. */
+  public DecoderException(String message) {
     super(message);
   }
 
   /**
-   * Creates an instance with the given message and cause.
-   *
    * @param message The detail message for this exception.
    * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method).
    *     A <tt>null</tt> value is permitted, and indicates that the cause is nonexistent or unknown.
    */
-  public VideoDecoderException(String message, Throwable cause) {
+  public DecoderException(String message, Throwable cause) {
     super(message, cause);
   }
 }
