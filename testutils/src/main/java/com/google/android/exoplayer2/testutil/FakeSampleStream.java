@@ -30,7 +30,7 @@ import java.util.Arrays;
  * Fake {@link SampleStream} that outputs a given {@link Format}, any amount of {@link
  * FakeSampleStreamItem items}, then end of stream.
  */
-public final class FakeSampleStream implements SampleStream {
+public class FakeSampleStream implements SampleStream {
 
   /** Item to customize a return value of {@link FakeSampleStream#readData}. */
   public static final class FakeSampleStreamItem {
