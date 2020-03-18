@@ -182,6 +182,16 @@ import java.util.concurrent.TimeoutException;
     internalPlayer.experimental_setReleaseTimeoutMs(timeoutMs);
   }
 
+  /**
+   * Configures the player to throw when it detects it's stuck buffering.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release. It should
+   * only be called before the player is used.
+   */
+  public void experimental_throwWhenStuckBuffering() {
+    internalPlayer.experimental_throwWhenStuckBuffering();
+  }
+
   @Override
   @Nullable
   public AudioComponent getAudioComponent() {

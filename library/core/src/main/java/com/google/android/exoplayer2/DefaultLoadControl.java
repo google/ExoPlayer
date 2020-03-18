@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -383,6 +384,11 @@ public class DefaultLoadControl implements LoadControl {
     minBufferUs = Math.max(minBufferUs, 500_000);
     if (bufferedDurationUs < minBufferUs) {
       isBuffering = prioritizeTimeOverSizeThresholds || !targetBufferSizeReached;
+      if (!isBuffering && bufferedDurationUs < 500_000) {
+        Log.w(
+            "DefaultLoadControl",
+            "Target buffer size reached with less than 500ms of buffered media data.");
+      }
     } else if (bufferedDurationUs >= maxBufferUs || targetBufferSizeReached) {
       isBuffering = false;
     } // Else don't change the buffering state
