@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
@@ -61,13 +62,17 @@ import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
+import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
@@ -6074,6 +6079,142 @@ public final class ExoPlayerTest {
     assertThat(positionAfterPause.get()).isEqualTo(10_000);
   }
 
+  // Disabled until the flag to throw exceptions for [internal: b/144538905] is enabled by default.
+  @Ignore
+  @Test
+  public void
+      infiniteLoading_withSmallAllocations_oomIsPreventedByLoadControl_andThrowsStuckBufferingIllegalStateException() {
+    MediaSource continuouslyAllocatingMediaSource =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.VIDEO_FORMAT) {
+          @Override
+          protected FakeMediaPeriod createFakeMediaPeriod(
+              MediaPeriodId id,
+              TrackGroupArray trackGroupArray,
+              Allocator allocator,
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener transferListener) {
+            return new FakeMediaPeriod(trackGroupArray, eventDispatcher) {
+
+              private final List<Allocation> allocations = new ArrayList<>();
+
+              private Callback callback;
+
+              @Override
+              public synchronized void prepare(Callback callback, long positionUs) {
+                this.callback = callback;
+                super.prepare(callback, positionUs);
+              }
+
+              @Override
+              public long getBufferedPositionUs() {
+                // Pretend not to make loading progress, so that continueLoading keeps being called.
+                return 0;
+              }
+
+              @Override
+              public long getNextLoadPositionUs() {
+                // Pretend not to make loading progress, so that continueLoading keeps being called.
+                return 0;
+              }
+
+              @Override
+              public boolean continueLoading(long positionUs) {
+                allocations.add(allocator.allocate());
+                callback.onContinueLoadingRequested(this);
+                return true;
+              }
+            };
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            // Prevent player from ever assuming it finished playing.
+            .setRepeatMode(Player.REPEAT_MODE_ALL)
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setActionSchedule(actionSchedule)
+            .setMediaSources(continuouslyAllocatingMediaSource)
+            .build(context);
+
+    ExoPlaybackException exception =
+        assertThrows(
+            ExoPlaybackException.class, () -> testRunner.start().blockUntilEnded(TIMEOUT_MS));
+    assertThat(exception.type).isEqualTo(ExoPlaybackException.TYPE_UNEXPECTED);
+    assertThat(exception.getUnexpectedException()).isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void loading_withLargeAllocationCausingOom_playsRemainingMediaAndThenThrows() {
+    Loader.Loadable loadable =
+        new Loader.Loadable() {
+          @Override
+          public void load() throws IOException {
+            byte[] largeBuffer = new byte[Integer.MAX_VALUE];
+          }
+
+          @Override
+          public void cancelLoad() {}
+        };
+    MediaSource largeBufferAllocatingMediaSource =
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), Builder.VIDEO_FORMAT) {
+          @Override
+          protected FakeMediaPeriod createFakeMediaPeriod(
+              MediaPeriodId id,
+              TrackGroupArray trackGroupArray,
+              Allocator allocator,
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener transferListener) {
+            return new FakeMediaPeriod(trackGroupArray, eventDispatcher) {
+              private Loader loader = new Loader("oomLoader");
+
+              @Override
+              public boolean continueLoading(long positionUs) {
+                loader.startLoading(
+                    loadable, new DummyLoaderCallback(), /* defaultMinRetryCount= */ 1);
+                return true;
+              }
+
+              @Override
+              protected SampleStream createSampleStream(
+                  long positionUs, TrackSelection selection, EventDispatcher eventDispatcher) {
+                // Create 3 samples without end of stream signal to test that all 3 samples are
+                // still played before the exception is thrown.
+                return new FakeSampleStream(
+                    selection.getSelectedFormat(),
+                    eventDispatcher,
+                    positionUs,
+                    /* timeUsIncrement= */ 0,
+                    new FakeSampleStream.FakeSampleStreamItem(new byte[] {0}),
+                    new FakeSampleStream.FakeSampleStreamItem(new byte[] {0}),
+                    new FakeSampleStream.FakeSampleStreamItem(new byte[] {0})) {
+
+                  @Override
+                  public void maybeThrowError() throws IOException {
+                    loader.maybeThrowError();
+                  }
+                };
+              }
+            };
+          }
+        };
+    FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder()
+            .setMediaSources(largeBufferAllocatingMediaSource)
+            .setRenderers(renderer)
+            .build(context);
+
+    ExoPlaybackException exception =
+        assertThrows(
+            ExoPlaybackException.class, () -> testRunner.start().blockUntilEnded(TIMEOUT_MS));
+    assertThat(exception.type).isEqualTo(ExoPlaybackException.TYPE_SOURCE);
+    assertThat(exception.getSourceException()).isInstanceOf(Loader.UnexpectedLoaderException.class);
+    assertThat(exception.getSourceException().getCause()).isInstanceOf(OutOfMemoryError.class);
+
+    assertThat(renderer.sampleBufferReadCount).isEqualTo(3);
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
@@ -6177,6 +6318,26 @@ public final class ExoPlayerTest {
     public void run(SimpleExoPlayer player) {
       playbackStates[index] = player.getPlaybackState();
       timelineWindowCount[index] = player.getCurrentTimeline().getWindowCount();
+    }
+  }
+
+  private static final class DummyLoaderCallback implements Loader.Callback<Loader.Loadable> {
+    @Override
+    public void onLoadCompleted(
+        Loader.Loadable loadable, long elapsedRealtimeMs, long loadDurationMs) {}
+
+    @Override
+    public void onLoadCanceled(
+        Loader.Loadable loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {}
+
+    @Override
+    public Loader.LoadErrorAction onLoadError(
+        Loader.Loadable loadable,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        IOException error,
+        int errorCount) {
+      return Loader.RETRY;
     }
   }
 }
