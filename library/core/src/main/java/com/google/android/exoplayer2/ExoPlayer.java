@@ -149,6 +149,7 @@ public interface ExoPlayer extends Player {
     private boolean buildCalled;
 
     private long releaseTimeoutMs;
+    private boolean throwWhenStuckBuffering;
 
     /**
      * Creates a builder with a list of {@link Renderer Renderers}.
@@ -228,13 +229,25 @@ public interface ExoPlayer extends Player {
      * ExoPlayer#release()} takes more than {@code timeoutMs} milliseconds to complete, the player
      * will raise an error via {@link Player.EventListener#onPlayerError}.
      *
-     * <p>This method is experimental, and will be renamed or removed in a future release. It should
-     * only be called before the player is used.
+     * <p>This method is experimental, and will be renamed or removed in a future release.
      *
      * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
      */
     public Builder experimental_setReleaseTimeoutMs(long timeoutMs) {
       releaseTimeoutMs = timeoutMs;
+      return this;
+    }
+
+    /**
+     * Sets whether the player should throw when it detects it's stuck buffering.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     *
+     * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
+     * @return This builder.
+     */
+    public Builder experimental_setThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
+      this.throwWhenStuckBuffering = throwWhenStuckBuffering;
       return this;
     }
 
@@ -371,6 +384,9 @@ public interface ExoPlayer extends Player {
 
       if (releaseTimeoutMs > 0) {
         player.experimental_setReleaseTimeoutMs(releaseTimeoutMs);
+      }
+      if (throwWhenStuckBuffering) {
+        player.experimental_throwWhenStuckBuffering();
       }
 
       return player;

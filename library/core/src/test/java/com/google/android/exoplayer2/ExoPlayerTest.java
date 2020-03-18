@@ -3539,9 +3539,11 @@ public final class ExoPlayerTest {
     testRunner.blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
   }
 
+  // Disabled until the flag to throw exceptions for [internal: b/144538905] is enabled by default.
+  @Ignore
   @Test
-  public void loadControlNeverWantsToLoadOrPlay_playbackDoesNotGetStuck() throws Exception {
-    LoadControl neverLoadingOrPlayingLoadControl =
+  public void loadControlNeverWantsToLoad_throwsIllegalStateException() throws Exception {
+    LoadControl neverLoadingLoadControl =
         new DefaultLoadControl() {
           @Override
           public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
@@ -3551,7 +3553,7 @@ public final class ExoPlayerTest {
           @Override
           public boolean shouldStartPlayback(
               long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
-            return false;
+            return true;
           }
         };
 
@@ -3565,13 +3567,18 @@ public final class ExoPlayerTest {
             new TrackGroupArray(new TrackGroup(Builder.VIDEO_FORMAT)),
             new FakeChunkSource.Factory(dataSetFactory, new FakeDataSource.Factory()));
 
-    new ExoPlayerTestRunner.Builder()
-        .setLoadControl(neverLoadingOrPlayingLoadControl)
-        .setMediaSources(chunkedMediaSource)
-        .build(context)
-        .start()
-        // This throws if playback doesn't finish within timeout.
-        .blockUntilEnded(TIMEOUT_MS);
+    ExoPlaybackException exception =
+        assertThrows(
+            ExoPlaybackException.class,
+            () ->
+                new ExoPlayerTestRunner.Builder()
+                    .setLoadControl(neverLoadingLoadControl)
+                    .setMediaSources(chunkedMediaSource)
+                    .build(context)
+                    .start()
+                    .blockUntilEnded(TIMEOUT_MS));
+    assertThat(exception.type).isEqualTo(ExoPlaybackException.TYPE_UNEXPECTED);
+    assertThat(exception.getUnexpectedException()).isInstanceOf(IllegalStateException.class);
   }
 
   @Test

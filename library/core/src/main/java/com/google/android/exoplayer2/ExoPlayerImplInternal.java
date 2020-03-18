@@ -135,6 +135,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean deliverPendingMessageAtStartPositionRequired;
 
   private long releaseTimeoutMs;
+  private boolean throwWhenStuckBuffering;
 
   public ExoPlayerImplInternal(
       Renderer[] renderers,
@@ -190,6 +191,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   public void experimental_setReleaseTimeoutMs(long releaseTimeoutMs) {
     this.releaseTimeoutMs = releaseTimeoutMs;
+  }
+
+  public void experimental_throwWhenStuckBuffering() {
+    throwWhenStuckBuffering = true;
   }
 
   public void prepare() {
@@ -876,6 +881,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
             && renderers[i].getStream() == playingPeriodHolder.sampleStreams[i]) {
           renderers[i].maybeThrowStreamError();
         }
+      }
+      if (throwWhenStuckBuffering
+          && !shouldContinueLoading
+          && playbackInfo.totalBufferedDurationUs < 500_000
+          && isLoadingPossible()) {
+        // Throw if the LoadControl prevents loading even if the buffer is empty or almost empty. We
+        // can't compare against 0 to account for small differences between the renderer position
+        // and buffered position in the media at the point where playback gets stuck.
+        throw new IllegalStateException("Playback stuck buffering and not loading");
       }
     }
 
@@ -1948,13 +1962,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     long bufferedDurationUs =
         getTotalBufferedDurationUs(queue.getLoadingPeriod().getNextLoadPositionUs());
-    if (bufferedDurationUs < 500_000) {
-      // Prevent loading from getting stuck even if LoadControl.shouldContinueLoading returns false
-      // when the buffer is empty or almost empty. We can't compare against 0 to account for small
-      // differences between the renderer position and buffered position in the media at the point
-      // where playback gets stuck.
-      return true;
-    }
     return loadControl.shouldContinueLoading(bufferedDurationUs, mediaClock.getPlaybackSpeed());
   }
 
