@@ -248,7 +248,8 @@ import java.util.Set;
    * @param analyticsCollector The analytics collector.
    */
   public final void setAnalyticsCollector(Handler handler, AnalyticsCollector analyticsCollector) {
-    eventDispatcher.addEventListener(handler, analyticsCollector);
+    eventDispatcher.addEventListener(handler, analyticsCollector, MediaSourceEventListener.class);
+    eventDispatcher.addEventListener(handler, analyticsCollector, DrmSessionEventListener.class);
   }
 
   /**
