@@ -103,6 +103,11 @@ public class MediaSourceEventDispatcher {
    * event dispatched to {@code listenerClass} will only be passed to the {@code eventListener}
    * once.
    *
+   * <p><b>NOTE</b>: This doesn't interact well with hierarchies of listener interfaces. If a
+   * listener is registered with a super-class type then it will only receive events dispatched
+   * directly to that super-class type. Similarly, if a listener is registered with a sub-class type
+   * then it will only receive events dispatched directly to that sub-class.
+   *
    * @param handler A handler on the which listener events will be posted.
    * @param eventListener The listener to be added.
    * @param listenerClass The type used to register the listener. Can be a superclass of {@code
