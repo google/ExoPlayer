@@ -46,6 +46,8 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
   }
 
   /**
+   * Creates a new instance.
+   *
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -63,6 +65,8 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
   }
 
   /**
+   * Creates a new instance.
+   *
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
