@@ -1869,6 +1869,7 @@ public class MatroskaExtractor implements Extractor {
     public int displayWidth = Format.NO_VALUE;
     public int displayHeight = Format.NO_VALUE;
     public int displayUnit = DISPLAY_UNIT_PIXELS;
+    public float frameRate = Format.NO_VALUE;
     @C.Projection public int projectionType = Format.NO_VALUE;
     public float projectionPoseYaw = 0f;
     public float projectionPosePitch = 0f;
@@ -2113,9 +2114,11 @@ public class MatroskaExtractor implements Extractor {
             rotationDegrees = 270;
           }
         }
+        frameRate = (float) 1000000000 / defaultSampleDurationNs;
         formatBuilder
             .setWidth(width)
             .setHeight(height)
+            .setFrameRate(frameRate)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setRotationDegrees(rotationDegrees)
             .setProjectionData(projectionData)
