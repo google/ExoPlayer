@@ -73,6 +73,9 @@ import java.util.List;
  *       payload should be one of the integer scaling modes in {@link VideoScalingMode}. Note that
  *       the scaling mode only applies if the {@link Surface} targeted by this renderer is owned by
  *       a {@link android.view.SurfaceView}.
+ *   <li>Message with type {@link #MSG_SET_VIDEO_FRAME_METADATA_LISTENER} to set a listener for
+ *       metadata associated with frames being rendered. The message payload should be the {@link
+ *       VideoFrameMetadataListener}, or null.
  * </ul>
  */
 public class MediaCodecVideoRenderer extends MediaCodecRenderer {

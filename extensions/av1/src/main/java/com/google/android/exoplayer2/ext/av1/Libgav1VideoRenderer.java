@@ -21,37 +21,17 @@ import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.decoder.DecoderException;
-import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.DecoderVideoRenderer;
-import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
-import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
-/**
- * Decodes and renders video using libgav1 decoder.
- *
- * <p>This renderer accepts the following messages sent via {@link ExoPlayer#createMessage(Target)}
- * on the playback thread:
- *
- * <ul>
- *   <li>Message with type {@link #MSG_SET_SURFACE} to set the output surface. The message payload
- *       should be the target {@link Surface}, or null.
- *   <li>Message with type {@link #MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER} to set the output
- *       buffer renderer. The message payload should be the target {@link
- *       VideoDecoderOutputBufferRenderer}, or null.
- * </ul>
- */
+/** Decodes and renders video using libgav1 decoder. */
 public class Libgav1VideoRenderer extends DecoderVideoRenderer {
 
   private static final int DEFAULT_NUM_OF_INPUT_BUFFERS = 4;
@@ -73,7 +53,7 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
   @Nullable private Gav1Decoder decoder;
 
   /**
-   * Creates a Libgav1VideoRenderer.
+   * Creates a new instance.
    *
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
@@ -99,7 +79,7 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
   }
 
   /**
-   * Creates a Libgav1VideoRenderer.
+   * Creates a new instance.
    *
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
@@ -140,9 +120,8 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
   }
 
   @Override
-  protected SimpleDecoder<
-          VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
-      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) throws DecoderException {
+  protected Gav1Decoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+      throws Gav1DecoderException {
     TraceUtil.beginSection("createGav1Decoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
@@ -168,19 +147,6 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
   protected void setDecoderOutputMode(@C.VideoOutputMode int outputMode) {
     if (decoder != null) {
       decoder.setOutputMode(outputMode);
-    }
-  }
-
-  // PlayerMessage.Target implementation.
-
-  @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
-    if (messageType == MSG_SET_SURFACE) {
-      setOutputSurface((Surface) message);
-    } else if (messageType == MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER) {
-      setOutputBufferRenderer((VideoDecoderOutputBufferRenderer) message);
-    } else {
-      super.handleMessage(messageType, message);
     }
   }
 }
