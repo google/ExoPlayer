@@ -67,7 +67,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final HlsPlaylistTracker playlistTracker;
   private final HlsDataSourceFactory dataSourceFactory;
   @Nullable private final TransferListener mediaTransferListener;
-  private final DrmSessionManager<?> drmSessionManager;
+  private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
@@ -112,7 +112,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       HlsPlaylistTracker playlistTracker,
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       Allocator allocator,

@@ -40,9 +40,9 @@ import org.robolectric.annotation.LooperMode;
 @LooperMode(LooperMode.Mode.PAUSED)
 public class OfflineLicenseHelperTest {
 
-  private OfflineLicenseHelper<?> offlineLicenseHelper;
+  private OfflineLicenseHelper offlineLicenseHelper;
   @Mock private MediaDrmCallback mediaDrmCallback;
-  @Mock private ExoMediaDrm<ExoMediaCrypto> mediaDrm;
+  @Mock private ExoMediaDrm mediaDrm;
 
   @Before
   public void setUp() throws Exception {
@@ -52,9 +52,9 @@ public class OfflineLicenseHelperTest {
         .thenReturn(
             new ExoMediaDrm.KeyRequest(/* data= */ new byte[0], /* licenseServerUrl= */ ""));
     offlineLicenseHelper =
-        new OfflineLicenseHelper<>(
+        new OfflineLicenseHelper(
             C.WIDEVINE_UUID,
-            new ExoMediaDrm.AppManagedProvider<>(mediaDrm),
+            new ExoMediaDrm.AppManagedProvider(mediaDrm),
             mediaDrmCallback,
             /* optionalKeyRequestParameters= */ null,
             new MediaSourceEventDispatcher());

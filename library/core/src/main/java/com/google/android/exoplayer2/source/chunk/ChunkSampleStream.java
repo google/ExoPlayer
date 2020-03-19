@@ -110,7 +110,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       Callback<ChunkSampleStream<T>> callback,
       Allocator allocator,
       long positionUs,
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher) {
     this.primaryTrackType = primaryTrackType;

@@ -25,10 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
 
-/**
- * A DRM session.
- */
-public interface DrmSession<T extends ExoMediaCrypto> {
+/** A DRM session. */
+public interface DrmSession {
 
   /**
    * Acquires {@code newSession} then releases {@code previousSession}.
@@ -38,8 +36,8 @@ public interface DrmSession<T extends ExoMediaCrypto> {
    * eventDispatcher = null}). Null arguments are ignored. Does nothing if {@code previousSession}
    * and {@code newSession} are the same session.
    */
-  static <T extends ExoMediaCrypto> void replaceSession(
-      @Nullable DrmSession<T> previousSession, @Nullable DrmSession<T> newSession) {
+  static void replaceSession(
+      @Nullable DrmSession previousSession, @Nullable DrmSession newSession) {
     if (previousSession == newSession) {
       // Do nothing.
       return;
@@ -106,11 +104,11 @@ public interface DrmSession<T extends ExoMediaCrypto> {
   DrmSessionException getError();
 
   /**
-   * Returns a {@link ExoMediaCrypto} for the open session, or null if called before the session has
-   * been opened or after it's been released.
+   * Returns an {@link ExoMediaCrypto} for the open session, or null if called before the session
+   * has been opened or after it's been released.
    */
   @Nullable
-  T getMediaCrypto();
+  ExoMediaCrypto getMediaCrypto();
 
   /**
    * Returns a map describing the key status for the session, or null if called before the session

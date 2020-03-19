@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.drm.DrmSession;
 public final class FormatHolder {
 
   /** An accompanying context for decrypting samples in the format. */
-  @Nullable public DrmSession<?> drmSession;
+  @Nullable public DrmSession drmSession;
 
   /** The held {@link Format}. */
   @Nullable public Format format;

@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -281,7 +280,7 @@ public final class DownloadHelper {
       Uri uri,
       DataSource.Factory dataSourceFactory,
       RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager drmSessionManager,
       DefaultTrackSelector.Parameters trackSelectorParameters) {
     return new DownloadHelper(
         DownloadRequest.TYPE_DASH,
@@ -351,7 +350,7 @@ public final class DownloadHelper {
       Uri uri,
       DataSource.Factory dataSourceFactory,
       RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager drmSessionManager,
       DefaultTrackSelector.Parameters trackSelectorParameters) {
     return new DownloadHelper(
         DownloadRequest.TYPE_HLS,
@@ -421,7 +420,7 @@ public final class DownloadHelper {
       Uri uri,
       DataSource.Factory dataSourceFactory,
       RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager drmSessionManager,
       DefaultTrackSelector.Parameters trackSelectorParameters) {
     return new DownloadHelper(
         DownloadRequest.TYPE_SS,
@@ -459,7 +458,7 @@ public final class DownloadHelper {
   public static MediaSource createMediaSource(
       DownloadRequest downloadRequest,
       DataSource.Factory dataSourceFactory,
-      @Nullable DrmSessionManager<?> drmSessionManager) {
+      @Nullable DrmSessionManager drmSessionManager) {
     @Nullable Constructor<? extends MediaSourceFactory> constructor;
     switch (downloadRequest.type) {
       case DownloadRequest.TYPE_DASH:
@@ -943,7 +942,7 @@ public final class DownloadHelper {
       @Nullable Constructor<? extends MediaSourceFactory> constructor,
       Uri uri,
       Factory dataSourceFactory,
-      @Nullable DrmSessionManager<?> drmSessionManager,
+      @Nullable DrmSessionManager drmSessionManager,
       @Nullable List<StreamKey> streamKeys) {
     if (constructor == null) {
       throw new IllegalStateException("Module missing to create media source.");

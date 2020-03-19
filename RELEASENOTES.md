@@ -83,6 +83,7 @@
     *   Add option to inject a custom `DefaultDrmSessionManager` into
         `OfflineLicenseHelper`
         ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
+    *   Remove generics from DRM components.
 *   Downloads: Merge downloads in `SegmentDownloader` to improve overall
     download speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 *   DASH:

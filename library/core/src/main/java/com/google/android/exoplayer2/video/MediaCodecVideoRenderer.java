@@ -42,7 +42,6 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecDecoderException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
@@ -272,9 +271,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (decoderInfos.isEmpty()) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
     }
-    boolean supportsFormatDrm =
-        drmInitData == null || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType);
-    if (!supportsFormatDrm) {
+    if (!supportsFormatDrm(format)) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
     }
     // Check capabilities for the first decoder in the list, which takes priority.

@@ -42,17 +42,17 @@ import java.util.UUID;
  * new instance does not normally need to call {@link #acquire()}, and must call {@link #release()}
  * when the instance is no longer required.
  */
-public interface ExoMediaDrm<T extends ExoMediaCrypto> {
+public interface ExoMediaDrm {
 
   /** {@link ExoMediaDrm} instances provider. */
-  interface Provider<T extends ExoMediaCrypto> {
+  interface Provider {
 
     /**
      * Returns an {@link ExoMediaDrm} instance with an incremented reference count. When the caller
      * no longer needs to use the instance, it must call {@link ExoMediaDrm#release()} to decrement
      * the reference count.
      */
-    ExoMediaDrm<T> acquireExoMediaDrm(UUID uuid);
+    ExoMediaDrm acquireExoMediaDrm(UUID uuid);
   }
 
   /**
@@ -62,17 +62,17 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
    * instance, and remains responsible for calling {@link ExoMediaDrm#release()} on the instance
    * when it's no longer being used.
    */
-  final class AppManagedProvider<T extends ExoMediaCrypto> implements Provider<T> {
+  final class AppManagedProvider implements Provider {
 
-    private final ExoMediaDrm<T> exoMediaDrm;
+    private final ExoMediaDrm exoMediaDrm;
 
     /** Creates an instance that provides the given {@link ExoMediaDrm}. */
-    public AppManagedProvider(ExoMediaDrm<T> exoMediaDrm) {
+    public AppManagedProvider(ExoMediaDrm exoMediaDrm) {
       this.exoMediaDrm = exoMediaDrm;
     }
 
     @Override
-    public ExoMediaDrm<T> acquireExoMediaDrm(UUID uuid) {
+    public ExoMediaDrm acquireExoMediaDrm(UUID uuid) {
       exoMediaDrm.acquire();
       return exoMediaDrm;
     }
@@ -108,10 +108,8 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
   @SuppressWarnings("InlinedApi")
   int KEY_TYPE_RELEASE = MediaDrm.KEY_TYPE_RELEASE;
 
-  /**
-   * @see android.media.MediaDrm.OnEventListener
-   */
-  interface OnEventListener<T extends ExoMediaCrypto> {
+  /** @see android.media.MediaDrm.OnEventListener */
+  interface OnEventListener {
     /**
      * Called when an event occurs that requires the app to be notified
      *
@@ -122,17 +120,15 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
      * @param data Optional byte array of data that may be associated with the event.
      */
     void onEvent(
-        ExoMediaDrm<? extends T> mediaDrm,
+        ExoMediaDrm mediaDrm,
         @Nullable byte[] sessionId,
         int event,
         int extra,
         @Nullable byte[] data);
   }
 
-  /**
-   * @see android.media.MediaDrm.OnKeyStatusChangeListener
-   */
-  interface OnKeyStatusChangeListener<T extends ExoMediaCrypto> {
+  /** @see android.media.MediaDrm.OnKeyStatusChangeListener */
+  interface OnKeyStatusChangeListener {
     /**
      * Called when the keys in a session change status, such as when the license is renewed or
      * expires.
@@ -143,14 +139,14 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
      * @param hasNewUsableKey Whether a new key became usable.
      */
     void onKeyStatusChange(
-        ExoMediaDrm<? extends T> mediaDrm,
+        ExoMediaDrm mediaDrm,
         byte[] sessionId,
         List<KeyStatus> exoKeyInformation,
         boolean hasNewUsableKey);
   }
 
   /** @see android.media.MediaDrm.OnExpirationUpdateListener */
-  interface OnExpirationUpdateListener<T extends ExoMediaCrypto> {
+  interface OnExpirationUpdateListener {
 
     /**
      * Called when a session expiration update occurs, to inform the app about the change in
@@ -162,8 +158,7 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
      *     milliseconds, relative to the Unix epoch. A time of 0 indicates that the keys never
      *     expire.
      */
-    void onExpirationUpdate(
-        ExoMediaDrm<? extends T> mediaDrm, byte[] sessionId, long expirationTimeMs);
+    void onExpirationUpdate(ExoMediaDrm mediaDrm, byte[] sessionId, long expirationTimeMs);
   }
 
   /** @see android.media.MediaDrm.KeyStatus */
@@ -229,18 +224,14 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
 
   }
 
-  /**
-   * @see MediaDrm#setOnEventListener(MediaDrm.OnEventListener)
-   */
-  void setOnEventListener(OnEventListener<? super T> listener);
+  /** @see MediaDrm#setOnEventListener(MediaDrm.OnEventListener) */
+  void setOnEventListener(OnEventListener listener);
 
-  /**
-   * @see MediaDrm#setOnKeyStatusChangeListener(MediaDrm.OnKeyStatusChangeListener, Handler)
-   */
-  void setOnKeyStatusChangeListener(OnKeyStatusChangeListener<? super T> listener);
+  /** @see MediaDrm#setOnKeyStatusChangeListener(MediaDrm.OnKeyStatusChangeListener, Handler) */
+  void setOnKeyStatusChangeListener(OnKeyStatusChangeListener listener);
 
   /** @see MediaDrm#setOnExpirationUpdateListener(MediaDrm.OnExpirationUpdateListener, Handler) */
-  void setOnExpirationUpdateListener(OnExpirationUpdateListener<? super T> listener);
+  void setOnExpirationUpdateListener(OnExpirationUpdateListener listener);
 
   /** @see MediaDrm#openSession() */
   byte[] openSession() throws MediaDrmException;
@@ -349,12 +340,12 @@ public interface ExoMediaDrm<T extends ExoMediaCrypto> {
    * @return An object extends {@link ExoMediaCrypto}, using opaque crypto scheme specific data.
    * @throws MediaCryptoException If the instance can't be created.
    */
-  T createMediaCrypto(byte[] sessionId) throws MediaCryptoException;
+  ExoMediaCrypto createMediaCrypto(byte[] sessionId) throws MediaCryptoException;
 
   /**
    * Returns the {@link ExoMediaCrypto} type created by {@link #createMediaCrypto(byte[])}, or null
    * if this instance cannot create any {@link ExoMediaCrypto} instances.
    */
   @Nullable
-  Class<T> getExoMediaCryptoType();
+  Class<? extends ExoMediaCrypto> getExoMediaCryptoType();
 }

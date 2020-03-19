@@ -52,7 +52,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     private final DataSource.Factory dataSourceFactory;
 
     private ExtractorsFactory extractorsFactory;
-    private DrmSessionManager<?> drmSessionManager;
+    private DrmSessionManager drmSessionManager;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private int continueLoadingCheckIntervalBytes;
     @Nullable private String customCacheKey;
@@ -156,7 +156,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      * @return This factory, for convenience.
      */
     @Override
-    public Factory setDrmSessionManager(@Nullable DrmSessionManager<?> drmSessionManager) {
+    public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
       this.drmSessionManager =
           drmSessionManager != null
               ? drmSessionManager
@@ -211,7 +211,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   private final Uri uri;
   private final DataSource.Factory dataSourceFactory;
   private final ExtractorsFactory extractorsFactory;
-  private final DrmSessionManager<?> drmSessionManager;
+  private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy;
   @Nullable private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
@@ -228,7 +228,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       Uri uri,
       DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory,
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy,
       @Nullable String customCacheKey,
       int continueLoadingCheckIntervalBytes,

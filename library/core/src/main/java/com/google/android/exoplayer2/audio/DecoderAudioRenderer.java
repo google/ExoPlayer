@@ -111,8 +111,8 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
 
   @Nullable private DecoderInputBuffer inputBuffer;
   @Nullable private SimpleOutputBuffer outputBuffer;
-  @Nullable private DrmSession<ExoMediaCrypto> decoderDrmSession;
-  @Nullable private DrmSession<ExoMediaCrypto> sourceDrmSession;
+  @Nullable private DrmSession decoderDrmSession;
+  @Nullable private DrmSession sourceDrmSession;
 
   @ReinitializationState private int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
@@ -627,12 +627,12 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
     setDecoderDrmSession(null);
   }
 
-  private void setSourceDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
+  private void setSourceDrmSession(@Nullable DrmSession session) {
     DrmSession.replaceSession(sourceDrmSession, session);
     sourceDrmSession = session;
   }
 
-  private void setDecoderDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
+  private void setDecoderDrmSession(@Nullable DrmSession session) {
     DrmSession.replaceSession(decoderDrmSession, session);
     decoderDrmSession = session;
   }
@@ -640,7 +640,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   @SuppressWarnings("unchecked")
   private void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
-    setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
+    setSourceDrmSession(formatHolder.drmSession);
     Format oldFormat = inputFormat;
     inputFormat = newFormat;
 

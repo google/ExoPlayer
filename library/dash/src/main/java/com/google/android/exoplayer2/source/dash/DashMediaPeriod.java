@@ -73,7 +73,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
   @Nullable private final TransferListener transferListener;
-  private final DrmSessionManager<?> drmSessionManager;
+  private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long elapsedRealtimeOffsetMs;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
@@ -101,7 +101,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       long elapsedRealtimeOffsetMs,
@@ -480,7 +480,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private static Pair<TrackGroupArray, TrackGroupInfo[]> buildTrackGroups(
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       List<AdaptationSet> adaptationSets,
       List<EventStream> eventStreams) {
     int[][] groupedAdaptationSetIndices = getGroupedAdaptationSetIndices(adaptationSets);
@@ -598,7 +598,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private static int buildPrimaryAndEmbeddedTrackGroupInfos(
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       List<AdaptationSet> adaptationSets,
       int[][] groupedAdaptationSetIndices,
       int primaryGroupCount,

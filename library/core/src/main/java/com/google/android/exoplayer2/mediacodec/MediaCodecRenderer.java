@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -368,8 +369,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Nullable private Format inputFormat;
   private Format outputFormat;
-  @Nullable private DrmSession<FrameworkMediaCrypto> codecDrmSession;
-  @Nullable private DrmSession<FrameworkMediaCrypto> sourceDrmSession;
+  @Nullable private DrmSession codecDrmSession;
+  @Nullable private DrmSession sourceDrmSession;
   @Nullable private MediaCrypto mediaCrypto;
   private boolean mediaCryptoRequiresSecureDecoder;
   private long renderTimeLimitMs;
@@ -574,9 +575,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     String mimeType = inputFormat.sampleMimeType;
     if (codecDrmSession != null) {
       if (mediaCrypto == null) {
-        FrameworkMediaCrypto sessionMediaCrypto = codecDrmSession.getMediaCrypto();
+        @Nullable
+        FrameworkMediaCrypto sessionMediaCrypto = getFrameworkMediaCrypto(codecDrmSession);
         if (sessionMediaCrypto == null) {
-          DrmSessionException drmError = codecDrmSession.getError();
+          @Nullable DrmSessionException drmError = codecDrmSession.getError();
           if (drmError != null) {
             // Continue for now. We may be able to avoid failure if the session recovers, or if a
             // new input format causes the session to be replaced before it's used.
@@ -1146,12 +1148,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputBuffer = null;
   }
 
-  private void setSourceDrmSession(@Nullable DrmSession<FrameworkMediaCrypto> session) {
+  private void setSourceDrmSession(@Nullable DrmSession session) {
     DrmSession.replaceSession(sourceDrmSession, session);
     sourceDrmSession = session;
   }
 
-  private void setCodecDrmSession(@Nullable DrmSession<FrameworkMediaCrypto> session) {
+  private void setCodecDrmSession(@Nullable DrmSession session) {
     DrmSession.replaceSession(codecDrmSession, session);
     codecDrmSession = session;
   }
@@ -1357,7 +1359,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     waitingForFirstSampleInFormat = true;
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
-    setSourceDrmSession((DrmSession<FrameworkMediaCrypto>) formatHolder.drmSession);
+    setSourceDrmSession(formatHolder.drmSession);
     inputFormat = newFormat;
 
     if (codec == null) {
@@ -1865,6 +1867,47 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return outputStreamOffsetUs;
   }
 
+  /** Returns whether this renderer supports the given {@link Format Format's} DRM scheme. */
+  protected static boolean supportsFormatDrm(Format format) {
+    return format.drmInitData == null
+        || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType);
+  }
+
+  /**
+   * Returns whether a {@link DrmSession} may require a secure decoder for a given {@link Format}.
+   *
+   * @param drmSession The {@link DrmSession}.
+   * @param format The {@link Format}.
+   * @return Whether a secure decoder may be required.
+   */
+  private boolean maybeRequiresSecureDecoder(DrmSession drmSession, Format format)
+      throws ExoPlaybackException {
+    // MediaCrypto type is checked during track selection.
+    @Nullable FrameworkMediaCrypto sessionMediaCrypto = getFrameworkMediaCrypto(drmSession);
+    if (sessionMediaCrypto == null) {
+      // We'd only expect this to happen if the CDM from which the pending session is obtained needs
+      // provisioning. This is unlikely to happen (it probably requires a switch from one DRM scheme
+      // to another, where the new CDM hasn't been used before and needs provisioning). Assume that
+      // a secure decoder may be required.
+      return true;
+    }
+    if (sessionMediaCrypto.forceAllowInsecureDecoderComponents) {
+      return false;
+    }
+    MediaCrypto mediaCrypto;
+    try {
+      mediaCrypto = new MediaCrypto(sessionMediaCrypto.uuid, sessionMediaCrypto.sessionId);
+    } catch (MediaCryptoException e) {
+      // This shouldn't happen, but if it does then assume that a secure decoder may be required.
+      return true;
+    }
+    try {
+      return mediaCrypto.requiresSecureDecoderComponent(format.sampleMimeType);
+    } finally {
+      mediaCrypto.release();
+    }
+  }
+
   private void reinitializeCodec() throws ExoPlaybackException {
     releaseCodec();
     maybeInitCodec();
@@ -1885,7 +1928,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @RequiresApi(23)
   private void updateDrmSessionOrReinitializeCodecV23() throws ExoPlaybackException {
-    @Nullable FrameworkMediaCrypto sessionMediaCrypto = sourceDrmSession.getMediaCrypto();
+    @Nullable FrameworkMediaCrypto sessionMediaCrypto = getFrameworkMediaCrypto(sourceDrmSession);
     if (sessionMediaCrypto == null) {
       // We'd only expect this to happen if the CDM from which the pending session is obtained needs
       // provisioning. This is unlikely to happen (it probably requires a switch from one DRM scheme
@@ -1919,38 +1962,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecDrainAction = DRAIN_ACTION_NONE;
   }
 
-  /**
-   * Returns whether a {@link DrmSession} may require a secure decoder for a given {@link Format}.
-   *
-   * @param drmSession The {@link DrmSession}.
-   * @param format The {@link Format}.
-   * @return Whether a secure decoder may be required.
-   */
-  private static boolean maybeRequiresSecureDecoder(
-      DrmSession<FrameworkMediaCrypto> drmSession, Format format) {
-    @Nullable FrameworkMediaCrypto sessionMediaCrypto = drmSession.getMediaCrypto();
-    if (sessionMediaCrypto == null) {
-      // We'd only expect this to happen if the CDM from which the pending session is obtained needs
-      // provisioning. This is unlikely to happen (it probably requires a switch from one DRM scheme
-      // to another, where the new CDM hasn't been used before and needs provisioning). Assume that
-      // a secure decoder may be required.
-      return true;
+  @Nullable
+  private FrameworkMediaCrypto getFrameworkMediaCrypto(DrmSession drmSession)
+      throws ExoPlaybackException {
+    @Nullable ExoMediaCrypto mediaCrypto = drmSession.getMediaCrypto();
+    if (mediaCrypto != null && !(mediaCrypto instanceof FrameworkMediaCrypto)) {
+      // This should not happen if the track went through a supportsFormatDrm() check, during track
+      // selection.
+      throw createRendererException(
+          new IllegalArgumentException("Expecting FrameworkMediaCrypto but found: " + mediaCrypto),
+          inputFormat);
     }
-    if (sessionMediaCrypto.forceAllowInsecureDecoderComponents) {
-      return false;
-    }
-    MediaCrypto mediaCrypto;
-    try {
-      mediaCrypto = new MediaCrypto(sessionMediaCrypto.uuid, sessionMediaCrypto.sessionId);
-    } catch (MediaCryptoException e) {
-      // This shouldn't happen, but if it does then assume that a secure decoder may be required.
-      return true;
-    }
-    try {
-      return mediaCrypto.requiresSecureDecoderComponent(format.sampleMimeType);
-    } finally {
-      mediaCrypto.release();
-    }
+    return (FrameworkMediaCrypto) mediaCrypto;
   }
 
   private static boolean isMediaCodecException(IllegalStateException error) {

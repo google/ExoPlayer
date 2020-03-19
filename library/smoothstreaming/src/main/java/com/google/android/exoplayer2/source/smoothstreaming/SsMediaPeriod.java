@@ -47,7 +47,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private final SsChunkSource.Factory chunkSourceFactory;
   @Nullable private final TransferListener transferListener;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
-  private final DrmSessionManager<?> drmSessionManager;
+  private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final Allocator allocator;
@@ -65,7 +65,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       SsChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       LoaderErrorThrower manifestLoaderErrorThrower,
@@ -259,7 +259,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private static TrackGroupArray buildTrackGroups(
-      SsManifest manifest, DrmSessionManager<?> drmSessionManager) {
+      SsManifest manifest, DrmSessionManager drmSessionManager) {
     TrackGroup[] trackGroups = new TrackGroup[manifest.streamElements.length];
     for (int i = 0; i < manifest.streamElements.length; i++) {
       Format[] manifestFormats = manifest.streamElements[i].formats;

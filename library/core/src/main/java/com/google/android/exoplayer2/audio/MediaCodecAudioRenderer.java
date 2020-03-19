@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
@@ -214,8 +213,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
     @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
-    boolean supportsFormatDrm =
-        format.drmInitData == null || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType);
+    boolean supportsFormatDrm = supportsFormatDrm(format);
     if (supportsFormatDrm
         && allowPassthrough(format.channelCount, mimeType)
         && mediaCodecSelector.getPassthroughDecoderInfo() != null) {

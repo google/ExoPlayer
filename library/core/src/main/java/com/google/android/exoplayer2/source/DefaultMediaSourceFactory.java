@@ -126,7 +126,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @C.ContentType private final int[] supportedTypes;
   private final String userAgent;
 
-  private DrmSessionManager<?> drmSessionManager;
+  private DrmSessionManager drmSessionManager;
   private HttpDataSource.Factory drmHttpDataSourceFactory;
   private boolean playClearContentWithoutKey;
   private int[] useDrmSessionsForClearContentTrackTypes;
@@ -191,7 +191,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   @Override
   public DefaultMediaSourceFactory setDrmSessionManager(
-      @Nullable DrmSessionManager<?> drmSessionManager) {
+      @Nullable DrmSessionManager drmSessionManager) {
     this.drmSessionManager =
         drmSessionManager != null
             ? drmSessionManager
@@ -249,7 +249,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   // internal methods
 
-  private DrmSessionManager<?> createDrmSessionManager(MediaItem mediaItem) {
+  private DrmSessionManager createDrmSessionManager(MediaItem mediaItem) {
     Assertions.checkNotNull(mediaItem.playbackProperties);
     if (mediaItem.playbackProperties.drmConfiguration == null
         || mediaItem.playbackProperties.drmConfiguration.licenseUri == null

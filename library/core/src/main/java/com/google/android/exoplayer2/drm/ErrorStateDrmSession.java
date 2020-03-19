@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.util.Map;
 
 /** A {@link DrmSession} that's in a terminal error state. */
-public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
+public final class ErrorStateDrmSession implements DrmSession {
 
   private final DrmSessionException error;
 
@@ -47,7 +47,7 @@ public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements Drm
 
   @Override
   @Nullable
-  public T getMediaCrypto() {
+  public ExoMediaCrypto getMediaCrypto() {
     return null;
   }
 

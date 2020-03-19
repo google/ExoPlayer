@@ -21,20 +21,18 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 
-/**
- * Manages a DRM session.
- */
-public interface DrmSessionManager<T extends ExoMediaCrypto> {
+/** Manages a DRM session. */
+public interface DrmSessionManager {
 
   /** Returns {@link #DUMMY}. */
   @SuppressWarnings("unchecked")
-  static <T extends ExoMediaCrypto> DrmSessionManager<T> getDummyDrmSessionManager() {
-    return (DrmSessionManager<T>) DUMMY;
+  static DrmSessionManager getDummyDrmSessionManager() {
+    return DUMMY;
   }
 
   /** {@link DrmSessionManager} that supports no DRM schemes. */
-  DrmSessionManager<ExoMediaCrypto> DUMMY =
-      new DrmSessionManager<ExoMediaCrypto>() {
+  DrmSessionManager DUMMY =
+      new DrmSessionManager() {
 
         @Override
         public boolean canAcquireSession(DrmInitData drmInitData) {
@@ -42,11 +40,11 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
         }
 
         @Override
-        public DrmSession<ExoMediaCrypto> acquireSession(
+        public DrmSession acquireSession(
             Looper playbackLooper,
             @Nullable MediaSourceEventDispatcher eventDispatcher,
             DrmInitData drmInitData) {
-          return new ErrorStateDrmSession<>(
+          return new ErrorStateDrmSession(
               new DrmSession.DrmSessionException(
                   new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME)));
         }
@@ -99,7 +97,7 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
    *     placeholder sessions.
    */
   @Nullable
-  default DrmSession<T> acquirePlaceholderSession(Looper playbackLooper, int trackType) {
+  default DrmSession acquirePlaceholderSession(Looper playbackLooper, int trackType) {
     return null;
   }
 
@@ -115,7 +113,7 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
    *     non-null {@link SchemeData#data}.
    * @return The DRM session.
    */
-  DrmSession<T> acquireSession(
+  DrmSession acquireSession(
       Looper playbackLooper,
       @Nullable MediaSourceEventDispatcher eventDispatcher,
       DrmInitData drmInitData);

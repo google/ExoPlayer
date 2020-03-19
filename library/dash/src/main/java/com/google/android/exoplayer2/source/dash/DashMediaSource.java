@@ -84,7 +84,7 @@ public final class DashMediaSource extends BaseMediaSource {
     private final DashChunkSource.Factory chunkSourceFactory;
     @Nullable private final DataSource.Factory manifestDataSourceFactory;
 
-    private DrmSessionManager<?> drmSessionManager;
+    private DrmSessionManager drmSessionManager;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long livePresentationDelayMs;
@@ -154,7 +154,7 @@ public final class DashMediaSource extends BaseMediaSource {
      * @return This factory, for convenience.
      */
     @Override
-    public Factory setDrmSessionManager(@Nullable DrmSessionManager<?> drmSessionManager) {
+    public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
       this.drmSessionManager =
           drmSessionManager != null
               ? drmSessionManager
@@ -388,7 +388,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-  private final DrmSessionManager<?> drmSessionManager;
+  private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final long livePresentationDelayMs;
   private final boolean livePresentationDelayOverridesManifest;
@@ -604,7 +604,7 @@ public final class DashMediaSource extends BaseMediaSource {
       @Nullable ParsingLoadable.Parser<? extends DashManifest> manifestParser,
       DashChunkSource.Factory chunkSourceFactory,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       long livePresentationDelayMs,
       boolean livePresentationDelayOverridesManifest,
