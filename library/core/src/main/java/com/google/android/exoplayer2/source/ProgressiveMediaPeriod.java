@@ -97,7 +97,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final Uri uri;
   private final DataSource dataSource;
-  private final DrmSessionManager<?> drmSessionManager;
+  private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final EventDispatcher eventDispatcher;
   private final Listener listener;
@@ -161,7 +161,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Uri uri,
       DataSource dataSource,
       Extractor[] extractors,
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       Listener listener,

@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
@@ -256,8 +255,7 @@ import java.util.List;
     }
 
     @Override
-    protected DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
-        final String userAgent) {
+    protected DrmSessionManager buildDrmSessionManager(final String userAgent) {
       if (widevineLicenseUrl == null) {
         return DrmSessionManager.getDummyDrmSessionManager();
       }
@@ -265,8 +263,8 @@ import java.util.List;
         MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
             new DefaultHttpDataSourceFactory(userAgent));
         FrameworkMediaDrm frameworkMediaDrm = FrameworkMediaDrm.newInstance(WIDEVINE_UUID);
-        DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
-            new DefaultDrmSessionManager<>(
+        DefaultDrmSessionManager drmSessionManager =
+            new DefaultDrmSessionManager(
                 C.WIDEVINE_UUID,
                 frameworkMediaDrm,
                 drmCallback,
@@ -299,7 +297,7 @@ import java.util.List;
 
     @Override
     protected MediaSource buildSource(
-        HostActivity host, String userAgent, DrmSessionManager<?> drmSessionManager) {
+        HostActivity host, String userAgent, DrmSessionManager drmSessionManager) {
       DataSource.Factory dataSourceFactory =
           this.dataSourceFactory != null
               ? this.dataSourceFactory

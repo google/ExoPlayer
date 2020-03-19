@@ -26,26 +26,25 @@ import java.util.Map;
 
 /** An {@link ExoMediaDrm} that does not support any protection schemes. */
 @RequiresApi(18)
-public final class DummyExoMediaDrm<T extends ExoMediaCrypto> implements ExoMediaDrm<T> {
+public final class DummyExoMediaDrm implements ExoMediaDrm {
 
   /** Returns a new instance. */
-  @SuppressWarnings("unchecked")
-  public static <T extends ExoMediaCrypto> DummyExoMediaDrm<T> getInstance() {
-    return (DummyExoMediaDrm<T>) new DummyExoMediaDrm<>();
+  public static DummyExoMediaDrm getInstance() {
+    return new DummyExoMediaDrm();
   }
 
   @Override
-  public void setOnEventListener(OnEventListener<? super T> listener) {
+  public void setOnEventListener(OnEventListener listener) {
     // Do nothing.
   }
 
   @Override
-  public void setOnKeyStatusChangeListener(OnKeyStatusChangeListener<? super T> listener) {
+  public void setOnKeyStatusChangeListener(OnKeyStatusChangeListener listener) {
     // Do nothing.
   }
 
   @Override
-  public void setOnExpirationUpdateListener(OnExpirationUpdateListener<? super T> listener) {
+  public void setOnExpirationUpdateListener(OnExpirationUpdateListener listener) {
     // Do nothing.
   }
 
@@ -137,14 +136,14 @@ public final class DummyExoMediaDrm<T extends ExoMediaCrypto> implements ExoMedi
   }
 
   @Override
-  public T createMediaCrypto(byte[] sessionId) {
+  public ExoMediaCrypto createMediaCrypto(byte[] sessionId) {
     // Should not be invoked. No session should exist.
     throw new IllegalStateException();
   }
 
   @Override
   @Nullable
-  public Class<T> getExoMediaCryptoType() {
+  public Class<ExoMediaCrypto> getExoMediaCryptoType() {
     // No ExoMediaCrypto type is supported.
     return null;
   }

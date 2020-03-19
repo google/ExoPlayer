@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -185,7 +184,7 @@ public final class MainActivity extends Activity {
             ? Assertions.checkNotNull(intent.getData())
             : Uri.parse(DEFAULT_MEDIA_URI);
     String userAgent = Util.getUserAgent(this, getString(R.string.application_name));
-    DrmSessionManager<ExoMediaCrypto> drmSessionManager;
+    DrmSessionManager drmSessionManager;
     if (intent.hasExtra(DRM_SCHEME_EXTRA)) {
       String drmScheme = Assertions.checkNotNull(intent.getStringExtra(DRM_SCHEME_EXTRA));
       String drmLicenseUrl = Assertions.checkNotNull(intent.getStringExtra(DRM_LICENSE_URL_EXTRA));

@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -124,8 +123,8 @@ public final class SampleQueueTest {
       new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, new byte[16], 0, 0);
 
   private Allocator allocator;
-  private DrmSessionManager<ExoMediaCrypto> mockDrmSessionManager;
-  private DrmSession<ExoMediaCrypto> mockDrmSession;
+  private DrmSessionManager mockDrmSessionManager;
+  private DrmSession mockDrmSession;
   private MediaSourceEventDispatcher eventDispatcher;
   private SampleQueue sampleQueue;
   private FormatHolder formatHolder;
@@ -135,9 +134,8 @@ public final class SampleQueueTest {
   @SuppressWarnings("unchecked")
   public void setUp() {
     allocator = new DefaultAllocator(false, ALLOCATION_SIZE);
-    mockDrmSessionManager =
-        (DrmSessionManager<ExoMediaCrypto>) Mockito.mock(DrmSessionManager.class);
-    mockDrmSession = (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
+    mockDrmSessionManager = Mockito.mock(DrmSessionManager.class);
+    mockDrmSession = Mockito.mock(DrmSession.class);
     when(mockDrmSessionManager.acquireSession(
             ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(mockDrmSession);
@@ -418,8 +416,7 @@ public final class SampleQueueTest {
   @SuppressWarnings("unchecked")
   public void allowPlaceholderSessionPopulatesDrmSession() {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
-    DrmSession<ExoMediaCrypto> mockPlaceholderDrmSession =
-        (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
+    DrmSession mockPlaceholderDrmSession = Mockito.mock(DrmSession.class);
     when(mockPlaceholderDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     when(mockDrmSessionManager.acquirePlaceholderSession(
             ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
@@ -465,8 +462,7 @@ public final class SampleQueueTest {
   @SuppressWarnings("unchecked")
   public void trailingCryptoInfoInitializationVectorBytesZeroed() {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
-    DrmSession<ExoMediaCrypto> mockPlaceholderDrmSession =
-        (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
+    DrmSession mockPlaceholderDrmSession = Mockito.mock(DrmSession.class);
     when(mockPlaceholderDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     when(mockDrmSessionManager.acquirePlaceholderSession(
             ArgumentMatchers.any(), ArgumentMatchers.anyInt()))

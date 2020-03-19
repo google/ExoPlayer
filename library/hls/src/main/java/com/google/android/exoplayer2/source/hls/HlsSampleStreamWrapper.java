@@ -114,7 +114,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final HlsChunkSource chunkSource;
   private final Allocator allocator;
   @Nullable private final Format muxedAudioFormat;
-  private final DrmSessionManager<?> drmSessionManager;
+  private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
   private final EventDispatcher eventDispatcher;
@@ -190,7 +190,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Allocator allocator,
       long positionUs,
       @Nullable Format muxedAudioFormat,
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
       @HlsMediaSource.MetadataType int metadataType) {
@@ -1349,7 +1349,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     public FormatAdjustingSampleQueue(
         Allocator allocator,
-        DrmSessionManager<?> drmSessionManager,
+        DrmSessionManager drmSessionManager,
         MediaSourceEventDispatcher eventDispatcher,
         Map<String, DrmInitData> overridingDrmInitData) {
       super(allocator, drmSessionManager, eventDispatcher);

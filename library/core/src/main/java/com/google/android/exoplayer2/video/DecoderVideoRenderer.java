@@ -105,8 +105,8 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   @Nullable private VideoFrameMetadataListener frameMetadataListener;
   @C.VideoOutputMode private int outputMode;
 
-  @Nullable private DrmSession<ExoMediaCrypto> decoderDrmSession;
-  @Nullable private DrmSession<ExoMediaCrypto> sourceDrmSession;
+  @Nullable private DrmSession decoderDrmSession;
+  @Nullable private DrmSession sourceDrmSession;
 
   @ReinitializationState private int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
@@ -379,7 +379,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     waitingForFirstSampleInFormat = true;
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
-    setSourceDrmSession((DrmSession<ExoMediaCrypto>) formatHolder.drmSession);
+    setSourceDrmSession(formatHolder.drmSession);
     inputFormat = newFormat;
 
     if (sourceDrmSession != decoderDrmSession) {
@@ -643,12 +643,12 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   // Internal methods.
 
-  private void setSourceDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
+  private void setSourceDrmSession(@Nullable DrmSession session) {
     DrmSession.replaceSession(sourceDrmSession, session);
     sourceDrmSession = session;
   }
 
-  private void setDecoderDrmSession(@Nullable DrmSession<ExoMediaCrypto> session) {
+  private void setDecoderDrmSession(@Nullable DrmSession session) {
     DrmSession.replaceSession(decoderDrmSession, session);
     decoderDrmSession = session;
   }
@@ -891,7 +891,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   }
 
   private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    DrmSession<ExoMediaCrypto> decoderDrmSession = this.decoderDrmSession;
+    DrmSession decoderDrmSession = this.decoderDrmSession;
     if (decoderDrmSession == null
         || (!bufferEncrypted && decoderDrmSession.playClearSamplesWithoutKeys())) {
       return false;

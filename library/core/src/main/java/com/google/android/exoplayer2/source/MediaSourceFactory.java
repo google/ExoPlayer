@@ -40,7 +40,7 @@ public interface MediaSourceFactory {
    * @param drmSessionManager The {@link DrmSessionManager}.
    * @return This factory, for convenience.
    */
-  MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager<?> drmSessionManager);
+  MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager);
 
   /**
    * Sets an optional {@link LoadErrorHandlingPolicy}.
