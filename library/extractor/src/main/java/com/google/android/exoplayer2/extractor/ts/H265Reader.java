@@ -47,6 +47,7 @@ public final class H265Reader implements ElementaryStreamReader {
   private static final int VPS_NUT = 32;
   private static final int SPS_NUT = 33;
   private static final int PPS_NUT = 34;
+  private static final int AUD_NUT = 35;
   private static final int PREFIX_SEI_NUT = 39;
   private static final int SUFFIX_SEI_NUT = 40;
 
@@ -434,7 +435,7 @@ public final class H265Reader implements ElementaryStreamReader {
     private boolean lookingForFirstSliceFlag;
     private boolean isFirstSlice;
     private boolean isFirstParameterSet;
-
+    private boolean AUD_Detected;
     // Per sample state that gets reset at the start of each sample.
     private boolean readingSample;
     private boolean writingParameterSets;
@@ -452,31 +453,65 @@ public final class H265Reader implements ElementaryStreamReader {
       isFirstParameterSet = false;
       readingSample = false;
       writingParameterSets = false;
+      AUD_Detected = false;
     }
 
     public void startNalUnit(long position, int offset, int nalUnitType, long pesTimeUs) {
-      isFirstSlice = false;
-      isFirstParameterSet = false;
-      nalUnitTimeUs = pesTimeUs;
-      nalUnitBytesRead = 0;
-      nalUnitStartPosition = position;
+      if (nalUnitType == AUD_NUT) {
+        //
+        // AUD based operation, if the stream has AUD's look for these and
+        // create the sample based on the AUD positions
+        //
 
-      if (nalUnitType >= VPS_NUT) {
-        if (!writingParameterSets && readingSample) {
-          // This is a non-VCL NAL unit, so flush the previous sample.
+        // check if an AUD was detected before, if so flush it to the output
+        if (AUD_Detected) {
+          samplePosition = nalUnitStartPosition;
+          sampleTimeUs = nalUnitTimeUs;
+          nalUnitStartPosition = position;
+          nalUnitTimeUs = pesTimeUs;
           outputSample(offset);
-          readingSample = false;
+        } else {
+          nalUnitStartPosition = position;
+          nalUnitTimeUs = pesTimeUs;
         }
-        if (nalUnitType <= PPS_NUT) {
-          // This sample will have parameter sets at the start.
-          isFirstParameterSet = !writingParameterSets;
-          writingParameterSets = true;
-        }
+
+        nalUnitBytesRead = 0;
+
+        // disable none AUD logic in the other method Read/End methods
+        lookingForFirstSliceFlag = false;
+        isFirstSlice = false;
+        isFirstParameterSet = false;
+        readingSample = false;
+        writingParameterSets = false;
+
+        AUD_Detected = true;
       }
 
-      // Look for the flag if this NAL unit contains a slice_segment_layer_rbsp.
-      nalUnitHasKeyframeData = (nalUnitType >= BLA_W_LP && nalUnitType <= CRA_NUT);
-      lookingForFirstSliceFlag = nalUnitHasKeyframeData || nalUnitType <= RASL_R;
+      // fall back to alternate approach in case stream has no AUD
+      if (!AUD_Detected) {
+        isFirstSlice = false;
+        isFirstParameterSet = false;
+        nalUnitTimeUs = pesTimeUs;
+        nalUnitBytesRead = 0;
+        nalUnitStartPosition = position;
+
+        if (nalUnitType >= VPS_NUT) {
+          if (!writingParameterSets && readingSample) {
+            // This is a non-VCL NAL unit, so flush the previous sample.
+            outputSample(offset);
+            readingSample = false;
+          }
+          if (nalUnitType <= PPS_NUT) {
+            // This sample will have parameter sets at the start.
+            isFirstParameterSet = !writingParameterSets;
+            writingParameterSets = true;
+          }
+        }
+
+        // Look for the flag if this NAL unit contains a slice_segment_layer_rbsp.
+        nalUnitHasKeyframeData = (nalUnitType >= BLA_W_LP && nalUnitType <= CRA_NUT);
+        lookingForFirstSliceFlag = nalUnitHasKeyframeData || nalUnitType <= RASL_R;
+      }
     }
 
     public void readNalUnitData(byte[] data, int offset, int limit) {
