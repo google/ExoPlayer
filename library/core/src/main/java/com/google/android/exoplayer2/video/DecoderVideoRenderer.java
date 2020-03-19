@@ -24,8 +24,10 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
@@ -42,7 +44,23 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** Decodes and renders video using a {@link Decoder}. */
+/**
+ * Decodes and renders video using a {@link Decoder}.
+ *
+ * <p>This renderer accepts the following messages sent via {@link ExoPlayer#createMessage(Target)}
+ * on the playback thread:
+ *
+ * <ul>
+ *   <li>Message with type {@link #MSG_SET_SURFACE} to set the output surface. The message payload
+ *       should be the target {@link Surface}, or null.
+ *   <li>Message with type {@link #MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER} to set the output
+ *       buffer renderer. The message payload should be the target {@link
+ *       VideoDecoderOutputBufferRenderer}, or null.
+ *   <li>Message with type {@link #MSG_SET_VIDEO_FRAME_METADATA_LISTENER} to set a listener for
+ *       metadata associated with frames being rendered. The message payload should be the {@link
+ *       VideoFrameMetadataListener}, or null.
+ * </ul>
+ */
 public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   /** Decoder reinitialization states. */
@@ -84,6 +102,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   private VideoDecoderOutputBuffer outputBuffer;
   @Nullable private Surface surface;
   @Nullable private VideoDecoderOutputBufferRenderer outputBufferRenderer;
+  @Nullable private VideoFrameMetadataListener frameMetadataListener;
   @C.VideoOutputMode private int outputMode;
 
   @Nullable private DrmSession<ExoMediaCrypto> decoderDrmSession;
@@ -211,6 +230,21 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       // The joining deadline has been exceeded. Give up and clear the deadline.
       joiningDeadlineMs = C.TIME_UNSET;
       return false;
+    }
+  }
+
+  // PlayerMessage.Target implementation.
+
+  @Override
+  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
+    if (messageType == MSG_SET_SURFACE) {
+      setOutputSurface((Surface) message);
+    } else if (messageType == MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER) {
+      setOutputBufferRenderer((VideoDecoderOutputBufferRenderer) message);
+    } else if (messageType == MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
+      frameMetadataListener = (VideoFrameMetadataListener) message;
+    } else {
+      super.handleMessage(messageType, message);
     }
   }
 
@@ -507,6 +541,10 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   protected void renderOutputBuffer(
       VideoDecoderOutputBuffer outputBuffer, long presentationTimeUs, Format outputFormat)
       throws DecoderException {
+    if (frameMetadataListener != null) {
+      frameMetadataListener.onVideoFrameAboutToBeRendered(
+          presentationTimeUs, System.nanoTime(), outputFormat, /* mediaFormat= */ null);
+    }
     lastRenderTimeUs = C.msToUs(SystemClock.elapsedRealtime() * 1000);
     int bufferMode = outputBuffer.mode;
     boolean renderSurface = bufferMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && surface != null;

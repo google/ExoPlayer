@@ -21,37 +21,16 @@ import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.decoder.DecoderException;
-import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.video.DecoderVideoRenderer;
-import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
-import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
-import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
-/**
- * Decodes and renders video using the native VP9 decoder.
- *
- * <p>This renderer accepts the following messages sent via {@link ExoPlayer#createMessage(Target)}
- * on the playback thread:
- *
- * <ul>
- *   <li>Message with type {@link #MSG_SET_SURFACE} to set the output surface. The message payload
- *       should be the target {@link Surface}, or null.
- *   <li>Message with type {@link #MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER} to set the output
- *       buffer renderer. The message payload should be the target {@link
- *       VideoDecoderOutputBufferRenderer}, or null.
- * </ul>
- */
+/** Decodes and renders video using the native VP9 decoder. */
 public class LibvpxVideoRenderer extends DecoderVideoRenderer {
 
   /** The number of input buffers. */
@@ -70,9 +49,10 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
   private final int threads;
 
   @Nullable private VpxDecoder decoder;
-  @Nullable private VideoFrameMetadataListener frameMetadataListener;
 
   /**
+   * Creates a new instance.
+   *
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    */
@@ -81,6 +61,8 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
   }
 
   /**
+   * Creates a new instance.
+   *
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
@@ -105,6 +87,8 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
   }
 
   /**
+   * Creates a new instance.
+   *
    * @param allowedJoiningTimeMs The maximum duration in milliseconds for which this video renderer
    *     can attempt to seamlessly join an ongoing playback.
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
@@ -147,9 +131,8 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
   }
 
   @Override
-  protected SimpleDecoder<
-          VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
-      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) throws DecoderException {
+  protected VpxDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+      throws VpxDecoderException {
     TraceUtil.beginSection("createVpxDecoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
@@ -159,17 +142,6 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
     this.decoder = decoder;
     TraceUtil.endSection();
     return decoder;
-  }
-
-  @Override
-  protected void renderOutputBuffer(
-      VideoDecoderOutputBuffer outputBuffer, long presentationTimeUs, Format outputFormat)
-      throws DecoderException {
-    if (frameMetadataListener != null) {
-      frameMetadataListener.onVideoFrameAboutToBeRendered(
-          presentationTimeUs, System.nanoTime(), outputFormat, /* mediaFormat= */ null);
-    }
-    super.renderOutputBuffer(outputBuffer, presentationTimeUs, outputFormat);
   }
 
   @Override
@@ -187,21 +159,6 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
   protected void setDecoderOutputMode(@C.VideoOutputMode int outputMode) {
     if (decoder != null) {
       decoder.setOutputMode(outputMode);
-    }
-  }
-
-  // PlayerMessage.Target implementation.
-
-  @Override
-  public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
-    if (messageType == MSG_SET_SURFACE) {
-      setOutputSurface((Surface) message);
-    } else if (messageType == MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER) {
-      setOutputBufferRenderer((VideoDecoderOutputBufferRenderer) message);
-    } else if (messageType == MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
-      frameMetadataListener = (VideoFrameMetadataListener) message;
-    } else {
-      super.handleMessage(messageType, message);
     }
   }
 }
