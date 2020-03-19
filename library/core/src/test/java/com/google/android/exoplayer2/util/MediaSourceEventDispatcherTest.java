@@ -18,15 +18,18 @@ package com.google.android.exoplayer2.util;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.os.Handler;
 import android.os.Looper;
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import org.junit.Before;
 import org.junit.Rule;
@@ -124,6 +127,33 @@ public class MediaSourceEventDispatcherTest {
   }
 
   @Test
+  public void listenerDoesntReceiveEventsDispatchedToSubclass() {
+    SubclassListener subclassListener = mock(SubclassListener.class);
+    eventDispatcher.addEventListener(
+        new Handler(Looper.getMainLooper()), subclassListener, MediaSourceEventListener.class);
+
+    eventDispatcher.dispatch(SubclassListener::subclassMethod, SubclassListener.class);
+
+    // subclassListener can handle the call to subclassMethod, but it isn't called because
+    // it was registered 'as-a' MediaSourceEventListener, not SubclassListener.
+    verify(subclassListener, never()).subclassMethod(anyInt(), any());
+  }
+
+  @Test
+  public void listenerDoesntReceiveEventsDispatchedToSuperclass() {
+    SubclassListener subclassListener = mock(SubclassListener.class);
+    eventDispatcher.addEventListener(
+        new Handler(Looper.getMainLooper()), subclassListener, SubclassListener.class);
+
+    eventDispatcher.dispatch(
+        MediaSourceEventListener::onMediaPeriodCreated, MediaSourceEventListener.class);
+
+    // subclassListener 'is-a' a MediaSourceEventListener, but it isn't called because the event
+    // is dispatched specifically to listeners registered as MediaSourceEventListener.
+    verify(subclassListener, never()).onMediaPeriodCreated(anyInt(), any());
+  }
+
+  @Test
   public void listenersAreCopiedToNewDispatcher() {
     eventDispatcher.addEventListener(
         Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
@@ -185,4 +215,8 @@ public class MediaSourceEventDispatcherTest {
 
   private interface MediaAndDrmEventListener
       extends MediaSourceEventListener, DrmSessionEventListener {}
+
+  private interface SubclassListener extends MediaSourceEventListener {
+    void subclassMethod(int windowIndex, @Nullable MediaPeriodId mediaPeriodId);
+  }
 }
