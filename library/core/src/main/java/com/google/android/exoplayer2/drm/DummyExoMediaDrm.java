@@ -34,17 +34,17 @@ public final class DummyExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public void setOnEventListener(OnEventListener listener) {
+  public void setOnEventListener(@Nullable OnEventListener listener) {
     // Do nothing.
   }
 
   @Override
-  public void setOnKeyStatusChangeListener(OnKeyStatusChangeListener listener) {
+  public void setOnKeyStatusChangeListener(@Nullable OnKeyStatusChangeListener listener) {
     // Do nothing.
   }
 
   @Override
-  public void setOnExpirationUpdateListener(OnExpirationUpdateListener listener) {
+  public void setOnExpirationUpdateListener(@Nullable OnExpirationUpdateListener listener) {
     // Do nothing.
   }
 
