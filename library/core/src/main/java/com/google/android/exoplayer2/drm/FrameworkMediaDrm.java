@@ -106,7 +106,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public void setOnEventListener(ExoMediaDrm.OnEventListener listener) {
+  public void setOnEventListener(@Nullable ExoMediaDrm.OnEventListener listener) {
     mediaDrm.setOnEventListener(
         listener == null
             ? null
@@ -115,7 +115,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public void setOnKeyStatusChangeListener(ExoMediaDrm.OnKeyStatusChangeListener listener) {
+  public void setOnKeyStatusChangeListener(
+      @Nullable ExoMediaDrm.OnKeyStatusChangeListener listener) {
     if (Util.SDK_INT < 23) {
       throw new UnsupportedOperationException();
     }
@@ -135,7 +136,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  public void setOnExpirationUpdateListener(OnExpirationUpdateListener listener) {
+  public void setOnExpirationUpdateListener(@Nullable OnExpirationUpdateListener listener) {
     if (Util.SDK_INT < 23) {
       throw new UnsupportedOperationException();
     }

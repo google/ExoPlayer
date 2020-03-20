@@ -225,13 +225,13 @@ public interface ExoMediaDrm {
   }
 
   /** @see MediaDrm#setOnEventListener(MediaDrm.OnEventListener) */
-  void setOnEventListener(OnEventListener listener);
+  void setOnEventListener(@Nullable OnEventListener listener);
 
   /** @see MediaDrm#setOnKeyStatusChangeListener(MediaDrm.OnKeyStatusChangeListener, Handler) */
-  void setOnKeyStatusChangeListener(OnKeyStatusChangeListener listener);
+  void setOnKeyStatusChangeListener(@Nullable OnKeyStatusChangeListener listener);
 
   /** @see MediaDrm#setOnExpirationUpdateListener(MediaDrm.OnExpirationUpdateListener, Handler) */
-  void setOnExpirationUpdateListener(OnExpirationUpdateListener listener);
+  void setOnExpirationUpdateListener(@Nullable OnExpirationUpdateListener listener);
 
   /** @see MediaDrm#openSession() */
   byte[] openSession() throws MediaDrmException;
