@@ -386,7 +386,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       playbackInfo = playbackInfo.copyWithPlaybackError(e);
       maybeNotifyPlaybackInfoChanged();
     } catch (IOException e) {
-      Log.e(TAG, "Source error.", e);
+      Log.e(TAG, "Source error", e);
       stopInternal(
           /* forceResetRenderers= */ false,
           /* resetPositionAndState= */ false,
@@ -394,7 +394,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       playbackInfo = playbackInfo.copyWithPlaybackError(ExoPlaybackException.createForSource(e));
       maybeNotifyPlaybackInfoChanged();
     } catch (RuntimeException | OutOfMemoryError e) {
-      Log.e(TAG, "Internal runtime error.", e);
+      Log.e(TAG, "Internal runtime error", e);
       ExoPlaybackException error =
           e instanceof OutOfMemoryError
               ? ExoPlaybackException.createForOutOfMemoryError((OutOfMemoryError) e)

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -198,7 +199,7 @@ public class EventLogger implements AnalyticsListener {
       logd(eventTime, "tracks", "[]");
       return;
     }
-    logd("tracks [" + getEventTimeString(eventTime) + ", ");
+    logd("tracks [" + getEventTimeString(eventTime));
     // Log tracks associated to renderers.
     int rendererCount = mappedTrackInfo.getRendererCount();
     for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
@@ -282,7 +283,7 @@ public class EventLogger implements AnalyticsListener {
 
   @Override
   public void onMetadata(EventTime eventTime, Metadata metadata) {
-    logd("metadata [" + getEventTimeString(eventTime) + ", ");
+    logd("metadata [" + getEventTimeString(eventTime));
     printMetadata(metadata, "  ");
     logd("]");
   }
@@ -469,27 +470,26 @@ public class EventLogger implements AnalyticsListener {
   }
 
   /**
-   * Logs an error message and exception.
+   * Logs an error message.
    *
    * @param msg The message to log.
-   * @param tr The exception to log.
    */
-  protected void loge(String msg, @Nullable Throwable tr) {
-    Log.e(tag, msg, tr);
+  protected void loge(String msg) {
+    Log.e(tag, msg);
   }
 
   // Internal methods
 
   private void logd(EventTime eventTime, String eventName) {
-    logd(getEventString(eventTime, eventName));
+    logd(getEventString(eventTime, eventName, /* eventDescription= */ null, /* throwable= */ null));
   }
 
   private void logd(EventTime eventTime, String eventName, String eventDescription) {
-    logd(getEventString(eventTime, eventName, eventDescription));
+    logd(getEventString(eventTime, eventName, eventDescription, /* throwable= */ null));
   }
 
   private void loge(EventTime eventTime, String eventName, @Nullable Throwable throwable) {
-    loge(getEventString(eventTime, eventName), throwable);
+    loge(getEventString(eventTime, eventName, /* eventDescription= */ null, throwable));
   }
 
   private void loge(
@@ -497,7 +497,7 @@ public class EventLogger implements AnalyticsListener {
       String eventName,
       String eventDescription,
       @Nullable Throwable throwable) {
-    loge(getEventString(eventTime, eventName, eventDescription), throwable);
+    loge(getEventString(eventTime, eventName, eventDescription, throwable));
   }
 
   private void printInternalError(EventTime eventTime, String type, Exception e) {
@@ -510,12 +510,21 @@ public class EventLogger implements AnalyticsListener {
     }
   }
 
-  private String getEventString(EventTime eventTime, String eventName) {
-    return eventName + " [" + getEventTimeString(eventTime) + "]";
-  }
-
-  private String getEventString(EventTime eventTime, String eventName, String eventDescription) {
-    return eventName + " [" + getEventTimeString(eventTime) + ", " + eventDescription + "]";
+  private String getEventString(
+      EventTime eventTime,
+      String eventName,
+      @Nullable String eventDescription,
+      @Nullable Throwable throwable) {
+    String eventString = eventName + " [" + getEventTimeString(eventTime);
+    if (eventDescription != null) {
+      eventString += ", " + eventDescription;
+    }
+    @Nullable String throwableString = Log.getThrowableString(throwable);
+    if (!TextUtils.isEmpty(throwableString)) {
+      eventString += "\n  " + throwableString.replace("\n", "\n  ") + '\n';
+    }
+    eventString += "]";
+    return eventString;
   }
 
   private String getEventTimeString(EventTime eventTime) {

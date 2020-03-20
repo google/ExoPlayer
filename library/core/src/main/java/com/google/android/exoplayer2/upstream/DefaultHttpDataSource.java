@@ -279,8 +279,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     try {
       connection = makeConnection(dataSpec);
     } catch (IOException e) {
-      throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
-          dataSpec, HttpDataSourceException.TYPE_OPEN);
+      throw new HttpDataSourceException(
+          "Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
 
     String responseMessage;
@@ -289,8 +289,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       responseMessage = connection.getResponseMessage();
     } catch (IOException e) {
       closeConnectionQuietly();
-      throw new HttpDataSourceException("Unable to connect to " + dataSpec.uri.toString(), e,
-          dataSpec, HttpDataSourceException.TYPE_OPEN);
+      throw new HttpDataSourceException(
+          "Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
 
     // Check for a valid response code.
