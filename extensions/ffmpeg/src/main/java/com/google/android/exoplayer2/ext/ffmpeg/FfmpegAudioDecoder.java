@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * FFmpeg audio decoder.
  */
-/* package */ final class FfmpegDecoder extends
+/* package */ final class FfmpegAudioDecoder extends
     SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, FfmpegDecoderException> {
 
   // Output buffer sizes when decoding PCM mu-law streams, which is the maximum FFmpeg outputs.
@@ -52,7 +52,7 @@ import java.util.List;
   private volatile int channelCount;
   private volatile int sampleRate;
 
-  public FfmpegDecoder(
+  public FfmpegAudioDecoder(
       int numInputBuffers,
       int numOutputBuffers,
       int initialInputBufferSize,

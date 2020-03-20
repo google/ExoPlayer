@@ -34,9 +34,9 @@ import java.util.List;
  */
 /* package */ final class FfmpegVideoDecoder
     extends
-    SimpleDecoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, FfmpegVideoDecoderException> {
+    SimpleDecoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, FfmpegDecoderException> {
 
-  // Error codes matching ffmpeg_video_jni.cc.
+  // Error codes matching ffmpeg_jni.cc.
   private static final int DECODER_ERROR_INVALID_DATA = -1;
   private static final int DECODER_ERROR_OTHER = -2;
   private static final int DECODER_ERROR_READ_FRAME = -3;
@@ -56,24 +56,24 @@ import java.util.List;
    * @param numOutputBuffers Number of output buffers.
    * @param initialInputBufferSize The initial size of each input buffer, in bytes.
    * @param threads Number of threads libgav1 will use to decode.
-   * @throws FfmpegVideoDecoderException Thrown if an exception occurs when initializing the
+   * @throws FfmpegDecoderException Thrown if an exception occurs when initializing the
    * decoder.
    */
   public FfmpegVideoDecoder(
       int numInputBuffers, int numOutputBuffers, int initialInputBufferSize, int threads, Format format)
-      throws FfmpegVideoDecoderException {
+      throws FfmpegDecoderException {
     super(
         new VideoDecoderInputBuffer[numInputBuffers],
         new VideoDecoderOutputBuffer[numOutputBuffers]);
     if (!FfmpegLibrary.isAvailable()) {
-      throw new FfmpegVideoDecoderException("Failed to load decoder native library.");
+      throw new FfmpegDecoderException("Failed to load decoder native library.");
     }
-    codecName = Assertions.checkNotNull(FfmpegLibrary.getVideoCodecName(format.sampleMimeType));
+    codecName = Assertions.checkNotNull(FfmpegLibrary.getCodecName(format.sampleMimeType));
     extraData = getExtraData(format.sampleMimeType, format.initializationData);
     this.format = format;
     nativeContext = ffmpegInitialize(codecName, extraData, threads);
     if (nativeContext == 0) {
-      throw new FfmpegVideoDecoderException("Failed to initialize decoder.");
+      throw new FfmpegDecoderException("Failed to initialize decoder.");
     }
     setInitialInputBufferSize(initialInputBufferSize);
   }
@@ -126,12 +126,12 @@ import java.util.List;
 
   @Override
   @Nullable
-  protected FfmpegVideoDecoderException decode(
+  protected FfmpegDecoderException decode(
       VideoDecoderInputBuffer inputBuffer, VideoDecoderOutputBuffer outputBuffer, boolean reset) {
     if (reset) {
       nativeContext = ffmpegReset(nativeContext);
       if (nativeContext == 0) {
-        return new FfmpegVideoDecoderException("Error resetting (see logcat).");
+        return new FfmpegDecoderException("Error resetting (see logcat).");
       }
     }
 
@@ -149,7 +149,7 @@ import java.util.List;
       // need read frame
       needSendAgain = true;
     } else if (sendPacketResult == DECODER_ERROR_OTHER) {
-      return new FfmpegVideoDecoderException("ffmpegDecode error: (see logcat)");
+      return new FfmpegDecoderException("ffmpegDecode error: (see logcat)");
     }
 
     // receive frame
@@ -160,7 +160,7 @@ import java.util.List;
     if (getFrameResult == DECODER_ERROR_SEND_PACKET) {
       return null;
     } else if (getFrameResult == DECODER_ERROR_OTHER) {
-      return new FfmpegVideoDecoderException("ffmpegDecode error: (see logcat)");
+      return new FfmpegDecoderException("ffmpegDecode error: (see logcat)");
     }
 
     if (getFrameResult == DECODER_ERROR_INVALID_DATA) {
@@ -179,8 +179,8 @@ import java.util.List;
   }
 
   @Override
-  protected FfmpegVideoDecoderException createUnexpectedDecodeException(Throwable error) {
-    return new FfmpegVideoDecoderException("Unexpected decode error", error);
+  protected FfmpegDecoderException createUnexpectedDecodeException(Throwable error) {
+    return new FfmpegDecoderException("Unexpected decode error", error);
   }
 
   @Override
@@ -190,34 +190,24 @@ import java.util.List;
     nativeContext = 0;
   }
 
-  @Override
-  protected void releaseOutputBuffer(VideoDecoderOutputBuffer buffer) {
-    // Decode only frames do not acquire a reference on the internal decoder buffer and thus do not
-    // require a call to vpxReleaseFrame.
-//    if (outputMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && !buffer.isDecodeOnly()) {
-//      gav1ReleaseFrame(nativeContext, buffer);
-//    }
-    super.releaseOutputBuffer(buffer);
-  }
-
   /**
    * Renders output buffer to the given surface. Must only be called when in {@link
    * C#VIDEO_OUTPUT_MODE_SURFACE_YUV} mode.
    *
    * @param outputBuffer Output buffer.
    * @param surface Output surface.
-   * @throws FfmpegVideoDecoderException Thrown if called with invalid output mode or frame
+   * @throws FfmpegDecoderException Thrown if called with invalid output mode or frame
    * rendering fails.
    */
   public void renderToSurface(VideoDecoderOutputBuffer outputBuffer, Surface surface)
-      throws FfmpegVideoDecoderException {
+      throws FfmpegDecoderException {
     if (outputBuffer.mode != C.VIDEO_OUTPUT_MODE_SURFACE_YUV) {
-      throw new FfmpegVideoDecoderException("Invalid output mode.");
+      throw new FfmpegDecoderException("Invalid output mode.");
     }
     if (ffmpegRenderFrame(
         nativeContext, surface,
         outputBuffer, outputBuffer.width, outputBuffer.height) == DECODER_ERROR_OTHER) {
-      throw new FfmpegVideoDecoderException(
+      throw new FfmpegDecoderException(
           "Buffer render error: ");
     }
   }

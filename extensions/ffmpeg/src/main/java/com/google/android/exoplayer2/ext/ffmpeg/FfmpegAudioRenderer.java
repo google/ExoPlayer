@@ -39,7 +39,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
 
   private final boolean enableFloatOutput;
 
-  private @MonotonicNonNull FfmpegDecoder decoder;
+  private @MonotonicNonNull FfmpegAudioDecoder decoder;
 
   public FfmpegAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -110,12 +110,12 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
   }
 
   @Override
-  protected FfmpegDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+  protected FfmpegAudioDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws FfmpegDecoderException {
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     decoder =
-        new FfmpegDecoder(
+        new FfmpegAudioDecoder(
             NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, format, shouldUseFloatOutput(format));
     return decoder;
   }

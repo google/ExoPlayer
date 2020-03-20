@@ -26,9 +26,45 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.txt'
+
+        externalNativeBuild {
+            cmake {
+                // Debug CMake build type causes video frames to drop,
+                // so native library should always use Release build type.
+                arguments "-DCMAKE_BUILD_TYPE=Release"
+                targets "ffmpegJNI"
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            version '3.10.2'
+            path "src/main/jni/CMakeLists.txt"
+        }
+    }
+
+    buildTypes {
+        debug {
+            ndk {
+                abiFilters 'arm64-v8a'/*, 'x86_64'*/
+            }
+        }
+    }
+
+    // This option resolves the problem of finding libffmpegJNI.so
+    // on multiple paths. The first one found is picked.
+    packagingOptions {
+        pickFirst 'lib/arm64-v8a/libffmpegJNI.so'
+        pickFirst 'lib/armeabi-v7a/libffmpegJNI.so'
+        pickFirst 'lib/x86/libffmpegJNI.so'
+        pickFirst 'lib/x86_64/libffmpegJNI.so'
     }
 
     sourceSets.main {
+        // As native JNI library build is invoked from gradle, this is
+        // not needed. However, it exposes the built library and keeps
+        // consistency with the other extensions.
         jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
     }

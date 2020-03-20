@@ -14,52 +14,51 @@ if(${ANDROID_ABI} MATCHES "armeabi-v7a")
     add_compile_options("-fPIC")
 endif()
 
-set(libgav1_jni_root "${CMAKE_CURRENT_SOURCE_DIR}")
-set(libgav1_jni_build "${CMAKE_BINARY_DIR}")
-set(libgav1_jni_output_directory
-    ${libgav1_jni_root}/../libs/${ANDROID_ABI}/)
+set(libgffmpeg_jni_root "${CMAKE_CURRENT_SOURCE_DIR}")
+set(libgffmpeg_jni_build "${CMAKE_BINARY_DIR}")
+set(libgffmpeg_jni_output_directory
+    ${libgffmpeg_jni_root}/../libs/${ANDROID_ABI}/)
 
-#set(libgav1_root "${libgav1_jni_root}/libgav1")
-#set(libgav1_build "${libgav1_jni_build}/libgav1")
+#set(libgffmpeg_root "${libgffmpeg_jni_root}/libgffmpeg")
+#set(libgffmpeg_build "${libgffmpeg_jni_build}/libgffmpeg")
 
-#set(cpu_features_root "${libgav1_jni_root}/cpu_features")
-#set(cpu_features_build "${libgav1_jni_build}/cpu_features")
+#set(cpu_features_root "${libgffmpeg_jni_root}/cpu_features")
+#set(cpu_features_build "${libgffmpeg_jni_build}/cpu_features")
 
 # Build cpu_features library.
 #add_subdirectory("${cpu_features_root}"
 #                 "${cpu_features_build}"
 #                 EXCLUDE_FROM_ALL)
 
-# Build libgav1.
-#add_subdirectory("${libgav1_root}"
-#                 "${libgav1_build}"
+# Build libgffmpeg.
+#add_subdirectory("${libgffmpeg_root}"
+#                 "${libgffmpeg_build}"
 #                 EXCLUDE_FROM_ALL)
 add_library(ffmpeg
             SHARED
             IMPORTED)
 set_target_properties(ffmpeg PROPERTIES
                       IMPORTED_LOCATION
-                      ${libgav1_jni_output_directory}/libffmpeg.so)
+                      ${libgffmpeg_jni_output_directory}/libffmpeg.so)
 
-# Build libgav1JNI.
+# Build libgffmpegJNI.
 add_library(ffmpegJNI
             SHARED
-            ffmpeg_audio_jni.cc
-            ffmpeg_video_jni.cc)
+            ffmpeg_jni.cc)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Locate NDK log library.
 find_library(android_log_lib log)
 
-# Link libgav1JNI against used libraries.
+# Link libgffmpegJNI against used libraries.
 target_link_libraries(ffmpegJNI
                       PRIVATE android
                       PRIVATE ffmpeg
 #                      PRIVATE cpu_features
-#                      PRIVATE libgav1_static
+#                      PRIVATE libgffmpeg_static
                       PRIVATE ${android_log_lib})
 
-# Specify output directory for libgav1JNI.
+# Specify output directory for libgffmpegJNI.
 set_target_properties(ffmpegJNI PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY
-                      ${libgav1_jni_output_directory})
+                      ${libgffmpeg_jni_output_directory})
