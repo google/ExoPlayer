@@ -2,9 +2,12 @@
 
 ### 2.11.4 (not yet released) ###
 
-* Text: Catch-and-log all fatal exceptions in `TextRenderer` instead of
-  re-throwing, allowing playback to continue even if subtitles fail
-  ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
+* Text:
+  *  Catch-and-log all fatal exceptions in `TextRenderer` instead of
+    re-throwing, allowing playback to continue even if subtitles fail
+    ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
+  * Allow missing hours in SubRip (.srt) timecodes
+    ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
 * UI: Add an option to set whether to use the orientation sensor for rotation
   in spherical playbacks
   ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
