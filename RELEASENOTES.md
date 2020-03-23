@@ -75,6 +75,8 @@
         ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
     *   Parse `tts:ruby` and `tts:rubyPosition` properties in TTML subtitles
         (rendering is coming later).
+    *   Allow missing hours in SubRip (.srt) timecodes
+        ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.
