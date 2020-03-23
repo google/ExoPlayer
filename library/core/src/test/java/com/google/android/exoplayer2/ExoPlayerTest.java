@@ -6184,6 +6184,7 @@ public final class ExoPlayerTest {
         new Loader.Loadable() {
           @Override
           public void load() throws IOException {
+            @SuppressWarnings("unused") // This test needs the allocation to cause an OOM.
             byte[] largeBuffer = new byte[Integer.MAX_VALUE];
           }
 
