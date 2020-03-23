@@ -202,10 +202,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
   @Capabilities
-  protected int supportsFormat(
-      MediaCodecSelector mediaCodecSelector,
-      Format format)
+  protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.isAudio(mimeType)) {

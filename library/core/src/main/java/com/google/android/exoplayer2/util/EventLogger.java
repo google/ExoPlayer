@@ -216,8 +216,10 @@ public class EventLogger implements AnalyticsListener {
     for (int rendererIndex = 0; rendererIndex < rendererCount; rendererIndex++) {
       TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
       TrackSelection trackSelection = trackSelections.get(rendererIndex);
-      if (rendererTrackGroups.length > 0) {
-        logd("  Renderer:" + rendererIndex + " [");
+      if (rendererTrackGroups.length == 0) {
+        logd("  " + mappedTrackInfo.getRendererName(rendererIndex) + " []");
+      } else {
+        logd("  " + mappedTrackInfo.getRendererName(rendererIndex) + " [");
         for (int groupIndex = 0; groupIndex < rendererTrackGroups.length; groupIndex++) {
           TrackGroup trackGroup = rendererTrackGroups.get(groupIndex);
           String adaptiveSupport =
@@ -261,7 +263,7 @@ public class EventLogger implements AnalyticsListener {
     // Log tracks not associated with a renderer.
     TrackGroupArray unassociatedTrackGroups = mappedTrackInfo.getUnmappedTrackGroups();
     if (unassociatedTrackGroups.length > 0) {
-      logd("  Renderer:None [");
+      logd("  Unmapped [");
       for (int groupIndex = 0; groupIndex < unassociatedTrackGroups.length; groupIndex++) {
         logd("    Group:" + groupIndex + " [");
         TrackGroup trackGroup = unassociatedTrackGroups.get(groupIndex);

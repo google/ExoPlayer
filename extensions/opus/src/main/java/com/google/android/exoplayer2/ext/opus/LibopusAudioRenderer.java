@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 /** Decodes and renders audio using the native Opus decoder. */
 public class LibopusAudioRenderer extends DecoderAudioRenderer {
 
+  private static final String TAG = "LibopusAudioRenderer";
   /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
   /** The default input buffer size. */
@@ -51,6 +52,11 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
       @Nullable AudioRendererEventListener eventListener,
       AudioProcessor... audioProcessors) {
     super(eventHandler, eventListener, audioProcessors);
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override

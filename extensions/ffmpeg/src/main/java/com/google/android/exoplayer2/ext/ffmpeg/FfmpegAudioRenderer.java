@@ -32,6 +32,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** Decodes and renders audio using FFmpeg. */
 public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
 
+  private static final String TAG = "FfmpegAudioRenderer";
+
   /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
   /** The default input buffer size. */
@@ -86,6 +88,11 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
         eventListener,
         audioSink);
     this.enableFloatOutput = enableFloatOutput;
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override

@@ -379,7 +379,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   // Handler.Callback implementation.
 
   @Override
-  @SuppressWarnings("unchecked")
   public boolean handleMessage(Message msg) {
     try {
       switch (msg.what) {
@@ -469,7 +468,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
       maybeNotifyPlaybackInfoChanged();
     } catch (ExoPlaybackException e) {
-      Log.e(TAG, getExoPlaybackExceptionMessage(e), e);
+      Log.e(TAG, "Playback error", e);
       stopInternal(
           /* forceResetRenderers= */ true,
           /* resetPositionAndState= */ false,
@@ -477,19 +476,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
       playbackInfo = playbackInfo.copyWithPlaybackError(e);
       maybeNotifyPlaybackInfoChanged();
     } catch (IOException e) {
-      Log.e(TAG, "Source error", e);
+      ExoPlaybackException error = ExoPlaybackException.createForSource(e);
+      Log.e(TAG, "Playback error", error);
       stopInternal(
           /* forceResetRenderers= */ false,
           /* resetPositionAndState= */ false,
           /* acknowledgeStop= */ false);
-      playbackInfo = playbackInfo.copyWithPlaybackError(ExoPlaybackException.createForSource(e));
+      playbackInfo = playbackInfo.copyWithPlaybackError(error);
       maybeNotifyPlaybackInfoChanged();
     } catch (RuntimeException | OutOfMemoryError e) {
-      Log.e(TAG, "Internal runtime error", e);
       ExoPlaybackException error =
           e instanceof OutOfMemoryError
               ? ExoPlaybackException.createForOutOfMemoryError((OutOfMemoryError) e)
               : ExoPlaybackException.createForUnexpected((RuntimeException) e);
+      Log.e(TAG, "Playback error", error);
       stopInternal(
           /* forceResetRenderers= */ true,
           /* resetPositionAndState= */ false,
@@ -501,20 +501,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   // Private methods.
-
-  private String getExoPlaybackExceptionMessage(ExoPlaybackException e) {
-    if (e.type != ExoPlaybackException.TYPE_RENDERER) {
-      return "Playback error.";
-    }
-    return "Renderer error: index="
-        + e.rendererIndex
-        + ", type="
-        + Util.getTrackTypeString(renderers[e.rendererIndex].getTrackType())
-        + ", format="
-        + e.rendererFormat
-        + ", rendererSupport="
-        + RendererCapabilities.getFormatSupportString(e.rendererFormatSupport);
-  }
 
   /**
    * Blocks the current thread until {@link #releaseInternal()} is executed on the playback Thread.

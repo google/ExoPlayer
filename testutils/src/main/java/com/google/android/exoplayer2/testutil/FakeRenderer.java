@@ -39,6 +39,7 @@ import java.util.List;
  */
 public class FakeRenderer extends BaseRenderer {
 
+  private static final String TAG = "FakeRenderer";
   /**
    * The amount of time ahead of the current playback position that the renderer reads from the
    * source. A real renderer will typically read ahead by a small amount due to pipelining through
@@ -62,6 +63,11 @@ public class FakeRenderer extends BaseRenderer {
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
     lastSamplePositionUs = Long.MIN_VALUE;
     formatsRead = new ArrayList<>();
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override
@@ -93,6 +99,7 @@ public class FakeRenderer extends BaseRenderer {
                     Util.formatInvariant(
                         "Format track type (%s) doesn't match renderer track type (%s).",
                         MimeTypes.getTrackType(format.sampleMimeType), getTrackType())),
+                getName(),
                 getIndex(),
                 format,
                 FORMAT_UNSUPPORTED_TYPE);
