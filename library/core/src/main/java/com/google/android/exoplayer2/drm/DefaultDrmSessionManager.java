@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.Util;
@@ -240,7 +239,6 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   private final ExoMediaDrm.Provider exoMediaDrmProvider;
   private final MediaDrmCallback callback;
   private final HashMap<String, String> keyRequestParameters;
-  private final EventDispatcher<DrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
   private final int[] useDrmSessionsForClearContentTrackTypes;
   private final boolean playClearSamplesWithoutKeys;
@@ -356,7 +354,6 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     this.exoMediaDrmProvider = exoMediaDrmProvider;
     this.callback = callback;
     this.keyRequestParameters = keyRequestParameters;
-    this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
     this.useDrmSessionsForClearContentTrackTypes = useDrmSessionsForClearContentTrackTypes;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
@@ -365,25 +362,6 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
     provisioningSessions = new ArrayList<>();
-  }
-
-  /**
-   * Adds a {@link DrmSessionEventListener} to listen to drm session events.
-   *
-   * @param handler A handler to use when delivering events to {@code eventListener}.
-   * @param eventListener A listener of events.
-   */
-  public final void addListener(Handler handler, DrmSessionEventListener eventListener) {
-    eventDispatcher.addListener(handler, eventListener);
-  }
-
-  /**
-   * Removes a {@link DrmSessionEventListener} from the list of drm session event listeners.
-   *
-   * @param eventListener The listener to remove.
-   */
-  public final void removeListener(DrmSessionEventListener eventListener) {
-    eventDispatcher.removeListener(eventListener);
   }
 
   /**
@@ -509,7 +487,11 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       schemeDatas = getSchemeDatas(drmInitData, uuid, false);
       if (schemeDatas.isEmpty()) {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
-        this.eventDispatcher.dispatch(listener -> listener.onDrmSessionManagerError(error));
+        if (eventDispatcher != null) {
+          eventDispatcher.dispatch(
+              (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionManagerError(error),
+              DrmSessionEventListener.class);
+        }
         return new ErrorStateDrmSession(new DrmSessionException(error));
       }
     }
@@ -579,7 +561,6 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         keyRequestParameters,
         callback,
         Assertions.checkNotNull(playbackLooper),
-        eventDispatcher,
         loadErrorHandlingPolicy);
   }
 
