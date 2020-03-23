@@ -137,6 +137,7 @@ public class DecoderInputBuffer extends Buffer {
     }
     // Instantiate a new buffer if possible.
     ByteBuffer newData = createReplacementByteBuffer(requiredCapacity);
+    newData.order(data.order());
     // Copy data up to the current position from the old buffer to the new one.
     if (position > 0) {
       data.flip();
