@@ -177,7 +177,8 @@ public final class OfflineLicenseHelper {
             conditionVariable.open();
           }
         };
-    drmSessionManager.addListener(new Handler(handlerThread.getLooper()), eventListener);
+    eventDispatcher.addEventListener(
+        new Handler(handlerThread.getLooper()), eventListener, DrmSessionEventListener.class);
   }
 
   /**
