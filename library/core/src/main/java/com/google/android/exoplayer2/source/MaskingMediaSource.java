@@ -234,7 +234,15 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   @RequiresNonNull("unpreparedMaskingMediaPeriod")
   private void setPreparePositionOverrideToUnpreparedMaskingPeriod(long preparePositionOverrideUs) {
     MaskingMediaPeriod maskingPeriod = unpreparedMaskingMediaPeriod;
-    long periodDurationUs = timeline.getPeriodByUid(maskingPeriod.id.periodUid, period).durationUs;
+    int maskingPeriodIndex = timeline.getIndexOfPeriod(maskingPeriod.id.periodUid);
+    if (maskingPeriodIndex == C.INDEX_UNSET) {
+      // The new timeline doesn't contain this period anymore. This can happen if the media source
+      // has multiple periods and removed the first period with a timeline update. Ignore the
+      // update, as the non-existing period will be released anyway as soon as the player receives
+      // this new timeline.
+      return;
+    }
+    long periodDurationUs = timeline.getPeriod(maskingPeriodIndex, period).durationUs;
     if (periodDurationUs != C.TIME_UNSET) {
       // Ensure the overridden position doesn't exceed the period duration.
       if (preparePositionOverrideUs >= periodDurationUs) {
