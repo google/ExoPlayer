@@ -92,6 +92,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     @Deprecated public final int length;
 
     private final int rendererCount;
+    private final String[] rendererNames;
     private final int[] rendererTrackTypes;
     private final TrackGroupArray[] rendererTrackGroups;
     @AdaptiveSupport private final int[] rendererMixedMimeTypeAdaptiveSupports;
@@ -99,6 +100,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     private final TrackGroupArray unmappedTrackGroups;
 
     /**
+     * @param rendererNames The name of each renderer.
      * @param rendererTrackTypes The track type handled by each renderer.
      * @param rendererTrackGroups The {@link TrackGroup}s mapped to each renderer.
      * @param rendererMixedMimeTypeAdaptiveSupports The {@link AdaptiveSupport} for mixed MIME type
@@ -109,11 +111,13 @@ public abstract class MappingTrackSelector extends TrackSelector {
      */
     @SuppressWarnings("deprecation")
     /* package */ MappedTrackInfo(
+        String[] rendererNames,
         int[] rendererTrackTypes,
         TrackGroupArray[] rendererTrackGroups,
         @AdaptiveSupport int[] rendererMixedMimeTypeAdaptiveSupports,
         @Capabilities int[][][] rendererFormatSupports,
         TrackGroupArray unmappedTrackGroups) {
+      this.rendererNames = rendererNames;
       this.rendererTrackTypes = rendererTrackTypes;
       this.rendererTrackGroups = rendererTrackGroups;
       this.rendererFormatSupports = rendererFormatSupports;
@@ -126,6 +130,17 @@ public abstract class MappingTrackSelector extends TrackSelector {
     /** Returns the number of renderers. */
     public int getRendererCount() {
       return rendererCount;
+    }
+
+    /**
+     * Returns the name of the renderer at a given index.
+     *
+     * @see Renderer#getName()
+     * @param rendererIndex The renderer index.
+     * @return The name of the renderer.
+     */
+    public String getRendererName(int rendererIndex) {
+      return rendererNames[rendererIndex];
     }
 
     /**
@@ -380,6 +395,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
     // Create a track group array for each renderer, and trim each rendererFormatSupports entry.
     TrackGroupArray[] rendererTrackGroupArrays = new TrackGroupArray[rendererCapabilities.length];
+    String[] rendererNames = new String[rendererCapabilities.length];
     int[] rendererTrackTypes = new int[rendererCapabilities.length];
     for (int i = 0; i < rendererCapabilities.length; i++) {
       int rendererTrackGroupCount = rendererTrackGroupCounts[i];
@@ -388,6 +404,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
               Util.nullSafeArrayCopy(rendererTrackGroups[i], rendererTrackGroupCount));
       rendererFormatSupports[i] =
           Util.nullSafeArrayCopy(rendererFormatSupports[i], rendererTrackGroupCount);
+      rendererNames[i] = rendererCapabilities[i].getName();
       rendererTrackTypes[i] = rendererCapabilities[i].getTrackType();
     }
 
@@ -401,6 +418,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
     // Package up the track information and selections.
     MappedTrackInfo mappedTrackInfo =
         new MappedTrackInfo(
+            rendererNames,
             rendererTrackTypes,
             rendererTrackGroupArrays,
             rendererMixedMimeTypeAdaptationSupports,

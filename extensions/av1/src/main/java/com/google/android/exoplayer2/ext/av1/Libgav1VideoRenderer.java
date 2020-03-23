@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 /** Decodes and renders video using libgav1 decoder. */
 public class Libgav1VideoRenderer extends DecoderVideoRenderer {
 
+  private static final String TAG = "Libgav1VideoRenderer";
   private static final int DEFAULT_NUM_OF_INPUT_BUFFERS = 4;
   private static final int DEFAULT_NUM_OF_OUTPUT_BUFFERS = 4;
   /* Default size based on 720p resolution video compressed by a factor of two. */
@@ -104,6 +105,11 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
     this.threads = threads;
     this.numInputBuffers = numInputBuffers;
     this.numOutputBuffers = numOutputBuffers;
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override

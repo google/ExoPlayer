@@ -81,6 +81,11 @@ public final class DecoderVideoRendererTest {
           @C.VideoOutputMode private int outputMode;
 
           @Override
+          public String getName() {
+            return "TestVideoRenderer";
+          }
+
+          @Override
           @Capabilities
           public int supportsFormat(Format format) {
             return RendererCapabilities.create(FORMAT_HANDLED);

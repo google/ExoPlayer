@@ -330,7 +330,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
         throwRendererExceptionIsExecuting = false;
       }
     }
-    return ExoPlaybackException.createForRenderer(cause, getIndex(), format, formatSupport);
+    return ExoPlaybackException.createForRenderer(
+        cause, getName(), getIndex(), format, formatSupport);
   }
 
   /**

@@ -34,6 +34,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** Decodes and renders audio using the native Flac decoder. */
 public final class LibflacAudioRenderer extends DecoderAudioRenderer {
 
+  private static final String TAG = "LibflacAudioRenderer";
   private static final int NUM_BUFFERS = 16;
 
   private @MonotonicNonNull FlacStreamMetadata streamMetadata;
@@ -69,6 +70,11 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
         eventHandler,
         eventListener,
         audioSink);
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override

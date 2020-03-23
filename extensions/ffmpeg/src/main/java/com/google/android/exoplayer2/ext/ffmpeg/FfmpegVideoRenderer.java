@@ -36,6 +36,8 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  */
 public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
 
+  private static final String TAG = "FfmpegAudioRenderer";
+
   /**
    * Creates a new instance.
    *
@@ -54,6 +56,11 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
       int maxDroppedFramesToNotify) {
     super(allowedJoiningTimeMs, eventHandler, eventListener, maxDroppedFramesToNotify);
     // TODO: Implement.
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override

@@ -40,6 +40,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  */
 public final class MetadataRenderer extends BaseRenderer implements Callback {
 
+  private static final String TAG = "MetadataRenderer";
   private static final int MSG_INVOKE_RENDERER = 0;
   // TODO: Holding multiple pending metadata objects is temporary mitigation against
   // https://github.com/google/ExoPlayer/issues/1874. It should be removed once this issue has been
@@ -90,6 +91,11 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
     buffer = new MetadataInputBuffer();
     pendingMetadata = new Metadata[MAX_PENDING_METADATA_COUNT];
     pendingMetadataTimestamps = new long[MAX_PENDING_METADATA_COUNT];
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override
