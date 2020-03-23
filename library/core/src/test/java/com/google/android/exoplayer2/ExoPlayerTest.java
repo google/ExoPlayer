@@ -4277,6 +4277,40 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void
+      timelineUpdateInMultiWindowMediaSource_removingPeriod_withUnpreparedMaskingMediaPeriod_doesNotThrow()
+          throws Exception {
+    TimelineWindowDefinition window1 =
+        new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 1);
+    TimelineWindowDefinition window2 =
+        new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 2);
+    FakeMediaSource mediaSource = new FakeMediaSource(/* timeline= */ null);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            // Do something and wait so that the player can create its unprepared MaskingMediaPeriod
+            .seek(/* positionMs= */ 0)
+            .waitForSeekProcessed()
+            // Let the player assign the unprepared period to window1.
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(new FakeTimeline(window1, window2)))
+            .waitForTimelineChanged()
+            // Remove window1 and assume the update is handled without throwing.
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(new FakeTimeline(window2)))
+            .waitForTimelineChanged()
+            .stop()
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setMediaSources(mediaSource)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+
+    // Assertion is to not throw while running the action schedule above.
+  }
+
+  @Test
   public void setPlayWhenReady_keepsCurrentPosition() throws Exception {
     AtomicLong positionAfterSetPlayWhenReady = new AtomicLong(C.TIME_UNSET);
     ActionSchedule actionSchedule =
