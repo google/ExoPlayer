@@ -8,6 +8,8 @@
     ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
   * Allow missing hours in SubRip (.srt) timecodes
     ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
+* WAV: Fix failure to play WAV files that contain trailing non-media bytes
+  ([#7129](https://github.com/google/ExoPlayer/issues/7129))
 * UI: Add an option to set whether to use the orientation sensor for rotation
   in spherical playbacks
   ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
