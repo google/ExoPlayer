@@ -103,6 +103,13 @@ public final class PlatformScheduler implements Scheduler {
     }
     builder.setRequiresDeviceIdle(requirements.isIdleRequired());
     builder.setRequiresCharging(requirements.isChargingRequired());
+    if (Util.SDK_INT >= 26) {
+      builder.setRequiresStorageNotLow(requirements.isStorageNotLowRequired());
+      builder.setRequiresBatteryNotLow(requirements.isBatteryNotLowRequired());
+    } else if (requirements.isStorageNotLowRequired() || requirements.isBatteryNotLowRequired()) {
+      Log.w(TAG, "Storage not low and battery not low requirements are only available on "
+          + "API 26 and up. Consider using the WorkManagerScheduler.");
+    }
     builder.setPersisted(true);
 
     PersistableBundle extras = new PersistableBundle();

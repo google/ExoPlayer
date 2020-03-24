@@ -89,6 +89,14 @@ public final class WorkManagerScheduler implements Scheduler {
       setRequiresDeviceIdle(builder);
     }
 
+    if (requirements.isBatteryNotLowRequired()) {
+      builder.setRequiresBatteryNotLow(true);
+    }
+
+    if (requirements.isStorageNotLowRequired()) {
+      builder.setRequiresStorageNotLow(true);
+    }
+
     return builder.build();
   }
 

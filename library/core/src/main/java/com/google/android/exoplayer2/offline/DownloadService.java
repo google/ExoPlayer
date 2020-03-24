@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import com.google.android.exoplayer2.scheduler.PlatformScheduler;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.util.Assertions;
@@ -658,6 +659,7 @@ public abstract class DownloadService extends Service {
         if (requirements == null) {
           Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
+          requirements = validateRequirements(requirements);
           downloadManager.setRequirements(requirements);
         }
         break;
@@ -833,6 +835,30 @@ public abstract class DownloadService extends Service {
     return state == Download.STATE_DOWNLOADING
         || state == Download.STATE_REMOVING
         || state == Download.STATE_RESTARTING;
+  }
+
+  private Requirements validateRequirements(Requirements requirements) {
+    Requirements finalRequirements = requirements;
+
+    if (Util.SDK_INT < 26 && getScheduler() instanceof PlatformScheduler) {
+      if (requirements.isBatteryNotLowRequired()) {
+        Log.w(TAG, "Can't set requirement for battery not low on the PlatformScheduler"
+            + "on API below 26. Requirement removed. Consider using the WorkManagerScheduler");
+        int newRequirements =
+            finalRequirements.getRequirements() ^ Requirements.DEVICE_BATTERY_NOT_LOW;
+        finalRequirements = new Requirements(newRequirements);
+      }
+
+      if (requirements.isStorageNotLowRequired()) {
+        Log.w(TAG, "Can't set requirement for storage not low on the PlatformScheduler"
+            + "on API below 26. Requirement removed. Consider using the WorkManagerScheduler");
+        int newRequirements =
+            finalRequirements.getRequirements() ^ Requirements.DEVICE_STORAGE_NOT_LOW;
+        finalRequirements = new Requirements(newRequirements);
+      }
+    }
+
+    return finalRequirements;
   }
 
   private static Intent getIntent(
