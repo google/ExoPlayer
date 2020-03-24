@@ -1025,7 +1025,7 @@ public final class DefaultAudioSink implements AudioSink {
       }
       audioTrackPositionTracker.reset();
       releasingConditionVariable.close();
-      new Thread() {
+      new Thread("ExoPlayer:AudioTrackReleaseThread") {
         @Override
         public void run() {
           try {

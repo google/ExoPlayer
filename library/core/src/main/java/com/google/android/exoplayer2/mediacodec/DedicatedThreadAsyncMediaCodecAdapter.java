@@ -257,7 +257,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private static String createThreadLabel(int trackType) {
-    StringBuilder labelBuilder = new StringBuilder("MediaCodecAsyncAdapter:");
+    StringBuilder labelBuilder = new StringBuilder("ExoPlayer:MediaCodecAsyncAdapter:");
     if (trackType == C.TRACK_TYPE_AUDIO) {
       labelBuilder.append("Audio");
     } else if (trackType == C.TRACK_TYPE_VIDEO) {

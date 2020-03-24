@@ -264,7 +264,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     if (++referenceCount == 1) {
       Assertions.checkState(state == STATE_OPENING);
-      requestHandlerThread = new HandlerThread("DrmRequestHandler");
+      requestHandlerThread = new HandlerThread("ExoPlayer:DrmRequestHandler");
       requestHandlerThread.start();
       requestHandler = new RequestHandler(requestHandlerThread.getLooper());
       if (openInternal(true)) {
