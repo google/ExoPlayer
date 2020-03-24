@@ -165,6 +165,7 @@ public class SampleChooserActivity extends AppCompatActivity
   @Override
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if (grantResults.length == 0) {
       // Empty results are triggered if a permission is requested while another request was already
       // pending and can be safely ignored in this case.
@@ -492,7 +493,6 @@ public class SampleChooserActivity extends AppCompatActivity
       groups.add(group);
       return group;
     }
-
   }
 
   private final class SampleAdapter extends BaseExpandableListAdapter implements OnClickListener {
@@ -519,8 +519,12 @@ public class SampleChooserActivity extends AppCompatActivity
     }
 
     @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
-        View convertView, ViewGroup parent) {
+    public View getChildView(
+        int groupPosition,
+        int childPosition,
+        boolean isLastChild,
+        View convertView,
+        ViewGroup parent) {
       View view = convertView;
       if (view == null) {
         view = getLayoutInflater().inflate(R.layout.sample_list_item, parent, false);
@@ -548,8 +552,8 @@ public class SampleChooserActivity extends AppCompatActivity
     }
 
     @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
-        ViewGroup parent) {
+    public View getGroupView(
+        int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
       View view = convertView;
       if (view == null) {
         view =
@@ -605,6 +609,5 @@ public class SampleChooserActivity extends AppCompatActivity
       this.title = title;
       this.samples = new ArrayList<>();
     }
-
   }
 }
