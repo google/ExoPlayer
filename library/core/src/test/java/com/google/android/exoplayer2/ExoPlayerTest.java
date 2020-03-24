@@ -912,8 +912,7 @@ public final class ExoPlayerTest {
             new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT),
             new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT));
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testResetMediaSourcesWithPositionResetAndShufflingUsesFirstPeriod")
+        new ActionSchedule.Builder(TAG)
             // Wait for first preparation and enable shuffling. Plays period 0.
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
@@ -1576,8 +1575,7 @@ public final class ExoPlayerTest {
         new ConcatenatingMediaSource(/* isAtomic= */ false, new FakeShuffleOrder(0));
     AtomicInteger windowIndexAfterAddingSources = new AtomicInteger();
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testRestartAfterEmptyTimelineWithShuffleModeEnabledUsesCorrectFirstPeriod")
+        new ActionSchedule.Builder(TAG)
             .setShuffleModeEnabled(true)
             // Preparing with an empty media source will transition to ended state.
             .waitForPlaybackState(Player.STATE_ENDED)
@@ -3864,8 +3862,7 @@ public final class ExoPlayerTest {
     int[] timelineWindowCounts = new int[4];
     int[] maskingPlaybackState = {C.INDEX_UNSET};
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testModifyPlaylistUnprepared_remainsInIdle_needsPrepareForBuffering")
+        new ActionSchedule.Builder(TAG)
             .waitForTimelineChanged(dummyTimeline, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED)
             .executeRunnable(
                 new PlaybackStateCollector(/* index= */ 0, playbackStates, timelineWindowCounts))
@@ -3948,8 +3945,7 @@ public final class ExoPlayerTest {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     FakeMediaSource secondMediaSource = new FakeMediaSource(timeline);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testModifyPlaylistPrepared_remainsInEnded_needsSeekForBuffering")
+        new ActionSchedule.Builder(TAG)
             .waitForTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .waitForPlaybackState(Player.STATE_BUFFERING)
             .waitForPlaybackState(Player.STATE_READY)
@@ -4011,8 +4007,7 @@ public final class ExoPlayerTest {
     int[] playbackStateHolder = new int[3];
     int[] windowCountHolder = new int[3];
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testStopWithNoReset_modifyingPlaylistRemainsInIdleState_needsPrepareForBuffering")
+        new ActionSchedule.Builder(TAG)
             .waitForPlaybackState(Player.STATE_READY)
             .stop(/* reset= */ false)
             .executeRunnable(
@@ -4405,8 +4400,7 @@ public final class ExoPlayerTest {
     MediaSource secondMediaSource = new FakeMediaSource(secondTimeline);
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_empty_whenEmpty_validInitialSeek_correctMaskingWindowIndex")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -4448,8 +4442,7 @@ public final class ExoPlayerTest {
     MediaSource secondMediaSource = new FakeMediaSource(secondTimeline);
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_empty_whenEmpty_invalidInitialSeek_correctMaskingWindowIndex")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -4556,8 +4549,7 @@ public final class ExoPlayerTest {
     MediaSource secondMediaSource = new FakeMediaSource(secondTimeline);
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_whenEmpty_validInitialSeek_correctMaskingWindowIndex")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -4599,8 +4591,7 @@ public final class ExoPlayerTest {
     MediaSource secondMediaSource = new FakeMediaSource(secondTimeline);
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_whenEmpty_invalidInitialSeek_correctMaskingWindowIndex")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -4747,8 +4738,7 @@ public final class ExoPlayerTest {
     final int[] maskingPlaybackStates = new int[1];
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_whenIdle_invalidSeek_correctMaskingPlaybackState")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -4788,8 +4778,7 @@ public final class ExoPlayerTest {
     final int[] maskingPlaybackStates = new int[1];
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_whenIdle_noSeek_correctMaskingPlaybackState")
+        new ActionSchedule.Builder(TAG)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4825,8 +4814,7 @@ public final class ExoPlayerTest {
     final int[] maskingPlaybackStates = new int[1];
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_whenIdle_noSeekEmpty_correctMaskingPlaybackState")
+        new ActionSchedule.Builder(TAG)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4951,8 +4939,7 @@ public final class ExoPlayerTest {
     final int[] maskingPlaybackStates = new int[1];
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_whenEnded_invalidSeek_correctMaskingPlaybackState")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .waitForPlaybackState(Player.STATE_ENDED)
             .executeRunnable(
@@ -4992,8 +4979,7 @@ public final class ExoPlayerTest {
     final int[] maskingPlaybackStates = new int[1];
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_whenEnded_noSeek_correctMaskingPlaybackState")
+        new ActionSchedule.Builder(TAG)
             .waitForPlaybackState(Player.STATE_READY)
             .clearMediaItems()
             .waitForPlaybackState(Player.STATE_ENDED)
@@ -5035,8 +5021,7 @@ public final class ExoPlayerTest {
     final int[] maskingPlaybackStates = new int[1];
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_whenEnded_noSeekEmpty_correctMaskingPlaybackState")
+        new ActionSchedule.Builder(TAG)
             .waitForPlaybackState(Player.STATE_READY)
             .clearMediaItems()
             .waitForPlaybackState(Player.STATE_ENDED)
@@ -5191,8 +5176,7 @@ public final class ExoPlayerTest {
     final int[] maskingPlaybackStates = new int[1];
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testSetMediaSources_whenPrepared_invalidSeek_correctMaskingPlaybackState")
+        new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_ENDED)
             .executeRunnable(
@@ -5242,8 +5226,7 @@ public final class ExoPlayerTest {
     final int[] currentWindowIndices = new int[5];
     Arrays.fill(currentWindowIndices, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testAddMediaSources_skipSettingMediaItems_validInitialSeek_correctMaskingWindowIndex")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -5290,8 +5273,7 @@ public final class ExoPlayerTest {
     MediaSource secondMediaSource = new FakeMediaSource(secondTimeline);
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testAddMediaSources_skipSettingMediaItems_invalidInitialSeek_correctMaskingWindowIndex")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -5487,8 +5469,7 @@ public final class ExoPlayerTest {
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET};
     final long[] currentPositions = {C.TIME_UNSET, C.TIME_UNSET};
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testRemoveMediaItems_CurrentItemRemoved_correctMaskingWindowIndex")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -5531,8 +5512,7 @@ public final class ExoPlayerTest {
     final int[] maskingPlaybackStates = new int[4];
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testRemoveMediaItems_CurrentItemRemovedThatIsTheLast_correctMaskingWindowIndex")
+        new ActionSchedule.Builder(TAG)
             .waitForSeekProcessed()
             .waitForPlaybackState(Player.STATE_READY)
             .executeRunnable(
@@ -5640,8 +5620,7 @@ public final class ExoPlayerTest {
     Timeline secondTimeline = new FakeTimeline(/* windowCount= */ 1, new Object());
     MediaSource secondMediaSource = new FakeMediaSource(secondTimeline);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(
-                "testRemoveMediaItems_removeTailWithCurrentWindow_whenIdle_finishesPlayback")
+        new ActionSchedule.Builder(TAG)
             .seek(/* windowIndex= */ 1, /* positionMs= */ C.TIME_UNSET)
             .waitForSeekProcessed()
             .removeMediaItem(/* index= */ 1)
