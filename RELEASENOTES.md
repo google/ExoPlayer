@@ -99,6 +99,8 @@
     costly on large files.
 *   MP4: Store the Android capture frame rate only in `Format.metadata`.
     `Format.frameRate` now stores the calculated frame rate.
+*   WAV: Fix failure to play WAV files that contain trailing non-media bytes
+    ([#7129](https://github.com/google/ExoPlayer/issues/7129))
 *   Testing
     *   Upgrade Truth dependency from 0.44 to 1.0.
     *   Upgrade to JUnit 4.13-rc-2.
