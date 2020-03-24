@@ -280,7 +280,7 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
   }
 
   private static String createThreadLabel(int trackType) {
-    StringBuilder labelBuilder = new StringBuilder("MediaCodecInputBufferEnqueuer:");
+    StringBuilder labelBuilder = new StringBuilder("ExoPlayer:MediaCodecBufferEnqueuer:");
     if (trackType == C.TRACK_TYPE_AUDIO) {
       labelBuilder.append("Audio");
     } else if (trackType == C.TRACK_TYPE_VIDEO) {

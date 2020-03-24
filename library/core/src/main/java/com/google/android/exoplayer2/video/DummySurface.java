@@ -135,7 +135,7 @@ public final class DummySurface extends Surface {
     @Nullable private DummySurface surface;
 
     public DummySurfaceThread() {
-      super("dummySurface");
+      super("ExoPlayer:DummySurface");
     }
 
     public DummySurface init(@SecureMode int secureMode) {
