@@ -458,22 +458,21 @@ public final class DefaultAudioSink implements AudioSink {
     if (processingEnabled) {
       trimmingAudioProcessor.setTrimFrameCount(trimStartFrames, trimEndFrames);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
-      AudioProcessor.AudioFormat inputAudioFormat =
+      AudioProcessor.AudioFormat outputFormat =
           new AudioProcessor.AudioFormat(sampleRate, channelCount, encoding);
-      AudioProcessor.AudioFormat outputAudioFormat = inputAudioFormat;
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
-          outputAudioFormat = audioProcessor.configure(inputAudioFormat);
+          AudioProcessor.AudioFormat nextFormat = audioProcessor.configure(outputFormat);
+          if (audioProcessor.isActive()) {
+            outputFormat = nextFormat;
+          }
         } catch (UnhandledAudioFormatException e) {
           throw new ConfigurationException(e);
         }
-        if (audioProcessor.isActive()) {
-          inputAudioFormat = outputAudioFormat;
-        }
       }
-      sampleRate = outputAudioFormat.sampleRate;
-      channelCount = outputAudioFormat.channelCount;
-      encoding = outputAudioFormat.encoding;
+      sampleRate = outputFormat.sampleRate;
+      channelCount = outputFormat.channelCount;
+      encoding = outputFormat.encoding;
     }
 
     int outputChannelConfig = getChannelConfig(channelCount, isInputPcm);
