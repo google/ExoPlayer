@@ -61,7 +61,9 @@ dependencies {
     androidTestImplementation 'com.google.guava:guava:' + guavaVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestImplementation project(modulePrefix + 'testutils')
+    androidTestImplementation(project(modulePrefix + 'testutils')) {
+        exclude module: gradle.ext.exoplayerModulePrefix + 'library-core'
+    }
     testImplementation 'com.google.guava:guava:' + guavaVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'testutils')
