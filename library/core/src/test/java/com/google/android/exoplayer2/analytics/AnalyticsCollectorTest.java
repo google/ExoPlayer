@@ -1076,7 +1076,7 @@ public final class AnalyticsCollectorTest {
             WINDOW_0 /* setPlayWhenReady=false */,
             WINDOW_0 /* BUFFERING */,
             contentBeforeMidroll /* READY */,
-            midrollAd /* BUFFERING */,
+            contentAfterMidroll /* BUFFERING */,
             midrollAd /* setPlayWhenReady=true */,
             midrollAd /* READY */,
             contentAfterMidroll /* ENDED */);

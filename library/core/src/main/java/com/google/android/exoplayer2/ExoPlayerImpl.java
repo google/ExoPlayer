@@ -589,6 +589,7 @@ import java.util.concurrent.TimeoutException;
     return playbackInfo.isLoading;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public void seekTo(int windowIndex, long positionMs) {
     Timeline timeline = playbackInfo.timeline;
@@ -596,6 +597,8 @@ import java.util.concurrent.TimeoutException;
       throw new IllegalSeekPositionException(timeline, windowIndex, positionMs);
     }
     hasPendingSeek = true;
+    boolean playWhenReady = getPlayWhenReady();
+    @Player.State int playbackState = getPlaybackState();
     pendingOperationAcks++;
     if (isPlayingAd()) {
       // TODO: Investigate adding support for seeking during ads. This is complicated to do in
@@ -612,8 +615,20 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     maskWindowIndexAndPositionForSeek(timeline, windowIndex, positionMs);
+    @Player.State
+    int newPlaybackState =
+        playbackState == Player.STATE_IDLE ? Player.STATE_IDLE : Player.STATE_BUFFERING;
+    boolean playbackStateChanged = playbackState != newPlaybackState;
+    playbackInfo = playbackInfo.copyWithPlaybackState(newPlaybackState);
     internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
-    notifyListeners(listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK));
+    notifyListeners(
+        listener -> {
+          listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK);
+          if (playbackStateChanged) {
+            listener.onPlayerStateChanged(playWhenReady, newPlaybackState);
+            listener.onPlaybackStateChanged(newPlaybackState);
+          }
+        });
   }
 
   /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
