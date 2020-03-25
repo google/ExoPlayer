@@ -53,6 +53,22 @@ public interface DrmSessionManager<T extends ExoMediaCrypto> {
         public Class<ExoMediaCrypto> getExoMediaCryptoType(DrmInitData drmInitData) {
           return null;
         }
+
+        @Override
+        public DrmSession<ExoMediaCrypto> acquirePlaceholderSession(Looper playbackLooper, int trackType) {
+          // Intentionally overriden to make sure that build toolchain without desugaring support don't crash
+          return null;
+        }
+
+        @Override
+        public void prepare() {
+          // Intentionally overriden to make sure that build toolchain without desugaring support don't crash
+        }
+      
+        @Override
+        public void release() {
+          // Intentionally overriden to make sure that build toolchain without desugaring support don't crash
+        }
       };
 
   /**
