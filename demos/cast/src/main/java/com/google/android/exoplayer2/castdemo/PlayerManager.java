@@ -27,10 +27,7 @@ import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
-import com.google.android.exoplayer2.ext.cast.DefaultMediaItemConverter;
-import com.google.android.exoplayer2.ext.cast.MediaItemConverter;
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -41,7 +38,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.gms.cast.MediaQueueItem;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
@@ -75,7 +71,6 @@ import java.util.ArrayList;
   private final ArrayList<MediaItem> mediaQueue;
   private final Listener listener;
   private final ConcatenatingMediaSource concatenatingMediaSource;
-  private final MediaItemConverter mediaItemConverter;
 
   private TrackGroupArray lastSeenTrackGroupArray;
   private int currentItemIndex;
@@ -102,7 +97,6 @@ import java.util.ArrayList;
     mediaQueue = new ArrayList<>();
     currentItemIndex = C.INDEX_UNSET;
     concatenatingMediaSource = new ConcatenatingMediaSource();
-    mediaItemConverter = new DefaultMediaItemConverter();
 
     trackSelector = new DefaultTrackSelector(context);
     exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
@@ -143,7 +137,7 @@ import java.util.ArrayList;
     mediaQueue.add(item);
     concatenatingMediaSource.addMediaSource(defaultMediaSourceFactory.createMediaSource(item));
     if (currentPlayer == castPlayer) {
-      castPlayer.addItems(mediaItemConverter.toMediaQueueItem(item));
+      castPlayer.addMediaItem(item);
     }
   }
 
@@ -180,7 +174,7 @@ import java.util.ArrayList;
         if (castTimeline.getPeriodCount() <= itemIndex) {
           return false;
         }
-        castPlayer.removeItem((int) castTimeline.getPeriod(itemIndex, new Period()).id);
+        castPlayer.removeMediaItem(itemIndex);
       }
     }
     mediaQueue.remove(itemIndex);
@@ -196,34 +190,33 @@ import java.util.ArrayList;
    * Moves an item within the queue.
    *
    * @param item The item to move.
-   * @param toIndex The target index of the item in the queue.
+   * @param newIndex The target index of the item in the queue.
    * @return Whether the item move was successful.
    */
-  public boolean moveItem(MediaItem item, int toIndex) {
+  public boolean moveItem(MediaItem item, int newIndex) {
     int fromIndex = mediaQueue.indexOf(item);
     if (fromIndex == -1) {
       return false;
     }
     // Player update.
-    concatenatingMediaSource.moveMediaSource(fromIndex, toIndex);
+    concatenatingMediaSource.moveMediaSource(fromIndex, newIndex);
     if (currentPlayer == castPlayer && castPlayer.getPlaybackState() != Player.STATE_IDLE) {
       Timeline castTimeline = castPlayer.getCurrentTimeline();
       int periodCount = castTimeline.getPeriodCount();
-      if (periodCount <= fromIndex || periodCount <= toIndex) {
+      if (periodCount <= fromIndex || periodCount <= newIndex) {
         return false;
       }
-      int elementId = (int) castTimeline.getPeriod(fromIndex, new Period()).id;
-      castPlayer.moveItem(elementId, toIndex);
+      castPlayer.moveMediaItem(fromIndex, newIndex);
     }
 
-    mediaQueue.add(toIndex, mediaQueue.remove(fromIndex));
+    mediaQueue.add(newIndex, mediaQueue.remove(fromIndex));
 
     // Index update.
     if (fromIndex == currentItemIndex) {
-      maybeSetCurrentItemAndNotify(toIndex);
-    } else if (fromIndex < currentItemIndex && toIndex >= currentItemIndex) {
+      maybeSetCurrentItemAndNotify(newIndex);
+    } else if (fromIndex < currentItemIndex && newIndex >= currentItemIndex) {
       maybeSetCurrentItemAndNotify(currentItemIndex - 1);
-    } else if (fromIndex > currentItemIndex && toIndex <= currentItemIndex) {
+    } else if (fromIndex > currentItemIndex && newIndex <= currentItemIndex) {
       maybeSetCurrentItemAndNotify(currentItemIndex + 1);
     }
 
@@ -353,7 +346,8 @@ import java.util.ArrayList;
 
     // Media queue management.
     if (currentPlayer == exoPlayer) {
-      exoPlayer.prepare(concatenatingMediaSource);
+      exoPlayer.setMediaSource(concatenatingMediaSource, /* resetPosition= */ true);
+      exoPlayer.prepare();
     }
 
     // Playback transition.
@@ -372,11 +366,7 @@ import java.util.ArrayList;
   private void setCurrentItem(int itemIndex, long positionMs, boolean playWhenReady) {
     maybeSetCurrentItemAndNotify(itemIndex);
     if (currentPlayer == castPlayer && castPlayer.getCurrentTimeline().isEmpty()) {
-      MediaQueueItem[] items = new MediaQueueItem[mediaQueue.size()];
-      for (int i = 0; i < items.length; i++) {
-        items[i] = mediaItemConverter.toMediaQueueItem(mediaQueue.get(i));
-      }
-      castPlayer.loadItems(items, itemIndex, positionMs, Player.REPEAT_MODE_OFF);
+      castPlayer.setMediaItems(mediaQueue, itemIndex, positionMs);
     } else {
       currentPlayer.seekTo(itemIndex, positionMs);
       currentPlayer.setPlayWhenReady(playWhenReady);

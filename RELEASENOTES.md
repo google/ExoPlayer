@@ -66,6 +66,7 @@
         floating point audio without adjustment, pass `enableFloatOutput=true`
         to the `DefaultAudioSink` constructor
         ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
+    *   Add media item based playlist API to Player.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
@@ -129,6 +130,8 @@
     ([#6922](https://github.com/google/ExoPlayer/pull/6922)).
 *   The demo app startup selected item is the last played one.
 *   Add support for x86_64 for the ffmpeg extension.
+*   Cast extension: Implement playlist API and deprecate the old queue
+    manipulation API.
 
 ### 2.11.3 (2020-02-19) ###
 

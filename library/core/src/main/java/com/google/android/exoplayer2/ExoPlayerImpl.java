@@ -322,31 +322,6 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void setMediaItem(MediaItem mediaItem) {
-    setMediaItems(Collections.singletonList(mediaItem));
-  }
-
-  @Override
-  public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    setMediaItems(Collections.singletonList(mediaItem), /* startWindowIndex= */ 0, startPositionMs);
-  }
-
-  @Override
-  public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    setMediaItems(Collections.singletonList(mediaItem), resetPosition);
-  }
-
-  @Override
-  public void setMediaItems(List<MediaItem> mediaItems) {
-    setMediaItems(mediaItems, /* resetPosition= */ true);
-  }
-
-  @Override
-  public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
-    setMediaSources(createMediaSources(mediaItems), resetPosition);
-  }
-
-  @Override
   public void setMediaItems(
       List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
     setMediaSources(createMediaSources(mediaItems), startWindowIndex, startPositionMs);
@@ -387,16 +362,6 @@ import java.util.concurrent.TimeoutException;
       List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs) {
     setMediaSourcesInternal(
         mediaSources, startWindowIndex, startPositionMs, /* resetToDefaultPosition= */ false);
-  }
-
-  @Override
-  public void addMediaItem(int index, MediaItem mediaItem) {
-    addMediaItems(index, Collections.singletonList(mediaItem));
-  }
-
-  @Override
-  public void addMediaItem(MediaItem mediaItem) {
-    addMediaItems(Collections.singletonList(mediaItem));
   }
 
   @Override
@@ -445,20 +410,9 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void removeMediaItem(int index) {
-    removeMediaItemsInternal(/* fromIndex= */ index, /* toIndex= */ index + 1);
-  }
-
-  @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
     Assertions.checkArgument(toIndex > fromIndex);
     removeMediaItemsInternal(fromIndex, toIndex);
-  }
-
-  @Override
-  public void moveMediaItem(int currentIndex, int newIndex) {
-    Assertions.checkArgument(currentIndex != newIndex);
-    moveMediaItems(/* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
   }
 
   @Override
