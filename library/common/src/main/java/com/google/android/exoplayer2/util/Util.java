@@ -1385,13 +1385,15 @@ public final class Util {
   }
 
   /**
-   * Returns whether {@code encoding} is high resolution (&gt; 16-bit) integer PCM.
+   * Returns whether {@code encoding} is high resolution (&gt; 16-bit) PCM.
    *
    * @param encoding The encoding of the audio data.
-   * @return Whether the encoding is high resolution integer PCM.
+   * @return Whether the encoding is high resolution PCM.
    */
-  public static boolean isEncodingHighResolutionIntegerPcm(@C.PcmEncoding int encoding) {
-    return encoding == C.ENCODING_PCM_24BIT || encoding == C.ENCODING_PCM_32BIT;
+  public static boolean isEncodingHighResolutionPcm(@C.PcmEncoding int encoding) {
+    return encoding == C.ENCODING_PCM_24BIT
+        || encoding == C.ENCODING_PCM_32BIT
+        || encoding == C.ENCODING_PCM_FLOAT;
   }
 
   /**
