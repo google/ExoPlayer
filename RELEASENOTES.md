@@ -28,6 +28,10 @@
     *   Add `ExoPlayer.setPauseAtEndOfMediaItems` to let the player pause at the
         end of each media item
         ([#5660](https://github.com/google/ExoPlayer/issues/5660)).
+    *   Split `setPlaybackParameter` into `setPlaybackSpeed` and
+        `AudioComponent.setSkipSilenceEnabled` with callbacks
+        `onPlaybackSpeedChanged` and
+        `AudioListener.onSkipSilenceEnabledChanged`.
     *   Make `MediaSourceEventListener.LoadEventInfo` and
         `MediaSourceEventListener.MediaLoadData` top-level classes.
     *   Rename `MediaCodecRenderer.onOutputFormatChanged` to
