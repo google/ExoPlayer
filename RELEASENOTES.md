@@ -8,15 +8,21 @@
     ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
   * Allow missing hours in SubRip (.srt) timecodes
     ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
-* WAV: Fix failure to play WAV files that contain trailing non-media bytes
-  ([#7129](https://github.com/google/ExoPlayer/issues/7129))
-* UI: Add an option to set whether to use the orientation sensor for rotation
-  in spherical playbacks
-  ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
+* Audio:
+  * Enable playback speed adjustment and silence skipping for floating point PCM
+    audio, via resampling to 16-bit integer PCM. To output the original floating
+    point audio without adjustment, pass `enableFloatOutput=true` to the
+    `DefaultAudioSink` constructor
+    ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
+  * Fix failure to play WAV files that contain trailing non-media bytes
+    ([#7129](https://github.com/google/ExoPlayer/issues/7129))
 * DASH: 
     * Update the manifest URI to avoid repeated HTTP redirects
       ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
     * Parse period `AssetIdentifier` elements.
+* UI: Add an option to set whether to use the orientation sensor for rotation
+  in spherical playbacks
+  ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
 * FFmpeg extension: Add support for x86_64.
 
 ### 2.11.3 (2020-02-19) ###
