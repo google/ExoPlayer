@@ -60,6 +60,12 @@
     *   `SimpleDecoderVideoRenderer` and `SimpleDecoderAudioRenderer` renamed to
         `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
         generalized to work with `Decoder` rather than `SimpleDecoder`.
+*   Audio:
+    *   Enable playback speed adjustment and silence skipping for floating point
+        PCM audio, via resampling to 16-bit integer PCM. To output the original
+        floating point audio without adjustment, pass `enableFloatOutput=true`
+        to the `DefaultAudioSink` constructor
+        ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
