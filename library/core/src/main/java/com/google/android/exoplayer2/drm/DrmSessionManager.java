@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 public interface DrmSessionManager {
 
   /** Returns {@link #DUMMY}. */
-  @SuppressWarnings("unchecked")
   static DrmSessionManager getDummyDrmSessionManager() {
     return DUMMY;
   }

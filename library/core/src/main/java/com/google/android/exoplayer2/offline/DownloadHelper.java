@@ -798,7 +798,7 @@ public final class DownloadHelper {
   }
 
   // Initialization of array of Lists.
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings("unchecked")
   private void onMediaPrepared() {
     Assertions.checkNotNull(mediaPreparer);
     Assertions.checkNotNull(mediaPreparer.mediaPeriods);

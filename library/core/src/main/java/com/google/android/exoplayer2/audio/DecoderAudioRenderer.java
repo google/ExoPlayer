@@ -637,7 +637,6 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
     decoderDrmSession = session;
   }
 
-  @SuppressWarnings("unchecked")
   private void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
     setSourceDrmSession(formatHolder.drmSession);
