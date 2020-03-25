@@ -3391,7 +3391,6 @@ public final class ExoPlayerTest {
             .blockUntilActionScheduleFinished(TIMEOUT_MS)
             .blockUntilEnded(TIMEOUT_MS);
     exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
     assertArrayEquals(new long[] {2}, windowCounts);
     assertArrayEquals(new int[] {seekToWindowIndex}, currentWindowIndices);
@@ -4157,7 +4156,7 @@ public final class ExoPlayerTest {
     int seekToWindowIndex = 1;
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForTimelineChanged()
+            .waitForPlaybackState(Player.STATE_ENDED)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4168,12 +4167,11 @@ public final class ExoPlayerTest {
                   }
                 })
             .executeRunnable(
-                () -> {
-                  concatenatingMediaSource.addMediaSource(
-                      new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT));
-                  concatenatingMediaSource.addMediaSource(
-                      new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT));
-                })
+                () ->
+                    concatenatingMediaSource.addMediaSources(
+                        Arrays.asList(
+                            new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT),
+                            new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT))))
             .waitForTimelineChanged()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -4203,7 +4201,7 @@ public final class ExoPlayerTest {
     ConcatenatingMediaSource concatenatingMediaSource =
         new ConcatenatingMediaSource(/* isAtomic= */ false);
     ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG).waitForTimelineChanged().build();
+        new ActionSchedule.Builder(TAG).waitForPlaybackState(Player.STATE_ENDED).build();
     ExoPlayerTestRunner exoPlayerTestRunner =
         new Builder()
             .setMediaSources(concatenatingMediaSource)
@@ -4229,7 +4227,7 @@ public final class ExoPlayerTest {
     int seekToWindowIndex = 1;
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForTimelineChanged()
+            .waitForPlaybackState(Player.STATE_ENDED)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4240,12 +4238,11 @@ public final class ExoPlayerTest {
                   }
                 })
             .executeRunnable(
-                () -> {
-                  concatenatingMediaSource.addMediaSource(
-                      new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT));
-                  concatenatingMediaSource.addMediaSource(
-                      new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT));
-                })
+                () ->
+                    concatenatingMediaSource.addMediaSources(
+                        Arrays.asList(
+                            new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT),
+                            new FakeMediaSource(fakeTimeline, Builder.VIDEO_FORMAT))))
             .waitForTimelineChanged()
             .executeRunnable(
                 new PlayerRunnable() {
@@ -4729,7 +4726,6 @@ public final class ExoPlayerTest {
     exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
   }
 
@@ -4768,7 +4764,6 @@ public final class ExoPlayerTest {
         Player.STATE_BUFFERING, Player.STATE_READY, Player.STATE_ENDED);
     assertArrayEquals(new int[] {Player.STATE_IDLE}, maskingPlaybackStates);
     exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
   }
@@ -4841,7 +4836,6 @@ public final class ExoPlayerTest {
         Player.STATE_BUFFERING, Player.STATE_READY, Player.STATE_ENDED);
     assertArrayEquals(new int[] {Player.STATE_IDLE}, maskingPlaybackStates);
     exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
   }
@@ -4925,9 +4919,6 @@ public final class ExoPlayerTest {
         maskingPlaybackStates);
     exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
@@ -4969,7 +4960,6 @@ public final class ExoPlayerTest {
     exoPlayerTestRunner.assertPlaybackStatesEqual(Player.STATE_ENDED);
     assertArrayEquals(new int[] {Player.STATE_ENDED}, maskingPlaybackStates);
     exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
   }
@@ -5050,7 +5040,6 @@ public final class ExoPlayerTest {
     exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
   }
 
@@ -5213,7 +5202,6 @@ public final class ExoPlayerTest {
         Player.STATE_ENDED);
     assertArrayEquals(new int[] {Player.STATE_ENDED}, maskingPlaybackStates);
     exoPlayerTestRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
@@ -6161,6 +6149,7 @@ public final class ExoPlayerTest {
   public void loading_withLargeAllocationCausingOom_playsRemainingMediaAndThenThrows() {
     Loader.Loadable loadable =
         new Loader.Loadable() {
+          @SuppressWarnings("UnusedVariable")
           @Override
           public void load() throws IOException {
             @SuppressWarnings("unused") // This test needs the allocation to cause an OOM.
@@ -6227,6 +6216,97 @@ public final class ExoPlayerTest {
     assertThat(exception.getSourceException().getCause()).isInstanceOf(OutOfMemoryError.class);
 
     assertThat(renderer.sampleBufferReadCount).isEqualTo(3);
+  }
+
+  @Test
+  public void seekTo_whileReady_callsOnIsPlayingChanged() throws Exception {
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .waitForPlaybackState(Player.STATE_READY)
+            .seek(/* positionMs= */ 0)
+            .waitForPlaybackState(Player.STATE_ENDED)
+            .build();
+    List<Boolean> onIsPlayingChanges = new ArrayList<>();
+    Player.EventListener eventListener =
+        new Player.EventListener() {
+          @Override
+          public void onIsPlayingChanged(boolean isPlaying) {
+            onIsPlayingChanges.add(isPlaying);
+          }
+        };
+    new ExoPlayerTestRunner.Builder()
+        .setEventListener(eventListener)
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(onIsPlayingChanges).containsExactly(true, false, true, false).inOrder();
+  }
+
+  @Test
+  public void multipleListenersAndMultipleCallbacks_callbacksAreOrderedByType() throws Exception {
+    String playWhenReadyChange1 = "playWhenReadyChange1";
+    String playWhenReadyChange2 = "playWhenReadyChange2";
+    String isPlayingChange1 = "isPlayingChange1";
+    String isPlayingChange2 = "isPlayingChange2";
+    ArrayList<String> events = new ArrayList<>();
+    Player.EventListener eventListener1 =
+        new Player.EventListener() {
+          @Override
+          public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+            events.add(playWhenReadyChange1);
+          }
+
+          @Override
+          public void onIsPlayingChanged(boolean isPlaying) {
+            events.add(isPlayingChange1);
+          }
+        };
+    Player.EventListener eventListener2 =
+        new Player.EventListener() {
+          @Override
+          public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+            events.add(playWhenReadyChange2);
+          }
+
+          @Override
+          public void onIsPlayingChanged(boolean isPlaying) {
+            events.add(isPlayingChange2);
+          }
+        };
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.addListener(eventListener1);
+                    player.addListener(eventListener2);
+                  }
+                })
+            .waitForPlaybackState(Player.STATE_READY)
+            .play()
+            .waitForPlaybackState(Player.STATE_ENDED)
+            .build();
+    new ExoPlayerTestRunner.Builder()
+        .setActionSchedule(actionSchedule)
+        .build(context)
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(events)
+        .containsExactly(
+            playWhenReadyChange1,
+            playWhenReadyChange2,
+            isPlayingChange1,
+            isPlayingChange2,
+            isPlayingChange1,
+            isPlayingChange2)
+        .inOrder();
   }
 
   // Internal methods.
