@@ -50,6 +50,17 @@ import java.util.List;
    * Convert {@code text} into HTML, adding tags and styling to match any styling spans present.
    *
    * <p>All textual content is HTML-escaped during the conversion.
+   *
+   * <p>NOTE: The current implementation does not handle overlapping spans correctly, it will
+   * generate overlapping HTML tags that are invalid. In most cases this won't be a problem because:
+   *
+   * <ul>
+   *   <li>Most subtitle formats use a tagged structure to carry formatting information (e.g. WebVTT
+   *       and TTML), so the {@link Spanned} objects created by these decoders likely won't have
+   *       overlapping spans.
+   *   <li>WebView/Chromium (the intended destination of this HTML) gracefully handles overlapping
+   *       tags and usually renders the same result as spanned text in a TextView.
+   * </ul>
    */
   public static String convert(@Nullable CharSequence text) {
     if (text == null) {
