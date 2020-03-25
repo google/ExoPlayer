@@ -104,7 +104,6 @@ public final class OfflineLicenseHelper {
    * @return A new instance which uses Widevine CDM.
    * @see DefaultDrmSessionManager.Builder
    */
-  @SuppressWarnings("unchecked")
   public static OfflineLicenseHelper newWidevineInstance(
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
@@ -125,7 +124,6 @@ public final class OfflineLicenseHelper {
    *     MediaSourceEventDispatcher)} instead.
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
   public OfflineLicenseHelper(
       UUID uuid,
       ExoMediaDrm.Provider mediaDrmProvider,
