@@ -32,7 +32,7 @@ import java.nio.ByteOrder;
  *     href="https://github.com/google/ExoPlayer/issues">issue tracker</a>.
  */
 @Deprecated
-public final class GvrAudioProcessor implements AudioProcessor {
+public class GvrAudioProcessor implements AudioProcessor {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.gvr");
