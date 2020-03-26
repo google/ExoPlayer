@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -70,7 +69,6 @@ import java.util.ArrayList;
   private final CastPlayer castPlayer;
   private final ArrayList<MediaItem> mediaQueue;
   private final Listener listener;
-  private final ConcatenatingMediaSource concatenatingMediaSource;
 
   private TrackGroupArray lastSeenTrackGroupArray;
   private int currentItemIndex;
@@ -96,7 +94,6 @@ import java.util.ArrayList;
     this.castControlView = castControlView;
     mediaQueue = new ArrayList<>();
     currentItemIndex = C.INDEX_UNSET;
-    concatenatingMediaSource = new ConcatenatingMediaSource();
 
     trackSelector = new DefaultTrackSelector(context);
     exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
@@ -120,7 +117,7 @@ import java.util.ArrayList;
    * @param itemIndex The index of the item to play.
    */
   public void selectQueueItem(int itemIndex) {
-    setCurrentItem(itemIndex, C.TIME_UNSET, true);
+    setCurrentItem(itemIndex);
   }
 
   /** Returns the index of the currently played item. */
@@ -135,10 +132,7 @@ import java.util.ArrayList;
    */
   public void addItem(MediaItem item) {
     mediaQueue.add(item);
-    concatenatingMediaSource.addMediaSource(defaultMediaSourceFactory.createMediaSource(item));
-    if (currentPlayer == castPlayer) {
-      castPlayer.addMediaItem(item);
-    }
+    currentPlayer.addMediaItem(item);
   }
 
   /** Returns the size of the media queue. */
@@ -167,16 +161,7 @@ import java.util.ArrayList;
     if (itemIndex == -1) {
       return false;
     }
-    concatenatingMediaSource.removeMediaSource(itemIndex);
-    if (currentPlayer == castPlayer) {
-      if (castPlayer.getPlaybackState() != Player.STATE_IDLE) {
-        Timeline castTimeline = castPlayer.getCurrentTimeline();
-        if (castTimeline.getPeriodCount() <= itemIndex) {
-          return false;
-        }
-        castPlayer.removeMediaItem(itemIndex);
-      }
-    }
+    currentPlayer.removeMediaItem(itemIndex);
     mediaQueue.remove(itemIndex);
     if (itemIndex == currentItemIndex && itemIndex == mediaQueue.size()) {
       maybeSetCurrentItemAndNotify(C.INDEX_UNSET);
@@ -198,17 +183,9 @@ import java.util.ArrayList;
     if (fromIndex == -1) {
       return false;
     }
-    // Player update.
-    concatenatingMediaSource.moveMediaSource(fromIndex, newIndex);
-    if (currentPlayer == castPlayer && castPlayer.getPlaybackState() != Player.STATE_IDLE) {
-      Timeline castTimeline = castPlayer.getCurrentTimeline();
-      int periodCount = castTimeline.getPeriodCount();
-      if (periodCount <= fromIndex || periodCount <= newIndex) {
-        return false;
-      }
-      castPlayer.moveMediaItem(fromIndex, newIndex);
-    }
 
+    // Player update.
+    currentPlayer.moveMediaItem(fromIndex, newIndex);
     mediaQueue.add(newIndex, mediaQueue.remove(fromIndex));
 
     // Index update.
@@ -241,7 +218,6 @@ import java.util.ArrayList;
   public void release() {
     currentItemIndex = C.INDEX_UNSET;
     mediaQueue.clear();
-    concatenatingMediaSource.clear();
     castPlayer.setSessionAvailabilityListener(null);
     castPlayer.release();
     localPlayerView.setPlayer(null);
@@ -345,32 +321,26 @@ import java.util.ArrayList;
     this.currentPlayer = currentPlayer;
 
     // Media queue management.
-    if (currentPlayer == exoPlayer) {
-      exoPlayer.setMediaSource(concatenatingMediaSource, /* resetPosition= */ true);
-      exoPlayer.prepare();
-    }
-
-    // Playback transition.
-    if (windowIndex != C.INDEX_UNSET) {
-      setCurrentItem(windowIndex, playbackPositionMs, playWhenReady);
-    }
+    currentPlayer.setMediaItems(mediaQueue, windowIndex, playbackPositionMs);
+    currentPlayer.setPlayWhenReady(playWhenReady);
+    currentPlayer.prepare();
   }
 
   /**
-   * Starts playback of the item at the given position.
+   * Starts playback of the item at the given index.
    *
    * @param itemIndex The index of the item to play.
-   * @param positionMs The position at which playback should start.
-   * @param playWhenReady Whether the player should proceed when ready to do so.
    */
-  private void setCurrentItem(int itemIndex, long positionMs, boolean playWhenReady) {
+  private void setCurrentItem(int itemIndex) {
     maybeSetCurrentItemAndNotify(itemIndex);
-    if (currentPlayer == castPlayer && castPlayer.getCurrentTimeline().isEmpty()) {
-      castPlayer.setMediaItems(mediaQueue, itemIndex, positionMs);
+    if (currentPlayer.getCurrentTimeline().getWindowCount() != mediaQueue.size()) {
+      // This only happens with the cast player. The receiver app in the cast device clears the
+      // timeline when the last item of the timeline has been played to end.
+      currentPlayer.setMediaItems(mediaQueue, itemIndex, C.TIME_UNSET);
     } else {
-      currentPlayer.seekTo(itemIndex, positionMs);
-      currentPlayer.setPlayWhenReady(playWhenReady);
+      currentPlayer.seekTo(itemIndex, C.TIME_UNSET);
     }
+    currentPlayer.setPlayWhenReady(true);
   }
 
   private void maybeSetCurrentItemAndNotify(int currentItemIndex) {
