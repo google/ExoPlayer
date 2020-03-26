@@ -36,25 +36,25 @@ extern "C" {
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
                    __VA_ARGS__))
 
-#define DECODER_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define AUDIO_DECODER_FUNC(RETURN_TYPE, NAME, ...)                             \
+  extern "C" {                                                                 \
+  JNIEXPORT RETURN_TYPE                                                        \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                           \
+  }                                                                            \
+  JNIEXPORT RETURN_TYPE                                                        \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
-#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                              \
+  extern "C" {                                                            \
+  JNIEXPORT RETURN_TYPE                                                   \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                      \
+  }                                                                       \
+  JNIEXPORT RETURN_TYPE                                                   \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
 #define ERROR_STRING_BUFFER_LENGTH 256
 
@@ -63,7 +63,7 @@ static const AVSampleFormat OUTPUT_FORMAT_PCM_16BIT = AV_SAMPLE_FMT_S16;
 // Output format corresponding to AudioFormat.ENCODING_PCM_FLOAT.
 static const AVSampleFormat OUTPUT_FORMAT_PCM_FLOAT = AV_SAMPLE_FMT_FLT;
 
-// Error codes matching FfmpegDecoder.java.
+// Error codes matching FfmpegAudioDecoder.java.
 static const int DECODER_ERROR_INVALID_DATA = -1;
 static const int DECODER_ERROR_OTHER = -2;
 
@@ -115,8 +115,9 @@ LIBRARY_FUNC(jboolean, ffmpegHasDecoder, jstring codecName) {
   return getCodecByName(env, codecName) != NULL;
 }
 
-DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName, jbyteArray extraData,
-             jboolean outputFloat, jint rawSampleRate, jint rawChannelCount) {
+AUDIO_DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName,
+                   jbyteArray extraData, jboolean outputFloat,
+                   jint rawSampleRate, jint rawChannelCount) {
   AVCodec *codec = getCodecByName(env, codecName);
   if (!codec) {
     LOGE("Codec not found.");
@@ -154,7 +155,7 @@ DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
                       outputSize);
 }
 
-DECODER_FUNC(jint, ffmpegGetChannelCount, jlong context) {
+AUDIO_DECODER_FUNC(jint, ffmpegGetChannelCount, jlong context) {
   if (!context) {
     LOGE("Context must be non-NULL.");
     return -1;
@@ -162,7 +163,7 @@ DECODER_FUNC(jint, ffmpegGetChannelCount, jlong context) {
   return ((AVCodecContext *) context)->channels;
 }
 
-DECODER_FUNC(jint, ffmpegGetSampleRate, jlong context) {
+AUDIO_DECODER_FUNC(jint, ffmpegGetSampleRate, jlong context) {
   if (!context) {
     LOGE("Context must be non-NULL.");
     return -1;
@@ -170,7 +171,7 @@ DECODER_FUNC(jint, ffmpegGetSampleRate, jlong context) {
   return ((AVCodecContext *) context)->sample_rate;
 }
 
-DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
+AUDIO_DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
   AVCodecContext *context = (AVCodecContext *) jContext;
   if (!context) {
     LOGE("Tried to reset without a context.");
@@ -198,7 +199,7 @@ DECODER_FUNC(jlong, ffmpegReset, jlong jContext, jbyteArray extraData) {
   return (jlong) context;
 }
 
-DECODER_FUNC(void, ffmpegRelease, jlong context) {
+AUDIO_DECODER_FUNC(void, ffmpegRelease, jlong context) {
   if (context) {
     releaseContext((AVCodecContext *) context);
   }
