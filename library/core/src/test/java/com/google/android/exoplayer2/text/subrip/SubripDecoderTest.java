@@ -39,7 +39,7 @@ public final class SubripDecoderTest {
   private static final String TYPICAL_NEGATIVE_TIMESTAMPS = "subrip/typical_negative_timestamps";
   private static final String TYPICAL_UNEXPECTED_END = "subrip/typical_unexpected_end";
   private static final String TYPICAL_WITH_TAGS = "subrip/typical_with_tags";
-  private static final String TYPICAL_NO_HOURS = "subrip/typical_no_hours";
+  private static final String TYPICAL_NO_HOURS_AND_MILLIS = "subrip/typical_no_hours_and_millis";
 
   @Test
   public void decodeEmpty() throws IOException {
@@ -179,15 +179,17 @@ public final class SubripDecoderTest {
   }
 
   @Test
-  public void decodeTypicalNoHours() throws IOException {
+  public void decodeTypicalNoHoursAndMillis() throws IOException {
     SubripDecoder decoder = new SubripDecoder();
     byte[] bytes =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_NO_HOURS);
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(), TYPICAL_NO_HOURS_AND_MILLIS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
     assertTypicalCue1(subtitle, 0);
-    assertTypicalCue2(subtitle, 2);
+    assertThat(subtitle.getEventTime(2)).isEqualTo(2_000_000);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(3_000_000);
     assertTypicalCue3(subtitle, 4);
   }
 
