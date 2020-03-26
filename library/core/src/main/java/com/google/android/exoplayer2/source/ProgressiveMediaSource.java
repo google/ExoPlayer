@@ -164,12 +164,9 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       return this;
     }
 
-    /**
-     * Returns a new {@link ProgressiveMediaSource} using the current parameters.
-     *
-     * @param uri The {@link Uri uri}.
-     * @return The new {@link ProgressiveMediaSource}.
-     */
+    /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
     public ProgressiveMediaSource createMediaSource(Uri uri) {
       return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());
