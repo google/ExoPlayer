@@ -66,13 +66,9 @@ public interface MediaSourceFactory {
    */
   MediaSource createMediaSource(MediaItem mediaItem);
 
-  /**
-   * Creates a new {@link MediaSource} with the specified {@code uri}.
-   *
-   * @param uri The URI to play.
-   * @return The new {@link MediaSource media source}.
-   */
+  /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
+  @Deprecated
   default MediaSource createMediaSource(Uri uri) {
-    return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());
+    return createMediaSource(MediaItem.fromUri(uri));
   }
 }
