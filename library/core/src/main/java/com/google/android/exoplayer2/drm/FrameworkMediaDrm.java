@@ -114,7 +114,14 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
                 listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data));
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param listener The listener to receive events, or {@code null} to stop receiving events.
+   * @throws UnsupportedOperationException on API levels lower than 23.
+   */
   @Override
+  @RequiresApi(23)
   public void setOnKeyStatusChangeListener(
       @Nullable ExoMediaDrm.OnKeyStatusChangeListener listener) {
     if (Util.SDK_INT < 23) {
@@ -135,7 +142,14 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
         /* handler= */ null);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param listener The listener to receive events, or {@code null} to stop receiving events.
+   * @throws UnsupportedOperationException on API levels lower than 23.
+   */
   @Override
+  @RequiresApi(23)
   public void setOnExpirationUpdateListener(@Nullable OnExpirationUpdateListener listener) {
     if (Util.SDK_INT < 23) {
       throw new UnsupportedOperationException();
