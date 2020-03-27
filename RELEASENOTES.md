@@ -9,6 +9,8 @@
   * Allow missing hours and milliseconds in SubRip (.srt) timecodes
     ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
 * Audio:
+  * Workaround issue that could cause slower than realtime playback of AAC on
+    Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671).
   * Enable playback speed adjustment and silence skipping for floating point PCM
     audio, via resampling to 16-bit integer PCM. To output the original floating
     point audio without adjustment, pass `enableFloatOutput=true` to the
