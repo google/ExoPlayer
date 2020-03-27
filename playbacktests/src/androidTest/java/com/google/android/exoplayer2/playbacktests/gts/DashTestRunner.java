@@ -21,6 +21,7 @@ import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.view.Surface;
+import android.widget.FrameLayout;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -297,7 +298,10 @@ import java.util.List;
 
     @Override
     protected MediaSource buildSource(
-        HostActivity host, String userAgent, DrmSessionManager drmSessionManager) {
+        HostActivity host,
+        String userAgent,
+        DrmSessionManager drmSessionManager,
+        FrameLayout overlayFrameLayout) {
       DataSource.Factory dataSourceFactory =
           this.dataSourceFactory != null
               ? this.dataSourceFactory

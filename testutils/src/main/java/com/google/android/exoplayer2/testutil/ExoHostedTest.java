@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.os.ConditionVariable;
 import android.os.SystemClock;
 import android.view.Surface;
+import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -126,7 +127,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   // HostedTest implementation
 
   @Override
-  public final void onStart(HostActivity host, Surface surface) {
+  public final void onStart(HostActivity host, Surface surface, FrameLayout overlayFrameLayout) {
     this.surface = surface;
     // Build the player.
     trackSelector = buildTrackSelector(host);
@@ -142,7 +143,9 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
       pendingSchedule = null;
     }
     DrmSessionManager drmSessionManager = buildDrmSessionManager(userAgent);
-    player.setMediaSource(buildSource(host, Util.getUserAgent(host, userAgent), drmSessionManager));
+    player.setMediaSource(
+        buildSource(
+            host, Util.getUserAgent(host, userAgent), drmSessionManager, overlayFrameLayout));
     player.prepare();
   }
 
@@ -254,7 +257,10 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   }
 
   protected abstract MediaSource buildSource(
-      HostActivity host, String userAgent, DrmSessionManager drmSessionManager);
+      HostActivity host,
+      String userAgent,
+      DrmSessionManager drmSessionManager,
+      FrameLayout overlayFrameLayout);
 
   protected void onPlayerErrorInternal(ExoPlaybackException error) {
     // Do nothing. Interested subclasses may override.
