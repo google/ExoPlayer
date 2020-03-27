@@ -132,6 +132,8 @@
 *   Add support for x86_64 for the ffmpeg extension.
 *   Cast extension: Implement playlist API and deprecate the old queue
     manipulation API.
+*   Opus extension: Fix parsing of negative gain values
+    ([#7046](https://github.com/google/ExoPlayer/issues/7046)).
 
 ### 2.11.3 (2020-02-19) ###
 
