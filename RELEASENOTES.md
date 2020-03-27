@@ -67,6 +67,8 @@
         to the `DefaultAudioSink` constructor
         ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
     *   Add media item based playlist API to Player.
+    *   Workaround issue that could cause slower than realtime playback of AAC
+        on Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671).
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
