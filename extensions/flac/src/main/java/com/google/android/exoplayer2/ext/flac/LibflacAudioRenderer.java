@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -111,9 +112,11 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
   @Override
   protected FlacDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws FlacDecoderException {
+    TraceUtil.beginSection("createFlacDecoder");
     FlacDecoder decoder =
         new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, format.maxInputSize, format.initializationData);
     streamMetadata = decoder.getStreamMetadata();
+    TraceUtil.endSection();
     return decoder;
   }
 
