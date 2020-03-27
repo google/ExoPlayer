@@ -85,7 +85,7 @@ make clean
     --libdir=android-libs/x86_64 \
     --arch=x86_64 \
     --cpu=x86_64 \
-    --cross-prefix="${TOOLCHAIN_PREFIX}/x86_64-linux-android16-" \
+    --cross-prefix="${TOOLCHAIN_PREFIX}/x86_64-linux-android21-" \
     --nm="${TOOLCHAIN_PREFIX}/x86_64-linux-android-nm" \
     --strip="${TOOLCHAIN_PREFIX}/x86_64-linux-android-strip" \
     --disable-asm \
