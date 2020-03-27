@@ -319,7 +319,6 @@ public final class AnalyticsCollectorTest {
             .waitForIsLoading(true)
             .waitForIsLoading(false)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
-            .waitForSeekProcessed()
             .play()
             .build();
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource, actionSchedule);
@@ -1088,7 +1087,7 @@ public final class AnalyticsCollectorTest {
             midrollAd /* seek adjustment */,
             contentAfterMidroll /* ad transition */);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(contentBeforeMidroll);
-    assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(midrollAd);
+    assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(
             contentBeforeMidroll,

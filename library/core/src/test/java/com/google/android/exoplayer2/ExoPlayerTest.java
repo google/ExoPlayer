@@ -532,72 +532,6 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void seekProcessedCallback() throws Exception {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 2);
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            // Initial seek. Expect immediate seek processed.
-            .pause()
-            .seek(5)
-            .waitForSeekProcessed()
-            // Multiple overlapping seeks while the player is still preparing. Expect only one seek
-            // processed.
-            .seek(2)
-            .seek(10)
-            // Wait until media source prepared and re-seek to same position. Expect a seek
-            // processed while still being in STATE_READY.
-            .waitForPlaybackState(Player.STATE_READY)
-            .seek(10)
-            // Start playback and wait until playback reaches second window.
-            .playUntilStartOfWindow(/* windowIndex= */ 1)
-            // Seek twice in concession, expecting the first seek to be replaced (and thus except
-            // only on seek processed callback).
-            .seek(5)
-            .seek(60)
-            .waitForSeekProcessed()
-            .play()
-            .build();
-    final List<Integer> playbackStatesWhenSeekProcessed = new ArrayList<>();
-    EventListener eventListener =
-        new EventListener() {
-          private int currentPlaybackState = Player.STATE_IDLE;
-
-          @Override
-          public void onPlaybackStateChanged(@Player.State int playbackState) {
-            currentPlaybackState = playbackState;
-          }
-
-          @Override
-          public void onSeekProcessed() {
-            playbackStatesWhenSeekProcessed.add(currentPlaybackState);
-          }
-        };
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder()
-            .setTimeline(timeline)
-            .setEventListener(eventListener)
-            .setActionSchedule(actionSchedule)
-            .build(context)
-            .start()
-            .blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertPositionDiscontinuityReasonsEqual(
-        Player.DISCONTINUITY_REASON_SEEK,
-        Player.DISCONTINUITY_REASON_SEEK,
-        Player.DISCONTINUITY_REASON_SEEK,
-        Player.DISCONTINUITY_REASON_SEEK,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_SEEK,
-        Player.DISCONTINUITY_REASON_SEEK);
-    assertThat(playbackStatesWhenSeekProcessed)
-        .containsExactly(
-            Player.STATE_BUFFERING,
-            Player.STATE_BUFFERING,
-            Player.STATE_READY,
-            Player.STATE_BUFFERING)
-        .inOrder();
-  }
-
-  @Test
   public void illegalSeekPositionDoesThrow() throws Exception {
     final IllegalSeekPositionException[] exception = new IllegalSeekPositionException[1];
     ActionSchedule actionSchedule =
@@ -1407,9 +1341,8 @@ public final class ExoPlayerTest {
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .waitForPlaybackState(Player.STATE_BUFFERING)
-            .seek(0)
             .stop(true)
-            .waitForSeekProcessed()
+            .waitForPendingPlayerCommands()
             .build();
     ExoPlayerTestRunner testRunner =
         new ExoPlayerTestRunner.Builder()
@@ -1423,21 +1356,19 @@ public final class ExoPlayerTest {
     testRunner.assertTimelineChangeReasonsEqual(
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
-    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_SEEK);
   }
 
   @Test
   public void stopAndSeekAfterStopDoesNotResetTimeline() throws Exception {
-    // Combining additional stop and seek after initial stop in one test to get the seek processed
-    // callback which ensures that all operations have been processed by the player.
     Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .waitForPlaybackState(Player.STATE_READY)
             .stop(false)
             .stop(false)
-            .seek(0)
-            .waitForSeekProcessed()
+            // Wait until the player fully processed the second stop to see that no further
+            // callbacks are triggered.
+            .waitForPendingPlayerCommands()
             .build();
     ExoPlayerTestRunner testRunner =
         new ExoPlayerTestRunner.Builder()
@@ -1451,7 +1382,6 @@ public final class ExoPlayerTest {
     testRunner.assertTimelineChangeReasonsEqual(
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_SEEK);
   }
 
   @Test
@@ -1493,7 +1423,7 @@ public final class ExoPlayerTest {
             .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
             .waitForPlaybackState(Player.STATE_IDLE)
             .seek(/* positionMs= */ 50)
-            .waitForSeekProcessed()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -1517,12 +1447,14 @@ public final class ExoPlayerTest {
             .setTimeline(timeline)
             .setActionSchedule(actionSchedule)
             .build(context);
-    try {
-      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
-      fail();
-    } catch (ExoPlaybackException e) {
-      // Expected exception.
-    }
+
+    assertThrows(
+        ExoPlaybackException.class,
+        () ->
+            testRunner
+                .start()
+                .blockUntilActionScheduleFinished(TIMEOUT_MS)
+                .blockUntilEnded(TIMEOUT_MS));
     testRunner.assertTimelinesSame(dummyTimeline, timeline);
     testRunner.assertTimelineChangeReasonsEqual(
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
@@ -1690,7 +1622,7 @@ public final class ExoPlayerTest {
                   }
                 })
             .seek(/* windowIndex= */ 0, /* positionMs= */ C.TIME_UNSET)
-            .waitForSeekProcessed()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -1717,12 +1649,14 @@ public final class ExoPlayerTest {
             .setMediaSources(firstMediaSource)
             .setActionSchedule(actionSchedule)
             .build(context);
-    try {
-      testRunner.start().blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
-      fail();
-    } catch (ExoPlaybackException e) {
-      // Expected exception.
-    }
+
+    assertThrows(
+        ExoPlaybackException.class,
+        () ->
+            testRunner
+                .start()
+                .blockUntilActionScheduleFinished(TIMEOUT_MS)
+                .blockUntilEnded(TIMEOUT_MS));
     assertThat(positionHolder[0]).isAtLeast(500L);
     assertThat(positionHolder[1]).isEqualTo(0L);
     assertThat(positionHolder[2]).isEqualTo(0L);
@@ -2459,11 +2393,12 @@ public final class ExoPlayerTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* windowIndex= */ 0, /* positionMs= */ 9999)
-            .waitForSeekProcessed()
+            // Wait after each seek until the internal player has updated its state.
+            .waitForPendingPlayerCommands()
             .seek(/* windowIndex= */ 0, /* positionMs= */ 1)
-            .waitForSeekProcessed()
+            .waitForPendingPlayerCommands()
             .seek(/* windowIndex= */ 0, /* positionMs= */ 9999)
-            .waitForSeekProcessed()
+            .waitForPendingPlayerCommands()
             .play()
             .build();
     ExoPlayerTestRunner testRunner =
@@ -2526,7 +2461,7 @@ public final class ExoPlayerTest {
                     player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 1000L);
                   }
                 })
-            .waitForSeekProcessed()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -2795,7 +2730,7 @@ public final class ExoPlayerTest {
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
-            .waitForSeekProcessed()
+            .waitForPendingPlayerCommands()
             .play()
             .build();
     List<TrackGroupArray> trackGroupsList = new ArrayList<>();
@@ -2949,8 +2884,10 @@ public final class ExoPlayerTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_BUFFERING)
+            // Seek while unprepared and wait until the player handled all updates.
             .seek(/* positionMs= */ 10)
-            .waitForSeekProcessed()
+            .waitForPendingPlayerCommands()
+            // Finish preparation.
             .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline))
             .waitForTimelineChanged()
             .waitForPlaybackState(Player.STATE_READY)
@@ -2995,7 +2932,6 @@ public final class ExoPlayerTest {
             .waitForPlaybackState(Player.STATE_BUFFERING)
             // Seek 10ms into the second period.
             .seek(/* positionMs= */ periodDurationMs + 10)
-            .waitForSeekProcessed()
             .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline))
             .waitForTimelineChanged()
             .waitForPlaybackState(Player.STATE_READY)
@@ -3369,7 +3305,6 @@ public final class ExoPlayerTest {
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 5000)
-            .waitForSeekProcessed()
             .waitForTimelineChanged(
                 /* expectedTimeline= */ null, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
             .executeRunnable(
@@ -3882,7 +3817,6 @@ public final class ExoPlayerTest {
             .executeRunnable(
                 new PlaybackStateCollector(/* index= */ 3, playbackStates, timelineWindowCounts))
             .seek(/* windowIndex= */ 1, /* positionMs= */ 2000)
-            .waitForSeekProcessed()
             .prepare()
             // The first expected buffering state arrives after prepare but not before.
             .waitForPlaybackState(Player.STATE_BUFFERING)
@@ -3956,7 +3890,6 @@ public final class ExoPlayerTest {
             .addMediaSources(secondMediaSource) // add again to be able to test the seek
             .waitForTimelineChanged()
             .seek(/* positionMs= */ 2_000) // seek must transition to buffering
-            .waitForSeekProcessed()
             .waitForPlaybackState(Player.STATE_BUFFERING)
             .waitForPlaybackState(Player.STATE_READY)
             .waitForPlaybackState(Player.STATE_ENDED)
@@ -4120,7 +4053,8 @@ public final class ExoPlayerTest {
     int seekToWindowIndex = 1;
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
+            .waitForTimelineChanged()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4280,9 +4214,8 @@ public final class ExoPlayerTest {
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .waitForPlaybackState(Player.STATE_BUFFERING)
-            // Do something and wait so that the player can create its unprepared MaskingMediaPeriod
-            .seek(/* positionMs= */ 0)
-            .waitForSeekProcessed()
+            // Wait so that the player can create its unprepared MaskingMediaPeriod.
+            .waitForPendingPlayerCommands()
             // Let the player assign the unprepared period to window1.
             .executeRunnable(() -> mediaSource.setNewSourceInfo(new FakeTimeline(window1, window2)))
             .waitForTimelineChanged()
@@ -4398,7 +4331,9 @@ public final class ExoPlayerTest {
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            // Wait for initial seek to be fully handled by internal player.
+            .waitForPositionDiscontinuity()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4440,7 +4375,9 @@ public final class ExoPlayerTest {
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            // Wait for initial seek to be fully handled by internal player.
+            .waitForPositionDiscontinuity()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4547,7 +4484,9 @@ public final class ExoPlayerTest {
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            // Wait for initial seek to be fully handled by internal player.
+            .waitForPositionDiscontinuity()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4589,7 +4528,9 @@ public final class ExoPlayerTest {
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            // Wait for initial seek to be fully handled by internal player.
+            .waitForPositionDiscontinuity()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4735,7 +4676,9 @@ public final class ExoPlayerTest {
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            // Wait for initial seek to be fully handled by internal player.
+            .waitForPositionDiscontinuity()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4931,7 +4874,6 @@ public final class ExoPlayerTest {
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
             .waitForPlaybackState(Player.STATE_ENDED)
             .executeRunnable(
                 new PlayerRunnable() {
@@ -5215,7 +5157,9 @@ public final class ExoPlayerTest {
     Arrays.fill(currentWindowIndices, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            // Wait for initial seek to be fully handled by internal player.
+            .waitForPositionDiscontinuity()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -5262,7 +5206,9 @@ public final class ExoPlayerTest {
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            // Wait for initial seek to be fully handled by internal player.
+            .waitForPositionDiscontinuity()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -5324,7 +5270,6 @@ public final class ExoPlayerTest {
                   }
                 })
             .seek(/* windowIndex= */ 2, C.TIME_UNSET)
-            .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -5354,7 +5299,6 @@ public final class ExoPlayerTest {
                   }
                 })
             .seek(/* windowIndex= */ 0, C.TIME_UNSET)
-            .waitForSeekProcessed()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -5425,7 +5369,7 @@ public final class ExoPlayerTest {
     final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -5458,7 +5402,7 @@ public final class ExoPlayerTest {
     final long[] currentPositions = {C.TIME_UNSET, C.TIME_UNSET};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -5501,7 +5445,6 @@ public final class ExoPlayerTest {
     Arrays.fill(maskingPlaybackStates, C.INDEX_UNSET);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
             .waitForPlaybackState(Player.STATE_READY)
             .executeRunnable(
                 new PlayerRunnable() {
@@ -5610,7 +5553,7 @@ public final class ExoPlayerTest {
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .seek(/* windowIndex= */ 1, /* positionMs= */ C.TIME_UNSET)
-            .waitForSeekProcessed()
+            .waitForPendingPlayerCommands()
             .removeMediaItem(/* index= */ 1)
             .prepare()
             .waitForPlaybackState(Player.STATE_ENDED)
@@ -5637,7 +5580,7 @@ public final class ExoPlayerTest {
     final int[] maskingPlaybackState = {C.INDEX_UNSET};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            .waitForPlaybackState(Player.STATE_BUFFERING)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -5671,7 +5614,9 @@ public final class ExoPlayerTest {
     final int[] currentStates = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForSeekProcessed()
+            // Wait for initial seek to be fully handled by internal player.
+            .waitForPositionDiscontinuity()
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override

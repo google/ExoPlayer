@@ -75,7 +75,6 @@ import java.util.concurrent.TimeoutException;
   @RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
   private int pendingOperationAcks;
-  private boolean hasPendingSeek;
   private boolean hasPendingDiscontinuity;
   @DiscontinuityReason private int pendingDiscontinuityReason;
   @PlayWhenReadyChangeReason private int pendingPlayWhenReadyChangeReason;
@@ -552,7 +551,6 @@ import java.util.concurrent.TimeoutException;
     if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
       throw new IllegalSeekPositionException(timeline, windowIndex, positionMs);
     }
-    hasPendingSeek = true;
     pendingOperationAcks++;
     if (isPlayingAd()) {
       // TODO: Investigate adding support for seeking during ads. This is complicated to do in
@@ -580,7 +578,7 @@ import java.util.concurrent.TimeoutException;
         /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
         /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
-        /* seekProcessed= */ false);
+        /* seekProcessed= */ true);
   }
 
   /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
@@ -889,9 +887,7 @@ import java.util.concurrent.TimeoutException;
         // Update the masking variables, which are used when the timeline becomes empty.
         resetMaskingPosition();
       }
-      boolean seekProcessed = hasPendingSeek;
       boolean positionDiscontinuity = hasPendingDiscontinuity;
-      hasPendingSeek = false;
       hasPendingDiscontinuity = false;
       updatePlaybackInfo(
           playbackInfoUpdate.playbackInfo,
@@ -899,7 +895,7 @@ import java.util.concurrent.TimeoutException;
           pendingDiscontinuityReason,
           TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
           pendingPlayWhenReadyChangeReason,
-          seekProcessed);
+          /* seekProcessed= */ false);
     }
   }
 
