@@ -1,0 +1,26 @@
+<VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    version="3.0" xsi:noNamespaceSchemaLocation="vast.xsd">
+  <Ad id="697203496">
+    <InLine>
+      <AdSystem>GDFP</AdSystem>
+      <AdTitle>Preroll</AdTitle>
+      <Description>
+        <![CDATA[ Preroll ]]>
+      </Description>
+      <Creatives>
+        <Creative id="57859154776" sequence="1">
+          <Linear>
+            <Duration>00:00:05</Duration>
+            <MediaFiles>
+              <MediaFile id="GDFP" delivery="progressive" width="640" height="360" type="video/mp4" bitrate="450" scalable="true" maintainAspectRatio="true">
+                <![CDATA[
+file:///android_asset/mp4/preroll-5s.mp4
+]]>
+              </MediaFile>
+            </MediaFiles>
+          </Linear>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+</VAST>
