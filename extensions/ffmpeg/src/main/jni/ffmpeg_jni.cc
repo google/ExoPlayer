@@ -36,16 +36,6 @@ extern "C" {
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
                    __VA_ARGS__))
 
-#define AUDIO_DECODER_FUNC(RETURN_TYPE, NAME, ...)                             \
-  extern "C" {                                                                 \
-  JNIEXPORT RETURN_TYPE                                                        \
-      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_##NAME( \
-          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                           \
-  }                                                                            \
-  JNIEXPORT RETURN_TYPE                                                        \
-      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_##NAME( \
-          JNIEnv *env, jobject thiz, ##__VA_ARGS__)
-
 #define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                              \
   extern "C" {                                                            \
   JNIEXPORT RETURN_TYPE                                                   \
@@ -56,6 +46,16 @@ extern "C" {
       Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_##NAME( \
           JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
+#define AUDIO_DECODER_FUNC(RETURN_TYPE, NAME, ...)                             \
+  extern "C" {                                                                 \
+  JNIEXPORT RETURN_TYPE                                                        \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                           \
+  }                                                                            \
+  JNIEXPORT RETURN_TYPE                                                        \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__)
+
 #define ERROR_STRING_BUFFER_LENGTH 256
 
 // Output format corresponding to AudioFormat.ENCODING_PCM_16BIT.
@@ -63,9 +63,10 @@ static const AVSampleFormat OUTPUT_FORMAT_PCM_16BIT = AV_SAMPLE_FMT_S16;
 // Output format corresponding to AudioFormat.ENCODING_PCM_FLOAT.
 static const AVSampleFormat OUTPUT_FORMAT_PCM_FLOAT = AV_SAMPLE_FMT_FLT;
 
-// Error codes matching FfmpegAudioDecoder.java.
-static const int DECODER_ERROR_INVALID_DATA = -1;
-static const int DECODER_ERROR_OTHER = -2;
+// LINT.IfChange
+static const int AUDIO_DECODER_ERROR_INVALID_DATA = -1;
+static const int AUDIO_DECODER_ERROR_OTHER = -2;
+// LINT.ThenChange(../java/com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioDecoder.java)
 
 /**
  * Returns the AVCodec with the specified name, or NULL if it is not available.
@@ -83,7 +84,8 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec, jbyteArray extraData,
 
 /**
  * Decodes the packet into the output buffer, returning the number of bytes
- * written, or a negative DECODER_ERROR constant value in the case of an error.
+ * written, or a negative AUDIO_DECODER_ERROR constant value in the case of an
+ * error.
  */
 int decodePacket(AVCodecContext *context, AVPacket *packet,
                  uint8_t *outputBuffer, int outputSize);
@@ -127,8 +129,8 @@ AUDIO_DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName,
                               rawChannelCount);
 }
 
-DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
-    jint inputSize, jobject outputData, jint outputSize) {
+AUDIO_DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
+                   jint inputSize, jobject outputData, jint outputSize) {
   if (!context) {
     LOGE("Context must be non-NULL.");
     return -1;
@@ -260,8 +262,8 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
   result = avcodec_send_packet(context, packet);
   if (result) {
     logError("avcodec_send_packet", result);
-    return result == AVERROR_INVALIDDATA ? DECODER_ERROR_INVALID_DATA
-                                         : DECODER_ERROR_OTHER;
+    return result == AVERROR_INVALIDDATA ? AUDIO_DECODER_ERROR_INVALID_DATA
+                                         : AUDIO_DECODER_ERROR_OTHER;
   }
 
   // Dequeue output data until it runs out.
