@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -79,11 +80,12 @@ public final class Loader implements LoaderErrorThrower {
      * and this callback being called.
      *
      * @param loadable The loadable whose load has completed.
+     * @param loadTaskId A non-negative identifier for the load task. Remains associated to the load
+     *     task after retries until completion or cancellation.
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the load ended.
      * @param loadDurationMs The duration in milliseconds of the load since {@link #startLoading}
-     *     was called.
      */
-    void onLoadCompleted(T loadable, long elapsedRealtimeMs, long loadDurationMs);
+    void onLoadCompleted(T loadable, long loadTaskId, long elapsedRealtimeMs, long loadDurationMs);
 
     /**
      * Called when a load has been canceled.
@@ -94,13 +96,15 @@ public final class Loader implements LoaderErrorThrower {
      * exits.
      *
      * @param loadable The loadable whose load has been canceled.
+     * @param loadTaskId A non-negative identifier for the load task. Remains associated to the load
+     *     task after retries until completion or cancellation.
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the load was canceled.
      * @param loadDurationMs The duration in milliseconds of the load since {@link #startLoading}
      *     was called up to the point at which it was canceled.
      * @param released True if the load was canceled because the {@link Loader} was released. False
-     *     otherwise.
      */
-    void onLoadCanceled(T loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released);
+    void onLoadCanceled(
+        T loadable, long loadTaskId, long elapsedRealtimeMs, long loadDurationMs, boolean released);
 
     /**
      * Called when a load encounters an error.
@@ -109,6 +113,8 @@ public final class Loader implements LoaderErrorThrower {
      * and this callback being called.
      *
      * @param loadable The loadable whose load has encountered an error.
+     * @param loadTaskId A non-negative identifier for the load task. Remains associated to the load
+     *     task after retries until completion or cancellation.
      * @param elapsedRealtimeMs {@link SystemClock#elapsedRealtime} when the error occurred.
      * @param loadDurationMs The duration in milliseconds of the load since {@link #startLoading}
      *     was called up to the point at which the error occurred.
@@ -119,7 +125,12 @@ public final class Loader implements LoaderErrorThrower {
      *     Loader#DONT_RETRY_FATAL} or a retry action created by {@link #createRetryAction}.
      */
     LoadErrorAction onLoadError(
-        T loadable, long elapsedRealtimeMs, long loadDurationMs, IOException error, int errorCount);
+        T loadable,
+        long loadTaskId,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        IOException error,
+        int errorCount);
   }
 
   /**
@@ -166,10 +177,7 @@ public final class Loader implements LoaderErrorThrower {
   public static final LoadErrorAction DONT_RETRY_FATAL =
       new LoadErrorAction(ACTION_TYPE_DONT_RETRY_FATAL, C.TIME_UNSET);
 
-  /**
-   * Action that can be taken in response to {@link Callback#onLoadError(Loadable, long, long,
-   * IOException, int)}.
-   */
+  /** Action that can be taken in response to {@link Callback#onLoadError}. */
   public static final class LoadErrorAction {
 
     private final @RetryActionType int type;
@@ -315,6 +323,7 @@ public final class Loader implements LoaderErrorThrower {
     public final int defaultMinRetryCount;
 
     private final T loadable;
+    private final long id;
     private final long startTimeMs;
 
     @Nullable private Loader.Callback<T> callback;
@@ -328,6 +337,7 @@ public final class Loader implements LoaderErrorThrower {
     public LoadTask(Looper looper, T loadable, Loader.Callback<T> callback,
         int defaultMinRetryCount, long startTimeMs) {
       super(looper);
+      id = LoadEventInfo.getNewId();
       this.loadable = loadable;
       this.callback = callback;
       this.defaultMinRetryCount = defaultMinRetryCount;
@@ -370,7 +380,7 @@ public final class Loader implements LoaderErrorThrower {
         finish();
         long nowMs = SystemClock.elapsedRealtime();
         Assertions.checkNotNull(callback)
-            .onLoadCanceled(loadable, nowMs, nowMs - startTimeMs, true);
+            .onLoadCanceled(loadable, id, nowMs, nowMs - startTimeMs, true);
         // If loading, this task will be referenced from a GC root (the loading thread) until
         // cancellation completes. The time taken for cancellation to complete depends on the
         // implementation of the Loadable that the task is loading. We null the callback reference
@@ -441,16 +451,16 @@ public final class Loader implements LoaderErrorThrower {
       long durationMs = nowMs - startTimeMs;
       Loader.Callback<T> callback = Assertions.checkNotNull(this.callback);
       if (canceled) {
-        callback.onLoadCanceled(loadable, nowMs, durationMs, false);
+        callback.onLoadCanceled(loadable, id, nowMs, durationMs, false);
         return;
       }
       switch (msg.what) {
         case MSG_CANCEL:
-          callback.onLoadCanceled(loadable, nowMs, durationMs, false);
+          callback.onLoadCanceled(loadable, id, nowMs, durationMs, false);
           break;
         case MSG_END_OF_SOURCE:
           try {
-            callback.onLoadCompleted(loadable, nowMs, durationMs);
+            callback.onLoadCompleted(loadable, id, nowMs, durationMs);
           } catch (RuntimeException e) {
             // This should never happen, but handle it anyway.
             Log.e(TAG, "Unexpected exception handling load completed", e);
@@ -461,7 +471,7 @@ public final class Loader implements LoaderErrorThrower {
           currentError = (IOException) msg.obj;
           errorCount++;
           LoadErrorAction action =
-              callback.onLoadError(loadable, nowMs, durationMs, currentError, errorCount);
+              callback.onLoadError(loadable, id, nowMs, durationMs, currentError, errorCount);
           if (action.type == ACTION_TYPE_DONT_RETRY_FATAL) {
             fatalError = currentError;
           } else if (action.type != ACTION_TYPE_DONT_RETRY) {

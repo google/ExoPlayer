@@ -20,9 +20,18 @@ import android.os.SystemClock;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /** {@link MediaSource} load event information. */
 public final class LoadEventInfo {
+
+  /** Used for the generation of unique ids. */
+  private static final AtomicLong idSource = new AtomicLong();
+
+  /** Returns an non-negative identifier which is unique to the JVM instance. */
+  public static long getNewId() {
+    return idSource.getAndIncrement();
+  }
 
   /** Defines the requested data. */
   public final DataSpec dataSpec;

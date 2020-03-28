@@ -618,7 +618,10 @@ public final class SsMediaSource extends BaseMediaSource
   // Loader.Callback implementation
 
   @Override
-  public void onLoadCompleted(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
+  public void onLoadCompleted(
+      ParsingLoadable<SsManifest> loadable,
+      long loadTaskId,
+      long elapsedRealtimeMs,
       long loadDurationMs) {
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
@@ -635,8 +638,12 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void onLoadCanceled(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
-      long loadDurationMs, boolean released) {
+  public void onLoadCanceled(
+      ParsingLoadable<SsManifest> loadable,
+      long loadTaskId,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      boolean released) {
     manifestEventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.getUri(),
@@ -650,6 +657,7 @@ public final class SsMediaSource extends BaseMediaSource
   @Override
   public LoadErrorAction onLoadError(
       ParsingLoadable<SsManifest> loadable,
+      long loadTaskId,
       long elapsedRealtimeMs,
       long loadDurationMs,
       IOException error,

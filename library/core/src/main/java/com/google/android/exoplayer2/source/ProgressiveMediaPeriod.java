@@ -543,8 +543,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(ExtractingLoadable loadable, long elapsedRealtimeMs,
-      long loadDurationMs) {
+  public void onLoadCompleted(
+      ExtractingLoadable loadable, long loadTaskId, long elapsedRealtimeMs, long loadDurationMs) {
     if (durationUs == C.TIME_UNSET && seekMap != null) {
       boolean isSeekable = seekMap.isSeekable();
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
@@ -572,8 +572,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void onLoadCanceled(ExtractingLoadable loadable, long elapsedRealtimeMs,
-      long loadDurationMs, boolean released) {
+  public void onLoadCanceled(
+      ExtractingLoadable loadable,
+      long loadTaskId,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      boolean released) {
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
@@ -602,6 +606,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public LoadErrorAction onLoadError(
       ExtractingLoadable loadable,
+      long loadTaskId,
       long elapsedRealtimeMs,
       long loadDurationMs,
       IOException error,
