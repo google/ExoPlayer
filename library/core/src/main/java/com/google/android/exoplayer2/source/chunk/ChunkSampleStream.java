@@ -393,7 +393,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
+  public void onLoadCompleted(
+      Chunk loadable, long loadTaskId, long elapsedRealtimeMs, long loadDurationMs) {
     chunkSource.onChunkLoadCompleted(loadable);
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
@@ -413,7 +414,11 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   }
 
   @Override
-  public void onLoadCanceled(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs,
+  public void onLoadCanceled(
+      Chunk loadable,
+      long loadTaskId,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
       boolean released) {
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
@@ -441,6 +446,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   @Override
   public LoadErrorAction onLoadError(
       Chunk loadable,
+      long loadTaskId,
       long elapsedRealtimeMs,
       long loadDurationMs,
       IOException error,
