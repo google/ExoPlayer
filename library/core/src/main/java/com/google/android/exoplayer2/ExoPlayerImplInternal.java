@@ -2104,7 +2104,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private long getTotalBufferedDurationUs(long bufferedPositionInLoadingPeriodUs) {
     MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
-    if (loadingPeriodHolder == null) {
+    if (loadingPeriodHolder == null || rendererPositionUs < 0) {
       return 0;
     }
     long totalBufferedDurationUs =
