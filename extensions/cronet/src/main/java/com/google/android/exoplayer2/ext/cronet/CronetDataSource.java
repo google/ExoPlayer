@@ -818,6 +818,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       Matcher matcher = CONTENT_RANGE_HEADER_PATTERN.matcher(contentRangeHeader);
       if (matcher.find()) {
         try {
+          // incompatible types in argument.
+          @SuppressWarnings("nullness:argument.type.incompatible")
           long contentLengthFromRange =
               Long.parseLong(matcher.group(2)) - Long.parseLong(matcher.group(1)) + 1;
           if (contentLength < 0) {

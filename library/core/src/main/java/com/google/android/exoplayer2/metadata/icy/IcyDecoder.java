@@ -44,6 +44,8 @@ public final class IcyDecoder implements MetadataDecoder {
     iso88591Decoder = Charset.forName(C.ISO88591_NAME).newDecoder();
   }
 
+  // switching on a possibly-null value (key)
+  @SuppressWarnings("nullness:switching.nullable")
   @Override
   public Metadata decode(MetadataInputBuffer inputBuffer) {
     ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);

@@ -322,9 +322,11 @@ import java.util.regex.Pattern;
   }
 
   /**
-   * Sets the target of a {@link WebvttCssStyle} by splitting a selector of the form
-   * {@code ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
+   * Sets the target of a {@link WebvttCssStyle} by splitting a selector of the form {@code
+   * ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
    */
+  // incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   private void applySelectorToStyle(WebvttCssStyle style, String selector) {
     if ("".equals(selector)) {
       return; // Universal selector.
