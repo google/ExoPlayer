@@ -1360,10 +1360,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     private static final String TAG = "HlsSampleQueue";
 
     /**
-     * largest timestamp deviation from the segment time bounds expressed as a percentage of
-     * the segment duration.
+     * Used to compute the "tolerance" value, that is the largest timestamp deviation from
+     * the segment time bounds.  The "tolerance" is set to this percentage of the segment duration.
      */
-    private static double MAX_TIMESTAMP_DEVIATION_PERCENTAGE = 0.50;
+    private static double MAX_TIMESTAMP_DEVIATION_PERCENTAGE = 0.75;
+
+    /**
+     * Min time value for "tolerance", for very short segment durations, this overrides
+     * the percentage
+     */
+    private static double MIN_TOLERANCE_US = 4_000_000;
 
     private long lowestTimeUs = C.TIME_UNSET;
     private long highestTimeUs = C.TIME_UNSET;
@@ -1383,7 +1389,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     void setCurrentLoadingChunk(HlsMediaChunk chunk) {
-      double tolerance = (chunk.endTimeUs - chunk.startTimeUs) * MAX_TIMESTAMP_DEVIATION_PERCENTAGE;
+      double tolerance = Math.max(MIN_TOLERANCE_US, (chunk.endTimeUs - chunk.startTimeUs) * MAX_TIMESTAMP_DEVIATION_PERCENTAGE);
       this.lowestTimeUs = (long) (chunk.startTimeUs - tolerance);
       this.highestTimeUs = (long) (chunk.endTimeUs + tolerance);
       this.chunk = chunk;
