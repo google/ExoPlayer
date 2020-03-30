@@ -379,12 +379,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
           result = extractor.read(input, DUMMY_POSITION_HOLDER);
         }
-      } catch (UnexpectedDiscontinuityException e) {
-        Log.d(TAG, "UnexpectedDiscontinuityException - recovering by discarding balance of segment", e);
-        throw new IOException("load aborted for segment - " + e.dataSpec + " unexpected discontinuity", e);
       } finally {
         nextLoadPosition = (int) (input.getPosition() - dataSpec.position);
       }
+    } catch (UnexpectedDiscontinuityException e) {
+      Log.d(TAG, "UnexpectedDiscontinuityException - recovering by discarding balance of segment", e);
+      throw new IOException("load aborted for segment - " + e.dataSpec + " unexpected discontinuity", e);
     } finally {
       Util.closeQuietly(dataSource);
     }

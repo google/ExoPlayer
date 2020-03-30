@@ -32,7 +32,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
  * {@see https://www.w3.org/2018/12/webmediaguidelines.html#server-side-ad-insertion}
  *
  */
-public final class UnexpectedDiscontinuityException extends RuntimeException {
+public final class UnexpectedDiscontinuityException extends IllegalStateException {
 
   /** the last in-bounds timestamp committed to the {@link SampleQueue}, or
    * {@link C#TIME_UNSET} if this was for the first committed sample
