@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.demo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
