@@ -1,10 +1,10 @@
 # Release notes #
 
-### 2.11.4 (not yet released) ###
+### 2.11.4 (2020-04-01) ###
 
 * Text:
-  * Catch-and-log all fatal exceptions in `TextRenderer` instead of re-throwing,
-    allowing playback to continue even if subtitles fail
+  * Catch and log exceptions in `TextRenderer` rather than re-throwing. This
+    allows playback to continue even if subtitle decoding fails
     ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
   * Allow missing hours and milliseconds in SubRip (.srt) timecodes
     ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
@@ -18,7 +18,7 @@
     ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
   * Fix failure to play WAV files that contain trailing non-media bytes
     ([#7129](https://github.com/google/ExoPlayer/issues/7129))
-* DASH: 
+* DASH:
     * Update the manifest URI to avoid repeated HTTP redirects
       ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
     * Parse period `AssetIdentifier` elements.
@@ -27,7 +27,7 @@
   ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
 * Analytics: Fix `PlaybackStatsListener` behavior when not keeping history
   ([#7160](https://github.com/google/ExoPlayer/issues/7160)).
-* FFmpeg extension: Add support for x86_64.
+* FFmpeg extension: Add support for `x86_64` architecture.
 * Opus extension: Fix parsing of negative gain values
   ([#7046](https://github.com/google/ExoPlayer/issues/7046)).
 
