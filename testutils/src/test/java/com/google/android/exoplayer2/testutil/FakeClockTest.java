@@ -89,7 +89,7 @@ public final class FakeClockTest {
 
   @Test
   public void testPostDelayed() {
-    HandlerThread handlerThread = new HandlerThread("FakeClockTest thread");
+    HandlerThread handlerThread = new HandlerThread("FakeClockTest");
     handlerThread.start();
     FakeClock fakeClock = new FakeClock(0);
     HandlerWrapper handler =

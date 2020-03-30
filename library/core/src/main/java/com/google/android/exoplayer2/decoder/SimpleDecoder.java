@@ -66,7 +66,7 @@ public abstract class SimpleDecoder<
       availableOutputBuffers[i] = createOutputBuffer();
     }
     decodeThread =
-        new Thread("SimpleDecoder:Decode") {
+        new Thread("ExoPlayer:SimpleDecoder") {
           @Override
           public void run() {
             SimpleDecoder.this.run();
