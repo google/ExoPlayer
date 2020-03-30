@@ -61,12 +61,14 @@ public final class MediaItem {
     @Nullable private UUID drmUuid;
     private boolean drmMultiSession;
     private List<StreamKey> streamKeys;
+    private List<Subtitle> subtitles;
     @Nullable private Object tag;
     @Nullable private MediaMetadata mediaMetadata;
 
     /** Creates a builder. */
     public Builder() {
       streamKeys = Collections.emptyList();
+      subtitles = Collections.emptyList();
       drmLicenseRequestHeaders = Collections.emptyMap();
     }
 
@@ -138,6 +140,8 @@ public final class MediaItem {
     /**
      * Sets the optional request headers attached to the drm license request.
      *
+     * <p>{@code null} or an empty {@link Map} can be used for a reset.
+     *
      * <p>If no valid drm configuration is specified, the drm license request headers are ignored.
      */
     public Builder setDrmLicenseRequestHeaders(
@@ -176,6 +180,8 @@ public final class MediaItem {
      * Sets the optional stream keys by which the manifest is filtered (only used for adaptive
      * streams).
      *
+     * <p>{@code null} or an empty {@link List} can be used for a reset.
+     *
      * <p>If a {@link PlaybackProperties#sourceUri} is set, the stream keys are used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
      */
@@ -183,6 +189,22 @@ public final class MediaItem {
       this.streamKeys =
           streamKeys != null && !streamKeys.isEmpty()
               ? Collections.unmodifiableList(new ArrayList<>(streamKeys))
+              : Collections.emptyList();
+      return this;
+    }
+
+    /**
+     * Sets the optional subtitles.
+     *
+     * <p>{@code null} or an empty {@link List} can be used for a reset.
+     *
+     * <p>If a {@link PlaybackProperties#sourceUri} is set, the subtitles are used to create a
+     * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     */
+    public Builder setSubtitles(@Nullable List<Subtitle> subtitles) {
+      this.subtitles =
+          subtitles != null && !subtitles.isEmpty()
+              ? Collections.unmodifiableList(new ArrayList<>(subtitles))
               : Collections.emptyList();
       return this;
     }
@@ -222,6 +244,7 @@ public final class MediaItem {
                         drmUuid, drmLicenseUri, drmLicenseRequestHeaders, drmMultiSession)
                     : null,
                 streamKeys,
+                subtitles,
                 tag);
         mediaId = mediaId != null ? mediaId : sourceUri.toString();
       }
@@ -266,7 +289,7 @@ public final class MediaItem {
       if (this == obj) {
         return true;
       }
-      if (obj == null || getClass() != obj.getClass()) {
+      if (!(obj instanceof DrmConfiguration)) {
         return false;
       }
 
@@ -307,6 +330,9 @@ public final class MediaItem {
     /** Optional stream keys by which the manifest is filtered. */
     public final List<StreamKey> streamKeys;
 
+    /** Optional subtitles to be sideloaded. */
+    public final List<Subtitle> subtitles;
+
     /**
      * Optional tag for custom attributes. The tag for the media source which will be published in
      * the {@link com.google.android.exoplayer2.Timeline} of the source as {@link
@@ -319,11 +345,13 @@ public final class MediaItem {
         @Nullable String mimeType,
         @Nullable DrmConfiguration drmConfiguration,
         List<StreamKey> streamKeys,
+        List<Subtitle> subtitles,
         @Nullable Object tag) {
       this.sourceUri = sourceUri;
       this.mimeType = mimeType;
       this.drmConfiguration = drmConfiguration;
       this.streamKeys = streamKeys;
+      this.subtitles = subtitles;
       this.tag = tag;
     }
 
@@ -332,7 +360,7 @@ public final class MediaItem {
       if (this == obj) {
         return true;
       }
-      if (obj == null || getClass() != obj.getClass()) {
+      if (!(obj instanceof PlaybackProperties)) {
         return false;
       }
       PlaybackProperties other = (PlaybackProperties) obj;
@@ -340,7 +368,8 @@ public final class MediaItem {
       return sourceUri.equals(other.sourceUri)
           && Util.areEqual(mimeType, other.mimeType)
           && Util.areEqual(drmConfiguration, other.drmConfiguration)
-          && Util.areEqual(streamKeys, other.streamKeys)
+          && streamKeys.equals(other.streamKeys)
+          && subtitles.equals(other.subtitles)
           && Util.areEqual(tag, other.tag);
     }
 
@@ -350,7 +379,74 @@ public final class MediaItem {
       result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
       result = 31 * result + (drmConfiguration == null ? 0 : drmConfiguration.hashCode());
       result = 31 * result + streamKeys.hashCode();
+      result = 31 * result + subtitles.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
+      return result;
+    }
+  }
+
+  /** Properties for a text track. */
+  public static final class Subtitle {
+
+    /** The {@link Uri} to the subtitle file. */
+    public final Uri uri;
+    /** The MIME type. */
+    public final String mimeType;
+    /** The language. */
+    @Nullable public final String language;
+    /** The selection flags. */
+    @C.SelectionFlags public final int selectionFlags;
+
+    /**
+     * Creates an instance.
+     *
+     * @param uri The {@link Uri uri} to the subtitle file.
+     * @param mimeType The mime type.
+     * @param language The optional language.
+     */
+    public Subtitle(Uri uri, String mimeType, @Nullable String language) {
+      this(uri, mimeType, language, /* selectionFlags= */ 0);
+    }
+
+    /**
+     * Creates an instance with the given selection flags.
+     *
+     * @param uri The {@link Uri uri} to the subtitle file.
+     * @param mimeType The mime type.
+     * @param language The optional language.
+     * @param selectionFlags The selection flags.
+     */
+    public Subtitle(
+        Uri uri, String mimeType, @Nullable String language, @C.SelectionFlags int selectionFlags) {
+      this.uri = uri;
+      this.mimeType = mimeType;
+      this.language = language;
+      this.selectionFlags = selectionFlags;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Subtitle)) {
+        return false;
+      }
+
+      Subtitle other = (Subtitle) obj;
+
+      return uri.equals(other.uri)
+          && mimeType.equals(other.mimeType)
+          && Util.areEqual(language, other.language)
+          && selectionFlags == other.selectionFlags;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = uri.hashCode();
+      result = 31 * result + mimeType.hashCode();
+      result = 31 * result + (language == null ? 0 : language.hashCode());
+      result = 31 * result + selectionFlags;
       return result;
     }
   }
@@ -374,15 +470,15 @@ public final class MediaItem {
   }
 
   @Override
-  public boolean equals(@Nullable Object o) {
-    if (this == o) {
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (!(obj instanceof MediaItem)) {
       return false;
     }
 
-    MediaItem other = (MediaItem) o;
+    MediaItem other = (MediaItem) obj;
 
     return Util.areEqual(mediaId, other.mediaId)
         && Util.areEqual(playbackProperties, other.playbackProperties)

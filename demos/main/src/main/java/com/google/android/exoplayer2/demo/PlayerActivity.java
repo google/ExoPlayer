@@ -33,7 +33,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
@@ -47,8 +46,6 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MergingMediaSource;
-import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -412,43 +409,24 @@ public class PlayerActivity extends AppCompatActivity
             : new UriSample[] {(UriSample) intentAsSample};
 
     boolean seenAdsTagUri = false;
+    List<MediaSource> mediaSources = new ArrayList<>();
     for (UriSample sample : samples) {
       seenAdsTagUri |= sample.adTagUri != null;
       if (!Util.checkCleartextTrafficPermitted(sample.uri)) {
         showToast(R.string.error_cleartext_not_permitted);
         return Collections.emptyList();
       }
-      if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, sample.uri)) {
+      if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, sample.uri)
+          || (sample.subtitleInfo != null
+              && Util.maybeRequestReadExternalStoragePermission(
+                  /* activity= */ this, sample.subtitleInfo.uri))) {
         // The player will be reinitialized if the permission is granted.
         return Collections.emptyList();
       }
-    }
-
-    List<MediaSource> mediaSources = new ArrayList<>();
-    for (UriSample sample : samples) {
       MediaSource mediaSource = createLeafMediaSource(sample);
-      if (mediaSource == null) {
-        continue;
+      if (mediaSource != null) {
+        mediaSources.add(mediaSource);
       }
-      Sample.SubtitleInfo subtitleInfo = sample.subtitleInfo;
-      if (subtitleInfo != null) {
-        if (Util.maybeRequestReadExternalStoragePermission(
-            /* activity= */ this, subtitleInfo.uri)) {
-          // The player will be reinitialized if the permission is granted.
-          return Collections.emptyList();
-        }
-        Format subtitleFormat =
-            new Format.Builder()
-                .setSampleMimeType(subtitleInfo.mimeType)
-                .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
-                .setLanguage(subtitleInfo.language)
-                .build();
-        MediaSource subtitleMediaSource =
-            new SingleSampleMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(subtitleInfo.uri, subtitleFormat, C.TIME_UNSET);
-        mediaSource = new MergingMediaSource(mediaSource, subtitleMediaSource);
-      }
-      mediaSources.add(mediaSource);
     }
     if (seenAdsTagUri && mediaSources.size() == 1) {
       Uri adTagUri = samples[0].adTagUri;
@@ -497,6 +475,15 @@ public class PlayerActivity extends AppCompatActivity
       drmSessionForClearTypes = parameters.drmInfo.drmSessionForClearTypes;
       drmDataSourceFactory = ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
     }
+    if (parameters.subtitleInfo != null) {
+      builder.setSubtitles(
+          Collections.singletonList(
+              new MediaItem.Subtitle(
+                  parameters.subtitleInfo.uri,
+                  parameters.subtitleInfo.mimeType,
+                  parameters.subtitleInfo.language,
+                  C.SELECTION_FLAG_DEFAULT)));
+    }
 
     DownloadRequest downloadRequest =
         ((DemoApplication) getApplication())
@@ -531,7 +518,7 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper = null;
       player.release();
       player = null;
-      mediaSources = null;
+      mediaSources = Collections.emptyList();
       trackSelector = null;
     }
     if (adsLoader != null) {
