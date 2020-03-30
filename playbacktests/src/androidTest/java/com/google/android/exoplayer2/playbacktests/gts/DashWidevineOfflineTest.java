@@ -68,7 +68,6 @@ public final class DashWidevineOfflineTest {
             .setFullPlaybackNoSeeking(true)
             .setCanIncludeAdditionalVideoFormats(false)
             .setAudioVideoFormats(
-
                 DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
                 DashTestData.WIDEVINE_H264_CDD_FIXED);
 
