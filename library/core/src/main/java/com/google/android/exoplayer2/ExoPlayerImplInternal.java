@@ -178,8 +178,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
-    internalPlaybackThread =
-        new HandlerThread("ExoPlayerImplInternal:Handler", Process.THREAD_PRIORITY_AUDIO);
+    internalPlaybackThread = new HandlerThread("ExoPlayer:Playback", Process.THREAD_PRIORITY_AUDIO);
     internalPlaybackThread.start();
     handler = clock.createHandler(internalPlaybackThread.getLooper(), this);
     deliverPendingMessageAtStartPositionRequired = true;

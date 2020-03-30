@@ -53,7 +53,7 @@ public class PlayerMessageTest {
     initMocks(this);
     PlayerMessage.Sender sender = (message) -> {};
     PlayerMessage.Target target = (messageType, payload) -> {};
-    handlerThread = new HandlerThread("TestHandlerThread");
+    handlerThread = new HandlerThread("TestHandler");
     handlerThread.start();
     Handler handler = new Handler(handlerThread.getLooper());
     message =

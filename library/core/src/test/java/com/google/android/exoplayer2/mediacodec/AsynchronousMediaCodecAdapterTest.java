@@ -48,7 +48,7 @@ public class AsynchronousMediaCodecAdapterTest {
 
   @Before
   public void setUp() throws IOException {
-    handlerThread = new HandlerThread("TestHandlerThread");
+    handlerThread = new HandlerThread("TestHandler");
     handlerThread.start();
     looper = handlerThread.getLooper();
     codec = MediaCodec.createByCodecName("h264");

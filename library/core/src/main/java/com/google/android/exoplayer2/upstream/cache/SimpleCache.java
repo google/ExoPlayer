@@ -259,7 +259,7 @@ public final class SimpleCache implements Cache {
 
     // Start cache initialization.
     final ConditionVariable conditionVariable = new ConditionVariable();
-    new Thread("SimpleCache.initialize()") {
+    new Thread("ExoPlayer:SimpleCacheInit") {
       @Override
       public void run() {
         synchronized (SimpleCache.this) {
