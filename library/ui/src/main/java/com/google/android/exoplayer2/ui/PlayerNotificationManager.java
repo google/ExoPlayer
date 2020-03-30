@@ -139,7 +139,7 @@ public class PlayerNotificationManager {
      *
      * @param player The {@link Player} for which a notification is being built.
      */
-    String getCurrentContentTitle(Player player);
+    CharSequence getCurrentContentTitle(Player player);
 
     /**
      * Creates a content intent for the current media item.
@@ -159,7 +159,7 @@ public class PlayerNotificationManager {
      * @param player The {@link Player} for which a notification is being built.
      */
     @Nullable
-    String getCurrentContentText(Player player);
+    CharSequence getCurrentContentText(Player player);
 
     /**
      * Gets the content sub text for the current media item.
@@ -169,7 +169,7 @@ public class PlayerNotificationManager {
      * @param player The {@link Player} for which a notification is being built.
      */
     @Nullable
-    default String getCurrentSubText(Player player) {
+    default CharSequence getCurrentSubText(Player player) {
       return null;
     }
 
