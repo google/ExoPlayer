@@ -216,6 +216,12 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  @Nullable
+  public DeviceComponent getDeviceComponent() {
+    return null;
+  }
+
+  @Override
   public Looper getPlaybackLooper() {
     return internalPlayer.getPlaybackLooper();
   }
