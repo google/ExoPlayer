@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +129,24 @@ public class MediaItemTest {
         new MediaItem.Builder().setSourceUri(URI_STRING).setStreamKeys(streamKeys).build();
 
     assertThat(mediaItem.playbackProperties.streamKeys).isEqualTo(streamKeys);
+  }
+
+  @Test
+  public void builderSetSubtitles_setsSubtitles() {
+    List<MediaItem.Subtitle> subtitles =
+        Arrays.asList(
+            new MediaItem.Subtitle(
+                Uri.parse(URI_STRING + "/en"), MimeTypes.APPLICATION_TTML, /* language= */ "en"),
+            new MediaItem.Subtitle(
+                Uri.parse(URI_STRING + "/de"),
+                MimeTypes.APPLICATION_TTML,
+                /* language= */ null,
+                C.SELECTION_FLAG_DEFAULT));
+
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_STRING).setSubtitles(subtitles).build();
+
+    assertThat(mediaItem.playbackProperties.subtitles).isEqualTo(subtitles);
   }
 
   @Test

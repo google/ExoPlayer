@@ -21,6 +21,7 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -122,6 +123,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return new DefaultMediaSourceFactory(context, dataSourceFactory);
   }
 
+  private final DataSource.Factory dataSourceFactory;
   private final SparseArray<MediaSourceFactory> mediaSourceFactories;
   @C.ContentType private final int[] supportedTypes;
   private final String userAgent;
@@ -133,6 +135,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @Nullable private List<StreamKey> streamKeys;
 
   private DefaultMediaSourceFactory(Context context, DataSource.Factory dataSourceFactory) {
+    this.dataSourceFactory = dataSourceFactory;
     drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
     userAgent = Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY);
     drmHttpDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent);
@@ -244,7 +247,30 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         !mediaItem.playbackProperties.streamKeys.isEmpty()
             ? mediaItem.playbackProperties.streamKeys
             : streamKeys);
-    return mediaSourceFactory.createMediaSource(mediaItem);
+
+    MediaSource leafMediaSource = mediaSourceFactory.createMediaSource(mediaItem);
+
+    if (mediaItem.playbackProperties.subtitles.isEmpty()) {
+      return leafMediaSource;
+    }
+
+    List<MediaItem.Subtitle> subtitles = mediaItem.playbackProperties.subtitles;
+    MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
+    mediaSources[0] = leafMediaSource;
+    SingleSampleMediaSource.Factory singleSampleSourceFactory =
+        new SingleSampleMediaSource.Factory(dataSourceFactory);
+    for (int i = 0; i < subtitles.size(); i++) {
+      MediaItem.Subtitle subtitle = subtitles.get(i);
+      Format subtitleFormat =
+          new Format.Builder()
+              .setSampleMimeType(subtitle.mimeType)
+              .setLanguage(subtitle.language)
+              .setSelectionFlags(subtitle.selectionFlags)
+              .build();
+      mediaSources[i + 1] =
+          singleSampleSourceFactory.createMediaSource(subtitle.uri, subtitleFormat, C.TIME_UNSET);
+    }
+    return new MergingMediaSource(mediaSources);
   }
 
   // internal methods
