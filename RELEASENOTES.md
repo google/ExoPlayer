@@ -25,6 +25,8 @@
 * UI: Add an option to set whether to use the orientation sensor for rotation
   in spherical playbacks
   ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
+* Analytics: Fix `PlaybackStatsListener` behavior when not keeping history
+  ([#7160](https://github.com/google/ExoPlayer/issues/7160)).
 * FFmpeg extension: Add support for x86_64.
 * Opus extension: Fix parsing of negative gain values
   ([#7046](https://github.com/google/ExoPlayer/issues/7046)).
