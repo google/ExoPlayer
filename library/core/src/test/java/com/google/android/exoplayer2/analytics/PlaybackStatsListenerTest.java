@@ -43,12 +43,9 @@ public final class PlaybackStatsListenerTest {
     PlaybackStatsListener playbackStatsListener =
         new PlaybackStatsListener(/* keepHistory= */ true, /* callback= */ null);
 
-    playbackStatsListener.onPlayerStateChanged(
-        TEST_EVENT_TIME, /* playWhenReady= */ true, Player.STATE_BUFFERING);
-    playbackStatsListener.onPlayerStateChanged(
-        TEST_EVENT_TIME, /* playWhenReady= */ true, Player.STATE_READY);
-    playbackStatsListener.onPlayerStateChanged(
-        TEST_EVENT_TIME, /* playWhenReady= */ true, Player.STATE_ENDED);
+    playbackStatsListener.onPlaybackStateChanged(TEST_EVENT_TIME, Player.STATE_BUFFERING);
+    playbackStatsListener.onPlaybackStateChanged(TEST_EVENT_TIME, Player.STATE_READY);
+    playbackStatsListener.onPlaybackStateChanged(TEST_EVENT_TIME, Player.STATE_ENDED);
 
     @Nullable PlaybackStats playbackStats = playbackStatsListener.getPlaybackStats();
     assertThat(playbackStats).isNotNull();
@@ -60,12 +57,9 @@ public final class PlaybackStatsListenerTest {
     PlaybackStatsListener playbackStatsListener =
         new PlaybackStatsListener(/* keepHistory= */ false, /* callback= */ null);
 
-    playbackStatsListener.onPlayerStateChanged(
-        TEST_EVENT_TIME, /* playWhenReady= */ true, Player.STATE_BUFFERING);
-    playbackStatsListener.onPlayerStateChanged(
-        TEST_EVENT_TIME, /* playWhenReady= */ true, Player.STATE_READY);
-    playbackStatsListener.onPlayerStateChanged(
-        TEST_EVENT_TIME, /* playWhenReady= */ true, Player.STATE_ENDED);
+    playbackStatsListener.onPlaybackStateChanged(TEST_EVENT_TIME, Player.STATE_BUFFERING);
+    playbackStatsListener.onPlaybackStateChanged(TEST_EVENT_TIME, Player.STATE_READY);
+    playbackStatsListener.onPlaybackStateChanged(TEST_EVENT_TIME, Player.STATE_ENDED);
 
     @Nullable PlaybackStats playbackStats = playbackStatsListener.getPlaybackStats();
     assertThat(playbackStats).isNotNull();
