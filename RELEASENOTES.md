@@ -68,7 +68,8 @@
         ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
     *   Add media item based playlist API to Player.
     *   Workaround issue that could cause slower than realtime playback of AAC
-        on Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671).
+        on Android 10
+        ([#6671](https://github.com/google/ExoPlayer/issues/6671)).
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
@@ -113,7 +114,7 @@
 *   MP4: Store the Android capture frame rate only in `Format.metadata`.
     `Format.frameRate` now stores the calculated frame rate.
 *   WAV: Fix failure to play WAV files that contain trailing non-media bytes
-    ([#7129](https://github.com/google/ExoPlayer/issues/7129))
+    ([#7129](https://github.com/google/ExoPlayer/issues/7129)).
 *   Testing
     *   Upgrade Truth dependency from 0.44 to 1.0.
     *   Upgrade to JUnit 4.13-rc-2.
@@ -124,10 +125,6 @@
     *   Add an option to set whether to use the orientation sensor for rotation
         in spherical playbacks
         ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
-*   Demo apps: Add
-    [GL demo app](https://github.com/google/ExoPlayer/tree/dev-v2/demos/gl) to
-    show how to render video to a `GLSurfaceView` while applying a GL shader.
-    ([#6920](https://github.com/google/ExoPlayer/issues/6920)).
 *   Metadata: Add minimal DVB Application Information Table (AIT) support
     ([#6922](https://github.com/google/ExoPlayer/pull/6922)).
 *   The demo app startup selected item is the last played one.
