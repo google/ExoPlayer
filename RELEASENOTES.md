@@ -60,6 +60,8 @@
     *   `SimpleDecoderVideoRenderer` and `SimpleDecoderAudioRenderer` renamed to
         `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
         generalized to work with `Decoder` rather than `SimpleDecoder`.
+    *   Fix `PlaybackStatsListener` behavior when not keeping history
+        ([#7160](https://github.com/google/ExoPlayer/issues/7160)).
 *   Audio:
     *   Enable playback speed adjustment and silence skipping for floating point
         PCM audio, via resampling to 16-bit integer PCM. To output the original
