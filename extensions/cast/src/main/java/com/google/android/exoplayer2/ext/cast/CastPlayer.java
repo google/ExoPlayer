@@ -277,6 +277,13 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
+  @Nullable
+  public DeviceComponent getDeviceComponent() {
+    // TODO(b/151792305): Implement the component.
+    return null;
+  }
+
+  @Override
   public Looper getApplicationLooper() {
     return Looper.getMainLooper();
   }

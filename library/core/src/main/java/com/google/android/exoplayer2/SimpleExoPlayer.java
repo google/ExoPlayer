@@ -484,6 +484,13 @@ public class SimpleExoPlayer extends BasePlayer
     return this;
   }
 
+  @Override
+  @Nullable
+  public DeviceComponent getDeviceComponent() {
+    // TODO(b/145595776): Return this after implementing DeviceComponent.
+    return null;
+  }
+
   /**
    * Sets the video scaling mode.
    *

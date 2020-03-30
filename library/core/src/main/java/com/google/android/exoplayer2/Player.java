@@ -27,6 +27,8 @@ import com.google.android.exoplayer2.C.VideoScalingMode;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
+import com.google.android.exoplayer2.device.DeviceInfo;
+import com.google.android.exoplayer2.device.DeviceListener;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
@@ -365,6 +367,48 @@ public interface Player {
      * @param output The output to remove.
      */
     void removeMetadataOutput(MetadataOutput output);
+  }
+
+  /** The device component of a {@link Player}. */
+  // Note: It's mostly from the androidx.media.VolumeProviderCompat and
+  //  androidx.media.MediaControllerCompat.PlaybackInfo.
+  interface DeviceComponent {
+
+    /** Adds a listener to receive device events. */
+    void addDeviceListener(DeviceListener listener);
+
+    /** Removes a listener of device events. */
+    void removeDeviceListener(DeviceListener listener);
+
+    /** Gets the device information. */
+    DeviceInfo getDeviceInfo();
+
+    /**
+     * Gets the current volume of the device.
+     *
+     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_LOCAL local playback}, the volume
+     * returned by this method varies according to the current {@link C.StreamType stream type}. The
+     * stream type is determined by {@link AudioAttributes#usage} which can be converted to stream
+     * type with {@link Util#getStreamTypeForAudioUsage(int)}. The audio attributes can be set to
+     * the player by calling {@link AudioComponent#setAudioAttributes}.
+     *
+     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_REMOTE remote playback}, the volume of
+     * the remote device is returned.
+     */
+    int getDeviceVolume();
+
+    /**
+     * Sets the volume of the device.
+     *
+     * @param volume The volume to set.
+     */
+    void setDeviceVolume(int volume);
+
+    /** Increases the volume of the device. */
+    void increaseDeviceVolume();
+
+    /** Decreases the volume of the device. */
+    void decreaseDeviceVolume();
   }
 
   /**
@@ -732,6 +776,10 @@ public interface Player {
    */
   @Nullable
   MetadataComponent getMetadataComponent();
+
+  /** Returns the component of this player for playback device, or null if it's not supported. */
+  @Nullable
+  DeviceComponent getDeviceComponent();
 
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the

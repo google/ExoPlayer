@@ -59,6 +59,11 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public DeviceComponent getDeviceComponent() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Looper getPlaybackLooper() {
     throw new UnsupportedOperationException();
   }
