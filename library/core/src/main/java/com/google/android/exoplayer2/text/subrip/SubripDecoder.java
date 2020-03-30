@@ -230,6 +230,8 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
         Cue.DIMEN_UNSET);
   }
 
+  // incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   private static long parseTimecode(Matcher matcher, int groupOffset) {
     @Nullable String hours = matcher.group(groupOffset + 1);
     long timestampMs = hours != null ? Long.parseLong(hours) * 60 * 60 * 1000 : 0;

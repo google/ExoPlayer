@@ -322,6 +322,8 @@ public final class WebvttCueParser {
 
   // Internal methods
 
+  // incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   @Nullable
   private static WebvttCueInfo parseCue(
       @Nullable String id,
@@ -354,6 +356,8 @@ public final class WebvttCueParser {
     return builder.build();
   }
 
+  // incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   private static void parseCueSettingsList(String cueSettingsList, WebvttCueInfoBuilder builder) {
     // Parse the cue settings list.
     Matcher cueSettingMatcher = CUE_SETTING_PATTERN.matcher(cueSettingsList);

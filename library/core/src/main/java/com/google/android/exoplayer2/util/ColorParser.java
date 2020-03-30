@@ -63,6 +63,8 @@ public final class ColorParser {
     return parseColorInternal(colorExpression, true);
   }
 
+  // incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   private static int parseColorInternal(String colorExpression, boolean alphaHasFloatFormat) {
     Assertions.checkArgument(!TextUtils.isEmpty(colorExpression));
     colorExpression = colorExpression.replace(" ", "");

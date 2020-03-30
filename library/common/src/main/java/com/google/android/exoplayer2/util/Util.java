@@ -1021,13 +1021,16 @@ public final class Util {
   }
 
   /**
-   * Parses an xs:dateTime attribute value, returning the parsed timestamp in milliseconds since
-   * the epoch.
+   * Parses an xs:dateTime attribute value, returning the parsed timestamp in milliseconds since the
+   * epoch.
    *
    * @param value The attribute value to decode.
    * @return The parsed timestamp in milliseconds since the epoch.
    * @throws ParserException if an error occurs parsing the dateTime attribute value.
    */
+  // incompatible types in argument.
+  // dereference of possibly-null reference matcher.group(9)
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:dereference.of.nullable"})
   public static long parseXsDateTime(String value) throws ParserException {
     Matcher matcher = XS_DATE_TIME_PATTERN.matcher(value);
     if (!matcher.matches()) {
@@ -1719,6 +1722,8 @@ public final class Util {
     Matcher matcher = ESCAPED_CHARACTER_PATTERN.matcher(fileName);
     int startOfNotEscaped = 0;
     while (percentCharacterCount > 0 && matcher.find()) {
+      // incompatible types in argument.
+      @SuppressWarnings("nullness:argument.type.incompatible")
       char unescapedCharacter = (char) Integer.parseInt(matcher.group(1), 16);
       builder.append(fileName, startOfNotEscaped, matcher.start()).append(unescapedCharacter);
       startOfNotEscaped = matcher.end();

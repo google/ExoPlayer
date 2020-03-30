@@ -113,6 +113,8 @@ import java.util.regex.Pattern;
    * @return The span, or null if the file name is not correctly formatted, or if the id is not
    *     present in the content index, or if the length is 0.
    */
+  // incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   @Nullable
   public static SimpleCacheSpan createCacheEntry(
       File file, long length, long lastTouchTimestamp, CachedContentIndex index) {
@@ -131,6 +133,8 @@ import java.util.regex.Pattern;
       return null;
     }
 
+    // incompatible types in argument.
+    @SuppressWarnings("nullness:argument.type.incompatible")
     int id = Integer.parseInt(matcher.group(1));
     @Nullable String key = index.getKeyForId(id);
     if (key == null) {
@@ -144,6 +148,8 @@ import java.util.regex.Pattern;
       return null;
     }
 
+    // incompatible types in argument.
+    @SuppressWarnings("nullness:argument.type.incompatible")
     long position = Long.parseLong(matcher.group(2));
     if (lastTouchTimestamp == C.TIME_UNSET) {
       lastTouchTimestamp = Long.parseLong(matcher.group(3));
@@ -159,6 +165,8 @@ import java.util.regex.Pattern;
    * @return Upgraded cache file or {@code null} if the file name is not correctly formatted or the
    *     file can not be renamed.
    */
+  // incompatible types in argument.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   @Nullable
   private static File upgradeFile(File file, CachedContentIndex index) {
     @Nullable String key = null;
@@ -177,6 +185,8 @@ import java.util.regex.Pattern;
       return null;
     }
 
+    // incompatible types in argument.
+    @SuppressWarnings("nullness:argument.type.incompatible")
     File newCacheFile =
         getCacheFile(
             Assertions.checkStateNotNull(file.getParentFile()),

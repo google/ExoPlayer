@@ -229,6 +229,8 @@ import java.util.regex.Pattern;
       while (matcher.find()) {
         String braceContents = matcher.group(1);
         try {
+          // incompatible types in argument.
+          @SuppressWarnings("nullness:argument.type.incompatible")
           PointF parsedPosition = parsePosition(braceContents);
           if (parsedPosition != null) {
             position = parsedPosition;
@@ -237,7 +239,10 @@ import java.util.regex.Pattern;
           // Ignore invalid \pos() or \move() function.
         }
         try {
-          @SsaAlignment int parsedAlignment = parseAlignmentOverride(braceContents);
+          // incompatible types in argument.
+          @SuppressWarnings("nullness:argument.type.incompatible")
+          @SsaAlignment
+          int parsedAlignment = parseAlignmentOverride(braceContents);
           if (parsedAlignment != SSA_ALIGNMENT_UNKNOWN) {
             alignment = parsedAlignment;
           }
@@ -292,6 +297,8 @@ import java.util.regex.Pattern;
           Float.parseFloat(Assertions.checkNotNull(y).trim()));
     }
 
+    // incompatible types in argument.
+    @SuppressWarnings("nullness:argument.type.incompatible")
     @SsaAlignment
     private static int parseAlignmentOverride(String braceContents) {
       Matcher matcher = ALIGNMENT_OVERRIDE_PATTERN.matcher(braceContents);
