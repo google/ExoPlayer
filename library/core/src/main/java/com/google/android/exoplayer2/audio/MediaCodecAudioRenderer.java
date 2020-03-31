@@ -217,9 +217,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     boolean supportsFormatDrm = supportsFormatDrm(format);
-    if (supportsFormatDrm
-        && allowPassthrough(format.channelCount, mimeType)
-        && mediaCodecSelector.getPassthroughDecoderInfo() != null) {
+    if (supportsFormatDrm && usePassthrough(format.channelCount, mimeType)) {
       return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
     }
     if ((MimeTypes.AUDIO_RAW.equals(mimeType)
@@ -257,12 +255,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (mimeType == null) {
       return Collections.emptyList();
     }
-    if (allowPassthrough(format.channelCount, mimeType)) {
-      @Nullable
-      MediaCodecInfo passthroughDecoderInfo = mediaCodecSelector.getPassthroughDecoderInfo();
-      if (passthroughDecoderInfo != null) {
-        return Collections.singletonList(passthroughDecoderInfo);
-      }
+    if (usePassthrough(format.channelCount, mimeType)) {
+      return Collections.singletonList(MediaCodecUtil.getPassthroughDecoderInfo());
     }
     List<MediaCodecInfo> decoderInfos =
         mediaCodecSelector.getDecoderInfos(
@@ -286,9 +280,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    *     not known.
    * @param mimeType The type of input media.
    * @return Whether passthrough playback is supported.
+   * @throws DecoderQueryException If there was an error querying the available passthrough
+   *     decoders.
    */
-  protected boolean allowPassthrough(int channelCount, String mimeType) {
-    return getPassthroughEncoding(channelCount, mimeType) != C.ENCODING_INVALID;
+  protected boolean usePassthrough(int channelCount, String mimeType) throws DecoderQueryException {
+    return getPassthroughEncoding(channelCount, mimeType) != C.ENCODING_INVALID
+        && MediaCodecUtil.getPassthroughDecoderInfo() != null;
   }
 
   @Override
@@ -301,10 +298,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     codecNeedsEosBufferTimestampWorkaround = codecNeedsEosBufferTimestampWorkaround(codecInfo.name);
-    passthroughEnabled = codecInfo.passthrough;
-    String codecMimeType = passthroughEnabled ? MimeTypes.AUDIO_RAW : codecInfo.codecMimeType;
+    passthroughEnabled =
+        MimeTypes.AUDIO_RAW.equals(codecInfo.mimeType)
+            && !MimeTypes.AUDIO_RAW.equals(format.sampleMimeType);
     MediaFormat mediaFormat =
-        getMediaFormat(format, codecMimeType, codecMaxInputSize, codecOperatingRate);
+        getMediaFormat(format, codecInfo.codecMimeType, codecMaxInputSize, codecOperatingRate);
     codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     if (passthroughEnabled) {
       // Store the input MIME type if we're using the passthrough codec.
