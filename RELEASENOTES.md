@@ -61,6 +61,8 @@
         `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
         generalized to work with `Decoder` rather than `SimpleDecoder`.
     *   Add media item based playlist API to Player.
+    *   Update `CachedContentIndex` to use `SecureRandom` for generating the
+        initialization vector used to encrypt the cache contents.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
