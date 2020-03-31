@@ -123,10 +123,7 @@ public final class MediaCodecUtil {
    */
   @Nullable
   public static MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
-    @Nullable
-    MediaCodecInfo decoderInfo =
-        getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false, /* tunneling= */ false);
-    return decoderInfo == null ? null : MediaCodecInfo.newPassthroughInstance(decoderInfo.name);
+    return getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false, /* tunneling= */ false);
   }
 
   /**
