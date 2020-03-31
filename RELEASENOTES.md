@@ -128,10 +128,14 @@
     ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
   * Fix failure to play WAV files that contain trailing non-media bytes
     ([#7129](https://github.com/google/ExoPlayer/issues/7129))
+* DRM:
+  * Fix playback of Widevine protected content that only provides V1 PSSH atoms
+    on API levels 21 and 22.
+  * Fix playback of PlayReady content on Fire TV Stick (Gen 2).
 * DASH:
-    * Update the manifest URI to avoid repeated HTTP redirects
-      ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
-    * Parse period `AssetIdentifier` elements.
+  * Update the manifest URI to avoid repeated HTTP redirects
+    ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
+  * Parse period `AssetIdentifier` elements.
 * UI: Add an option to set whether to use the orientation sensor for rotation
   in spherical playbacks
   ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
