@@ -188,7 +188,7 @@ public final class Requirements implements Parcelable {
 
   /**
    * Implementation taken from the the WorkManager source.
-   * @see <a href="https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/workmanager/src/main/java/androidx/work/impl/constraints/trackers/StorageNotLowTracker.java">StorageNotLowTracker</a>
+   * @see <a href="https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/workmanager/src/main/java/androidx/work/impl/constraints/trackers/BatteryNotLowTracker.java">BatteryNotLowTracker</a>
    */
   private boolean isBatteryNotLow(Context context) {
     IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -208,7 +208,7 @@ public final class Requirements implements Parcelable {
 
   /**
    * Implementation taken from the the WorkManager source.
-   * @see <a href="https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/workmanager/src/main/java/androidx/work/impl/constraints/trackers/BatteryNotLowTracker.java">BatteryNotLowTracker</a>
+   * @see <a href="https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/workmanager/src/main/java/androidx/work/impl/constraints/trackers/StorageNotLowTracker.java">StorageNotLowTracker</a>
    */
   private boolean isStorageNotLow(Context context) {
     IntentFilter intentFilter = new IntentFilter();
