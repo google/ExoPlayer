@@ -156,16 +156,12 @@ public final class Cue {
   /**
    * The type of the {@link #line} value.
    *
-   * <p>{@link #LINE_TYPE_FRACTION} indicates that {@link #line} is a fractional position within the
-   * viewport.
-   *
    * <ul>
    *   <li>{@link #LINE_TYPE_FRACTION} indicates that {@link #line} is a fractional position within
    *       the viewport.
-   *   <li>
+   *   <li>{@link #LINE_TYPE_NUMBER} indicates that {@link #line} is a line number, where the size
+   *       of each line is taken to be the size of the first line of the cue.
    *       <ul>
-   *         <li>{@link #LINE_TYPE_NUMBER} indicates that {@link #line} is a line number, where the
-   *             size of each line is taken to be the size of the first line of the cue.
    *         <li>When {@link #line} is greater than or equal to 0 lines count from the start of the
    *             viewport, with 0 indicating zero offset from the start edge. When {@link #line} is
    *             negative lines count from the end of the viewport, with -1 indicating zero offset
