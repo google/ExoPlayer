@@ -221,10 +221,7 @@ public final class DefaultHlsPlaylistTracker
 
   @Override
   public void onLoadCompleted(
-      ParsingLoadable<HlsPlaylist> loadable,
-      long loadTaskId,
-      long elapsedRealtimeMs,
-      long loadDurationMs) {
+      ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs, long loadDurationMs) {
     HlsPlaylist result = loadable.getResult();
     HlsMasterPlaylist masterPlaylist;
     boolean isMediaPlaylist = result instanceof HlsMediaPlaylist;
@@ -257,7 +254,6 @@ public final class DefaultHlsPlaylistTracker
   @Override
   public void onLoadCanceled(
       ParsingLoadable<HlsPlaylist> loadable,
-      long loadTaskId,
       long elapsedRealtimeMs,
       long loadDurationMs,
       boolean released) {
@@ -274,7 +270,6 @@ public final class DefaultHlsPlaylistTracker
   @Override
   public LoadErrorAction onLoadError(
       ParsingLoadable<HlsPlaylist> loadable,
-      long loadTaskId,
       long elapsedRealtimeMs,
       long loadDurationMs,
       IOException error,
@@ -521,10 +516,7 @@ public final class DefaultHlsPlaylistTracker
 
     @Override
     public void onLoadCompleted(
-        ParsingLoadable<HlsPlaylist> loadable,
-        long loadTaskId,
-        long elapsedRealtimeMs,
-        long loadDurationMs) {
+        ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs, long loadDurationMs) {
       HlsPlaylist result = loadable.getResult();
       if (result instanceof HlsMediaPlaylist) {
         processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
@@ -544,7 +536,6 @@ public final class DefaultHlsPlaylistTracker
     @Override
     public void onLoadCanceled(
         ParsingLoadable<HlsPlaylist> loadable,
-        long loadTaskId,
         long elapsedRealtimeMs,
         long loadDurationMs,
         boolean released) {
@@ -561,7 +552,6 @@ public final class DefaultHlsPlaylistTracker
     @Override
     public LoadErrorAction onLoadError(
         ParsingLoadable<HlsPlaylist> loadable,
-        long loadTaskId,
         long elapsedRealtimeMs,
         long loadDurationMs,
         IOException error,

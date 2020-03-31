@@ -1348,17 +1348,13 @@ public final class DashMediaSource extends BaseMediaSource {
 
     @Override
     public void onLoadCompleted(
-        ParsingLoadable<DashManifest> loadable,
-        long loadTaskId,
-        long elapsedRealtimeMs,
-        long loadDurationMs) {
+        ParsingLoadable<DashManifest> loadable, long elapsedRealtimeMs, long loadDurationMs) {
       onManifestLoadCompleted(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override
     public void onLoadCanceled(
         ParsingLoadable<DashManifest> loadable,
-        long loadTaskId,
         long elapsedRealtimeMs,
         long loadDurationMs,
         boolean released) {
@@ -1368,7 +1364,6 @@ public final class DashMediaSource extends BaseMediaSource {
     @Override
     public LoadErrorAction onLoadError(
         ParsingLoadable<DashManifest> loadable,
-        long loadTaskId,
         long elapsedRealtimeMs,
         long loadDurationMs,
         IOException error,
@@ -1382,17 +1377,13 @@ public final class DashMediaSource extends BaseMediaSource {
 
     @Override
     public void onLoadCompleted(
-        ParsingLoadable<Long> loadable,
-        long loadTaskId,
-        long elapsedRealtimeMs,
-        long loadDurationMs) {
+        ParsingLoadable<Long> loadable, long elapsedRealtimeMs, long loadDurationMs) {
       onUtcTimestampLoadCompleted(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override
     public void onLoadCanceled(
         ParsingLoadable<Long> loadable,
-        long loadTaskId,
         long elapsedRealtimeMs,
         long loadDurationMs,
         boolean released) {
@@ -1402,7 +1393,6 @@ public final class DashMediaSource extends BaseMediaSource {
     @Override
     public LoadErrorAction onLoadError(
         ParsingLoadable<Long> loadable,
-        long loadTaskId,
         long elapsedRealtimeMs,
         long loadDurationMs,
         IOException error,
