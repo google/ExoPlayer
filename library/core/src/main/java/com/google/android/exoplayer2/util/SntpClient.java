@@ -281,8 +281,7 @@ public final class SntpClient {
     }
 
     @Override
-    public void onLoadCompleted(
-        Loadable loadable, long loadTaskId, long elapsedRealtimeMs, long loadDurationMs) {
+    public void onLoadCompleted(Loadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
       Assertions.checkState(SntpClient.isInitialized());
       if (callback != null) {
         callback.onInitialized();
@@ -291,18 +290,13 @@ public final class SntpClient {
 
     @Override
     public void onLoadCanceled(
-        Loadable loadable,
-        long loadTaskId,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        boolean released) {
+        Loadable loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
       // Ignore.
     }
 
     @Override
     public LoadErrorAction onLoadError(
         Loadable loadable,
-        long loadTaskId,
         long elapsedRealtimeMs,
         long loadDurationMs,
         IOException error,

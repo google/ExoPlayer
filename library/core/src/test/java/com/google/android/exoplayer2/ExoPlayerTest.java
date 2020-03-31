@@ -73,7 +73,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
-import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
@@ -6364,20 +6363,15 @@ public final class ExoPlayerTest {
   private static final class DummyLoaderCallback implements Loader.Callback<Loader.Loadable> {
     @Override
     public void onLoadCompleted(
-        Loadable loadable, long loadTaskId, long elapsedRealtimeMs, long loadDurationMs) {}
+        Loader.Loadable loadable, long elapsedRealtimeMs, long loadDurationMs) {}
 
     @Override
     public void onLoadCanceled(
-        Loadable loadable,
-        long loadTaskId,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        boolean released) {}
+        Loader.Loadable loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {}
 
     @Override
     public Loader.LoadErrorAction onLoadError(
-        Loadable loadable,
-        long loadTaskId,
+        Loader.Loadable loadable,
         long elapsedRealtimeMs,
         long loadDurationMs,
         IOException error,

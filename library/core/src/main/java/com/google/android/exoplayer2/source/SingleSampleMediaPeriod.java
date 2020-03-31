@@ -213,7 +213,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void onLoadCompleted(
-      SourceLoadable loadable, long loadTaskId, long elapsedRealtimeMs, long loadDurationMs) {
+      SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
     sampleSize = (int) loadable.dataSource.getBytesRead();
     sampleData = Assertions.checkNotNull(loadable.sampleData);
     loadingFinished = true;
@@ -235,11 +235,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void onLoadCanceled(
-      SourceLoadable loadable,
-      long loadTaskId,
-      long elapsedRealtimeMs,
-      long loadDurationMs,
-      boolean released) {
+      SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.dataSource.getLastOpenedUri(),
@@ -259,7 +255,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public LoadErrorAction onLoadError(
       SourceLoadable loadable,
-      long loadTaskId,
       long elapsedRealtimeMs,
       long loadDurationMs,
       IOException error,

@@ -703,8 +703,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(
-      Chunk loadable, long loadTaskId, long elapsedRealtimeMs, long loadDurationMs) {
+  public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
     chunkSource.onChunkLoadCompleted(loadable);
     eventDispatcher.loadCompleted(
         loadable.dataSpec,
@@ -729,11 +728,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void onLoadCanceled(
-      Chunk loadable,
-      long loadTaskId,
-      long elapsedRealtimeMs,
-      long loadDurationMs,
-      boolean released) {
+      Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
     eventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.getUri(),
@@ -759,7 +754,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public LoadErrorAction onLoadError(
       Chunk loadable,
-      long loadTaskId,
       long elapsedRealtimeMs,
       long loadDurationMs,
       IOException error,
