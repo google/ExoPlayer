@@ -15,8 +15,8 @@ ext.fixJavadoc = {
   def javadocPath = "${project.buildDir}/docs/javadoc"
   // Fix external Android links to target the top frame.
   def androidRoot = "https://developer.android.com/reference/"
-  def androidLink = "<a href=\"(${androidRoot}.*?)\\?is-external=true\""
-  def androidFixed = "<a href=\"\\1\" target=\"_top\""
+  def androidLink = "<a href=\"(${androidRoot}.*?)\\?is-external=true(.*)\""
+  def androidFixed = "<a href=\"\\1\\2\" target=\"_top\""
   ant.replaceregexp(match:androidLink, replace:androidFixed, flags:'g') {
     fileset(dir: "${javadocPath}", includes: "**/*.html")
   }
