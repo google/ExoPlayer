@@ -164,7 +164,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean tracksEnded;
   private long sampleOffsetUs;
   @Nullable private DrmInitData drmInitData;
-  private int chunkUid;
+  private int sourceId;
 
   /**
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
@@ -668,11 +668,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     if (isMediaChunk(loadable)) {
-      pendingResetPositionUs = C.TIME_UNSET;
-      HlsMediaChunk mediaChunk = (HlsMediaChunk) loadable;
-      mediaChunk.init(this);
-      mediaChunks.add(mediaChunk);
-      upstreamTrackFormat = mediaChunk.trackFormat;
+      initMediaChunkLoad((HlsMediaChunk) loadable);
     }
     long elapsedRealtimeMs =
         loader.startLoading(
@@ -819,18 +815,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   // Called by the consuming thread, but only when there is no loading thread.
 
   /**
-   * Initializes the wrapper for loading a chunk.
+   * Performs initialization for a media chunk that's about to start loading.
    *
-   * @param chunkUid The chunk's uid.
-   * @param shouldSpliceIn Whether the samples parsed from the chunk should be spliced into any
-   *     samples already queued to the wrapper.
+   * @param mediaChunk The media chunk that's about to start loading.
    */
-  public void init(int chunkUid, boolean shouldSpliceIn) {
-    this.chunkUid = chunkUid;
+  private void initMediaChunkLoad(HlsMediaChunk mediaChunk) {
+    sourceId = mediaChunk.uid;
+    upstreamTrackFormat = mediaChunk.trackFormat;
+    pendingResetPositionUs = C.TIME_UNSET;
+    mediaChunks.add(mediaChunk);
+
+    mediaChunk.init(this);
     for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.sourceId(chunkUid);
+      sampleQueue.sourceId(sourceId);
     }
-    if (shouldSpliceIn) {
+    if (mediaChunk.shouldSpliceIn) {
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.splice();
       }
@@ -914,7 +913,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       trackOutput.setDrmInitData(drmInitData);
     }
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
-    trackOutput.sourceId(chunkUid);
+    trackOutput.sourceId(sourceId);
     trackOutput.setUpstreamFormatChangeListener(this);
     sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
     sampleQueueTrackIds[trackCount] = id;
