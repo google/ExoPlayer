@@ -29,8 +29,7 @@ class CombinedJavadocPlugin implements Plugin<Project> {
           classpath = project.files([])
           destinationDir = project.file("$project.buildDir/docs/javadoc")
           options {
-            links "https://docs.oracle.com/javase/7/docs/api/",
-                "https://developer.android.com/reference"
+            links "https://developer.android.com/reference"
             encoding = "UTF-8"
           }
           exclude "**/BuildConfig.java"
