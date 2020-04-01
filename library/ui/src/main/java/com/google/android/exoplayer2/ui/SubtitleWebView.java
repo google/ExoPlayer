@@ -23,13 +23,16 @@ import android.content.Context;
 import android.graphics.Color;
 import android.text.Layout;
 import android.util.AttributeSet;
+import android.util.Base64;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Util;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
@@ -231,7 +234,11 @@ import java.util.List;
 
     html.append("</div></body></html>");
 
-    webView.loadData(html.toString(), "text/html", /* encoding= */ null);
+    webView.loadData(
+        Base64.encodeToString(
+            html.toString().getBytes(Charset.forName(C.UTF8_NAME)), Base64.NO_PADDING),
+        "text/html",
+        "base64");
   }
 
   private String convertAlignmentToCss(@Nullable Layout.Alignment alignment) {
