@@ -212,6 +212,19 @@ import java.util.List;
 
       String textAlign = convertAlignmentToCss(cue.textAlignment);
 
+      String writingMode = convertVerticalTypeToCss(cue.verticalType);
+
+      // All measurements are done orthogonally for vertical text (i.e. from left of screen instead
+      // of top, or vice versa). So flip the position & translation values.
+      if (cue.verticalType == Cue.VERTICAL_TYPE_LR || cue.verticalType == Cue.VERTICAL_TYPE_RL) {
+        float tmpFloat = horizontalPositionPercent;
+        horizontalPositionPercent = verticalPositionPercent;
+        verticalPositionPercent = tmpFloat;
+        int tmpInt = horizontalTranslatePercent;
+        horizontalTranslatePercent = verticalTranslatePercent;
+        verticalTranslatePercent = tmpInt;
+      }
+
       html.append(
               Util.formatInvariant(
                   "<div style=\""
@@ -220,12 +233,14 @@ import java.util.List;
                       + "top:%.2f%%;"
                       + "width:%s;"
                       + "text-align:%s;"
+                      + "writing-mode:%s;"
                       + "transform:translate(%s%%,%s%%);"
                       + "\">",
                   horizontalPositionPercent,
                   verticalPositionPercent,
                   width,
                   textAlign,
+                  writingMode,
                   horizontalTranslatePercent,
                   verticalTranslatePercent))
           .append(SpannedToHtmlConverter.convert(cue.text))
@@ -239,6 +254,18 @@ import java.util.List;
             html.toString().getBytes(Charset.forName(C.UTF8_NAME)), Base64.NO_PADDING),
         "text/html",
         "base64");
+  }
+
+  private String convertVerticalTypeToCss(@Cue.VerticalType int verticalType) {
+    switch (verticalType) {
+      case Cue.VERTICAL_TYPE_LR:
+        return "vertical-lr";
+      case Cue.VERTICAL_TYPE_RL:
+        return "vertical-rl";
+      case Cue.TYPE_UNSET:
+      default:
+        return "horizontal-tb";
+    }
   }
 
   private String convertAlignmentToCss(@Nullable Layout.Alignment alignment) {
