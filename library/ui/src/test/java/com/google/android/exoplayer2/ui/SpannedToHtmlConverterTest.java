@@ -147,6 +147,16 @@ public class SpannedToHtmlConverterTest {
   }
 
   @Test
+  public void convert_convertsNonAsciiCharactersToAmpersandCodes() {
+    String html =
+        SpannedToHtmlConverter.convert(
+            new SpannableString("Strìng with 優しいの non-ASCII characters"));
+
+    assertThat(html)
+        .isEqualTo("Str&#236;ng with &#20778;&#12375;&#12356;&#12398; non-ASCII characters");
+  }
+
+  @Test
   public void convert_ignoresUnrecognisedSpan() {
     SpannableString spanned = new SpannableString("String with unrecognised span");
     spanned.setSpan(
