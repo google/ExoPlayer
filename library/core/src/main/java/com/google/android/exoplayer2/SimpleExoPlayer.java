@@ -445,8 +445,8 @@ public class SimpleExoPlayer extends BasePlayer
             clock,
             looper);
     analyticsCollector.setPlayer(player);
-    addListener(analyticsCollector);
-    addListener(componentListener);
+    player.addListener(analyticsCollector);
+    player.addListener(componentListener);
     videoDebugListeners.add(analyticsCollector);
     videoListeners.add(analyticsCollector);
     audioDebugListeners.add(analyticsCollector);
