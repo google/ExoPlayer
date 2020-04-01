@@ -30,6 +30,11 @@ public final class AdtsExtractorTest {
   }
 
   @Test
+  public void testSample_with_id3() throws Exception {
+    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "ts/sample_with_id3.adts");
+  }
+
+  @Test
   public void testSample_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
