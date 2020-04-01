@@ -20,13 +20,6 @@ ext.fixJavadoc = {
   ant.replaceregexp(match:androidLink, replace:androidFixed, flags:'g') {
     fileset(dir: "${javadocPath}", includes: "**/*.html")
   }
-  // Fix external Oracle links to use frames and target the top frame.
-  def oracleRoot = "https://docs.oracle.com/javase/7/docs/api/"
-  def oracleLink = "<a href=\"(${oracleRoot})(.*?)\\?is-external=true\""
-  def oracleFixed = "<a href=\"\\1index.html\\?\\2\" target=\"_top\""
-  ant.replaceregexp(match:oracleLink, replace:oracleFixed, flags:'g') {
-    fileset(dir: "${javadocPath}", includes: "**/*.html")
-  }
   // Add favicon to each page
   def headTag = "<head>"
   def headTagWithFavicon = "<head>" +
