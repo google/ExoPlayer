@@ -16,15 +16,13 @@
     point audio without adjustment, pass `enableFloatOutput=true` to the
     `DefaultAudioSink` constructor
     ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
-  * Fix failure to play WAV files that contain trailing non-media bytes
-    ([#7129](https://github.com/google/ExoPlayer/issues/7129))
+  * Fix playback of WAV files with trailing non-media bytes
+    ([#7129](https://github.com/google/ExoPlayer/issues/7129)).
+  * Fix playback of ADTS files with mid-stream ID3 metadata.
 * DRM:
   * Fix playback of Widevine protected content that only provides V1 PSSH atoms
     on API levels 21 and 22.
   * Fix playback of PlayReady content on Fire TV Stick (Gen 2).
-  * Fix playback of WAV files with trailing non-media bytes
-    ([#7129](https://github.com/google/ExoPlayer/issues/7129)).
-  * Fix playback of ADTS files with mid-stream ID3 metadata.
 * DASH:
   * Update the manifest URI to avoid repeated HTTP redirects
     ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
