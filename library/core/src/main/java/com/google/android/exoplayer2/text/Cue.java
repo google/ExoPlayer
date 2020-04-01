@@ -145,11 +145,19 @@ public final class Cue {
 
   /**
    * The position of the {@link #lineAnchor} of the cue box within the viewport in the direction
-   * orthogonal to the writing direction, or {@link #DIMEN_UNSET}. When set, the interpretation of
-   * the value depends on the value of {@link #lineType}.
-   * <p>
-   * For horizontal text and {@link #lineType} equal to {@link #LINE_TYPE_FRACTION}, this is the
-   * fractional vertical position relative to the top of the viewport.
+   * orthogonal to the writing direction (determined by {@link #verticalType}), or {@link
+   * #DIMEN_UNSET}. When set, the interpretation of the value depends on the value of {@link
+   * #lineType}.
+   *
+   * <p>The measurement direction depends on {@link #verticalType}:
+   *
+   * <ul>
+   *   <li>For {@link #TYPE_UNSET} (i.e. horizontal), this is the vertical position relative to the
+   *       top of the viewport.
+   *   <li>For {@link #VERTICAL_TYPE_LR} and {@link #VERTICAL_TYPE_RL} (i.e. vertical), this is the
+   *       horizontal position relative to the left of the viewport. Note that positioning is
+   *       relative to the left of the viewport even in the case of vertical-growing-left text.
+   * </ul>
    */
   public final float line;
 
@@ -202,10 +210,16 @@ public final class Cue {
   /**
    * The fractional position of the {@link #positionAnchor} of the cue box within the viewport in
    * the direction orthogonal to {@link #line}, or {@link #DIMEN_UNSET}.
-   * <p>
-   * For horizontal text, this is the horizontal position relative to the left of the viewport. Note
-   * that positioning is relative to the left of the viewport even in the case of right-to-left
-   * text.
+   *
+   * <p>The measurement direction depends on {@link #verticalType}.
+   *
+   * <ul>
+   *   <li>For {@link #TYPE_UNSET} (i.e. horizontal), this is the horizontal position relative to
+   *       the left of the viewport. Note that positioning is relative to the left of the viewport
+   *       even in the case of right-to-left text.
+   *   <li>For {@link #VERTICAL_TYPE_LR} and {@link #VERTICAL_TYPE_RL} (i.e. vertical), this is the
+   *       vertical position relative to the top of the viewport.
+   * </ul>
    */
   public final float position;
 
