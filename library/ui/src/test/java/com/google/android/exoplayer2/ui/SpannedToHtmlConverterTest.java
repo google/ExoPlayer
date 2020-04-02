@@ -26,6 +26,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +48,23 @@ public class SpannedToHtmlConverterTest {
 
     assertThat(html)
         .isEqualTo("String with <span style='color:rgba(64,32,16,0.502);'>colored</span> section");
+  }
+
+  @Test
+  public void convert_supportsHorizontalTextInVerticalContextSpan() {
+    SpannableString spanned = new SpannableString("Vertical text with 123 horizontal numbers");
+    spanned.setSpan(
+        new HorizontalTextInVerticalContextSpan(),
+        "Vertical text with ".length(),
+        "Vertical text with 123".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    String html = SpannedToHtmlConverter.convert(spanned);
+
+    assertThat(html)
+        .isEqualTo(
+            "Vertical text with <span style='text-combine-upright:all;'>123</span> "
+                + "horizontal numbers");
   }
 
   @Test
