@@ -267,6 +267,8 @@ public final class MimeTypes {
       return MimeTypes.AUDIO_VORBIS;
     } else if (codec.startsWith("flac")) {
       return MimeTypes.AUDIO_FLAC;
+    } else if (codec.startsWith("stpp")) {
+      return MimeTypes.APPLICATION_TTML;
     } else {
       return getCustomMimeTypeForCodec(codec);
     }
