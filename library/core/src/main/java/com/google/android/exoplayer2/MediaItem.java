@@ -152,7 +152,7 @@ public final class MediaItem {
         @Nullable Map<String, String> licenseRequestHeaders) {
       this.drmLicenseRequestHeaders =
           licenseRequestHeaders != null && !licenseRequestHeaders.isEmpty()
-              ? licenseRequestHeaders
+              ? Collections.unmodifiableMap(new HashMap<>(licenseRequestHeaders))
               : Collections.emptyMap();
       return this;
     }
@@ -344,7 +344,7 @@ public final class MediaItem {
         List<Integer> drmSessionForClearTypes) {
       this.uuid = uuid;
       this.licenseUri = licenseUri;
-      this.requestHeaders = Collections.unmodifiableMap(new HashMap<>(requestHeaders));
+      this.requestHeaders = requestHeaders;
       this.multiSession = multiSession;
       this.playClearContentWithoutKey = playClearContentWithoutKey;
       this.sessionForClearTypes = drmSessionForClearTypes;
