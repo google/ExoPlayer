@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Utility class to convert from <a
@@ -43,6 +44,9 @@ import java.util.List;
  */
 // TODO: Add support for more span types - only a small selection are currently implemented.
 /* package */ final class SpannedToHtmlConverter {
+
+  // Matches /n and /r/n in ampersand-encoding (returned from Html.escapeHtml).
+  private static final Pattern NEWLINE_PATTERN = Pattern.compile("(&#13;)?&#10;");
 
   private SpannedToHtmlConverter() {}
 
@@ -67,7 +71,7 @@ import java.util.List;
       return "";
     }
     if (!(text instanceof Spanned)) {
-      return Html.escapeHtml(text);
+      return escapeHtml(text);
     }
     Spanned spanned = (Spanned) text;
     SparseArray<Transition> spanTransitions = findSpanTransitions(spanned);
@@ -76,7 +80,7 @@ import java.util.List;
     int previousTransition = 0;
     for (int i = 0; i < spanTransitions.size(); i++) {
       int index = spanTransitions.keyAt(i);
-      html.append(Html.escapeHtml(spanned.subSequence(previousTransition, index)));
+      html.append(escapeHtml(spanned.subSequence(previousTransition, index)));
 
       Transition transition = spanTransitions.get(index);
       Collections.sort(transition.spansRemoved, SpanInfo.FOR_CLOSING_TAGS);
@@ -90,7 +94,7 @@ import java.util.List;
       previousTransition = index;
     }
 
-    html.append(Html.escapeHtml(spanned.subSequence(previousTransition, spanned.length())));
+    html.append(escapeHtml(spanned.subSequence(previousTransition, spanned.length())));
 
     return html.toString();
   }
@@ -185,6 +189,11 @@ import java.util.List;
       transitions.put(key, transition);
     }
     return transition;
+  }
+
+  private static String escapeHtml(CharSequence text) {
+    String escaped = Html.escapeHtml(text);
+    return NEWLINE_PATTERN.matcher(escaped).replaceAll("<br>");
   }
 
   private static final class SpanInfo {

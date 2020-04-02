@@ -133,6 +133,20 @@ public class SpannedToHtmlConverterTest {
   }
 
   @Test
+  public void convert_handlesLinebreakInUnspannedString() {
+    String html = SpannedToHtmlConverter.convert("String with\nnew line and\r\ncrlf style too");
+
+    assertThat(html).isEqualTo("String with<br>new line and<br>crlf style too");
+  }
+
+  @Test
+  public void convert_doesntConvertAmpersandLineFeedToBrTag() {
+    String html = SpannedToHtmlConverter.convert("String with&#10;new line ampersand code");
+
+    assertThat(html).isEqualTo("String with&amp;#10;new line ampersand code");
+  }
+
+  @Test
   public void convert_escapesUnrecognisedTagInSpannedString() {
     SpannableString spanned = new SpannableString("String with <foo>unrecognised</foo> tags");
     spanned.setSpan(
@@ -144,6 +158,13 @@ public class SpannedToHtmlConverterTest {
     String html = SpannedToHtmlConverter.convert(spanned);
 
     assertThat(html).isEqualTo("String with <i>&lt;foo&gt;unrecognised&lt;/foo&gt;</i> tags");
+  }
+
+  @Test
+  public void convert_handlesLinebreakInSpannedString() {
+    String html = SpannedToHtmlConverter.convert("String with\nnew line and\r\ncrlf style too");
+
+    assertThat(html).isEqualTo("String with<br>new line and<br>crlf style too");
   }
 
   @Test
