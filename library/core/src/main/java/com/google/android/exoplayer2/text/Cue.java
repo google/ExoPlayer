@@ -154,9 +154,10 @@ public final class Cue {
    * <ul>
    *   <li>For {@link #TYPE_UNSET} (i.e. horizontal), this is the vertical position relative to the
    *       top of the viewport.
-   *   <li>For {@link #VERTICAL_TYPE_LR} and {@link #VERTICAL_TYPE_RL} (i.e. vertical), this is the
-   *       horizontal position relative to the left of the viewport. Note that positioning is
-   *       relative to the left of the viewport even in the case of vertical-growing-left text.
+   *   <li>For {@link #VERTICAL_TYPE_LR} this is the horizontal position relative to the left of the
+   *       viewport.
+   *   <li>For {@link #VERTICAL_TYPE_RL} this is the horizontal position relative to the right of
+   *       the viewport.
    * </ul>
    */
   public final float line;
