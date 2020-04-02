@@ -87,14 +87,28 @@ public interface LoadControl {
    */
   boolean retainBackBufferFromKeyframe();
 
+  /** @deprecated Use {@link LoadControl#shouldContinueLoading(long, long, float)}. */
+  @Deprecated
+  default boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
+    return false;
+  }
+
   /**
    * Called by the player to determine whether it should continue to load the source.
    *
+   * @param playbackPositionUs The current playback position in microseconds, relative to the start
+   *     of the {@link Timeline.Period period} that will continue to be loaded if this method
+   *     returns {@code true}. If the playback for this period has not yet started, the value will
+   *     negative and equal in magnitude to the duration of any media in previous periods still to
+   *     be played.
    * @param bufferedDurationUs The duration of media that's currently buffered.
    * @param playbackSpeed The current playback speed.
    * @return Whether the loading should continue.
    */
-  boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed);
+  default boolean shouldContinueLoading(
+      long playbackPositionUs, long bufferedDurationUs, float playbackSpeed) {
+    return shouldContinueLoading(bufferedDurationUs, playbackSpeed);
+  }
 
   /**
    * Called repeatedly by the player when it's loading the source, has yet to start playback, and
