@@ -257,6 +257,16 @@ public final class Cea608Decoder extends CeaDecoder {
   // service bytes and drops the rest.
   private boolean isInCaptionService;
 
+  // Static counter to keep track of last CC rendered. This is used to force erase the caption when
+  // the stream does not explicitly send control codes to remove caption as specified by
+  // CEA-608 Annex C.9
+  private long ccTimeOutCounter = C.TIME_UNSET;
+  private boolean captionEraseCommandSeen = false;
+  // CEA-608 Annex C.9 propose that if no data are received for the selected caption channel within
+  // a given time, the decoder should automatically erase the caption. The time limit should be no
+  // less than 16 seconds
+  public static final int VALID_DATA_CHANNEL_TIMEOUT_MS = 16000;
+
   public Cea608Decoder(String mimeType, int accessibilityChannel) {
     ccData = new ParsableByteArray();
     cueBuilders = new ArrayList<>();
@@ -310,6 +320,7 @@ public final class Cea608Decoder extends CeaDecoder {
     repeatableControlCc2 = 0;
     currentChannel = NTSC_CC_CHANNEL_1;
     isInCaptionService = true;
+    ccTimeOutCounter = C.TIME_UNSET;
   }
 
   @Override
@@ -334,6 +345,7 @@ public final class Cea608Decoder extends CeaDecoder {
     ByteBuffer subtitleData = Assertions.checkNotNull(inputBuffer.data);
     ccData.reset(subtitleData.array(), subtitleData.limit());
     boolean captionDataProcessed = false;
+    captionEraseCommandSeen = false;
     while (ccData.bytesLeft() >= packetLength) {
       byte ccHeader = packetLength == 2 ? CC_IMPLICIT_DATA_HEADER
           : (byte) ccData.readUnsignedByte();
@@ -343,7 +355,6 @@ public final class Cea608Decoder extends CeaDecoder {
       // TODO: We're currently ignoring the top 5 marker bits, which should all be 1s according
       // to the CEA-608 specification. We need to determine if the data should be handled
       // differently when that is not the case.
-
       if ((ccHeader & CC_TYPE_FLAG) != 0) {
         // Do not process anything that is not part of the 608 byte stream.
         continue;
@@ -353,7 +364,6 @@ public final class Cea608Decoder extends CeaDecoder {
         // Do not process packets not within the selected field.
         continue;
       }
-
       // Strip the parity bit from each byte to get CC data.
       byte ccData1 = (byte) (ccByte1 & 0x7F);
       byte ccData2 = (byte) (ccByte2 & 0x7F);
@@ -423,6 +433,9 @@ public final class Cea608Decoder extends CeaDecoder {
     if (captionDataProcessed) {
       if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
         cues = getDisplayCues();
+        if (!captionEraseCommandSeen) {
+          ccTimeOutCounter = System.currentTimeMillis();
+        }
       }
     }
   }
@@ -541,14 +554,17 @@ public final class Cea608Decoder extends CeaDecoder {
         cues = Collections.emptyList();
         if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
           resetCueBuilders();
+          captionEraseCommandSeen = true;
         }
         break;
       case CTRL_ERASE_NON_DISPLAYED_MEMORY:
         resetCueBuilders();
+        captionEraseCommandSeen = true;
         break;
       case CTRL_END_OF_CAPTION:
         cues = getDisplayCues();
         resetCueBuilders();
+        captionEraseCommandSeen = true;
         break;
       case CTRL_CARRIAGE_RETURN:
         // carriage returns only apply to rollup captions; don't bother if we don't have anything
@@ -1018,4 +1034,15 @@ public final class Cea608Decoder extends CeaDecoder {
 
   }
 
+  protected void clearStuckCaptions()
+  {
+      if (ccTimeOutCounter != C.TIME_UNSET) {
+        long timeElapsed = System.currentTimeMillis() - ccTimeOutCounter;
+        if (timeElapsed >= VALID_DATA_CHANNEL_TIMEOUT_MS) {
+          // Force erase captions. There might be stale captions stuck on screen.
+          // (CEA-608 Annex C.9)
+          flush();
+        }
+      }
+  }
 }
