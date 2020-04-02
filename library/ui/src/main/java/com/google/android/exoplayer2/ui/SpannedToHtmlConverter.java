@@ -26,6 +26,7 @@ import android.text.style.UnderlineSpan;
 import android.util.SparseArray;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -124,6 +125,8 @@ import java.util.regex.Pattern;
       ForegroundColorSpan colorSpan = (ForegroundColorSpan) span;
       return Util.formatInvariant(
           "<span style='color:%s;'>", toCssColor(colorSpan.getForegroundColor()));
+    } else if (span instanceof HorizontalTextInVerticalContextSpan) {
+      return "<span style='text-combine-upright:all;'>";
     } else if (span instanceof StyleSpan) {
       switch (((StyleSpan) span).getStyle()) {
         case Typeface.BOLD:
@@ -157,6 +160,8 @@ import java.util.regex.Pattern;
   @Nullable
   private static String getClosingTag(Object span) {
     if (span instanceof ForegroundColorSpan) {
+      return "</span>";
+    } else if (span instanceof HorizontalTextInVerticalContextSpan) {
       return "</span>";
     } else if (span instanceof StyleSpan) {
       switch (((StyleSpan) span).getStyle()) {
