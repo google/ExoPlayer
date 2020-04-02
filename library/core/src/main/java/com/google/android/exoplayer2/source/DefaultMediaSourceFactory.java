@@ -77,14 +77,9 @@ import java.util.Map;
  *
  * <p>For a media item with a valid {@link
  * com.google.android.exoplayer2.MediaItem.DrmConfiguration}, a {@link DefaultDrmSessionManager} is
- * created. The following setters can be used to optionally configure the creation:
+ * created. The following setter can be used to optionally configure the creation:
  *
  * <ul>
- *   <li>{@link #setPlayClearContentWithoutKey(boolean)}: See {@link
- *       DefaultDrmSessionManager.Builder#setPlayClearSamplesWithoutKeys(boolean)} (default: {@code
- *       false}).
- *   <li>{@link #setUseDrmSessionForClearContent(int...)}: See {@link
- *       DefaultDrmSessionManager.Builder#setUseDrmSessionsForClearContent(int...)} (default: none).
  *   <li>{@link #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}: Sets the data source factory
  *       to be used by the {@link HttpMediaDrmCallback} for network requests (default: {@link
  *       DefaultHttpDataSourceFactory}).
@@ -130,8 +125,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private DrmSessionManager drmSessionManager;
   private HttpDataSource.Factory drmHttpDataSourceFactory;
-  private boolean playClearContentWithoutKey;
-  private int[] useDrmSessionsForClearContentTrackTypes;
   @Nullable private List<StreamKey> streamKeys;
 
   private DefaultMediaSourceFactory(Context context, DataSource.Factory dataSourceFactory) {
@@ -139,7 +132,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
     userAgent = Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY);
     drmHttpDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent);
-    useDrmSessionsForClearContentTrackTypes = new int[0];
     mediaSourceFactories = loadDelegates(dataSourceFactory);
     supportedTypes = new int[mediaSourceFactories.size()];
     for (int i = 0; i < mediaSourceFactories.size(); i++) {
@@ -165,33 +157,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
-  /**
-   * Used to create {@link DrmSessionManager DrmSessionManagers}. See {@link
-   * DefaultDrmSessionManager.Builder#setPlayClearSamplesWithoutKeys(boolean)}.
-   *
-   * @return This factory, for convenience.
-   */
-  public DefaultMediaSourceFactory setPlayClearContentWithoutKey(
-      boolean playClearContentWithoutKey) {
-    this.playClearContentWithoutKey = playClearContentWithoutKey;
-    return this;
-  }
-
-  /**
-   * Used to create {@link DrmSessionManager DrmSessionManagers}. See {@link
-   * DefaultDrmSessionManager.Builder#setUseDrmSessionsForClearContent(int...)}.
-   *
-   * @return This factory, for convenience.
-   */
-  public DefaultMediaSourceFactory setUseDrmSessionForClearContent(
-      int... useDrmSessionsForClearContentTrackTypes) {
-    for (int trackType : useDrmSessionsForClearContentTrackTypes) {
-      Assertions.checkArgument(trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_AUDIO);
-    }
-    this.useDrmSessionsForClearContentTrackTypes = useDrmSessionsForClearContentTrackTypes.clone();
-    return this;
-  }
-
   @Override
   public DefaultMediaSourceFactory setDrmSessionManager(
       @Nullable DrmSessionManager drmSessionManager) {
@@ -202,6 +167,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
+  @Override
   public DefaultMediaSourceFactory setLoadErrorHandlingPolicy(
       @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     LoadErrorHandlingPolicy newLoadErrorHandlingPolicy =
@@ -286,8 +252,10 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         .setUuidAndExoMediaDrmProvider(
             mediaItem.playbackProperties.drmConfiguration.uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
         .setMultiSession(mediaItem.playbackProperties.drmConfiguration.multiSession)
-        .setPlayClearSamplesWithoutKeys(playClearContentWithoutKey)
-        .setUseDrmSessionsForClearContent(useDrmSessionsForClearContentTrackTypes)
+        .setPlayClearSamplesWithoutKeys(
+            mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey)
+        .setUseDrmSessionsForClearContent(
+            Util.toArray(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes))
         .build(createHttpMediaDrmCallback(mediaItem.playbackProperties.drmConfiguration));
   }
 

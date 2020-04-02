@@ -60,6 +60,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -1197,6 +1198,23 @@ public final class Util {
       intArray[i] = list.get(i);
     }
     return intArray;
+  }
+
+  /**
+   * Converts an array of primitive ints to a list of integers.
+   *
+   * @param ints The ints.
+   * @return The input array in list form.
+   */
+  public static List<Integer> toList(int... ints) {
+    if (ints == null) {
+      return new ArrayList<>();
+    }
+    List<Integer> integers = new ArrayList<>();
+    for (int anInt : ints) {
+      integers.add(anInt);
+    }
+    return integers;
   }
 
   /**
