@@ -934,6 +934,21 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("hsn")).isEqualTo("zh-hsn");
   }
 
+  @Test
+  public void toList() {
+    assertThat(Util.toList(0, 3, 4)).containsExactly(0, 3, 4).inOrder();
+  }
+
+  @Test
+  public void toList_nullPassed_returnsEmptyList() {
+    assertThat(Util.toList(null)).isEmpty();
+  }
+
+  @Test
+  public void toList_emptyArrayPassed_returnsEmptyList() {
+    assertThat(Util.toList(new int[0])).isEmpty();
+  }
+
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {
     assertThat(escapeFileName(fileName)).isEqualTo(escapedFileName);
     assertThat(unescapeFileName(escapedFileName)).isEqualTo(fileName);

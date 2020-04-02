@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,6 +98,8 @@ public class MediaItemTest {
             .setDrmLicenseUri(licenseUri)
             .setDrmLicenseRequestHeaders(requestHeaders)
             .setDrmMultiSession(/* multiSession= */ true)
+            .setDrmPlayClearContentWithoutKey(true)
+            .setDrmSessionForClearTypes(Collections.singletonList(C.TRACK_TYPE_AUDIO))
             .build();
 
     assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
@@ -105,6 +108,25 @@ public class MediaItemTest {
     assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)
         .isEqualTo(requestHeaders);
     assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isTrue();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isTrue();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO);
+  }
+
+  @Test
+  public void builderSetDrmSessionForClearPeriods_setsAudioAndVideoTracks() {
+    Uri licenseUri = Uri.parse(URI_STRING);
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setSourceUri(URI_STRING)
+            .setDrmUuid(C.WIDEVINE_UUID)
+            .setDrmLicenseUri(licenseUri)
+            .setDrmSessionForClearTypes(Arrays.asList(C.TRACK_TYPE_AUDIO))
+            .setDrmSessionForClearPeriods(true)
+            .build();
+
+    assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes)
+        .containsExactly(C.TRACK_TYPE_AUDIO, C.TRACK_TYPE_VIDEO);
   }
 
   @Test

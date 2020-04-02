@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +61,8 @@ public final class MediaItem {
     private Map<String, String> drmLicenseRequestHeaders;
     @Nullable private UUID drmUuid;
     private boolean drmMultiSession;
+    private boolean drmPlayClearContentWithoutKey;
+    private List<Integer> drmSessionForClearTypes;
     private List<StreamKey> streamKeys;
     private List<Subtitle> subtitles;
     @Nullable private Object tag;
@@ -69,6 +72,7 @@ public final class MediaItem {
     public Builder() {
       streamKeys = Collections.emptyList();
       subtitles = Collections.emptyList();
+      drmSessionForClearTypes = Collections.emptyList();
       drmLicenseRequestHeaders = Collections.emptyMap();
     }
 
@@ -145,10 +149,10 @@ public final class MediaItem {
      * <p>If no valid drm configuration is specified, the drm license request headers are ignored.
      */
     public Builder setDrmLicenseRequestHeaders(
-        @Nullable Map<String, String> drmLicenseRequestHeaders) {
+        @Nullable Map<String, String> licenseRequestHeaders) {
       this.drmLicenseRequestHeaders =
-          drmLicenseRequestHeaders != null && !drmLicenseRequestHeaders.isEmpty()
-              ? drmLicenseRequestHeaders
+          licenseRequestHeaders != null && !licenseRequestHeaders.isEmpty()
+              ? licenseRequestHeaders
               : Collections.emptyMap();
       return this;
     }
@@ -173,6 +177,50 @@ public final class MediaItem {
      */
     public Builder setDrmMultiSession(boolean multiSession) {
       drmMultiSession = multiSession;
+      return this;
+    }
+
+    /**
+     * Sets whether clear samples within protected content should be played when keys for the
+     * encrypted part of the content have yet to be loaded.
+     */
+    public Builder setDrmPlayClearContentWithoutKey(boolean playClearContentWithoutKey) {
+      this.drmPlayClearContentWithoutKey = playClearContentWithoutKey;
+      return this;
+    }
+
+    /**
+     * Sets whether a drm session should be used for clear tracks of type {@link C#TRACK_TYPE_VIDEO}
+     * and {@link C#TRACK_TYPE_AUDIO}.
+     *
+     * <p>This method overrides what has been set by previously calling {@link
+     * #setDrmSessionForClearTypes(List)}.
+     */
+    public Builder setDrmSessionForClearPeriods(boolean sessionForClearPeriods) {
+      this.setDrmSessionForClearTypes(
+          sessionForClearPeriods
+              ? Arrays.asList(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO)
+              : Collections.emptyList());
+      return this;
+    }
+
+    /**
+     * Sets a list of {@link C}{@code .TRACK_TYPE_*} constants for which to use a drm session even
+     * when the tracks are in the clear.
+     *
+     * <p>For the common case of using a drm session for {@link C#TRACK_TYPE_VIDEO} and {@link
+     * C#TRACK_TYPE_AUDIO} the {@link #setDrmSessionForClearPeriods(boolean)} can be used.
+     *
+     * <p>This method overrides what has been set by previously calling {@link
+     * #setDrmSessionForClearPeriods(boolean)}.
+     *
+     * <p>{@code null} or an empty {@link List} can be used for a reset.
+     */
+    public Builder setDrmSessionForClearTypes(@Nullable List<Integer> sessionForClearTypes) {
+      this.drmSessionForClearTypes =
+          sessionForClearTypes != null && !sessionForClearTypes.isEmpty()
+              ? Collections.unmodifiableList(new ArrayList<>(sessionForClearTypes))
+              : Collections.emptyList();
       return this;
     }
 
@@ -241,7 +289,12 @@ public final class MediaItem {
                 mimeType,
                 drmUuid != null
                     ? new DrmConfiguration(
-                        drmUuid, drmLicenseUri, drmLicenseRequestHeaders, drmMultiSession)
+                        drmUuid,
+                        drmLicenseUri,
+                        drmLicenseRequestHeaders,
+                        drmMultiSession,
+                        drmPlayClearContentWithoutKey,
+                        drmSessionForClearTypes)
                     : null,
                 streamKeys,
                 subtitles,
@@ -273,15 +326,28 @@ public final class MediaItem {
     /** Whether the drm configuration is multi session enabled. */
     public final boolean multiSession;
 
+    /**
+     * Whether clear samples within protected content should be played when keys for the encrypted
+     * part of the content have yet to be loaded.
+     */
+    public final boolean playClearContentWithoutKey;
+
+    /** The types of clear tracks for which to use a drm session. */
+    public final List<Integer> sessionForClearTypes;
+
     private DrmConfiguration(
         UUID uuid,
         @Nullable Uri licenseUri,
         Map<String, String> requestHeaders,
-        boolean multiSession) {
+        boolean multiSession,
+        boolean playClearContentWithoutKey,
+        List<Integer> drmSessionForClearTypes) {
       this.uuid = uuid;
       this.licenseUri = licenseUri;
       this.requestHeaders = Collections.unmodifiableMap(new HashMap<>(requestHeaders));
       this.multiSession = multiSession;
+      this.playClearContentWithoutKey = playClearContentWithoutKey;
+      this.sessionForClearTypes = drmSessionForClearTypes;
     }
 
     @Override
@@ -297,7 +363,9 @@ public final class MediaItem {
       return uuid.equals(other.uuid)
           && Util.areEqual(licenseUri, other.licenseUri)
           && Util.areEqual(requestHeaders, other.requestHeaders)
-          && multiSession == other.multiSession;
+          && multiSession == other.multiSession
+          && playClearContentWithoutKey == other.playClearContentWithoutKey
+          && sessionForClearTypes.equals(other.sessionForClearTypes);
     }
 
     @Override
@@ -306,6 +374,8 @@ public final class MediaItem {
       result = 31 * result + (licenseUri != null ? licenseUri.hashCode() : 0);
       result = 31 * result + requestHeaders.hashCode();
       result = 31 * result + (multiSession ? 1 : 0);
+      result = 31 * result + (playClearContentWithoutKey ? 1 : 0);
+      result = 31 * result + sessionForClearTypes.hashCode();
       return result;
     }
   }

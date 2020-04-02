@@ -454,7 +454,6 @@ public class PlayerActivity extends AppCompatActivity
   private MediaSource createLeafMediaSource(UriSample parameters) {
     MediaItem.Builder builder = new MediaItem.Builder().setSourceUri(parameters.uri);
     builder.setMimeType(Sample.inferAdaptiveStreamMimeType(parameters.uri, parameters.extension));
-    int[] drmSessionForClearTypes = new int[0];
     HttpDataSource.Factory drmDataSourceFactory = null;
     if (parameters.drmInfo != null) {
       if (Util.SDK_INT < 18) {
@@ -471,8 +470,8 @@ public class PlayerActivity extends AppCompatActivity
           .setDrmLicenseRequestHeaders(
               createLicenseHeaders(parameters.drmInfo.drmKeyRequestProperties))
           .setDrmUuid(parameters.drmInfo.drmScheme)
-          .setDrmMultiSession(parameters.drmInfo.drmMultiSession);
-      drmSessionForClearTypes = parameters.drmInfo.drmSessionForClearTypes;
+          .setDrmMultiSession(parameters.drmInfo.drmMultiSession)
+          .setDrmSessionForClearTypes(Util.toList(parameters.drmInfo.drmSessionForClearTypes));
       drmDataSourceFactory = ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
     }
     if (parameters.subtitleInfo != null) {
@@ -494,7 +493,6 @@ public class PlayerActivity extends AppCompatActivity
     }
     return mediaSourceFactory
         .setDrmHttpDataSourceFactory(drmDataSourceFactory)
-        .setUseDrmSessionForClearContent(drmSessionForClearTypes)
         .createMediaSource(builder.build());
   }
 
