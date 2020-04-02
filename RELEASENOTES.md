@@ -3,6 +3,7 @@
 ### dev-v2 (not yet released) ###
 
 *   Core library:
+    *   Add playbackPositionUs parameter to 'LoadControl.shouldContinueLoading'.
     *   The `DefaultLoadControl` default minimum buffer is set to 50 seconds,
         equal to the default maximum buffer. `DefaultLoadControl` applies the
         same behavior for audio and video.

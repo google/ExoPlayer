@@ -1945,9 +1945,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (!isLoadingPossible()) {
       return false;
     }
+    MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
     long bufferedDurationUs =
-        getTotalBufferedDurationUs(queue.getLoadingPeriod().getNextLoadPositionUs());
-    return loadControl.shouldContinueLoading(bufferedDurationUs, mediaClock.getPlaybackSpeed());
+        getTotalBufferedDurationUs(loadingPeriodHolder.getNextLoadPositionUs());
+    long playbackPositionUs =
+        loadingPeriodHolder == queue.getPlayingPeriod()
+            ? loadingPeriodHolder.toPeriodTime(rendererPositionUs)
+            : loadingPeriodHolder.toPeriodTime(rendererPositionUs)
+                - loadingPeriodHolder.info.startPositionUs;
+    return loadControl.shouldContinueLoading(
+        playbackPositionUs, bufferedDurationUs, mediaClock.getPlaybackSpeed());
   }
 
   private boolean isLoadingPossible() {
