@@ -174,7 +174,7 @@ import java.util.regex.Pattern;
       }
     } else if (span instanceof RubySpan) {
       RubySpan rubySpan = (RubySpan) span;
-      return "<rt>" + rubySpan.rubyText + "</rt></ruby>";
+      return "<rt>" + escapeHtml(rubySpan.rubyText) + "</rt></ruby>";
     } else if (span instanceof UnderlineSpan) {
       return "</u>";
     }

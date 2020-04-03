@@ -95,38 +95,35 @@ public class SpannedToHtmlConverterTest {
   }
 
   @Test
-  public void convert_supportsRubySpan_over() {
-    SpannableString spanned = new SpannableString("String with over-annotated section");
+  public void convert_supportsRubySpan() {
+    SpannableString spanned =
+        new SpannableString("String with over-annotated and under-annotated section");
     spanned.setSpan(
         new RubySpan("ruby-text", RubySpan.POSITION_OVER),
         "String with ".length(),
         "String with over-annotated".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-    String html = SpannedToHtmlConverter.convert(spanned);
-
-    assertThat(html)
-        .isEqualTo(
-            "String with <ruby style='ruby-position:over;'>over-annotated<rt>ruby-text</rt></ruby>"
-                + " section");
-  }
-
-  @Test
-  public void convert_supportsRubySpan_under() {
-    SpannableString spanned = new SpannableString("String with under-annotated section");
     spanned.setSpan(
-        new RubySpan("ruby-text", RubySpan.POSITION_UNDER),
-        "String with ".length(),
-        "String with under-annotated".length(),
+        new RubySpan("non-àscìì-text", RubySpan.POSITION_UNDER),
+        "String with over-annotated and ".length(),
+        "String with over-annotated and under-annotated".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
     String html = SpannedToHtmlConverter.convert(spanned);
 
     assertThat(html)
         .isEqualTo(
-            "String with"
-                + " <ruby style='ruby-position:under;'>under-annotated<rt>ruby-text</rt></ruby>"
-                + " section");
+            "String with "
+                + "<ruby style='ruby-position:over;'>"
+                + "over-annotated"
+                + "<rt>ruby-text</rt>"
+                + "</ruby> "
+                + "and "
+                + "<ruby style='ruby-position:under;'>"
+                + "under-annotated"
+                + "<rt>non-&#224;sc&#236;&#236;-text</rt>"
+                + "</ruby> "
+                + "section");
   }
 
   @Test
