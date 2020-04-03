@@ -63,6 +63,29 @@ public final class WebvttCueParserTest {
   }
 
   @Test
+  public void parseSingleRubyTagWithMultipleRts() throws Exception {
+    Spanned text = parseCueText("<ruby>A<rt>1</rt>B<rt>2</rt>C<rt>3</rt></ruby>");
+
+    // The text between the <rt> tags is stripped from Cue.text and only present on the RubySpan.
+    assertThat(text.toString()).isEqualTo("ABC");
+    assertThat(text).hasRubySpanBetween(0, 1).withTextAndPosition("1", RubySpan.POSITION_OVER);
+    assertThat(text).hasRubySpanBetween(1, 2).withTextAndPosition("2", RubySpan.POSITION_OVER);
+    assertThat(text).hasRubySpanBetween(2, 3).withTextAndPosition("3", RubySpan.POSITION_OVER);
+  }
+
+  @Test
+  public void parseMultipleRubyTagsWithSingleRtEach() throws Exception {
+    Spanned text =
+        parseCueText("<ruby>A<rt>1</rt></ruby><ruby>B<rt>2</rt></ruby><ruby>C<rt>3</rt></ruby>");
+
+    // The text between the <rt> tags is stripped from Cue.text and only present on the RubySpan.
+    assertThat(text.toString()).isEqualTo("ABC");
+    assertThat(text).hasRubySpanBetween(0, 1).withTextAndPosition("1", RubySpan.POSITION_OVER);
+    assertThat(text).hasRubySpanBetween(1, 2).withTextAndPosition("2", RubySpan.POSITION_OVER);
+    assertThat(text).hasRubySpanBetween(2, 3).withTextAndPosition("3", RubySpan.POSITION_OVER);
+  }
+
+  @Test
   public void parseRubyTagWithNoTextTag() throws Exception {
     Spanned text = parseCueText("Some <ruby>base text with no ruby text</ruby>");
 
