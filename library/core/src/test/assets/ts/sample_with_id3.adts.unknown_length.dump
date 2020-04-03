@@ -4,16 +4,31 @@ seekMap:
   getPosition(0) = [[timeUs=0, position=0]]
 numberOfTracks = 2
 track 0:
-  total output bytes = 30797
-  sample count = 144
-  format 0:
+  format:
+    bitrate = -1
     id = 0
+    containerMimeType = null
     sampleMimeType = audio/mp4a-latm
-    codecs = mp4a.40.2
+    maxInputSize = -1
+    width = -1
+    height = -1
+    frameRate = -1.0
+    rotationDegrees = 0
+    pixelWidthHeightRatio = 1.0
     channelCount = 1
     sampleRate = 44100
+    pcmEncoding = -1
+    encoderDelay = 0
+    encoderPadding = 0
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    metadata = null
     initializationData:
       data = length 2, hash 5F7
+  total output bytes = 30797
+  sample count = 144
   sample 0:
     time = 0
     flags = 1
@@ -591,11 +606,30 @@ track 0:
     flags = 1
     data = length 174, hash 2B69C34E
 track 1:
+  format:
+    bitrate = -1
+    id = 1
+    containerMimeType = null
+    sampleMimeType = application/id3
+    maxInputSize = -1
+    width = -1
+    height = -1
+    frameRate = -1.0
+    rotationDegrees = 0
+    pixelWidthHeightRatio = 1.0
+    channelCount = -1
+    sampleRate = -1
+    pcmEncoding = -1
+    encoderDelay = 0
+    encoderPadding = 0
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    metadata = null
+    initializationData:
   total output bytes = 141
   sample count = 2
-  format 0:
-    id = 1
-    sampleMimeType = application/id3
   sample 0:
     time = 0
     flags = 1
