@@ -57,6 +57,11 @@ public final class MediaItem {
     @Nullable private String mediaId;
     @Nullable private Uri sourceUri;
     @Nullable private String mimeType;
+    private long clipStartPositionMs;
+    private long clipEndPositionMs;
+    private boolean clipRelativeToLiveWindow;
+    private boolean clipRelativeToDefaultPosition;
+    private boolean clipStartsAtKeyFrame;
     @Nullable private Uri drmLicenseUri;
     private Map<String, String> drmLicenseRequestHeaders;
     @Nullable private UUID drmUuid;
@@ -74,6 +79,7 @@ public final class MediaItem {
       subtitles = Collections.emptyList();
       drmSessionForClearTypes = Collections.emptyList();
       drmLicenseRequestHeaders = Collections.emptyMap();
+      clipEndPositionMs = C.TIME_END_OF_SOURCE;
     }
 
     /**
@@ -114,6 +120,55 @@ public final class MediaItem {
      */
     public Builder setMimeType(@Nullable String mimeType) {
       this.mimeType = mimeType;
+      return this;
+    }
+
+    /**
+     * Sets the optional start position in milliseconds which must be a value larger than or equal
+     * to zero (Default: 0).
+     */
+    public Builder setClipStartPositionMs(long startPositionMs) {
+      Assertions.checkArgument(startPositionMs >= 0);
+      this.clipStartPositionMs = startPositionMs;
+      return this;
+    }
+
+    /**
+     * Sets the optional end position in milliseconds which must be a value larger than or equal to
+     * zero, or {@link C#TIME_END_OF_SOURCE} to end when playback reaches the end of media (Default:
+     * {@link C#TIME_END_OF_SOURCE}).
+     */
+    public Builder setClipEndPositionMs(long endPositionMs) {
+      Assertions.checkArgument(endPositionMs == C.TIME_END_OF_SOURCE || endPositionMs >= 0);
+      this.clipEndPositionMs = endPositionMs;
+      return this;
+    }
+
+    /**
+     * Sets whether the start/end positions should move with the live window for live streams. If
+     * {@code false}, live streams end when playback reaches the end position in live window seen
+     * when the media is first loaded (Default: {@code false}).
+     */
+    public Builder setClipRelativeToLiveWindow(boolean relativeToLiveWindow) {
+      this.clipRelativeToLiveWindow = relativeToLiveWindow;
+      return this;
+    }
+
+    /**
+     * Sets whether the start position and the end position are relative to the default position in
+     * the window (Default: {@code false}).
+     */
+    public Builder setClipRelativeToDefaultPosition(boolean relativeToDefaultPosition) {
+      this.clipRelativeToDefaultPosition = relativeToDefaultPosition;
+      return this;
+    }
+
+    /**
+     * Sets whether the start point is guaranteed to be a key frame. If {@code false}, the playback
+     * transition into the clip may not be seamless (Default: {@code false}).
+     */
+    public Builder setClipStartsAtKeyFrame(boolean startsAtKeyFrame) {
+      this.clipStartsAtKeyFrame = startsAtKeyFrame;
       return this;
     }
 
@@ -303,6 +358,12 @@ public final class MediaItem {
       }
       return new MediaItem(
           Assertions.checkNotNull(mediaId),
+          new ClippingProperties(
+              clipStartPositionMs,
+              clipEndPositionMs,
+              clipRelativeToLiveWindow,
+              clipRelativeToDefaultPosition,
+              clipStartsAtKeyFrame),
           playbackProperties,
           mediaMetadata != null ? mediaMetadata : new MediaMetadata.Builder().build());
     }
@@ -521,6 +582,75 @@ public final class MediaItem {
     }
   }
 
+  /** Optionally clips the media item to a custom start and end position. */
+  public static final class ClippingProperties {
+
+    /** The start position in milliseconds. This is a value larger than or equal to zero. */
+    public final long startPositionMs;
+
+    /**
+     * The end position in milliseconds. This is a value larger than or equal to zero or {@link
+     * C#TIME_END_OF_SOURCE} to play to the end of the stream.
+     */
+    public final long endPositionMs;
+
+    /**
+     * Whether the clipping of active media periods moves with a live window. If {@code false},
+     * playback ends when it reaches {@link #endPositionMs}.
+     */
+    public final boolean relativeToLiveWindow;
+
+    /**
+     * Whether {@link #startPositionMs} and {@link #endPositionMs} are relative to the default
+     * position.
+     */
+    public final boolean relativeToDefaultPosition;
+
+    /** Sets whether the start point is guaranteed to be a key frame. */
+    public final boolean startsAtKeyFrame;
+
+    private ClippingProperties(
+        long startPositionMs,
+        long endPositionMs,
+        boolean relativeToLiveWindow,
+        boolean relativeToDefaultPosition,
+        boolean startsAtKeyFrame) {
+      this.startPositionMs = startPositionMs;
+      this.endPositionMs = endPositionMs;
+      this.relativeToLiveWindow = relativeToLiveWindow;
+      this.relativeToDefaultPosition = relativeToDefaultPosition;
+      this.startsAtKeyFrame = startsAtKeyFrame;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof ClippingProperties)) {
+        return false;
+      }
+
+      ClippingProperties other = (ClippingProperties) obj;
+
+      return startPositionMs == other.startPositionMs
+          && endPositionMs == other.endPositionMs
+          && relativeToLiveWindow == other.relativeToLiveWindow
+          && relativeToDefaultPosition == other.relativeToDefaultPosition
+          && startsAtKeyFrame == other.startsAtKeyFrame;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = Long.valueOf(startPositionMs).hashCode();
+      result = 31 * result + Long.valueOf(endPositionMs).hashCode();
+      result = 31 * result + (relativeToLiveWindow ? 1 : 0);
+      result = 31 * result + (relativeToDefaultPosition ? 1 : 0);
+      result = 31 * result + (startsAtKeyFrame ? 1 : 0);
+      return result;
+    }
+  }
+
   /** Identifies the media item. */
   public final String mediaId;
 
@@ -530,13 +660,18 @@ public final class MediaItem {
   /** The media metadata. */
   public final MediaMetadata mediaMetadata;
 
+  /** The clipping properties. */
+  public final ClippingProperties clippingProperties;
+
   private MediaItem(
       String mediaId,
+      ClippingProperties clippingProperties,
       @Nullable PlaybackProperties playbackProperties,
       MediaMetadata mediaMetadata) {
     this.mediaId = mediaId;
     this.playbackProperties = playbackProperties;
     this.mediaMetadata = mediaMetadata;
+    this.clippingProperties = clippingProperties;
   }
 
   @Override
@@ -551,6 +686,7 @@ public final class MediaItem {
     MediaItem other = (MediaItem) obj;
 
     return Util.areEqual(mediaId, other.mediaId)
+        && clippingProperties.equals(other.clippingProperties)
         && Util.areEqual(playbackProperties, other.playbackProperties)
         && Util.areEqual(mediaMetadata, other.mediaMetadata);
   }
@@ -559,6 +695,7 @@ public final class MediaItem {
   public int hashCode() {
     int result = mediaId.hashCode();
     result = 31 * result + (playbackProperties != null ? playbackProperties.hashCode() : 0);
+    result = 31 * result + clippingProperties.hashCode();
     result = 31 * result + mediaMetadata.hashCode();
     return result;
   }

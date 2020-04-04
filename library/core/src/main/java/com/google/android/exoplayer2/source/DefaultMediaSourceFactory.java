@@ -216,11 +216,11 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
     MediaSource leafMediaSource = mediaSourceFactory.createMediaSource(mediaItem);
 
-    if (mediaItem.playbackProperties.subtitles.isEmpty()) {
-      return leafMediaSource;
+    List<MediaItem.Subtitle> subtitles = mediaItem.playbackProperties.subtitles;
+    if (subtitles.isEmpty()) {
+      return maybeClipMediaSource(mediaItem, leafMediaSource);
     }
 
-    List<MediaItem.Subtitle> subtitles = mediaItem.playbackProperties.subtitles;
     MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
     mediaSources[0] = leafMediaSource;
     SingleSampleMediaSource.Factory singleSampleSourceFactory =
@@ -234,9 +234,10 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
               .setSelectionFlags(subtitle.selectionFlags)
               .build();
       mediaSources[i + 1] =
-          singleSampleSourceFactory.createMediaSource(subtitle.uri, subtitleFormat, C.TIME_UNSET);
+          singleSampleSourceFactory.createMediaSource(
+              subtitle.uri, subtitleFormat, /* durationUs= */ C.TIME_UNSET);
     }
-    return new MergingMediaSource(mediaSources);
+    return maybeClipMediaSource(mediaItem, new MergingMediaSource(mediaSources));
   }
 
   // internal methods
@@ -267,6 +268,21 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       drmCallback.setKeyRequestProperty(entry.getKey(), entry.getValue());
     }
     return drmCallback;
+  }
+
+  private static MediaSource maybeClipMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
+    if (mediaItem.clippingProperties.startPositionMs == 0
+        && mediaItem.clippingProperties.endPositionMs == C.TIME_END_OF_SOURCE
+        && !mediaItem.clippingProperties.relativeToDefaultPosition) {
+      return mediaSource;
+    }
+    return new ClippingMediaSource(
+        mediaSource,
+        C.msToUs(mediaItem.clippingProperties.startPositionMs),
+        C.msToUs(mediaItem.clippingProperties.endPositionMs),
+        /* enableInitialDiscontinuity= */ !mediaItem.clippingProperties.startsAtKeyFrame,
+        /* allowDynamicClippingUpdates= */ mediaItem.clippingProperties.relativeToLiveWindow,
+        mediaItem.clippingProperties.relativeToDefaultPosition);
   }
 
   private static SparseArray<MediaSourceFactory> loadDelegates(

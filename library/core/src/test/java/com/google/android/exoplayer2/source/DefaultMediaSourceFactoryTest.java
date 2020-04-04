@@ -123,6 +123,60 @@ public final class DefaultMediaSourceFactoryTest {
   }
 
   @Test
+  public void createMediaSource_withStartPosition_isClippingMediaSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_MEDIA).setClipStartPositionMs(1000L).build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(ClippingMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_withEndPosition_isClippingMediaSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_MEDIA).setClipEndPositionMs(1000L).build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(ClippingMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_relativeToDefaultPosition_isClippingMediaSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setSourceUri(URI_MEDIA)
+            .setClipRelativeToDefaultPosition(true)
+            .build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(ClippingMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_defaultToEnd_isNotClippingMediaSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setSourceUri(URI_MEDIA)
+            .setClipEndPositionMs(C.TIME_END_OF_SOURCE)
+            .build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(ProgressiveMediaSource.class);
+  }
+
+  @Test
   public void getSupportedTypes_coreModule_onlyOther() {
     int[] supportedTypes =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext())

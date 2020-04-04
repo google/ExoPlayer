@@ -188,6 +188,77 @@ public class MediaItemTest {
   }
 
   @Test
+  public void builderSetStartPositionMs_setsStartPositionMs() {
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_STRING).setClipStartPositionMs(1000L).build();
+
+    assertThat(mediaItem.clippingProperties.startPositionMs).isEqualTo(1000L);
+  }
+
+  @Test
+  public void builderSetStartPositionMs_zeroByDefault() {
+    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_STRING).build();
+
+    assertThat(mediaItem.clippingProperties.startPositionMs).isEqualTo(0);
+  }
+
+  @Test
+  public void builderSetStartPositionMs_negativeValue_throws() {
+    MediaItem.Builder builder = new MediaItem.Builder();
+
+    assertThrows(IllegalArgumentException.class, () -> builder.setClipStartPositionMs(-1));
+  }
+
+  @Test
+  public void builderSetEndPositionMs_setsEndPositionMs() {
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_STRING).setClipEndPositionMs(1000L).build();
+
+    assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(1000L);
+  }
+
+  @Test
+  public void builderSetEndPositionMs_timeEndOfSourceByDefault() {
+    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_STRING).build();
+
+    assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
+  }
+
+  @Test
+  public void builderSetEndPositionMs_timeEndOfSource_setsEndPositionMs() {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setSourceUri(URI_STRING)
+            .setClipEndPositionMs(1000)
+            .setClipEndPositionMs(C.TIME_END_OF_SOURCE)
+            .build();
+
+    assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
+  }
+
+  @Test
+  public void builderSetEndPositionMs_negativeValue_throws() {
+    MediaItem.Builder builder = new MediaItem.Builder();
+
+    assertThrows(IllegalArgumentException.class, () -> builder.setClipEndPositionMs(-1));
+  }
+
+  @Test
+  public void builderSetClippingFlags_setsClippingFlags() {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setSourceUri(URI_STRING)
+            .setClipRelativeToDefaultPosition(true)
+            .setClipRelativeToLiveWindow(true)
+            .setClipStartsAtKeyFrame(true)
+            .build();
+
+    assertThat(mediaItem.clippingProperties.relativeToDefaultPosition).isTrue();
+    assertThat(mediaItem.clippingProperties.relativeToLiveWindow).isTrue();
+    assertThat(mediaItem.clippingProperties.startsAtKeyFrame).isTrue();
+  }
+
+  @Test
   public void builderSetMediaMetadata_setsMetadata() {
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
 
