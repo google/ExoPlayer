@@ -31,7 +31,7 @@ public abstract class SimpleSubtitleDecoder extends
   private final String name;
 
   /** @param name The name of the decoder. */
-  @SuppressWarnings("initialization:method.invocation.invalid")
+  @SuppressWarnings("nullness:method.invocation.invalid")
   protected SimpleSubtitleDecoder(String name) {
     super(new SubtitleInputBuffer[2], new SubtitleOutputBuffer[2]);
     this.name = name;
