@@ -458,19 +458,18 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           }
           break;
         case TYPE_SUBTITLES:
-          String subtitleMime = MimeTypes.TEXT_VTT;   // Assume VTT unless variant declares it
+          sampleMimeType = MimeTypes.TEXT_VTT;
           variant = getVariantWithSubtitleGroup(variants, groupId);
           if (variant != null) {
             @Nullable
-            String codecs[] = Util.splitCodecs(variant.format.codecs);
-            for (String codec : codecs) {
-              if (codec.equalsIgnoreCase("stpp.ttml.im1t")) {   // TOOD move this all to Utils.x
-                subtitleMime = MimeTypes.APPLICATION_TTML;
-              }
+            String codecs = Util.getCodecsOfType(variant.format.codecs, C.TRACK_TYPE_AUDIO);
+            sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+            if (sampleMimeType == null) {
+              sampleMimeType = MimeTypes.TEXT_VTT;
             }
           }
 
-          formatBuilder.setSampleMimeType(subtitleMime).setMetadata(metadata);
+          formatBuilder.setSampleMimeType(sampleMimeType).setMetadata(metadata);
           subtitles.add(new Rendition(uri, formatBuilder.build(), groupId, name));
           break;
         case TYPE_CLOSED_CAPTIONS:
