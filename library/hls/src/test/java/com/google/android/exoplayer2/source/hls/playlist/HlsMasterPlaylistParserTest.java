@@ -364,7 +364,7 @@ public class HlsMasterPlaylistParserTest {
   }
 
   @Test
-  public void testSubtitleCodec() throws IOException {
+  public void parseMasterPlaylist_withMatchedTTMLSubtitleCodec() throws IOException {
     HlsMasterPlaylist playlistWithSubtitles =
             parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_SUBTITLE_CODEC);
     HlsMasterPlaylist.Variant variant = playlistWithSubtitles.variants.get(0);
