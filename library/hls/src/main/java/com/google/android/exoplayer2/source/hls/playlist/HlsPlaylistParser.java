@@ -462,7 +462,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           variant = getVariantWithSubtitleGroup(variants, groupId);
           if (variant != null) {
             @Nullable
-            String codecs = Util.getCodecsOfType(variant.format.codecs, C.TRACK_TYPE_AUDIO);
+            String codecs = Util.getCodecsOfType(variant.format.codecs, C.TRACK_TYPE_TEXT);
             sampleMimeType = MimeTypes.getMediaMimeType(codecs);
             if (sampleMimeType == null) {
               sampleMimeType = MimeTypes.TEXT_VTT;
