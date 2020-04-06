@@ -53,8 +53,6 @@
     *   Split `Format.bitrate` into `Format.averageBitrate` and
         `Format.peakBitrate`
         ([#2863](https://github.com/google/ExoPlayer/issues/2863)).
-    *   Add optional automatic `WifiLock` handling to `SimpleExoPlayer`
-        ([#6914](https://github.com/google/ExoPlayer/issues/6914)).
     *   Add option to `MergingMediaSource` to adjust the time offsets between
         the merged sources
         ([#6103](https://github.com/google/ExoPlayer/issues/6103)).
@@ -112,8 +110,13 @@
     manipulation API.
 *   Demo app: Retain previous position in list of samples.
 
-### 2.11.4 (2020-04-01) ###
+### 2.11.4 (2020-04-08) ###
 
+* Add `SimpleExoPlayer.setWakeMode` to allow automatic `WifiLock` and `WakeLock`
+  handling ([#6914](https://github.com/google/ExoPlayer/issues/6914)). To use
+  this feature, you must add the
+  [WAKE_LOCK](https://developer.android.com/reference/android/Manifest.permission.html#WAKE_LOCK)
+  permission to your application's manifest file.
 * Text:
   * Catch and log exceptions in `TextRenderer` rather than re-throwing. This
     allows playback to continue even if subtitle decoding fails
