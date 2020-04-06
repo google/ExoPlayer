@@ -488,7 +488,7 @@ public class SampleQueue implements TrackOutput {
   }
 
   @Override
-  public final void sampleMetadata(
+  public void sampleMetadata(
       long timeUs,
       @C.BufferFlags int flags,
       int size,

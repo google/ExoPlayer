@@ -129,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ArrayList<HlsSampleStream> hlsSampleStreams;
   private final Map<String, DrmInitData> overridingDrmInitData;
 
-  private FormatAdjustingSampleQueue[] sampleQueues;
+  private HlsSampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
   private Set<Integer> sampleQueueMappingDoneByType;
   private SparseIntArray sampleQueueIndicesByType;
@@ -164,7 +164,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean tracksEnded;
   private long sampleOffsetUs;
   @Nullable private DrmInitData drmInitData;
-  private int sourceId;
+  @Nullable private HlsMediaChunk sourceChunk;
 
   /**
    * @param trackType The type of the track. One of the {@link C} {@code TRACK_TYPE_*} constants.
@@ -209,7 +209,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleQueueTrackIds = new int[0];
     sampleQueueMappingDoneByType = new HashSet<>(MAPPABLE_TYPES.size());
     sampleQueueIndicesByType = new SparseIntArray(MAPPABLE_TYPES.size());
-    sampleQueues = new FormatAdjustingSampleQueue[0];
+    sampleQueues = new HlsSampleQueue[0];
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
     mediaChunks = new ArrayList<>();
@@ -817,19 +817,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /**
    * Performs initialization for a media chunk that's about to start loading.
    *
-   * @param mediaChunk The media chunk that's about to start loading.
+   * @param chunk The media chunk that's about to start loading.
    */
-  private void initMediaChunkLoad(HlsMediaChunk mediaChunk) {
-    sourceId = mediaChunk.uid;
-    upstreamTrackFormat = mediaChunk.trackFormat;
+  private void initMediaChunkLoad(HlsMediaChunk chunk) {
+    sourceChunk = chunk;
+    upstreamTrackFormat = chunk.trackFormat;
     pendingResetPositionUs = C.TIME_UNSET;
-    mediaChunks.add(mediaChunk);
+    mediaChunks.add(chunk);
 
-    mediaChunk.init(this);
-    for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.sourceId(sourceId);
+    chunk.init(this);
+    for (HlsSampleQueue sampleQueue : sampleQueues) {
+      sampleQueue.setSourceChunk(chunk);
     }
-    if (mediaChunk.shouldSpliceIn) {
+    if (chunk.shouldSpliceIn) {
       for (SampleQueue sampleQueue : sampleQueues) {
         sampleQueue.splice();
       }
@@ -906,18 +906,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int trackCount = sampleQueues.length;
 
     boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
-    FormatAdjustingSampleQueue trackOutput =
-        new FormatAdjustingSampleQueue(
-            allocator, drmSessionManager, eventDispatcher, overridingDrmInitData);
+    HlsSampleQueue sampleQueue =
+        new HlsSampleQueue(allocator, drmSessionManager, eventDispatcher, overridingDrmInitData);
     if (isAudioVideo) {
-      trackOutput.setDrmInitData(drmInitData);
+      sampleQueue.setDrmInitData(drmInitData);
     }
-    trackOutput.setSampleOffsetUs(sampleOffsetUs);
-    trackOutput.sourceId(sourceId);
-    trackOutput.setUpstreamFormatChangeListener(this);
+    sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+    if (sourceChunk != null) {
+      sampleQueue.setSourceChunk(sourceChunk);
+    }
+    sampleQueue.setUpstreamFormatChangeListener(this);
     sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
     sampleQueueTrackIds[trackCount] = id;
-    sampleQueues = Util.nullSafeArrayAppend(sampleQueues, trackOutput);
+    sampleQueues = Util.nullSafeArrayAppend(sampleQueues, sampleQueue);
     sampleQueueIsAudioVideoFlags = Arrays.copyOf(sampleQueueIsAudioVideoFlags, trackCount + 1);
     sampleQueueIsAudioVideoFlags[trackCount] = isAudioVideo;
     haveAudioVideoSampleQueues |= sampleQueueIsAudioVideoFlags[trackCount];
@@ -928,7 +929,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       primarySampleQueueType = type;
     }
     sampleQueuesEnabledStates = Arrays.copyOf(sampleQueuesEnabledStates, trackCount + 1);
-    return trackOutput;
+    return sampleQueue;
   }
 
   @Override
@@ -1341,18 +1342,59 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return new DummyTrackOutput();
   }
 
-  private static final class FormatAdjustingSampleQueue extends SampleQueue {
+  /**
+   * A {@link SampleQueue} that adds HLS specific functionality:
+   *
+   * <ul>
+   *   <li>Detection of spurious discontinuities, by checking sample timestamps against the range
+   *       expected for the currently loading chunk.
+   *   <li>Stripping private timestamp metadata from {@link Format Formats} to avoid an excessive
+   *       number of format switches in the queue.
+   *   <li>Overriding of {@link Format#drmInitData}.
+   * </ul>
+   */
+  private static final class HlsSampleQueue extends SampleQueue {
+
+    /**
+     * The fraction of the chunk duration from which timestamps of samples loaded from within a
+     * chunk are allowed to deviate from the expected range.
+     */
+    private static final double MAX_TIMESTAMP_DEVIATION_FRACTION = 0.5;
+
+    /**
+     * A minimum tolerance for sample timestamps in microseconds. Timestamps of samples loaded from
+     * within a chunk are always allowed to deviate up to this amount from the expected range.
+     */
+    private static final long MIN_TIMESTAMP_DEVIATION_TOLERANCE_US = 4_000_000;
+
+    @Nullable private HlsMediaChunk sourceChunk;
+    private long sourceChunkLastSampleTimeUs;
+    private long minAllowedSampleTimeUs;
+    private long maxAllowedSampleTimeUs;
 
     private final Map<String, DrmInitData> overridingDrmInitData;
     @Nullable private DrmInitData drmInitData;
 
-    public FormatAdjustingSampleQueue(
+    private HlsSampleQueue(
         Allocator allocator,
         DrmSessionManager drmSessionManager,
         MediaSourceEventDispatcher eventDispatcher,
         Map<String, DrmInitData> overridingDrmInitData) {
       super(allocator, drmSessionManager, eventDispatcher);
       this.overridingDrmInitData = overridingDrmInitData;
+    }
+
+    public void setSourceChunk(HlsMediaChunk chunk) {
+      sourceChunk = chunk;
+      sourceChunkLastSampleTimeUs = C.TIME_UNSET;
+      sourceId(chunk.uid);
+
+      long allowedDeviationUs =
+          Math.max(
+              (long) ((chunk.endTimeUs - chunk.startTimeUs) * MAX_TIMESTAMP_DEVIATION_FRACTION),
+              MIN_TIMESTAMP_DEVIATION_TOLERANCE_US);
+      minAllowedSampleTimeUs = chunk.startTimeUs - allowedDeviationUs;
+      maxAllowedSampleTimeUs = chunk.endTimeUs + allowedDeviationUs;
     }
 
     public void setDrmInitData(@Nullable DrmInitData drmInitData) {
@@ -1415,13 +1457,31 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
       return new Metadata(newMetadataEntries);
     }
+
+    @Override
+    public void sampleMetadata(
+        long timeUs,
+        @C.BufferFlags int flags,
+        int size,
+        int offset,
+        @Nullable CryptoData cryptoData) {
+      // TODO: Uncomment this to reject samples with unexpected timestamps. See
+      // https://github.com/google/ExoPlayer/issues/7030.
+      // if (timeUs < minAllowedSampleTimeUs || timeUs > maxAllowedSampleTimeUs) {
+      //   Util.sneakyThrow(
+      //       new UnexpectedSampleTimestampException(
+      //           sourceChunk, sourceChunkLastSampleTimeUs, timeUs));
+      // }
+      sourceChunkLastSampleTimeUs = timeUs;
+      super.sampleMetadata(timeUs, flags, size, offset, cryptoData);
+    }
   }
 
   private static class EmsgUnwrappingTrackOutput implements TrackOutput {
 
     private static final String TAG = "EmsgUnwrappingTrackOutput";
 
-    // TODO(ibaker): Create a Formats util class with common constants like this.
+    // TODO: Create a Formats util class with common constants like this.
     private static final Format ID3_FORMAT =
         new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_ID3).build();
     private static final Format EMSG_FORMAT =
