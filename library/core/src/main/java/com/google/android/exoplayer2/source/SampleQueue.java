@@ -539,7 +539,7 @@ public class SampleQueue implements TrackOutput {
       boolean loadingFinished,
       long decodeOnlyUntilUs,
       SampleExtrasHolder extrasHolder) {
-
+    buffer.waitingForKeys = false;
     // This is a temporary fix for https://github.com/google/ExoPlayer/issues/6155.
     // TODO: Remove it and replace it with a fix that discards samples when writing to the queue.
     boolean hasNextSample;
@@ -573,6 +573,7 @@ public class SampleQueue implements TrackOutput {
     }
 
     if (!mayReadSample(relativeReadIndex)) {
+      buffer.waitingForKeys = true;
       return C.RESULT_NOTHING_READ;
     }
 
