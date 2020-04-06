@@ -550,23 +550,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * @deprecated Use {@link #setAllowVideoMixedMimeTypeAdaptiveness(boolean)} and {@link
-     *     #setAllowAudioMixedMimeTypeAdaptiveness(boolean)}.
-     */
-    @Deprecated
-    public ParametersBuilder setAllowMixedMimeAdaptiveness(boolean allowMixedMimeAdaptiveness) {
-      setAllowAudioMixedMimeTypeAdaptiveness(allowMixedMimeAdaptiveness);
-      setAllowVideoMixedMimeTypeAdaptiveness(allowMixedMimeAdaptiveness);
-      return this;
-    }
-
-    /** @deprecated Use {@link #setAllowVideoNonSeamlessAdaptiveness(boolean)} */
-    @Deprecated
-    public ParametersBuilder setAllowNonSeamlessAdaptiveness(boolean allowNonSeamlessAdaptiveness) {
-      return setAllowVideoNonSeamlessAdaptiveness(allowNonSeamlessAdaptiveness);
-    }
-
-    /**
      * Sets whether to exceed renderer capabilities when no selection can be made otherwise.
      *
      * <p>This parameter applies when all of the tracks available for a renderer exceed the
@@ -819,19 +802,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     @SuppressWarnings("deprecation")
     public static final Parameters DEFAULT_WITHOUT_CONTEXT = new ParametersBuilder().build();
 
-    /**
-     * @deprecated This instance does not have {@link Context} constraints configured. Use {@link
-     *     #getDefaults(Context)} instead.
-     */
-    @Deprecated public static final Parameters DEFAULT_WITHOUT_VIEWPORT = DEFAULT_WITHOUT_CONTEXT;
-
-    /**
-     * @deprecated This instance does not have {@link Context} constraints configured. Use {@link
-     *     #getDefaults(Context)} instead.
-     */
-    @Deprecated
-    public static final Parameters DEFAULT = DEFAULT_WITHOUT_CONTEXT;
-
     /** Returns an instance configured with default values. */
     public static Parameters getDefaults(Context context) {
       return new ParametersBuilder(context).build();
@@ -947,13 +917,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final boolean forceHighestSupportedBitrate;
     /**
-     * @deprecated Use {@link #allowVideoMixedMimeTypeAdaptiveness} and {@link
-     *     #allowAudioMixedMimeTypeAdaptiveness}.
-     */
-    @Deprecated public final boolean allowMixedMimeAdaptiveness;
-    /** @deprecated Use {@link #allowVideoNonSeamlessAdaptiveness}. */
-    @Deprecated public final boolean allowNonSeamlessAdaptiveness;
-    /**
      * Whether to exceed renderer capabilities when no selection can be made otherwise.
      *
      * <p>This parameter applies when all of the tracks available for a renderer exceed the
@@ -1037,9 +1000,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.forceHighestSupportedBitrate = forceHighestSupportedBitrate;
       this.exceedRendererCapabilitiesIfNecessary = exceedRendererCapabilitiesIfNecessary;
       this.tunnelingAudioSessionId = tunnelingAudioSessionId;
-      // Deprecated fields.
-      this.allowMixedMimeAdaptiveness = allowVideoMixedMimeTypeAdaptiveness;
-      this.allowNonSeamlessAdaptiveness = allowVideoNonSeamlessAdaptiveness;
       // Overrides
       this.selectionOverrides = selectionOverrides;
       this.rendererDisabledFlags = rendererDisabledFlags;
@@ -1074,9 +1034,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       // Overrides
       this.selectionOverrides = readSelectionOverrides(in);
       this.rendererDisabledFlags = Util.castNonNull(in.readSparseBooleanArray());
-      // Deprecated fields.
-      this.allowMixedMimeAdaptiveness = allowVideoMixedMimeTypeAdaptiveness;
-      this.allowNonSeamlessAdaptiveness = allowVideoNonSeamlessAdaptiveness;
     }
 
     /**
@@ -1535,65 +1492,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   /** Returns a new {@link ParametersBuilder} initialized with the current selection parameters. */
   public ParametersBuilder buildUponParameters() {
     return getParameters().buildUpon();
-  }
-
-  /** @deprecated Use {@link ParametersBuilder#setRendererDisabled(int, boolean)}. */
-  @Deprecated
-  public final void setRendererDisabled(int rendererIndex, boolean disabled) {
-    setParameters(buildUponParameters().setRendererDisabled(rendererIndex, disabled));
-  }
-
-  /** @deprecated Use {@link Parameters#getRendererDisabled(int)}. */
-  @Deprecated
-  public final boolean getRendererDisabled(int rendererIndex) {
-    return getParameters().getRendererDisabled(rendererIndex);
-  }
-
-  /**
-   * @deprecated Use {@link ParametersBuilder#setSelectionOverride(int, TrackGroupArray,
-   *     SelectionOverride)}.
-   */
-  @Deprecated
-  public final void setSelectionOverride(
-      int rendererIndex, TrackGroupArray groups, @Nullable SelectionOverride override) {
-    setParameters(buildUponParameters().setSelectionOverride(rendererIndex, groups, override));
-  }
-
-  /** @deprecated Use {@link Parameters#hasSelectionOverride(int, TrackGroupArray)}. */
-  @Deprecated
-  public final boolean hasSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-    return getParameters().hasSelectionOverride(rendererIndex, groups);
-  }
-
-  /** @deprecated Use {@link Parameters#getSelectionOverride(int, TrackGroupArray)}. */
-  @Deprecated
-  @Nullable
-  public final SelectionOverride getSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-    return getParameters().getSelectionOverride(rendererIndex, groups);
-  }
-
-  /** @deprecated Use {@link ParametersBuilder#clearSelectionOverride(int, TrackGroupArray)}. */
-  @Deprecated
-  public final void clearSelectionOverride(int rendererIndex, TrackGroupArray groups) {
-    setParameters(buildUponParameters().clearSelectionOverride(rendererIndex, groups));
-  }
-
-  /** @deprecated Use {@link ParametersBuilder#clearSelectionOverrides(int)}. */
-  @Deprecated
-  public final void clearSelectionOverrides(int rendererIndex) {
-    setParameters(buildUponParameters().clearSelectionOverrides(rendererIndex));
-  }
-
-  /** @deprecated Use {@link ParametersBuilder#clearSelectionOverrides()}. */
-  @Deprecated
-  public final void clearSelectionOverrides() {
-    setParameters(buildUponParameters().clearSelectionOverrides());
-  }
-
-  /** @deprecated Use {@link ParametersBuilder#setTunnelingAudioSessionId(int)}. */
-  @Deprecated
-  public void setTunnelingAudioSessionId(int tunnelingAudioSessionId) {
-    setParameters(buildUponParameters().setTunnelingAudioSessionId(tunnelingAudioSessionId));
   }
 
   /**
