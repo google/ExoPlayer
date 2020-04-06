@@ -64,6 +64,7 @@
     *   Add media item based playlist API to Player.
     *   Update `CachedContentIndex` to use `SecureRandom` for generating the
         initialization vector used to encrypt the cache contents.
+    *   Remove deprecated members in `DefaultTrackSelector`.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
