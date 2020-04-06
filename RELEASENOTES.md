@@ -14,6 +14,9 @@
   * Allow missing hours and milliseconds in SubRip (.srt) timecodes
     ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
 * Audio:
+  * Prevent case where another app spuriously holding transient audio focus
+    could prevent ExoPlayer from acquiring audio focus for an indefinite period
+    of time ([#7182](https://github.com/google/ExoPlayer/issues/7182).
   * Workaround issue that could cause slower than realtime playback of AAC on
     Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671).
   * Enable playback speed adjustment and silence skipping for floating point PCM

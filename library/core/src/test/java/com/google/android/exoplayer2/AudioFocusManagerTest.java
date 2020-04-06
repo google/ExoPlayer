@@ -168,7 +168,7 @@ public class AudioFocusManagerTest {
   }
 
   @Test
-  public void updateAudioFocusFromIdleToBuffering_setsPlayerCommandPlayWhenReady() {
+  public void updateAudioFocus_idleToBuffering_setsPlayerCommandPlayWhenReady() {
     // Ensure that when playWhenReady is true while the player is IDLE, audio focus is only
     // requested after calling prepare (= changing the state to BUFFERING).
     AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
@@ -188,17 +188,18 @@ public class AudioFocusManagerTest {
   }
 
   @Test
-  public void updateAudioFocusFromPausedToPlaying_setsPlayerCommandPlayWhenReady() {
-    // Ensure that audio focus is not requested until playWhenReady is true.
+  public void updateAudioFocus_pausedToPlaying_setsPlayerCommandPlayWhenReady() {
     AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
     audioFocusManager.setAudioAttributes(media);
 
+    // Audio focus should not be requested yet, because playWhenReady=false.
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ false, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_DO_NOT_PLAY);
     assertThat(Shadows.shadowOf(audioManager).getLastAudioFocusRequest()).isNull();
 
+    // Audio focus should be requested now that playWhenReady=true.
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     ShadowAudioManager.AudioFocusRequest request =
@@ -206,9 +207,28 @@ public class AudioFocusManagerTest {
     assertThat(getAudioFocusGainFromRequest(request)).isEqualTo(AudioManager.AUDIOFOCUS_GAIN);
   }
 
+  // See https://github.com/google/ExoPlayer/issues/7182 for context.
+  @Test
+  public void updateAudioFocus_pausedToPlaying_withTransientLoss_setsPlayerCommandPlayWhenReady() {
+    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+    Shadows.shadowOf(audioManager)
+        .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+    audioFocusManager.setAudioAttributes(media);
+
+    assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+
+    // Simulate transient focus loss.
+    audioFocusManager.getFocusListener().onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
+
+    // Focus should be re-requested, rather than staying in a state of transient focus loss.
+    assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+  }
+
   @Test
   @Config(maxSdk = 25)
-  public void updateAudioFocusFromReadyToIdle_abandonsAudioFocus() {
+  public void updateAudioFocus_readyToIdle_abandonsAudioFocus() {
     // Ensure that stopping the player (=changing state to idle) abandons audio focus.
     AudioAttributes media =
         new AudioAttributes.Builder()
@@ -232,7 +252,7 @@ public class AudioFocusManagerTest {
 
   @Test
   @Config(minSdk = 26, maxSdk = TARGET_SDK)
-  public void updateAudioFocusFromReadyToIdle_abandonsAudioFocus_v26() {
+  public void updateAudioFocus_readyToIdle_abandonsAudioFocus_v26() {
     // Ensure that stopping the player (=changing state to idle) abandons audio focus.
     AudioAttributes media =
         new AudioAttributes.Builder()
@@ -257,7 +277,7 @@ public class AudioFocusManagerTest {
 
   @Test
   @Config(maxSdk = 25)
-  public void updateAudioFocusFromReadyToIdle_withoutHandlingAudioFocus_isNoOp() {
+  public void updateAudioFocus_readyToIdle_withoutHandlingAudioFocus_isNoOp() {
     // Ensure that changing state to idle is a no-op if audio focus isn't handled.
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
@@ -277,7 +297,7 @@ public class AudioFocusManagerTest {
 
   @Test
   @Config(minSdk = 26, maxSdk = TARGET_SDK)
-  public void updateAudioFocusFromReadyToIdle_withoutHandlingAudioFocus_isNoOp_v26() {
+  public void updateAudioFocus_readyToIdle_withoutHandlingAudioFocus_isNoOp_v26() {
     // Ensure that changing state to idle is a no-op if audio focus isn't handled.
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);

@@ -158,10 +158,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   @PlayerCommand
   public int updateAudioFocus(boolean playWhenReady, @Player.State int playbackState) {
-    if (!shouldHandleAudioFocus(playbackState)) {
-      if (audioFocusState != AUDIO_FOCUS_STATE_NO_FOCUS) {
-        abandonAudioFocus();
-      }
+    if (shouldAbandonAudioFocus(playbackState)) {
+      abandonAudioFocus();
       return playWhenReady ? PLAYER_COMMAND_PLAY_WHEN_READY : PLAYER_COMMAND_DO_NOT_PLAY;
     }
     return playWhenReady ? requestAudioFocus() : PLAYER_COMMAND_DO_NOT_PLAY;
@@ -174,33 +172,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return focusListener;
   }
 
-  private boolean shouldHandleAudioFocus(@Player.State int playbackState) {
-    return playbackState != Player.STATE_IDLE && focusGain == C.AUDIOFOCUS_GAIN;
+  private boolean shouldAbandonAudioFocus(@Player.State int playbackState) {
+    return playbackState == Player.STATE_IDLE || focusGain != C.AUDIOFOCUS_GAIN;
   }
 
   @PlayerCommand
   private int requestAudioFocus() {
-    int focusRequestResult;
-
-    if (audioFocusState == AUDIO_FOCUS_STATE_NO_FOCUS) {
-      if (Util.SDK_INT >= 26) {
-        focusRequestResult = requestAudioFocusV26();
-      } else {
-        focusRequestResult = requestAudioFocusDefault();
-      }
-      audioFocusState =
-          focusRequestResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-              ? AUDIO_FOCUS_STATE_HAVE_FOCUS
-              : AUDIO_FOCUS_STATE_NO_FOCUS;
+    if (audioFocusState == AUDIO_FOCUS_STATE_HAVE_FOCUS) {
+      return PLAYER_COMMAND_PLAY_WHEN_READY;
     }
-
-    if (audioFocusState == AUDIO_FOCUS_STATE_NO_FOCUS) {
+    int requestResult = Util.SDK_INT >= 26 ? requestAudioFocusV26() : requestAudioFocusDefault();
+    if (requestResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+      audioFocusState = AUDIO_FOCUS_STATE_HAVE_FOCUS;
+      return PLAYER_COMMAND_PLAY_WHEN_READY;
+    } else {
+      audioFocusState = AUDIO_FOCUS_STATE_NO_FOCUS;
       return PLAYER_COMMAND_DO_NOT_PLAY;
     }
-
-    return audioFocusState == AUDIO_FOCUS_STATE_LOSS_TRANSIENT
-        ? PLAYER_COMMAND_WAIT_FOR_CALLBACK
-        : PLAYER_COMMAND_PLAY_WHEN_READY;
   }
 
   private void abandonAudioFocus() {
@@ -388,8 +376,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         (audioFocusState == AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK)
             ? AudioFocusManager.VOLUME_MULTIPLIER_DUCK
             : AudioFocusManager.VOLUME_MULTIPLIER_DEFAULT;
-    if (AudioFocusManager.this.volumeMultiplier != volumeMultiplier) {
-      AudioFocusManager.this.volumeMultiplier = volumeMultiplier;
+    if (this.volumeMultiplier != volumeMultiplier) {
+      this.volumeMultiplier = volumeMultiplier;
       playerControl.setVolumeMultiplier(volumeMultiplier);
     }
   }
