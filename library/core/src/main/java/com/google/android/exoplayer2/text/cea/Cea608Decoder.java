@@ -1041,7 +1041,8 @@ public final class Cea608Decoder extends CeaDecoder {
         if (timeElapsed >= VALID_DATA_CHANNEL_TIMEOUT_MS) {
           // Force erase captions. There might be stale captions stuck on screen.
           // (CEA-608 Annex C.9)
-          flush();
+          cues = Collections.emptyList();
+          ccTimeOutCounter = C.TIME_UNSET;
         }
       }
   }
