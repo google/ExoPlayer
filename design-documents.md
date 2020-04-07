@@ -9,6 +9,7 @@ implemented.
 
 ### Design documents in RFC status ###
 
+* [Sniffing order optimization][] (April 2020)
 * [Frame-accurate pausing][] (January 2020)
 * [Index seeking in MP3 streams][] (January 2020)
 * [Low-latency live playback][] (September 2019)
@@ -16,6 +17,7 @@ implemented.
 * [Playlist API][] (July 2019)
 * [Bandwidth estimation analysis][] (July 2019)
 
+[Sniffing order optimization]: https://docs.google.com/document/d/1w2mKaWMxfz2Ei8-LdxqbPs1VLe_oudB-eryXXw9OvQQ
 [Frame-accurate pausing]: https://docs.google.com/document/d/1xXGvIMAYDWN4BGUNqAplNN-T7rjrW_1EAVXpyCcAqUI
 [Index seeking in MP3 streams]: https://docs.google.com/document/d/1ZtQsCFvi_LiwFqhHWy20dJ1XwHLOXE4BJ5SzXWJ9a9E
 [Low-latency live playback]: https://docs.google.com/document/d/1z9qwuP7ff9sf3DZboXnhEF9hzW3Ng5rfJVqlGn8N38k
