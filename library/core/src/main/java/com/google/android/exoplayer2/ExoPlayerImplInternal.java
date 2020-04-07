@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     implements Handler.Callback,
         MediaPeriod.Callback,
         TrackSelector.InvalidationListener,
-        Playlist.PlaylistInfoRefreshListener,
+        MediaSourceList.MediaSourceListInfoRefreshListener,
         PlaybackSpeedListener,
         PlayerMessage.Sender {
 
@@ -112,7 +112,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private final ArrayList<PendingMessageInfo> pendingMessages;
   private final Clock clock;
   private final MediaPeriodQueue queue;
-  private final Playlist playlist;
+  private final MediaSourceList mediaSourceList;
 
   @SuppressWarnings("unused")
   private SeekParameters seekParameters;
@@ -182,9 +182,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
     internalPlaybackThread.start();
     handler = clock.createHandler(internalPlaybackThread.getLooper(), this);
     deliverPendingMessageAtStartPositionRequired = true;
-    playlist = new Playlist(this);
+    mediaSourceList = new MediaSourceList(this);
     if (analyticsCollector != null) {
-      playlist.setAnalyticsCollector(eventHandler, analyticsCollector);
+      mediaSourceList.setAnalyticsCollector(eventHandler, analyticsCollector);
     }
   }
 
@@ -240,25 +240,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   public void setMediaSources(
-      List<Playlist.MediaSourceHolder> mediaSources,
+      List<MediaSourceList.MediaSourceHolder> mediaSources,
       int windowIndex,
       long positionUs,
       ShuffleOrder shuffleOrder) {
     handler
         .obtainMessage(
             MSG_SET_MEDIA_SOURCES,
-            new PlaylistUpdateMessage(mediaSources, shuffleOrder, windowIndex, positionUs))
+            new MediaSourceListUpdateMessage(mediaSources, shuffleOrder, windowIndex, positionUs))
         .sendToTarget();
   }
 
   public void addMediaSources(
-      int index, List<Playlist.MediaSourceHolder> mediaSources, ShuffleOrder shuffleOrder) {
+      int index, List<MediaSourceList.MediaSourceHolder> mediaSources, ShuffleOrder shuffleOrder) {
     handler
         .obtainMessage(
             MSG_ADD_MEDIA_SOURCES,
             index,
             /* ignored */ 0,
-            new PlaylistUpdateMessage(
+            new MediaSourceListUpdateMessage(
                 mediaSources,
                 shuffleOrder,
                 /* windowIndex= */ C.INDEX_UNSET,
@@ -438,10 +438,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
           sendMessageToTargetThread((PlayerMessage) msg.obj);
           break;
         case MSG_SET_MEDIA_SOURCES:
-          setMediaItemsInternal((PlaylistUpdateMessage) msg.obj);
+          setMediaItemsInternal((MediaSourceListUpdateMessage) msg.obj);
           break;
         case MSG_ADD_MEDIA_SOURCES:
-          addMediaItemsInternal((PlaylistUpdateMessage) msg.obj, msg.arg1);
+          addMediaItemsInternal((MediaSourceListUpdateMessage) msg.obj, msg.arg1);
           break;
         case MSG_MOVE_MEDIA_SOURCES:
           moveMediaItemsInternal((MoveMediaItemsMessage) msg.obj);
@@ -453,7 +453,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           setShuffleOrderInternal((ShuffleOrder) msg.obj);
           break;
         case MSG_PLAYLIST_UPDATE_REQUESTED:
-          playlistUpdateRequestedInternal();
+          mediaSourceListUpdateRequestedInternal();
           break;
         case MSG_SET_PAUSE_AT_END_OF_WINDOW:
           setPauseAtEndOfWindowInternal(msg.arg1 != 0);
@@ -577,70 +577,72 @@ import java.util.concurrent.atomic.AtomicBoolean;
     resetInternal(
         /* resetRenderers= */ false,
         /* resetPosition= */ false,
-        /* releasePlaylist= */ false,
-        /* clearPlaylist= */ false,
+        /* releaseMediaSourceList= */ false,
+        /* clearMediaSourceList= */ false,
         /* resetError= */ true);
     loadControl.onPrepared();
     setState(playbackInfo.timeline.isEmpty() ? Player.STATE_ENDED : Player.STATE_BUFFERING);
-    playlist.prepare(bandwidthMeter.getTransferListener());
+    mediaSourceList.prepare(bandwidthMeter.getTransferListener());
     handler.sendEmptyMessage(MSG_DO_SOME_WORK);
   }
 
-  private void setMediaItemsInternal(PlaylistUpdateMessage playlistUpdateMessage)
+  private void setMediaItemsInternal(MediaSourceListUpdateMessage mediaSourceListUpdateMessage)
       throws ExoPlaybackException {
     playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
-    if (playlistUpdateMessage.windowIndex != C.INDEX_UNSET) {
+    if (mediaSourceListUpdateMessage.windowIndex != C.INDEX_UNSET) {
       pendingInitialSeekPosition =
           new SeekPosition(
-              new Playlist.PlaylistTimeline(
-                  playlistUpdateMessage.mediaSourceHolders, playlistUpdateMessage.shuffleOrder),
-              playlistUpdateMessage.windowIndex,
-              playlistUpdateMessage.positionUs);
+              new MediaSourceList.PlaylistTimeline(
+                  mediaSourceListUpdateMessage.mediaSourceHolders,
+                  mediaSourceListUpdateMessage.shuffleOrder),
+              mediaSourceListUpdateMessage.windowIndex,
+              mediaSourceListUpdateMessage.positionUs);
     }
     Timeline timeline =
-        playlist.setMediaSources(
-            playlistUpdateMessage.mediaSourceHolders, playlistUpdateMessage.shuffleOrder);
-    handlePlaylistInfoRefreshed(timeline);
+        mediaSourceList.setMediaSources(
+            mediaSourceListUpdateMessage.mediaSourceHolders,
+            mediaSourceListUpdateMessage.shuffleOrder);
+    handleMediaSourceListInfoRefreshed(timeline);
   }
 
-  private void addMediaItemsInternal(PlaylistUpdateMessage addMessage, int insertionIndex)
+  private void addMediaItemsInternal(MediaSourceListUpdateMessage addMessage, int insertionIndex)
       throws ExoPlaybackException {
     playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
     Timeline timeline =
-        playlist.addMediaSources(
-            insertionIndex == C.INDEX_UNSET ? playlist.getSize() : insertionIndex,
+        mediaSourceList.addMediaSources(
+            insertionIndex == C.INDEX_UNSET ? mediaSourceList.getSize() : insertionIndex,
             addMessage.mediaSourceHolders,
             addMessage.shuffleOrder);
-    handlePlaylistInfoRefreshed(timeline);
+    handleMediaSourceListInfoRefreshed(timeline);
   }
 
   private void moveMediaItemsInternal(MoveMediaItemsMessage moveMediaItemsMessage)
       throws ExoPlaybackException {
     playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
     Timeline timeline =
-        playlist.moveMediaSourceRange(
+        mediaSourceList.moveMediaSourceRange(
             moveMediaItemsMessage.fromIndex,
             moveMediaItemsMessage.toIndex,
             moveMediaItemsMessage.newFromIndex,
             moveMediaItemsMessage.shuffleOrder);
-    handlePlaylistInfoRefreshed(timeline);
+    handleMediaSourceListInfoRefreshed(timeline);
   }
 
   private void removeMediaItemsInternal(int fromIndex, int toIndex, ShuffleOrder shuffleOrder)
       throws ExoPlaybackException {
     playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
-    Timeline timeline = playlist.removeMediaSourceRange(fromIndex, toIndex, shuffleOrder);
-    handlePlaylistInfoRefreshed(timeline);
+    Timeline timeline = mediaSourceList.removeMediaSourceRange(fromIndex, toIndex, shuffleOrder);
+    handleMediaSourceListInfoRefreshed(timeline);
   }
 
-  private void playlistUpdateRequestedInternal() throws ExoPlaybackException {
-    handlePlaylistInfoRefreshed(playlist.createTimeline());
+  private void mediaSourceListUpdateRequestedInternal() throws ExoPlaybackException {
+    handleMediaSourceListInfoRefreshed(mediaSourceList.createTimeline());
   }
 
   private void setShuffleOrderInternal(ShuffleOrder shuffleOrder) throws ExoPlaybackException {
     playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
-    Timeline timeline = playlist.setShuffleOrder(shuffleOrder);
-    handlePlaylistInfoRefreshed(timeline);
+    Timeline timeline = mediaSourceList.setShuffleOrder(shuffleOrder);
+    handleMediaSourceListInfoRefreshed(timeline);
   }
 
   private void setPlayWhenReadyInternal(
@@ -955,8 +957,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         resetInternal(
             /* resetRenderers= */ false,
             /* resetPosition= */ true,
-            /* releasePlaylist= */ false,
-            /* clearPlaylist= */ false,
+            /* releaseMediaSourceList= */ false,
+            /* clearMediaSourceList= */ false,
             /* resetError= */ true);
       } else {
         // Execute the seek in the current media periods.
@@ -1128,8 +1130,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     resetInternal(
         /* resetRenderers= */ forceResetRenderers || !foregroundMode,
         /* resetPosition= */ resetPositionAndState,
-        /* releasePlaylist= */ true,
-        /* clearPlaylist= */ resetPositionAndState,
+        /* releaseMediaSourceList= */ true,
+        /* clearMediaSourceList= */ resetPositionAndState,
         /* resetError= */ resetPositionAndState);
     playbackInfoUpdate.incrementPendingOperationAcks(acknowledgeStop ? 1 : 0);
     loadControl.onStopped();
@@ -1140,8 +1142,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     resetInternal(
         /* resetRenderers= */ true,
         /* resetPosition= */ true,
-        /* releasePlaylist= */ true,
-        /* clearPlaylist= */ true,
+        /* releaseMediaSourceList= */ true,
+        /* clearMediaSourceList= */ true,
         /* resetError= */ false);
     loadControl.onReleased();
     setState(Player.STATE_IDLE);
@@ -1155,8 +1157,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void resetInternal(
       boolean resetRenderers,
       boolean resetPosition,
-      boolean releasePlaylist,
-      boolean clearPlaylist,
+      boolean releaseMediaSourceList,
+      boolean clearMediaSourceList,
       boolean resetError) {
     handler.removeMessages(MSG_DO_SOME_WORK);
     rebuffering = false;
@@ -1183,8 +1185,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     enabledRendererCount = 0;
 
     Timeline timeline = playbackInfo.timeline;
-    if (clearPlaylist) {
-      timeline = playlist.clear(/* shuffleOrder= */ null);
+    if (clearMediaSourceList) {
+      timeline = mediaSourceList.clear(/* shuffleOrder= */ null);
       for (PendingMessageInfo pendingMessageInfo : pendingMessages) {
         pendingMessageInfo.message.markAsProcessed(/* isDelivered= */ false);
       }
@@ -1198,7 +1200,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         shouldUseRequestedContentPosition(playbackInfo, period, window)
             ? playbackInfo.requestedContentPositionUs
             : playbackInfo.positionUs;
-    boolean resetTrackInfo = clearPlaylist;
+    boolean resetTrackInfo = clearMediaSourceList;
     if (resetPosition) {
       pendingInitialSeekPosition = null;
       Pair<MediaPeriodId, Long> firstPeriodAndPosition = getDummyFirstMediaPeriodPosition(timeline);
@@ -1229,8 +1231,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
             startPositionUs,
             /* totalBufferedDurationUs= */ 0,
             startPositionUs);
-    if (releasePlaylist) {
-      playlist.release();
+    if (releaseMediaSourceList) {
+      mediaSourceList.release();
     }
   }
 
@@ -1568,10 +1570,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
         }
       }
     }
-    playlist.maybeThrowSourceInfoRefreshError();
+    mediaSourceList.maybeThrowSourceInfoRefreshError();
   }
 
-  private void handlePlaylistInfoRefreshed(Timeline timeline) throws ExoPlaybackException {
+  private void handleMediaSourceListInfoRefreshed(Timeline timeline) throws ExoPlaybackException {
     PositionUpdateForPlaylistChange positionUpdate =
         resolvePositionForPlaylistChange(
             timeline,
@@ -1597,8 +1599,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         resetInternal(
             /* resetRenderers= */ false,
             /* resetPosition= */ false,
-            /* releasePlaylist= */ false,
-            /* clearPlaylist= */ false,
+            /* releaseMediaSourceList= */ false,
+            /* clearMediaSourceList= */ false,
             /* resetError= */ true);
       }
       if (!periodPositionChanged) {
@@ -1663,9 +1665,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void updatePeriods() throws ExoPlaybackException, IOException {
-    if (playbackInfo.timeline.isEmpty() || !playlist.isPrepared()) {
+    if (playbackInfo.timeline.isEmpty() || !mediaSourceList.isPrepared()) {
       // We're waiting to get information about periods.
-      playlist.maybeThrowSourceInfoRefreshError();
+      mediaSourceList.maybeThrowSourceInfoRefreshError();
       return;
     }
     maybeUpdateLoadingPeriod();
@@ -1686,7 +1688,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 rendererCapabilities,
                 trackSelector,
                 loadControl.getAllocator(),
-                playlist,
+                mediaSourceList,
                 info,
                 emptyTrackSelectorResult);
         mediaPeriodHolder.mediaPeriod.prepare(this, info.startPositionUs);
@@ -1988,7 +1990,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     resetPendingPauseAtEndOfPeriod();
     TrackGroupArray trackGroupArray = playbackInfo.trackGroups;
     TrackSelectorResult trackSelectorResult = playbackInfo.trackSelectorResult;
-    if (playlist.isPrepared()) {
+    if (mediaSourceList.isPrepared()) {
       @Nullable MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
       trackGroupArray =
           playingPeriodHolder == null
@@ -2577,15 +2579,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
-  private static final class PlaylistUpdateMessage {
+  private static final class MediaSourceListUpdateMessage {
 
-    private final List<Playlist.MediaSourceHolder> mediaSourceHolders;
+    private final List<MediaSourceList.MediaSourceHolder> mediaSourceHolders;
     private final ShuffleOrder shuffleOrder;
     private final int windowIndex;
     private final long positionUs;
 
-    private PlaylistUpdateMessage(
-        List<Playlist.MediaSourceHolder> mediaSourceHolders,
+    private MediaSourceListUpdateMessage(
+        List<MediaSourceList.MediaSourceHolder> mediaSourceHolders,
         ShuffleOrder shuffleOrder,
         int windowIndex,
         long positionUs) {

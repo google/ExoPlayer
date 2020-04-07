@@ -51,10 +51,10 @@ import java.util.Set;
  *
  * <p>With the exception of the constructor, all methods are called on the playback thread.
  */
-/* package */ class Playlist {
+/* package */ class MediaSourceList {
 
   /** Listener for source events. */
-  public interface PlaylistInfoRefreshListener {
+  public interface MediaSourceListInfoRefreshListener {
 
     /**
      * Called when the timeline of a media item has changed and a new timeline that reflects the
@@ -68,9 +68,9 @@ import java.util.Set;
   private final List<MediaSourceHolder> mediaSourceHolders;
   private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final Map<Object, MediaSourceHolder> mediaSourceByUid;
-  private final PlaylistInfoRefreshListener playlistInfoListener;
+  private final MediaSourceListInfoRefreshListener mediaSourceListInfoListener;
   private final MediaSourceEventListener.EventDispatcher eventDispatcher;
-  private final HashMap<Playlist.MediaSourceHolder, MediaSourceAndListener> childSources;
+  private final HashMap<MediaSourceList.MediaSourceHolder, MediaSourceAndListener> childSources;
   private final Set<MediaSourceHolder> enabledMediaSourceHolders;
 
   private ShuffleOrder shuffleOrder;
@@ -79,8 +79,8 @@ import java.util.Set;
   @Nullable private TransferListener mediaTransferListener;
 
   @SuppressWarnings("initialization")
-  public Playlist(PlaylistInfoRefreshListener listener) {
-    playlistInfoListener = listener;
+  public MediaSourceList(MediaSourceListInfoRefreshListener listener) {
+    mediaSourceListInfoListener = listener;
     shuffleOrder = new DefaultShuffleOrder(0);
     mediaSourceByMediaPeriod = new IdentityHashMap<>();
     mediaSourceByUid = new HashMap<>();
@@ -426,7 +426,7 @@ import java.util.Set;
   private void prepareChildSource(MediaSourceHolder holder) {
     MediaSource mediaSource = holder.mediaSource;
     MediaSource.MediaSourceCaller caller =
-        (source, timeline) -> playlistInfoListener.onPlaylistUpdateRequested();
+        (source, timeline) -> mediaSourceListInfoListener.onPlaylistUpdateRequested();
     ForwardingEventListener eventListener = new ForwardingEventListener(holder);
     childSources.put(holder, new MediaSourceAndListener(mediaSource, caller, eventListener));
     mediaSource.addEventListener(Util.createHandler(), eventListener);
@@ -594,11 +594,11 @@ import java.util.Set;
   private final class ForwardingEventListener
       implements MediaSourceEventListener, DrmSessionEventListener {
 
-    private final Playlist.MediaSourceHolder id;
+    private final MediaSourceList.MediaSourceHolder id;
     private EventDispatcher eventDispatcher;
 
-    public ForwardingEventListener(Playlist.MediaSourceHolder id) {
-      eventDispatcher = Playlist.this.eventDispatcher;
+    public ForwardingEventListener(MediaSourceList.MediaSourceHolder id) {
+      eventDispatcher = MediaSourceList.this.eventDispatcher;
       this.id = id;
     }
 
@@ -750,7 +750,7 @@ import java.util.Set;
       if (eventDispatcher.windowIndex != windowIndex
           || !Util.areEqual(eventDispatcher.mediaPeriodId, mediaPeriodId)) {
         eventDispatcher =
-            Playlist.this.eventDispatcher.withParameters(
+            MediaSourceList.this.eventDispatcher.withParameters(
                 windowIndex, mediaPeriodId, /* mediaTimeOffsetMs= */ 0L);
       }
       return true;

@@ -132,7 +132,7 @@ import com.google.android.exoplayer2.util.Assertions;
    * @param rendererCapabilities The renderer capabilities.
    * @param trackSelector The track selector.
    * @param allocator The allocator.
-   * @param playlist The playlist.
+   * @param mediaSourceList The list of media sources.
    * @param info Information used to identify this media period in its timeline period.
    * @param emptyTrackSelectorResult A {@link TrackSelectorResult} with empty selections for each
    *     renderer.
@@ -141,7 +141,7 @@ import com.google.android.exoplayer2.util.Assertions;
       RendererCapabilities[] rendererCapabilities,
       TrackSelector trackSelector,
       Allocator allocator,
-      Playlist playlist,
+      MediaSourceList mediaSourceList,
       MediaPeriodInfo info,
       TrackSelectorResult emptyTrackSelectorResult) {
     long rendererPositionOffsetUs =
@@ -156,7 +156,7 @@ import com.google.android.exoplayer2.util.Assertions;
             rendererPositionOffsetUs,
             trackSelector,
             allocator,
-            playlist,
+            mediaSourceList,
             info,
             emptyTrackSelectorResult);
     if (loading != null) {
