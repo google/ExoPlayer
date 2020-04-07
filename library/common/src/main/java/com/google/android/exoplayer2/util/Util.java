@@ -1740,9 +1740,8 @@ public final class Util {
     Matcher matcher = ESCAPED_CHARACTER_PATTERN.matcher(fileName);
     int startOfNotEscaped = 0;
     while (percentCharacterCount > 0 && matcher.find()) {
-      // incompatible types in argument.
-      @SuppressWarnings("nullness:argument.type.incompatible")
-      char unescapedCharacter = (char) Integer.parseInt(matcher.group(1), 16);
+      char unescapedCharacter =
+          (char) Integer.parseInt(Assertions.checkNotNull(matcher.group(1)), 16);
       builder.append(fileName, startOfNotEscaped, matcher.start()).append(unescapedCharacter);
       startOfNotEscaped = matcher.end();
       percentCharacterCount--;

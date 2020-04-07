@@ -113,8 +113,6 @@ import java.util.regex.Pattern;
    * @return The span, or null if the file name is not correctly formatted, or if the id is not
    *     present in the content index, or if the length is 0.
    */
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   @Nullable
   public static SimpleCacheSpan createCacheEntry(
       File file, long length, long lastTouchTimestamp, CachedContentIndex index) {
@@ -133,9 +131,7 @@ import java.util.regex.Pattern;
       return null;
     }
 
-    // incompatible types in argument.
-    @SuppressWarnings("nullness:argument.type.incompatible")
-    int id = Integer.parseInt(matcher.group(1));
+    int id = Integer.parseInt(Assertions.checkNotNull(matcher.group(1)));
     @Nullable String key = index.getKeyForId(id);
     if (key == null) {
       return null;
@@ -148,11 +144,9 @@ import java.util.regex.Pattern;
       return null;
     }
 
-    // incompatible types in argument.
-    @SuppressWarnings("nullness:argument.type.incompatible")
-    long position = Long.parseLong(matcher.group(2));
+    long position = Long.parseLong(Assertions.checkNotNull(matcher.group(2)));
     if (lastTouchTimestamp == C.TIME_UNSET) {
-      lastTouchTimestamp = Long.parseLong(matcher.group(3));
+      lastTouchTimestamp = Long.parseLong(Assertions.checkNotNull(matcher.group(3)));
     }
     return new SimpleCacheSpan(key, position, length, lastTouchTimestamp, file);
   }
@@ -165,19 +159,17 @@ import java.util.regex.Pattern;
    * @return Upgraded cache file or {@code null} if the file name is not correctly formatted or the
    *     file can not be renamed.
    */
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   @Nullable
   private static File upgradeFile(File file, CachedContentIndex index) {
     @Nullable String key = null;
     String filename = file.getName();
     Matcher matcher = CACHE_FILE_PATTERN_V2.matcher(filename);
     if (matcher.matches()) {
-      key = Util.unescapeFileName(matcher.group(1));
+      key = Util.unescapeFileName(Assertions.checkNotNull(matcher.group(1)));
     } else {
       matcher = CACHE_FILE_PATTERN_V1.matcher(filename);
       if (matcher.matches()) {
-        key = matcher.group(1); // Keys were not escaped in version 1.
+        key = Assertions.checkNotNull(matcher.group(1)); // Keys were not escaped in version 1.
       }
     }
 
@@ -185,14 +177,12 @@ import java.util.regex.Pattern;
       return null;
     }
 
-    // incompatible types in argument.
-    @SuppressWarnings("nullness:argument.type.incompatible")
     File newCacheFile =
         getCacheFile(
             Assertions.checkStateNotNull(file.getParentFile()),
             index.assignIdForKey(key),
-            Long.parseLong(matcher.group(2)),
-            Long.parseLong(matcher.group(3)));
+            Long.parseLong(Assertions.checkNotNull(matcher.group(2))),
+            Long.parseLong(Assertions.checkNotNull(matcher.group(3))));
     if (!file.renameTo(newCacheFile)) {
       return null;
     }
