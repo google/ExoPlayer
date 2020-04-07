@@ -88,6 +88,8 @@
         `OfflineLicenseHelper`
         ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
     *   Remove generics from DRM components.
+*   HLS: Recognize IMSC subtitles
+    ([#7185](https://github.com/google/ExoPlayer/issues/7185)).
 *   Downloads: Merge downloads in `SegmentDownloader` to improve overall
     download speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 *   MP3: Add `IndexSeeker` for accurate seeks in VBR streams

@@ -194,6 +194,19 @@ public class HlsMasterPlaylistParserTest {
           + "#EXT-X-MEDIA:TYPE=SUBTITLES,"
           + "GROUP-ID=\"sub1\",NAME=\"English\",URI=\"s1/en/prog_index.m3u8\"\n";
 
+  private static final String PLAYLIST_WITH_TTML_SUBTITLE =
+      " #EXTM3U\n"
+          + "\n"
+          + "#EXT-X-VERSION:6\n"
+          + "\n"
+          + "#EXT-X-INDEPENDENT-SEGMENTS\n"
+          + "\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"stpp.ttml.im1t,mp4a.40.2,avc1.66.30\",RESOLUTION=304x128,AUDIO=\"aud1\",SUBTITLES=\"sub1\"\n"
+          + "http://example.com/low.m3u8\n"
+          + "\n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"aud1\",NAME=\"English\",URI=\"a1/index.m3u8\"\n"
+          + "#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"sub1\",NAME=\"English\",AUTOSELECT=YES,DEFAULT=YES,URI=\"s1/en/prog_index.m3u8\"\n";
+
   @Test
   public void parseMasterPlaylist_withSimple_success() throws IOException {
     HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
@@ -321,6 +334,7 @@ public class HlsMasterPlaylistParserTest {
 
     Format firstTextFormat = playlist.subtitles.get(0).format;
     assertThat(firstTextFormat.id).isEqualTo("sub1:Eng");
+    assertThat(firstTextFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_VTT);
   }
 
   @Test
@@ -343,6 +357,18 @@ public class HlsMasterPlaylistParserTest {
     assertThat(variant.format.codecs).isEqualTo("mp4a.40.5");
     assertThat(variant.url)
         .isEqualTo(Uri.parse("http://example.com/This/{$nested}/reference/shouldnt/work"));
+  }
+
+  @Test
+  public void parseMasterPlaylist_withTtmlSubtitle() throws IOException {
+    HlsMasterPlaylist playlistWithTtmlSubtitle =
+        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_TTML_SUBTITLE);
+    HlsMasterPlaylist.Variant variant = playlistWithTtmlSubtitle.variants.get(0);
+    Format firstTextFormat = playlistWithTtmlSubtitle.subtitles.get(0).format;
+    assertThat(firstTextFormat.id).isEqualTo("sub1:English");
+    assertThat(firstTextFormat.containerMimeType).isEqualTo(MimeTypes.APPLICATION_M3U8);
+    assertThat(firstTextFormat.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
+    assertThat(variant.format.codecs).isEqualTo("stpp.ttml.im1t,mp4a.40.2,avc1.66.30");
   }
 
   @Test

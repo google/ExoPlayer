@@ -458,7 +458,18 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           }
           break;
         case TYPE_SUBTITLES:
-          formatBuilder.setSampleMimeType(MimeTypes.TEXT_VTT).setMetadata(metadata);
+          sampleMimeType = null;
+          variant = getVariantWithSubtitleGroup(variants, groupId);
+          if (variant != null) {
+            @Nullable
+            String codecs = Util.getCodecsOfType(variant.format.codecs, C.TRACK_TYPE_TEXT);
+            formatBuilder.setCodecs(codecs);
+            sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+          }
+          if (sampleMimeType == null) {
+            sampleMimeType = MimeTypes.TEXT_VTT;
+          }
+          formatBuilder.setSampleMimeType(sampleMimeType).setMetadata(metadata);
           subtitles.add(new Rendition(uri, formatBuilder.build(), groupId, name));
           break;
         case TYPE_CLOSED_CAPTIONS:
@@ -521,6 +532,17 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     for (int i = 0; i < variants.size(); i++) {
       Variant variant = variants.get(i);
       if (groupId.equals(variant.videoGroupId)) {
+        return variant;
+      }
+    }
+    return null;
+  }
+
+  @Nullable
+  private static Variant getVariantWithSubtitleGroup(ArrayList<Variant> variants, String groupId) {
+    for (int i = 0; i < variants.size(); i++) {
+      Variant variant = variants.get(i);
+      if (groupId.equals(variant.subtitleGroupId)) {
         return variant;
       }
     }
