@@ -88,8 +88,6 @@
         `OfflineLicenseHelper`
         ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
     *   Remove generics from DRM components.
-*   HLS: Recognize IMSC subtitles
-    ([#7185](https://github.com/google/ExoPlayer/issues/7185)).
 *   Downloads: Merge downloads in `SegmentDownloader` to improve overall
     download speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
 *   MP3: Add `IndexSeeker` for accurate seeks in VBR streams
@@ -127,47 +125,6 @@
     *   Allow missing hours and milliseconds in SubRip (.srt) timecodes
         ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
 *   Audio:
-    *   Workaround issue that could cause slower than realtime playback of AAC
-        on Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671).
-    *   Enable playback speed adjustment and silence skipping for floating point
-        PCM audio, via resampling to 16-bit integer PCM. To output the original
-        floating point audio without adjustment, pass `enableFloatOutput=true`
-        to the `DefaultAudioSink` constructor
-        ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
-    *   Fix playback of WAV files with trailing non-media bytes
-        ([#7129](https://github.com/google/ExoPlayer/issues/7129)).
-    *   Fix playback of ADTS files with mid-stream ID3 metadata.
-*   DRM:
-    *   Fix playback of Widevine protected content that only provides V1 PSSH
-        atoms on API levels 21 and 22.
-    *   Fix playback of PlayReady content on Fire TV Stick (Gen 2).
-    *   Fix stuck ad playbacks with DRM protected content
-        ([#7188](https://github.com/google/ExoPlayer/issues/7188)).
-*   DASH:
-    *   Update the manifest URI to avoid repeated HTTP redirects
-        ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
-    *   Parse period `AssetIdentifier` elements.
-*   UI: Add an option to set whether to use the orientation sensor for rotation
-    in spherical playbacks
-    ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
-*   Analytics: Fix `PlaybackStatsListener` behavior when not keeping history
-    ([#7160](https://github.com/google/ExoPlayer/issues/7160)).
-*   FFmpeg extension: Add support for `x86_64` architecture.
-*   Opus extension: Fix parsing of negative gain values
-    ([#7046](https://github.com/google/ExoPlayer/issues/7046)).
-*   Add `SimpleExoPlayer.setWakeMode` to allow automatic `WifiLock` and
-    `WakeLock` handling
-    ([#6914](https://github.com/google/ExoPlayer/issues/6914)). To use this
-    feature, you must add the
-    [WAKE_LOCK](https://developer.android.com/reference/android/Manifest.permission.html#WAKE_LOCK)
-    permission to your application's manifest file.
-*   Text:
-    *   Catch and log exceptions in `TextRenderer` rather than re-throwing. This
-        allows playback to continue even if subtitle decoding fails
-        ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
-    *   Allow missing hours and milliseconds in SubRip (.srt) timecodes
-        ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
-*   Audio:
     *   Enable playback speed adjustment and silence skipping for floating point
         PCM audio, via resampling to 16-bit integer PCM. To output the original
         floating point audio without adjustment, pass `enableFloatOutput=true`
@@ -185,6 +142,8 @@
         ([#7129](https://github.com/google/ExoPlayer/issues/7129)).
     *   Fix playback of ADTS files with mid-stream ID3 metadata.
 *   DRM:
+    *   Fix stuck ad playbacks with DRM protected content
+        ([#7188](https://github.com/google/ExoPlayer/issues/7188)).
     *   Fix playback of Widevine protected content that only provides V1 PSSH
         atoms on API levels 21 and 22.
     *   Fix playback of PlayReady content on Fire TV Stick (Gen 2).
@@ -192,6 +151,8 @@
     *   Update the manifest URI to avoid repeated HTTP redirects
         ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
     *   Parse period `AssetIdentifier` elements.
+*   HLS: Recognize IMSC subtitles
+    ([#7185](https://github.com/google/ExoPlayer/issues/7185)).
 *   UI: Add an option to set whether to use the orientation sensor for rotation
     in spherical playbacks
     ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
