@@ -502,6 +502,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                   roleFlags,
                   language)
                   .copyWithMetadata(metadata);
+          subtitles.add(new Rendition(uri, format, groupId, name));
           break;
         case TYPE_CLOSED_CAPTIONS:
           String instreamId = parseStringAttr(line, REGEX_INSTREAM_ID, variableDefinitions);
