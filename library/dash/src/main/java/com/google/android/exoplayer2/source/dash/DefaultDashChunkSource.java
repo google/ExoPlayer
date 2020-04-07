@@ -772,10 +772,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
           || mimeType.startsWith(MimeTypes.APPLICATION_WEBM);
     }
 
-    private static boolean mimeTypeIsRawText(String mimeType) {
-      return MimeTypes.isText(mimeType) || MimeTypes.APPLICATION_TTML.equals(mimeType);
-    }
-
     private static @Nullable ChunkExtractorWrapper createExtractorWrapper(
         int trackType,
         Representation representation,
@@ -783,12 +779,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
         List<Format> closedCaptionFormats,
         @Nullable TrackOutput playerEmsgTrackOutput) {
       String containerMimeType = representation.format.containerMimeType;
-      if (mimeTypeIsRawText(containerMimeType)) {
-        return null;
-      }
       Extractor extractor;
-      if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
-        extractor = new RawCcExtractor(representation.format);
+      if (MimeTypes.isText(containerMimeType)) {
+        if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
+          // RawCC is special because it's a text specific container format.
+          extractor = new RawCcExtractor(representation.format);
+        } else {
+          // All other text types are raw formats that do not need an extractor.
+          return null;
+        }
       } else if (mimeTypeIsWebm(containerMimeType)) {
         extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
       } else {
