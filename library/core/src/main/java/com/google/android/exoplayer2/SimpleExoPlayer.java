@@ -1294,9 +1294,9 @@ public class SimpleExoPlayer extends BasePlayer
   public void release() {
     verifyApplicationThread();
     audioBecomingNoisyManager.setEnabled(false);
-    audioFocusManager.updateAudioFocus(/* playWhenReady= */ false, Player.STATE_IDLE);
     wakeLockManager.setStayAwake(false);
     wifiLockManager.setStayAwake(false);
+    audioFocusManager.release();
     player.release();
     removeSurfaceCallbacks();
     if (surface != null) {

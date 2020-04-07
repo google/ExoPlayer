@@ -14,16 +14,18 @@
   * Allow missing hours and milliseconds in SubRip (.srt) timecodes
     ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
 * Audio:
-  * Prevent case where another app spuriously holding transient audio focus
-    could prevent ExoPlayer from acquiring audio focus for an indefinite period
-    of time ([#7182](https://github.com/google/ExoPlayer/issues/7182).
-  * Workaround issue that could cause slower than realtime playback of AAC on
-    Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671).
   * Enable playback speed adjustment and silence skipping for floating point PCM
     audio, via resampling to 16-bit integer PCM. To output the original floating
     point audio without adjustment, pass `enableFloatOutput=true` to the
     `DefaultAudioSink` constructor
     ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
+  * Workaround issue that could cause slower than realtime playback of AAC on
+    Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671).
+  * Fix case where another app spuriously holding transient audio focus could
+    prevent ExoPlayer from acquiring audio focus for an indefinite period of
+    time ([#7182](https://github.com/google/ExoPlayer/issues/7182).
+  * Fix case where the player volume could be permanently ducked if audio focus
+    was released whilst ducking.
   * Fix playback of WAV files with trailing non-media bytes
     ([#7129](https://github.com/google/ExoPlayer/issues/7129)).
   * Fix playback of ADTS files with mid-stream ID3 metadata.
