@@ -73,6 +73,10 @@ public final class MimeTypesTest {
     assertThat(MimeTypes.getMediaMimeType("mp4a.AA")).isEqualTo(MimeTypes.AUDIO_DTS_HD);
     assertThat(MimeTypes.getMediaMimeType("mp4a.AB")).isEqualTo(MimeTypes.AUDIO_DTS_HD);
     assertThat(MimeTypes.getMediaMimeType("mp4a.AD")).isEqualTo(MimeTypes.AUDIO_OPUS);
+
+    assertThat(MimeTypes.getMediaMimeType("wvtt")).isEqualTo(MimeTypes.TEXT_VTT);
+    assertThat(MimeTypes.getMediaMimeType("stpp.")).isEqualTo(MimeTypes.APPLICATION_TTML);
+    assertThat(MimeTypes.getMediaMimeType("stpp.ttml.im1t")).isEqualTo(MimeTypes.APPLICATION_TTML);
   }
 
   @Test

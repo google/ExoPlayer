@@ -37,6 +37,8 @@
   * Update the manifest URI to avoid repeated HTTP redirects
     ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
   * Parse period `AssetIdentifier` elements.
+* HLS: Recognize IMSC subtitles
+  ([#7185](https://github.com/google/ExoPlayer/issues/7185)).
 * UI: Add an option to set whether to use the orientation sensor for rotation
   in spherical playbacks
   ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
