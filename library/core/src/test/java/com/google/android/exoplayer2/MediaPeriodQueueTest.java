@@ -63,14 +63,14 @@ public final class MediaPeriodQueueTest {
   private RendererCapabilities[] rendererCapabilities;
   private TrackSelector trackSelector;
   private Allocator allocator;
-  private Playlist playlist;
+  private MediaSourceList mediaSourceList;
   private FakeMediaSource fakeMediaSource;
-  private Playlist.MediaSourceHolder mediaSourceHolder;
+  private MediaSourceList.MediaSourceHolder mediaSourceHolder;
 
   @Before
   public void setUp() {
     mediaPeriodQueue = new MediaPeriodQueue();
-    playlist = mock(Playlist.class);
+    mediaSourceList = mock(MediaSourceList.class);
     rendererCapabilities = new RendererCapabilities[0];
     trackSelector = mock(TrackSelector.class);
     allocator = mock(Allocator.class);
@@ -403,7 +403,7 @@ public final class MediaPeriodQueueTest {
 
   private void setupTimeline(Timeline timeline) {
     fakeMediaSource = new FakeMediaSource(timeline);
-    mediaSourceHolder = new Playlist.MediaSourceHolder(fakeMediaSource, false);
+    mediaSourceHolder = new MediaSourceList.MediaSourceHolder(fakeMediaSource, false);
     mediaSourceHolder.mediaSource.prepareSourceInternal(/* mediaTransferListener */ null);
 
     Timeline playlistTimeline = createPlaylistTimeline();
@@ -441,8 +441,8 @@ public final class MediaPeriodQueueTest {
     playbackInfo = playbackInfo.copyWithTimeline(createPlaylistTimeline());
   }
 
-  private Playlist.PlaylistTimeline createPlaylistTimeline() {
-    return new Playlist.PlaylistTimeline(
+  private MediaSourceList.PlaylistTimeline createPlaylistTimeline() {
+    return new MediaSourceList.PlaylistTimeline(
         Collections.singleton(mediaSourceHolder),
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 1));
   }
@@ -467,7 +467,7 @@ public final class MediaPeriodQueueTest {
         rendererCapabilities,
         trackSelector,
         allocator,
-        playlist,
+        mediaSourceList,
         getNextMediaPeriodInfo(),
         new TrackSelectorResult(
             new RendererConfiguration[0], new TrackSelection[0], /* info= */ null));
