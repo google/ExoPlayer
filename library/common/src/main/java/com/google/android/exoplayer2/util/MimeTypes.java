@@ -133,14 +133,23 @@ public final class MimeTypes {
     return BASE_TYPE_VIDEO.equals(getTopLevelType(mimeType));
   }
 
-  /** Returns whether the given string is a text MIME type. */
+  /**
+   * Returns whether the given string is a text MIME type, including known text types that use
+   * &quot;application&quot; as their base type.
+   */
   public static boolean isText(@Nullable String mimeType) {
-    return BASE_TYPE_TEXT.equals(getTopLevelType(mimeType));
-  }
-
-  /** Returns whether the given string is an application MIME type. */
-  public static boolean isApplication(@Nullable String mimeType) {
-    return BASE_TYPE_APPLICATION.equals(getTopLevelType(mimeType));
+    return BASE_TYPE_TEXT.equals(getTopLevelType(mimeType))
+        || APPLICATION_CEA608.equals(mimeType)
+        || APPLICATION_CEA708.equals(mimeType)
+        || APPLICATION_MP4CEA608.equals(mimeType)
+        || APPLICATION_SUBRIP.equals(mimeType)
+        || APPLICATION_TTML.equals(mimeType)
+        || APPLICATION_TX3G.equals(mimeType)
+        || APPLICATION_MP4VTT.equals(mimeType)
+        || APPLICATION_RAWCC.equals(mimeType)
+        || APPLICATION_VOBSUB.equals(mimeType)
+        || APPLICATION_PGS.equals(mimeType)
+        || APPLICATION_DVBSUBS.equals(mimeType);
   }
 
   /**
@@ -211,6 +220,27 @@ public final class MimeTypes {
   }
 
   /**
+   * Derives a text sample mimeType from a codecs attribute.
+   *
+   * @param codecs The codecs attribute.
+   * @return The derived text mimeType, or null if it could not be derived.
+   */
+  @Nullable
+  public static String getTextMediaMimeType(@Nullable String codecs) {
+    if (codecs == null) {
+      return null;
+    }
+    String[] codecList = Util.splitCodecs(codecs);
+    for (String codec : codecList) {
+      @Nullable String mimeType = getMediaMimeType(codec);
+      if (mimeType != null && isText(mimeType)) {
+        return mimeType;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Derives a mimeType from a codec identifier, as defined in RFC 6381.
    *
    * @param codec The codec identifier to derive.
@@ -274,6 +304,10 @@ public final class MimeTypes {
       return MimeTypes.APPLICATION_TTML;
     } else if (codec.startsWith("wvtt")) {
       return MimeTypes.TEXT_VTT;
+    } else if (codec.contains("cea708")) {
+      return MimeTypes.APPLICATION_CEA708;
+    } else if (codec.contains("eia608") || codec.contains("cea608")) {
+      return MimeTypes.APPLICATION_CEA608;
     } else {
       return getCustomMimeTypeForCodec(codec);
     }
@@ -350,12 +384,7 @@ public final class MimeTypes {
       return C.TRACK_TYPE_AUDIO;
     } else if (isVideo(mimeType)) {
       return C.TRACK_TYPE_VIDEO;
-    } else if (isText(mimeType) || APPLICATION_CEA608.equals(mimeType)
-        || APPLICATION_CEA708.equals(mimeType) || APPLICATION_MP4CEA608.equals(mimeType)
-        || APPLICATION_SUBRIP.equals(mimeType) || APPLICATION_TTML.equals(mimeType)
-        || APPLICATION_TX3G.equals(mimeType) || APPLICATION_MP4VTT.equals(mimeType)
-        || APPLICATION_RAWCC.equals(mimeType) || APPLICATION_VOBSUB.equals(mimeType)
-        || APPLICATION_PGS.equals(mimeType) || APPLICATION_DVBSUBS.equals(mimeType)) {
+    } else if (isText(mimeType)) {
       return C.TRACK_TYPE_TEXT;
     } else if (APPLICATION_ID3.equals(mimeType)
         || APPLICATION_EMSG.equals(mimeType)
