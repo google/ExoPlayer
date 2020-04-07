@@ -62,6 +62,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
@@ -71,9 +72,7 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
@@ -410,28 +409,29 @@ public class PlayerActivity extends AppCompatActivity
             ? ((Sample.PlaylistSample) intentAsSample).children
             : new UriSample[] {(UriSample) intentAsSample};
 
-    boolean seenAdsTagUri = false;
     List<MediaSource> mediaSources = new ArrayList<>();
+    Uri adTagUri = null;
     for (UriSample sample : samples) {
-      seenAdsTagUri |= sample.adTagUri != null;
-      if (!Util.checkCleartextTrafficPermitted(sample.uri)) {
+      MediaItem mediaItem = sample.toMediaItem();
+      Assertions.checkNotNull(mediaItem.playbackProperties);
+      if (!Util.checkCleartextTrafficPermitted(mediaItem)) {
         showToast(R.string.error_cleartext_not_permitted);
         return Collections.emptyList();
       }
-      if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, sample.uri)
-          || (sample.subtitleInfo != null
-              && Util.maybeRequestReadExternalStoragePermission(
-                  /* activity= */ this, sample.subtitleInfo.uri))) {
+      if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, mediaItem)) {
         // The player will be reinitialized if the permission is granted.
         return Collections.emptyList();
       }
-      MediaSource mediaSource = createLeafMediaSource(sample);
+      MediaSource mediaSource = createLeafMediaSource(mediaItem);
       if (mediaSource != null) {
+        adTagUri = sample.adTagUri;
         mediaSources.add(mediaSource);
       }
     }
-    if (seenAdsTagUri && mediaSources.size() == 1) {
-      Uri adTagUri = samples[0].adTagUri;
+
+    if (adTagUri == null) {
+      releaseAdsLoader();
+    } else if (mediaSources.size() == 1) {
       if (!adTagUri.equals(loadedAdTagUri)) {
         releaseAdsLoader();
         loadedAdTagUri = adTagUri;
@@ -442,10 +442,8 @@ public class PlayerActivity extends AppCompatActivity
       } else {
         showToast(R.string.ima_not_loaded);
       }
-    } else if (seenAdsTagUri && mediaSources.size() > 1) {
+    } else if (mediaSources.size() > 1) {
       showToast(R.string.unsupported_ads_in_concatenation);
-      releaseAdsLoader();
-    } else {
       releaseAdsLoader();
     }
 
@@ -453,61 +451,33 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   @Nullable
-  private MediaSource createLeafMediaSource(UriSample parameters) {
-    MediaItem.Builder builder = new MediaItem.Builder().setSourceUri(parameters.uri);
-    builder.setMimeType(Sample.inferAdaptiveStreamMimeType(parameters.uri, parameters.extension));
+  private MediaSource createLeafMediaSource(MediaItem mediaItem) {
+    Assertions.checkNotNull(mediaItem.playbackProperties);
     HttpDataSource.Factory drmDataSourceFactory = null;
-    if (parameters.drmInfo != null) {
+    if (mediaItem.playbackProperties.drmConfiguration != null) {
       if (Util.SDK_INT < 18) {
         showToast(R.string.error_drm_unsupported_before_api_18);
         finish();
         return null;
-      } else if (!MediaDrm.isCryptoSchemeSupported(parameters.drmInfo.drmScheme)) {
+      } else if (!MediaDrm.isCryptoSchemeSupported(
+          mediaItem.playbackProperties.drmConfiguration.uuid)) {
         showToast(R.string.error_drm_unsupported_scheme);
         finish();
         return null;
       }
-      builder
-          .setDrmLicenseUri(parameters.drmInfo.drmLicenseUrl)
-          .setDrmLicenseRequestHeaders(
-              createLicenseHeaders(parameters.drmInfo.drmKeyRequestProperties))
-          .setDrmUuid(parameters.drmInfo.drmScheme)
-          .setDrmMultiSession(parameters.drmInfo.drmMultiSession)
-          .setDrmSessionForClearTypes(Util.toList(parameters.drmInfo.drmSessionForClearTypes));
       drmDataSourceFactory = ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
-    }
-    if (parameters.subtitleInfo != null) {
-      builder.setSubtitles(
-          Collections.singletonList(
-              new MediaItem.Subtitle(
-                  parameters.subtitleInfo.uri,
-                  parameters.subtitleInfo.mimeType,
-                  parameters.subtitleInfo.language,
-                  C.SELECTION_FLAG_DEFAULT)));
     }
 
     DownloadRequest downloadRequest =
         ((DemoApplication) getApplication())
             .getDownloadTracker()
-            .getDownloadRequest(parameters.uri);
+            .getDownloadRequest(mediaItem.playbackProperties.sourceUri);
     if (downloadRequest != null) {
       return DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
     }
     return mediaSourceFactory
         .setDrmHttpDataSourceFactory(drmDataSourceFactory)
-        .createMediaSource(builder.build());
-  }
-
-  @Nullable
-  private Map<String, String> createLicenseHeaders(@Nullable String[] drmKeyRequestProperties) {
-    if (drmKeyRequestProperties == null || drmKeyRequestProperties.length == 0) {
-      return null;
-    }
-    Map<String, String> headers = new HashMap<>();
-    for (int i = 0; i < drmKeyRequestProperties.length; i += 2) {
-      headers.put(drmKeyRequestProperties[i], drmKeyRequestProperties[i + 1]);
-    }
-    return headers;
+        .createMediaSource(mediaItem);
   }
 
   private void releasePlayer() {

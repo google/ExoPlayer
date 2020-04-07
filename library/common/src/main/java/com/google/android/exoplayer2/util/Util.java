@@ -50,6 +50,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import java.io.ByteArrayOutputStream;
@@ -185,35 +186,66 @@ public final class Util {
     }
     for (Uri uri : uris) {
       if (isLocalFileUri(uri)) {
-        if (activity.checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-          activity.requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
-          return true;
-        }
-        break;
+        return requestExternalStoragePermission(activity);
       }
     }
     return false;
   }
 
   /**
-   * Returns whether it may be possible to load the given URIs based on the network security
-   * policy's cleartext traffic permissions.
+   * Checks whether it's necessary to request the {@link permission#READ_EXTERNAL_STORAGE}
+   * permission for the specified {@link MediaItem media items}, requesting the permission if
+   * necessary.
    *
-   * @param uris A list of URIs that will be loaded.
-   * @return Whether it may be possible to load the given URIs.
+   * @param activity The host activity for checking and requesting the permission.
+   * @param mediaItems {@link MediaItem Media items}s that may require {@link
+   *     permission#READ_EXTERNAL_STORAGE} to read.
+   * @return Whether a permission request was made.
    */
-  public static boolean checkCleartextTrafficPermitted(Uri... uris) {
+  public static boolean maybeRequestReadExternalStoragePermission(
+      Activity activity, MediaItem... mediaItems) {
+    if (Util.SDK_INT < 23) {
+      return false;
+    }
+    for (MediaItem mediaItem : mediaItems) {
+      if (mediaItem.playbackProperties == null) {
+        continue;
+      }
+      if (isLocalFileUri(mediaItem.playbackProperties.sourceUri)) {
+        return requestExternalStoragePermission(activity);
+      }
+      for (int i = 0; i < mediaItem.playbackProperties.subtitles.size(); i++) {
+        if (isLocalFileUri(mediaItem.playbackProperties.subtitles.get(i).uri)) {
+          return requestExternalStoragePermission(activity);
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Returns whether it may be possible to load the URIs of the given media items based on the
+   * network security policy's cleartext traffic permissions.
+   *
+   * @param mediaItems A list of {@link MediaItem media items}.
+   * @return Whether it may be possible to load the URIs of the given media items.
+   */
+  public static boolean checkCleartextTrafficPermitted(MediaItem... mediaItems) {
     if (Util.SDK_INT < 24) {
       // We assume cleartext traffic is permitted.
       return true;
     }
-    for (Uri uri : uris) {
-      if ("http".equals(uri.getScheme())
-          && !NetworkSecurityPolicy.getInstance()
-              .isCleartextTrafficPermitted(Assertions.checkNotNull(uri.getHost()))) {
-        // The security policy prevents cleartext traffic.
+    for (MediaItem mediaItem : mediaItems) {
+      if (mediaItem.playbackProperties == null) {
+        continue;
+      }
+      if (isTrafficRestricted(mediaItem.playbackProperties.sourceUri)) {
         return false;
+      }
+      for (int i = 0; i < mediaItem.playbackProperties.subtitles.size(); i++) {
+        if (isTrafficRestricted(mediaItem.playbackProperties.subtitles.get(i).uri)) {
+          return false;
+        }
       }
     }
     return true;
@@ -2183,6 +2215,24 @@ public final class Util {
           additionalIsoLanguageReplacements[i], additionalIsoLanguageReplacements[i + 1]);
     }
     return replacedLanguages;
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.M)
+  private static boolean requestExternalStoragePermission(Activity activity) {
+    if (activity.checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
+        != PackageManager.PERMISSION_GRANTED) {
+      activity.requestPermissions(
+          new String[] {permission.READ_EXTERNAL_STORAGE}, /* requestCode= */ 0);
+      return true;
+    }
+    return false;
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.N)
+  private static boolean isTrafficRestricted(Uri uri) {
+    return "http".equals(uri.getScheme())
+        && !NetworkSecurityPolicy.getInstance()
+            .isCleartextTrafficPermitted(Assertions.checkNotNull(uri.getHost()));
   }
 
   private static String maybeReplaceGrandfatheredLanguageTags(String languageTag) {

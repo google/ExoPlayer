@@ -314,7 +314,7 @@ public final class MediaItem {
 
     /**
      * Sets the optional tag for custom attributes. The tag for the media source which will be
-     * published in the {@link com.google.android.exoplayer2.Timeline} of the source as {@link
+     * published in the {@code com.google.android.exoplayer2.Timeline} of the source as {@code
      * com.google.android.exoplayer2.Timeline.Window#tag}.
      *
      * <p>If a {@link PlaybackProperties#sourceUri} is set, the tag is used to create a {@link
@@ -466,7 +466,7 @@ public final class MediaItem {
 
     /**
      * Optional tag for custom attributes. The tag for the media source which will be published in
-     * the {@link com.google.android.exoplayer2.Timeline} of the source as {@link
+     * the {@code com.google.android.exoplayer2.Timeline} of the source as {@code
      * com.google.android.exoplayer2.Timeline.Window#tag}.
      */
     @Nullable public final Object tag;
