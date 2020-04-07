@@ -34,11 +34,15 @@ import android.content.Intent;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.UUID;
 
 /* package */ abstract class Sample {
@@ -139,6 +143,35 @@ import java.util.UUID;
       if (subtitleInfo != null) {
         subtitleInfo.addToIntent(intent, extrasKeySuffix);
       }
+    }
+
+    public MediaItem toMediaItem() {
+      MediaItem.Builder builder = new MediaItem.Builder().setSourceUri(uri);
+      builder.setMimeType(inferAdaptiveStreamMimeType(uri, extension));
+      if (drmInfo != null) {
+        Map<String, String> headers = new HashMap<>();
+        if (drmInfo.drmKeyRequestProperties != null) {
+          for (int i = 0; i < drmInfo.drmKeyRequestProperties.length; i += 2) {
+            headers.put(drmInfo.drmKeyRequestProperties[i], drmInfo.drmKeyRequestProperties[i + 1]);
+          }
+        }
+        builder
+            .setDrmLicenseUri(drmInfo.drmLicenseUrl)
+            .setDrmLicenseRequestHeaders(headers)
+            .setDrmUuid(drmInfo.drmScheme)
+            .setDrmMultiSession(drmInfo.drmMultiSession)
+            .setDrmSessionForClearTypes(Util.toList(drmInfo.drmSessionForClearTypes));
+      }
+      if (subtitleInfo != null) {
+        builder.setSubtitles(
+            Collections.singletonList(
+                new MediaItem.Subtitle(
+                    subtitleInfo.uri,
+                    subtitleInfo.mimeType,
+                    subtitleInfo.language,
+                    C.SELECTION_FLAG_DEFAULT)));
+      }
+      return builder.build();
     }
   }
 
