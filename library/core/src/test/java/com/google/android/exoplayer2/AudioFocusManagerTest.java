@@ -67,7 +67,6 @@ public class AudioFocusManagerTest {
 
   @Test
   public void setAudioAttributes_withNullUsage_doesNotManageAudioFocus() {
-    // Ensure that NULL audio attributes -> don't manage audio focus
     audioFocusManager.setAudioAttributes(/* audioAttributes= */ null);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ false, Player.STATE_IDLE))
@@ -81,19 +80,18 @@ public class AudioFocusManagerTest {
 
   @Test
   @Config(maxSdk = 25)
-  public void setAudioAttributes_withNullUsage_releasesAudioFocus() {
-    // Create attributes and request audio focus.
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+  public void setAudioAttributes_withNullUsage_abandonsAudioFocus() {
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
+
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     ShadowAudioManager.AudioFocusRequest request =
         Shadows.shadowOf(audioManager).getLastAudioFocusRequest();
     assertThat(request.durationHint).isEqualTo(AudioManager.AUDIOFOCUS_GAIN);
 
-    // Ensure that setting null audio attributes with audio focus releases audio focus.
+    // Ensure that setting null audio attributes with focus releases focus.
     audioFocusManager.setAudioAttributes(/* audioAttributes= */ null);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
@@ -105,19 +103,18 @@ public class AudioFocusManagerTest {
 
   @Test
   @Config(minSdk = 26, maxSdk = TARGET_SDK)
-  public void setAudioAttributes_withNullUsage_releasesAudioFocus_v26() {
-    // Create attributes and request audio focus.
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+  public void setAudioAttributes_withNullUsage_abandonsAudioFocus_v26() {
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
+
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     ShadowAudioManager.AudioFocusRequest request =
         Shadows.shadowOf(audioManager).getLastAudioFocusRequest();
     assertThat(getAudioFocusGainFromRequest(request)).isEqualTo(AudioManager.AUDIOFOCUS_GAIN);
 
-    // Ensure that setting null audio attributes with audio focus releases audio focus.
+    // Ensure that setting null audio attributes with focus releases focus.
     audioFocusManager.setAudioAttributes(/* audioAttributes= */ null);
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -128,7 +125,7 @@ public class AudioFocusManagerTest {
 
   @Test
   public void setAudioAttributes_withUsageAlarm_throwsIllegalArgumentException() {
-    // Ensure that audio attributes that map to AUDIOFOCUS_GAIN_TRANSIENT* throw.
+    // USAGE_ALARM attributes map to AUDIOFOCUS_GAIN_TRANSIENT, which should result in failure.
     AudioAttributes alarm = new AudioAttributes.Builder().setUsage(C.USAGE_ALARM).build();
     try {
       audioFocusManager.setAudioAttributes(alarm);
@@ -140,12 +137,12 @@ public class AudioFocusManagerTest {
 
   @Test
   public void setAudioAttributes_withUsageMedia_usesAudioFocusGain() {
-    // Ensure setting media type audio attributes requests AUDIOFOCUS_GAIN.
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
 
-    audioFocusManager.setAudioAttributes(media);
+    AudioAttributes mediaAudioAttributes =
+        new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+    audioFocusManager.setAudioAttributes(mediaAudioAttributes);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -155,14 +152,11 @@ public class AudioFocusManagerTest {
   }
 
   @Test
-  public void setAudioAttributes_inStateEnded_requestsAudioFocus() {
-    // Ensure setting audio attributes when player is in STATE_ENDED requests audio focus.
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+  public void setAudioAttributes_inEndedState_requestsAudioFocus() {
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
 
-    audioFocusManager.setAudioAttributes(media);
-
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_ENDED))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     ShadowAudioManager.AudioFocusRequest request =
@@ -172,13 +166,10 @@ public class AudioFocusManagerTest {
 
   @Test
   public void updateAudioFocus_idleToBuffering_setsPlayerCommandPlayWhenReady() {
-    // Ensure that when playWhenReady is true while the player is IDLE, audio focus is only
-    // requested after calling prepare (= changing the state to BUFFERING).
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
 
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_IDLE))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     assertThat(Shadows.shadowOf(audioManager).getLastAudioFocusRequest()).isNull();
@@ -192,17 +183,16 @@ public class AudioFocusManagerTest {
 
   @Test
   public void updateAudioFocus_pausedToPlaying_setsPlayerCommandPlayWhenReady() {
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
-    // Audio focus should not be requested yet, because playWhenReady=false.
+    // Audio focus should not be requested yet, because playWhenReady is false.
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ false, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_DO_NOT_PLAY);
     assertThat(Shadows.shadowOf(audioManager).getLastAudioFocusRequest()).isNull();
 
-    // Audio focus should be requested now that playWhenReady=true.
+    // Audio focus should be requested now that playWhenReady is true.
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     ShadowAudioManager.AudioFocusRequest request =
@@ -210,13 +200,11 @@ public class AudioFocusManagerTest {
     assertThat(getAudioFocusGainFromRequest(request)).isEqualTo(AudioManager.AUDIOFOCUS_GAIN);
   }
 
-  // See https://github.com/google/ExoPlayer/issues/7182 for context.
   @Test
   public void updateAudioFocus_pausedToPlaying_withTransientLoss_setsPlayerCommandPlayWhenReady() {
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -224,17 +212,17 @@ public class AudioFocusManagerTest {
     // Simulate transient focus loss.
     audioFocusManager.getFocusListener().onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
 
-    // Focus should be re-requested, rather than staying in a state of transient focus loss.
+    // Focus should be re-requested rather than staying in a state of transient focus loss. See
+    // https://github.com/google/ExoPlayer/issues/7182 for context.
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
   }
 
   @Test
   public void updateAudioFocus_pausedToPlaying_withTransientDuck_setsPlayerCommandPlayWhenReady() {
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -246,7 +234,8 @@ public class AudioFocusManagerTest {
     assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
 
     // Focus should be re-requested, rather than staying in a state of transient ducking. This
-    // should restore the volume to 1.0.
+    // should restore the volume to 1.0. See https://github.com/google/ExoPlayer/issues/7182 for
+    // context.
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     assertThat(testPlayerControl.lastVolumeMultiplier).isEqualTo(1.0f);
@@ -254,10 +243,9 @@ public class AudioFocusManagerTest {
 
   @Test
   public void updateAudioFocus_abandonFocusWhenDucked_restoresFullVolume() {
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -268,7 +256,7 @@ public class AudioFocusManagerTest {
         .onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
     assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
 
-    // Configure the manager to no longer handle audio focus.
+    // Configure the manager to no longer handle focus.
     audioFocusManager.setAudioAttributes(null);
 
     // Focus should be abandoned, which should restore the volume to 1.0.
@@ -280,15 +268,10 @@ public class AudioFocusManagerTest {
   @Test
   @Config(maxSdk = 25)
   public void updateAudioFocus_readyToIdle_abandonsAudioFocus() {
-    // Ensure that stopping the player (=changing state to idle) abandons audio focus.
-    AudioAttributes media =
-        new AudioAttributes.Builder()
-            .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.CONTENT_TYPE_SPEECH)
-            .build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
+
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
     assertThat(Shadows.shadowOf(audioManager).getLastAbandonedAudioFocusListener()).isNull();
@@ -304,15 +287,9 @@ public class AudioFocusManagerTest {
   @Test
   @Config(minSdk = 26, maxSdk = TARGET_SDK)
   public void updateAudioFocus_readyToIdle_abandonsAudioFocus_v26() {
-    // Ensure that stopping the player (=changing state to idle) abandons audio focus.
-    AudioAttributes media =
-        new AudioAttributes.Builder()
-            .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.CONTENT_TYPE_SPEECH)
-            .build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -328,8 +305,7 @@ public class AudioFocusManagerTest {
 
   @Test
   @Config(maxSdk = 25)
-  public void updateAudioFocus_readyToIdle_withoutHandlingAudioFocus_isNoOp() {
-    // Ensure that changing state to idle is a no-op if audio focus isn't handled.
+  public void updateAudioFocus_readyToIdle_withoutFocus_isNoOp() {
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
     audioFocusManager.setAudioAttributes(null);
@@ -348,8 +324,7 @@ public class AudioFocusManagerTest {
 
   @Test
   @Config(minSdk = 26, maxSdk = TARGET_SDK)
-  public void updateAudioFocus_readyToIdle_withoutHandlingAudioFocus_isNoOp_v26() {
-    // Ensure that changing state to idle is a no-op if audio focus isn't handled.
+  public void updateAudioFocus_readyToIdle_withoutFocus_isNoOp_v26() {
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
     audioFocusManager.setAudioAttributes(null);
@@ -368,10 +343,9 @@ public class AudioFocusManagerTest {
 
   @Test
   public void release_doesNotCallPlayerControlToRestoreVolume() {
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -389,14 +363,10 @@ public class AudioFocusManagerTest {
   }
 
   @Test
-  public void onAudioFocusChange_withDuckEnabled_volumeReducedAndRestored() {
-    // Ensure that the volume multiplier is adjusted when audio focus is lost to
-    // AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK, and returns to the default value after focus is
-    // regained.
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+  public void onAudioFocusChange_withDuckEnabled_reducesAndRestoresVolume() {
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -413,16 +383,15 @@ public class AudioFocusManagerTest {
 
   @Test
   public void onAudioFocusChange_withPausedWhenDucked_sendsCommandWaitForCallback() {
-    // Ensure that the player is commanded to pause when audio focus is lost with
-    // AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK and the content type is CONTENT_TYPE_SPEECH.
-    AudioAttributes media =
+    Shadows.shadowOf(audioManager)
+        .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+
+    AudioAttributes speechAudioAttributes =
         new AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
             .setContentType(C.CONTENT_TYPE_SPEECH)
             .build();
-    Shadows.shadowOf(audioManager)
-        .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(speechAudioAttributes);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -438,12 +407,9 @@ public class AudioFocusManagerTest {
 
   @Test
   public void onAudioFocusChange_withTransientLoss_sendsCommandWaitForCallback() {
-    // Ensure that the player is commanded to pause when audio focus is lost with
-    // AUDIOFOCUS_LOSS_TRANSIENT.
-    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -456,16 +422,9 @@ public class AudioFocusManagerTest {
   @Test
   @Config(maxSdk = 25)
   public void onAudioFocusChange_withFocusLoss_sendsDoNotPlayAndAbandonsFocus() {
-    // Ensure that AUDIOFOCUS_LOSS causes AudioFocusManager to pause playback and abandon audio
-    // focus.
-    AudioAttributes media =
-        new AudioAttributes.Builder()
-            .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.CONTENT_TYPE_SPEECH)
-            .build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
@@ -482,16 +441,9 @@ public class AudioFocusManagerTest {
   @Test
   @Config(minSdk = 26, maxSdk = TARGET_SDK)
   public void onAudioFocusChange_withFocusLoss_sendsDoNotPlayAndAbandonsFocus_v26() {
-    // Ensure that AUDIOFOCUS_LOSS causes AudioFocusManager to pause playback and abandon audio
-    // focus.
-    AudioAttributes media =
-        new AudioAttributes.Builder()
-            .setUsage(C.USAGE_MEDIA)
-            .setContentType(C.CONTENT_TYPE_SPEECH)
-            .build();
     Shadows.shadowOf(audioManager)
         .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
-    audioFocusManager.setAudioAttributes(media);
+    audioFocusManager.setAudioAttributes(AudioAttributes.DEFAULT);
 
     assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
