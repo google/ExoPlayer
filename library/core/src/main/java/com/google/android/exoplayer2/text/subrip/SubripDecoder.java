@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -230,13 +231,12 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
         Cue.DIMEN_UNSET);
   }
 
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   private static long parseTimecode(Matcher matcher, int groupOffset) {
     @Nullable String hours = matcher.group(groupOffset + 1);
     long timestampMs = hours != null ? Long.parseLong(hours) * 60 * 60 * 1000 : 0;
-    timestampMs += Long.parseLong(matcher.group(groupOffset + 2)) * 60 * 1000;
-    timestampMs += Long.parseLong(matcher.group(groupOffset + 3)) * 1000;
+    timestampMs +=
+        Long.parseLong(Assertions.checkNotNull(matcher.group(groupOffset + 2))) * 60 * 1000;
+    timestampMs += Long.parseLong(Assertions.checkNotNull(matcher.group(groupOffset + 3))) * 1000;
     @Nullable String millis = matcher.group(groupOffset + 4);
     if (millis != null) {
       timestampMs += Long.parseLong(millis);

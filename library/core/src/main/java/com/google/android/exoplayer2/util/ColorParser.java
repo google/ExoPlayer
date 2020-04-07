@@ -63,8 +63,6 @@ public final class ColorParser {
     return parseColorInternal(colorExpression, true);
   }
 
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   private static int parseColorInternal(String colorExpression, boolean alphaHasFloatFormat) {
     Assertions.checkArgument(!TextUtils.isEmpty(colorExpression));
     colorExpression = colorExpression.replace(" ", "");
@@ -86,21 +84,20 @@ public final class ColorParser {
           .matcher(colorExpression);
       if (matcher.matches()) {
         return argb(
-          alphaHasFloatFormat ? (int) (255 * Float.parseFloat(matcher.group(4)))
-              : Integer.parseInt(matcher.group(4), 10),
-          Integer.parseInt(matcher.group(1), 10),
-          Integer.parseInt(matcher.group(2), 10),
-          Integer.parseInt(matcher.group(3), 10)
-        );
+            alphaHasFloatFormat
+                ? (int) (255 * Float.parseFloat(Assertions.checkNotNull(matcher.group(4))))
+                : Integer.parseInt(Assertions.checkNotNull(matcher.group(4)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(1)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(2)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(3)), 10));
       }
     } else if (colorExpression.startsWith(RGB)) {
       Matcher matcher = RGB_PATTERN.matcher(colorExpression);
       if (matcher.matches()) {
         return rgb(
-          Integer.parseInt(matcher.group(1), 10),
-          Integer.parseInt(matcher.group(2), 10),
-          Integer.parseInt(matcher.group(3), 10)
-        );
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(1)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(2)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(3)), 10));
       }
     } else {
       // we use our own color map

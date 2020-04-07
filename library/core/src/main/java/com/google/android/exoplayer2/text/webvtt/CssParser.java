@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -325,8 +326,6 @@ import java.util.regex.Pattern;
    * Sets the target of a {@link WebvttCssStyle} by splitting a selector of the form {@code
    * ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
    */
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   private void applySelectorToStyle(WebvttCssStyle style, String selector) {
     if ("".equals(selector)) {
       return; // Universal selector.
@@ -335,7 +334,7 @@ import java.util.regex.Pattern;
     if (voiceStartIndex != -1) {
       Matcher matcher = VOICE_NAME_PATTERN.matcher(selector.substring(voiceStartIndex));
       if (matcher.matches()) {
-        style.setTargetVoice(matcher.group(1));
+        style.setTargetVoice(Assertions.checkNotNull(matcher.group(1)));
       }
       selector = selector.substring(0, voiceStartIndex);
     }

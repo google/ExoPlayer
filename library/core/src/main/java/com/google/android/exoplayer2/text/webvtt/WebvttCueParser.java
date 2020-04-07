@@ -323,8 +323,6 @@ public final class WebvttCueParser {
 
   // Internal methods
 
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   @Nullable
   private static WebvttCueInfo parseCue(
       @Nullable String id,
@@ -334,14 +332,16 @@ public final class WebvttCueParser {
     WebvttCueInfoBuilder builder = new WebvttCueInfoBuilder();
     try {
       // Parse the cue start and end times.
-      builder.startTimeUs = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1));
-      builder.endTimeUs = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(2));
+      builder.startTimeUs =
+          WebvttParserUtil.parseTimestampUs(Assertions.checkNotNull(cueHeaderMatcher.group(1)));
+      builder.endTimeUs =
+          WebvttParserUtil.parseTimestampUs(Assertions.checkNotNull(cueHeaderMatcher.group(2)));
     } catch (NumberFormatException e) {
       Log.w(TAG, "Skipping cue with bad header: " + cueHeaderMatcher.group());
       return null;
     }
 
-    parseCueSettingsList(cueHeaderMatcher.group(3), builder);
+    parseCueSettingsList(Assertions.checkNotNull(cueHeaderMatcher.group(3)), builder);
 
     // Parse the cue text.
     StringBuilder textBuilder = new StringBuilder();
@@ -357,15 +357,13 @@ public final class WebvttCueParser {
     return builder.build();
   }
 
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   private static void parseCueSettingsList(String cueSettingsList, WebvttCueInfoBuilder builder) {
     // Parse the cue settings list.
     Matcher cueSettingMatcher = CUE_SETTING_PATTERN.matcher(cueSettingsList);
 
     while (cueSettingMatcher.find()) {
-      String name = cueSettingMatcher.group(1);
-      String value = cueSettingMatcher.group(2);
+      String name = Assertions.checkNotNull(cueSettingMatcher.group(1));
+      String value = Assertions.checkNotNull(cueSettingMatcher.group(2));
       try {
         if ("line".equals(name)) {
           parseLineAttribute(value, builder);
