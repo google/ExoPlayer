@@ -230,6 +230,54 @@ public class AudioFocusManagerTest {
   }
 
   @Test
+  public void updateAudioFocus_pausedToPlaying_withTransientDuck_setsPlayerCommandPlayWhenReady() {
+    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+    Shadows.shadowOf(audioManager)
+        .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+    audioFocusManager.setAudioAttributes(media);
+
+    assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+
+    // Simulate transient ducking.
+    audioFocusManager
+        .getFocusListener()
+        .onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
+    assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
+
+    // Focus should be re-requested, rather than staying in a state of transient ducking. This
+    // should restore the volume to 1.0.
+    assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+    assertThat(testPlayerControl.lastVolumeMultiplier).isEqualTo(1.0f);
+  }
+
+  @Test
+  public void updateAudioFocus_abandonFocusWhenDucked_restoresFullVolume() {
+    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+    Shadows.shadowOf(audioManager)
+        .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+    audioFocusManager.setAudioAttributes(media);
+
+    assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+
+    // Simulate transient ducking.
+    audioFocusManager
+        .getFocusListener()
+        .onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
+    assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
+
+    // Configure the manager to no longer handle audio focus.
+    audioFocusManager.setAudioAttributes(null);
+
+    // Focus should be abandoned, which should restore the volume to 1.0.
+    assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+    assertThat(testPlayerControl.lastVolumeMultiplier).isEqualTo(1.0f);
+  }
+
+  @Test
   @Config(maxSdk = 25)
   public void updateAudioFocus_readyToIdle_abandonsAudioFocus() {
     // Ensure that stopping the player (=changing state to idle) abandons audio focus.
@@ -319,6 +367,28 @@ public class AudioFocusManagerTest {
   }
 
   @Test
+  public void release_doesNotCallPlayerControlToRestoreVolume() {
+    AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
+    Shadows.shadowOf(audioManager)
+        .setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+    audioFocusManager.setAudioAttributes(media);
+
+    assertThat(audioFocusManager.updateAudioFocus(/* playWhenReady= */ true, Player.STATE_READY))
+        .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
+
+    // Simulate transient ducking.
+    audioFocusManager
+        .getFocusListener()
+        .onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
+    assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
+
+    audioFocusManager.release();
+
+    // PlaybackController.setVolumeMultiplier should not have been called to restore the volume.
+    assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
+  }
+
+  @Test
   public void onAudioFocusChange_withDuckEnabled_volumeReducedAndRestored() {
     // Ensure that the volume multiplier is adjusted when audio focus is lost to
     // AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK, and returns to the default value after focus is
@@ -367,7 +437,7 @@ public class AudioFocusManagerTest {
   }
 
   @Test
-  public void onAudioFocusChange_withTransientLost_sendsCommandWaitForCallback() {
+  public void onAudioFocusChange_withTransientLoss_sendsCommandWaitForCallback() {
     // Ensure that the player is commanded to pause when audio focus is lost with
     // AUDIOFOCUS_LOSS_TRANSIENT.
     AudioAttributes media = new AudioAttributes.Builder().setUsage(C.USAGE_MEDIA).build();
@@ -385,7 +455,7 @@ public class AudioFocusManagerTest {
 
   @Test
   @Config(maxSdk = 25)
-  public void onAudioFocusChange_withAudioFocusLost_sendsDoNotPlayAndAbandondsFocus() {
+  public void onAudioFocusChange_withFocusLoss_sendsDoNotPlayAndAbandonsFocus() {
     // Ensure that AUDIOFOCUS_LOSS causes AudioFocusManager to pause playback and abandon audio
     // focus.
     AudioAttributes media =
@@ -411,7 +481,7 @@ public class AudioFocusManagerTest {
 
   @Test
   @Config(minSdk = 26, maxSdk = TARGET_SDK)
-  public void onAudioFocusChange_withAudioFocusLost_sendsDoNotPlayAndAbandondsFocus_v26() {
+  public void onAudioFocusChange_withFocusLoss_sendsDoNotPlayAndAbandonsFocus_v26() {
     // Ensure that AUDIOFOCUS_LOSS causes AudioFocusManager to pause playback and abandon audio
     // focus.
     AudioAttributes media =
