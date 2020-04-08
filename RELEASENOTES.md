@@ -63,6 +63,8 @@
     *   Update `CachedContentIndex` to use `SecureRandom` for generating the
         initialization vector used to encrypt the cache contents.
     *   Remove deprecated members in `DefaultTrackSelector`.
+    *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
+        that the device volume can be controlled by player.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
