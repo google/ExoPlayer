@@ -49,6 +49,10 @@
 * FFmpeg extension: Add support for `x86_64` architecture.
 * Opus extension: Fix parsing of negative gain values
   ([#7046](https://github.com/google/ExoPlayer/issues/7046)).
+* Cast extension: Upgrade `play-services-cast-framework` dependency to 18.1.0.
+  This fixes an issue where `RemoteServiceException` was thrown due to
+  `Context.startForegroundService()` not calling `Service.startForeground()`
+  ([#7191](https://github.com/google/ExoPlayer/issues/7191)).
 
 ### 2.11.3 (2020-02-19) ###
 
