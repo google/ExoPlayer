@@ -1,0 +1,62 @@
+seekMap:
+  isSeekable = false
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=0]]
+numberOfTracks = 3
+track 256:
+  total output bytes = 45026
+  sample count = 2
+  format 0:
+    id = 1/256
+    sampleMimeType = video/mpeg2
+    width = 640
+    height = 426
+    initializationData:
+      data = length 22, hash CE183139
+  sample 0:
+    time = 33367
+    flags = 1
+    data = length 20711, hash 34341E8
+  sample 1:
+    time = 66733
+    flags = 0
+    data = length 18112, hash EC44B35B
+track 257:
+  total output bytes = 1396
+  sample count = 5
+  format 0:
+    id = 1/257
+    sampleMimeType = audio/mp4a-latm
+    codecs = mp4a.40.5
+    channelCount = 1
+    sampleRate = 44100
+    language = und
+    initializationData:
+      data = length 4, hash 1FE978
+  sample 0:
+    time = -92233
+    flags = 1
+    data = length 279, hash 79BF9F9B
+  sample 1:
+    time = -69014
+    flags = 1
+    data = length 279, hash C96F4684
+  sample 2:
+    time = -45795
+    flags = 1
+    data = length 279, hash 65670B86
+  sample 3:
+    time = -22576
+    flags = 1
+    data = length 280, hash 1AF29BCE
+  sample 4:
+    time = 643
+    flags = 1
+    data = length 279, hash C96F4684
+track 8448:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    id = 1/8448
+    sampleMimeType = application/cea-608
+tracksEnded = true

@@ -49,12 +49,12 @@ public final class TsExtractorTest {
   }
 
   @Test
-  public void sampleScte35() throws Exception {
+  public void sampleWithScte35() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_scte35.ts");
   }
 
   @Test
-  public void withAit() throws Exception {
+  public void sampleWithAit() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ait.ts");
   }
 
@@ -76,6 +76,16 @@ public final class TsExtractorTest {
   @Test
   public void sampleWithEac3joc() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3joc.ts");
+  }
+
+  @Test
+  public void sampleWithH264() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h264.ts");
+  }
+
+  @Test
+  public void sampleWithLatm() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_latm.ts");
   }
 
   @Test
