@@ -61,32 +61,29 @@ extensions for
 
 ### FFmpeg extension ###
 
-The [FFmpeg extension][] supports decoding a variety of different audio sample
-formats. You can choose which decoders to include by passing command line
-arguments to FFmpeg's `configure` script:
+The [FFmpeg extension]({{ site.release_v2 }}/extensions/ffmpeg) supports
+decoding a variety of different audio sample formats. You can choose which
+decoders to include when building the extension, as documented in the
+extension's [README.md]({{ site.release_v2 }}/extensions/ffmpeg/README.md). The
+following table provides a mapping from audio sample format to the corresponding
+FFmpeg decoder name.
 
-| Sample format  | Argument(s) to `configure` |
+| Sample format  | Decoder name(s) |
 |---------------:|----------------------------|
-| Vorbis         | --enable-decoder=vorbis |
-| Opus           | --enable-decoder=opus |
-| FLAC           | --enable-decoder=flac |
-| ALAC           | --enable-decoder=alac |
-| PCM μ-law      | --enable-decoder=pcm_mulaw |
-| PCM A-law      | --enable-decoder=pcm_alaw |
-| MP1, MP2, MP3  | --enable-decoder=mp3 |
-| AMR-NB         | --enable-decoder=amrnb |
-| AMR-WB         | --enable-decoder=amrwb |
-| AAC            | --enable-decoder=aac |
-| AC-3           | --enable-decoder=ac3 |
-| E-AC-3         | --enable-decoder=eac3 |
-| DTS, DTS-HD    | --enable-decoder=dca |
-| TrueHD         | --enable-decoder=mlp --enable-decoder=truehd |
-
-See the extension's
-[README.md]({{ site.release_v2 }}/extensions/ffmpeg/README.md)
-for an example command line to `configure`.
-
-[FFmpeg extension]: {{ site.release_v2 }}/extensions/ffmpeg
+| Vorbis         | vorbis |
+| Opus           | opus |
+| FLAC           | flac |
+| ALAC           | alac |
+| PCM μ-law      | pcm_mulaw |
+| PCM A-law      | pcm_alaw |
+| MP1, MP2, MP3  | mp3 |
+| AMR-NB         | amrnb |
+| AMR-WB         | amrwb |
+| AAC            | aac |
+| AC-3           | ac3 |
+| E-AC-3         | eac3 |
+| DTS, DTS-HD    | dca |
+| TrueHD         | mlp truehd |
 
 ## Standalone subtitle formats ##
 

@@ -17,7 +17,10 @@ redirect_from:
 * [How can I fix "Unexpected status line: ICY 200 OK"?][]
 * [How can I query whether the stream being played is a live stream?][]
 * [How do I keep audio playing when my app is backgrounded?][]
+* [Why does ExoPlayer support my content but the Cast extension doesn't?][]
+* [Why does content fail to play, but no error is surfaced?]
 * [How can I get a decoding extension to load and be used for playback?][]
+* [Can I play YouTube videos directly with ExoPlayer?][]
 
 ---
 
@@ -227,10 +230,12 @@ audio when your app is in the background:
 1. You need to have a running [foreground service][]. This prevents the system
    from killing your process to free up resources.
 1. You need to hold a [`WifiLock`][] and a [`WakeLock`][]. These ensure that the
-   system keeps the WiFi radio and CPU awake.
+   system keeps the WiFi radio and CPU awake. This can be easily done if using
+   [`SimpleExoPlayer`][] by calling [`setWakeMode`][], which will automatically
+   acquire and release the required locks at the correct times.
 
-It's important that you stop the service and release the locks as soon as audio
-is no longer being played.
+It's important that you release the locks (if not using `setWakeMode`) and stop
+the service as soon as audio is no longer being played.
 
 #### Why does ExoPlayer support my content but the Cast extension doesn't? ####
 
@@ -282,6 +287,13 @@ a new issue and it relates to building the native part of the extension, please
 include full command line output from running README instructions, to help us
 diagnose the issue.
 
+#### Can I play YouTube videos directly with ExoPlayer? ####
+
+No, ExoPlayer cannot play videos from YouTube, i.e., urls of the form
+` https://www.youtube.com/watch?v=...`. Instead, you should use the [YouTube
+Android Player API](https://developers.google.com/youtube/android/player/) which
+is the official way to play YouTube videos on Android.
+
 [Fixing "Cleartext HTTP traffic not permitted" errors]: #fixing-cleartext-http-traffic-not-permitted-errors
 [Fixing "SSLHandshakeException" and "CertPathValidatorException" errors]: #fixing-sslhandshakeexception-and-certpathvalidatorexception-errors
 [What formats does ExoPlayer support?]: #what-formats-does-exoplayer-support
@@ -296,7 +308,10 @@ diagnose the issue.
 [How can I fix "Unexpected status line: ICY 200 OK"?]:  #how-can-i-fix-unexpected-status-line-icy-200-ok
 [How can I query whether the stream being played is a live stream?]: #how-can-i-query-whether-the-stream-being-played-is-a-live-stream
 [How do I keep audio playing when my app is backgrounded?]: #how-do-i-keep-audio-playing-when-my-app-is-backgrounded
+[Why does ExoPlayer support my content but the Cast extension doesn't?]: #why-does-exoplayer-support-my-content-but-the-cast-extension-doesnt
+[Why does content fail to play, but no error is surfaced?]: #why-does-content-fail-to-play-but-no-error-is-surfaced
 [How can I get a decoding extension to load and be used for playback?]: #how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
+[Can I play YouTube videos directly with ExoPlayer?]: #can-i-play-yt-videos-with-exoplayer
 
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
@@ -320,6 +335,8 @@ diagnose the issue.
 [foreground service]: https://developer.android.com/guide/components/services.html#Foreground
 [`WifiLock`]: {{ site.android_sdk }}/android/net/wifi/WifiManager.WifiLock.html
 [`WakeLock`]: {{ site.android_sdk }}/android/os/PowerManager.WakeLock.html
+[`SimpleExoPlayer`]: {{ site.exo_sdk }}/SimpleExoPlayer.html
+[`setWakeMode`]: {{ site.exo_sdk }}/SimpleExoPlayer.html#setWakeMode-int-
 ["Threading model" section of the ExoPlayer Javadoc]: {{ site.exo_sdk }}/ExoPlayer.html
 [OkHttp extension]: {{ site.release_v2 }}/extensions/okhttp
 [CORS enabled]: https://www.w3.org/wiki/CORS_Enabled
