@@ -44,8 +44,13 @@ import org.junit.runner.RunWith;
 public final class TsExtractorTest {
 
   @Test
-  public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample.ts");
+  public void sampleWithH262AndMpegAudio() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h262_mpeg_audio.ts");
+  }
+
+  @Test
+  public void sampleWithH264AndMpegAudio() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h264_mpeg_audio.ts");
   }
 
   @Test
@@ -79,11 +84,6 @@ public final class TsExtractorTest {
   }
 
   @Test
-  public void sampleWithH264() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h264.ts");
-  }
-
-  @Test
   public void sampleWithLatm() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_latm.ts");
   }
@@ -102,7 +102,8 @@ public final class TsExtractorTest {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
             .setData(
-                TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "ts/sample.ts"))
+                TestUtil.getByteArray(
+                    ApplicationProvider.getApplicationContext(), "ts/sample_h262_mpeg_audio.ts"))
             .setSimulateIOErrors(false)
             .setSimulateUnknownLength(false)
             .setSimulatePartialReads(false)
