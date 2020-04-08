@@ -690,7 +690,7 @@ public class SimpleExoPlayer extends BasePlayer
     boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
     int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, getPlaybackState());
-    updatePlayWhenReady(getPlayWhenReady(), playerCommand);
+    updatePlayWhenReady(playWhenReady, playerCommand);
   }
 
   @Override
@@ -1189,9 +1189,10 @@ public class SimpleExoPlayer extends BasePlayer
     }
     this.mediaSource = mediaSource;
     mediaSource.addEventListener(eventHandler, analyticsCollector);
+    boolean playWhenReady = getPlayWhenReady();
     @AudioFocusManager.PlayerCommand
-    int playerCommand = audioFocusManager.updateAudioFocus(getPlayWhenReady(), Player.STATE_BUFFERING);
-    updatePlayWhenReady(getPlayWhenReady(), playerCommand);
+    int playerCommand = audioFocusManager.updateAudioFocus(playWhenReady, Player.STATE_BUFFERING);
+    updatePlayWhenReady(playWhenReady, playerCommand);
     player.prepare(mediaSource, resetPosition, resetState);
   }
 
