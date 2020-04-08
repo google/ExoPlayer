@@ -123,14 +123,14 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,androidx.core.app.NotificationCompat.Action&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html#createCustomActions-android.content.Context-int-">createCustomActions</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>,androidx.core.app.NotificationCompat.Action&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html#createCustomActions-android.content.Context-int-">createCustomActions</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                    int&nbsp;instanceId)</code>
 <div class="block">Gets the actions handled by this receiver.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;</code></td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html#getCustomActions-com.google.android.exoplayer2.Player-">getCustomActions</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Gets the actions to be included in the notification given the current player state.</div>
 </td>
@@ -138,8 +138,8 @@ var activeTableTab = "activeTableTab";
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.CustomActionReceiver.html#onCustomAction-com.google.android.exoplayer2.Player-java.lang.String-android.content.Intent-">onCustomAction</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-              <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
-              <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a>&nbsp;intent)</code>
+              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;action,
+              <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" target="_top">Intent</a>&nbsp;intent)</code>
 <div class="block">Called when a custom action has been received.</div>
 </td>
 </tr>
@@ -164,19 +164,19 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>createCustomActions</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,androidx.core.app.NotificationCompat.Action&gt;&nbsp;createCustomActions(<a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content">Context</a>&nbsp;context,
+<pre><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,androidx.core.app.NotificationCompat.Action&gt;&nbsp;createCustomActions(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                                                                             int&nbsp;instanceId)</pre>
 <div class="block">Gets the actions handled by this receiver.
 
  <p>If multiple <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager</code></a> instances are in use at the same time, the
  <code>instanceId</code> must be set as an intent extra with key <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#EXTRA_INSTANCE_ID"><code>PlayerNotificationManager.EXTRA_INSTANCE_ID</code></a> to avoid sending the action to every custom
  action receiver. It's also necessary to ensure something is different about the actions. This
- may be any of the <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content"><code>Intent</code></a> attributes considered by <a href="https://developer.android.com/reference/android/content/Intent.html?is-external=true#filterEquals-android.content.Intent-" title="class or interface in android.content"><code>Intent.filterEquals(android.content.Intent)</code></a>, or
- different request code integers when creating the <a href="https://developer.android.com/reference/android/app/PendingIntent.html" target="_top" title="class or interface in android.app"><code>PendingIntent</code></a>s with <a href="https://developer.android.com/reference/android/app/PendingIntent.html?is-external=true#getBroadcast-android.content.Context-int-android.content.Intent-int-" title="class or interface in android.app"><code>PendingIntent.getBroadcast(android.content.Context, int, android.content.Intent, int)</code></a>. The easiest approach is to use the <code>instanceId</code> as the
+ may be any of the <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content"><code>Intent</code></a> attributes considered by <a href="https://developer.android.com/reference/android/content/Intent.html?is-external=true#filterEquals-android.content.Intent-" title="class or interface in android.content" target="_top"><code>Intent.filterEquals(android.content.Intent)</code></a>, or
+ different request code integers when creating the <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app"><code>PendingIntent</code></a>s with <a href="https://developer.android.com/reference/android/app/PendingIntent.html?is-external=true#getBroadcast-android.content.Context-int-android.content.Intent-int-" title="class or interface in android.app" target="_top"><code>PendingIntent.getBroadcast(android.content.Context, int, android.content.Intent, int)</code></a>. The easiest approach is to use the <code>instanceId</code> as the
  request code.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" target="_top" title="class or interface in android.content"><code>Context</code></a>.</dd>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a>.</dd>
 <dd><code>instanceId</code> - The instance id of the <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html" title="class in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A map of custom actions.</dd>
@@ -189,7 +189,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getCustomActions</h4>
-<pre><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&nbsp;getCustomActions(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<pre><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getCustomActions(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2" target="_top">Player</a>&nbsp;player)</pre>
 <div class="block">Gets the actions to be included in the notification given the current player state.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -206,14 +206,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>onCustomAction</h4>
 <pre>void&nbsp;onCustomAction(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
-                    <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;action,
-                    <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content">Intent</a>&nbsp;intent)</pre>
+                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;action,
+                    <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" target="_top">Intent</a>&nbsp;intent)</pre>
 <div class="block">Called when a custom action has been received.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player.</dd>
-<dd><code>action</code> - The action from <a href="https://developer.android.com/reference/android/content/Intent.html?is-external=true#getAction--" title="class or interface in android.content"><code>Intent.getAction()</code></a>.</dd>
-<dd><code>intent</code> - The received <a href="https://developer.android.com/reference/android/content/Intent.html" target="_top" title="class or interface in android.content"><code>Intent</code></a>.</dd>
+<dd><code>action</code> - The action from <a href="https://developer.android.com/reference/android/content/Intent.html#getAction--" title="class or interface in android.content" target="_top"><code>Intent.getAction()</code></a>.</dd>
+<dd><code>intent</code> - The received <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" target="_top"><code>Intent</code></a>.</dd>
 </dl>
 </li>
 </ul>

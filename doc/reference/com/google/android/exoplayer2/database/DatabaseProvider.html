@@ -103,7 +103,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public interface <span class="typeNameLabel">DatabaseProvider</span></pre>
-<div class="block">Provides <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" target="_top" title="class or interface in android.database.sqlite"><code>SQLiteDatabase</code></a> instances to ExoPlayer components, which may read and write
+<div class="block">Provides <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" target="_top"><code>SQLiteDatabase</code></a> instances to ExoPlayer components, which may read and write
  tables prefixed with <a href="../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html#TABLE_PREFIX"><code>TABLE_PREFIX</code></a>.</div>
 </li>
 </ul>
@@ -124,7 +124,7 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a></code></td>
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html#TABLE_PREFIX">TABLE_PREFIX</a></span></code>
 <div class="block">Prefix for tables that can be read and written by ExoPlayer components.</div>
 </td>
@@ -145,13 +145,13 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" target="_top" title="class or interface in android.database.sqlite">SQLiteDatabase</a></code></td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" target="_top">SQLiteDatabase</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html#getReadableDatabase--">getReadableDatabase</a></span>()</code>
 <div class="block">Creates and/or opens a database.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" target="_top" title="class or interface in android.database.sqlite">SQLiteDatabase</a></code></td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" target="_top">SQLiteDatabase</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html#getWritableDatabase--">getWritableDatabase</a></span>()</code>
 <div class="block">Creates and/or opens a database that will be used for reading and writing.</div>
 </td>
@@ -177,7 +177,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>TABLE_PREFIX</h4>
-<pre>static final&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a> TABLE_PREFIX</pre>
+<pre>static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> TABLE_PREFIX</pre>
 <div class="block">Prefix for tables that can be read and written by ExoPlayer components.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -199,7 +199,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getWritableDatabase</h4>
-<pre><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" target="_top" title="class or interface in android.database.sqlite">SQLiteDatabase</a>&nbsp;getWritableDatabase()</pre>
+<pre><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" target="_top">SQLiteDatabase</a>&nbsp;getWritableDatabase()</pre>
 <div class="block">Creates and/or opens a database that will be used for reading and writing.
 
  <p>Once opened successfully, the database is cached, so you can call this method every time you
@@ -209,7 +209,7 @@ var activeTableTab = "activeTableTab";
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A read/write database object.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteException.html" target="_top" title="class or interface in android.database.sqlite">SQLiteException</a></code> - If the database cannot be opened for writing.</dd>
+<dd><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteException.html" title="class or interface in android.database.sqlite" target="_top">SQLiteException</a></code> - If the database cannot be opened for writing.</dd>
 </dl>
 </li>
 </ul>
@@ -219,7 +219,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getReadableDatabase</h4>
-<pre><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" target="_top" title="class or interface in android.database.sqlite">SQLiteDatabase</a>&nbsp;getReadableDatabase()</pre>
+<pre><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" target="_top">SQLiteDatabase</a>&nbsp;getReadableDatabase()</pre>
 <div class="block">Creates and/or opens a database. This will be the same object returned by <a href="../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html#getWritableDatabase--"><code>getWritableDatabase()</code></a> unless some problem, such as a full disk, requires the database to be
  opened read-only. In that case, a read-only database object will be returned. If the problem is
  fixed, a future call to <a href="../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html#getWritableDatabase--"><code>getWritableDatabase()</code></a> may succeed, in which case the read-only
@@ -231,7 +231,7 @@ var activeTableTab = "activeTableTab";
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A database object valid until <a href="../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html#getWritableDatabase--"><code>getWritableDatabase()</code></a> is called.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteException.html" target="_top" title="class or interface in android.database.sqlite">SQLiteException</a></code> - If the database cannot be opened.</dd>
+<dd><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteException.html" title="class or interface in android.database.sqlite" target="_top">SQLiteException</a></code> - If the database cannot be opened.</dd>
 </dl>
 </li>
 </ul>

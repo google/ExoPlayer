@@ -185,16 +185,16 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>open</h4>
 <pre>void&nbsp;open(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
-   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Opens the sink to consume the specified data.
 
- <p>Note: If an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a> is thrown, callers must still call <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html#close--"><code>close()</code></a> to
+ <p>Note: If an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io"><code>IOException</code></a> is thrown, callers must still call <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html#close--" target="_top"><code>close()</code></a> to
  ensure that any partial effects of the invocation are cleaned up.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSpec</code> - Defines the data to be consumed.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs opening the sink.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs opening the sink.</dd>
 </dl>
 </li>
 </ul>
@@ -207,7 +207,7 @@ var activeTableTab = "activeTableTab";
 <pre>void&nbsp;write(byte[]&nbsp;buffer,
            int&nbsp;offset,
            int&nbsp;length)
-    throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+    throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Consumes the provided data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -215,7 +215,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>offset</code> - The offset of the data to consume in <code>buffer</code>.</dd>
 <dd><code>length</code> - The length of the data to consume, in bytes.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs writing to the sink.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs writing to the sink.</dd>
 </dl>
 </li>
 </ul>
@@ -226,14 +226,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>close</h4>
 <pre>void&nbsp;close()
-    throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+    throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Closes the sink.
 
  <p>Note: This method must be called even if the corresponding call to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>
- threw an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a>. See <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a> for more details.</div>
+ threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io"><code>IOException</code></a>. See <a href="../../../../../com/google/android/exoplayer2/upstream/DataSink.html#open-com.google.android.exoplayer2.upstream.DataSpec-" target="_top"><code>open(DataSpec)</code></a> for more details.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs closing the sink.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs closing the sink.</dd>
 </dl>
 </li>
 </ul>

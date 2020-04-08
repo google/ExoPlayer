@@ -131,8 +131,8 @@ var activeTableTab = "activeTableTab";
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/scheduler/Scheduler.html#schedule-com.google.android.exoplayer2.scheduler.Requirements-java.lang.String-java.lang.String-">schedule</a></span>(<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
-        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;servicePackage,
-        <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;serviceAction)</code>
+        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;servicePackage,
+        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;serviceAction)</code>
 <div class="block">Schedules a service to be started in the foreground when some <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> are met.</div>
 </td>
 </tr>
@@ -158,14 +158,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>schedule</h4>
 <pre>boolean&nbsp;schedule(<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;servicePackage,
-                 <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;serviceAction)</pre>
+                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;servicePackage,
+                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;serviceAction)</pre>
 <div class="block">Schedules a service to be started in the foreground when some <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> are met.
  Anything that was previously scheduled will be canceled.
 
  <p>The service to be started must be declared in the manifest of <code>servicePackage</code> with an
- intent filter containing <code>serviceAction</code>. Note that when started with <code>serviceAction</code>, the service must call <a href="https://developer.android.com/reference/android/app/Service.html?is-external=true#startForeground-int-android.app.Notification-" title="class or interface in android.app"><code>Service.startForeground(int, Notification)</code></a> to
- make itself a foreground service, as documented by <a href="https://developer.android.com/reference/android/content/ContextWrapper.html?is-external=true#startForegroundService-android.content.Intent-" title="class or interface in android.content"><code>ContextWrapper.startForegroundService(Intent)</code></a>.</div>
+ intent filter containing <code>serviceAction</code>. Note that when started with <code>serviceAction</code>, the service must call <a href="https://developer.android.com/reference/android/app/Service.html#startForeground-int-android.app.Notification-" title="class or interface in android.app" target="_top"><code>Service.startForeground(int, Notification)</code></a> to
+ make itself a foreground service, as documented by <a href="https://developer.android.com/reference/android/content/ContextWrapper.html#startForegroundService-android.content.Intent-" title="class or interface in android.content" target="_top"><code>ContextWrapper.startForegroundService(Intent)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>requirements</code> - The requirements.</dd>

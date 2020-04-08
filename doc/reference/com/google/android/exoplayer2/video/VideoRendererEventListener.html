@@ -153,14 +153,14 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onRenderedFirstFrame-android.view.Surface-">onRenderedFirstFrame</a></span>(<a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onRenderedFirstFrame-android.view.Surface-">onRenderedFirstFrame</a></span>(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" target="_top">Surface</a>&nbsp;surface)</code>
 <div class="block">Called when a frame is rendered for the first time since setting the surface, and when a frame
  is rendered for the first time since the renderer was reset.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoDecoderInitialized-java.lang.String-long-long-">onVideoDecoderInitialized</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;decoderName,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoDecoderInitialized-java.lang.String-long-long-">onVideoDecoderInitialized</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;decoderName,
                          long&nbsp;initializedTimestampMs,
                          long&nbsp;initializationDurationMs)</code>
 <div class="block">Called when a decoder is created.</div>
@@ -230,14 +230,14 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onVideoDecoderInitialized</h4>
-<pre>default&nbsp;void&nbsp;onVideoDecoderInitialized(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&nbsp;decoderName,
+<pre>default&nbsp;void&nbsp;onVideoDecoderInitialized(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;decoderName,
                                        long&nbsp;initializedTimestampMs,
                                        long&nbsp;initializationDurationMs)</pre>
 <div class="block">Called when a decoder is created.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>decoderName</code> - The decoder that was created.</dd>
-<dd><code>initializedTimestampMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when initialization
+<dd><code>initializedTimestampMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime--" title="class or interface in android.os" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when initialization
      finished.</dd>
 <dd><code>initializationDurationMs</code> - The time taken to initialize the decoder in milliseconds.</dd>
 </dl>
@@ -297,8 +297,8 @@ var activeTableTab = "activeTableTab";
      rotation in degrees that the application should apply for the video for it to be rendered
      in the correct orientation. This value will always be zero on API levels 21 and above,
      since the renderer will apply all necessary rotations internally. On earlier API levels
-     this is not possible. Applications that use <a href="https://developer.android.com/reference/android/view/TextureView.html" target="_top" title="class or interface in android.view"><code>TextureView</code></a> can apply the rotation by
-     calling <a href="https://developer.android.com/reference/android/view/TextureView.html?is-external=true#setTransform-android.graphics.Matrix-" title="class or interface in android.view"><code>TextureView.setTransform(android.graphics.Matrix)</code></a>. Applications that do not expect to encounter
+     this is not possible. Applications that use <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" target="_top"><code>TextureView</code></a> can apply the rotation by
+     calling <a href="https://developer.android.com/reference/android/view/TextureView.html#setTransform-android.graphics.Matrix-" title="class or interface in android.view" target="_top"><code>TextureView.setTransform(android.graphics.Matrix)</code></a>. Applications that do not expect to encounter
      rotated videos can safely ignore this parameter.</dd>
 <dd><code>pixelWidthHeightRatio</code> - The width to height ratio of each pixel. For the normal case of
      square pixels this will be equal to 1.0. Different values are indicative of anamorphic
@@ -313,13 +313,13 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>onRenderedFirstFrame</h4>
 <pre>default&nbsp;void&nbsp;onRenderedFirstFrame(@Nullable
-                                  <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view">Surface</a>&nbsp;surface)</pre>
+                                  <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" target="_top">Surface</a>&nbsp;surface)</pre>
 <div class="block">Called when a frame is rendered for the first time since setting the surface, and when a frame
  is rendered for the first time since the renderer was reset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>surface</code> - The <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a> to which a first frame has been rendered, or <code>null</code> if
-     the renderer renders to something that isn't a <a href="https://developer.android.com/reference/android/view/Surface.html" target="_top" title="class or interface in android.view"><code>Surface</code></a>.</dd>
+<dd><code>surface</code> - The <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" target="_top"><code>Surface</code></a> to which a first frame has been rendered, or <code>null</code> if
+     the renderer renders to something that isn't a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" target="_top"><code>Surface</code></a>.</dd>
 </dl>
 </li>
 </ul>

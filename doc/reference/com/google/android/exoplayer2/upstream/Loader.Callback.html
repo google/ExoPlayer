@@ -148,7 +148,7 @@ var activeTableTab = "activeTableTab";
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html#onLoadError-T-long-long-java.io.IOException-int-">onLoadError</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="type parameter in Loader.Callback">T</a>&nbsp;loadable,
            long&nbsp;elapsedRealtimeMs,
            long&nbsp;loadDurationMs,
-           <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
+           <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;error,
            int&nbsp;errorCount)</code>
 <div class="block">Called when a load encounters an error.</div>
 </td>
@@ -186,7 +186,7 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has completed.</dd>
-<dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the load ended.</dd>
+<dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime--" title="class or interface in android.os" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when the load ended.</dd>
 <dd><code>loadDurationMs</code> - The duration in milliseconds of the load since <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a>
      was called.</dd>
 </dl>
@@ -212,7 +212,7 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has been canceled.</dd>
-<dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the load was canceled.</dd>
+<dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime--" title="class or interface in android.os" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when the load was canceled.</dd>
 <dd><code>loadDurationMs</code> - The duration in milliseconds of the load since <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a>
      was called up to the point at which it was canceled.</dd>
 <dd><code>released</code> - True if the load was canceled because the <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> was released. False
@@ -231,7 +231,7 @@ var activeTableTab = "activeTableTab";
 <pre><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a>&nbsp;onLoadError(<a href="../../../../../com/google/android/exoplayer2/upstream/Loader.Callback.html" title="type parameter in Loader.Callback">T</a>&nbsp;loadable,
                                    long&nbsp;elapsedRealtimeMs,
                                    long&nbsp;loadDurationMs,
-                                   <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a>&nbsp;error,
+                                   <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;error,
                                    int&nbsp;errorCount)</pre>
 <div class="block">Called when a load encounters an error.
 
@@ -240,7 +240,7 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadable</code> - The loadable whose load has encountered an error.</dd>
-<dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html?is-external=true#elapsedRealtime--" title="class or interface in android.os"><code>SystemClock.elapsedRealtime()</code></a> when the error occurred.</dd>
+<dd><code>elapsedRealtimeMs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime--" title="class or interface in android.os" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when the error occurred.</dd>
 <dd><code>loadDurationMs</code> - The duration in milliseconds of the load since <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html#startLoading-T-com.google.android.exoplayer2.upstream.Loader.Callback-int-"><code>Loader.startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a>
      was called up to the point at which the error occurred.</dd>
 <dd><code>error</code> - The load error.</dd>

@@ -94,7 +94,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.audio.DefaultAudioSink</li>
@@ -111,9 +111,9 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public final class <span class="typeNameLabel">DefaultAudioSink</span>
-extends <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></pre>
-<div class="block">Plays audio data. The implementation delegates to an <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a> and handles playback
+<div class="block">Plays audio data. The implementation delegates to an <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a> and handles playback
  position smoothing, non-blocking writes and reconfiguration.
  <p>
  If tunneling mode is enabled, care must be taken that audio processors do not output buffers with
@@ -192,7 +192,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp">failOnSpuriousAudioTimestamp</a></span></code>
 <div class="block">Whether to throw an <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.InvalidAudioTrackTimestampException</code></a> when a spurious timestamp is
- reported from <a href="https://developer.android.com/reference/android/media/AudioTrack.html?is-external=true#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a>.</div>
+ reported from <a href="https://developer.android.com/reference/android/media/AudioTrack.html#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media" target="_top"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -225,14 +225,14 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.AudioProcessor:A-boolean-">DefaultAudioSink</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                 <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
-                boolean&nbsp;enableConvertHighResIntPcmToFloat)</code>
+                boolean&nbsp;enableFloatOutput)</code>
 <div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain-boolean-">DefaultAudioSink</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                 <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain,
-                boolean&nbsp;enableConvertHighResIntPcmToFloat)</code>
+                boolean&nbsp;enableFloatOutput)</code>
 <div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM and
  with the specified <code>audioProcessorChain</code>.</div>
 </td>
@@ -297,9 +297,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">handleBuffer</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">handleBuffer</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
             long&nbsp;presentationTimeUs)</code>
-<div class="block">Attempts to process data from a <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a>, starting from its current position and
+<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
  ending at its limit (exclusive).</div>
 </td>
 </tr>
@@ -393,8 +393,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
-<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -432,7 +432,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <h4>failOnSpuriousAudioTimestamp</h4>
 <pre>public static&nbsp;boolean failOnSpuriousAudioTimestamp</pre>
 <div class="block">Whether to throw an <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.InvalidAudioTrackTimestampException</code></a> when a spurious timestamp is
- reported from <a href="https://developer.android.com/reference/android/media/AudioTrack.html?is-external=true#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a>.
+ reported from <a href="https://developer.android.com/reference/android/media/AudioTrack.html#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media" target="_top"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a>.
  <p>
  The flag must be set before creating a player. Should be set to <code>true</code> for testing and
  debugging purposes only.</div>
@@ -474,7 +474,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <pre>public&nbsp;DefaultAudioSink(@Nullable
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
-                        boolean&nbsp;enableConvertHighResIntPcmToFloat)</pre>
+                        boolean&nbsp;enableFloatOutput)</pre>
 <div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -482,10 +482,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
      default capabilities (no encoded audio passthrough support) should be assumed.</dd>
 <dd><code>audioProcessors</code> - An array of <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a>s that will process PCM audio before
      output. May be empty.</dd>
-<dd><code>enableConvertHighResIntPcmToFloat</code> - Whether to enable conversion of high resolution
-     integer PCM to 32-bit float for output, if possible. Functionality that uses 16-bit integer
-     audio processing (for example, speed and pitch adjustment) will not be available when float
-     output is in use.</dd>
+<dd><code>enableFloatOutput</code> - Whether to enable 32-bit float output. Where possible, 32-bit float
+     output will be used if the input is 32-bit float, and also if the input is high resolution
+     (24-bit or 32-bit) integer PCM. Audio processing (for example, speed adjustment) will not
+     be available when float output is in use.</dd>
 </dl>
 </li>
 </ul>
@@ -498,7 +498,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <pre>public&nbsp;DefaultAudioSink(@Nullable
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                         <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain,
-                        boolean&nbsp;enableConvertHighResIntPcmToFloat)</pre>
+                        boolean&nbsp;enableFloatOutput)</pre>
 <div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM and
  with the specified <code>audioProcessorChain</code>.</div>
 <dl>
@@ -507,10 +507,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
      default capabilities (no encoded audio passthrough support) should be assumed.</dd>
 <dd><code>audioProcessorChain</code> - An <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.AudioProcessorChain</code></a> which is used to apply playback
      parameters adjustments. The instance passed in must not be reused in other sinks.</dd>
-<dd><code>enableConvertHighResIntPcmToFloat</code> - Whether to enable conversion of high resolution
-     integer PCM to 32-bit float for output, if possible. Functionality that uses 16-bit integer
-     audio processing (for example, speed and pitch adjustment) will not be available when float
-     output is in use.</dd>
+<dd><code>enableFloatOutput</code> - Whether to enable 32-bit float output. Where possible, 32-bit float
+     output will be used if the input is 32-bit float, and also if the input is high resolution
+     (24-bit or 32-bit) integer PCM. Audio processing (for example, speed adjustment) will not
+     be available when float output is in use.</dd>
 </dl>
 </li>
 </ul>
@@ -658,18 +658,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <ul class="blockList">
 <li class="blockList">
 <h4>handleBuffer</h4>
-<pre>public&nbsp;boolean&nbsp;handleBuffer(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer,
+<pre>public&nbsp;boolean&nbsp;handleBuffer(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
                             long&nbsp;presentationTimeUs)
                      throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a>,
                             <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">AudioSink</a></code></span></div>
-<div class="block">Attempts to process data from a <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a>, starting from its current position and
- ending at its limit (exclusive). The position of the <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a> is advanced by the
+<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
+ ending at its limit (exclusive). The position of the <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> is advanced by the
  number of bytes that were handled. <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onPositionDiscontinuity--"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a> will be called if
  <code>presentationTimeUs</code> is discontinuous with the last buffer handled since the last reset.
 
  <p>Returns whether the data was handled in full. If the data was not handled in full then the
- same <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
+ same <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
  except in the case of an intervening call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>AudioSink.flush()</code></a> (or to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-"><code>AudioSink.configure(int,
  int, int, int, int[], int, int)</code></a> that causes the sink to be flushed).</div>
 <dl>
@@ -829,7 +829,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#enableTunnelingV21-int-">AudioSink</a></code></span></div>
 <div class="block">Enables tunneling, if possible. The sink is reset if tunneling was previously disabled or if
  the audio session id has changed. Enabling tunneling is only possible if the sink is based on a
- platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a>, and requires platform API version 21 onwards.</div>
+ platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>, and requires platform API version 21 onwards.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#enableTunnelingV21-int-">enableTunnelingV21</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>

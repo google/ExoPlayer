@@ -160,16 +160,16 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>default <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;</code></td>
+<td class="colFirst"><code>default <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">getResponseHeaders</a></span>()</code>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a></code></td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getUri--">getUri</a></span>()</code>
-<div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read.</div>
+<div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> from which data is being read.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -223,10 +223,10 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>open</h4>
 <pre>long&nbsp;open(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
-   throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Opens the source to read the specified data.
  <p>
- Note: If an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a> is thrown, callers must still call <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#close--"><code>close()</code></a> to ensure
+ Note: If an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io"><code>IOException</code></a> is thrown, callers must still call <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#close--" target="_top"><code>close()</code></a> to ensure
  that any partial effects of the invocation are cleaned up.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -238,7 +238,7 @@ var activeTableTab = "activeTableTab";
      unresolved. For all other requests, the value returned will be equal to the request's
      <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>DataSpec.length</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs opening the source. <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSourceException</code></a> can be
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io">IOException</a></code> - If an error occurs opening the source. <a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceException.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>DataSourceException</code></a> can be
      thrown or used as a cause of the thrown exception to specify the reason of the error.</dd>
 </dl>
 </li>
@@ -252,7 +252,7 @@ var activeTableTab = "activeTableTab";
 <pre>int&nbsp;read(byte[]&nbsp;buffer,
          int&nbsp;offset,
          int&nbsp;readLength)
-  throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
  index <code>offset</code>.
 
@@ -269,7 +269,7 @@ var activeTableTab = "activeTableTab";
 <dd>The number of bytes read, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if no data is available
      because the end of the opened range has been reached.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs reading from the source.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the source.</dd>
 </dl>
 </li>
 </ul>
@@ -280,14 +280,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>getUri</h4>
 <pre>@Nullable
-<a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net">Uri</a>&nbsp;getUri()</pre>
-<div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read. The returned
- <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> will be identical to the one passed <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a> in the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>
- unless redirection has occurred. If redirection has occurred, the <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> after redirection
+<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;getUri()</pre>
+<div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> from which data is being read. The returned
+ <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net"><code>Uri</code></a> will be identical to the one passed <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a> in the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>DataSpec</code></a>
+ unless redirection has occurred. If redirection has occurred, the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> after redirection
  is returned.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="https://developer.android.com/reference/android/net/Uri.html" target="_top" title="class or interface in android.net"><code>Uri</code></a> from which data is being read, or null if the source is not open.</dd>
+<dd>The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> from which data is being read, or null if the source is not open.</dd>
 </dl>
 </li>
 </ul>
@@ -297,7 +297,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getResponseHeaders</h4>
-<pre>default&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/Map.html" target="_top" title="class or interface in java.util">Map</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>,<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/util/List.html" target="_top" title="class or interface in java.util">List</a>&lt;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/String.html" target="_top" title="class or interface in java.lang">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
+<pre>default&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call. Otherwise, returns an empty map.</div>
 </li>
@@ -309,14 +309,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>close</h4>
 <pre>void&nbsp;close()
-    throws <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></pre>
+    throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Closes the source.
  <p>
  Note: This method must be called even if the corresponding call to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>
- threw an <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io"><code>IOException</code></a>. See <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a> for more details.</div>
+ threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io"><code>IOException</code></a>. See <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-" target="_top"><code>open(DataSpec)</code></a> for more details.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/io/IOException.html" target="_top" title="class or interface in java.io">IOException</a></code> - If an error occurs closing the source.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs closing the source.</dd>
 </dl>
 </li>
 </ul>

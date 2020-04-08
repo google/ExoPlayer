@@ -94,7 +94,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li><a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.Buffer</a></li>
@@ -160,7 +160,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_DIRECT">BUFFER_REPLACEMENT_MODE_DIRECT</a></span></code>
-<div class="block">Allows buffer replacement using <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true#allocateDirect-int-" title="class or interface in java.nio"><code>ByteBuffer.allocateDirect(int)</code></a>.</div>
+<div class="block">Allows buffer replacement using <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#allocateDirect-int-" title="class or interface in java.nio" target="_top"><code>ByteBuffer.allocateDirect(int)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -172,7 +172,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_NORMAL">BUFFER_REPLACEMENT_MODE_NORMAL</a></span></code>
-<div class="block">Allows buffer replacement using <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true#allocate-int-" title="class or interface in java.nio"><code>ByteBuffer.allocate(int)</code></a>.</div>
+<div class="block">Allows buffer replacement using <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#allocate-int-" title="class or interface in java.nio" target="_top"><code>ByteBuffer.allocate(int)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -182,13 +182,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a></code></td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data">data</a></span></code>
 <div class="block">The buffer's data, or <code>null</code> if no data has been set.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a></code></td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#supplementalData">supplementalData</a></span></code>
 <div class="block">Supplemental data related to the buffer, if <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#hasSupplementalData--"><code>Buffer.hasSupplementalData()</code></a> returns true.</div>
 </td>
@@ -197,6 +197,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#timeUs">timeUs</a></span></code>
 <div class="block">The time at which the sample should be presented.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#waitingForKeys">waitingForKeys</a></span></code>
+<div class="block">Whether the last attempt to read a sample into this buffer failed due to not yet having the DRM
+ keys associated with the next sample.</div>
 </td>
 </tr>
 </table>
@@ -287,8 +294,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/Object.html" target="_top" title="class or interface in java.lang">Object</a></h3>
-<code><a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -325,7 +332,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <li class="blockList">
 <h4>BUFFER_REPLACEMENT_MODE_NORMAL</h4>
 <pre>public static final&nbsp;int BUFFER_REPLACEMENT_MODE_NORMAL</pre>
-<div class="block">Allows buffer replacement using <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true#allocate-int-" title="class or interface in java.nio"><code>ByteBuffer.allocate(int)</code></a>.</div>
+<div class="block">Allows buffer replacement using <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#allocate-int-" title="class or interface in java.nio" target="_top"><code>ByteBuffer.allocate(int)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL">Constant Field Values</a></dd>
@@ -339,7 +346,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <li class="blockList">
 <h4>BUFFER_REPLACEMENT_MODE_DIRECT</h4>
 <pre>public static final&nbsp;int BUFFER_REPLACEMENT_MODE_DIRECT</pre>
-<div class="block">Allows buffer replacement using <a href="https://docs.oracle.com/javase/7/docs/api/java/nio/ByteBuffer.html?is-external=true#allocateDirect-int-" title="class or interface in java.nio"><code>ByteBuffer.allocateDirect(int)</code></a>.</div>
+<div class="block">Allows buffer replacement using <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#allocateDirect-int-" title="class or interface in java.nio" target="_top"><code>ByteBuffer.allocateDirect(int)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT">Constant Field Values</a></dd>
@@ -363,8 +370,19 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <li class="blockList">
 <h4>data</h4>
 <pre>@Nullable
-public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a> data</pre>
+public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a> data</pre>
 <div class="block">The buffer's data, or <code>null</code> if no data has been set.</div>
+</li>
+</ul>
+<a name="waitingForKeys">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>waitingForKeys</h4>
+<pre>public&nbsp;boolean waitingForKeys</pre>
+<div class="block">Whether the last attempt to read a sample into this buffer failed due to not yet having the DRM
+ keys associated with the next sample.</div>
 </li>
 </ul>
 <a name="timeUs">
@@ -384,7 +402,7 @@ public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/n
 <li class="blockList">
 <h4>supplementalData</h4>
 <pre>@Nullable
-public&nbsp;<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a> supplementalData</pre>
+public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a> supplementalData</pre>
 <div class="block">Supplemental data related to the buffer, if <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.html#hasSupplementalData--"><code>Buffer.hasSupplementalData()</code></a> returns true. If
  present, the buffer is populated with supplemental data from position 0 to its limit.</div>
 </li>
@@ -462,13 +480,13 @@ public&nbsp;void&nbsp;ensureSpaceForWrite(int&nbsp;length)</pre>
  current position.
 
  <p>If the capacity of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> is sufficient this method does nothing. If the capacity is
- insufficient then an attempt is made to replace <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> with a new <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a>
+ insufficient then an attempt is made to replace <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> with a new <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a>
  whose capacity is sufficient. Data up to the current position is copied to the new buffer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>length</code> - The length of the write that must be accommodated, in bytes.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - If there is insufficient capacity to accommodate the write and
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If there is insufficient capacity to accommodate the write and
      the buffer replacement mode of the holder is <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_DISABLED"><code>BUFFER_REPLACEMENT_MODE_DISABLED</code></a>.</dd>
 </dl>
 </li>
@@ -504,7 +522,7 @@ public&nbsp;void&nbsp;ensureSpaceForWrite(int&nbsp;length)</pre>
 <div class="block">Flips <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data</code></a> and <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#supplementalData"><code>supplementalData</code></a> in preparation for being queued to a decoder.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://docs.oracle.com/javase/7/docs/api/java/nio/Buffer.html?is-external=true#flip--" title="class or interface in java.nio"><code>Buffer.flip()</code></a></dd>
+<dd><a href="https://developer.android.com/reference/java/nio/Buffer.html#flip--" title="class or interface in java.nio" target="_top"><code>Buffer.flip()</code></a></dd>
 </dl>
 </li>
 </ul>

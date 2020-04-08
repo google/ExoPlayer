@@ -107,7 +107,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public static interface <span class="typeNameLabel">MediaSessionConnector.MediaMetadataProvider</span></pre>
-<div class="block">Provides a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> for a given player state.</div>
+<div class="block">Provides a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" title="class or interface in android" target="_top"><code>MediaMetadataCompat</code></a> for a given player state.</div>
 </li>
 </ul>
 </div>
@@ -127,9 +127,9 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android">android.support.v4.media.MediaMetadataCompat</a></code></td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" title="class or interface in android" target="_top">android.support.v4.media.MediaMetadataCompat</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.MediaMetadataProvider.html#getMetadata-com.google.android.exoplayer2.Player-">getMetadata</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
-<div class="block">Gets the <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> to be published to the session.</div>
+<div class="block">Gets the <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" title="class or interface in android" target="_top"><code>MediaMetadataCompat</code></a> to be published to the session.</div>
 </td>
 </tr>
 </table>
@@ -153,19 +153,19 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getMetadata</h4>
-<pre><a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android">android.support.v4.media.MediaMetadataCompat</a>&nbsp;getMetadata(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
-<div class="block">Gets the <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> to be published to the session.
+<pre><a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" title="class or interface in android">android.support.v4.media.MediaMetadataCompat</a>&nbsp;getMetadata(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2" target="_top">Player</a>&nbsp;player)</pre>
+<div class="block">Gets the <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" title="class or interface in android" target="_top"><code>MediaMetadataCompat</code></a> to be published to the session.
 
  <p>An app may need to load metadata resources like artwork bitmaps asynchronously. In such a
- case the app should return a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> object that does not contain these
+ case the app should return a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" title="class or interface in android" target="_top"><code>MediaMetadataCompat</code></a> object that does not contain these
  resources as a placeholder. The app should start an asynchronous operation to download the
  bitmap and put it into a cache. Finally, the app should call <a href="../../../../../../com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#invalidateMediaSessionMetadata--"><code>MediaSessionConnector.invalidateMediaSessionMetadata()</code></a>. This causes this callback to be called again and the app
- can now return a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> object with all the resources included.</div>
+ can now return a <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" title="class or interface in android" target="_top"><code>MediaMetadataCompat</code></a> object with all the resources included.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>player</code> - The player connected to the media session.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" target="_top" title="class or interface in android"><code>MediaMetadataCompat</code></a> to be published to the session.</dd>
+<dd>The <a href="https://developer.android.com/reference/android/support.v4.media.MediaMetadataCompat.html" title="class or interface in android" target="_top"><code>MediaMetadataCompat</code></a> to be published to the session.</dd>
 </dl>
 </li>
 </ul>

@@ -121,9 +121,9 @@ var activeTableTab = "activeTableTab";
  will be provided via <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-"><code>handleBuffer(ByteBuffer, long)</code></a> until the next <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>flush()</code></a>.
  Call <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--"><code>reset()</code></a> when the instance is no longer required.
 
- <p>The implementation may be backed by a platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a>. In this case, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioSessionId-int-"><code>setAudioSessionId(int)</code></a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-"><code>setAudioAttributes(AudioAttributes)</code></a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#enableTunnelingV21-int-"><code>enableTunnelingV21(int)</code></a> and/or <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#disableTunneling--"><code>disableTunneling()</code></a> may be called before writing data to
+ <p>The implementation may be backed by a platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media"><code>AudioTrack</code></a>. In this case, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioSessionId-int-"><code>setAudioSessionId(int)</code></a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-"><code>setAudioAttributes(AudioAttributes)</code></a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#enableTunnelingV21-int-"><code>enableTunnelingV21(int)</code></a> and/or <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#disableTunneling--" target="_top"><code>disableTunneling()</code></a> may be called before writing data to
  the sink. These methods may also be called after writing data to the sink, in which case it will
- be reinitialized as required. For implementations that are not based on platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a>s, calling methods relating to audio sessions, audio attributes, and tunneling may
+ be reinitialized as required. For implementations that are not based on platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>s, calling methods relating to audio sessions, audio attributes, and tunneling may
  have no effect.</div>
 </li>
 </ul>
@@ -248,9 +248,9 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">handleBuffer</a></span>(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">handleBuffer</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
             long&nbsp;presentationTimeUs)</code>
-<div class="block">Attempts to process data from a <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a>, starting from its current position and
+<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
  ending at its limit (exclusive).</div>
 </td>
 </tr>
@@ -490,17 +490,17 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>handleBuffer</h4>
-<pre>boolean&nbsp;handleBuffer(<a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio">ByteBuffer</a>&nbsp;buffer,
+<pre>boolean&nbsp;handleBuffer(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
                      long&nbsp;presentationTimeUs)
               throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a>,
                      <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></pre>
-<div class="block">Attempts to process data from a <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a>, starting from its current position and
- ending at its limit (exclusive). The position of the <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a> is advanced by the
+<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
+ ending at its limit (exclusive). The position of the <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> is advanced by the
  number of bytes that were handled. <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onPositionDiscontinuity--"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a> will be called if
  <code>presentationTimeUs</code> is discontinuous with the last buffer handled since the last reset.
 
  <p>Returns whether the data was handled in full. If the data was not handled in full then the
- same <a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/nio/ByteBuffer.html" target="_top" title="class or interface in java.nio"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
+ same <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
  except in the case of an intervening call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>flush()</code></a> (or to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-"><code>configure(int,
  int, int, int, int[], int, int)</code></a> that causes the sink to be flushed).</div>
 <dl>
@@ -623,12 +623,12 @@ var activeTableTab = "activeTableTab";
 <pre>void&nbsp;enableTunnelingV21(int&nbsp;tunnelingAudioSessionId)</pre>
 <div class="block">Enables tunneling, if possible. The sink is reset if tunneling was previously disabled or if
  the audio session id has changed. Enabling tunneling is only possible if the sink is based on a
- platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" target="_top" title="class or interface in android.media"><code>AudioTrack</code></a>, and requires platform API version 21 onwards.</div>
+ platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>, and requires platform API version 21 onwards.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>tunnelingAudioSessionId</code> - The audio session id to use.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://docs.oracle.com/javase/7/docs/api/index.html?java/lang/IllegalStateException.html" target="_top" title="class or interface in java.lang">IllegalStateException</a></code> - Thrown if enabling tunneling on platform API version &lt; 21.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - Thrown if enabling tunneling on platform API version &lt; 21.</dd>
 </dl>
 </li>
 </ul>
