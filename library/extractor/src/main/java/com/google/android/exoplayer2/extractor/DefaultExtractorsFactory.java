@@ -241,44 +241,46 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   @Override
   public synchronized Extractor[] createExtractors() {
     Extractor[] extractors = new Extractor[14];
-    extractors[0] = new MatroskaExtractor(matroskaFlags);
-    extractors[1] = new FragmentedMp4Extractor(fragmentedMp4Flags);
-    extractors[2] = new Mp4Extractor(mp4Flags);
-    extractors[3] =
-        new Mp3Extractor(
-            mp3Flags
-                | (constantBitrateSeekingEnabled
-                    ? Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
-                    : 0));
-    extractors[4] =
-        new AdtsExtractor(
-            adtsFlags
-                | (constantBitrateSeekingEnabled
-                    ? AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
-                    : 0));
-    extractors[5] = new Ac3Extractor();
-    extractors[6] = new TsExtractor(tsMode, tsFlags);
-    extractors[7] = new FlvExtractor();
-    extractors[8] = new OggExtractor();
-    extractors[9] = new PsExtractor();
-    extractors[10] = new WavExtractor();
-    extractors[11] =
-        new AmrExtractor(
-            amrFlags
-                | (constantBitrateSeekingEnabled
-                    ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
-                    : 0));
-    extractors[12] = new Ac4Extractor();
+    // Extractors order is optimized according to
+    // https://docs.google.com/document/d/1w2mKaWMxfz2Ei8-LdxqbPs1VLe_oudB-eryXXw9OvQQ.
+    extractors[0] = new FlvExtractor();
     if (FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR != null) {
       try {
-        extractors[13] = FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR.newInstance();
+        extractors[1] = FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR.newInstance();
       } catch (Exception e) {
         // Should never happen.
         throw new IllegalStateException("Unexpected error creating FLAC extractor", e);
       }
     } else {
-      extractors[13] = new FlacExtractor(coreFlacFlags);
+      extractors[1] = new FlacExtractor(coreFlacFlags);
     }
+    extractors[2] = new WavExtractor();
+    extractors[3] = new FragmentedMp4Extractor(fragmentedMp4Flags);
+    extractors[4] = new Mp4Extractor(mp4Flags);
+    extractors[5] =
+        new AmrExtractor(
+            amrFlags
+                | (constantBitrateSeekingEnabled
+                    ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+                    : 0));
+    extractors[6] = new PsExtractor();
+    extractors[7] = new OggExtractor();
+    extractors[8] = new TsExtractor(tsMode, tsFlags);
+    extractors[9] = new MatroskaExtractor(matroskaFlags);
+    extractors[10] =
+        new AdtsExtractor(
+            adtsFlags
+                | (constantBitrateSeekingEnabled
+                    ? AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+                    : 0));
+    extractors[11] = new Ac3Extractor();
+    extractors[12] = new Ac4Extractor();
+    extractors[13] =
+        new Mp3Extractor(
+            mp3Flags
+                | (constantBitrateSeekingEnabled
+                    ? Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
+                    : 0));
     return extractors;
   }
 
