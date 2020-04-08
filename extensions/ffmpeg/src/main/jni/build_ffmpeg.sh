@@ -32,8 +32,9 @@ COMMON_OPTIONS="
     --disable-postproc
     --disable-avfilter
     --disable-symver
-    --enable-avresample
+    --disable-avresample
     --enable-swresample
+    --extra-ldexeflags=-pie
     "
 TOOLCHAIN_PREFIX="${NDK_PATH}/toolchains/llvm/prebuilt/${HOST_PLATFORM}/bin"
 for decoder in "${ENABLED_DECODERS[@]}"
@@ -53,7 +54,6 @@ git checkout release/4.2
     --strip="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-strip" \
     --extra-cflags="-march=armv7-a -mfloat-abi=softfp" \
     --extra-ldflags="-Wl,--fix-cortex-a8" \
-    --extra-ldexeflags=-pie \
     ${COMMON_OPTIONS}
 make -j4
 make install-libs
@@ -65,7 +65,6 @@ make clean
     --cross-prefix="${TOOLCHAIN_PREFIX}/aarch64-linux-android21-" \
     --nm="${TOOLCHAIN_PREFIX}/aarch64-linux-android-nm" \
     --strip="${TOOLCHAIN_PREFIX}/aarch64-linux-android-strip" \
-    --extra-ldexeflags=-pie \
     ${COMMON_OPTIONS}
 make -j4
 make install-libs
@@ -77,7 +76,18 @@ make clean
     --cross-prefix="${TOOLCHAIN_PREFIX}/i686-linux-android16-" \
     --nm="${TOOLCHAIN_PREFIX}/i686-linux-android-nm" \
     --strip="${TOOLCHAIN_PREFIX}/i686-linux-android-strip" \
-    --extra-ldexeflags=-pie \
+    --disable-asm \
+    ${COMMON_OPTIONS}
+make -j4
+make install-libs
+make clean
+./configure \
+    --libdir=android-libs/x86_64 \
+    --arch=x86_64 \
+    --cpu=x86_64 \
+    --cross-prefix="${TOOLCHAIN_PREFIX}/x86_64-linux-android21-" \
+    --nm="${TOOLCHAIN_PREFIX}/x86_64-linux-android-nm" \
+    --strip="${TOOLCHAIN_PREFIX}/x86_64-linux-android-strip" \
     --disable-asm \
     ${COMMON_OPTIONS}
 make -j4

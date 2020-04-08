@@ -433,10 +433,15 @@ import java.util.List;
         long editDuration =
             Util.scaleLargeTimestamp(
                 track.editListDurations[i], track.timescale, track.movieTimescale);
-        startIndices[i] = Util.binarySearchCeil(timestamps, editMediaTime, true, true);
+        startIndices[i] =
+            Util.binarySearchFloor(
+                timestamps, editMediaTime, /* inclusive= */ true, /* stayInBounds= */ true);
         endIndices[i] =
             Util.binarySearchCeil(
-                timestamps, editMediaTime + editDuration, omitClippedSample, false);
+                timestamps,
+                editMediaTime + editDuration,
+                /* inclusive= */ omitClippedSample,
+                /* stayInBounds= */ false);
         while (startIndices[i] < endIndices[i]
             && (flags[startIndices[i]] & C.BUFFER_FLAG_KEY_FRAME) == 0) {
           // Applying the edit correctly would require prerolling from the previous sync sample. In
@@ -474,7 +479,7 @@ import java.util.List;
         long ptsUs = Util.scaleLargeTimestamp(pts, C.MICROS_PER_SECOND, track.movieTimescale);
         long timeInSegmentUs =
             Util.scaleLargeTimestamp(
-                timestamps[j] - editMediaTime, C.MICROS_PER_SECOND, track.timescale);
+                Math.max(0, timestamps[j] - editMediaTime), C.MICROS_PER_SECOND, track.timescale);
         editedTimestamps[sampleIndex] = ptsUs + timeInSegmentUs;
         if (copyMetadata && editedSizes[sampleIndex] > editedMaximumSize) {
           editedMaximumSize = sizes[j];

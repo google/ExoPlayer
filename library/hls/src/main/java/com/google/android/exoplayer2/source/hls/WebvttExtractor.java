@@ -49,7 +49,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 public final class WebvttExtractor implements Extractor {
 
   private static final Pattern LOCAL_TIMESTAMP = Pattern.compile("LOCAL:([^,]+)");
-  private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:(\\d+)");
+  private static final Pattern MEDIA_TIMESTAMP = Pattern.compile("MPEGTS:(-?\\d+)");
   private static final int HEADER_MIN_LENGTH = 6 /* "WEBVTT" */;
   private static final int HEADER_MAX_LENGTH = 3 /* optional Byte Order Mark */ + HEADER_MIN_LENGTH;
 

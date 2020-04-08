@@ -90,8 +90,8 @@ import java.util.List;
     if (channelCount > 8) {
       throw new OpusDecoderException("Invalid channel count: " + channelCount);
     }
-    int preskip = readLittleEndian16(headerBytes, 10);
-    int gain = readLittleEndian16(headerBytes, 16);
+    int preskip = readUnsignedLittleEndian16(headerBytes, 10);
+    int gain = readSignedLittleEndian16(headerBytes, 16);
 
     byte[] streamMap = new byte[8];
     int numStreams;
@@ -228,10 +228,14 @@ import java.util.List;
     return (int) (ns * SAMPLE_RATE / 1000000000);
   }
 
-  private static int readLittleEndian16(byte[] input, int offset) {
+  private static int readUnsignedLittleEndian16(byte[] input, int offset) {
     int value = input[offset] & 0xFF;
     value |= (input[offset + 1] & 0xFF) << 8;
     return value;
+  }
+
+  private static int readSignedLittleEndian16(byte[] input, int offset) {
+    return (short) readUnsignedLittleEndian16(input, offset);
   }
 
   private native long opusInit(int sampleRate, int channelCount, int numStreams, int numCoupled,

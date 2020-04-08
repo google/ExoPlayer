@@ -25,6 +25,7 @@ import android.util.Pair;
 import android.util.SparseIntArray;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
@@ -289,9 +290,16 @@ public final class MediaCodecUtil {
       // Note: MediaCodecList is sorted by the framework such that the best decoders come first.
       for (int i = 0; i < numberOfCodecs; i++) {
         android.media.MediaCodecInfo codecInfo = mediaCodecList.getCodecInfoAt(i);
+        if (isAlias(codecInfo)) {
+          // Skip aliases of other codecs, since they will also be listed under their canonical
+          // names.
+          continue;
+        }
         String name = codecInfo.getName();
-        @Nullable
-        String codecMimeType = getCodecMimeType(codecInfo, name, secureDecodersExplicit, mimeType);
+        if (!isCodecUsableDecoder(codecInfo, name, secureDecodersExplicit, mimeType)) {
+          continue;
+        }
+        @Nullable String codecMimeType = getCodecMimeType(codecInfo, name, mimeType);
         if (codecMimeType == null) {
           continue;
         }
@@ -373,7 +381,6 @@ public final class MediaCodecUtil {
    *
    * @param info The codec information.
    * @param name The name of the codec
-   * @param secureDecodersExplicit Whether secure decoders were explicitly listed, if present.
    * @param mimeType The MIME type.
    * @return The codec's supported MIME type for media of type {@code mimeType}, or {@code null} if
    *     the codec can't be used. If non-null, the returned type will be equal to {@code mimeType}
@@ -383,12 +390,7 @@ public final class MediaCodecUtil {
   private static String getCodecMimeType(
       android.media.MediaCodecInfo info,
       String name,
-      boolean secureDecodersExplicit,
       String mimeType) {
-    if (!isCodecUsableDecoder(info, name, secureDecodersExplicit, mimeType)) {
-      return null;
-    }
-
     String[] supportedTypes = info.getSupportedTypes();
     for (String supportedType : supportedTypes) {
       if (supportedType.equalsIgnoreCase(mimeType)) {
@@ -589,6 +591,15 @@ public final class MediaCodecUtil {
         decoderInfos.add(decoderInfos.remove(0));
       }
     }
+  }
+
+  private static boolean isAlias(android.media.MediaCodecInfo info) {
+    return Util.SDK_INT >= 29 && isAliasV29(info);
+  }
+
+  @RequiresApi(29)
+  private static boolean isAliasV29(android.media.MediaCodecInfo info) {
+    return info.isAlias();
   }
 
   /**

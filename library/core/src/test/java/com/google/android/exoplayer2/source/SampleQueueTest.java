@@ -372,8 +372,10 @@ public final class SampleQueueTest {
 
     assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
     assertReadNothing(/* formatRequired= */ false);
+    assertThat(inputBuffer.waitingForKeys).isTrue();
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     assertReadEncryptedSample(/* sampleIndex= */ 0);
+    assertThat(inputBuffer.waitingForKeys).isFalse();
   }
 
   @Test

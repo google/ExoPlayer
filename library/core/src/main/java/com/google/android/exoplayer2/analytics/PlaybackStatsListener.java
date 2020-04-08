@@ -50,7 +50,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * <p>For accurate measurements, the listener should be added to the player before loading media,
  * i.e., {@link Player#getPlaybackState()} should be {@link Player#STATE_IDLE}.
  *
- * <p>Playback stats are gathered separately for all playback session, i.e. each window in the
+ * <p>Playback stats are gathered separately for each playback session, i.e. each window in the
  * {@link Timeline} and each single ad.
  */
 public final class PlaybackStatsListener
@@ -931,6 +931,9 @@ public final class PlaybackStatsListener
     }
 
     private void maybeUpdateMediaTimeHistory(long realtimeMs, long mediaTimeMs) {
+      if (!keepHistory) {
+        return;
+      }
       if (currentPlaybackState != PlaybackStats.PLAYBACK_STATE_PLAYING) {
         if (mediaTimeMs == C.TIME_UNSET) {
           return;

@@ -57,8 +57,8 @@ dependencies {
     implementation project(modulePrefix + 'library-ui')
     implementation project(modulePrefix + 'extension-cast')
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0'
 }
 
 apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

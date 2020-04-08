@@ -1,5 +1,59 @@
 # Release notes #
 
+### 2.11.4 (2020-04-08) ###
+
+* Add `SimpleExoPlayer.setWakeMode` to allow automatic `WifiLock` and `WakeLock`
+  handling ([#6914](https://github.com/google/ExoPlayer/issues/6914)). To use
+  this feature, you must add the
+  [WAKE_LOCK](https://developer.android.com/reference/android/Manifest.permission.html#WAKE_LOCK)
+  permission to your application's manifest file.
+* Text:
+  * Catch and log exceptions in `TextRenderer` rather than re-throwing. This
+    allows playback to continue even if subtitle decoding fails
+    ([#6885](https://github.com/google/ExoPlayer/issues/6885)).
+  * Allow missing hours and milliseconds in SubRip (.srt) timecodes
+    ([#7122](https://github.com/google/ExoPlayer/issues/7122)).
+* Audio:
+  * Enable playback speed adjustment and silence skipping for floating point PCM
+    audio, via resampling to 16-bit integer PCM. To output the original floating
+    point audio without adjustment, pass `enableFloatOutput=true` to the
+    `DefaultAudioSink` constructor
+    ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
+  * Workaround issue that could cause slower than realtime playback of AAC on
+    Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671).
+  * Fix case where another app spuriously holding transient audio focus could
+    prevent ExoPlayer from acquiring audio focus for an indefinite period of
+    time ([#7182](https://github.com/google/ExoPlayer/issues/7182).
+  * Fix case where the player volume could be permanently ducked if audio focus
+    was released whilst ducking.
+  * Fix playback of WAV files with trailing non-media bytes
+    ([#7129](https://github.com/google/ExoPlayer/issues/7129)).
+  * Fix playback of ADTS files with mid-stream ID3 metadata.
+* DRM:
+  * Fix stuck ad playbacks with DRM protected content
+    ([#7188](https://github.com/google/ExoPlayer/issues/7188)).
+  * Fix playback of Widevine protected content that only provides V1 PSSH atoms
+    on API levels 21 and 22.
+  * Fix playback of PlayReady content on Fire TV Stick (Gen 2).
+* DASH:
+  * Update the manifest URI to avoid repeated HTTP redirects
+    ([#6907](https://github.com/google/ExoPlayer/issues/6907)).
+  * Parse period `AssetIdentifier` elements.
+* HLS: Recognize IMSC subtitles
+  ([#7185](https://github.com/google/ExoPlayer/issues/7185)).
+* UI: Add an option to set whether to use the orientation sensor for rotation
+  in spherical playbacks
+  ([#6761](https://github.com/google/ExoPlayer/issues/6761)).
+* Analytics: Fix `PlaybackStatsListener` behavior when not keeping history
+  ([#7160](https://github.com/google/ExoPlayer/issues/7160)).
+* FFmpeg extension: Add support for `x86_64` architecture.
+* Opus extension: Fix parsing of negative gain values
+  ([#7046](https://github.com/google/ExoPlayer/issues/7046)).
+* Cast extension: Upgrade `play-services-cast-framework` dependency to 18.1.0.
+  This fixes an issue where `RemoteServiceException` was thrown due to
+  `Context.startForegroundService()` not calling `Service.startForeground()`
+  ([#7191](https://github.com/google/ExoPlayer/issues/7191)).
+
 ### 2.11.3 (2020-02-19) ###
 
 * SmoothStreaming: Fix regression that broke playback in 2.11.2

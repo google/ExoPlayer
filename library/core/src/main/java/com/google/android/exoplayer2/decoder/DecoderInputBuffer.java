@@ -63,6 +63,14 @@ public class DecoderInputBuffer extends Buffer {
   /** The buffer's data, or {@code null} if no data has been set. */
   @Nullable public ByteBuffer data;
 
+  // TODO: Remove this temporary signaling once end-of-stream propagation for clips using content
+  // protection is fixed. See [Internal: b/153326944] for details.
+  /**
+   * Whether the last attempt to read a sample into this buffer failed due to not yet having the DRM
+   * keys associated with the next sample.
+   */
+  public boolean waitingForKeys;
+
   /**
    * The time at which the sample should be presented.
    */
@@ -137,6 +145,7 @@ public class DecoderInputBuffer extends Buffer {
     }
     // Instantiate a new buffer if possible.
     ByteBuffer newData = createReplacementByteBuffer(requiredCapacity);
+    newData.order(data.order());
     // Copy data up to the current position from the old buffer to the new one.
     if (position > 0) {
       data.flip();
@@ -182,6 +191,7 @@ public class DecoderInputBuffer extends Buffer {
     if (supplementalData != null) {
       supplementalData.clear();
     }
+    waitingForKeys = false;
   }
 
   private ByteBuffer createReplacementByteBuffer(int requiredCapacity) {

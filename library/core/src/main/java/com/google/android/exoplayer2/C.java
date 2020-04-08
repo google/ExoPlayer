@@ -1020,6 +1020,37 @@ public final class C {
   public static final int NETWORK_TYPE_OTHER = 8;
 
   /**
+   * Mode specifying whether the player should hold a WakeLock and a WifiLock. One of {@link
+   * #WAKE_MODE_NONE}, {@link #WAKE_MODE_LOCAL} and {@link #WAKE_MODE_NETWORK}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({WAKE_MODE_NONE, WAKE_MODE_LOCAL, WAKE_MODE_NETWORK})
+  public @interface WakeMode {}
+  /**
+   * A wake mode that will not cause the player to hold any locks.
+   *
+   * <p>This is suitable for applications that do not play media with the screen off.
+   */
+  public static final int WAKE_MODE_NONE = 0;
+  /**
+   * A wake mode that will cause the player to hold a {@link android.os.PowerManager.WakeLock}
+   * during playback.
+   *
+   * <p>This is suitable for applications that play media with the screen off and do not load media
+   * over wifi.
+   */
+  public static final int WAKE_MODE_LOCAL = 1;
+  /**
+   * A wake mode that will cause the player to hold a {@link android.os.PowerManager.WakeLock} and a
+   * {@link android.net.wifi.WifiManager.WifiLock} during playback.
+   *
+   * <p>This is suitable for applications that play media with the screen off and may load media
+   * over wifi.
+   */
+  public static final int WAKE_MODE_NETWORK = 2;
+
+  /**
    * Track role flags. Possible flag values are {@link #ROLE_FLAG_MAIN}, {@link
    * #ROLE_FLAG_ALTERNATE}, {@link #ROLE_FLAG_SUPPLEMENTARY}, {@link #ROLE_FLAG_COMMENTARY}, {@link
    * #ROLE_FLAG_DUB}, {@link #ROLE_FLAG_EMERGENCY}, {@link #ROLE_FLAG_CAPTION}, {@link

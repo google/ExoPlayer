@@ -222,10 +222,11 @@ public class DashManifestParser extends DefaultHandler
 
   protected Pair<Period, Long> parsePeriod(XmlPullParser xpp, String baseUrl, long defaultStartMs)
       throws XmlPullParserException, IOException {
-    String id = xpp.getAttributeValue(null, "id");
+    @Nullable String id = xpp.getAttributeValue(null, "id");
     long startMs = parseDuration(xpp, "start", defaultStartMs);
     long durationMs = parseDuration(xpp, "duration", C.TIME_UNSET);
-    SegmentBase segmentBase = null;
+    @Nullable SegmentBase segmentBase = null;
+    @Nullable Descriptor assetIdentifier = null;
     List<AdaptationSet> adaptationSets = new ArrayList<>();
     List<EventStream> eventStreams = new ArrayList<>();
     boolean seenFirstBaseUrl = false;
@@ -246,17 +247,24 @@ public class DashManifestParser extends DefaultHandler
         segmentBase = parseSegmentList(xpp, null, durationMs);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, null, Collections.emptyList(), durationMs);
+      } else if (XmlPullParserUtil.isStartTag(xpp, "AssetIdentifier")) {
+        assetIdentifier = parseDescriptor(xpp, "AssetIdentifier");
       } else {
         maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "Period"));
 
-    return Pair.create(buildPeriod(id, startMs, adaptationSets, eventStreams), durationMs);
+    return Pair.create(
+        buildPeriod(id, startMs, adaptationSets, eventStreams, assetIdentifier), durationMs);
   }
 
-  protected Period buildPeriod(String id, long startMs, List<AdaptationSet> adaptationSets,
-      List<EventStream> eventStreams) {
-    return new Period(id, startMs, adaptationSets, eventStreams);
+  protected Period buildPeriod(
+      @Nullable String id,
+      long startMs,
+      List<AdaptationSet> adaptationSets,
+      List<EventStream> eventStreams,
+      @Nullable Descriptor assetIdentifier) {
+    return new Period(id, startMs, adaptationSets, eventStreams, assetIdentifier);
   }
 
   // AdaptationSet parsing.
