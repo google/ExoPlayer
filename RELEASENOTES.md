@@ -98,6 +98,8 @@
 *   MP4: Store the Android capture frame rate only in `Format.metadata`.
     `Format.frameRate` now stores the calculated frame rate.
 *   Testing
+    *   Add `TestExoPlayer`, a utility class with APIs to create
+        `SimpleExoPlayer` instances with fake components for testing.
     *   Upgrade Truth dependency from 0.44 to 1.0.
     *   Upgrade to JUnit 4.13-rc-2.
 *   UI

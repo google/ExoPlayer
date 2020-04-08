@@ -17,8 +17,6 @@ package com.google.android.exoplayer2.analytics;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Handler;
-import android.os.SystemClock;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -32,7 +30,6 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
-import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
@@ -45,13 +42,13 @@ import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
+import com.google.android.exoplayer2.testutil.FakeAudioRenderer;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
-import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
+import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -131,9 +128,7 @@ public final class AnalyticsCollectorTest {
   public void emptyTimeline() throws Exception {
     FakeMediaSource mediaSource =
         new FakeMediaSource(
-            Timeline.EMPTY,
-            ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
-            ExoPlayerTestRunner.Builder.AUDIO_FORMAT);
+            Timeline.EMPTY, ExoPlayerTestRunner.VIDEO_FORMAT, ExoPlayerTestRunner.AUDIO_FORMAT);
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
 
     assertThat(listener.getEvents(EVENT_PLAYER_STATE_CHANGED))
@@ -149,8 +144,8 @@ public final class AnalyticsCollectorTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(
             SINGLE_PERIOD_TIMELINE,
-            ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
-            ExoPlayerTestRunner.Builder.AUDIO_FORMAT);
+            ExoPlayerTestRunner.VIDEO_FORMAT,
+            ExoPlayerTestRunner.AUDIO_FORMAT);
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
 
     populateEventIds(listener.lastReportedTimeline);
@@ -193,12 +188,12 @@ public final class AnalyticsCollectorTest {
         new ConcatenatingMediaSource(
             new FakeMediaSource(
                 SINGLE_PERIOD_TIMELINE,
-                ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
-                ExoPlayerTestRunner.Builder.AUDIO_FORMAT),
+                ExoPlayerTestRunner.VIDEO_FORMAT,
+                ExoPlayerTestRunner.AUDIO_FORMAT),
             new FakeMediaSource(
                 SINGLE_PERIOD_TIMELINE,
-                ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
-                ExoPlayerTestRunner.Builder.AUDIO_FORMAT));
+                ExoPlayerTestRunner.VIDEO_FORMAT,
+                ExoPlayerTestRunner.AUDIO_FORMAT));
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
 
     populateEventIds(listener.lastReportedTimeline);
@@ -252,8 +247,8 @@ public final class AnalyticsCollectorTest {
   public void periodTransitionWithRendererChange() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT),
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.AUDIO_FORMAT));
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.VIDEO_FORMAT),
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.AUDIO_FORMAT));
     TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
 
     populateEventIds(listener.lastReportedTimeline);
@@ -307,9 +302,9 @@ public final class AnalyticsCollectorTest {
         new ConcatenatingMediaSource(
             new FakeMediaSource(
                 SINGLE_PERIOD_TIMELINE,
-                ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
-                ExoPlayerTestRunner.Builder.AUDIO_FORMAT),
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.AUDIO_FORMAT));
+                ExoPlayerTestRunner.VIDEO_FORMAT,
+                ExoPlayerTestRunner.AUDIO_FORMAT),
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.AUDIO_FORMAT));
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
@@ -378,11 +373,11 @@ public final class AnalyticsCollectorTest {
   public void seekBackAfterReadingAhead() throws Exception {
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT),
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.VIDEO_FORMAT),
             new FakeMediaSource(
                 SINGLE_PERIOD_TIMELINE,
-                ExoPlayerTestRunner.Builder.VIDEO_FORMAT,
-                ExoPlayerTestRunner.Builder.AUDIO_FORMAT));
+                ExoPlayerTestRunner.VIDEO_FORMAT,
+                ExoPlayerTestRunner.AUDIO_FORMAT));
     long periodDurationMs =
         SINGLE_PERIOD_TIMELINE.getWindow(/* windowIndex= */ 0, new Window()).getDurationMs();
     ActionSchedule actionSchedule =
@@ -462,9 +457,9 @@ public final class AnalyticsCollectorTest {
   @Test
   public void prepareNewSource() throws Exception {
     MediaSource mediaSource1 =
-        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.VIDEO_FORMAT);
     MediaSource mediaSource2 =
-        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
@@ -543,7 +538,7 @@ public final class AnalyticsCollectorTest {
   @Test
   public void reprepareAfterError() throws Exception {
     MediaSource mediaSource =
-        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
@@ -616,7 +611,7 @@ public final class AnalyticsCollectorTest {
   @Test
   public void dynamicTimelineChange() throws Exception {
     MediaSource childMediaSource =
-        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.VIDEO_FORMAT);
     final ConcatenatingMediaSource concatenatedMediaSource =
         new ConcatenatingMediaSource(childMediaSource, childMediaSource);
     long periodDurationMs =
@@ -697,7 +692,7 @@ public final class AnalyticsCollectorTest {
   @Test
   public void playlistOperations() throws Exception {
     MediaSource fakeMediaSource =
-        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, ExoPlayerTestRunner.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
@@ -792,7 +787,7 @@ public final class AnalyticsCollectorTest {
                 contentDurationsUs,
                 adPlaybackState.get()));
     FakeMediaSource fakeMediaSource =
-        new FakeMediaSource(adTimeline, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
+        new FakeMediaSource(adTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .executeRunnable(
@@ -1031,7 +1026,7 @@ public final class AnalyticsCollectorTest {
                     TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
                         + 5 * C.MICROS_PER_SECOND)));
     FakeMediaSource fakeMediaSource =
-        new FakeMediaSource(adTimeline, ExoPlayerTestRunner.Builder.VIDEO_FORMAT);
+        new FakeMediaSource(adTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
@@ -1223,12 +1218,12 @@ public final class AnalyticsCollectorTest {
             };
     TestAnalyticsListener listener = new TestAnalyticsListener();
     try {
-      new ExoPlayerTestRunner.Builder()
+      new ExoPlayerTestRunner.Builder(ApplicationProvider.getApplicationContext())
           .setMediaSources(mediaSource)
           .setRenderersFactory(renderersFactory)
           .setAnalyticsListener(listener)
           .setActionSchedule(actionSchedule)
-          .build(ApplicationProvider.getApplicationContext())
+          .build()
           .start()
           .blockUntilActionScheduleFinished(TIMEOUT_MS)
           .blockUntilEnded(TIMEOUT_MS);
@@ -1236,140 +1231,6 @@ public final class AnalyticsCollectorTest {
       // Ignore ExoPlaybackException as these may be expected.
     }
     return listener;
-  }
-
-  private static final class FakeVideoRenderer extends FakeRenderer {
-
-    private final VideoRendererEventListener.EventDispatcher eventDispatcher;
-    private final DecoderCounters decoderCounters;
-    private Format format;
-    private long streamOffsetUs;
-    private boolean renderedFirstFrameAfterReset;
-    private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
-    private boolean renderedFirstFrameAfterEnable;
-
-    public FakeVideoRenderer(Handler handler, VideoRendererEventListener eventListener) {
-      super(C.TRACK_TYPE_VIDEO);
-      eventDispatcher = new VideoRendererEventListener.EventDispatcher(handler, eventListener);
-      decoderCounters = new DecoderCounters();
-    }
-
-    @Override
-    protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
-        throws ExoPlaybackException {
-      super.onEnabled(joining, mayRenderStartOfStream);
-      eventDispatcher.enabled(decoderCounters);
-      mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
-      renderedFirstFrameAfterEnable = false;
-    }
-
-    @Override
-    protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
-      super.onStreamChanged(formats, offsetUs);
-      streamOffsetUs = offsetUs;
-      if (renderedFirstFrameAfterReset) {
-        renderedFirstFrameAfterReset = false;
-      }
-    }
-
-    @Override
-    protected void onStopped() throws ExoPlaybackException {
-      super.onStopped();
-      eventDispatcher.droppedFrames(/* droppedFrameCount= */ 0, /* elapsedMs= */ 0);
-      eventDispatcher.reportVideoFrameProcessingOffset(
-          /* totalProcessingOffsetUs= */ 400000, /* frameCount= */ 10, this.format);
-    }
-
-    @Override
-    protected void onDisabled() {
-      super.onDisabled();
-      eventDispatcher.disabled(decoderCounters);
-    }
-
-    @Override
-    protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-      super.onPositionReset(positionUs, joining);
-      renderedFirstFrameAfterReset = false;
-    }
-
-    @Override
-    protected void onFormatChanged(Format format) {
-      eventDispatcher.inputFormatChanged(format);
-      eventDispatcher.decoderInitialized(
-          /* decoderName= */ "fake.video.decoder",
-          /* initializedTimestampMs= */ SystemClock.elapsedRealtime(),
-          /* initializationDurationMs= */ 0);
-      this.format = format;
-    }
-
-    @Override
-    protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
-      boolean shouldProcess = super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
-      boolean shouldRenderFirstFrame =
-          !renderedFirstFrameAfterEnable
-              ? (getState() == Renderer.STATE_STARTED || mayRenderFirstFrameAfterEnableIfNotStarted)
-              : !renderedFirstFrameAfterReset;
-      shouldProcess |= shouldRenderFirstFrame && playbackPositionUs >= streamOffsetUs;
-      if (shouldProcess && !renderedFirstFrameAfterReset) {
-        eventDispatcher.videoSizeChanged(
-            format.width, format.height, format.rotationDegrees, format.pixelWidthHeightRatio);
-        eventDispatcher.renderedFirstFrame(/* surface= */ null);
-        renderedFirstFrameAfterReset = true;
-        renderedFirstFrameAfterEnable = true;
-      }
-      return shouldProcess;
-    }
-  }
-
-  private static final class FakeAudioRenderer extends FakeRenderer {
-
-    private final AudioRendererEventListener.EventDispatcher eventDispatcher;
-    private final DecoderCounters decoderCounters;
-    private boolean notifiedAudioSessionId;
-
-    public FakeAudioRenderer(Handler handler, AudioRendererEventListener eventListener) {
-      super(C.TRACK_TYPE_AUDIO);
-      eventDispatcher = new AudioRendererEventListener.EventDispatcher(handler, eventListener);
-      decoderCounters = new DecoderCounters();
-    }
-
-    @Override
-    protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
-        throws ExoPlaybackException {
-      super.onEnabled(joining, mayRenderStartOfStream);
-      eventDispatcher.enabled(decoderCounters);
-      notifiedAudioSessionId = false;
-    }
-
-    @Override
-    protected void onDisabled() {
-      super.onDisabled();
-      eventDispatcher.disabled(decoderCounters);
-    }
-
-    @Override
-    protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-      super.onPositionReset(positionUs, joining);
-    }
-
-    @Override
-    protected void onFormatChanged(Format format) {
-      eventDispatcher.inputFormatChanged(format);
-      eventDispatcher.decoderInitialized(
-          /* decoderName= */ "fake.audio.decoder",
-          /* initializedTimestampMs= */ SystemClock.elapsedRealtime(),
-          /* initializationDurationMs= */ 0);
-    }
-
-    @Override
-    protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
-      boolean shouldProcess = super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
-      if (shouldProcess && !notifiedAudioSessionId) {
-        eventDispatcher.audioSessionId(/* audioSessionId= */ 1);
-        notifiedAudioSessionId = true;
-      }
-      return shouldProcess;
-    }
   }
 
   private static final class EventWindowAndPeriodId {
