@@ -36,7 +36,7 @@ public final class PassthroughSectionPayloadReader implements SectionPayloadRead
   private final String mimeType;
   private @MonotonicNonNull TimestampAdjuster timestampAdjuster;
   private @MonotonicNonNull TrackOutput output;
-  private boolean formatDeclared;
+  private boolean formatOutputWithTimestampAdjustment;
 
   /**
    * Create a new PassthroughSectionPayloadReader.
@@ -55,12 +55,15 @@ public final class PassthroughSectionPayloadReader implements SectionPayloadRead
     this.timestampAdjuster = timestampAdjuster;
     idGenerator.generateNewId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
+    // Eagerly output an incomplete format (missing timestamp offset) to ensure source preparation
+    // is not blocked waiting for potentially sparse metadata.
+    output.format(new Format.Builder().setSampleMimeType(mimeType).build());
   }
 
   @Override
   public void consume(ParsableByteArray sectionData) {
     assertInitialized();
-    if (!formatDeclared) {
+    if (!formatOutputWithTimestampAdjustment) {
       if (timestampAdjuster.getTimestampOffsetUs() == C.TIME_UNSET) {
         // There is not enough information to initialize the timestamp adjuster.
         return;
@@ -70,7 +73,7 @@ public final class PassthroughSectionPayloadReader implements SectionPayloadRead
               .setSampleMimeType(mimeType)
               .setSubsampleOffsetUs(timestampAdjuster.getTimestampOffsetUs())
               .build());
-      formatDeclared = true;
+      formatOutputWithTimestampAdjustment = true;
     }
     int sampleSize = sectionData.bytesLeft();
     output.sampleData(sectionData, sampleSize);

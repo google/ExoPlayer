@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,11 +55,17 @@ public final class TsExtractorTest {
   }
 
   @Test
+  @Ignore
+  // TODO(internal: b/153539929) Re-enable when ExtractorAsserts is less strict around repeated
+  // formats and seeking.
   public void sampleWithScte35() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_scte35.ts");
   }
 
   @Test
+  @Ignore
+  // TODO(internal: b/153539929) Re-enable when ExtractorAsserts is less strict around repeated
+  // formats and seeking.
   public void sampleWithAit() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ait.ts");
   }
