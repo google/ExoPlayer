@@ -109,7 +109,6 @@ public final class CacheUtil {
    *
    * @param dataSpec Defines the data to be cached.
    * @param cache A {@link Cache} to store the data.
-   * @param cacheKeyFactory An optional factory for cache keys.
    * @param upstream A {@link DataSource} for reading data not in the cache.
    * @param progressListener A listener to receive progress updates, or {@code null}.
    * @param isCanceled An optional flag that will interrupt caching if set to true.
@@ -120,7 +119,6 @@ public final class CacheUtil {
   public static void cache(
       DataSpec dataSpec,
       Cache cache,
-      @Nullable CacheKeyFactory cacheKeyFactory,
       DataSource upstream,
       @Nullable ProgressListener progressListener,
       @Nullable AtomicBoolean isCanceled)
@@ -128,7 +126,7 @@ public final class CacheUtil {
     cache(
         dataSpec,
         cache,
-        cacheKeyFactory,
+        null,
         new CacheDataSource(cache, upstream),
         new byte[DEFAULT_BUFFER_SIZE_BYTES],
         /* priorityTaskManager= */ null,
