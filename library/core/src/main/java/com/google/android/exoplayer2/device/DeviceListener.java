@@ -23,6 +23,6 @@ public interface DeviceListener {
   /** Called when the device information changes. */
   default void onDeviceInfoChanged(DeviceInfo deviceInfo) {}
 
-  /** Called when the device volume changes. */
-  default void onDeviceVolumeChanged(int volume) {}
+  /** Called when the device volume or mute state changes. */
+  default void onDeviceVolumeChanged(int volume, boolean muted) {}
 }
