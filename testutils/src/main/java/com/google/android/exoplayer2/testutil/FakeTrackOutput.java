@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.testutil.Dumper.Dumpable;
 import com.google.android.exoplayer2.upstream.DataReader;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Function;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -44,6 +45,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
   private byte[] sampleData;
   private int formatCount;
+  private boolean receivedSampleInFormat;
 
   @Nullable public Format lastFormat;
 
@@ -52,6 +54,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
     dumpables = new ArrayList<>();
     sampleData = Util.EMPTY_BYTE_ARRAY;
     formatCount = 0;
+    receivedSampleInFormat = true;
   }
 
   public void clear() {
@@ -59,10 +62,15 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
     dumpables.clear();
     sampleData = Util.EMPTY_BYTE_ARRAY;
     formatCount = 0;
+    receivedSampleInFormat = true;
   }
 
   @Override
   public void format(Format format) {
+    Assertions.checkState(
+        receivedSampleInFormat,
+        "TrackOutput must receive at least one sampleMetadata() call between format() calls.");
+    receivedSampleInFormat = false;
     addFormat(format);
   }
 
@@ -95,6 +103,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
       int size,
       int offset,
       @Nullable CryptoData cryptoData) {
+    receivedSampleInFormat = true;
     if (lastFormat == null) {
       throw new IllegalStateException("TrackOutput must receive format before sampleMetadata");
     }
