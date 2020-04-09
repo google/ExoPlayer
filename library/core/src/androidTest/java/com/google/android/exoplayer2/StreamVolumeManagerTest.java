@@ -198,6 +198,30 @@ public class StreamVolumeManagerTest {
   }
 
   @Test
+  public void setVolumeMuted_changesMuteState() {
+    testThread.runOnMainThread(
+        () -> {
+          int minVolume = streamVolumeManager.getMinVolume();
+          int maxVolume = streamVolumeManager.getMaxVolume();
+          if (minVolume == maxVolume || minVolume > 0) {
+            return;
+          }
+
+          streamVolumeManager.setVolume(maxVolume);
+          assertThat(streamVolumeManager.isMuted()).isFalse();
+
+          streamVolumeManager.setMuted(true);
+          assertThat(streamVolumeManager.isMuted()).isTrue();
+          assertThat(testListener.lastStreamVolumeMuted).isTrue();
+
+          streamVolumeManager.setMuted(false);
+          assertThat(streamVolumeManager.isMuted()).isFalse();
+          assertThat(testListener.lastStreamVolumeMuted).isFalse();
+          assertThat(testListener.lastStreamVolume).isEqualTo(maxVolume);
+        });
+  }
+
+  @Test
   public void setStreamType_notifiesStreamTypeAndVolume() {
     testThread.runOnMainThread(
         () -> {
@@ -250,6 +274,7 @@ public class StreamVolumeManagerTest {
 
     @C.StreamType private int lastStreamType;
     private int lastStreamVolume;
+    private boolean lastStreamVolumeMuted;
     public final CountDownLatch onStreamVolumeChangedLatch;
 
     public TestListener() {
@@ -262,8 +287,9 @@ public class StreamVolumeManagerTest {
     }
 
     @Override
-    public void onStreamVolumeChanged(int streamVolume) {
+    public void onStreamVolumeChanged(int streamVolume, boolean streamMuted) {
       lastStreamVolume = streamVolume;
+      lastStreamVolumeMuted = streamMuted;
       onStreamVolumeChangedLatch.countDown();
     }
   }

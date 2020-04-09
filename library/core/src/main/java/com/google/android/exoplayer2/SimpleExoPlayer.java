@@ -1776,6 +1776,12 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public boolean isDeviceMuted() {
+    verifyApplicationThread();
+    return streamVolumeManager.isMuted();
+  }
+
+  @Override
   public void setDeviceVolume(int volume) {
     verifyApplicationThread();
     streamVolumeManager.setVolume(volume);
@@ -1791,6 +1797,12 @@ public class SimpleExoPlayer extends BasePlayer
   public void decreaseDeviceVolume() {
     verifyApplicationThread();
     streamVolumeManager.decreaseVolume();
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted) {
+    verifyApplicationThread();
+    streamVolumeManager.setMuted(muted);
   }
 
   // Internal methods.
@@ -2217,9 +2229,9 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onStreamVolumeChanged(int streamVolume) {
+    public void onStreamVolumeChanged(int streamVolume, boolean streamMuted) {
       for (DeviceListener deviceListener : deviceListeners) {
-        deviceListener.onDeviceVolumeChanged(streamVolume);
+        deviceListener.onDeviceVolumeChanged(streamVolume, streamMuted);
       }
     }
 

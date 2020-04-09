@@ -33,8 +33,8 @@ import com.google.android.exoplayer2.util.Util;
     /** Called when the audio stream type is changed. */
     void onStreamTypeChanged(@C.StreamType int streamType);
 
-    /** Called when the audio stream volume is changed. */
-    void onStreamVolumeChanged(int streamVolume);
+    /** Called when the audio stream volume or mute state is changed. */
+    void onStreamVolumeChanged(int streamVolume, boolean streamMuted);
   }
 
   // TODO(b/151280453): Replace the hidden intent action with an official one.
@@ -52,6 +52,7 @@ import com.google.android.exoplayer2.util.Util;
 
   @C.StreamType private int streamType;
   private int volume;
+  private boolean muted;
 
   /** Creates a manager. */
   public StreamVolumeManager(Context context, Handler eventHandler, Listener listener) {
@@ -63,7 +64,8 @@ import com.google.android.exoplayer2.util.Util;
             (AudioManager) applicationContext.getSystemService(Context.AUDIO_SERVICE));
 
     streamType = C.STREAM_TYPE_DEFAULT;
-    volume = audioManager.getStreamVolume(streamType);
+    volume = getVolumeFromManager(audioManager, streamType);
+    muted = getMutedFromManager(audioManager, streamType);
 
     receiver = new VolumeChangeReceiver();
     IntentFilter filter = new IntentFilter(VOLUME_CHANGED_ACTION);
@@ -102,6 +104,11 @@ import com.google.android.exoplayer2.util.Util;
     return volume;
   }
 
+  /** Gets whether the current audio stream is muted or not. */
+  public boolean isMuted() {
+    return muted;
+  }
+
   /**
    * Sets the volume with the given value for the current audio stream. The value should be between
    * {@link #getMinVolume()} and {@link #getMaxVolume()}, otherwise it will be ignored.
@@ -138,16 +145,42 @@ import com.google.android.exoplayer2.util.Util;
     updateVolumeAndNotifyIfChanged();
   }
 
+  /** Sets the mute state of the current audio stream. */
+  public void setMuted(boolean muted) {
+    if (Util.SDK_INT >= 23) {
+      audioManager.adjustStreamVolume(
+          streamType, muted ? AudioManager.ADJUST_MUTE : AudioManager.ADJUST_UNMUTE, VOLUME_FLAGS);
+    } else {
+      audioManager.setStreamMute(streamType, muted);
+    }
+    updateVolumeAndNotifyIfChanged();
+  }
+
   /** Releases the manager. It must be called when the manager is no longer required. */
   public void release() {
     applicationContext.unregisterReceiver(receiver);
   }
 
   private void updateVolumeAndNotifyIfChanged() {
-    int newVolume = audioManager.getStreamVolume(streamType);
-    if (volume != newVolume) {
+    int newVolume = getVolumeFromManager(audioManager, streamType);
+    boolean newMuted = getMutedFromManager(audioManager, streamType);
+    if (volume != newVolume || muted != newMuted) {
       volume = newVolume;
-      listener.onStreamVolumeChanged(newVolume);
+      muted = newMuted;
+      listener.onStreamVolumeChanged(newVolume, newMuted);
+    }
+  }
+
+  private static int getVolumeFromManager(AudioManager audioManager, @C.StreamType int streamType) {
+    return audioManager.getStreamVolume(streamType);
+  }
+
+  private static boolean getMutedFromManager(
+      AudioManager audioManager, @C.StreamType int streamType) {
+    if (Util.SDK_INT >= 23) {
+      return audioManager.isStreamMute(streamType);
+    } else {
+      return audioManager.getStreamVolume(streamType) == 0;
     }
   }
 

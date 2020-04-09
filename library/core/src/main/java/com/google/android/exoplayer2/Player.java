@@ -397,6 +397,9 @@ public interface Player {
      */
     int getDeviceVolume();
 
+    /** Gets whether the device is muted or not. */
+    boolean isDeviceMuted();
+
     /**
      * Sets the volume of the device.
      *
@@ -409,6 +412,9 @@ public interface Player {
 
     /** Decreases the volume of the device. */
     void decreaseDeviceVolume();
+
+    /** Sets the mute state of the device. */
+    void setDeviceMuted(boolean muted);
   }
 
   /**
