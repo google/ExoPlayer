@@ -96,6 +96,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return Assertions.checkNotNull(trackGroups);
   }
 
+  // unboxing a possibly-null reference streamPeriodIndices.get(streams[i])
+  @SuppressWarnings("nullness:unboxing.of.nullable")
   @Override
   public long selectTracks(
       @NullableType TrackSelection[] selections,
