@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -260,18 +261,23 @@ public final class Cea608Decoder extends CeaDecoder {
   // Static counter to keep track of last CC rendered. This is used to force erase the caption when
   // the stream does not explicitly send control codes to remove caption as specified by
   // CEA-608 Annex C.9
-  private long ccTimeOutCounter = C.TIME_UNSET;
+  private long lastCueUpdateMs = C.TIME_UNSET;
   private boolean captionEraseCommandSeen = false;
   // CEA-608 Annex C.9 propose that if no data are received for the selected caption channel within
   // a given time, the decoder should automatically erase the caption. The time limit should be no
   // less than 16 seconds
-  public static final int VALID_DATA_CHANNEL_TIMEOUT_MS = 16000;
 
-  public Cea608Decoder(String mimeType, int accessibilityChannel) {
+  // This value is set in the constructor. The automatic erasure is disabled when this value is 0
+  private long validDataChannelTimeoutMs = 0;
+  private Clock clock;
+
+  public Cea608Decoder(String mimeType, int accessibilityChannel, long timeoutMs, Clock clock) {
     ccData = new ParsableByteArray();
     cueBuilders = new ArrayList<>();
     currentCueBuilder = new CueBuilder(CC_MODE_UNKNOWN, DEFAULT_CAPTIONS_ROW_COUNT);
     currentChannel = NTSC_CC_CHANNEL_1;
+    validDataChannelTimeoutMs = timeoutMs;
+    this.clock = clock;
     packetLength = MimeTypes.APPLICATION_MP4CEA608.equals(mimeType) ? 2 : 3;
     switch (accessibilityChannel) {
       case 1:
@@ -320,7 +326,7 @@ public final class Cea608Decoder extends CeaDecoder {
     repeatableControlCc2 = 0;
     currentChannel = NTSC_CC_CHANNEL_1;
     isInCaptionService = true;
-    ccTimeOutCounter = C.TIME_UNSET;
+    lastCueUpdateMs = C.TIME_UNSET;
   }
 
   @Override
@@ -433,8 +439,8 @@ public final class Cea608Decoder extends CeaDecoder {
     if (captionDataProcessed) {
       if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
         cues = getDisplayCues();
-        if (!captionEraseCommandSeen) {
-          ccTimeOutCounter = System.currentTimeMillis();
+        if ((validDataChannelTimeoutMs != 0) && !captionEraseCommandSeen) {
+          lastCueUpdateMs = clock.elapsedRealtime();
         }
       }
     }
@@ -1036,13 +1042,14 @@ public final class Cea608Decoder extends CeaDecoder {
 
   protected void clearStuckCaptions()
   {
-      if (ccTimeOutCounter != C.TIME_UNSET) {
-        long timeElapsed = System.currentTimeMillis() - ccTimeOutCounter;
-        if (timeElapsed >= VALID_DATA_CHANNEL_TIMEOUT_MS) {
+      if ((validDataChannelTimeoutMs != 0) &&
+              (lastCueUpdateMs != C.TIME_UNSET)) {
+        long timeElapsed = clock.elapsedRealtime() - lastCueUpdateMs;
+        if (timeElapsed >= validDataChannelTimeoutMs) {
           // Force erase captions. There might be stale captions stuck on screen.
           // (CEA-608 Annex C.9)
           cues = Collections.emptyList();
-          ccTimeOutCounter = C.TIME_UNSET;
+          lastCueUpdateMs = C.TIME_UNSET;
         }
       }
   }
