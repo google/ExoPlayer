@@ -109,7 +109,7 @@ public interface SubtitleDecoderFactory {
                 return new Tx3gDecoder(format.initializationData);
               case MimeTypes.APPLICATION_CEA608:
               case MimeTypes.APPLICATION_MP4CEA608:
-                return new Cea608Decoder(mimeType, format.accessibilityChannel
+                return new Cea608Decoder(mimeType, format.accessibilityChannel,
                       16000L, Clock.DEFAULT);
               case MimeTypes.APPLICATION_CEA708:
                 return new Cea708Decoder(format.accessibilityChannel, format.initializationData);
