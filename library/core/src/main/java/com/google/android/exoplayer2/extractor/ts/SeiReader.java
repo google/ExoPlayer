@@ -53,6 +53,7 @@ public final class SeiReader {
       output.format(
           Format.createTextSampleFormat(
               formatId,
+              /* label= */ null,
               channelMimeType,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,

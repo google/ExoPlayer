@@ -52,6 +52,7 @@ import java.util.List;
       output.format(
           Format.createTextSampleFormat(
               idGenerator.getFormatId(),
+              /* label= */ null,
               channelMimeType,
               /* codecs= */ null,
               /* bitrate= */ Format.NO_VALUE,

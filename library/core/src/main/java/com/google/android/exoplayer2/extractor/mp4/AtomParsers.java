@@ -841,6 +841,7 @@ import java.util.List;
     out.format =
         Format.createTextSampleFormat(
             Integer.toString(trackId),
+            /* label= */ null,
             mimeType,
             /* codecs= */ null,
             /* bitrate= */ Format.NO_VALUE,

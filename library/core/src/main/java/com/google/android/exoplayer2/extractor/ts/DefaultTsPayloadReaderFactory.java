@@ -257,6 +257,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
           closedCaptionFormats.add(
               Format.createTextSampleFormat(
                   /* id= */ null,
+                  /* label= */ null,
                   mimeType,
                   /* codecs= */ null,
                   /* bitrate= */ Format.NO_VALUE,

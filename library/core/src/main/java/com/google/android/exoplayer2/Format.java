@@ -626,6 +626,28 @@ public final class Format implements Parcelable {
       @Nullable DrmInitData drmInitData) {
     return createTextSampleFormat(
         id,
+        /* label= */ null,
+        sampleMimeType,
+        /* codecs= */ null,
+        /* bitrate= */ NO_VALUE,
+        selectionFlags,
+        language,
+        NO_VALUE,
+        drmInitData,
+        OFFSET_SAMPLE_RELATIVE,
+        Collections.emptyList());
+  }
+
+  public static Format createTextSampleFormat(
+      @Nullable String id,
+      @Nullable String label,
+      @Nullable String sampleMimeType,
+      @C.SelectionFlags int selectionFlags,
+      @Nullable String language,
+      @Nullable DrmInitData drmInitData) {
+    return createTextSampleFormat(
+        id,
+        label,
         sampleMimeType,
         /* codecs= */ null,
         /* bitrate= */ NO_VALUE,
@@ -648,6 +670,7 @@ public final class Format implements Parcelable {
       @Nullable DrmInitData drmInitData) {
     return createTextSampleFormat(
         id,
+        /* label= */ null,
         sampleMimeType,
         codecs,
         bitrate,
@@ -670,6 +693,7 @@ public final class Format implements Parcelable {
       long subsampleOffsetUs) {
     return createTextSampleFormat(
         id,
+        /* label= */ null,
         sampleMimeType,
         codecs,
         bitrate,
@@ -683,6 +707,7 @@ public final class Format implements Parcelable {
 
   public static Format createTextSampleFormat(
       @Nullable String id,
+      @Nullable String label,
       @Nullable String sampleMimeType,
       @Nullable String codecs,
       int bitrate,
@@ -694,7 +719,7 @@ public final class Format implements Parcelable {
       @Nullable List<byte[]> initializationData) {
     return new Format(
         id,
-        /* label= */ null,
+        /* label= */ label,
         selectionFlags,
         /* roleFlags= */ 0,
         bitrate,

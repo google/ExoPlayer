@@ -2133,14 +2133,14 @@ public class MatroskaExtractor implements Extractor {
                 drmInitData);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
-        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, selectionFlags,
+        format = Format.createTextSampleFormat(Integer.toString(trackId), name, mimeType, selectionFlags,
             language, drmInitData);
       } else if (MimeTypes.TEXT_SSA.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
         initializationData = new ArrayList<>(2);
         initializationData.add(SSA_DIALOGUE_FORMAT);
         initializationData.add(codecPrivate);
-        format = Format.createTextSampleFormat(Integer.toString(trackId), mimeType, null,
+        format = Format.createTextSampleFormat(Integer.toString(trackId), name, mimeType, null,
             Format.NO_VALUE, selectionFlags, language, Format.NO_VALUE, drmInitData,
             Format.OFFSET_SAMPLE_RELATIVE, initializationData);
       } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)

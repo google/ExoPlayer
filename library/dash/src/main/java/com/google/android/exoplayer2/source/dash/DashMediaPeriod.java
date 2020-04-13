@@ -807,6 +807,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         adaptationSetId
             + ":cea608"
             + (accessibilityChannel != Format.NO_VALUE ? ":" + accessibilityChannel : ""),
+        /* label= */ null,
         MimeTypes.APPLICATION_CEA608,
         /* codecs= */ null,
         /* bitrate= */ Format.NO_VALUE,
