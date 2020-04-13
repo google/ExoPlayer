@@ -187,7 +187,7 @@ public final class ExtractorAsserts {
 
     // If the SeekMap is seekable, test seeking to 4 positions in the stream.
     SeekMap seekMap = extractorOutput.seekMap;
-    if (seekMap.isSeekable()) {
+    if (null != seekMap && seekMap.isSeekable()) {
       long durationUs = seekMap.getDurationUs();
       for (int j = 0; j < 4; j++) {
         extractorOutput.clearTrackOutputs();

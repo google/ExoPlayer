@@ -1,0 +1,31 @@
+seekMap:
+  isSeekable = false
+  duration = 2737000
+  getPosition(0) = [[timeUs=0, position=2833]]
+numberOfTracks = 1
+track 0:
+  format:
+    bitrate = -1
+    id = 1
+    containerMimeType = null
+    sampleMimeType = video/hevc
+    maxInputSize = -1
+    width = 320
+    height = 240
+    frameRate = -1.0
+    rotationDegrees = 0
+    pixelWidthHeightRatio = 1.0
+    channelCount = -1
+    sampleRate = -1
+    pcmEncoding = -1
+    encoderDelay = 0
+    encoderPadding = 0
+    subsampleOffsetUs = 9223372036854775807
+    selectionFlags = 0
+    language = null
+    drmInitData = -
+    initializationData:
+      data = length 1047, hash 685B4563
+  total output bytes = 0
+  sample count = 0
+tracksEnded = true
