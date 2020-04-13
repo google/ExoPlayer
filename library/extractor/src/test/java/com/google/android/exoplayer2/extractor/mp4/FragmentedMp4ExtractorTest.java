@@ -43,6 +43,54 @@ public final class FragmentedMp4ExtractorTest {
   }
 
   @Test
+  public void sampleHevc() throws Exception {
+    ExtractorAsserts.assertBehavior(
+            getExtractorFactory(Collections.emptyList()), "mp4/apple_hevc.mp4");
+  }
+
+  @Test
+  public void sampleAppleStream() throws Exception {
+    ExtractorAsserts.assertBehavior(
+            getExtractorFactory(Collections.emptyList()), "mp4/apple_v2.mp4");
+  }
+
+  @Test
+  public void sampleCencMdatBox() throws Exception {
+    ExtractorAsserts.assertBehavior(
+            getExtractorFactory(Collections.emptyList()), "mp4/bear-640x360-v_frag-cenc-mdat.mp4");
+  }
+
+  @Test
+  public void sampleCencSencBox() throws Exception {
+    ExtractorAsserts.assertBehavior(
+            getExtractorFactory(Collections.emptyList()), "mp4/bear-640x360-v_frag-cenc-senc.mp4");
+  }
+
+  @Test
+  public void sampleCbcsCryptoBox() throws Exception {
+    ExtractorAsserts.assertBehavior(
+            getExtractorFactory(Collections.emptyList()), "mp4/bear-640x360-v_frag-cbcs.mp4");
+  }
+
+  @Test
+  public void sampleCensCryptoBox() throws Exception {
+    ExtractorAsserts.assertBehavior(
+            getExtractorFactory(Collections.emptyList()), "mp4/bear-640x360-v_frag-cens.mp4");
+  }
+
+  @Test
+  public void sampleAvc3() throws Exception {
+    ExtractorAsserts.assertBehavior(
+            getExtractorFactory(Collections.emptyList()), "mp4/bear-1280x720-v_frag-avc3.mp4");
+  }
+
+  @Test
+  public void sampleHevcBox() throws Exception {
+    ExtractorAsserts.assertBehavior(
+            getExtractorFactory(Collections.emptyList()), "mp4/bear-320x240-v_frag-hevc.mp4");
+  }
+
+  @Test
   public void sampleWithSeiPayloadParsing() throws Exception {
     // Enabling the CEA-608 track enables SEI payload parsing.
     ExtractorFactory extractorFactory =
