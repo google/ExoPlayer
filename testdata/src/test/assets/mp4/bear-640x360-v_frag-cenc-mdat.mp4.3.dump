@@ -1,0 +1,63 @@
+seekMap:
+  isSeekable = true
+  duration = 2736066
+  getPosition(0) = [[timeUs=0, position=1747]]
+  getPosition(1) = [[timeUs=0, position=1747], [timeUs=500500, position=49685]]
+  getPosition(1368033) = [[timeUs=1001000, position=96138], [timeUs=1501500, position=147449]]
+  getPosition(2736066) = [[timeUs=2502500, position=252228]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 23234
+  sample count = 7
+  format 0:
+    id = 1
+    sampleMimeType = video/avc
+    width = 640
+    height = 360
+    drmInitData = -1690347733
+    initializationData:
+      data = length 29, hash CB5D753A
+      data = length 10, hash 7A0D0F2B
+  sample 0:
+    time = 2535000
+    flags = 1073741825
+    data = length 12818, hash E37AC585
+    crypto mode = 1
+    encryption key = length 16, hash B466A49
+  sample 1:
+    time = 2635000
+    flags = 1073741824
+    data = length 3184, hash C63E279F
+    crypto mode = 1
+    encryption key = length 16, hash B466A49
+  sample 2:
+    time = 2602000
+    flags = 1073741824
+    data = length 1303, hash 47094C7A
+    crypto mode = 1
+    encryption key = length 16, hash B466A49
+  sample 3:
+    time = 2569000
+    flags = 1073741824
+    data = length 956, hash 75BF4E5E
+    crypto mode = 1
+    encryption key = length 16, hash B466A49
+  sample 4:
+    time = 2702000
+    flags = 1073741824
+    data = length 2624, hash 39E6B2DC
+    crypto mode = 1
+    encryption key = length 16, hash B466A49
+  sample 5:
+    time = 2669000
+    flags = 1073741824
+    data = length 1098, hash 913FA992
+    crypto mode = 1
+    encryption key = length 16, hash B466A49
+  sample 6:
+    time = 2735000
+    flags = 1073741824
+    data = length 1251, hash 3F9A238E
+    crypto mode = 1
+    encryption key = length 16, hash B466A49
+tracksEnded = true
