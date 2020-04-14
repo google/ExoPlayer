@@ -9,6 +9,7 @@ implemented.
 
 ### Design documents in RFC status ###
 
+* [Audio offload][] (April 2020)
 * [Sniffing order optimization][] (April 2020)
 * [Masking seek state changes][] (March 2020)
 * [Frame-accurate pausing][] (January 2020)
@@ -18,6 +19,7 @@ implemented.
 * [Playlist API][] (July 2019)
 * [Bandwidth estimation analysis][] (July 2019)
 
+[Audio offload]: https://docs.google.com/document/d/1r6wi6OtJUaI1QU8QLrLJTZieQBFTN1fyBK4U_PoPp3g
 [Sniffing order optimization]: https://docs.google.com/document/d/1w2mKaWMxfz2Ei8-LdxqbPs1VLe_oudB-eryXXw9OvQQ
 [Masking seek state changes]: https://docs.google.com/document/d/1XeOduvYus9HfwXtOtoRC185T4PK-L4u7JRmNM46Ee4w
 [Frame-accurate pausing]: https://docs.google.com/document/d/1xXGvIMAYDWN4BGUNqAplNN-T7rjrW_1EAVXpyCcAqUI
