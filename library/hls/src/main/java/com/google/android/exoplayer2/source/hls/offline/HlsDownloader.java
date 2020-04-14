@@ -141,7 +141,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
       }
     }
     Uri segmentUri = UriUtil.resolveToUri(baseUri, segment.url);
-    DataSpec dataSpec = new DataSpec(segmentUri, segment.byterangeOffset, segment.byterangeLength);
+    DataSpec dataSpec = new DataSpec(segmentUri, segment.byteRangeOffset, segment.byteRangeLength);
     out.add(new Segment(startTimeUs, dataSpec));
   }
 }

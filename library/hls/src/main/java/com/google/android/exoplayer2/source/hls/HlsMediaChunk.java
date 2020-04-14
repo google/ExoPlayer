@@ -94,8 +94,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     DataSpec dataSpec =
         new DataSpec(
             UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url),
-            mediaSegment.byterangeOffset,
-            mediaSegment.byterangeLength);
+            mediaSegment.byteRangeOffset,
+            mediaSegment.byteRangeLength);
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;
     @Nullable
     byte[] mediaSegmentIv =
@@ -118,7 +118,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               : null;
       Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
       initDataSpec =
-          new DataSpec(initSegmentUri, initSegment.byterangeOffset, initSegment.byterangeLength);
+          new DataSpec(initSegmentUri, initSegment.byteRangeOffset, initSegment.byteRangeLength);
       initDataSource = buildDataSource(dataSource, initSegmentKey, initSegmentIv);
     }
 

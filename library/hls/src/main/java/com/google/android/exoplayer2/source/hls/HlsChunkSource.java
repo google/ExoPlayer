@@ -647,7 +647,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       checkInBounds();
       Segment segment = playlist.segments.get((int) getCurrentIndex());
       Uri chunkUri = UriUtil.resolveToUri(playlist.baseUri, segment.url);
-      return new DataSpec(chunkUri, segment.byterangeOffset, segment.byterangeLength);
+      return new DataSpec(chunkUri, segment.byteRangeOffset, segment.byteRangeLength);
     }
 
     @Override
