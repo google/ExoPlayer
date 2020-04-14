@@ -311,7 +311,7 @@ is the official way to play YouTube videos on Android.
 [Why does ExoPlayer support my content but the Cast extension doesn't?]: #why-does-exoplayer-support-my-content-but-the-cast-extension-doesnt
 [Why does content fail to play, but no error is surfaced?]: #why-does-content-fail-to-play-but-no-error-is-surfaced
 [How can I get a decoding extension to load and be used for playback?]: #how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
-[Can I play YouTube videos directly with ExoPlayer?]: #can-i-play-yt-videos-with-exoplayer
+[Can I play YouTube videos directly with ExoPlayer?]: #can-i-play-youtube-videos-directly-with-exoplayer
 
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
