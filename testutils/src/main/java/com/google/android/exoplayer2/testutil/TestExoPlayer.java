@@ -41,6 +41,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Utilities to write unit/integration tests with a SimpleExoPlayer instance that uses fake
@@ -77,7 +78,7 @@ public class TestExoPlayer {
     @Nullable private Renderer[] renderers;
     @Nullable private RenderersFactory renderersFactory;
     private boolean useLazyPreparation;
-    private Looper looper;
+    private @MonotonicNonNull Looper looper;
 
     public Builder(Context context) {
       this.context = context;
@@ -85,7 +86,10 @@ public class TestExoPlayer {
       trackSelector = new DefaultTrackSelector(context);
       loadControl = new DefaultLoadControl();
       bandwidthMeter = new DefaultBandwidthMeter.Builder(context).build();
-      looper = Assertions.checkNotNull(Looper.myLooper());
+      @Nullable Looper myLooper = Looper.myLooper();
+      if (myLooper != null) {
+        looper = myLooper;
+      }
     }
 
     /**
@@ -234,7 +238,11 @@ public class TestExoPlayer {
       return this;
     }
 
-    /** Returns the {@link Looper} that will be used by the player. */
+    /**
+     * Returns the {@link Looper} that will be used by the player, or null if no {@link Looper} has
+     * been set yet and no default is available.
+     */
+    @Nullable
     public Looper getLooper() {
       return looper;
     }
@@ -245,6 +253,8 @@ public class TestExoPlayer {
      * @return The built {@link ExoPlayerTestRunner}.
      */
     public SimpleExoPlayer build() {
+      Assertions.checkNotNull(
+          looper, "TestExoPlayer builder run on a thread without Looper and no Looper specified.");
       // Do not update renderersFactory and renderers here, otherwise their getters may
       // return different values before and after build() is called, making them confusing.
       RenderersFactory playerRenderersFactory = renderersFactory;
