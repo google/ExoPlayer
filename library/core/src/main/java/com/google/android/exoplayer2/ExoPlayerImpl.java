@@ -397,6 +397,9 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addMediaSources(int index, List<MediaSource> mediaSources) {
     Assertions.checkArgument(index >= 0);
+    for (int i = 0; i < mediaSources.size(); i++) {
+      Assertions.checkArgument(mediaSources.get(i) != null);
+    }
     int currentWindowIndex = getCurrentWindowIndex();
     long currentPositionMs = getCurrentPosition();
     Timeline oldTimeline = getCurrentTimeline();
@@ -966,10 +969,13 @@ import java.util.concurrent.TimeoutException;
   }
 
   private void setMediaSourcesInternal(
-      List<MediaSource> mediaItems,
+      List<MediaSource> mediaSources,
       int startWindowIndex,
       long startPositionMs,
       boolean resetToDefaultPosition) {
+    for (int i = 0; i < mediaSources.size(); i++) {
+      Assertions.checkArgument(mediaSources.get(i) != null);
+    }
     int currentWindowIndex = getCurrentWindowIndexInternal();
     long currentPositionMs = getCurrentPosition();
     pendingOperationAcks++;
@@ -978,7 +984,7 @@ import java.util.concurrent.TimeoutException;
           /* fromIndex= */ 0, /* toIndexExclusive= */ mediaSourceHolders.size());
     }
     List<MediaSourceList.MediaSourceHolder> holders =
-        addMediaSourceHolders(/* index= */ 0, mediaItems);
+        addMediaSourceHolders(/* index= */ 0, mediaSources);
     PlaybackInfo playbackInfo = maskTimeline();
     Timeline timeline = playbackInfo.timeline;
     if (!timeline.isEmpty() && startWindowIndex >= timeline.getWindowCount()) {
