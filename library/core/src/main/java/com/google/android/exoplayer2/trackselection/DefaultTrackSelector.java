@@ -1990,6 +1990,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int maxVideoHeight,
       int maxVideoFrameRate,
       int maxVideoBitrate) {
+    if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
+      // Ignore trick-play tracks for now.
+      return false;
+    }
     return isSupported(formatSupport, false)
         && ((formatSupport & requiredAdaptiveSupport) != 0)
         && (mimeType == null || Util.areEqual(format.sampleMimeType, mimeType))
@@ -2013,9 +2017,13 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           params.viewportWidth, params.viewportHeight, params.viewportOrientationMayChange);
       @Capabilities int[] trackFormatSupport = formatSupports[groupIndex];
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+        Format format = trackGroup.getFormat(trackIndex);
+        if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
+          // Ignore trick-play tracks for now.
+          continue;
+        }
         if (isSupported(trackFormatSupport[trackIndex],
             params.exceedRendererCapabilitiesIfNecessary)) {
-          Format format = trackGroup.getFormat(trackIndex);
           boolean isWithinConstraints =
               selectedTrackIndices.contains(trackIndex)
                   && (format.width == Format.NO_VALUE || format.width <= params.maxVideoWidth)

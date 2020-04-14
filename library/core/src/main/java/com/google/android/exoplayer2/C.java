@@ -1056,7 +1056,8 @@ public final class C {
    * #ROLE_FLAG_DUB}, {@link #ROLE_FLAG_EMERGENCY}, {@link #ROLE_FLAG_CAPTION}, {@link
    * #ROLE_FLAG_SUBTITLE}, {@link #ROLE_FLAG_SIGN}, {@link #ROLE_FLAG_DESCRIBES_VIDEO}, {@link
    * #ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND}, {@link #ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY},
-   * {@link #ROLE_FLAG_TRANSCRIBES_DIALOG} and {@link #ROLE_FLAG_EASY_TO_READ}.
+   * {@link #ROLE_FLAG_TRANSCRIBES_DIALOG}, {@link #ROLE_FLAG_EASY_TO_READ} and {@link
+   * #ROLE_FLAG_TRICK_PLAY}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1076,7 +1077,8 @@ public final class C {
         ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND,
         ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY,
         ROLE_FLAG_TRANSCRIBES_DIALOG,
-        ROLE_FLAG_EASY_TO_READ
+        ROLE_FLAG_EASY_TO_READ,
+        ROLE_FLAG_TRICK_PLAY
       })
   public @interface RoleFlags {}
   /** Indicates a main track. */
@@ -1122,6 +1124,8 @@ public final class C {
   public static final int ROLE_FLAG_TRANSCRIBES_DIALOG = 1 << 12;
   /** Indicates the track contains a text that has been edited for ease of reading. */
   public static final int ROLE_FLAG_EASY_TO_READ = 1 << 13;
+  /** Indicates the track is intended for trick play. */
+  public static final int ROLE_FLAG_TRICK_PLAY = 1 << 14;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
