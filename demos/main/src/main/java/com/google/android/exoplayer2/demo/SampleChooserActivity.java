@@ -249,16 +249,11 @@ public class SampleChooserActivity extends AppCompatActivity
       Toast.makeText(getApplicationContext(), downloadUnsupportedStringId, Toast.LENGTH_LONG)
           .show();
     } else {
-      UriSample uriSample = (UriSample) sample;
       RenderersFactory renderersFactory =
           ((DemoApplication) getApplication())
               .buildRenderersFactory(isNonNullAndChecked(preferExtensionDecodersMenuItem));
       downloadTracker.toggleDownload(
-          getSupportFragmentManager(),
-          sample.name,
-          uriSample.uri,
-          uriSample.extension,
-          renderersFactory);
+          getSupportFragmentManager(), (UriSample) sample, renderersFactory);
     }
   }
 
