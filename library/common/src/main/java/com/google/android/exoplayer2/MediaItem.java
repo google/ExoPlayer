@@ -69,17 +69,47 @@ public final class MediaItem {
     private boolean drmPlayClearContentWithoutKey;
     private List<Integer> drmSessionForClearTypes;
     private List<StreamKey> streamKeys;
+    @Nullable private String customCacheKey;
     private List<Subtitle> subtitles;
     @Nullable private Object tag;
     @Nullable private MediaMetadata mediaMetadata;
 
     /** Creates a builder. */
     public Builder() {
-      streamKeys = Collections.emptyList();
-      subtitles = Collections.emptyList();
+      clipEndPositionMs = C.TIME_END_OF_SOURCE;
       drmSessionForClearTypes = Collections.emptyList();
       drmLicenseRequestHeaders = Collections.emptyMap();
-      clipEndPositionMs = C.TIME_END_OF_SOURCE;
+      streamKeys = Collections.emptyList();
+      subtitles = Collections.emptyList();
+    }
+
+    private Builder(MediaItem mediaItem) {
+      this();
+      clipEndPositionMs = mediaItem.clippingProperties.endPositionMs;
+      clipRelativeToLiveWindow = mediaItem.clippingProperties.relativeToLiveWindow;
+      clipRelativeToDefaultPosition = mediaItem.clippingProperties.relativeToDefaultPosition;
+      clipStartsAtKeyFrame = mediaItem.clippingProperties.startsAtKeyFrame;
+      clipStartPositionMs = mediaItem.clippingProperties.startPositionMs;
+      mediaId = mediaItem.mediaId;
+      mediaMetadata = mediaItem.mediaMetadata;
+      @Nullable PlaybackProperties playbackProperties = mediaItem.playbackProperties;
+      if (playbackProperties != null) {
+        customCacheKey = playbackProperties.customCacheKey;
+        mimeType = playbackProperties.mimeType;
+        sourceUri = playbackProperties.sourceUri;
+        streamKeys = playbackProperties.streamKeys;
+        subtitles = playbackProperties.subtitles;
+        tag = playbackProperties.tag;
+        @Nullable DrmConfiguration drmConfiguration = playbackProperties.drmConfiguration;
+        if (drmConfiguration != null) {
+          drmLicenseUri = drmConfiguration.licenseUri;
+          drmLicenseRequestHeaders = drmConfiguration.requestHeaders;
+          drmMultiSession = drmConfiguration.multiSession;
+          drmPlayClearContentWithoutKey = drmConfiguration.playClearContentWithoutKey;
+          drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
+          drmUuid = drmConfiguration.uuid;
+        }
+      }
     }
 
     /**
@@ -297,6 +327,17 @@ public final class MediaItem {
     }
 
     /**
+     * Sets the optional custom cache key (only used for progressive streams).
+     *
+     * <p>If a {@link PlaybackProperties#sourceUri} is set, the custom cache key is used to create a
+     * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     */
+    public Builder setCustomCacheKey(@Nullable String customCacheKey) {
+      this.customCacheKey = customCacheKey;
+      return this;
+    }
+
+    /**
      * Sets the optional subtitles.
      *
      * <p>{@code null} or an empty {@link List} can be used for a reset.
@@ -352,6 +393,7 @@ public final class MediaItem {
                         drmSessionForClearTypes)
                     : null,
                 streamKeys,
+                customCacheKey,
                 subtitles,
                 tag);
         mediaId = mediaId != null ? mediaId : sourceUri.toString();
@@ -461,6 +503,9 @@ public final class MediaItem {
     /** Optional stream keys by which the manifest is filtered. */
     public final List<StreamKey> streamKeys;
 
+    /** Optional custom cache key (only used for progressive streams). */
+    @Nullable public final String customCacheKey;
+
     /** Optional subtitles to be sideloaded. */
     public final List<Subtitle> subtitles;
 
@@ -476,12 +521,14 @@ public final class MediaItem {
         @Nullable String mimeType,
         @Nullable DrmConfiguration drmConfiguration,
         List<StreamKey> streamKeys,
+        @Nullable String customCacheKey,
         List<Subtitle> subtitles,
         @Nullable Object tag) {
       this.sourceUri = sourceUri;
       this.mimeType = mimeType;
       this.drmConfiguration = drmConfiguration;
       this.streamKeys = streamKeys;
+      this.customCacheKey = customCacheKey;
       this.subtitles = subtitles;
       this.tag = tag;
     }
@@ -500,6 +547,7 @@ public final class MediaItem {
           && Util.areEqual(mimeType, other.mimeType)
           && Util.areEqual(drmConfiguration, other.drmConfiguration)
           && streamKeys.equals(other.streamKeys)
+          && Util.areEqual(customCacheKey, other.customCacheKey)
           && subtitles.equals(other.subtitles)
           && Util.areEqual(tag, other.tag);
     }
@@ -510,6 +558,7 @@ public final class MediaItem {
       result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
       result = 31 * result + (drmConfiguration == null ? 0 : drmConfiguration.hashCode());
       result = 31 * result + streamKeys.hashCode();
+      result = 31 * result + (customCacheKey == null ? 0 : customCacheKey.hashCode());
       result = 31 * result + subtitles.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
       return result;
@@ -672,6 +721,11 @@ public final class MediaItem {
     this.playbackProperties = playbackProperties;
     this.mediaMetadata = mediaMetadata;
     this.clippingProperties = clippingProperties;
+  }
+
+  /** Returns a {@link Builder} initialized with the values of this instance. */
+  public Builder buildUpon() {
+    return new Builder(this);
   }
 
   @Override
