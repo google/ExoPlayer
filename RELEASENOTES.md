@@ -65,6 +65,9 @@
     *   Remove deprecated members in `DefaultTrackSelector`.
     *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
         that the device volume can be controlled by player.
+    *   Avoid throwing an exception while parsing fragmented MP4 default sample
+        values where the most-significant bit is set
+        ([#7207](https://github.com/google/ExoPlayer/issues/7207)).
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
