@@ -25,8 +25,8 @@ import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.view.MotionEvent;
-import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
@@ -45,7 +45,7 @@ import java.util.List;
  * <p>NOTE: This is currently extremely experimental and doesn't support most {@link Cue} styling
  * properties.
  */
-/* package */ final class SubtitleWebView extends ViewGroup implements SubtitleView.Output {
+/* package */ final class SubtitleWebView extends FrameLayout implements SubtitleView.Output {
 
   private final WebView webView;
 
@@ -143,13 +143,6 @@ import java.util.List;
     }
     this.bottomPaddingFraction = bottomPaddingFraction;
     updateWebView();
-  }
-
-  @Override
-  protected void onLayout(boolean changed, int l, int t, int r, int b) {
-    if (changed) {
-      webView.layout(l, t, r, b);
-    }
   }
 
   private void updateWebView() {
