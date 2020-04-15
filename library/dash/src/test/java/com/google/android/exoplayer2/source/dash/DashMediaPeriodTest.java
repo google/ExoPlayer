@@ -165,6 +165,7 @@ public final class DashMediaPeriodTest {
         trackType,
         Arrays.asList(representations),
         /* accessibilityDescriptors= */ Collections.emptyList(),
+        /* essentialProperties= */ Collections.emptyList(),
         descriptor == null ? Collections.emptyList() : Collections.singletonList(descriptor));
   }
 

@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegm
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,21 +39,21 @@ public final class DashUtilTest {
 
   @Test
   public void testLoadDrmInitDataFromManifest() throws Exception {
-    Period period = newPeriod(newAdaptationSets(newRepresentations(newDrmInitData())));
+    Period period = newPeriod(newAdaptationSet(newRepresentations(newDrmInitData())));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isEqualTo(newDrmInitData());
   }
 
   @Test
   public void testLoadDrmInitDataMissing() throws Exception {
-    Period period = newPeriod(newAdaptationSets(newRepresentations(null /* no init data */)));
+    Period period = newPeriod(newAdaptationSet(newRepresentations(null /* no init data */)));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isNull();
   }
 
   @Test
   public void testLoadDrmInitDataNoRepresentations() throws Exception {
-    Period period = newPeriod(newAdaptationSets(/* no representation */ ));
+    Period period = newPeriod(newAdaptationSet(/* no representation */ ));
     DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
     assertThat(drmInitData).isNull();
   }
@@ -68,8 +69,14 @@ public final class DashUtilTest {
     return new Period("", 0, Arrays.asList(adaptationSets));
   }
 
-  private static AdaptationSet newAdaptationSets(Representation... representations) {
-    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations), null, null);
+  private static AdaptationSet newAdaptationSet(Representation... representations) {
+    return new AdaptationSet(
+        /* id= */ 0,
+        C.TRACK_TYPE_VIDEO,
+        Arrays.asList(representations),
+        /* accessibilityDescriptors= */ Collections.emptyList(),
+        /* essentialProperties= */ Collections.emptyList(),
+        /* supplementalProperties= */ Collections.emptyList());
   }
 
   private static Representation newRepresentations(DrmInitData drmInitData) {

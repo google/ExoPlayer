@@ -239,6 +239,12 @@ public class DashManifestTest {
   }
 
   private static AdaptationSet newAdaptationSet(int seed, Representation... representations) {
-    return new AdaptationSet(++seed, ++seed, Arrays.asList(representations), null, null);
+    return new AdaptationSet(
+        ++seed,
+        ++seed,
+        Arrays.asList(representations),
+        /* accessibilityDescriptors= */ Collections.emptyList(),
+        /* essentialProperties= */ Collections.emptyList(),
+        /* supplementalProperties= */ Collections.emptyList());
   }
 }
