@@ -55,6 +55,11 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void sampleWithH265() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h265.ts");
+  }
+
+  @Test
   @Ignore
   // TODO(internal: b/153539929) Re-enable when ExtractorAsserts is less strict around repeated
   // formats and seeking.
