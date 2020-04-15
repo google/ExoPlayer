@@ -1,5 +1,11 @@
 # Release notes #
 
+### Next release ###
+
+*   Avoid throwing an exception while parsing fragmented MP4 default sample
+    values where the most-significant bit is set
+    ([#7207](https://github.com/google/ExoPlayer/issues/7207)).
+
 ### 2.11.4 (2020-04-08) ###
 
 * Add `SimpleExoPlayer.setWakeMode` to allow automatic `WifiLock` and `WakeLock`
