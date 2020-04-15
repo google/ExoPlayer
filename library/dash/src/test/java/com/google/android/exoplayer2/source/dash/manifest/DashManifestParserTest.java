@@ -49,6 +49,7 @@ public class DashManifestParserTest {
   private static final String SAMPLE_MPD_LABELS = "mpd/sample_mpd_labels";
   private static final String SAMPLE_MPD_ASSET_IDENTIFIER = "mpd/sample_mpd_asset_identifier";
   private static final String SAMPLE_MPD_TEXT = "mpd/sample_mpd_text";
+  private static final String SAMPLE_MPD_TRICK_PLAY = "mpd/sample_mpd_trick_play";
 
   private static final String NEXT_TAG_NAME = "Next";
   private static final String NEXT_TAG = "<" + NEXT_TAG_NAME + "/>";
@@ -173,7 +174,7 @@ public class DashManifestParserTest {
     DashManifestParser parser = new DashManifestParser();
     DashManifest manifest =
         parser.parse(
-            Uri.parse("Https://example.com/test.mpd"),
+            Uri.parse("https://example.com/test.mpd"),
             TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD));
     ProgramInformation expectedProgramInformation =
         new ProgramInformation(
@@ -201,7 +202,7 @@ public class DashManifestParserTest {
     DashManifestParser parser = new DashManifestParser();
     DashManifest manifest =
         parser.parse(
-            Uri.parse("Https://example.com/test.mpd"),
+            Uri.parse("https://example.com/test.mpd"),
             TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD_TEXT));
 
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
@@ -223,6 +224,46 @@ public class DashManifestParserTest {
     assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.codecs).isNull();
     assertThat(adaptationSets.get(2).type).isEqualTo(C.TRACK_TYPE_TEXT);
+  }
+
+  @Test
+  public void parseMediaPresentationDescription_trickPlay() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_TRICK_PLAY));
+
+    List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
+
+    AdaptationSet adaptationSet = adaptationSets.get(0);
+    assertThat(adaptationSet.essentialProperties).isEmpty();
+    assertThat(adaptationSet.supplementalProperties).isEmpty();
+    assertThat(adaptationSet.representations.get(0).format.roleFlags).isEqualTo(0);
+
+    adaptationSet = adaptationSets.get(1);
+    assertThat(adaptationSet.essentialProperties).isEmpty();
+    assertThat(adaptationSet.supplementalProperties).isEmpty();
+    assertThat(adaptationSet.representations.get(0).format.roleFlags).isEqualTo(0);
+
+    adaptationSet = adaptationSets.get(2);
+    assertThat(adaptationSet.essentialProperties).hasSize(1);
+    assertThat(adaptationSet.essentialProperties.get(0).schemeIdUri)
+        .isEqualTo("http://dashif.org/guidelines/trickmode");
+    assertThat(adaptationSet.essentialProperties.get(0).value).isEqualTo("0");
+    assertThat(adaptationSet.supplementalProperties).isEmpty();
+    assertThat(adaptationSet.representations.get(0).format.roleFlags)
+        .isEqualTo(C.ROLE_FLAG_TRICK_PLAY);
+
+    adaptationSet = adaptationSets.get(3);
+    assertThat(adaptationSet.essentialProperties).isEmpty();
+    assertThat(adaptationSet.supplementalProperties).hasSize(1);
+    assertThat(adaptationSet.supplementalProperties.get(0).schemeIdUri)
+        .isEqualTo("http://dashif.org/guidelines/trickmode");
+    assertThat(adaptationSet.supplementalProperties.get(0).value).isEqualTo("1");
+    assertThat(adaptationSet.representations.get(0).format.roleFlags)
+        .isEqualTo(C.ROLE_FLAG_TRICK_PLAY);
   }
 
   @Test

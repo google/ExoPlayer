@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegm
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,7 +70,13 @@ public final class DashUtilTest {
   }
 
   private static AdaptationSet newAdaptationSet(Representation... representations) {
-    return new AdaptationSet(0, C.TRACK_TYPE_VIDEO, Arrays.asList(representations), null, null);
+    return new AdaptationSet(
+        /* id= */ 0,
+        C.TRACK_TYPE_VIDEO,
+        Arrays.asList(representations),
+        /* accessibilityDescriptors= */ Collections.emptyList(),
+        /* essentialProperties= */ Collections.emptyList(),
+        /* supplementalProperties= */ Collections.emptyList());
   }
 
   private static Representation newRepresentation(DrmInitData drmInitData) {
