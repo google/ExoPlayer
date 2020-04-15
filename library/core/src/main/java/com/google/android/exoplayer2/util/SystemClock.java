@@ -26,6 +26,11 @@ import androidx.annotation.Nullable;
 /* package */ final class SystemClock implements Clock {
 
   @Override
+  public long currentTimeMillis() {
+    return System.currentTimeMillis();
+  }
+
+  @Override
   public long elapsedRealtime() {
     return android.os.SystemClock.elapsedRealtime();
   }
