@@ -42,7 +42,6 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.demo.Sample.UriSample;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -473,7 +472,12 @@ public class PlayerActivity extends AppCompatActivity
             .getDownloadTracker()
             .getDownloadRequest(mediaItem.playbackProperties.sourceUri);
     if (downloadRequest != null) {
-      return DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
+      mediaItem =
+          mediaItem
+              .buildUpon()
+              .setStreamKeys(downloadRequest.streamKeys)
+              .setCustomCacheKey(downloadRequest.customCacheKey)
+              .build();
     }
     return mediaSourceFactory
         .setDrmHttpDataSourceFactory(drmDataSourceFactory)

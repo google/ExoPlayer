@@ -95,13 +95,10 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     }
 
     /**
-     * Sets the custom key that uniquely identifies the original stream. Used for cache indexing.
-     * The default value is {@code null}.
-     *
-     * @param customCacheKey A custom key that uniquely identifies the original stream. Used for
-     *     cache indexing.
-     * @return This factory, for convenience.
+     * @deprecated Use {@link MediaItem.Builder#setCustomCacheKey(String)} and {@link
+     *     #createMediaSource(MediaItem)} instead.
      */
+    @Deprecated
     public Factory setCustomCacheKey(@Nullable String customCacheKey) {
       this.customCacheKey = customCacheKey;
       return this;
@@ -188,7 +185,9 @@ public final class ProgressiveMediaSource extends BaseMediaSource
           extractorsFactory,
           drmSessionManager,
           loadErrorHandlingPolicy,
-          customCacheKey,
+          mediaItem.playbackProperties.customCacheKey != null
+              ? mediaItem.playbackProperties.customCacheKey
+              : customCacheKey,
           continueLoadingCheckIntervalBytes,
           mediaItem.playbackProperties.tag != null ? mediaItem.playbackProperties.tag : tag);
     }
