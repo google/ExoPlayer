@@ -161,9 +161,8 @@ public final class H265Reader implements ElementaryStreamReader {
   }
 
   private void startNalUnit(long position, int offset, int nalUnitType, long pesTimeUs) {
-    if (hasOutputFormat) {
-      sampleReader.startNalUnit(position, offset, nalUnitType, pesTimeUs);
-    } else {
+    sampleReader.startNalUnit(position, offset, nalUnitType, pesTimeUs, hasOutputFormat);
+    if (!hasOutputFormat) {
       vps.startNalUnit(nalUnitType);
       sps.startNalUnit(nalUnitType);
       pps.startNalUnit(nalUnitType);
@@ -173,9 +172,8 @@ public final class H265Reader implements ElementaryStreamReader {
   }
 
   private void nalUnitData(byte[] dataArray, int offset, int limit) {
-    if (hasOutputFormat) {
-      sampleReader.readNalUnitData(dataArray, offset, limit);
-    } else {
+    sampleReader.readNalUnitData(dataArray, offset, limit);
+    if (!hasOutputFormat) {
       vps.appendToNalUnit(dataArray, offset, limit);
       sps.appendToNalUnit(dataArray, offset, limit);
       pps.appendToNalUnit(dataArray, offset, limit);
@@ -185,9 +183,8 @@ public final class H265Reader implements ElementaryStreamReader {
   }
 
   private void endNalUnit(long position, int offset, int discardPadding, long pesTimeUs) {
-    if (hasOutputFormat) {
-      sampleReader.endNalUnit(position, offset);
-    } else {
+    sampleReader.endNalUnit(position, offset, hasOutputFormat);
+    if (!hasOutputFormat) {
       vps.endNalUnit(discardPadding);
       sps.endNalUnit(discardPadding);
       pps.endNalUnit(discardPadding);
@@ -427,7 +424,8 @@ public final class H265Reader implements ElementaryStreamReader {
       writingParameterSets = false;
     }
 
-    public void startNalUnit(long position, int offset, int nalUnitType, long pesTimeUs) {
+    public void startNalUnit(
+        long position, int offset, int nalUnitType, long pesTimeUs, boolean hasOutputFormat) {
       isFirstSlice = false;
       isFirstParameterSet = false;
       nalUnitTimeUs = pesTimeUs;
@@ -437,7 +435,9 @@ public final class H265Reader implements ElementaryStreamReader {
       if (nalUnitType >= VPS_NUT) {
         if (!writingParameterSets && readingSample) {
           // This is a non-VCL NAL unit, so flush the previous sample.
-          outputSample(offset);
+          if (hasOutputFormat) {
+            outputSample(offset);
+          }
           readingSample = false;
         }
         if (nalUnitType <= PPS_NUT) {
@@ -464,14 +464,14 @@ public final class H265Reader implements ElementaryStreamReader {
       }
     }
 
-    public void endNalUnit(long position, int offset) {
+    public void endNalUnit(long position, int offset, boolean hasOutputFormat) {
       if (writingParameterSets && isFirstSlice) {
         // This sample has parameter sets. Reset the key-frame flag based on the first slice.
         sampleIsKeyframe = nalUnitHasKeyframeData;
         writingParameterSets = false;
       } else if (isFirstParameterSet || isFirstSlice) {
         // This NAL unit is at the start of a new sample (access unit).
-        if (readingSample) {
+        if (hasOutputFormat && readingSample) {
           // Output the sample ending before this NAL unit.
           int nalUnitLength = (int) (position - nalUnitStartPosition);
           outputSample(offset + nalUnitLength);
