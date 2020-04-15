@@ -36,6 +36,25 @@ public final class FakeClockTest {
   private static final long TIMEOUT_MS = 10000;
 
   @Test
+  public void currentTimeMillis_withoutBootTime() {
+    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 10);
+    assertThat(fakeClock.currentTimeMillis()).isEqualTo(10);
+  }
+
+  @Test
+  public void currentTimeMillis_withBootTime() {
+    FakeClock fakeClock = new FakeClock(/* bootTimeMs= */ 150, /* initialTimeMs= */ 200);
+    assertThat(fakeClock.currentTimeMillis()).isEqualTo(350);
+  }
+
+  @Test
+  public void currentTimeMillis_advanceTime_currentTimeHasAdvanced() {
+    FakeClock fakeClock = new FakeClock(/* bootTimeMs= */ 100, /* initialTimeMs= */ 50);
+    fakeClock.advanceTime(/* timeDiffMs */ 250);
+    assertThat(fakeClock.currentTimeMillis()).isEqualTo(400);
+  }
+
+  @Test
   public void testAdvanceTime() {
     FakeClock fakeClock = new FakeClock(2000);
     assertThat(fakeClock.elapsedRealtime()).isEqualTo(2000);
