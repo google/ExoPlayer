@@ -80,6 +80,11 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
   }
 
   @Override
+  protected void onFlush() {
+    flushSinkIfActive();
+  }
+
+  @Override
   protected void onQueueEndOfStream() {
     flushSinkIfActive();
   }
@@ -201,7 +206,7 @@ public final class TeeAudioProcessor extends BaseAudioProcessor {
     }
 
     private void reset() throws IOException {
-      RandomAccessFile randomAccessFile = this.randomAccessFile;
+      @Nullable RandomAccessFile randomAccessFile = this.randomAccessFile;
       if (randomAccessFile == null) {
         return;
       }
