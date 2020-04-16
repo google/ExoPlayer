@@ -2139,6 +2139,7 @@ public class MatroskaExtractor implements Extractor {
       Format format =
           formatBuilder
               .setId(trackId)
+              .setLabel(name)
               .setSampleMimeType(mimeType)
               .setMaxInputSize(maxInputSize)
               .setLanguage(language)
