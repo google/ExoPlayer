@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import org.junit.Test;
@@ -45,5 +46,23 @@ public final class Mp3ExtractorTest {
   @Test
   public void trimmedMp3Sample() throws Exception {
     ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/play-trimmed.mp3");
+  }
+
+  @Test
+  public void mp3SampleWithId3Enabled() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp3Extractor::new,
+        /* file= */ "mp3/bear-id3.mp3",
+        ApplicationProvider.getApplicationContext(),
+        /* dumpFilesPrefix= */ "mp3/bear-id3-enabled");
+  }
+
+  @Test
+  public void mp3SampleWithId3Disabled() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new Mp3Extractor(Mp3Extractor.FLAG_DISABLE_ID3_METADATA),
+        /* file= */ "mp3/bear-id3.mp3",
+        ApplicationProvider.getApplicationContext(),
+        /* dumpFilesPrefix= */ "mp3/bear-id3-disabled");
   }
 }
