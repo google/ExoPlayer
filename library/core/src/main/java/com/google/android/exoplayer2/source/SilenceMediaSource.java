@@ -33,6 +33,30 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 /** Media source with a single period consisting of silent raw audio of a given duration. */
 public final class SilenceMediaSource extends BaseMediaSource {
 
+  public static final class Factory {
+
+    @Nullable private Object tag;
+    private long duration;
+    private boolean isCreateCalled;
+
+    public SilenceMediaSource.Factory setTag(Object tag) {
+      Assertions.checkState(!isCreateCalled);
+      this.tag = tag;
+      return this;
+    }
+
+    public SilenceMediaSource.Factory setDuration(long duration) {
+      Assertions.checkState(!isCreateCalled);
+      this.duration = duration;
+      return this;
+    }
+
+    public SilenceMediaSource createMediaSource() {
+      isCreateCalled = true;
+      return new SilenceMediaSource(duration, tag);
+    }
+  }
+
   private static final int SAMPLE_RATE_HZ = 44100;
   @C.PcmEncoding private static final int ENCODING = C.ENCODING_PCM_16BIT;
   private static final int CHANNEL_COUNT = 2;
@@ -54,6 +78,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
       new byte[Util.getPcmFrameSize(ENCODING, CHANNEL_COUNT) * 1024];
 
   private final long durationUs;
+  @Nullable private final Object tag;
 
   /**
    * Creates a new media source providing silent audio of the given duration.
@@ -63,6 +88,19 @@ public final class SilenceMediaSource extends BaseMediaSource {
   public SilenceMediaSource(long durationUs) {
     Assertions.checkArgument(durationUs >= 0);
     this.durationUs = durationUs;
+    this.tag = null;
+  }
+
+  private SilenceMediaSource(long durationUs, @Nullable Object tag) {
+    Assertions.checkArgument(durationUs >= 0);
+    this.durationUs = durationUs;
+    this.tag = tag;
+  }
+
+  @Override
+  @Nullable
+  public Object getTag() {
+    return tag;
   }
 
   @Override
