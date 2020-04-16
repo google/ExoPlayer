@@ -33,27 +33,45 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 /** Media source with a single period consisting of silent raw audio of a given duration. */
 public final class SilenceMediaSource extends BaseMediaSource {
 
+  /** Factory for {@link SilenceMediaSource}s. */
   public static final class Factory {
 
     @Nullable private Object tag;
-    private long duration;
+    private long durationUs;
     private boolean isCreateCalled;
 
+    /**
+     * Sets a tag for the media source which will be published in the {@link
+     * com.google.android.exoplayer2.Timeline} of the source as {@link
+     * com.google.android.exoplayer2.Timeline.Window#tag}.
+     *
+     * @param tag A tag for the media source.
+     * @return This factory, for convenience.
+     */
     public SilenceMediaSource.Factory setTag(Object tag) {
       Assertions.checkState(!isCreateCalled);
       this.tag = tag;
       return this;
     }
 
-    public SilenceMediaSource.Factory setDuration(long duration) {
+    /**
+     * Sets the duration of the media source
+     * @param durationUs The duration of silent audio to output, in microseconds.
+     * @return This factory, for convenience.
+     */
+    public SilenceMediaSource.Factory setDuration(long durationUs) {
       Assertions.checkState(!isCreateCalled);
-      this.duration = duration;
+      this.durationUs = durationUs;
       return this;
     }
 
+    /**
+     * Returns a new {@link SilenceMediaSource} using the current parameters.
+     * @return The new {@link SilenceMediaSource}.
+     */
     public SilenceMediaSource createMediaSource() {
       isCreateCalled = true;
-      return new SilenceMediaSource(duration, tag);
+      return new SilenceMediaSource(durationUs, tag);
     }
   }
 
@@ -91,6 +109,11 @@ public final class SilenceMediaSource extends BaseMediaSource {
     this.tag = null;
   }
 
+  /**
+   * Creates a new media source providing silent audio of the given duration.
+   * @param durationUs The duration of silent audio to output, in microseconds.
+   * @param tag A tag for the media source.
+   */
   private SilenceMediaSource(long durationUs, @Nullable Object tag) {
     Assertions.checkArgument(durationUs >= 0);
     this.durationUs = durationUs;
@@ -107,7 +130,14 @@ public final class SilenceMediaSource extends BaseMediaSource {
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     refreshSourceInfo(
         new SinglePeriodTimeline(
-            durationUs, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false));
+            durationUs,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* manifest */ null,
+            /* tag */ tag
+        )
+    );
   }
 
   @Override
