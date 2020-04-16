@@ -48,6 +48,11 @@ public class DefaultTrackNameProvider implements TrackNameProvider {
               buildLanguageOrLabelString(format),
               buildAudioChannelString(format),
               buildBitrateString(format));
+    } else if (trackType == C.TRACK_TYPE_TEXT) {
+      trackName =
+          joinWithSeparator(
+              buildLabelString(format),
+              buildLanguageString(format));
     } else {
       trackName = buildLanguageOrLabelString(format);
     }
