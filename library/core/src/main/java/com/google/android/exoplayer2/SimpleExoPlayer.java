@@ -100,6 +100,7 @@ public class SimpleExoPlayer extends BasePlayer
     private AnalyticsCollector analyticsCollector;
     private Looper looper;
     private boolean useLazyPreparation;
+    private boolean throwWhenStuckBuffering;
     private boolean buildCalled;
 
     /**
@@ -295,6 +296,19 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
+     * Sets whether the player should throw when it detects it's stuck buffering.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     *
+     * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
+     * @return This builder.
+     */
+    public Builder experimental_setThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
+      this.throwWhenStuckBuffering = throwWhenStuckBuffering;
+      return this;
+    }
+
+    /**
      * Sets the {@link Clock} that will be used by the player. Should only be set for testing
      * purposes.
      *
@@ -384,6 +398,9 @@ public class SimpleExoPlayer extends BasePlayer
         builder.useLazyPreparation,
         builder.clock,
         builder.looper);
+    if (builder.throwWhenStuckBuffering) {
+      player.experimental_throwWhenStuckBuffering();
+    }
   }
 
   /**

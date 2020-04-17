@@ -67,6 +67,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
+import com.google.android.exoplayer2.testutil.TestExoPlayer;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocation;
@@ -3537,6 +3538,78 @@ public final class ExoPlayerTest {
                     .blockUntilEnded(TIMEOUT_MS));
     assertThat(exception.type).isEqualTo(ExoPlaybackException.TYPE_UNEXPECTED);
     assertThat(exception.getUnexpectedException()).isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void
+      nextLoadPositionExceedingLoadControlMaxBuffer_whileCurrentLoadInProgress_doesNotThrowException() {
+    long maxBufferUs = 2 * C.MICROS_PER_SECOND;
+    LoadControl loadControlWithMaxBufferUs =
+        new DefaultLoadControl() {
+          @Override
+          public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
+            return bufferedDurationUs < maxBufferUs;
+          }
+
+          @Override
+          public boolean shouldStartPlayback(
+              long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
+            return true;
+          }
+        };
+    MediaSource mediaSourceWithLoadInProgress =
+        new FakeMediaSource(
+            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT) {
+          @Override
+          protected FakeMediaPeriod createFakeMediaPeriod(
+              MediaPeriodId id,
+              TrackGroupArray trackGroupArray,
+              Allocator allocator,
+              EventDispatcher eventDispatcher,
+              @Nullable TransferListener transferListener) {
+            return new FakeMediaPeriod(trackGroupArray, eventDispatcher) {
+              @Override
+              public long getBufferedPositionUs() {
+                // Pretend not to have buffered data yet.
+                return 0;
+              }
+
+              @Override
+              public long getNextLoadPositionUs() {
+                // Set next load position beyond the maxBufferUs configured in the LoadControl.
+                return Long.MAX_VALUE;
+              }
+
+              @Override
+              public boolean isLoading() {
+                return true;
+              }
+            };
+          }
+        };
+    FakeRenderer rendererWaitingForData =
+        new FakeRenderer(C.TRACK_TYPE_VIDEO) {
+          @Override
+          public boolean isReady() {
+            return false;
+          }
+        };
+
+    SimpleExoPlayer player =
+        new TestExoPlayer.Builder(context)
+            .setRenderers(rendererWaitingForData)
+            .setLoadControl(loadControlWithMaxBufferUs)
+            .experimental_setThrowWhenStuckBuffering(true)
+            .build();
+    player.setMediaSource(mediaSourceWithLoadInProgress);
+    player.prepare();
+
+    // Wait until the MediaSource is prepared, i.e. returned its timeline, and at least one
+    // iteration of doSomeWork after this was run.
+    TestExoPlayer.runUntilTimelineChanged(player, /* expectedTimeline= */ null);
+    TestExoPlayer.runUntilPendingCommandsAreFullyHandled(player);
+
+    assertThat(player.getPlayerError()).isNull();
   }
 
   @Test
