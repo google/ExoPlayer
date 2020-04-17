@@ -69,6 +69,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_PLAYLIST_TYPE = "#EXT-X-PLAYLIST-TYPE";
   private static final String TAG_DEFINE = "#EXT-X-DEFINE";
   private static final String TAG_STREAM_INF = "#EXT-X-STREAM-INF";
+  private static final String TAG_I_FRAME_STREAM_INF = "#EXT-X-I-FRAME-STREAM-INF";
+  private static final String TAG_IFRAME = "#EXT-X-I-FRAMES-ONLY";
   private static final String TAG_MEDIA = "#EXT-X-MEDIA";
   private static final String TAG_TARGET_DURATION = "#EXT-X-TARGETDURATION";
   private static final String TAG_DISCONTINUITY = "#EXT-X-DISCONTINUITY";
@@ -281,6 +283,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         // We expose all tags through the playlist.
         tags.add(line);
       }
+      boolean isIFrameOnlyVariant = line.startsWith(TAG_I_FRAME_STREAM_INF);
 
       if (line.startsWith(TAG_DEFINE)) {
         variableDefinitions.put(
@@ -301,8 +304,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
           String scheme = parseEncryptionScheme(method);
           sessionKeyDrmInitData.add(new DrmInitData(scheme, schemeData));
         }
-      } else if (line.startsWith(TAG_STREAM_INF)) {
+      } else if (line.startsWith(TAG_STREAM_INF) || isIFrameOnlyVariant) {
         noClosedCaptions |= line.contains(ATTR_CLOSED_CAPTIONS_NONE);
+        int roleFlags = isIFrameOnlyVariant ? C.ROLE_FLAG_TRICK_PLAY : 0;
         int peakBitrate = parseIntAttr(line, REGEX_BANDWIDTH);
         int averageBitrate = parseOptionalIntAttr(line, REGEX_AVERAGE_BANDWIDTH, -1);
         String codecs = parseOptionalStringAttr(line, REGEX_CODECS, variableDefinitions);
@@ -335,13 +339,18 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             parseOptionalStringAttr(line, REGEX_SUBTITLES, variableDefinitions);
         String closedCaptionsGroupId =
             parseOptionalStringAttr(line, REGEX_CLOSED_CAPTIONS, variableDefinitions);
-        if (!iterator.hasNext()) {
-          throw new ParserException("#EXT-X-STREAM-INF tag must be followed by another line");
+        Uri uri;
+        if (isIFrameOnlyVariant) {
+          uri =
+              UriUtil.resolveToUri(baseUri, parseStringAttr(line, REGEX_URI, variableDefinitions));
+        } else if (!iterator.hasNext()) {
+          throw new ParserException("#EXT-X-STREAM-INF must be followed by another line");
+        } else {
+          // The following line contains #EXT-X-STREAM-INF's URI.
+          line = replaceVariableReferences(iterator.next(), variableDefinitions);
+          uri = UriUtil.resolveToUri(baseUri, line);
         }
-        line =
-            replaceVariableReferences(
-                iterator.next(), variableDefinitions); // #EXT-X-STREAM-INF's URI.
-        Uri uri = UriUtil.resolveToUri(baseUri, line);
+
         Format format =
             new Format.Builder()
                 .setId(variants.size())
@@ -352,6 +361,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 .setWidth(width)
                 .setHeight(height)
                 .setFrameRate(frameRate)
+                .setRoleFlags(roleFlags)
                 .build();
         Variant variant =
             new Variant(
@@ -558,8 +568,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long targetDurationUs = C.TIME_UNSET;
     boolean hasIndependentSegmentsTag = masterPlaylist.hasIndependentSegments;
     boolean hasEndTag = false;
-    Segment initializationSegment = null;
+    @Nullable Segment initializationSegment = null;
     HashMap<String, String> variableDefinitions = new HashMap<>();
+    HashMap<String, Segment> urlToInferredInitSegment = new HashMap<>();
     List<Segment> segments = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
@@ -572,6 +583,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long segmentStartTimeUs = 0;
     long segmentByteRangeOffset = 0;
     long segmentByteRangeLength = C.LENGTH_UNSET;
+    boolean isIFrameOnly = false;
     long segmentMediaSequence = 0;
     boolean hasGapTag = false;
 
@@ -598,6 +610,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         } else if ("EVENT".equals(playlistTypeString)) {
           playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_EVENT;
         }
+      } else if (line.equals(TAG_IFRAME)) {
+        isIFrameOnly = true;
       } else if (line.startsWith(TAG_START)) {
         startOffsetUs = (long) (parseDoubleAttr(line, REGEX_TIME_OFFSET) * C.MICROS_PER_SECOND);
       } else if (line.startsWith(TAG_INIT_SEGMENT)) {
@@ -715,8 +729,25 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
 
         segmentMediaSequence++;
+        String segmentUri = replaceVariableReferences(line, variableDefinitions);
+        @Nullable Segment inferredInitSegment = urlToInferredInitSegment.get(segmentUri);
         if (segmentByteRangeLength == C.LENGTH_UNSET) {
+          // The segment is not byte range defined.
           segmentByteRangeOffset = 0;
+        } else if (isIFrameOnly && initializationSegment == null && inferredInitSegment == null) {
+          // The segment is a resource byte range without an initialization segment.
+          // As per RFC 8216, Section 4.3.3.6, we assume the initialization section exists in the
+          // bytes preceding the first segment in this segment's URL.
+          // We assume the implicit initialization segment is unencrypted, since there's no way for
+          // the playlist to provide an initialization vector for it.
+          inferredInitSegment =
+              new Segment(
+                  segmentUri,
+                  /* byteRangeOffset= */ 0,
+                  segmentByteRangeOffset,
+                  /* fullSegmentEncryptionKeyUri= */ null,
+                  /* encryptionIV= */ null);
+          urlToInferredInitSegment.put(segmentUri, inferredInitSegment);
         }
 
         if (cachedDrmInitData == null && !currentSchemeDatas.isEmpty()) {
@@ -733,8 +764,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
         segments.add(
             new Segment(
-                replaceVariableReferences(line, variableDefinitions),
-                initializationSegment,
+                segmentUri,
+                initializationSegment != null ? initializationSegment : inferredInitSegment,
                 segmentTitle,
                 segmentDurationUs,
                 relativeDiscontinuitySequence,
