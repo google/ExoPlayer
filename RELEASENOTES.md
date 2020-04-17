@@ -68,6 +68,8 @@
     *   Avoid throwing an exception while parsing fragmented MP4 default sample
         values where the most-significant bit is set
         ([#7207](https://github.com/google/ExoPlayer/issues/7207)).
+    *   Add `SilenceMediaSource.Factory` to support tags
+        ([PR #7245](https://github.com/google/ExoPlayer/pull/7245)).
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
