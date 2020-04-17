@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Supplier;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -78,6 +79,7 @@ public class TestExoPlayer {
     @Nullable private Renderer[] renderers;
     @Nullable private RenderersFactory renderersFactory;
     private boolean useLazyPreparation;
+    private boolean throwWhenStuckBuffering;
     private @MonotonicNonNull Looper looper;
 
     public Builder(Context context) {
@@ -248,6 +250,19 @@ public class TestExoPlayer {
     }
 
     /**
+     * Sets whether the player should throw when it detects it's stuck buffering.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     *
+     * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
+     * @return This builder.
+     */
+    public Builder experimental_setThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
+      this.throwWhenStuckBuffering = throwWhenStuckBuffering;
+      return this;
+    }
+
+    /**
      * Builds an {@link SimpleExoPlayer} using the provided values or their defaults.
      *
      * @return The built {@link ExoPlayerTestRunner}.
@@ -281,6 +296,7 @@ public class TestExoPlayer {
           .setClock(clock)
           .setUseLazyPreparation(useLazyPreparation)
           .setLooper(looper)
+          .experimental_setThrowWhenStuckBuffering(throwWhenStuckBuffering)
           .build();
     }
   }
@@ -434,6 +450,23 @@ public class TestExoPlayer {
         };
     player.addVideoListener(listener);
     runUntil(() -> receivedCallback.get());
+  }
+
+  /**
+   * Runs tasks of the main {@link Looper} until the {@code player} handled all previously issued
+   * commands completely on the internal playback thread.
+   */
+  public static void runUntilPendingCommandsAreFullyHandled(SimpleExoPlayer player) {
+    verifyMainTestThread(player);
+    // Send message to player that will arrive after all other pending commands. Thus, the message
+    // execution on the app thread will also happen after all other pending command
+    // acknowledgements have arrived back on the app thread.
+    AtomicBoolean receivedMessageCallback = new AtomicBoolean(false);
+    player
+        .createMessage((type, data) -> receivedMessageCallback.set(true))
+        .setHandler(Util.createHandler())
+        .send();
+    runUntil(() -> receivedMessageCallback.get());
   }
 
   /** Run tasks of the main {@link Looper} until the {@code condition} returns {@code true}. */

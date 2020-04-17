@@ -870,7 +870,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         }
       }
       if (throwWhenStuckBuffering
-          && !shouldContinueLoading
+          && !playbackInfo.isLoading
           && playbackInfo.totalBufferedDurationUs < 500_000
           && isLoadingPossible()) {
         // Throw if the LoadControl prevents loading even if the buffer is empty or almost empty. We
