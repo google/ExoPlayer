@@ -146,8 +146,11 @@ import java.util.UUID;
     }
 
     public MediaItem toMediaItem() {
-      MediaItem.Builder builder = new MediaItem.Builder().setSourceUri(uri);
-      builder.setMimeType(inferAdaptiveStreamMimeType(uri, extension));
+      MediaItem.Builder builder =
+          new MediaItem.Builder()
+              .setSourceUri(uri)
+              .setMimeType(inferAdaptiveStreamMimeType(uri, extension))
+              .setAdTagUri(adTagUri);
       if (drmInfo != null) {
         Map<String, String> headers = new HashMap<>();
         if (drmInfo.drmKeyRequestProperties != null) {

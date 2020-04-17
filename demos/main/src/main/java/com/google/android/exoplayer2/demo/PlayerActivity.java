@@ -45,10 +45,8 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryExcep
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
-import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -60,7 +58,6 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
@@ -138,12 +135,11 @@ public class PlayerActivity extends AppCompatActivity
 
   private DataSource.Factory dataSourceFactory;
   private SimpleExoPlayer player;
-  private List<MediaSource> mediaSources;
+  private List<MediaItem> mediaItems;
   private DefaultTrackSelector trackSelector;
   private DefaultTrackSelector.Parameters trackSelectorParameters;
   private DebugTextViewHelper debugViewHelper;
   private TrackGroupArray lastSeenTrackGroupArray;
-  private DefaultMediaSourceFactory mediaSourceFactory;
   private boolean startAutoPlay;
   private int startWindow;
   private long startPosition;
@@ -164,8 +160,6 @@ public class PlayerActivity extends AppCompatActivity
     }
     super.onCreate(savedInstanceState);
     dataSourceFactory = buildDataSourceFactory();
-    mediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(/* context= */ this, dataSourceFactory);
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
     }
@@ -328,7 +322,7 @@ public class PlayerActivity extends AppCompatActivity
 
   @Override
   public void preparePlayback() {
-    player.retry();
+    player.prepare();
   }
 
   // PlaybackControlView.VisibilityListener implementation
@@ -343,8 +337,8 @@ public class PlayerActivity extends AppCompatActivity
   private void initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();
-      mediaSources = createTopLevelMediaSources(intent);
-      if (mediaSources.isEmpty()) {
+      mediaItems = createMediaItems(intent);
+      if (mediaItems.isEmpty()) {
         return;
       }
       TrackSelection.Factory trackSelectionFactory;
@@ -370,6 +364,9 @@ public class PlayerActivity extends AppCompatActivity
 
       player =
           new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
+              .setMediaSourceFactory(
+                  new DefaultMediaSourceFactory(
+                      /* context= */ this, dataSourceFactory, new AdSupportProvider()))
               .setTrackSelector(trackSelector)
               .build();
       player.addListener(new PlayerEventListener());
@@ -380,20 +377,17 @@ public class PlayerActivity extends AppCompatActivity
       playerView.setPlaybackPreparer(this);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
-      if (adsLoader != null) {
-        adsLoader.setPlayer(player);
-      }
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
       player.seekTo(startWindow, startPosition);
     }
-    player.setMediaSources(mediaSources, /* resetPosition= */ !haveStartPosition);
+    player.setMediaItems(mediaItems, /* resetPosition= */ !haveStartPosition);
     player.prepare();
     updateButtonVisibility();
   }
 
-  private List<MediaSource> createTopLevelMediaSources(Intent intent) {
+  private List<MediaItem> createMediaItems(Intent intent) {
     String action = intent.getAction();
     boolean actionIsListView = ACTION_VIEW_LIST.equals(action);
     if (!actionIsListView && !ACTION_VIEW.equals(action)) {
@@ -408,11 +402,23 @@ public class PlayerActivity extends AppCompatActivity
             ? ((Sample.PlaylistSample) intentAsSample).children
             : new UriSample[] {(UriSample) intentAsSample};
 
-    List<MediaSource> mediaSources = new ArrayList<>();
-    Uri adTagUri = null;
+    List<MediaItem> mediaItems = new ArrayList<>();
+    boolean hasAds = false;
     for (UriSample sample : samples) {
       MediaItem mediaItem = sample.toMediaItem();
-      Assertions.checkNotNull(mediaItem.playbackProperties);
+      DownloadRequest downloadRequest =
+          ((DemoApplication) getApplication())
+              .getDownloadTracker()
+              .getDownloadRequest(Assertions.checkNotNull(mediaItem.playbackProperties).sourceUri);
+      if (downloadRequest != null) {
+        mediaItem =
+            mediaItem
+                .buildUpon()
+                .setStreamKeys(downloadRequest.streamKeys)
+                .setCustomCacheKey(downloadRequest.customCacheKey)
+                .build();
+      }
+
       if (!Util.checkCleartextTrafficPermitted(mediaItem)) {
         showToast(R.string.error_cleartext_not_permitted);
         return Collections.emptyList();
@@ -421,67 +427,27 @@ public class PlayerActivity extends AppCompatActivity
         // The player will be reinitialized if the permission is granted.
         return Collections.emptyList();
       }
-      MediaSource mediaSource = createLeafMediaSource(mediaItem);
-      if (mediaSource != null) {
-        adTagUri = sample.adTagUri;
-        mediaSources.add(mediaSource);
-      }
-    }
 
-    if (adTagUri == null) {
-      releaseAdsLoader();
-    } else if (mediaSources.size() == 1) {
-      if (!adTagUri.equals(loadedAdTagUri)) {
-        releaseAdsLoader();
-        loadedAdTagUri = adTagUri;
+      MediaItem.DrmConfiguration drmConfiguration =
+          Assertions.checkNotNull(mediaItem.playbackProperties).drmConfiguration;
+      if (drmConfiguration != null) {
+        if (Util.SDK_INT < 18) {
+          showToast(R.string.error_drm_unsupported_before_api_18);
+          finish();
+          return Collections.emptyList();
+        } else if (!MediaDrm.isCryptoSchemeSupported(drmConfiguration.uuid)) {
+          showToast(R.string.error_drm_unsupported_scheme);
+          finish();
+          return Collections.emptyList();
+        }
       }
-      MediaSource adsMediaSource = createAdsMediaSource(mediaSources.get(0), adTagUri);
-      if (adsMediaSource != null) {
-        mediaSources.set(0, adsMediaSource);
-      } else {
-        showToast(R.string.ima_not_loaded);
-      }
-    } else if (mediaSources.size() > 1) {
-      showToast(R.string.unsupported_ads_in_concatenation);
+      hasAds |= mediaItem.playbackProperties.adTagUri != null;
+      mediaItems.add(mediaItem);
+    }
+    if (!hasAds) {
       releaseAdsLoader();
     }
-
-    return mediaSources;
-  }
-
-  @Nullable
-  private MediaSource createLeafMediaSource(MediaItem mediaItem) {
-    Assertions.checkNotNull(mediaItem.playbackProperties);
-    HttpDataSource.Factory drmDataSourceFactory = null;
-    if (mediaItem.playbackProperties.drmConfiguration != null) {
-      if (Util.SDK_INT < 18) {
-        showToast(R.string.error_drm_unsupported_before_api_18);
-        finish();
-        return null;
-      } else if (!MediaDrm.isCryptoSchemeSupported(
-          mediaItem.playbackProperties.drmConfiguration.uuid)) {
-        showToast(R.string.error_drm_unsupported_scheme);
-        finish();
-        return null;
-      }
-      drmDataSourceFactory = ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
-    }
-
-    DownloadRequest downloadRequest =
-        ((DemoApplication) getApplication())
-            .getDownloadTracker()
-            .getDownloadRequest(mediaItem.playbackProperties.sourceUri);
-    if (downloadRequest != null) {
-      mediaItem =
-          mediaItem
-              .buildUpon()
-              .setStreamKeys(downloadRequest.streamKeys)
-              .setCustomCacheKey(downloadRequest.customCacheKey)
-              .build();
-    }
-    return mediaSourceFactory
-        .setDrmHttpDataSourceFactory(drmDataSourceFactory)
-        .createMediaSource(mediaItem);
+    return mediaItems;
   }
 
   private void releasePlayer() {
@@ -492,7 +458,7 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper = null;
       player.release();
       player = null;
-      mediaSources = Collections.emptyList();
+      mediaItems = Collections.emptyList();
       trackSelector = null;
     }
     if (adsLoader != null) {
@@ -534,24 +500,23 @@ public class PlayerActivity extends AppCompatActivity
     return ((DemoApplication) getApplication()).buildDataSourceFactory();
   }
 
-  /** Returns an ads media source, reusing the ads loader if one exists. */
+  /**
+   * Returns an ads loader for the Interactive Media Ads SDK if found in the classpath, or null
+   * otherwise.
+   */
   @Nullable
-  private MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
+  private AdsLoader createAdsLoader(Uri adTagUri) {
     // Load the extension source using reflection so the demo app doesn't have to depend on it.
-    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     try {
       Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
-      if (adsLoader == null) {
-        // Full class names used so the lint rule triggers should any of the classes move.
-        // LINT.IfChange
-        Constructor<? extends AdsLoader> loaderConstructor =
-            loaderClass
-                .asSubclass(AdsLoader.class)
-                .getConstructor(android.content.Context.class, android.net.Uri.class);
-        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
-        adsLoader = loaderConstructor.newInstance(this, adTagUri);
-      }
-      return new AdsMediaSource(mediaSource, mediaSourceFactory, adsLoader, playerView);
+      // Full class names used so the lint rule triggers should any of the classes move.
+      // LINT.IfChange
+      Constructor<? extends AdsLoader> loaderConstructor =
+          loaderClass
+              .asSubclass(AdsLoader.class)
+              .getConstructor(android.content.Context.class, android.net.Uri.class);
+      // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
+      return loaderConstructor.newInstance(this, adTagUri);
     } catch (ClassNotFoundException e) {
       // IMA extension not loaded.
       return null;
@@ -668,6 +633,38 @@ public class PlayerActivity extends AppCompatActivity
         }
       }
       return Pair.create(0, errorString);
+    }
+  }
+
+  private class AdSupportProvider implements DefaultMediaSourceFactory.AdSupportProvider {
+
+    @Nullable
+    @Override
+    public AdsLoader getAdsLoader(Uri adTagUri) {
+      if (mediaItems.size() > 1) {
+        showToast(R.string.unsupported_ads_in_concatenation);
+        releaseAdsLoader();
+        return null;
+      }
+      if (!adTagUri.equals(loadedAdTagUri)) {
+        releaseAdsLoader();
+        loadedAdTagUri = adTagUri;
+      }
+      if (adsLoader == null) {
+        // The ads loader is reused for multiple playbacks, so that ad playback can resume.
+        adsLoader = createAdsLoader(adTagUri);
+        if (adsLoader != null) {
+          adsLoader.setPlayer(player);
+        } else {
+          showToast(R.string.ima_not_loaded);
+        }
+      }
+      return adsLoader;
+    }
+
+    @Override
+    public AdsLoader.AdViewProvider getAdViewProvider() {
+      return Assertions.checkNotNull(playerView);
     }
   }
 }

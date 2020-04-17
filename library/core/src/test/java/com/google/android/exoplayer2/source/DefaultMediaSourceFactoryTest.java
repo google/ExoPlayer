@@ -16,12 +16,18 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
 
+import android.content.Context;
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
 import java.util.Collections;
@@ -183,5 +189,66 @@ public final class DefaultMediaSourceFactoryTest {
             .getSupportedTypes();
 
     assertThat(supportedTypes).asList().containsExactly(C.TYPE_OTHER);
+  }
+
+  @Test
+  public void createMediaSource_withAdTagUri_callsAdsLoader() {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    Uri adTagUri = Uri.parse(URI_MEDIA);
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_MEDIA).setAdTagUri(adTagUri).build();
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        new DefaultMediaSourceFactory(
+            applicationContext,
+            new DefaultDataSourceFactory(applicationContext, "userAgent"),
+            createAdSupportProvider(mock(AdsLoader.class), mock(AdsLoader.AdViewProvider.class)));
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(AdsMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_withAdTagUriAdsLoaderNull_playsWithoutAdNoException() {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_MEDIA).setAdTagUri(Uri.parse(URI_MEDIA)).build();
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        new DefaultMediaSourceFactory(
+            applicationContext,
+            new DefaultDataSourceFactory(applicationContext, "userAgent"),
+            createAdSupportProvider(/* adsLoader= */ null, mock(AdsLoader.AdViewProvider.class)));
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isNotInstanceOf(AdsMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_withAdTagUriProvidersNull_playsWithoutAdNoException() {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_MEDIA).setAdTagUri(Uri.parse(URI_MEDIA)).build();
+
+    MediaSource mediaSource =
+        DefaultMediaSourceFactory.newInstance(applicationContext).createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isNotInstanceOf(AdsMediaSource.class);
+  }
+
+  private static DefaultMediaSourceFactory.AdSupportProvider createAdSupportProvider(
+      @Nullable AdsLoader adsLoader, AdsLoader.AdViewProvider adViewProvider) {
+    return new DefaultMediaSourceFactory.AdSupportProvider() {
+      @Nullable
+      @Override
+      public AdsLoader getAdsLoader(Uri adTagUri) {
+        return adsLoader;
+      }
+
+      @Override
+      public AdsLoader.AdViewProvider getAdViewProvider() {
+        return adViewProvider;
+      }
+    };
   }
 }
