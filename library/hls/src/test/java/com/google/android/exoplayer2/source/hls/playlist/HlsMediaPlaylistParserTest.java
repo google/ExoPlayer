@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -365,6 +366,40 @@ public class HlsMediaPlaylistParserTest {
         .isSameInstanceAs(segments.get(2).initializationSegment);
     assertThat(segments.get(1).initializationSegment.url).isEqualTo("init1.ts");
     assertThat(segments.get(3).initializationSegment.url).isEqualTo("init2.ts");
+  }
+
+  @Test
+  public void noExplicitInitSegmentInIFrameOnly_infersInitSegment() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "#EXT-X-I-FRAMES-ONLY\n"
+            + "#EXTINF:5.005,\n"
+            + "#EXT-X-BYTERANGE:100@300\n"
+            + "segment1.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "#EXT-X-BYTERANGE:100@400\n"
+            + "segment2.ts\n"
+            + "#EXTINF:5.005,\n"
+            + "#EXT-X-BYTERANGE:100@400\n"
+            + "segment1.ts\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    List<Segment> segments = playlist.segments;
+    @Nullable Segment initializationSegment = segments.get(0).initializationSegment;
+    assertThat(initializationSegment.url).isEqualTo("segment1.ts");
+    assertThat(initializationSegment.byteRangeOffset).isEqualTo(0);
+    assertThat(initializationSegment.byteRangeLength).isEqualTo(300);
+    initializationSegment = segments.get(1).initializationSegment;
+    assertThat(initializationSegment.url).isEqualTo("segment2.ts");
+    assertThat(initializationSegment.byteRangeOffset).isEqualTo(0);
+    assertThat(initializationSegment.byteRangeLength).isEqualTo(400);
+    initializationSegment = segments.get(2).initializationSegment;
+    assertThat(initializationSegment.url).isEqualTo("segment1.ts");
+    assertThat(initializationSegment.byteRangeOffset).isEqualTo(0);
+    assertThat(initializationSegment.byteRangeLength).isEqualTo(300);
   }
 
   @Test
