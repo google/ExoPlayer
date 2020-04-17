@@ -3595,7 +3595,7 @@ public final class ExoPlayerTest {
           }
         };
 
-    SimpleExoPlayer player =
+    ExoPlayer player =
         new TestExoPlayer.Builder(context)
             .setRenderers(rendererWaitingForData)
             .setLoadControl(loadControlWithMaxBufferUs)

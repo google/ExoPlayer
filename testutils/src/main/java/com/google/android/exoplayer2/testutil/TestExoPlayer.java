@@ -23,6 +23,7 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
@@ -307,8 +308,7 @@ public class TestExoPlayer {
    * Run tasks of the main {@link Looper} until the {@code player}'s state reaches the {@code
    * expectedState}.
    */
-  public static void runUntilPlaybackState(
-      SimpleExoPlayer player, @Player.State int expectedState) {
+  public static void runUntilPlaybackState(Player player, @Player.State int expectedState) {
     verifyMainTestThread(player);
     if (player.getPlaybackState() == expectedState) {
       return;
@@ -334,7 +334,7 @@ public class TestExoPlayer {
    * Player.EventListener#onPlaybackSpeedChanged} callback with that matches {@code
    * expectedPlayWhenReady}.
    */
-  public static void runUntilPlayWhenReady(SimpleExoPlayer player, boolean expectedPlayWhenReady) {
+  public static void runUntilPlayWhenReady(Player player, boolean expectedPlayWhenReady) {
     verifyMainTestThread(player);
     if (player.getPlayWhenReady() == expectedPlayWhenReady) {
       return;
@@ -359,13 +359,13 @@ public class TestExoPlayer {
    * Run tasks of the main {@link Looper} until the {@code player} calls the {@link
    * Player.EventListener#onTimelineChanged} callback.
    *
-   * @param player The {@link SimpleExoPlayer}.
+   * @param player The {@link Player}.
    * @param expectedTimeline A specific {@link Timeline} to wait for, or null if any timeline is
    *     accepted.
    * @return The received {@link Timeline}.
    */
   public static Timeline runUntilTimelineChanged(
-      SimpleExoPlayer player, @Nullable Timeline expectedTimeline) {
+      Player player, @Nullable Timeline expectedTimeline) {
     verifyMainTestThread(player);
 
     if (expectedTimeline != null && expectedTimeline.equals(player.getCurrentTimeline())) {
@@ -394,7 +394,7 @@ public class TestExoPlayer {
    * Player.DiscontinuityReason}.
    */
   public static void runUntilPositionDiscontinuity(
-      SimpleExoPlayer player, @Player.DiscontinuityReason int expectedReason) {
+      Player player, @Player.DiscontinuityReason int expectedReason) {
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
     Player.EventListener listener =
         new Player.EventListener() {
@@ -414,10 +414,10 @@ public class TestExoPlayer {
    * Run tasks of the main {@link Looper} until the {@code player} calls the {@link
    * Player.EventListener#onPlayerError} callback.
    *
-   * @param player The {@link SimpleExoPlayer}.
+   * @param player The {@link Player}.
    * @return The raised error.
    */
-  public static ExoPlaybackException runUntilError(SimpleExoPlayer player) {
+  public static ExoPlaybackException runUntilError(Player player) {
     verifyMainTestThread(player);
     AtomicReference<ExoPlaybackException> receivedError = new AtomicReference<>();
     Player.EventListener listener =
@@ -456,7 +456,7 @@ public class TestExoPlayer {
    * Runs tasks of the main {@link Looper} until the {@code player} handled all previously issued
    * commands completely on the internal playback thread.
    */
-  public static void runUntilPendingCommandsAreFullyHandled(SimpleExoPlayer player) {
+  public static void runUntilPendingCommandsAreFullyHandled(ExoPlayer player) {
     verifyMainTestThread(player);
     // Send message to player that will arrive after all other pending commands. Thus, the message
     // execution on the app thread will also happen after all other pending command
@@ -484,7 +484,7 @@ public class TestExoPlayer {
     }
   }
 
-  private static void verifyMainTestThread(SimpleExoPlayer player) {
+  private static void verifyMainTestThread(Player player) {
     if (Looper.myLooper() != Looper.getMainLooper()
         || player.getApplicationLooper() != Looper.getMainLooper()) {
       throw new IllegalStateException();
