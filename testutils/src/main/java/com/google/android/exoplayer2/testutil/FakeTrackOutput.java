@@ -297,6 +297,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
       addIfNonDefault(dumper, "subsampleOffsetUs", format -> format.subsampleOffsetUs);
       addIfNonDefault(dumper, "selectionFlags", format -> format.selectionFlags);
       addIfNonDefault(dumper, "language", format -> format.language);
+      addIfNonDefault(dumper, "label", format -> format.label);
       if (format.drmInitData != null) {
         dumper.add("drmInitData", format.drmInitData.hashCode());
       }
