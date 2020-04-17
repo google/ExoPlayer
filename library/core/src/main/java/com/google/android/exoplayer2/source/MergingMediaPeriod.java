@@ -96,8 +96,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return Assertions.checkNotNull(trackGroups);
   }
 
-  // unboxing a possibly-null reference streamPeriodIndices.get(streams[i])
-  @SuppressWarnings("nullness:unboxing.of.nullable")
   @Override
   public long selectTracks(
       @NullableType TrackSelection[] selections,
@@ -109,8 +107,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     int[] streamChildIndices = new int[selections.length];
     int[] selectionChildIndices = new int[selections.length];
     for (int i = 0; i < selections.length; i++) {
-      streamChildIndices[i] = streams[i] == null ? C.INDEX_UNSET
-          : streamPeriodIndices.get(streams[i]);
+      Integer streamChildIndex = streams[i] == null ? null : streamPeriodIndices.get(streams[i]);
+      streamChildIndices[i] = streamChildIndex == null ? C.INDEX_UNSET : streamChildIndex;
       selectionChildIndices[i] = C.INDEX_UNSET;
       if (selections[i] != null) {
         TrackGroup trackGroup = selections[i].getTrackGroup();
