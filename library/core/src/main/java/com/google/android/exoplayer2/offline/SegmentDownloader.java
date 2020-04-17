@@ -21,7 +21,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
@@ -67,10 +66,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private static final long MAX_MERGED_SEGMENT_START_TIME_DIFF_US = 20 * C.MICROS_PER_SECOND;
 
   private final DataSpec manifestDataSpec;
-  private final Cache cache;
   private final CacheDataSource dataSource;
   private final CacheDataSource offlineDataSource;
-  private final CacheKeyFactory cacheKeyFactory;
   private final PriorityTaskManager priorityTaskManager;
   private final ArrayList<StreamKey> streamKeys;
   private final AtomicBoolean isCanceled;
@@ -85,10 +82,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
     this.manifestDataSpec = getCompressibleDataSpec(manifestUri);
     this.streamKeys = new ArrayList<>(streamKeys);
-    this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.createCacheDataSource();
     this.offlineDataSource = constructorHelper.createOfflineCacheDataSource();
-    this.cacheKeyFactory = constructorHelper.getCacheKeyFactory();
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     isCanceled = new AtomicBoolean();
   }
@@ -112,7 +107,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       }
       List<Segment> segments = getSegments(dataSource, manifest, /* allowIncompleteList= */ false);
       Collections.sort(segments);
-      mergeSegments(segments, cacheKeyFactory);
+      mergeSegments(segments, dataSource.getCacheKeyFactory());
 
       // Scan the segments, removing any that are fully downloaded.
       int totalSegments = segments.size();
@@ -122,7 +117,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       for (int i = segments.size() - 1; i >= 0; i--) {
         Segment segment = segments.get(i);
         Pair<Long, Long> segmentLengthAndBytesDownloaded =
-            CacheUtil.getCached(segment.dataSpec, cache, cacheKeyFactory);
+            CacheUtil.getCached(
+                segment.dataSpec, dataSource.getCache(), dataSource.getCacheKeyFactory());
         long segmentLength = segmentLengthAndBytesDownloaded.first;
         long segmentBytesDownloaded = segmentLengthAndBytesDownloaded.second;
         bytesDownloaded += segmentBytesDownloaded;
@@ -155,8 +151,6 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       for (int i = 0; i < segments.size(); i++) {
         CacheUtil.cache(
             segments.get(i).dataSpec,
-            cache,
-            cacheKeyFactory,
             dataSource,
             buffer,
             priorityTaskManager,
@@ -224,7 +218,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       throws InterruptedException, IOException;
 
   private void removeDataSpec(DataSpec dataSpec) {
-    CacheUtil.remove(dataSpec, cache, cacheKeyFactory);
+    CacheUtil.remove(dataSpec, dataSource.getCache(), dataSource.getCacheKeyFactory());
   }
 
   protected static DataSpec getCompressibleDataSpec(Uri uri) {

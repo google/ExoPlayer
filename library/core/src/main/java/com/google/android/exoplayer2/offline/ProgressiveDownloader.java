@@ -19,9 +19,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
@@ -41,9 +39,7 @@ public final class ProgressiveDownloader implements Downloader {
   private static final int BUFFER_SIZE_BYTES = 128 * 1024;
 
   private final DataSpec dataSpec;
-  private final Cache cache;
   private final CacheDataSource dataSource;
-  private final CacheKeyFactory cacheKeyFactory;
   private final PriorityTaskManager priorityTaskManager;
   private final AtomicBoolean isCanceled;
 
@@ -61,9 +57,7 @@ public final class ProgressiveDownloader implements Downloader {
             .setKey(customCacheKey)
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
-    this.cache = constructorHelper.getCache();
     this.dataSource = constructorHelper.createCacheDataSource();
-    this.cacheKeyFactory = constructorHelper.getCacheKeyFactory();
     this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     isCanceled = new AtomicBoolean();
   }
@@ -75,8 +69,6 @@ public final class ProgressiveDownloader implements Downloader {
     try {
       CacheUtil.cache(
           dataSpec,
-          cache,
-          cacheKeyFactory,
           dataSource,
           new byte[BUFFER_SIZE_BYTES],
           priorityTaskManager,
@@ -96,7 +88,7 @@ public final class ProgressiveDownloader implements Downloader {
 
   @Override
   public void remove() {
-    CacheUtil.remove(dataSpec, cache, cacheKeyFactory);
+    CacheUtil.remove(dataSpec, dataSource.getCache(), dataSource.getCacheKeyFactory());
   }
 
   private static final class ProgressForwarder implements CacheUtil.ProgressListener {

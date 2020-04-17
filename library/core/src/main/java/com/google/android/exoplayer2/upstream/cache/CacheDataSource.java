@@ -244,6 +244,16 @@ public final class CacheDataSource implements DataSource {
     this.eventListener = eventListener;
   }
 
+  /** Returns the {@link Cache} used by this instance. */
+  public Cache getCache() {
+    return cache;
+  }
+
+  /** Returns the {@link CacheKeyFactory} used by this instance. */
+  public CacheKeyFactory getCacheKeyFactory() {
+    return cacheKeyFactory;
+  }
+
   @Override
   public void addTransferListener(TransferListener transferListener) {
     cacheReadDataSource.addTransferListener(transferListener);

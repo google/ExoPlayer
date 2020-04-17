@@ -301,8 +301,6 @@ public final class CacheUtilTest {
     try {
       CacheUtil.cache(
           dataSpec,
-          cache,
-          /* cacheKeyFactory= */ null,
           new CacheDataSource(cache, dataSource),
           new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES],
           /* priorityTaskManager= */ null,
@@ -353,8 +351,6 @@ public final class CacheUtilTest {
             .build();
     CacheUtil.cache(
         dataSpec,
-        cache,
-        /* cacheKeyFactory= */ null,
         // Set fragmentSize to 10 to make sure there are multiple spans.
         new CacheDataSource(
             cache,
