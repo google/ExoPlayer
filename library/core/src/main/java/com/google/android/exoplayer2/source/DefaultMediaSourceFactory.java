@@ -29,6 +29,8 @@ import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -36,6 +38,7 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
@@ -89,8 +92,35 @@ import java.util.Map;
  * alternative dummy, apps can pass a drm session manager to {@link
  * #setDrmSessionManager(DrmSessionManager)} which will be used for all items without a drm
  * configuration.
+ *
+ * <h3>Ad support for media items with ad tag uri</h3>
+ *
+ * <p>For a media item with an ad tag uri an {@link AdSupportProvider} needs to be passed to the
+ * constructor {@link #DefaultMediaSourceFactory(Context, DataSource.Factory, AdSupportProvider)}.
  */
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
+
+  /**
+   * Provides {@link AdsLoader ads loaders} and an {@link AdsLoader.AdViewProvider} to created
+   * {@link AdsMediaSource AdsMediaSources}.
+   */
+  public interface AdSupportProvider {
+
+    /**
+     * Returns an {@link AdsLoader} for the given {@link Uri ad tag uri} or null if no ads loader is
+     * available for the given ad tag uri.
+     *
+     * <p>This method is called for each media item for which a media source is created.
+     */
+    @Nullable
+    AdsLoader getAdsLoader(Uri adTagUri);
+
+    /**
+     * Returns an {@link AdsLoader.AdViewProvider} which is used to create {@link AdsMediaSource
+     * AdsMediaSources}.
+     */
+    AdsLoader.AdViewProvider getAdViewProvider();
+  }
 
   /**
    * Creates a new instance with the given {@link Context}.
@@ -115,10 +145,13 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   public static DefaultMediaSourceFactory newInstance(
       Context context, DataSource.Factory dataSourceFactory) {
-    return new DefaultMediaSourceFactory(context, dataSourceFactory);
+    return new DefaultMediaSourceFactory(context, dataSourceFactory, /* adSupportProvider= */ null);
   }
 
+  private static final String TAG = "DefaultMediaSourceFactory";
+
   private final DataSource.Factory dataSourceFactory;
+  @Nullable private final AdSupportProvider adSupportProvider;
   private final SparseArray<MediaSourceFactory> mediaSourceFactories;
   @C.ContentType private final int[] supportedTypes;
   private final String userAgent;
@@ -127,8 +160,20 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   private HttpDataSource.Factory drmHttpDataSourceFactory;
   @Nullable private List<StreamKey> streamKeys;
 
-  private DefaultMediaSourceFactory(Context context, DataSource.Factory dataSourceFactory) {
+  /**
+   * Creates a new instance with the given {@link Context} and {@link DataSource.Factory}.
+   *
+   * @param context The {@link Context}.
+   * @param dataSourceFactory A {@link DataSource.Factory} to be used to create media sources.
+   * @param adSupportProvider An {@link AdSupportProvider} to get ads loaders and ad view providers
+   *     to be used to create {@link AdsMediaSource AdsMediaSources}.
+   */
+  public DefaultMediaSourceFactory(
+      Context context,
+      DataSource.Factory dataSourceFactory,
+      @Nullable AdSupportProvider adSupportProvider) {
     this.dataSourceFactory = dataSourceFactory;
+    this.adSupportProvider = adSupportProvider;
     drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
     userAgent = Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY);
     drmHttpDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent);
@@ -214,30 +259,29 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
             ? mediaItem.playbackProperties.streamKeys
             : streamKeys);
 
-    MediaSource leafMediaSource = mediaSourceFactory.createMediaSource(mediaItem);
+    MediaSource mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
 
     List<MediaItem.Subtitle> subtitles = mediaItem.playbackProperties.subtitles;
-    if (subtitles.isEmpty()) {
-      return maybeClipMediaSource(mediaItem, leafMediaSource);
+    if (!subtitles.isEmpty()) {
+      MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
+      mediaSources[0] = mediaSource;
+      SingleSampleMediaSource.Factory singleSampleSourceFactory =
+          new SingleSampleMediaSource.Factory(dataSourceFactory);
+      for (int i = 0; i < subtitles.size(); i++) {
+        MediaItem.Subtitle subtitle = subtitles.get(i);
+        Format subtitleFormat =
+            new Format.Builder()
+                .setSampleMimeType(subtitle.mimeType)
+                .setLanguage(subtitle.language)
+                .setSelectionFlags(subtitle.selectionFlags)
+                .build();
+        mediaSources[i + 1] =
+            singleSampleSourceFactory.createMediaSource(
+                subtitle.uri, subtitleFormat, /* durationUs= */ C.TIME_UNSET);
+      }
+      mediaSource = new MergingMediaSource(mediaSources);
     }
-
-    MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
-    mediaSources[0] = leafMediaSource;
-    SingleSampleMediaSource.Factory singleSampleSourceFactory =
-        new SingleSampleMediaSource.Factory(dataSourceFactory);
-    for (int i = 0; i < subtitles.size(); i++) {
-      MediaItem.Subtitle subtitle = subtitles.get(i);
-      Format subtitleFormat =
-          new Format.Builder()
-              .setSampleMimeType(subtitle.mimeType)
-              .setLanguage(subtitle.language)
-              .setSelectionFlags(subtitle.selectionFlags)
-              .build();
-      mediaSources[i + 1] =
-          singleSampleSourceFactory.createMediaSource(
-              subtitle.uri, subtitleFormat, /* durationUs= */ C.TIME_UNSET);
-    }
-    return maybeClipMediaSource(mediaItem, new MergingMediaSource(mediaSources));
+    return maybeWrapWithAdsMediaSource(mediaItem, maybeClipMediaSource(mediaItem, mediaSource));
   }
 
   // internal methods
@@ -283,6 +327,34 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         /* enableInitialDiscontinuity= */ !mediaItem.clippingProperties.startsAtKeyFrame,
         /* allowDynamicClippingUpdates= */ mediaItem.clippingProperties.relativeToLiveWindow,
         mediaItem.clippingProperties.relativeToDefaultPosition);
+  }
+
+  private MediaSource maybeWrapWithAdsMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
+    Assertions.checkNotNull(mediaItem.playbackProperties);
+    if (mediaItem.playbackProperties.adTagUri == null) {
+      return mediaSource;
+    }
+    if (adSupportProvider == null) {
+      Log.w(
+          TAG,
+          "Playing media without ads. Pass an AdsSupportProvider to the constructor for supporting"
+              + " media items with an ad tag uri.");
+      return mediaSource;
+    }
+    AdsLoader adsLoader = adSupportProvider.getAdsLoader(mediaItem.playbackProperties.adTagUri);
+    if (adsLoader == null) {
+      Log.w(
+          TAG,
+          String.format(
+              "Playing media without ads. No AdsLoader for media item with mediaId '%s'.",
+              mediaItem.mediaId));
+      return mediaSource;
+    }
+    return new AdsMediaSource(
+        mediaSource,
+        /* adMediaSourceFactory= */ this,
+        adsLoader,
+        adSupportProvider.getAdViewProvider());
   }
 
   private static SparseArray<MediaSourceFactory> loadDelegates(

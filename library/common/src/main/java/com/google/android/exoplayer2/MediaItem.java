@@ -71,6 +71,7 @@ public final class MediaItem {
     private List<StreamKey> streamKeys;
     @Nullable private String customCacheKey;
     private List<Subtitle> subtitles;
+    @Nullable private Uri adTagUri;
     @Nullable private Object tag;
     @Nullable private MediaMetadata mediaMetadata;
 
@@ -88,12 +89,13 @@ public final class MediaItem {
       clipEndPositionMs = mediaItem.clippingProperties.endPositionMs;
       clipRelativeToLiveWindow = mediaItem.clippingProperties.relativeToLiveWindow;
       clipRelativeToDefaultPosition = mediaItem.clippingProperties.relativeToDefaultPosition;
-      clipStartsAtKeyFrame = mediaItem.clippingProperties.startsAtKeyFrame;
       clipStartPositionMs = mediaItem.clippingProperties.startPositionMs;
+      clipStartsAtKeyFrame = mediaItem.clippingProperties.startsAtKeyFrame;
       mediaId = mediaItem.mediaId;
       mediaMetadata = mediaItem.mediaMetadata;
       @Nullable PlaybackProperties playbackProperties = mediaItem.playbackProperties;
       if (playbackProperties != null) {
+        adTagUri = playbackProperties.adTagUri;
         customCacheKey = playbackProperties.customCacheKey;
         mimeType = playbackProperties.mimeType;
         sourceUri = playbackProperties.sourceUri;
@@ -354,6 +356,28 @@ public final class MediaItem {
     }
 
     /**
+     * Sets the optional ad tag URI.
+     *
+     * <p>If a {@link PlaybackProperties#sourceUri} is set, the ad tag URI is used to create a
+     * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     */
+    public Builder setAdTagUri(@Nullable String adTagUri) {
+      this.adTagUri = adTagUri != null ? Uri.parse(adTagUri) : null;
+      return this;
+    }
+
+    /**
+     * Sets the optional ad tag {@link Uri}.
+     *
+     * <p>If a {@link PlaybackProperties#sourceUri} is set, the ad tag URI is used to create a
+     * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     */
+    public Builder setAdTagUri(@Nullable Uri adTagUri) {
+      this.adTagUri = adTagUri;
+      return this;
+    }
+
+    /**
      * Sets the optional tag for custom attributes. The tag for the media source which will be
      * published in the {@code com.google.android.exoplayer2.Timeline} of the source as {@code
      * com.google.android.exoplayer2.Timeline.Window#tag}.
@@ -395,6 +419,7 @@ public final class MediaItem {
                 streamKeys,
                 customCacheKey,
                 subtitles,
+                adTagUri,
                 tag);
         mediaId = mediaId != null ? mediaId : sourceUri.toString();
       }
@@ -509,6 +534,9 @@ public final class MediaItem {
     /** Optional subtitles to be sideloaded. */
     public final List<Subtitle> subtitles;
 
+    /** Optional ad tag {@link Uri}. */
+    @Nullable public final Uri adTagUri;
+
     /**
      * Optional tag for custom attributes. The tag for the media source which will be published in
      * the {@code com.google.android.exoplayer2.Timeline} of the source as {@code
@@ -523,6 +551,7 @@ public final class MediaItem {
         List<StreamKey> streamKeys,
         @Nullable String customCacheKey,
         List<Subtitle> subtitles,
+        @Nullable Uri adTagUri,
         @Nullable Object tag) {
       this.sourceUri = sourceUri;
       this.mimeType = mimeType;
@@ -530,6 +559,7 @@ public final class MediaItem {
       this.streamKeys = streamKeys;
       this.customCacheKey = customCacheKey;
       this.subtitles = subtitles;
+      this.adTagUri = adTagUri;
       this.tag = tag;
     }
 
@@ -549,6 +579,7 @@ public final class MediaItem {
           && streamKeys.equals(other.streamKeys)
           && Util.areEqual(customCacheKey, other.customCacheKey)
           && subtitles.equals(other.subtitles)
+          && Util.areEqual(adTagUri, other.adTagUri)
           && Util.areEqual(tag, other.tag);
     }
 
@@ -560,6 +591,7 @@ public final class MediaItem {
       result = 31 * result + streamKeys.hashCode();
       result = 31 * result + (customCacheKey == null ? 0 : customCacheKey.hashCode());
       result = 31 * result + subtitles.hashCode();
+      result = 31 * result + (adTagUri == null ? 0 : adTagUri.hashCode());
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
       return result;
     }

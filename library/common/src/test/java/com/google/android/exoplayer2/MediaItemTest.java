@@ -267,6 +267,16 @@ public class MediaItemTest {
   }
 
   @Test
+  public void builderSetAdTagUri_setsAdTagUri() {
+    Uri adTagUri = Uri.parse(URI_STRING + "/ad");
+
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_STRING).setAdTagUri(adTagUri).build();
+
+    assertThat(mediaItem.playbackProperties.adTagUri).isEqualTo(adTagUri);
+  }
+
+  @Test
   public void builderSetMediaMetadata_setsMetadata() {
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
 
@@ -280,6 +290,7 @@ public class MediaItemTest {
   public void buildUpon_equalsToOriginal() {
     MediaItem mediaItem =
         new MediaItem.Builder()
+            .setAdTagUri(URI_STRING)
             .setClipEndPositionMs(1000)
             .setClipRelativeToDefaultPosition(true)
             .setClipRelativeToLiveWindow(true)
