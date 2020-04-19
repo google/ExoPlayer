@@ -55,6 +55,17 @@ public final class MediaPeriodAsserts {
   private MediaPeriodAsserts() {}
 
   /**
+   * Prepares the {@link MediaPeriod} and asserts that it provides the specified track groups.
+   *
+   * @param mediaPeriod The {@link MediaPeriod} to test.
+   * @param expectedGroups The expected track groups.
+   */
+  public static void assertTrackGroups(MediaPeriod mediaPeriod, TrackGroupArray expectedGroups) {
+    TrackGroupArray actualGroups = prepareAndGetTrackGroups(mediaPeriod);
+    assertThat(actualGroups).isEqualTo(expectedGroups);
+  }
+
+  /**
    * Asserts that the values returns by {@link MediaPeriod#getStreamKeys(List)} are compatible with
    * a {@link FilterableManifest} using these stream keys.
    *
@@ -85,7 +96,7 @@ public final class MediaPeriodAsserts {
           int periodIndex,
           @Nullable String ignoredMimeType) {
     MediaPeriod mediaPeriod = mediaPeriodFactory.createMediaPeriod(manifest, periodIndex);
-    TrackGroupArray trackGroupArray = getTrackGroups(mediaPeriod);
+    TrackGroupArray trackGroupArray = prepareAndGetTrackGroups(mediaPeriod);
 
     // Create test vector of query test selections:
     //  - One selection with one track per group, two tracks or all tracks.
@@ -146,7 +157,7 @@ public final class MediaPeriodAsserts {
       // The filtered manifest should only have one period left.
       MediaPeriod filteredMediaPeriod =
           mediaPeriodFactory.createMediaPeriod(filteredManifest, /* periodIndex= */ 0);
-      TrackGroupArray filteredTrackGroupArray = getTrackGroups(filteredMediaPeriod);
+      TrackGroupArray filteredTrackGroupArray = prepareAndGetTrackGroups(filteredMediaPeriod);
       for (TrackSelection trackSelection : testSelection) {
         if (ignoredMimeType != null
             && ignoredMimeType.equals(trackSelection.getFormat(0).sampleMimeType)) {
@@ -186,8 +197,8 @@ public final class MediaPeriodAsserts {
     return true;
   }
 
-  private static TrackGroupArray getTrackGroups(MediaPeriod mediaPeriod) {
-    AtomicReference<TrackGroupArray> trackGroupArray = new AtomicReference<>(null);
+  private static TrackGroupArray prepareAndGetTrackGroups(MediaPeriod mediaPeriod) {
+    AtomicReference<TrackGroupArray> trackGroupArray = new AtomicReference<>();
     DummyMainThread dummyMainThread = new DummyMainThread();
     ConditionVariable preparedCondition = new ConditionVariable();
     dummyMainThread.runOnMainThread(

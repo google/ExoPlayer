@@ -7,6 +7,11 @@
 *   Avoid throwing an exception while parsing fragmented MP4 default sample
     values where the most-significant bit is set
     ([#7207](https://github.com/google/ExoPlayer/issues/7207)).
+*   DASH:
+    *   Merge trick play adaptation sets (i.e., adaptation sets marked with
+        `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as
+        the main adaptation sets to which they refer. Trick play tracks are
+        marked with the `C.ROLE_FLAG_TRICK_PLAY` flag.
 
 ### 2.11.4 (2020-04-08) ###
 

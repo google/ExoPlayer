@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.dash;
 
 import android.util.Pair;
+import android.util.SparseArray;
 import android.util.SparseIntArray;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -516,50 +517,94 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return Pair.create(new TrackGroupArray(trackGroups), trackGroupInfos);
   }
 
+  /**
+   * Groups adaptation sets. Two adaptations sets belong to the same group if either:
+   *
+   * <ul>
+   *   <li>One is a trick-play adaptation set and uses a {@code
+   *       http://dashif.org/guidelines/trickmode} essential or supplemental property to indicate
+   *       that the other is the main adaptation set to which it corresponds.
+   *   <li>The two adaptation sets are marked as safe for switching using {@code
+   *       urn:mpeg:dash:adaptation-set-switching:2016} supplemental properties.
+   * </ul>
+   *
+   * @param adaptationSets The adaptation sets to merge.
+   * @return An array of groups, where each group is an array of adaptation set indices.
+   */
   private static int[][] getGroupedAdaptationSetIndices(List<AdaptationSet> adaptationSets) {
     int adaptationSetCount = adaptationSets.size();
-    SparseIntArray idToIndexMap = new SparseIntArray(adaptationSetCount);
+    SparseIntArray adaptationSetIdToIndex = new SparseIntArray(adaptationSetCount);
+    List<List<Integer>> adaptationSetGroupedIndices = new ArrayList<>(adaptationSetCount);
+    SparseArray<List<Integer>> adaptationSetIndexToGroupedIndices =
+        new SparseArray<>(adaptationSetCount);
+
+    // Initially make each adaptation set belong to its own group. Also build the
+    // adaptationSetIdToIndex map.
     for (int i = 0; i < adaptationSetCount; i++) {
-      idToIndexMap.put(adaptationSets.get(i).id, i);
+      adaptationSetIdToIndex.put(adaptationSets.get(i).id, i);
+      List<Integer> initialGroup = new ArrayList<>();
+      initialGroup.add(i);
+      adaptationSetGroupedIndices.add(initialGroup);
+      adaptationSetIndexToGroupedIndices.put(i, initialGroup);
     }
 
-    int[][] groupedAdaptationSetIndices = new int[adaptationSetCount][];
-    boolean[] adaptationSetUsedFlags = new boolean[adaptationSetCount];
-
-    int groupCount = 0;
+    // Merge adaptation set groups.
     for (int i = 0; i < adaptationSetCount; i++) {
-      if (adaptationSetUsedFlags[i]) {
-        // This adaptation set has already been included in a group.
-        continue;
+      int mergedGroupIndex = i;
+      AdaptationSet adaptationSet = adaptationSets.get(i);
+
+      // Trick-play adaptation sets are merged with their corresponding main adaptation sets.
+      @Nullable
+      Descriptor trickPlayProperty = findTrickPlayProperty(adaptationSet.essentialProperties);
+      if (trickPlayProperty == null) {
+        // Trick-play can also be specified using a supplemental property.
+        trickPlayProperty = findTrickPlayProperty(adaptationSet.supplementalProperties);
       }
-      adaptationSetUsedFlags[i] = true;
-      Descriptor adaptationSetSwitchingProperty = findAdaptationSetSwitchingProperty(
-          adaptationSets.get(i).supplementalProperties);
-      if (adaptationSetSwitchingProperty == null) {
-        groupedAdaptationSetIndices[groupCount++] = new int[] {i};
-      } else {
-        String[] extraAdaptationSetIds = Util.split(adaptationSetSwitchingProperty.value, ",");
-        int[] adaptationSetIndices = new int[1 + extraAdaptationSetIds.length];
-        adaptationSetIndices[0] = i;
-        int outputIndex = 1;
-        for (String adaptationSetId : extraAdaptationSetIds) {
-          int extraIndex =
-              idToIndexMap.get(Integer.parseInt(adaptationSetId), /* valueIfKeyNotFound= */ -1);
-          if (extraIndex != -1) {
-            adaptationSetUsedFlags[extraIndex] = true;
-            adaptationSetIndices[outputIndex] = extraIndex;
-            outputIndex++;
+      if (trickPlayProperty != null) {
+        int mainAdaptationSetId = Integer.parseInt(trickPlayProperty.value);
+        int mainAdaptationSetIndex =
+            adaptationSetIdToIndex.get(mainAdaptationSetId, /* valueIfKeyNotFound= */ -1);
+        if (mainAdaptationSetIndex != -1) {
+          mergedGroupIndex = mainAdaptationSetIndex;
+        }
+      }
+
+      // Adaptation sets that are safe for switching are merged, using the smallest index for the
+      // merged group.
+      if (mergedGroupIndex == i) {
+        @Nullable
+        Descriptor adaptationSetSwitchingProperty =
+            findAdaptationSetSwitchingProperty(adaptationSet.supplementalProperties);
+        if (adaptationSetSwitchingProperty != null) {
+          String[] otherAdaptationSetIds = Util.split(adaptationSetSwitchingProperty.value, ",");
+          for (String adaptationSetId : otherAdaptationSetIds) {
+            int otherAdaptationSetId =
+                adaptationSetIdToIndex.get(
+                    Integer.parseInt(adaptationSetId), /* valueIfKeyNotFound= */ -1);
+            if (otherAdaptationSetId != -1) {
+              mergedGroupIndex = Math.min(mergedGroupIndex, otherAdaptationSetId);
+            }
           }
         }
-        if (outputIndex < adaptationSetIndices.length) {
-          adaptationSetIndices = Arrays.copyOf(adaptationSetIndices, outputIndex);
-        }
-        groupedAdaptationSetIndices[groupCount++] = adaptationSetIndices;
+      }
+
+      // Merge the groups if necessary.
+      if (mergedGroupIndex != i) {
+        List<Integer> thisGroup = adaptationSetIndexToGroupedIndices.get(i);
+        List<Integer> mergedGroup = adaptationSetIndexToGroupedIndices.get(mergedGroupIndex);
+        mergedGroup.addAll(thisGroup);
+        adaptationSetIndexToGroupedIndices.put(i, mergedGroup);
+        adaptationSetGroupedIndices.remove(thisGroup);
       }
     }
 
-    return groupCount < adaptationSetCount
-        ? Arrays.copyOf(groupedAdaptationSetIndices, groupCount) : groupedAdaptationSetIndices;
+    int[][] groupedAdaptationSetIndices = new int[adaptationSetGroupedIndices.size()][];
+    for (int i = 0; i < groupedAdaptationSetIndices.length; i++) {
+      groupedAdaptationSetIndices[i] = Util.toArray(adaptationSetGroupedIndices.get(i));
+      // Restore the original adaptation set order within each group.
+      Arrays.sort(groupedAdaptationSetIndices[i]);
+    }
+    return groupedAdaptationSetIndices;
   }
 
   /**
@@ -739,9 +784,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private static Descriptor findAdaptationSetSwitchingProperty(List<Descriptor> descriptors) {
+    return findDescriptor(descriptors, "urn:mpeg:dash:adaptation-set-switching:2016");
+  }
+
+  @Nullable
+  private static Descriptor findTrickPlayProperty(List<Descriptor> descriptors) {
+    return findDescriptor(descriptors, "http://dashif.org/guidelines/trickmode");
+  }
+
+  @Nullable
+  private static Descriptor findDescriptor(List<Descriptor> descriptors, String schemeIdUri) {
     for (int i = 0; i < descriptors.size(); i++) {
       Descriptor descriptor = descriptors.get(i);
-      if ("urn:mpeg:dash:adaptation-set-switching:2016".equals(descriptor.schemeIdUri)) {
+      if (schemeIdUri.equals(descriptor.schemeIdUri)) {
         return descriptor;
       }
     }
