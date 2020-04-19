@@ -97,6 +97,11 @@
     *   Remove generics from DRM components.
 *   Downloads: Merge downloads in `SegmentDownloader` to improve overall
     download speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+*   DASH:
+    *   Merge trick play adaptation sets (i.e., adaptation sets marked with
+        `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as
+        the main adaptation sets to which they refer. Trick play tracks are
+        marked with the `C.ROLE_FLAG_TRICK_PLAY` flag.
 *   MP3: Add `IndexSeeker` for accurate seeks in VBR streams
     ([#6787](https://github.com/google/ExoPlayer/issues/6787)). This seeker is
     enabled by passing `FLAG_ENABLE_INDEX_SEEKING` to the `Mp3Extractor`. It may
