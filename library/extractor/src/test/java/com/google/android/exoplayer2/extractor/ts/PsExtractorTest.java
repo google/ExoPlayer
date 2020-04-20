@@ -25,7 +25,12 @@ import org.junit.runner.RunWith;
 public final class PsExtractorTest {
 
   @Test
-  public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(PsExtractor::new, "ts/sample.ps");
+  public void sampleWithH262AndMpegAudio() throws Exception {
+    ExtractorAsserts.assertBehavior(PsExtractor::new, "ts/sample_h262_mpeg_audio.ps");
+  }
+
+  @Test
+  public void sampleWithAc3() throws Exception {
+    ExtractorAsserts.assertBehavior(PsExtractor::new, "ts/sample_ac3.ps");
   }
 }

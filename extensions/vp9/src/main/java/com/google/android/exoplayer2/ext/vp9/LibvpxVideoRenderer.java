@@ -33,6 +33,8 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 /** Decodes and renders video using the native VP9 decoder. */
 public class LibvpxVideoRenderer extends DecoderVideoRenderer {
 
+  private static final String TAG = "LibvpxVideoRenderer";
+
   /** The number of input buffers. */
   private final int numInputBuffers;
   /**
@@ -113,6 +115,11 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
     this.threads = threads;
     this.numInputBuffers = numInputBuffers;
     this.numOutputBuffers = numOutputBuffers;
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override

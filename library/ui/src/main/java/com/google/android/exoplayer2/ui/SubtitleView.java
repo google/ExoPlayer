@@ -23,8 +23,8 @@ import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.accessibility.CaptioningManager;
+import android.widget.FrameLayout;
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.List;
 
 /** A view for displaying subtitle {@link Cue}s. */
-public final class SubtitleView extends ViewGroup implements TextOutput {
+public final class SubtitleView extends FrameLayout implements TextOutput {
 
   /**
    * The default fractional text size.
@@ -114,13 +114,6 @@ public final class SubtitleView extends ViewGroup implements TextOutput {
    */
   public void setCues(@Nullable List<Cue> cues) {
     output.onCues(cues != null ? cues : Collections.emptyList());
-  }
-
-  @Override
-  protected void onLayout(boolean changed, int l, int t, int r, int b) {
-    if (changed) {
-      innerSubtitleView.layout(l, t, r, b);
-    }
   }
 
   /**

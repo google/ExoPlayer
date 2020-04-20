@@ -26,6 +26,7 @@ import android.text.style.UnderlineSpan;
 import android.util.SparseArray;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Utility class to convert from <a
@@ -44,19 +46,33 @@ import java.util.List;
 // TODO: Add support for more span types - only a small selection are currently implemented.
 /* package */ final class SpannedToHtmlConverter {
 
+  // Matches /n and /r/n in ampersand-encoding (returned from Html.escapeHtml).
+  private static final Pattern NEWLINE_PATTERN = Pattern.compile("(&#13;)?&#10;");
+
   private SpannedToHtmlConverter() {}
 
   /**
    * Convert {@code text} into HTML, adding tags and styling to match any styling spans present.
    *
    * <p>All textual content is HTML-escaped during the conversion.
+   *
+   * <p>NOTE: The current implementation does not handle overlapping spans correctly, it will
+   * generate overlapping HTML tags that are invalid. In most cases this won't be a problem because:
+   *
+   * <ul>
+   *   <li>Most subtitle formats use a tagged structure to carry formatting information (e.g. WebVTT
+   *       and TTML), so the {@link Spanned} objects created by these decoders likely won't have
+   *       overlapping spans.
+   *   <li>WebView/Chromium (the intended destination of this HTML) gracefully handles overlapping
+   *       tags and usually renders the same result as spanned text in a TextView.
+   * </ul>
    */
   public static String convert(@Nullable CharSequence text) {
     if (text == null) {
       return "";
     }
     if (!(text instanceof Spanned)) {
-      return Html.escapeHtml(text);
+      return escapeHtml(text);
     }
     Spanned spanned = (Spanned) text;
     SparseArray<Transition> spanTransitions = findSpanTransitions(spanned);
@@ -65,7 +81,7 @@ import java.util.List;
     int previousTransition = 0;
     for (int i = 0; i < spanTransitions.size(); i++) {
       int index = spanTransitions.keyAt(i);
-      html.append(Html.escapeHtml(spanned.subSequence(previousTransition, index)));
+      html.append(escapeHtml(spanned.subSequence(previousTransition, index)));
 
       Transition transition = spanTransitions.get(index);
       Collections.sort(transition.spansRemoved, SpanInfo.FOR_CLOSING_TAGS);
@@ -79,7 +95,7 @@ import java.util.List;
       previousTransition = index;
     }
 
-    html.append(Html.escapeHtml(spanned.subSequence(previousTransition, spanned.length())));
+    html.append(escapeHtml(spanned.subSequence(previousTransition, spanned.length())));
 
     return html.toString();
   }
@@ -109,6 +125,8 @@ import java.util.List;
       ForegroundColorSpan colorSpan = (ForegroundColorSpan) span;
       return Util.formatInvariant(
           "<span style='color:%s;'>", toCssColor(colorSpan.getForegroundColor()));
+    } else if (span instanceof HorizontalTextInVerticalContextSpan) {
+      return "<span style='text-combine-upright:all;'>";
     } else if (span instanceof StyleSpan) {
       switch (((StyleSpan) span).getStyle()) {
         case Typeface.BOLD:
@@ -143,6 +161,8 @@ import java.util.List;
   private static String getClosingTag(Object span) {
     if (span instanceof ForegroundColorSpan) {
       return "</span>";
+    } else if (span instanceof HorizontalTextInVerticalContextSpan) {
+      return "</span>";
     } else if (span instanceof StyleSpan) {
       switch (((StyleSpan) span).getStyle()) {
         case Typeface.BOLD:
@@ -154,7 +174,7 @@ import java.util.List;
       }
     } else if (span instanceof RubySpan) {
       RubySpan rubySpan = (RubySpan) span;
-      return "<rt>" + rubySpan.rubyText + "</rt></ruby>";
+      return "<rt>" + escapeHtml(rubySpan.rubyText) + "</rt></ruby>";
     } else if (span instanceof UnderlineSpan) {
       return "</u>";
     }
@@ -174,6 +194,11 @@ import java.util.List;
       transitions.put(key, transition);
     }
     return transition;
+  }
+
+  private static String escapeHtml(CharSequence text) {
+    String escaped = Html.escapeHtml(text);
+    return NEWLINE_PATTERN.matcher(escaped).replaceAll("<br>");
   }
 
   private static final class SpanInfo {

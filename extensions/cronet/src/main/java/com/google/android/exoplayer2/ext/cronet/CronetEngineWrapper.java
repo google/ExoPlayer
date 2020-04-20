@@ -166,7 +166,8 @@ public final class CronetEngineWrapper {
     private final boolean preferGMSCoreCronet;
 
     // Multi-catch can only be used for API 19+ in this case.
-    @SuppressWarnings("UseMultiCatch")
+    // incompatible types in argument.
+    @SuppressWarnings({"UseMultiCatch", "nullness:argument.type.incompatible"})
     public CronetProviderComparator(boolean preferGMSCoreCronet) {
       // GMSCore CronetProvider classes are only available in some configurations.
       // Thus, we use reflection to copy static name.

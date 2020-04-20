@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 /** A {@link Renderer} that parses the camera motion track. */
 public class CameraMotionRenderer extends BaseRenderer {
 
+  private static final String TAG = "CameraMotionRenderer";
   // The amount of time to read samples ahead of the current time.
   private static final int SAMPLE_WINDOW_DURATION_US = 100000;
 
@@ -47,6 +48,11 @@ public class CameraMotionRenderer extends BaseRenderer {
     super(C.TRACK_TYPE_CAMERA_MOTION);
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
     scratch = new ParsableByteArray();
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override

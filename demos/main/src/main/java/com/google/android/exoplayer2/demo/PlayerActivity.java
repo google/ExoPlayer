@@ -33,22 +33,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.demo.Sample.UriSample;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MergingMediaSource;
-import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -64,6 +61,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
@@ -73,9 +71,7 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
@@ -128,6 +124,7 @@ public class PlayerActivity extends AppCompatActivity
   private static final String KEY_AUTO_PLAY = "auto_play";
 
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
+
   static {
     DEFAULT_COOKIE_MANAGER = new CookieManager();
     DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
@@ -276,8 +273,9 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-      @NonNull int[] grantResults) {
+  public void onRequestPermissionsResult(
+      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if (grantResults.length == 0) {
       // Empty results are triggered if a permission is requested while another request was already
       // pending and can be safely ignored in this case.
@@ -375,6 +373,7 @@ public class PlayerActivity extends AppCompatActivity
               .setTrackSelector(trackSelector)
               .build();
       player.addListener(new PlayerEventListener());
+      player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));
       playerView.setPlayer(player);
@@ -409,47 +408,29 @@ public class PlayerActivity extends AppCompatActivity
             ? ((Sample.PlaylistSample) intentAsSample).children
             : new UriSample[] {(UriSample) intentAsSample};
 
-    boolean seenAdsTagUri = false;
+    List<MediaSource> mediaSources = new ArrayList<>();
+    Uri adTagUri = null;
     for (UriSample sample : samples) {
-      seenAdsTagUri |= sample.adTagUri != null;
-      if (!Util.checkCleartextTrafficPermitted(sample.uri)) {
+      MediaItem mediaItem = sample.toMediaItem();
+      Assertions.checkNotNull(mediaItem.playbackProperties);
+      if (!Util.checkCleartextTrafficPermitted(mediaItem)) {
         showToast(R.string.error_cleartext_not_permitted);
         return Collections.emptyList();
       }
-      if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, sample.uri)) {
+      if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, mediaItem)) {
         // The player will be reinitialized if the permission is granted.
         return Collections.emptyList();
       }
+      MediaSource mediaSource = createLeafMediaSource(mediaItem);
+      if (mediaSource != null) {
+        adTagUri = sample.adTagUri;
+        mediaSources.add(mediaSource);
+      }
     }
 
-    List<MediaSource> mediaSources = new ArrayList<>();
-    for (UriSample sample : samples) {
-      MediaSource mediaSource = createLeafMediaSource(sample);
-      if (mediaSource == null) {
-        continue;
-      }
-      Sample.SubtitleInfo subtitleInfo = sample.subtitleInfo;
-      if (subtitleInfo != null) {
-        if (Util.maybeRequestReadExternalStoragePermission(
-            /* activity= */ this, subtitleInfo.uri)) {
-          // The player will be reinitialized if the permission is granted.
-          return Collections.emptyList();
-        }
-        Format subtitleFormat =
-            new Format.Builder()
-                .setSampleMimeType(subtitleInfo.mimeType)
-                .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
-                .setLanguage(subtitleInfo.language)
-                .build();
-        MediaSource subtitleMediaSource =
-            new SingleSampleMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(subtitleInfo.uri, subtitleFormat, C.TIME_UNSET);
-        mediaSource = new MergingMediaSource(mediaSource, subtitleMediaSource);
-      }
-      mediaSources.add(mediaSource);
-    }
-    if (seenAdsTagUri && mediaSources.size() == 1) {
-      Uri adTagUri = samples[0].adTagUri;
+    if (adTagUri == null) {
+      releaseAdsLoader();
+    } else if (mediaSources.size() == 1) {
       if (!adTagUri.equals(loadedAdTagUri)) {
         releaseAdsLoader();
         loadedAdTagUri = adTagUri;
@@ -460,10 +441,8 @@ public class PlayerActivity extends AppCompatActivity
       } else {
         showToast(R.string.ima_not_loaded);
       }
-    } else if (seenAdsTagUri && mediaSources.size() > 1) {
+    } else if (mediaSources.size() > 1) {
       showToast(R.string.unsupported_ads_in_concatenation);
-      releaseAdsLoader();
-    } else {
       releaseAdsLoader();
     }
 
@@ -471,54 +450,38 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   @Nullable
-  private MediaSource createLeafMediaSource(UriSample parameters) {
-    MediaItem.Builder builder = new MediaItem.Builder().setSourceUri(parameters.uri);
-    builder.setMimeType(Sample.inferAdaptiveStreamMimeType(parameters.uri, parameters.extension));
-    int[] drmSessionForClearTypes = new int[0];
+  private MediaSource createLeafMediaSource(MediaItem mediaItem) {
+    Assertions.checkNotNull(mediaItem.playbackProperties);
     HttpDataSource.Factory drmDataSourceFactory = null;
-    if (parameters.drmInfo != null) {
+    if (mediaItem.playbackProperties.drmConfiguration != null) {
       if (Util.SDK_INT < 18) {
         showToast(R.string.error_drm_unsupported_before_api_18);
         finish();
         return null;
-      } else if (!MediaDrm.isCryptoSchemeSupported(parameters.drmInfo.drmScheme)) {
+      } else if (!MediaDrm.isCryptoSchemeSupported(
+          mediaItem.playbackProperties.drmConfiguration.uuid)) {
         showToast(R.string.error_drm_unsupported_scheme);
         finish();
         return null;
       }
-      builder
-          .setDrmLicenseUri(parameters.drmInfo.drmLicenseUrl)
-          .setDrmLicenseRequestHeaders(
-              createLicenseHeaders(parameters.drmInfo.drmKeyRequestProperties))
-          .setDrmUuid(parameters.drmInfo.drmScheme)
-          .setDrmMultiSession(parameters.drmInfo.drmMultiSession);
-      drmSessionForClearTypes = parameters.drmInfo.drmSessionForClearTypes;
       drmDataSourceFactory = ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
     }
 
     DownloadRequest downloadRequest =
         ((DemoApplication) getApplication())
             .getDownloadTracker()
-            .getDownloadRequest(parameters.uri);
+            .getDownloadRequest(mediaItem.playbackProperties.sourceUri);
     if (downloadRequest != null) {
-      return DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
+      mediaItem =
+          mediaItem
+              .buildUpon()
+              .setStreamKeys(downloadRequest.streamKeys)
+              .setCustomCacheKey(downloadRequest.customCacheKey)
+              .build();
     }
     return mediaSourceFactory
         .setDrmHttpDataSourceFactory(drmDataSourceFactory)
-        .setUseDrmSessionForClearContent(drmSessionForClearTypes)
-        .createMediaSource(builder.build());
-  }
-
-  @Nullable
-  private Map<String, String> createLicenseHeaders(@Nullable String[] drmKeyRequestProperties) {
-    if (drmKeyRequestProperties == null || drmKeyRequestProperties.length == 0) {
-      return null;
-    }
-    Map<String, String> headers = new HashMap<>();
-    for (int i = 0; i < drmKeyRequestProperties.length; i += 2) {
-      headers.put(drmKeyRequestProperties[i], drmKeyRequestProperties[i + 1]);
-    }
-    return headers;
+        .createMediaSource(mediaItem);
   }
 
   private void releasePlayer() {
@@ -529,7 +492,7 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper = null;
       player.release();
       player = null;
-      mediaSources = null;
+      mediaSources = Collections.emptyList();
       trackSelector = null;
     }
     if (adsLoader != null) {

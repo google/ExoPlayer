@@ -307,12 +307,9 @@ public final class DashMediaSource extends BaseMediaSource {
       return mediaSource;
     }
 
-    /**
-     * Returns a new {@link DashMediaSource} using the current parameters.
-     *
-     * @param uri The {@link Uri uri}.
-     * @return The new {@link DashMediaSource}.
-     */
+    /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
     public DashMediaSource createMediaSource(Uri uri) {
       return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());
@@ -1350,14 +1347,17 @@ public final class DashMediaSource extends BaseMediaSource {
   private final class ManifestCallback implements Loader.Callback<ParsingLoadable<DashManifest>> {
 
     @Override
-    public void onLoadCompleted(ParsingLoadable<DashManifest> loadable,
-        long elapsedRealtimeMs, long loadDurationMs) {
+    public void onLoadCompleted(
+        ParsingLoadable<DashManifest> loadable, long elapsedRealtimeMs, long loadDurationMs) {
       onManifestLoadCompleted(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override
-    public void onLoadCanceled(ParsingLoadable<DashManifest> loadable,
-        long elapsedRealtimeMs, long loadDurationMs, boolean released) {
+    public void onLoadCanceled(
+        ParsingLoadable<DashManifest> loadable,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        boolean released) {
       DashMediaSource.this.onLoadCanceled(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
@@ -1376,14 +1376,17 @@ public final class DashMediaSource extends BaseMediaSource {
   private final class UtcTimestampCallback implements Loader.Callback<ParsingLoadable<Long>> {
 
     @Override
-    public void onLoadCompleted(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
-        long loadDurationMs) {
+    public void onLoadCompleted(
+        ParsingLoadable<Long> loadable, long elapsedRealtimeMs, long loadDurationMs) {
       onUtcTimestampLoadCompleted(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 
     @Override
-    public void onLoadCanceled(ParsingLoadable<Long> loadable, long elapsedRealtimeMs,
-        long loadDurationMs, boolean released) {
+    public void onLoadCanceled(
+        ParsingLoadable<Long> loadable,
+        long elapsedRealtimeMs,
+        long loadDurationMs,
+        boolean released) {
       DashMediaSource.this.onLoadCanceled(loadable, elapsedRealtimeMs, loadDurationMs);
     }
 

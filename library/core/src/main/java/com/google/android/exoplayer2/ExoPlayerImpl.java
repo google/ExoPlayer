@@ -68,14 +68,13 @@ import java.util.concurrent.TimeoutException;
   private final CopyOnWriteArrayList<ListenerHolder> listeners;
   private final Timeline.Period period;
   private final ArrayDeque<Runnable> pendingListenerNotifications;
-  private final List<Playlist.MediaSourceHolder> mediaSourceHolders;
+  private final List<MediaSourceList.MediaSourceHolder> mediaSourceHolders;
   private final boolean useLazyPreparation;
   private final MediaSourceFactory mediaSourceFactory;
 
   @RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
   private int pendingOperationAcks;
-  private boolean hasPendingSeek;
   private boolean hasPendingDiscontinuity;
   @DiscontinuityReason private int pendingDiscontinuityReason;
   @PlayWhenReadyChangeReason private int pendingPlayWhenReadyChangeReason;
@@ -217,6 +216,12 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  @Nullable
+  public DeviceComponent getDeviceComponent() {
+    return null;
+  }
+
+  @Override
   public Looper getPlaybackLooper() {
     return internalPlayer.getPlaybackLooper();
   }
@@ -322,31 +327,6 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void setMediaItem(MediaItem mediaItem) {
-    setMediaItems(Collections.singletonList(mediaItem));
-  }
-
-  @Override
-  public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    setMediaItems(Collections.singletonList(mediaItem), /* startWindowIndex= */ 0, startPositionMs);
-  }
-
-  @Override
-  public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    setMediaItems(Collections.singletonList(mediaItem), resetPosition);
-  }
-
-  @Override
-  public void setMediaItems(List<MediaItem> mediaItems) {
-    setMediaItems(mediaItems, /* resetPosition= */ true);
-  }
-
-  @Override
-  public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
-    setMediaSources(createMediaSources(mediaItems), resetPosition);
-  }
-
-  @Override
   public void setMediaItems(
       List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
     setMediaSources(createMediaSources(mediaItems), startWindowIndex, startPositionMs);
@@ -390,16 +370,6 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void addMediaItem(int index, MediaItem mediaItem) {
-    addMediaItems(index, Collections.singletonList(mediaItem));
-  }
-
-  @Override
-  public void addMediaItem(MediaItem mediaItem) {
-    addMediaItems(Collections.singletonList(mediaItem));
-  }
-
-  @Override
   public void addMediaItems(List<MediaItem> mediaItems) {
     addMediaItems(/* index= */ mediaSourceHolders.size(), mediaItems);
   }
@@ -427,33 +397,30 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addMediaSources(int index, List<MediaSource> mediaSources) {
     Assertions.checkArgument(index >= 0);
+    for (int i = 0; i < mediaSources.size(); i++) {
+      Assertions.checkArgument(mediaSources.get(i) != null);
+    }
     int currentWindowIndex = getCurrentWindowIndex();
     long currentPositionMs = getCurrentPosition();
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
-    List<Playlist.MediaSourceHolder> holders = addMediaSourceHolders(index, mediaSources);
-    Timeline timeline =
+    List<MediaSourceList.MediaSourceHolder> holders = addMediaSourceHolders(index, mediaSources);
+    PlaybackInfo playbackInfo =
         maskTimelineAndWindowIndex(currentWindowIndex, currentPositionMs, oldTimeline);
     internalPlayer.addMediaSources(index, holders, shuffleOrder);
-    notifyListeners(
-        listener -> listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
-  }
-
-  @Override
-  public void removeMediaItem(int index) {
-    removeMediaItemsInternal(/* fromIndex= */ index, /* toIndex= */ index + 1);
+    updatePlaybackInfo(
+        playbackInfo,
+        /* positionDiscontinuity= */ false,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ false);
   }
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
     Assertions.checkArgument(toIndex > fromIndex);
     removeMediaItemsInternal(fromIndex, toIndex);
-  }
-
-  @Override
-  public void moveMediaItem(int currentIndex, int newIndex) {
-    Assertions.checkArgument(currentIndex != newIndex);
-    moveMediaItems(/* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
   }
 
   @Override
@@ -468,12 +435,17 @@ import java.util.concurrent.TimeoutException;
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
     newFromIndex = Math.min(newFromIndex, mediaSourceHolders.size() - (toIndex - fromIndex));
-    Playlist.moveMediaSourceHolders(mediaSourceHolders, fromIndex, toIndex, newFromIndex);
-    Timeline timeline =
+    MediaSourceList.moveMediaSourceHolders(mediaSourceHolders, fromIndex, toIndex, newFromIndex);
+    PlaybackInfo playbackInfo =
         maskTimelineAndWindowIndex(currentWindowIndex, currentPositionMs, oldTimeline);
     internalPlayer.moveMediaSources(fromIndex, toIndex, newFromIndex, shuffleOrder);
-    notifyListeners(
-        listener -> listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    updatePlaybackInfo(
+        playbackInfo,
+        /* positionDiscontinuity= */ false,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ false);
   }
 
   @Override
@@ -486,13 +458,18 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void setShuffleOrder(ShuffleOrder shuffleOrder) {
-    Timeline timeline = maskTimeline();
+    PlaybackInfo playbackInfo = maskTimeline();
     maskWithCurrentPosition();
     pendingOperationAcks++;
     this.shuffleOrder = shuffleOrder;
     internalPlayer.setShuffleOrder(shuffleOrder);
-    notifyListeners(
-        listener -> listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    updatePlaybackInfo(
+        playbackInfo,
+        /* positionDiscontinuity= */ false,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ false);
   }
 
   @Override
@@ -517,38 +494,26 @@ import java.util.concurrent.TimeoutException;
     return pauseAtEndOfMediaItems;
   }
 
-  @SuppressWarnings("deprecation")
   public void setPlayWhenReady(
       boolean playWhenReady,
       @PlaybackSuppressionReason int playbackSuppressionReason,
       @PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
-    boolean oldIsPlaying = isPlaying();
-    boolean playWhenReadyChanged = playbackInfo.playWhenReady != playWhenReady;
-    boolean suppressionReasonChanged =
-        playbackInfo.playbackSuppressionReason != playbackSuppressionReason;
-    if (!playWhenReadyChanged && !suppressionReasonChanged) {
+    if (playbackInfo.playWhenReady == playWhenReady
+        && playbackInfo.playbackSuppressionReason == playbackSuppressionReason) {
       return;
     }
     maskWithCurrentPosition();
     pendingOperationAcks++;
-    playbackInfo = playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
+    PlaybackInfo playbackInfo =
+        this.playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
     internalPlayer.setPlayWhenReady(playWhenReady, playbackSuppressionReason);
-    boolean isPlaying = isPlaying();
-    boolean isPlayingChanged = oldIsPlaying != isPlaying;
-    int playbackState = playbackInfo.playbackState;
-    notifyListeners(
-        listener -> {
-          if (playWhenReadyChanged) {
-            listener.onPlayerStateChanged(playWhenReady, playbackState);
-            listener.onPlayWhenReadyChanged(playWhenReady, playWhenReadyChangeReason);
-          }
-          if (suppressionReasonChanged) {
-            listener.onPlaybackSuppressionReasonChanged(playbackSuppressionReason);
-          }
-          if (isPlayingChanged) {
-            listener.onIsPlayingChanged(isPlaying);
-          }
-        });
+    updatePlaybackInfo(
+        playbackInfo,
+        /* positionDiscontinuity= */ false,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        playWhenReadyChangeReason,
+        /* seekProcessed= */ false);
   }
 
   @Override
@@ -595,7 +560,6 @@ import java.util.concurrent.TimeoutException;
     if (windowIndex < 0 || (!timeline.isEmpty() && windowIndex >= timeline.getWindowCount())) {
       throw new IllegalSeekPositionException(timeline, windowIndex, positionMs);
     }
-    hasPendingSeek = true;
     pendingOperationAcks++;
     if (isPlayingAd()) {
       // TODO: Investigate adding support for seeking during ads. This is complicated to do in
@@ -612,8 +576,18 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     maskWindowIndexAndPositionForSeek(timeline, windowIndex, positionMs);
+    @Player.State
+    int newPlaybackState =
+        getPlaybackState() == Player.STATE_IDLE ? Player.STATE_IDLE : Player.STATE_BUFFERING;
+    PlaybackInfo playbackInfo = this.playbackInfo.copyWithPlaybackState(newPlaybackState);
     internalPlayer.seekTo(timeline, windowIndex, C.msToUs(positionMs));
-    notifyListeners(listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK));
+    updatePlaybackInfo(
+        playbackInfo,
+        /* positionDiscontinuity= */ true,
+        /* positionDiscontinuityReason= */ DISCONTINUITY_REASON_SEEK,
+        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ true);
   }
 
   /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
@@ -922,9 +896,7 @@ import java.util.concurrent.TimeoutException;
         // Update the masking variables, which are used when the timeline becomes empty.
         resetMaskingPosition();
       }
-      boolean seekProcessed = hasPendingSeek;
       boolean positionDiscontinuity = hasPendingDiscontinuity;
-      hasPendingSeek = false;
       hasPendingDiscontinuity = false;
       updatePlaybackInfo(
           playbackInfoUpdate.playbackInfo,
@@ -932,7 +904,7 @@ import java.util.concurrent.TimeoutException;
           pendingDiscontinuityReason,
           TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
           pendingPlayWhenReadyChangeReason,
-          seekProcessed);
+          /* seekProcessed= */ false);
     }
   }
 
@@ -996,22 +968,25 @@ import java.util.concurrent.TimeoutException;
             seekProcessed));
   }
 
-  @SuppressWarnings("deprecation")
   private void setMediaSourcesInternal(
-      List<MediaSource> mediaItems,
+      List<MediaSource> mediaSources,
       int startWindowIndex,
       long startPositionMs,
       boolean resetToDefaultPosition) {
+    for (int i = 0; i < mediaSources.size(); i++) {
+      Assertions.checkArgument(mediaSources.get(i) != null);
+    }
     int currentWindowIndex = getCurrentWindowIndexInternal();
     long currentPositionMs = getCurrentPosition();
-    boolean currentPlayWhenReady = getPlayWhenReady();
     pendingOperationAcks++;
     if (!mediaSourceHolders.isEmpty()) {
       removeMediaSourceHolders(
           /* fromIndex= */ 0, /* toIndexExclusive= */ mediaSourceHolders.size());
     }
-    List<Playlist.MediaSourceHolder> holders = addMediaSourceHolders(/* index= */ 0, mediaItems);
-    Timeline timeline = maskTimeline();
+    List<MediaSourceList.MediaSourceHolder> holders =
+        addMediaSourceHolders(/* index= */ 0, mediaSources);
+    PlaybackInfo playbackInfo = maskTimeline();
+    Timeline timeline = playbackInfo.timeline;
     if (!timeline.isEmpty() && startWindowIndex >= timeline.getWindowCount()) {
       throw new IllegalSeekPositionException(timeline, startWindowIndex, startPositionMs);
     }
@@ -1025,9 +1000,9 @@ import java.util.concurrent.TimeoutException;
     }
     maskWindowIndexAndPositionForSeek(
         timeline, startWindowIndex == C.INDEX_UNSET ? 0 : startWindowIndex, startPositionMs);
-    // mask the playback state
+    // Mask the playback state.
     int maskingPlaybackState = playbackInfo.playbackState;
-    if (startWindowIndex != C.INDEX_UNSET) {
+    if (startWindowIndex != C.INDEX_UNSET && playbackInfo.playbackState != STATE_IDLE) {
       // Position reset to startWindowIndex (results in pending initial seek).
       if (timeline.isEmpty() || startWindowIndex >= timeline.getWindowCount()) {
         // Setting an empty timeline or invalid seek transitions to ended.
@@ -1036,31 +1011,24 @@ import java.util.concurrent.TimeoutException;
         maskingPlaybackState = STATE_BUFFERING;
       }
     }
-    boolean playbackStateChanged =
-        playbackInfo.playbackState != STATE_IDLE
-            && playbackInfo.playbackState != maskingPlaybackState;
-    int finalMaskingPlaybackState = maskingPlaybackState;
-    if (playbackStateChanged) {
-      playbackInfo = playbackInfo.copyWithPlaybackState(finalMaskingPlaybackState);
-    }
+    playbackInfo = playbackInfo.copyWithPlaybackState(maskingPlaybackState);
     internalPlayer.setMediaSources(
         holders, startWindowIndex, C.msToUs(startPositionMs), shuffleOrder);
-    notifyListeners(
-        listener -> {
-          listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
-          if (playbackStateChanged) {
-            listener.onPlayerStateChanged(currentPlayWhenReady, finalMaskingPlaybackState);
-            listener.onPlaybackStateChanged(finalMaskingPlaybackState);
-          }
-        });
+    updatePlaybackInfo(
+        playbackInfo,
+        /* positionDiscontinuity= */ false,
+        /* ignored */ Player.DISCONTINUITY_REASON_INTERNAL,
+        /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ false);
   }
 
-  private List<Playlist.MediaSourceHolder> addMediaSourceHolders(
+  private List<MediaSourceList.MediaSourceHolder> addMediaSourceHolders(
       int index, List<MediaSource> mediaSources) {
-    List<Playlist.MediaSourceHolder> holders = new ArrayList<>();
+    List<MediaSourceList.MediaSourceHolder> holders = new ArrayList<>();
     for (int i = 0; i < mediaSources.size(); i++) {
-      Playlist.MediaSourceHolder holder =
-          new Playlist.MediaSourceHolder(mediaSources.get(i), useLazyPreparation);
+      MediaSourceList.MediaSourceHolder holder =
+          new MediaSourceList.MediaSourceHolder(mediaSources.get(i), useLazyPreparation);
       holders.add(holder);
       mediaSourceHolders.add(i + index, holder);
     }
@@ -1070,18 +1038,16 @@ import java.util.concurrent.TimeoutException;
     return holders;
   }
 
-  @SuppressWarnings("deprecation")
   private void removeMediaItemsInternal(int fromIndex, int toIndex) {
     Assertions.checkArgument(
         fromIndex >= 0 && toIndex >= fromIndex && toIndex <= mediaSourceHolders.size());
     int currentWindowIndex = getCurrentWindowIndex();
     long currentPositionMs = getCurrentPosition();
-    boolean currentPlayWhenReady = getPlayWhenReady();
     Timeline oldTimeline = getCurrentTimeline();
     int currentMediaSourceCount = mediaSourceHolders.size();
     pendingOperationAcks++;
     removeMediaSourceHolders(fromIndex, /* toIndexExclusive= */ toIndex);
-    Timeline timeline =
+    PlaybackInfo playbackInfo =
         maskTimelineAndWindowIndex(currentWindowIndex, currentPositionMs, oldTimeline);
     // Player transitions to STATE_ENDED if the current index is part of the removed tail.
     final boolean transitionsToEnded =
@@ -1089,24 +1055,23 @@ import java.util.concurrent.TimeoutException;
             && playbackInfo.playbackState != STATE_ENDED
             && fromIndex < toIndex
             && toIndex == currentMediaSourceCount
-            && currentWindowIndex >= timeline.getWindowCount();
+            && currentWindowIndex >= playbackInfo.timeline.getWindowCount();
     if (transitionsToEnded) {
       playbackInfo = playbackInfo.copyWithPlaybackState(STATE_ENDED);
     }
     internalPlayer.removeMediaSources(fromIndex, toIndex, shuffleOrder);
-    notifyListeners(
-        listener -> {
-          listener.onTimelineChanged(timeline, TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
-          if (transitionsToEnded) {
-            listener.onPlayerStateChanged(currentPlayWhenReady, STATE_ENDED);
-            listener.onPlaybackStateChanged(STATE_ENDED);
-          }
-        });
+    updatePlaybackInfo(
+        playbackInfo,
+        /* positionDiscontinuity= */ false,
+        /* ignored */ Player.DISCONTINUITY_REASON_INTERNAL,
+        /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ false);
   }
 
-  private List<Playlist.MediaSourceHolder> removeMediaSourceHolders(
+  private List<MediaSourceList.MediaSourceHolder> removeMediaSourceHolders(
       int fromIndex, int toIndexExclusive) {
-    List<Playlist.MediaSourceHolder> removed = new ArrayList<>();
+    List<MediaSourceList.MediaSourceHolder> removed = new ArrayList<>();
     for (int i = toIndexExclusive - 1; i >= fromIndex; i--) {
       removed.add(mediaSourceHolders.remove(i));
     }
@@ -1114,18 +1079,17 @@ import java.util.concurrent.TimeoutException;
     return removed;
   }
 
-  private Timeline maskTimeline() {
-    playbackInfo =
-        playbackInfo.copyWithTimeline(
-            mediaSourceHolders.isEmpty()
-                ? Timeline.EMPTY
-                : new Playlist.PlaylistTimeline(mediaSourceHolders, shuffleOrder));
-    return playbackInfo.timeline;
+  private PlaybackInfo maskTimeline() {
+    return playbackInfo.copyWithTimeline(
+        mediaSourceHolders.isEmpty()
+            ? Timeline.EMPTY
+            : new MediaSourceList.PlaylistTimeline(mediaSourceHolders, shuffleOrder));
   }
 
-  private Timeline maskTimelineAndWindowIndex(
+  private PlaybackInfo maskTimelineAndWindowIndex(
       int currentWindowIndex, long currentPositionMs, Timeline oldTimeline) {
-    Timeline maskingTimeline = maskTimeline();
+    PlaybackInfo playbackInfo = maskTimeline();
+    Timeline maskingTimeline = playbackInfo.timeline;
     if (oldTimeline.isEmpty()) {
       // The index is the default index or was set by a seek in the empty old timeline.
       maskingWindowIndex = currentWindowIndex;
@@ -1133,7 +1097,7 @@ import java.util.concurrent.TimeoutException;
         // The seek is not valid in the new timeline.
         maskWithDefaultPosition(maskingTimeline);
       }
-      return maskingTimeline;
+      return playbackInfo;
     }
     @Nullable
     Pair<Object, Long> periodPosition =
@@ -1171,7 +1135,7 @@ import java.util.concurrent.TimeoutException;
         maskWithDefaultPosition(maskingTimeline);
       }
     }
-    return maskingTimeline;
+    return playbackInfo;
   }
 
   private void maskWindowIndexAndPositionForSeek(

@@ -17,10 +17,15 @@ package com.google.android.exoplayer2.source;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.util.MimeTypes;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -29,6 +34,7 @@ import org.junit.runner.RunWith;
 public final class DefaultMediaSourceFactoryTest {
 
   private static final String URI_MEDIA = "http://exoplayer.dev/video";
+  private static final String URI_TEXT = "http://exoplayer.dev/text";
 
   @Test
   public void createMediaSource_withoutMimeType_progressiveSource() {
@@ -78,6 +84,96 @@ public final class DefaultMediaSourceFactoryTest {
             .createMediaSource(mediaItem);
 
     assertThat(mediaSource).isNotNull();
+  }
+
+  @Test
+  public void createMediaSource_withSubtitle_isMergingMediaSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    List<MediaItem.Subtitle> subtitles =
+        Arrays.asList(
+            new MediaItem.Subtitle(Uri.parse(URI_TEXT), MimeTypes.APPLICATION_TTML, "en"),
+            new MediaItem.Subtitle(
+                Uri.parse(URI_TEXT), MimeTypes.APPLICATION_TTML, "de", C.SELECTION_FLAG_DEFAULT));
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_MEDIA).setSubtitles(subtitles).build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(MergingMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_withSubtitle_hasTag() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    Object tag = new Object();
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setTag(tag)
+            .setSourceUri(URI_MEDIA)
+            .setSubtitles(
+                Collections.singletonList(
+                    new MediaItem.Subtitle(Uri.parse(URI_TEXT), MimeTypes.APPLICATION_TTML, "en")))
+            .build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource.getTag()).isEqualTo(tag);
+  }
+
+  @Test
+  public void createMediaSource_withStartPosition_isClippingMediaSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_MEDIA).setClipStartPositionMs(1000L).build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(ClippingMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_withEndPosition_isClippingMediaSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem =
+        new MediaItem.Builder().setSourceUri(URI_MEDIA).setClipEndPositionMs(1000L).build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(ClippingMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_relativeToDefaultPosition_isClippingMediaSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setSourceUri(URI_MEDIA)
+            .setClipRelativeToDefaultPosition(true)
+            .build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(ClippingMediaSource.class);
+  }
+
+  @Test
+  public void createMediaSource_defaultToEnd_isNotClippingMediaSource() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setSourceUri(URI_MEDIA)
+            .setClipEndPositionMs(C.TIME_END_OF_SOURCE)
+            .build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource).isInstanceOf(ProgressiveMediaSource.class);
   }
 
   @Test

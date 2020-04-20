@@ -72,6 +72,7 @@ import java.util.ArrayList;
    */
   private static class DebugMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
 
+    private static final String TAG = "DebugMediaCodecVideoRenderer";
     private static final int ARRAY_SIZE = 1000;
 
     private final long[] timestampsList = new long[ARRAY_SIZE];
@@ -96,6 +97,11 @@ import java.util.ArrayList;
           eventHandler,
           eventListener,
           maxDroppedFrameCountToNotify);
+    }
+
+    @Override
+    public String getName() {
+      return TAG;
     }
 
     @Override

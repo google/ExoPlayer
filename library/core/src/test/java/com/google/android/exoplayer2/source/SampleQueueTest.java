@@ -131,7 +131,6 @@ public final class SampleQueueTest {
   private DecoderInputBuffer inputBuffer;
 
   @Before
-  @SuppressWarnings("unchecked")
   public void setUp() {
     allocator = new DefaultAllocator(false, ALLOCATION_SIZE);
     mockDrmSessionManager = Mockito.mock(DrmSessionManager.class);
@@ -369,8 +368,10 @@ public final class SampleQueueTest {
 
     assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
     assertReadNothing(/* formatRequired= */ false);
+    assertThat(inputBuffer.waitingForKeys).isTrue();
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     assertReadEncryptedSample(/* sampleIndex= */ 0);
+    assertThat(inputBuffer.waitingForKeys).isFalse();
   }
 
   @Test
@@ -413,7 +414,6 @@ public final class SampleQueueTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void allowPlaceholderSessionPopulatesDrmSession() {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     DrmSession mockPlaceholderDrmSession = Mockito.mock(DrmSession.class);
@@ -459,7 +459,6 @@ public final class SampleQueueTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void trailingCryptoInfoInitializationVectorBytesZeroed() {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     DrmSession mockPlaceholderDrmSession = Mockito.mock(DrmSession.class);

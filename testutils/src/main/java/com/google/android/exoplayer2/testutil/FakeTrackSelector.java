@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport;
 import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -46,7 +47,7 @@ public class FakeTrackSelector extends DefaultTrackSelector {
   }
 
   private FakeTrackSelector(FakeTrackSelectionFactory fakeTrackSelectionFactory) {
-    super(fakeTrackSelectionFactory);
+    super(ApplicationProvider.getApplicationContext(), fakeTrackSelectionFactory);
     this.fakeTrackSelectionFactory = fakeTrackSelectionFactory;
   }
 

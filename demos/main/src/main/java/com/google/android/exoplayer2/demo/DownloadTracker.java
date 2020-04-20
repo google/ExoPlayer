@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.demo.Sample.UriSample;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadCursor;
 import com.google.android.exoplayer2.offline.DownloadHelper;
@@ -92,12 +93,8 @@ public class DownloadTracker {
   }
 
   public void toggleDownload(
-      FragmentManager fragmentManager,
-      String name,
-      Uri uri,
-      String extension,
-      RenderersFactory renderersFactory) {
-    Download download = downloads.get(uri);
+      FragmentManager fragmentManager, UriSample sample, RenderersFactory renderersFactory) {
+    Download download = downloads.get(sample.uri);
     if (download != null) {
       DownloadService.sendRemoveDownload(
           context, DemoDownloadService.class, download.request.id, /* foreground= */ false);
@@ -107,7 +104,9 @@ public class DownloadTracker {
       }
       startDownloadDialogHelper =
           new StartDownloadDialogHelper(
-              fragmentManager, getDownloadHelper(uri, extension, renderersFactory), name);
+              fragmentManager,
+              getDownloadHelper(sample.uri, sample.extension, renderersFactory),
+              sample);
     }
   }
 
@@ -167,16 +166,16 @@ public class DownloadTracker {
 
     private final FragmentManager fragmentManager;
     private final DownloadHelper downloadHelper;
-    private final String name;
+    private final UriSample sample;
 
     private TrackSelectionDialog trackSelectionDialog;
     private MappedTrackInfo mappedTrackInfo;
 
     public StartDownloadDialogHelper(
-        FragmentManager fragmentManager, DownloadHelper downloadHelper, String name) {
+        FragmentManager fragmentManager, DownloadHelper downloadHelper, UriSample sample) {
       this.fragmentManager = fragmentManager;
       this.downloadHelper = downloadHelper;
-      this.name = name;
+      this.sample = sample;
       downloadHelper.prepare(this);
     }
 
@@ -271,7 +270,7 @@ public class DownloadTracker {
     }
 
     private DownloadRequest buildDownloadRequest() {
-      return downloadHelper.getDownloadRequest(Util.getUtf8Bytes(name));
+      return downloadHelper.getDownloadRequest(Util.getUtf8Bytes(sample.name));
     }
   }
 }

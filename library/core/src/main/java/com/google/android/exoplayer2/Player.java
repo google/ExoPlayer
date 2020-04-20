@@ -27,6 +27,8 @@ import com.google.android.exoplayer2.C.VideoScalingMode;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
+import com.google.android.exoplayer2.device.DeviceInfo;
+import com.google.android.exoplayer2.device.DeviceListener;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
@@ -39,6 +41,7 @@ import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /**
  * A media player interface defining traditional high-level functionality, such as the ability to
@@ -364,6 +367,54 @@ public interface Player {
      * @param output The output to remove.
      */
     void removeMetadataOutput(MetadataOutput output);
+  }
+
+  /** The device component of a {@link Player}. */
+  // Note: It's mostly from the androidx.media.VolumeProviderCompat and
+  //  androidx.media.MediaControllerCompat.PlaybackInfo.
+  interface DeviceComponent {
+
+    /** Adds a listener to receive device events. */
+    void addDeviceListener(DeviceListener listener);
+
+    /** Removes a listener of device events. */
+    void removeDeviceListener(DeviceListener listener);
+
+    /** Gets the device information. */
+    DeviceInfo getDeviceInfo();
+
+    /**
+     * Gets the current volume of the device.
+     *
+     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_LOCAL local playback}, the volume
+     * returned by this method varies according to the current {@link C.StreamType stream type}. The
+     * stream type is determined by {@link AudioAttributes#usage} which can be converted to stream
+     * type with {@link Util#getStreamTypeForAudioUsage(int)}. The audio attributes can be set to
+     * the player by calling {@link AudioComponent#setAudioAttributes}.
+     *
+     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_REMOTE remote playback}, the volume of
+     * the remote device is returned.
+     */
+    int getDeviceVolume();
+
+    /** Gets whether the device is muted or not. */
+    boolean isDeviceMuted();
+
+    /**
+     * Sets the volume of the device.
+     *
+     * @param volume The volume to set.
+     */
+    void setDeviceVolume(int volume);
+
+    /** Increases the volume of the device. */
+    void increaseDeviceVolume();
+
+    /** Decreases the volume of the device. */
+    void decreaseDeviceVolume();
+
+    /** Sets the mute state of the device. */
+    void setDeviceMuted(boolean muted);
   }
 
   /**
@@ -732,6 +783,10 @@ public interface Player {
   @Nullable
   MetadataComponent getMetadataComponent();
 
+  /** Returns the component of this player for playback device, or null if it's not supported. */
+  @Nullable
+  DeviceComponent getDeviceComponent();
+
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
    * player and on which player events are received.
@@ -753,6 +808,134 @@ public interface Player {
    * @param listener The listener to unregister.
    */
   void removeListener(EventListener listener);
+
+  /**
+   * Clears the playlist, adds the specified {@link MediaItem MediaItems} and resets the position to
+   * the default position.
+   *
+   * @param mediaItems The new {@link MediaItem MediaItems}.
+   */
+  void setMediaItems(List<MediaItem> mediaItems);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaItem MediaItems}.
+   *
+   * @param mediaItems The new {@link MediaItem MediaItems}.
+   * @param resetPosition Whether the playback position should be reset to the default position in
+   *     the first {@link Timeline.Window}. If false, playback will start from the position defined
+   *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
+   */
+  void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaItem MediaItems}.
+   *
+   * @param mediaItems The new {@link MediaItem MediaItems}.
+   * @param startWindowIndex The window index to start playback from. If {@link C#INDEX_UNSET} is
+   *     passed, the current position is not reset.
+   * @param startPositionMs The position in milliseconds to start playback from. If {@link
+   *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
+   *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
+   *     position is not reset at all.
+   */
+  void setMediaItems(List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs);
+
+  /**
+   * Clears the playlist, adds the specified {@link MediaItem} and resets the position to the
+   * default position.
+   *
+   * @param mediaItem The new {@link MediaItem}.
+   */
+  void setMediaItem(MediaItem mediaItem);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaItem}.
+   *
+   * @param mediaItem The new {@link MediaItem}.
+   * @param startPositionMs The position in milliseconds to start playback from.
+   */
+  void setMediaItem(MediaItem mediaItem, long startPositionMs);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaItem}.
+   *
+   * @param mediaItem The new {@link MediaItem}.
+   * @param resetPosition Whether the playback position should be reset to the default position. If
+   *     false, playback will start from the position defined by {@link #getCurrentWindowIndex()}
+   *     and {@link #getCurrentPosition()}.
+   */
+  void setMediaItem(MediaItem mediaItem, boolean resetPosition);
+
+  /**
+   * Adds a media item to the end of the playlist.
+   *
+   * @param mediaItem The {@link MediaItem} to add.
+   */
+  void addMediaItem(MediaItem mediaItem);
+
+  /**
+   * Adds a media item at the given index of the playlist.
+   *
+   * @param index The index at which to add the item.
+   * @param mediaItem The {@link MediaItem} to add.
+   */
+  void addMediaItem(int index, MediaItem mediaItem);
+
+  /**
+   * Adds a list of media items to the end of the playlist.
+   *
+   * @param mediaItems The {@link MediaItem MediaItems} to add.
+   */
+  void addMediaItems(List<MediaItem> mediaItems);
+
+  /**
+   * Adds a list of media items at the given index of the playlist.
+   *
+   * @param index The index at which to add the media items.
+   * @param mediaItems The {@link MediaItem MediaItems} to add.
+   */
+  void addMediaItems(int index, List<MediaItem> mediaItems);
+
+  /**
+   * Moves the media item at the current index to the new index.
+   *
+   * @param currentIndex The current index of the media item to move.
+   * @param newIndex The new index of the media item. If the new index is larger than the size of
+   *     the playlist the item is moved to the end of the playlist.
+   */
+  void moveMediaItem(int currentIndex, int newIndex);
+
+  /**
+   * Moves the media item range to the new index.
+   *
+   * @param fromIndex The start of the range to move.
+   * @param toIndex The first item not to be included in the range (exclusive).
+   * @param newIndex The new index of the first media item of the range. If the new index is larger
+   *     than the size of the remaining playlist after removing the range, the range is moved to the
+   *     end of the playlist.
+   */
+  void moveMediaItems(int fromIndex, int toIndex, int newIndex);
+
+  /**
+   * Removes the media item at the given index of the playlist.
+   *
+   * @param index The index at which to remove the media item.
+   */
+  void removeMediaItem(int index);
+
+  /**
+   * Removes a range of media items from the playlist.
+   *
+   * @param fromIndex The index at which to start removing media items.
+   * @param toIndex The index of the first item to be kept (exclusive).
+   */
+  void removeMediaItems(int fromIndex, int toIndex);
+
+  /** Clears the playlist. */
+  void clearMediaItems();
+
+  /** Prepares the player. */
+  void prepare();
 
   /**
    * Returns the current {@link State playback state} of the player.

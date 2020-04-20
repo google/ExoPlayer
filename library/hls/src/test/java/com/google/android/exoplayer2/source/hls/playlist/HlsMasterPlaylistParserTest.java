@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -194,6 +195,35 @@ public class HlsMasterPlaylistParserTest {
           + "#EXT-X-MEDIA:TYPE=SUBTITLES,"
           + "GROUP-ID=\"sub1\",NAME=\"English\",URI=\"s1/en/prog_index.m3u8\"\n";
 
+  private static final String PLAYLIST_WITH_TTML_SUBTITLE =
+      " #EXTM3U\n"
+          + "\n"
+          + "#EXT-X-VERSION:6\n"
+          + "\n"
+          + "#EXT-X-INDEPENDENT-SEGMENTS\n"
+          + "\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,CODECS=\"stpp.ttml.im1t,mp4a.40.2,avc1.66.30\",RESOLUTION=304x128,AUDIO=\"aud1\",SUBTITLES=\"sub1\"\n"
+          + "http://example.com/low.m3u8\n"
+          + "\n"
+          + "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"aud1\",NAME=\"English\",URI=\"a1/index.m3u8\"\n"
+          + "#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"sub1\",NAME=\"English\",AUTOSELECT=YES,DEFAULT=YES,URI=\"s1/en/prog_index.m3u8\"\n";
+
+  private static final String PLAYLIST_WITH_IFRAME_VARIANTS =
+      "#EXTM3U\n"
+          + "#EXT-X-VERSION:5\n"
+          + "#EXT-X-MEDIA:URI=\"AUDIO_English/index.m3u8\",TYPE=AUDIO,GROUP-ID=\"audio-aac\",LANGUAGE=\"en\",NAME=\"English\",AUTOSELECT=YES\n"
+          + "#EXT-X-MEDIA:URI=\"AUDIO_Spanish/index.m3u8\",TYPE=AUDIO,GROUP-ID=\"audio-aac\",LANGUAGE=\"es\",NAME=\"Spanish\",AUTOSELECT=YES\n"
+          + "#EXT-X-MEDIA:TYPE=CLOSED-CAPTIONS,GROUP-ID=\"cc1\",LANGUAGE=\"en\",NAME=\"English\",AUTOSELECT=YES,DEFAULT=YES,INSTREAM-ID=\"CC1\"\n"
+          + "#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=400000,RESOLUTION=480x320,CODECS=\"mp4a.40.2,avc1.640015\",AUDIO=\"audio-aac\",CLOSED-CAPTIONS=\"cc1\"\n"
+          + "400000/index.m3u8\n"
+          + "#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1000000,RESOLUTION=848x480,CODECS=\"mp4a.40.2,avc1.64001f\",AUDIO=\"audio-aac\",CLOSED-CAPTIONS=\"cc1\"\n"
+          + "1000000/index.m3u8\n"
+          + "#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=3220000,RESOLUTION=1280x720,CODECS=\"mp4a.40.2,avc1.64001f\",AUDIO=\"audio-aac\",CLOSED-CAPTIONS=\"cc1\"\n"
+          + "3220000/index.m3u8\n"
+          + "#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=8940000,RESOLUTION=1920x1080,CODECS=\"mp4a.40.2,avc1.640028\",AUDIO=\"audio-aac\",CLOSED-CAPTIONS=\"cc1\"\n"
+          + "8940000/index.m3u8\n"
+          + "#EXT-X-I-FRAME-STREAM-INF:BANDWIDTH=1313400,RESOLUTION=1920x1080,CODECS=\"avc1.640028\",URI=\"iframe_1313400/index.m3u8\"\n";
+
   @Test
   public void parseMasterPlaylist_withSimple_success() throws IOException {
     HlsMasterPlaylist masterPlaylist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_SIMPLE);
@@ -321,6 +351,7 @@ public class HlsMasterPlaylistParserTest {
 
     Format firstTextFormat = playlist.subtitles.get(0).format;
     assertThat(firstTextFormat.id).isEqualTo("sub1:Eng");
+    assertThat(firstTextFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_VTT);
   }
 
   @Test
@@ -343,6 +374,18 @@ public class HlsMasterPlaylistParserTest {
     assertThat(variant.format.codecs).isEqualTo("mp4a.40.5");
     assertThat(variant.url)
         .isEqualTo(Uri.parse("http://example.com/This/{$nested}/reference/shouldnt/work"));
+  }
+
+  @Test
+  public void parseMasterPlaylist_withTtmlSubtitle() throws IOException {
+    HlsMasterPlaylist playlistWithTtmlSubtitle =
+        parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_TTML_SUBTITLE);
+    HlsMasterPlaylist.Variant variant = playlistWithTtmlSubtitle.variants.get(0);
+    Format firstTextFormat = playlistWithTtmlSubtitle.subtitles.get(0).format;
+    assertThat(firstTextFormat.id).isEqualTo("sub1:English");
+    assertThat(firstTextFormat.containerMimeType).isEqualTo(MimeTypes.APPLICATION_M3U8);
+    assertThat(firstTextFormat.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
+    assertThat(variant.format.codecs).isEqualTo("stpp.ttml.im1t,mp4a.40.2,avc1.66.30");
   }
 
   @Test
@@ -379,6 +422,19 @@ public class HlsMasterPlaylistParserTest {
         .isEqualTo(createExtXMediaMetadata(/* groupId= */ "aud2", /* name= */ "English"));
     assertThat(playlist.audios.get(2).format.metadata)
         .isEqualTo(createExtXMediaMetadata(/* groupId= */ "aud3", /* name= */ "English"));
+  }
+
+  @Test
+  public void testIFrameVariant() throws IOException {
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_IFRAME_VARIANTS);
+    assertThat(playlist.variants).hasSize(5);
+    for (int i = 0; i < 4; i++) {
+      assertThat(playlist.variants.get(i).format.roleFlags).isEqualTo(0);
+    }
+    Variant iFramesOnlyVariant = playlist.variants.get(4);
+    assertThat(iFramesOnlyVariant.format.bitrate).isEqualTo(1313400);
+    assertThat(iFramesOnlyVariant.format.roleFlags & C.ROLE_FLAG_TRICK_PLAY)
+        .isEqualTo(C.ROLE_FLAG_TRICK_PLAY);
   }
 
   private static Metadata createExtXStreamInfMetadata(HlsTrackMetadataEntry.VariantInfo... infos) {

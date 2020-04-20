@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Supplier;
 import com.google.android.exoplayer2.util.Util;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,9 +35,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Default {@link PlaybackSessionManager} which instantiates a new session for each window in the
  * timeline and also for each ad within the windows.
  *
- * <p>Sessions are identified by Base64-encoded, URL-safe, random strings.
+ * <p>By default, sessions are identified by Base64-encoded, URL-safe, random strings.
  */
 public final class DefaultPlaybackSessionManager implements PlaybackSessionManager {
+
+  /** Default generator for unique session ids that are random, Based64-encoded and URL-safe. */
+  public static final Supplier<String> DEFAULT_SESSION_ID_GENERATOR =
+      DefaultPlaybackSessionManager::generateDefaultSessionId;
 
   private static final Random RANDOM = new Random();
   private static final int SESSION_ID_LENGTH = 12;
@@ -44,13 +49,27 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
   private final Timeline.Window window;
   private final Timeline.Period period;
   private final HashMap<String, SessionDescriptor> sessions;
+  private final Supplier<String> sessionIdGenerator;
 
   private @MonotonicNonNull Listener listener;
   private Timeline currentTimeline;
   @Nullable private String currentSessionId;
 
-  /** Creates session manager. */
+  /**
+   * Creates session manager with a {@link #DEFAULT_SESSION_ID_GENERATOR} to generate session ids.
+   */
   public DefaultPlaybackSessionManager() {
+    this(DEFAULT_SESSION_ID_GENERATOR);
+  }
+
+  /**
+   * Creates session manager.
+   *
+   * @param sessionIdGenerator A generator for new session ids. All generated session ids must be
+   *     unique.
+   */
+  public DefaultPlaybackSessionManager(Supplier<String> sessionIdGenerator) {
+    this.sessionIdGenerator = sessionIdGenerator;
     window = new Timeline.Window();
     period = new Timeline.Period();
     sessions = new HashMap<>();
@@ -207,14 +226,14 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
       }
     }
     if (bestMatch == null) {
-      String sessionId = generateSessionId();
+      String sessionId = sessionIdGenerator.get();
       bestMatch = new SessionDescriptor(sessionId, windowIndex, mediaPeriodId);
       sessions.put(sessionId, bestMatch);
     }
     return bestMatch;
   }
 
-  private static String generateSessionId() {
+  private static String generateDefaultSessionId() {
     byte[] randomBytes = new byte[SESSION_ID_LENGTH];
     RANDOM.nextBytes(randomBytes);
     return Base64.encodeToString(randomBytes, Base64.URL_SAFE | Base64.NO_WRAP);

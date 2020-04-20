@@ -798,7 +798,7 @@ public final class DownloadHelper {
   }
 
   // Initialization of array of Lists.
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings("unchecked")
   private void onMediaPrepared() {
     Assertions.checkNotNull(mediaPreparer);
     Assertions.checkNotNull(mediaPreparer.mediaPeriods);
@@ -993,7 +993,7 @@ public final class DownloadHelper {
       @SuppressWarnings("methodref.receiver.bound.invalid")
       Handler downloadThreadHandler = Util.createHandler(this::handleDownloadHelperCallbackMessage);
       this.downloadHelperHandler = downloadThreadHandler;
-      mediaSourceThread = new HandlerThread("DownloadHelper");
+      mediaSourceThread = new HandlerThread("ExoPlayer:DownloadHelper");
       mediaSourceThread.start();
       mediaSourceHandler = Util.createHandler(mediaSourceThread.getLooper(), /* callback= */ this);
       mediaSourceHandler.sendEmptyMessage(MESSAGE_PREPARE_SOURCE);

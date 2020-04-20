@@ -104,7 +104,6 @@ public final class OfflineLicenseHelper {
    * @return A new instance which uses Widevine CDM.
    * @see DefaultDrmSessionManager.Builder
    */
-  @SuppressWarnings("unchecked")
   public static OfflineLicenseHelper newWidevineInstance(
       String defaultLicenseUrl,
       boolean forceDefaultLicenseUrl,
@@ -125,7 +124,6 @@ public final class OfflineLicenseHelper {
    *     MediaSourceEventDispatcher)} instead.
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
   public OfflineLicenseHelper(
       UUID uuid,
       ExoMediaDrm.Provider mediaDrmProvider,
@@ -152,7 +150,7 @@ public final class OfflineLicenseHelper {
       MediaSourceEventDispatcher eventDispatcher) {
     this.drmSessionManager = defaultDrmSessionManager;
     this.eventDispatcher = eventDispatcher;
-    handlerThread = new HandlerThread("OfflineLicenseHelper");
+    handlerThread = new HandlerThread("ExoPlayer:OfflineLicenseHelper");
     handlerThread.start();
     conditionVariable = new ConditionVariable();
     DrmSessionEventListener eventListener =
@@ -177,7 +175,8 @@ public final class OfflineLicenseHelper {
             conditionVariable.open();
           }
         };
-    drmSessionManager.addListener(new Handler(handlerThread.getLooper()), eventListener);
+    eventDispatcher.addEventListener(
+        new Handler(handlerThread.getLooper()), eventListener, DrmSessionEventListener.class);
   }
 
   /**

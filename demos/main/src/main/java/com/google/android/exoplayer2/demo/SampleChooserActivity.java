@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.demo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -35,6 +36,7 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.ParserException;
@@ -66,6 +68,7 @@ public class SampleChooserActivity extends AppCompatActivity
   private static final String GROUP_POSITION_PREFERENCE_KEY = "SAMPLE_CHOOSER_GROUP_POSITION";
   private static final String CHILD_POSITION_PREFERENCE_KEY = "SAMPLE_CHOOSER_CHILD_POSITION";
 
+  private String[] uris;
   private boolean useExtensionRenderers;
   private DownloadTracker downloadTracker;
   private SampleAdapter sampleAdapter;
@@ -86,7 +89,6 @@ public class SampleChooserActivity extends AppCompatActivity
 
     Intent intent = getIntent();
     String dataUri = intent.getDataString();
-    String[] uris;
     if (dataUri != null) {
       uris = new String[] {dataUri};
     } else {
@@ -110,8 +112,7 @@ public class SampleChooserActivity extends AppCompatActivity
     DemoApplication application = (DemoApplication) getApplication();
     useExtensionRenderers = application.useExtensionRenderers();
     downloadTracker = application.getDownloadTracker();
-    SampleListLoader loaderTask = new SampleListLoader();
-    loaderTask.execute(uris);
+    loadSample();
 
     // Start the download service if it should be running but it's not currently.
     // Starting the service in the foreground causes notification flicker if there is no scheduled
@@ -160,6 +161,38 @@ public class SampleChooserActivity extends AppCompatActivity
   @Override
   public void onDownloadsChanged() {
     sampleAdapter.notifyDataSetChanged();
+  }
+
+  @Override
+  public void onRequestPermissionsResult(
+      int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    if (grantResults.length == 0) {
+      // Empty results are triggered if a permission is requested while another request was already
+      // pending and can be safely ignored in this case.
+      return;
+    }
+    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+      loadSample();
+    } else {
+      Toast.makeText(getApplicationContext(), R.string.sample_list_load_error, Toast.LENGTH_LONG)
+          .show();
+      finish();
+    }
+  }
+
+  private void loadSample() {
+    Assertions.checkNotNull(uris);
+
+    for (int i = 0; i < uris.length; i++) {
+      Uri uri = Uri.parse(uris[i]);
+      if (Util.maybeRequestReadExternalStoragePermission(this, uri)) {
+        return;
+      }
+    }
+
+    SampleListLoader loaderTask = new SampleListLoader();
+    loaderTask.execute(uris);
   }
 
   private void onSampleGroups(final List<SampleGroup> groups, boolean sawError) {
@@ -216,16 +249,11 @@ public class SampleChooserActivity extends AppCompatActivity
       Toast.makeText(getApplicationContext(), downloadUnsupportedStringId, Toast.LENGTH_LONG)
           .show();
     } else {
-      UriSample uriSample = (UriSample) sample;
       RenderersFactory renderersFactory =
           ((DemoApplication) getApplication())
               .buildRenderersFactory(isNonNullAndChecked(preferExtensionDecodersMenuItem));
       downloadTracker.toggleDownload(
-          getSupportFragmentManager(),
-          sample.name,
-          uriSample.uri,
-          uriSample.extension,
-          renderersFactory);
+          getSupportFragmentManager(), (UriSample) sample, renderersFactory);
     }
   }
 
@@ -461,7 +489,6 @@ public class SampleChooserActivity extends AppCompatActivity
       groups.add(group);
       return group;
     }
-
   }
 
   private final class SampleAdapter extends BaseExpandableListAdapter implements OnClickListener {
@@ -488,8 +515,12 @@ public class SampleChooserActivity extends AppCompatActivity
     }
 
     @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
-        View convertView, ViewGroup parent) {
+    public View getChildView(
+        int groupPosition,
+        int childPosition,
+        boolean isLastChild,
+        View convertView,
+        ViewGroup parent) {
       View view = convertView;
       if (view == null) {
         view = getLayoutInflater().inflate(R.layout.sample_list_item, parent, false);
@@ -517,8 +548,8 @@ public class SampleChooserActivity extends AppCompatActivity
     }
 
     @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
-        ViewGroup parent) {
+    public View getGroupView(
+        int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
       View view = convertView;
       if (view == null) {
         view =
@@ -574,6 +605,5 @@ public class SampleChooserActivity extends AppCompatActivity
       this.title = title;
       this.samples = new ArrayList<>();
     }
-
   }
 }

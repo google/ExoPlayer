@@ -45,10 +45,10 @@ import com.google.android.exoplayer2.testutil.Action.Stop;
 import com.google.android.exoplayer2.testutil.Action.ThrowPlaybackException;
 import com.google.android.exoplayer2.testutil.Action.WaitForIsLoading;
 import com.google.android.exoplayer2.testutil.Action.WaitForMessage;
+import com.google.android.exoplayer2.testutil.Action.WaitForPendingPlayerCommands;
 import com.google.android.exoplayer2.testutil.Action.WaitForPlayWhenReady;
 import com.google.android.exoplayer2.testutil.Action.WaitForPlaybackState;
 import com.google.android.exoplayer2.testutil.Action.WaitForPositionDiscontinuity;
-import com.google.android.exoplayer2.testutil.Action.WaitForSeekProcessed;
 import com.google.android.exoplayer2.testutil.Action.WaitForTimelineChanged;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
@@ -198,17 +198,19 @@ public final class ActionSchedule {
      */
     public Builder seekAndWait(long positionMs) {
       return apply(new Seek(tag, positionMs))
-          .apply(new WaitForSeekProcessed(tag))
           .apply(new WaitForPlaybackState(tag, Player.STATE_READY));
     }
 
     /**
-     * Schedules a delay until the player indicates that a seek has been processed.
+     * Schedules a delay until all pending player commands have been handled.
+     *
+     * <p>A command is considered as having been handled if it arrived on the playback thread and
+     * the player acknowledged that it received the command back to the app thread.
      *
      * @return The builder, for convenience.
      */
-    public Builder waitForSeekProcessed() {
-      return apply(new WaitForSeekProcessed(tag));
+    public Builder waitForPendingPlayerCommands() {
+      return apply(new WaitForPendingPlayerCommands(tag));
     }
 
     /**

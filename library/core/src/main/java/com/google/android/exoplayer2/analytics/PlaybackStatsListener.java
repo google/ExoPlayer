@@ -50,7 +50,7 @@ import java.util.Map;
  * <p>For accurate measurements, the listener should be added to the player before loading media,
  * i.e., {@link Player#getPlaybackState()} should be {@link Player#STATE_IDLE}.
  *
- * <p>Playback stats are gathered separately for all playback session, i.e. each window in the
+ * <p>Playback stats are gathered separately for each playback session, i.e. each window in the
  * {@link Timeline} and each single ad.
  */
 public final class PlaybackStatsListener
@@ -173,8 +173,8 @@ public final class PlaybackStatsListener
     if (isSeeking) {
       tracker.onSeekStarted(eventTime, /* belongsToPlayback= */ true);
     }
-    tracker.onPlayerStateChanged(
-        eventTime, playWhenReady, playbackState, /* belongsToPlayback= */ true);
+    tracker.onPlaybackStateChanged(eventTime, playbackState, /* belongsToPlayback= */ true);
+    tracker.onPlayWhenReadyChanged(eventTime, playWhenReady, /* belongsToPlayback= */ true);
     tracker.onIsSuppressedChanged(eventTime, isSuppressed, /* belongsToPlayback= */ true);
     tracker.onPlaybackSpeedChanged(eventTime, playbackSpeed);
     playbackStatsTrackers.put(session, tracker);
@@ -230,8 +230,7 @@ public final class PlaybackStatsListener
     EventTime startEventTime = Assertions.checkNotNull(sessionStartEventTimes.remove(session));
     if (automaticTransition) {
       // Simulate ENDED state to record natural ending of playback.
-      tracker.onPlayerStateChanged(
-          eventTime, /* playWhenReady= */ true, Player.STATE_ENDED, /* belongsToPlayback= */ false);
+      tracker.onPlaybackStateChanged(eventTime, Player.STATE_ENDED, /* belongsToPlayback= */ false);
     }
     tracker.onFinished(eventTime);
     PlaybackStats playbackStats = tracker.build(/* isFinal= */ true);
@@ -244,16 +243,27 @@ public final class PlaybackStatsListener
   // AnalyticsListener implementation.
 
   @Override
-  public void onPlayerStateChanged(
-      EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {
-    this.playWhenReady = playWhenReady;
-    this.playbackState = playbackState;
+  public void onPlaybackStateChanged(EventTime eventTime, @Player.State int state) {
+    playbackState = state;
     sessionManager.updateSessions(eventTime);
     for (String session : playbackStatsTrackers.keySet()) {
       boolean belongsToPlayback = sessionManager.belongsToSession(eventTime, session);
       playbackStatsTrackers
           .get(session)
-          .onPlayerStateChanged(eventTime, playWhenReady, playbackState, belongsToPlayback);
+          .onPlaybackStateChanged(eventTime, playbackState, belongsToPlayback);
+    }
+  }
+
+  @Override
+  public void onPlayWhenReadyChanged(
+      EventTime eventTime, boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
+    this.playWhenReady = playWhenReady;
+    sessionManager.updateSessions(eventTime);
+    for (String session : playbackStatsTrackers.keySet()) {
+      boolean belongsToPlayback = sessionManager.belongsToSession(eventTime, session);
+      playbackStatsTrackers
+          .get(session)
+          .onPlayWhenReadyChanged(eventTime, playWhenReady, belongsToPlayback);
     }
   }
 
@@ -521,27 +531,36 @@ public final class PlaybackStatsListener
     }
 
     /**
-     * Notifies the tracker of a player state change event, including all player state changes while
-     * the playback is not in the foreground.
+     * Notifies the tracker of a playback state change event, including all playback state changes
+     * while the playback is not in the foreground.
+     *
+     * @param eventTime The {@link EventTime}.
+     * @param state The current {@link Player.State}.
+     * @param belongsToPlayback Whether the {@code eventTime} belongs to the current playback.
+     */
+    public void onPlaybackStateChanged(
+        EventTime eventTime, @Player.State int state, boolean belongsToPlayback) {
+      playerPlaybackState = state;
+      if (state != Player.STATE_IDLE) {
+        hasFatalError = false;
+      }
+      if (state == Player.STATE_IDLE || state == Player.STATE_ENDED) {
+        isInterruptedByAd = false;
+      }
+      maybeUpdatePlaybackState(eventTime, belongsToPlayback);
+    }
+
+    /**
+     * Notifies the tracker of a play when ready change event, including all play when ready changes
+     * while the playback is not in the foreground.
      *
      * @param eventTime The {@link EventTime}.
      * @param playWhenReady Whether the playback will proceed when ready.
-     * @param playbackState The current {@link Player.State}.
      * @param belongsToPlayback Whether the {@code eventTime} belongs to the current playback.
      */
-    public void onPlayerStateChanged(
-        EventTime eventTime,
-        boolean playWhenReady,
-        @Player.State int playbackState,
-        boolean belongsToPlayback) {
+    public void onPlayWhenReadyChanged(
+        EventTime eventTime, boolean playWhenReady, boolean belongsToPlayback) {
       this.playWhenReady = playWhenReady;
-      playerPlaybackState = playbackState;
-      if (playbackState != Player.STATE_IDLE) {
-        hasFatalError = false;
-      }
-      if (playbackState == Player.STATE_IDLE || playbackState == Player.STATE_ENDED) {
-        isInterruptedByAd = false;
-      }
       maybeUpdatePlaybackState(eventTime, belongsToPlayback);
     }
 
@@ -944,6 +963,9 @@ public final class PlaybackStatsListener
     }
 
     private void maybeUpdateMediaTimeHistory(long realtimeMs, long mediaTimeMs) {
+      if (!keepHistory) {
+        return;
+      }
       if (currentPlaybackState != PlaybackStats.PLAYBACK_STATE_PLAYING) {
         if (mediaTimeMs == C.TIME_UNSET) {
           return;

@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Selecti
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -1547,6 +1548,11 @@ public final class DefaultTrackSelectorTest {
     }
 
     @Override
+    public String getName() {
+      return "FakeRenderer(" + Util.getTrackTypeString(trackType) + ")";
+    }
+
+    @Override
     public int getTrackType() {
       return trackType;
     }
@@ -1588,6 +1594,11 @@ public final class DefaultTrackSelectorTest {
     FakeMappedRendererCapabilities(int trackType, Map<String, Integer> formatToCapability) {
       this.trackType = trackType;
       this.formatToCapability = new HashMap<>(formatToCapability);
+    }
+
+    @Override
+    public String getName() {
+      return "FakeRenderer(" + Util.getTrackTypeString(trackType) + ")";
     }
 
     @Override

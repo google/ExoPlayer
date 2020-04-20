@@ -115,6 +115,11 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
   }
 
   @Override
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
   @RendererCapabilities.Capabilities
   public final int supportsFormat(Format format) {
     String mimeType = Assertions.checkNotNull(format.sampleMimeType);
@@ -136,7 +141,7 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
   protected Decoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, FfmpegDecoderException>
       createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
           throws FfmpegDecoderException {
-    TraceUtil.beginSection("createGav1Decoder");
+    TraceUtil.beginSection("createFfmpegVideoDecoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     FfmpegVideoDecoder decoder =

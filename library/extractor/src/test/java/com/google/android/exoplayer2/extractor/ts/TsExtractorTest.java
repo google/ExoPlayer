@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -44,17 +45,33 @@ import org.junit.runner.RunWith;
 public final class TsExtractorTest {
 
   @Test
-  public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample.ts");
+  public void sampleWithH262AndMpegAudio() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h262_mpeg_audio.ts");
   }
 
   @Test
-  public void sampleScte35() throws Exception {
+  public void sampleWithH264AndMpegAudio() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h264_mpeg_audio.ts");
+  }
+
+  @Test
+  public void sampleWithH265() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h265.ts");
+  }
+
+  @Test
+  @Ignore
+  // TODO(internal: b/153539929) Re-enable when ExtractorAsserts is less strict around repeated
+  // formats and seeking.
+  public void sampleWithScte35() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_scte35.ts");
   }
 
   @Test
-  public void withAit() throws Exception {
+  @Ignore
+  // TODO(internal: b/153539929) Re-enable when ExtractorAsserts is less strict around repeated
+  // formats and seeking.
+  public void sampleWithAit() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ait.ts");
   }
 
@@ -79,6 +96,11 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void sampleWithLatm() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_latm.ts");
+  }
+
+  @Test
   public void streamWithJunkData() throws Exception {
     ExtractorAsserts.assertBehavior(
         TsExtractor::new, "ts/sample_with_junk", ApplicationProvider.getApplicationContext());
@@ -92,7 +114,8 @@ public final class TsExtractorTest {
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
             .setData(
-                TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "ts/sample.ts"))
+                TestUtil.getByteArray(
+                    ApplicationProvider.getApplicationContext(), "ts/sample_h262_mpeg_audio.ts"))
             .setSimulateIOErrors(false)
             .setSimulateUnknownLength(false)
             .setSimulatePartialReads(false)

@@ -318,7 +318,6 @@ public final class ImaAdsLoader
   @Nullable private final AdEventListener adEventListener;
   private final ImaFactory imaFactory;
   private final Timeline.Period period;
-  private final Timeline.Window window;
   private final List<VideoAdPlayerCallback> adCallbacks;
   private final AdDisplayContainer adDisplayContainer;
   private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
@@ -470,7 +469,6 @@ public final class ImaAdsLoader
     imaSdkSettings.setPlayerType(IMA_SDK_SETTINGS_PLAYER_TYPE);
     imaSdkSettings.setPlayerVersion(IMA_SDK_SETTINGS_PLAYER_VERSION);
     period = new Timeline.Period();
-    window = new Timeline.Window();
     adCallbacks = new ArrayList<>(/* initialCapacity= */ 1);
     adDisplayContainer = imaFactory.createAdDisplayContainer();
     adDisplayContainer.setPlayer(/* videoAdPlayer= */ this);

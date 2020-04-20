@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -167,6 +168,11 @@ public final class MappingTrackSelectorTest {
 
     public FakeRendererCapabilities(int trackType) {
       this.trackType = trackType;
+    }
+
+    @Override
+    public String getName() {
+      return "FakeRenderer(" + Util.getTrackTypeString(trackType) + ")";
     }
 
     @Override

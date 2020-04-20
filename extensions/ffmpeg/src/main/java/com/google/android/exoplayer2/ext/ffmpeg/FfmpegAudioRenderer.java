@@ -27,10 +27,13 @@ import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.TraceUtil;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Decodes and renders audio using FFmpeg. */
 public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
+
+  private static final String TAG = "FfmpegAudioRenderer";
 
   /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
@@ -89,6 +92,11 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
   }
 
   @Override
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
   @FormatSupport
   protected int supportsFormatInternal(Format format) {
     String mimeType = Assertions.checkNotNull(format.sampleMimeType);
@@ -112,11 +120,13 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
   @Override
   protected FfmpegAudioDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws FfmpegDecoderException {
+    TraceUtil.beginSection("createFfmpegAudioDecoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     decoder =
         new FfmpegAudioDecoder(
             NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, format, shouldUseFloatOutput(format));
+    TraceUtil.endSection();
     return decoder;
   }
 

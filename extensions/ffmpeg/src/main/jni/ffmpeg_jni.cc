@@ -40,35 +40,35 @@ extern "C" {
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, LOG_TAG, \
                    __VA_ARGS__))
 
-#define AUDIO_DECODER_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...)                              \
+  extern "C" {                                                            \
+  JNIEXPORT RETURN_TYPE                                                   \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                      \
+  }                                                                       \
+  JNIEXPORT RETURN_TYPE                                                   \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
-#define VIDEO_DECODER_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegVideoDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegVideoDecoder_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define AUDIO_DECODER_FUNC(RETURN_TYPE, NAME, ...)                             \
+  extern "C" {                                                                 \
+  JNIEXPORT RETURN_TYPE                                                        \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                           \
+  }                                                                            \
+  JNIEXPORT RETURN_TYPE                                                        \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegAudioDecoder_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
-#define LIBRARY_FUNC(RETURN_TYPE, NAME, ...) \
-  extern "C" { \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__);\
-  } \
-  JNIEXPORT RETURN_TYPE \
-    Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegLibrary_ ## NAME \
-      (JNIEnv* env, jobject thiz, ##__VA_ARGS__)\
+#define VIDEO_DECODER_FUNC(RETURN_TYPE, NAME, ...)                             \
+  extern "C" {                                                                 \
+  JNIEXPORT RETURN_TYPE                                                        \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegVideoDecoder_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__);                           \
+  }                                                                            \
+  JNIEXPORT RETURN_TYPE                                                        \
+      Java_com_google_android_exoplayer2_ext_ffmpeg_FfmpegVideoDecoder_##NAME( \
+          JNIEnv *env, jobject thiz, ##__VA_ARGS__)
 
 #define ERROR_STRING_BUFFER_LENGTH 256
 
@@ -77,13 +77,20 @@ static const AVSampleFormat OUTPUT_FORMAT_PCM_16BIT = AV_SAMPLE_FMT_S16;
 // Output format corresponding to AudioFormat.ENCODING_PCM_FLOAT.
 static const AVSampleFormat OUTPUT_FORMAT_PCM_FLOAT = AV_SAMPLE_FMT_FLT;
 
-// Error codes matching FfmpegAudioDecoder.java.
-static const int DECODER_ERROR_INVALID_DATA = -1;
-static const int DECODER_ERROR_OTHER = -2;
+// LINT.IfChange
+static const int AUDIO_DECODER_ERROR_INVALID_DATA = -1;
+static const int AUDIO_DECODER_ERROR_OTHER = -2;
+// LINT.ThenChange(../java/com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioDecoder.java)
 
 // Error codes matching FfmpegVideoDecoder.java.
-static const int DECODER_SUCCESS = 0;
-static const int DECODER_ERROR_READ_FRAME = -3;
+
+// LINT.IfChange
+static const int VIDEO_DECODER_SUCCESS = 0;
+static const int VIDEO_DECODER_ERROR_INVALID_DATA = -1;
+static const int VIDEO_DECODER_ERROR_OTHER = -2;
+static const int VIDEO_DECODER_ERROR_READ_FRAME = -3;
+static const int VIDEO_DECODER_ERROR_SEND_PACKET = -4;
+// LINT.ThenChange(../java/com/google/android/exoplayer2/ext/ffmpeg/FfmpegVideoDecoder.java)
 
 /**
  * Returns the AVCodec with the specified name, or NULL if it is not available.
@@ -101,7 +108,8 @@ AVCodecContext *createContext(JNIEnv *env, AVCodec *codec, jbyteArray extraData,
 
 /**
  * Decodes the packet into the output buffer, returning the number of bytes
- * written, or a negative DECODER_ERROR constant value in the case of an error.
+ * written, or a negative AUDIO_DECODER_ERROR constant value in the case of an
+ * error.
  */
 int decodePacket(AVCodecContext *context, AVPacket *packet,
                  uint8_t *outputBuffer, int outputSize);
@@ -133,8 +141,9 @@ LIBRARY_FUNC(jboolean, ffmpegHasDecoder, jstring codecName) {
   return getCodecByName(env, codecName) != NULL;
 }
 
-AUDIO_DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName, jbyteArray extraData,
-             jboolean outputFloat, jint rawSampleRate, jint rawChannelCount) {
+AUDIO_DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName,
+                   jbyteArray extraData, jboolean outputFloat,
+                   jint rawSampleRate, jint rawChannelCount) {
   AVCodec *codec = getCodecByName(env, codecName);
   if (!codec) {
     LOGE("Codec not found.");
@@ -145,7 +154,7 @@ AUDIO_DECODER_FUNC(jlong, ffmpegInitialize, jstring codecName, jbyteArray extraD
 }
 
 AUDIO_DECODER_FUNC(jint, ffmpegDecode, jlong context, jobject inputData,
-    jint inputSize, jobject outputData, jint outputSize) {
+                   jint inputSize, jobject outputData, jint outputSize) {
   if (!context) {
     LOGE("Context must be non-NULL.");
     return -1;
@@ -277,8 +286,8 @@ int decodePacket(AVCodecContext *context, AVPacket *packet,
   result = avcodec_send_packet(context, packet);
   if (result) {
     logError("avcodec_send_packet", result);
-    return result == AVERROR_INVALIDDATA ? DECODER_ERROR_INVALID_DATA
-                                         : DECODER_ERROR_OTHER;
+    return result == AVERROR_INVALIDDATA ? AUDIO_DECODER_ERROR_INVALID_DATA
+                                         : AUDIO_DECODER_ERROR_OTHER;
   }
 
   // Dequeue output data until it runs out.
@@ -549,12 +558,12 @@ VIDEO_DECODER_FUNC(jint, ffmpegSendPacket, jlong jContext, jobject encodedData,
     logError("avcodec_send_packet", result);
     if (result == AVERROR_INVALIDDATA) {
       // need more data
-      return DECODER_ERROR_INVALID_DATA;
+      return VIDEO_DECODER_ERROR_INVALID_DATA;
     } else if (result == AVERROR(EAGAIN)) {
       // need read frame
-      return DECODER_ERROR_READ_FRAME;
+      return VIDEO_DECODER_ERROR_READ_FRAME;
     } else {
-      return DECODER_ERROR_OTHER;
+      return VIDEO_DECODER_ERROR_OTHER;
     }
   }
   return result;
@@ -569,7 +578,7 @@ VIDEO_DECODER_FUNC(jint, ffmpegReceiveFrame, jlong jContext, jint outputMode, jo
   AVFrame *frame = av_frame_alloc();
   if (!frame) {
     LOGE("Failed to allocate output frame.");
-    return DECODER_ERROR_OTHER;
+    return VIDEO_DECODER_ERROR_OTHER;
   }
   result = avcodec_receive_frame(avContext, frame);
 
@@ -578,12 +587,12 @@ VIDEO_DECODER_FUNC(jint, ffmpegReceiveFrame, jlong jContext, jint outputMode, jo
     // This is not an error. The input data was decode-only or no displayable
     // frames are available.
     av_frame_free(&frame);
-    return DECODER_ERROR_INVALID_DATA;
+    return VIDEO_DECODER_ERROR_INVALID_DATA;
   }
   if (result) {
     av_frame_free(&frame);
     logError("avcodec_receive_frame", result);
-    return DECODER_ERROR_OTHER;
+    return VIDEO_DECODER_ERROR_OTHER;
   }
 
   // success
@@ -599,10 +608,10 @@ VIDEO_DECODER_FUNC(jint, ffmpegReceiveFrame, jlong jContext, jint outputMode, jo
       0);
   if (env->ExceptionCheck()) {
     // Exception is thrown in Java when returning from the native call.
-    return DECODER_ERROR_OTHER;
+    return VIDEO_DECODER_ERROR_OTHER;
   }
   if (!init_result) {
-    return DECODER_ERROR_OTHER;
+    return VIDEO_DECODER_ERROR_OTHER;
   }
 
   const jobject data_object = env->GetObjectField(jOutputBuffer, jniContext->data_field);
@@ -626,7 +635,7 @@ VIDEO_DECODER_FUNC(jint, ffmpegRenderFrame, jlong jContext, jobject jSurface,
                    jobject jOutputBuffer, jint displayedWidth, jint displayedHeight) {
   JniContext *const jniContext = reinterpret_cast<JniContext *>(jContext);
   if (!jniContext->MaybeAcquireNativeWindow(env, jSurface)) {
-    return DECODER_ERROR_OTHER;
+    return VIDEO_DECODER_ERROR_OTHER;
   }
 
   if (jniContext->native_window_width != displayedWidth ||
@@ -637,7 +646,7 @@ VIDEO_DECODER_FUNC(jint, ffmpegRenderFrame, jlong jContext, jobject jSurface,
         displayedHeight,
         kImageFormatYV12)) {
       LOGE("kJniStatusANativeWindowError");
-      return DECODER_ERROR_OTHER;
+      return VIDEO_DECODER_ERROR_OTHER;
     }
     jniContext->native_window_width = displayedWidth;
     jniContext->native_window_height = displayedHeight;
@@ -648,7 +657,7 @@ VIDEO_DECODER_FUNC(jint, ffmpegRenderFrame, jlong jContext, jobject jSurface,
 /*inOutDirtyBounds=*/nullptr) ||
       native_window_buffer.bits == nullptr) {
     LOGE("kJniStatusANativeWindowError");
-    return DECODER_ERROR_OTHER;
+    return VIDEO_DECODER_ERROR_OTHER;
   }
 
   jobject yuvPlanes_object = env->GetObjectField(jOutputBuffer, jniContext->yuvPlanes_field);
@@ -714,9 +723,9 @@ VIDEO_DECODER_FUNC(jint, ffmpegRenderFrame, jlong jContext, jobject jSurface,
 
   if (ANativeWindow_unlockAndPost(jniContext->native_window)) {
     LOGE("kJniStatusANativeWindowError");
-    return DECODER_ERROR_OTHER;
+    return VIDEO_DECODER_ERROR_OTHER;
   }
 
-  return DECODER_SUCCESS;
+  return VIDEO_DECODER_SUCCESS;
 }
 

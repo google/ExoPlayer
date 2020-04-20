@@ -1,0 +1,69 @@
+seekMap:
+  isSeekable = true
+  duration = 900000
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(450000) = [[timeUs=450000, position=11421]]
+  getPosition(900000) = [[timeUs=900000, position=23030]]
+numberOfTracks = 2
+track 256:
+  total output bytes = 1796
+  sample count = 11
+  format 0:
+    id = 1/256
+    sampleMimeType = video/hevc
+    width = 854
+    height = 480
+    initializationData:
+      data = length 83, hash 7F428
+  sample 0:
+    time = 600000
+    flags = 0
+    data = length 130, hash 4D7A038D
+  sample 1:
+    time = 633333
+    flags = 0
+    data = length 114, hash 2B3C616E
+  sample 2:
+    time = 700000
+    flags = 0
+    data = length 95, hash 37D79559
+  sample 3:
+    time = 900000
+    flags = 0
+    data = length 233, hash 80308C9E
+  sample 4:
+    time = 833333
+    flags = 0
+    data = length 203, hash E70BA5F2
+  sample 5:
+    time = 766666
+    flags = 0
+    data = length 95, hash BA6FA2D3
+  sample 6:
+    time = 800000
+    flags = 0
+    data = length 103, hash 51291041
+  sample 7:
+    time = 866666
+    flags = 0
+    data = length 111, hash EE9DCFC9
+  sample 8:
+    time = 1033333
+    flags = 0
+    data = length 253, hash D0CEFBA7
+  sample 9:
+    time = 966666
+    flags = 0
+    data = length 134, hash 8802EEF0
+  sample 10:
+    time = 933333
+    flags = 0
+    data = length 80, hash C635D9C2
+track 8448:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    id = 1/8448
+    sampleMimeType = application/cea-608
+tracksEnded = true

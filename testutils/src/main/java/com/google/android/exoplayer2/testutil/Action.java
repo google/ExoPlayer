@@ -1024,12 +1024,12 @@ public abstract class Action {
     }
   }
 
-  /** Waits for {@link Player.EventListener#onSeekProcessed()}. */
-  public static final class WaitForSeekProcessed extends Action {
+  /** Waits until the player acknowledged all pending player commands. */
+  public static final class WaitForPendingPlayerCommands extends Action {
 
     /** @param tag A tag to use for logging. */
-    public WaitForSeekProcessed(String tag) {
-      super(tag, "WaitForSeekProcessed");
+    public WaitForPendingPlayerCommands(String tag) {
+      super(tag, "WaitForPendingPlayerCommands");
     }
 
     @Override
@@ -1042,14 +1042,14 @@ public abstract class Action {
       if (nextAction == null) {
         return;
       }
-      player.addListener(
-          new Player.EventListener() {
-            @Override
-            public void onSeekProcessed() {
-              player.removeListener(this);
-              nextAction.schedule(player, trackSelector, surface, handler);
-            }
-          });
+      // Send message to player that will arrive after all other pending commands. Thus, the message
+      // execution on the app thread will also happen after all other pending command
+      // acknowledgements have arrived back on the app thread.
+      player
+          .createMessage(
+              (type, data) -> nextAction.schedule(player, trackSelector, surface, handler))
+          .setHandler(Util.createHandler())
+          .send();
     }
 
     @Override

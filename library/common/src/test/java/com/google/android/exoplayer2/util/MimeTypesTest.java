@@ -26,6 +26,29 @@ import org.junit.runner.RunWith;
 public final class MimeTypesTest {
 
   @Test
+  public void isText_returnsCorrectResult() {
+    assertThat(MimeTypes.isText(MimeTypes.TEXT_VTT)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.TEXT_SSA)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_CEA608)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_CEA708)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_MP4CEA608)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_SUBRIP)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_TTML)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_TX3G)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_MP4VTT)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_VOBSUB)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_PGS)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_DVBSUBS)).isTrue();
+    assertThat(MimeTypes.isText("text/custom")).isTrue();
+
+    assertThat(MimeTypes.isText(MimeTypes.VIDEO_MP4)).isFalse();
+    assertThat(MimeTypes.isText(MimeTypes.VIDEO_H264)).isFalse();
+    assertThat(MimeTypes.isText(MimeTypes.AUDIO_MP4)).isFalse();
+    assertThat(MimeTypes.isText(MimeTypes.AUDIO_AAC)).isFalse();
+    assertThat(MimeTypes.isText("application/custom")).isFalse();
+  }
+
+  @Test
   public void getMediaMimeType_fromValidCodecs_returnsCorrectMimeType() {
     assertThat(MimeTypes.getMediaMimeType("avc1")).isEqualTo(MimeTypes.VIDEO_H264);
     assertThat(MimeTypes.getMediaMimeType("avc1.42E01E")).isEqualTo(MimeTypes.VIDEO_H264);
@@ -73,6 +96,13 @@ public final class MimeTypesTest {
     assertThat(MimeTypes.getMediaMimeType("mp4a.AA")).isEqualTo(MimeTypes.AUDIO_DTS_HD);
     assertThat(MimeTypes.getMediaMimeType("mp4a.AB")).isEqualTo(MimeTypes.AUDIO_DTS_HD);
     assertThat(MimeTypes.getMediaMimeType("mp4a.AD")).isEqualTo(MimeTypes.AUDIO_OPUS);
+
+    assertThat(MimeTypes.getMediaMimeType("wvtt")).isEqualTo(MimeTypes.TEXT_VTT);
+    assertThat(MimeTypes.getMediaMimeType("stpp.")).isEqualTo(MimeTypes.APPLICATION_TTML);
+    assertThat(MimeTypes.getMediaMimeType("stpp.ttml.im1t")).isEqualTo(MimeTypes.APPLICATION_TTML);
+    assertThat(MimeTypes.getMediaMimeType("eia608.")).isEqualTo(MimeTypes.APPLICATION_CEA608);
+    assertThat(MimeTypes.getMediaMimeType("cea608")).isEqualTo(MimeTypes.APPLICATION_CEA608);
+    assertThat(MimeTypes.getMediaMimeType("cea708")).isEqualTo(MimeTypes.APPLICATION_CEA708);
   }
 
   @Test

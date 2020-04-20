@@ -26,6 +26,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +48,23 @@ public class SpannedToHtmlConverterTest {
 
     assertThat(html)
         .isEqualTo("String with <span style='color:rgba(64,32,16,0.502);'>colored</span> section");
+  }
+
+  @Test
+  public void convert_supportsHorizontalTextInVerticalContextSpan() {
+    SpannableString spanned = new SpannableString("Vertical text with 123 horizontal numbers");
+    spanned.setSpan(
+        new HorizontalTextInVerticalContextSpan(),
+        "Vertical text with ".length(),
+        "Vertical text with 123".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    String html = SpannedToHtmlConverter.convert(spanned);
+
+    assertThat(html)
+        .isEqualTo(
+            "Vertical text with <span style='text-combine-upright:all;'>123</span> "
+                + "horizontal numbers");
   }
 
   @Test
@@ -77,38 +95,35 @@ public class SpannedToHtmlConverterTest {
   }
 
   @Test
-  public void convert_supportsRubySpan_over() {
-    SpannableString spanned = new SpannableString("String with over-annotated section");
+  public void convert_supportsRubySpan() {
+    SpannableString spanned =
+        new SpannableString("String with over-annotated and under-annotated section");
     spanned.setSpan(
         new RubySpan("ruby-text", RubySpan.POSITION_OVER),
         "String with ".length(),
         "String with over-annotated".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-    String html = SpannedToHtmlConverter.convert(spanned);
-
-    assertThat(html)
-        .isEqualTo(
-            "String with <ruby style='ruby-position:over;'>over-annotated<rt>ruby-text</rt></ruby>"
-                + " section");
-  }
-
-  @Test
-  public void convert_supportsRubySpan_under() {
-    SpannableString spanned = new SpannableString("String with under-annotated section");
     spanned.setSpan(
-        new RubySpan("ruby-text", RubySpan.POSITION_UNDER),
-        "String with ".length(),
-        "String with under-annotated".length(),
+        new RubySpan("non-àscìì-text", RubySpan.POSITION_UNDER),
+        "String with over-annotated and ".length(),
+        "String with over-annotated and under-annotated".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
     String html = SpannedToHtmlConverter.convert(spanned);
 
     assertThat(html)
         .isEqualTo(
-            "String with"
-                + " <ruby style='ruby-position:under;'>under-annotated<rt>ruby-text</rt></ruby>"
-                + " section");
+            "String with "
+                + "<ruby style='ruby-position:over;'>"
+                + "over-annotated"
+                + "<rt>ruby-text</rt>"
+                + "</ruby> "
+                + "and "
+                + "<ruby style='ruby-position:under;'>"
+                + "under-annotated"
+                + "<rt>non-&#224;sc&#236;&#236;-text</rt>"
+                + "</ruby> "
+                + "section");
   }
 
   @Test
@@ -133,6 +148,20 @@ public class SpannedToHtmlConverterTest {
   }
 
   @Test
+  public void convert_handlesLinebreakInUnspannedString() {
+    String html = SpannedToHtmlConverter.convert("String with\nnew line and\r\ncrlf style too");
+
+    assertThat(html).isEqualTo("String with<br>new line and<br>crlf style too");
+  }
+
+  @Test
+  public void convert_doesntConvertAmpersandLineFeedToBrTag() {
+    String html = SpannedToHtmlConverter.convert("String with&#10;new line ampersand code");
+
+    assertThat(html).isEqualTo("String with&amp;#10;new line ampersand code");
+  }
+
+  @Test
   public void convert_escapesUnrecognisedTagInSpannedString() {
     SpannableString spanned = new SpannableString("String with <foo>unrecognised</foo> tags");
     spanned.setSpan(
@@ -144,6 +173,23 @@ public class SpannedToHtmlConverterTest {
     String html = SpannedToHtmlConverter.convert(spanned);
 
     assertThat(html).isEqualTo("String with <i>&lt;foo&gt;unrecognised&lt;/foo&gt;</i> tags");
+  }
+
+  @Test
+  public void convert_handlesLinebreakInSpannedString() {
+    String html = SpannedToHtmlConverter.convert("String with\nnew line and\r\ncrlf style too");
+
+    assertThat(html).isEqualTo("String with<br>new line and<br>crlf style too");
+  }
+
+  @Test
+  public void convert_convertsNonAsciiCharactersToAmpersandCodes() {
+    String html =
+        SpannedToHtmlConverter.convert(
+            new SpannableString("Strìng with 優しいの non-ASCII characters"));
+
+    assertThat(html)
+        .isEqualTo("Str&#236;ng with &#20778;&#12375;&#12356;&#12398; non-ASCII characters");
   }
 
   @Test
@@ -194,5 +240,24 @@ public class SpannedToHtmlConverterTest {
     String html = SpannedToHtmlConverter.convert(spanned);
 
     assertThat(html).isEqualTo("String with <i>italic and <b>bold</b></i> section");
+  }
+
+  @Test
+  public void convert_overlappingSpans_producesInvalidHtml() {
+    SpannableString spanned = new SpannableString("String with italic and bold section");
+    spanned.setSpan(
+        new StyleSpan(Typeface.ITALIC),
+        0,
+        "String with italic and bold".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    spanned.setSpan(
+        new StyleSpan(Typeface.BOLD),
+        "String with italic ".length(),
+        "String with italic and bold section".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    String html = SpannedToHtmlConverter.convert(spanned);
+
+    assertThat(html).isEqualTo("<i>String with italic <b>and bold</i> section</b>");
   }
 }

@@ -329,7 +329,8 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       if (endUs != C.TIME_END_OF_SOURCE
           && ((result == C.RESULT_BUFFER_READ && buffer.timeUs >= endUs)
               || (result == C.RESULT_NOTHING_READ
-                  && getBufferedPositionUs() == C.TIME_END_OF_SOURCE))) {
+                  && getBufferedPositionUs() == C.TIME_END_OF_SOURCE
+                  && !buffer.waitingForKeys))) {
         buffer.clear();
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         sentEos = true;

@@ -217,12 +217,9 @@ public final class SsMediaSource extends BaseMediaSource
       return this;
     }
 
-    /**
-     * Returns a new {@link SsMediaSource} using the current parameters.
-     *
-     * @param uri The {@link Uri uri}.
-     * @return The new {@link SsMediaSource}.
-     */
+    /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
     public SsMediaSource createMediaSource(Uri uri) {
       return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());
@@ -621,8 +618,8 @@ public final class SsMediaSource extends BaseMediaSource
   // Loader.Callback implementation
 
   @Override
-  public void onLoadCompleted(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
-      long loadDurationMs) {
+  public void onLoadCompleted(
+      ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs, long loadDurationMs) {
     manifestEventDispatcher.loadCompleted(
         loadable.dataSpec,
         loadable.getUri(),
@@ -638,8 +635,11 @@ public final class SsMediaSource extends BaseMediaSource
   }
 
   @Override
-  public void onLoadCanceled(ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs,
-      long loadDurationMs, boolean released) {
+  public void onLoadCanceled(
+      ParsingLoadable<SsManifest> loadable,
+      long elapsedRealtimeMs,
+      long loadDurationMs,
+      boolean released) {
     manifestEventDispatcher.loadCanceled(
         loadable.dataSpec,
         loadable.getUri(),
