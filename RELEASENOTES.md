@@ -70,6 +70,7 @@
         ([#7207](https://github.com/google/ExoPlayer/issues/7207)).
     *   Add `SilenceMediaSource.Factory` to support tags
         ([PR #7245](https://github.com/google/ExoPlayer/pull/7245)).
+    *   Fix `AdsMediaSource` child `MediaSource`s not being released.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
