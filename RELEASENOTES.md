@@ -71,6 +71,8 @@
     *   Add `SilenceMediaSource.Factory` to support tags
         ([PR #7245](https://github.com/google/ExoPlayer/pull/7245)).
     *   Fix `AdsMediaSource` child `MediaSource`s not being released.
+    *   Parse track titles from Matroska files
+        ([#7247](https://github.com/google/ExoPlayer/pull/7247)).
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
