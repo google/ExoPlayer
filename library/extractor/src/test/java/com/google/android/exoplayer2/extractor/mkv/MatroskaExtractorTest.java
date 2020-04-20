@@ -30,6 +30,17 @@ public final class MatroskaExtractorTest {
   }
 
   @Test
+  public void mkvSample_withSubripSubtitles() throws Exception {
+    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/sample_with_srt.mkv");
+  }
+
+  @Test
+  public void mkvSample_withHtcRotationInfoInTrackName() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "mkv/sample_with_htc_rotation_track_name.mkv");
+  }
+
+  @Test
   public void mkvFullBlocksSample() throws Exception {
     ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/full_blocks.mkv");
   }
