@@ -41,6 +41,7 @@ public final class H265Reader implements ElementaryStreamReader {
   private static final int VPS_NUT = 32;
   private static final int SPS_NUT = 33;
   private static final int PPS_NUT = 34;
+  private static final int AUD_NUT = 35;
   private static final int PREFIX_SEI_NUT = 39;
   private static final int SUFFIX_SEI_NUT = 40;
 
@@ -445,7 +446,7 @@ public final class H265Reader implements ElementaryStreamReader {
         }
       }
 
-      // Look for the flag if this NAL unit contains a slice_segment_layer_rbsp.
+      // Look for the first slice flag if this NAL unit contains a slice_segment_layer_rbsp.
       nalUnitHasKeyframeData = (nalUnitType >= BLA_W_LP && nalUnitType <= CRA_NUT);
       lookingForFirstSliceFlag = nalUnitHasKeyframeData || nalUnitType <= RASL_R;
     }
@@ -489,14 +490,12 @@ public final class H265Reader implements ElementaryStreamReader {
 
     /** Returns whether a NAL unit type is one that occurs before any VCL NAL units in a sample. */
     private static boolean isPrefixNalUnit(int nalUnitType) {
-      // TODO: Include AUD_NUT and PREFIX_SEI_NUT
-      return VPS_NUT <= nalUnitType && nalUnitType <= PPS_NUT;
+      return (VPS_NUT <= nalUnitType && nalUnitType <= AUD_NUT) || nalUnitType == PREFIX_SEI_NUT;
     }
 
     /** Returns whether a NAL unit type is one that occurs in the VLC body of a sample. */
     private static boolean isVclBodyNalUnit(int nalUnitType) {
-      // TODO: Include SUFFIX_SEI_NUT
-      return nalUnitType < VPS_NUT;
+      return nalUnitType < VPS_NUT || nalUnitType == SUFFIX_SEI_NUT;
     }
   }
 }
