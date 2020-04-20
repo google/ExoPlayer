@@ -36,11 +36,13 @@ import java.util.List;
     extends
     SimpleDecoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, FfmpegDecoderException> {
 
-  // Error codes matching ffmpeg_jni.cc.
-  private static final int DECODER_ERROR_INVALID_DATA = -1;
-  private static final int DECODER_ERROR_OTHER = -2;
-  private static final int DECODER_ERROR_READ_FRAME = -3;
-  private static final int DECODER_ERROR_SEND_PACKET = -4;
+  // LINT.IfChange
+  private static final int VIDEO_DECODER_SUCCESS = 0;
+  private static final int VIDEO_DECODER_ERROR_INVALID_DATA = -1;
+  private static final int VIDEO_DECODER_ERROR_OTHER = -2;
+  private static final int VIDEO_DECODER_ERROR_READ_FRAME = -3;
+  private static final int VIDEO_DECODER_ERROR_SEND_PACKET = -4;
+  // LINT.ThenChange(../../../../../../../jni/ffmpeg_jni.cc)
 
   private final String codecName;
   private long nativeContext;
@@ -142,13 +144,13 @@ import java.util.List;
     boolean needSendAgain = false;
     int sendPacketResult = ffmpegSendPacket(nativeContext, inputData, inputSize,
         inputBuffer.timeUs);
-    if (sendPacketResult == DECODER_ERROR_INVALID_DATA) {
+    if (sendPacketResult == VIDEO_DECODER_ERROR_INVALID_DATA) {
       outputBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
       return null;
-    } else if (sendPacketResult == DECODER_ERROR_READ_FRAME) {
+    } else if (sendPacketResult == VIDEO_DECODER_ERROR_READ_FRAME) {
       // need read frame
       needSendAgain = true;
-    } else if (sendPacketResult == DECODER_ERROR_OTHER) {
+    } else if (sendPacketResult == VIDEO_DECODER_ERROR_OTHER) {
       return new FfmpegDecoderException("ffmpegDecode error: (see logcat)");
     }
 
@@ -157,13 +159,13 @@ import java.util.List;
     // We need to dequeue the decoded frame from the decoder even when the input data is
     // decode-only.
     int getFrameResult = ffmpegReceiveFrame(nativeContext, outputMode, outputBuffer, decodeOnly);
-    if (getFrameResult == DECODER_ERROR_SEND_PACKET) {
+    if (getFrameResult == VIDEO_DECODER_ERROR_SEND_PACKET) {
       return null;
-    } else if (getFrameResult == DECODER_ERROR_OTHER) {
+    } else if (getFrameResult == VIDEO_DECODER_ERROR_OTHER) {
       return new FfmpegDecoderException("ffmpegDecode error: (see logcat)");
     }
 
-    if (getFrameResult == DECODER_ERROR_INVALID_DATA) {
+    if (getFrameResult == VIDEO_DECODER_ERROR_INVALID_DATA) {
       outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
     }
 
@@ -206,7 +208,7 @@ import java.util.List;
     }
     if (ffmpegRenderFrame(
         nativeContext, surface,
-        outputBuffer, outputBuffer.width, outputBuffer.height) == DECODER_ERROR_OTHER) {
+        outputBuffer, outputBuffer.width, outputBuffer.height) == VIDEO_DECODER_ERROR_OTHER) {
       throw new FfmpegDecoderException(
           "Buffer render error: ");
     }
@@ -226,10 +228,11 @@ import java.util.List;
   /**
    * Decodes the encoded data passed.
    *
-   * @param context Decoder context.
+   * @param context     Decoder context.
    * @param encodedData Encoded data.
-   * @param length Length of the data buffer.
-   * @return 0 if successful, {@link #DECODER_ERROR_OTHER} if an error occurred.
+   * @param length      Length of the data buffer.
+   * @return {@link #VIDEO_DECODER_SUCCESS} if successful, {@link #VIDEO_DECODER_ERROR_OTHER} if an
+   * error occurred.
    */
   private native int ffmpegSendPacket(long context, ByteBuffer encodedData, int length,
       long inputTime);
@@ -237,10 +240,11 @@ import java.util.List;
   /**
    * Gets the decoded frame.
    *
-   * @param context Decoder context.
+   * @param context      Decoder context.
    * @param outputBuffer Output buffer for the decoded frame.
-   * @return 0 if successful, {@link #DECODER_ERROR_INVALID_DATA} if successful but the frame is
-   * decode-only, {@link #DECODER_ERROR_OTHER} if an error occurred.
+   * @return {@link #VIDEO_DECODER_SUCCESS} if successful, {@link #VIDEO_DECODER_ERROR_INVALID_DATA}
+   * if successful but the frame is decode-only, {@link #VIDEO_DECODER_ERROR_OTHER} if an error
+   * occurred.
    */
   private native int ffmpegReceiveFrame(
       long context, int outputMode, VideoDecoderOutputBuffer outputBuffer, boolean decodeOnly);
