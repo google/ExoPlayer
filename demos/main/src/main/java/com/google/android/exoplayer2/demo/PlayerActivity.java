@@ -39,10 +39,8 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.demo.Sample.UriSample;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -66,52 +64,12 @@ import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
     implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
-
-  // Activity extras.
-
-  public static final String SPHERICAL_STEREO_MODE_EXTRA = "spherical_stereo_mode";
-  public static final String SPHERICAL_STEREO_MODE_MONO = "mono";
-  public static final String SPHERICAL_STEREO_MODE_TOP_BOTTOM = "top_bottom";
-  public static final String SPHERICAL_STEREO_MODE_LEFT_RIGHT = "left_right";
-
-  // Actions.
-
-  public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
-  public static final String ACTION_VIEW_LIST =
-      "com.google.android.exoplayer.demo.action.VIEW_LIST";
-
-  // Player configuration extras.
-
-  public static final String ABR_ALGORITHM_EXTRA = "abr_algorithm";
-  public static final String ABR_ALGORITHM_DEFAULT = "default";
-  public static final String ABR_ALGORITHM_RANDOM = "random";
-
-  // Media item configuration extras.
-
-  public static final String URI_EXTRA = "uri";
-  public static final String EXTENSION_EXTRA = "extension";
-  public static final String IS_LIVE_EXTRA = "is_live";
-
-  public static final String DRM_SCHEME_EXTRA = "drm_scheme";
-  public static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
-  public static final String DRM_KEY_REQUEST_PROPERTIES_EXTRA = "drm_key_request_properties";
-  public static final String DRM_SESSION_FOR_CLEAR_TYPES_EXTRA = "drm_session_for_clear_types";
-  public static final String DRM_MULTI_SESSION_EXTRA = "drm_multi_session";
-  public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
-  public static final String TUNNELING_EXTRA = "tunneling";
-  public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
-  public static final String SUBTITLE_URI_EXTRA = "subtitle_uri";
-  public static final String SUBTITLE_MIME_TYPE_EXTRA = "subtitle_mime_type";
-  public static final String SUBTITLE_LANGUAGE_EXTRA = "subtitle_language";
-  // For backwards compatibility only.
-  public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
 
   // Saved instance state keys.
 
@@ -154,7 +112,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onCreate(Bundle savedInstanceState) {
     Intent intent = getIntent();
-    String sphericalStereoMode = intent.getStringExtra(SPHERICAL_STEREO_MODE_EXTRA);
+    String sphericalStereoMode = intent.getStringExtra(IntentUtil.SPHERICAL_STEREO_MODE_EXTRA);
     if (sphericalStereoMode != null) {
       setTheme(R.style.PlayerTheme_Spherical);
     }
@@ -176,11 +134,11 @@ public class PlayerActivity extends AppCompatActivity
     playerView.requestFocus();
     if (sphericalStereoMode != null) {
       int stereoMode;
-      if (SPHERICAL_STEREO_MODE_MONO.equals(sphericalStereoMode)) {
+      if (IntentUtil.SPHERICAL_STEREO_MODE_MONO.equals(sphericalStereoMode)) {
         stereoMode = C.STEREO_MODE_MONO;
-      } else if (SPHERICAL_STEREO_MODE_TOP_BOTTOM.equals(sphericalStereoMode)) {
+      } else if (IntentUtil.SPHERICAL_STEREO_MODE_TOP_BOTTOM.equals(sphericalStereoMode)) {
         stereoMode = C.STEREO_MODE_TOP_BOTTOM;
-      } else if (SPHERICAL_STEREO_MODE_LEFT_RIGHT.equals(sphericalStereoMode)) {
+      } else if (IntentUtil.SPHERICAL_STEREO_MODE_LEFT_RIGHT.equals(sphericalStereoMode)) {
         stereoMode = C.STEREO_MODE_LEFT_RIGHT;
       } else {
         showToast(R.string.error_unrecognized_stereo_mode);
@@ -198,7 +156,7 @@ public class PlayerActivity extends AppCompatActivity
     } else {
       DefaultTrackSelector.ParametersBuilder builder =
           new DefaultTrackSelector.ParametersBuilder(/* context= */ this);
-      boolean tunneling = intent.getBooleanExtra(TUNNELING_EXTRA, false);
+      boolean tunneling = intent.getBooleanExtra(IntentUtil.TUNNELING_EXTRA, false);
       if (Util.SDK_INT >= 21 && tunneling) {
         builder.setTunnelingAudioSessionId(C.generateAudioSessionIdV21(/* context= */ this));
       }
@@ -337,15 +295,17 @@ public class PlayerActivity extends AppCompatActivity
   private void initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();
+
       mediaItems = createMediaItems(intent);
       if (mediaItems.isEmpty()) {
         return;
       }
+
       TrackSelection.Factory trackSelectionFactory;
-      String abrAlgorithm = intent.getStringExtra(ABR_ALGORITHM_EXTRA);
-      if (abrAlgorithm == null || ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
+      String abrAlgorithm = intent.getStringExtra(IntentUtil.ABR_ALGORITHM_EXTRA);
+      if (abrAlgorithm == null || IntentUtil.ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
         trackSelectionFactory = new AdaptiveTrackSelection.Factory();
-      } else if (ABR_ALGORITHM_RANDOM.equals(abrAlgorithm)) {
+      } else if (IntentUtil.ABR_ALGORITHM_RANDOM.equals(abrAlgorithm)) {
         trackSelectionFactory = new RandomTrackSelection.Factory();
       } else {
         showToast(R.string.error_unrecognized_abr_algorithm);
@@ -354,7 +314,7 @@ public class PlayerActivity extends AppCompatActivity
       }
 
       boolean preferExtensionDecoders =
-          intent.getBooleanExtra(PREFER_EXTENSION_DECODERS_EXTRA, false);
+          intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false);
       RenderersFactory renderersFactory =
           ((DemoApplication) getApplication()).buildRenderersFactory(preferExtensionDecoders);
 
@@ -389,35 +349,19 @@ public class PlayerActivity extends AppCompatActivity
 
   private List<MediaItem> createMediaItems(Intent intent) {
     String action = intent.getAction();
-    boolean actionIsListView = ACTION_VIEW_LIST.equals(action);
-    if (!actionIsListView && !ACTION_VIEW.equals(action)) {
+    boolean actionIsListView = IntentUtil.ACTION_VIEW_LIST.equals(action);
+    if (!actionIsListView && !IntentUtil.ACTION_VIEW.equals(action)) {
       showToast(getString(R.string.unexpected_intent_action, action));
       finish();
       return Collections.emptyList();
     }
 
-    Sample intentAsSample = Sample.createFromIntent(intent);
-    UriSample[] samples =
-        intentAsSample instanceof Sample.PlaylistSample
-            ? ((Sample.PlaylistSample) intentAsSample).children
-            : new UriSample[] {(UriSample) intentAsSample};
-
-    List<MediaItem> mediaItems = new ArrayList<>();
+    List<MediaItem> mediaItems =
+        IntentUtil.createMediaItemsFromIntent(
+            intent, ((DemoApplication) getApplication()).getDownloadTracker());
     boolean hasAds = false;
-    for (UriSample sample : samples) {
-      MediaItem mediaItem = sample.toMediaItem();
-      DownloadRequest downloadRequest =
-          ((DemoApplication) getApplication())
-              .getDownloadTracker()
-              .getDownloadRequest(Assertions.checkNotNull(mediaItem.playbackProperties).sourceUri);
-      if (downloadRequest != null) {
-        mediaItem =
-            mediaItem
-                .buildUpon()
-                .setStreamKeys(downloadRequest.streamKeys)
-                .setCustomCacheKey(downloadRequest.customCacheKey)
-                .build();
-      }
+    for (int i = 0; i < mediaItems.size(); i++) {
+      MediaItem mediaItem = mediaItems.get(i);
 
       if (!Util.checkCleartextTrafficPermitted(mediaItem)) {
         showToast(R.string.error_cleartext_not_permitted);
@@ -442,7 +386,6 @@ public class PlayerActivity extends AppCompatActivity
         }
       }
       hasAds |= mediaItem.playbackProperties.adTagUri != null;
-      mediaItems.add(mediaItem);
     }
     if (!hasAds) {
       releaseAdsLoader();
