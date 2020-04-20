@@ -387,7 +387,7 @@ public final class WebvttCueParser {
   private static void parseLineAttribute(String s, WebvttCueInfoBuilder builder) {
     int commaIndex = s.indexOf(',');
     if (commaIndex != -1) {
-      builder.lineAnchor = parsePositionAnchor(s.substring(commaIndex + 1));
+      builder.lineAnchor = parseLineAnchor(s.substring(commaIndex + 1));
       s = s.substring(0, commaIndex);
     }
     if (s.endsWith("%")) {
@@ -405,6 +405,22 @@ public final class WebvttCueParser {
     }
   }
 
+  @Cue.AnchorType
+  private static int parseLineAnchor(String s) {
+    switch (s) {
+      case "start":
+        return Cue.ANCHOR_TYPE_START;
+      case "center":
+      case "middle":
+        return Cue.ANCHOR_TYPE_MIDDLE;
+      case "end":
+        return Cue.ANCHOR_TYPE_END;
+      default:
+        Log.w(TAG, "Invalid anchor value: " + s);
+        return Cue.TYPE_UNSET;
+    }
+  }
+
   private static void parsePositionAttribute(String s, WebvttCueInfoBuilder builder) {
     int commaIndex = s.indexOf(',');
     if (commaIndex != -1) {
@@ -417,11 +433,13 @@ public final class WebvttCueParser {
   @Cue.AnchorType
   private static int parsePositionAnchor(String s) {
     switch (s) {
+      case "line-left":
       case "start":
         return Cue.ANCHOR_TYPE_START;
       case "center":
       case "middle":
         return Cue.ANCHOR_TYPE_MIDDLE;
+      case "line-right":
       case "end":
         return Cue.ANCHOR_TYPE_END;
       default:

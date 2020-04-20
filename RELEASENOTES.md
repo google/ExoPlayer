@@ -89,6 +89,12 @@
         [issue #6581](https://github.com/google/ExoPlayer/issues/6581)).
     *   Parse `tts:ruby` and `tts:rubyPosition` properties in TTML subtitles
         (rendering is coming later).
+    *   Update WebVTT position alignment parsing to recognise `line-left`,
+        `center` and `line-right` as per the
+        [released spec](https://www.w3.org/TR/webvtt1/#webvtt-position-cue-setting)
+        (a
+        [previous draft](https://www.w3.org/TR/2014/WD-webvtt1-20141111/#dfn-webvtt-text-position-cue-setting)
+        used `start`, `middle` and `end`).
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.
