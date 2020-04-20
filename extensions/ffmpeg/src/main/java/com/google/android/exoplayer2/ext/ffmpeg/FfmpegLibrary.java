@@ -32,10 +32,8 @@ public final class FfmpegLibrary {
 
   private static final String TAG = "FfmpegLibrary";
 
-  // TODO: Use appropriate compilation script.
   private static final LibraryLoader LOADER =
-      new LibraryLoader("ffmpeg", "ffmpegJNI");
-//      new LibraryLoader("avutil", "swresample", "avcodec", "ffmpeg");
+      new LibraryLoader("avutil", "swresample", "avcodec", "ffmpegJNI");
 
   private FfmpegLibrary() {}
 

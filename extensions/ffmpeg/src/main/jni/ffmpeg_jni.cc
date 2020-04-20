@@ -82,8 +82,6 @@ static const int AUDIO_DECODER_ERROR_INVALID_DATA = -1;
 static const int AUDIO_DECODER_ERROR_OTHER = -2;
 // LINT.ThenChange(../java/com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioDecoder.java)
 
-// Error codes matching FfmpegVideoDecoder.java.
-
 // LINT.IfChange
 static const int VIDEO_DECODER_SUCCESS = 0;
 static const int VIDEO_DECODER_ERROR_INVALID_DATA = -1;
