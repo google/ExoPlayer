@@ -64,7 +64,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final float spacingAdd;
 
   private final TextPaint textPaint;
-  private final Paint paint;
+  private final Paint windowPaint;
+  private final Paint bitmapPaint;
 
   // Previous input variables.
   @Nullable private CharSequence cueText;
@@ -122,9 +123,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     textPaint.setAntiAlias(true);
     textPaint.setSubpixelText(true);
 
-    paint = new Paint();
-    paint.setAntiAlias(true);
-    paint.setStyle(Style.FILL);
+    windowPaint = new Paint();
+    windowPaint.setAntiAlias(true);
+    windowPaint.setStyle(Style.FILL);
+
+    bitmapPaint = new Paint();
+    bitmapPaint.setAntiAlias(true);
+    bitmapPaint.setFilterBitmap(true);
   }
 
   /**
@@ -415,9 +420,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     canvas.translate(textLeft, textTop);
 
     if (Color.alpha(windowColor) > 0) {
-      paint.setColor(windowColor);
-      canvas.drawRect(-textPaddingX, 0, layout.getWidth() + textPaddingX, layout.getHeight(),
-          paint);
+      windowPaint.setColor(windowColor);
+      canvas.drawRect(
+          -textPaddingX,
+          0,
+          textLayout.getWidth() + textPaddingX,
+          textLayout.getHeight(),
+          windowPaint);
     }
 
     if (edgeType == CaptionStyleCompat.EDGE_TYPE_OUTLINE) {
@@ -451,7 +460,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @RequiresNonNull({"cueBitmap", "bitmapRect"})
   private void drawBitmapLayout(Canvas canvas) {
-    canvas.drawBitmap(cueBitmap, /* src= */ null, bitmapRect, /* paint= */ null);
+    canvas.drawBitmap(cueBitmap, /* src= */ null, bitmapRect, bitmapPaint);
   }
 
   /**

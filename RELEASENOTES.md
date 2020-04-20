@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Release notes #
 
 ### Next release ###
@@ -15,6 +16,9 @@
         marked with the `C.ROLE_FLAG_TRICK_PLAY` flag.
 *   MPEG-TS: Fix issue where SEI NAL units were incorrectly dropped from H.265
     samples ([#7113](https://github.com/google/ExoPlayer/issues/7113)).
+* Text
+    *   Use anti-aliasing and bitmap filtering when displaying bitmap subtitles
+        ([#6950](https://github.com/google/ExoPlayer/pull/6950)).
 
 ### 2.11.4 (2020-04-08) ###
 
