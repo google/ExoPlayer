@@ -95,6 +95,8 @@
         (a
         [previous draft](https://www.w3.org/TR/2014/WD-webvtt1-20141111/#dfn-webvtt-text-position-cue-setting)
         used `start`, `middle` and `end`).
+    *   Use anti-aliasing and bitmap filtering when displaying bitmap subtitles
+        ([#6950](https://github.com/google/ExoPlayer/pull/6950)).
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.
