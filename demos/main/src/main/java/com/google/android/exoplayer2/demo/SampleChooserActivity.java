@@ -230,14 +230,14 @@ public class SampleChooserActivity extends AppCompatActivity
     Sample sample = (Sample) view.getTag();
     Intent intent = new Intent(this, PlayerActivity.class);
     intent.putExtra(
-        PlayerActivity.PREFER_EXTENSION_DECODERS_EXTRA,
+        IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA,
         isNonNullAndChecked(preferExtensionDecodersMenuItem));
     String abrAlgorithm =
         isNonNullAndChecked(randomAbrMenuItem)
-            ? PlayerActivity.ABR_ALGORITHM_RANDOM
-            : PlayerActivity.ABR_ALGORITHM_DEFAULT;
-    intent.putExtra(PlayerActivity.ABR_ALGORITHM_EXTRA, abrAlgorithm);
-    intent.putExtra(PlayerActivity.TUNNELING_EXTRA, isNonNullAndChecked(tunnelingMenuItem));
+            ? IntentUtil.ABR_ALGORITHM_RANDOM
+            : IntentUtil.ABR_ALGORITHM_DEFAULT;
+    intent.putExtra(IntentUtil.ABR_ALGORITHM_EXTRA, abrAlgorithm);
+    intent.putExtra(IntentUtil.TUNNELING_EXTRA, isNonNullAndChecked(tunnelingMenuItem));
     sample.addToIntent(intent);
     startActivity(intent);
     return true;
