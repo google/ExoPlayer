@@ -91,6 +91,7 @@ public class MediaItemTest {
     Uri licenseUri = Uri.parse(URI_STRING);
     Map<String, String> requestHeaders = new HashMap<>();
     requestHeaders.put("Referer", "http://www.google.com");
+    byte[] keySetId = new byte[] {1, 2, 3};
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setSourceUri(URI_STRING)
@@ -100,6 +101,7 @@ public class MediaItemTest {
             .setDrmMultiSession(/* multiSession= */ true)
             .setDrmPlayClearContentWithoutKey(true)
             .setDrmSessionForClearTypes(Collections.singletonList(C.TRACK_TYPE_AUDIO))
+            .setDrmKeySetId(keySetId)
             .build();
 
     assertThat(mediaItem.playbackProperties.drmConfiguration).isNotNull();
@@ -111,6 +113,7 @@ public class MediaItemTest {
     assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isTrue();
     assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO);
+    assertThat(mediaItem.playbackProperties.drmConfiguration.getKeySetId()).isEqualTo(keySetId);
   }
 
   @Test
@@ -304,6 +307,7 @@ public class MediaItemTest {
             .setDrmMultiSession(true)
             .setDrmPlayClearContentWithoutKey(true)
             .setDrmSessionForClearTypes(Collections.singletonList(C.TRACK_TYPE_AUDIO))
+            .setDrmKeySetId(new byte[] {1, 2, 3})
             .setMediaId("mediaId")
             .setMediaMetadata(new MediaMetadata.Builder().setTitle("title").build())
             .setMimeType(MimeTypes.APPLICATION_MP4)

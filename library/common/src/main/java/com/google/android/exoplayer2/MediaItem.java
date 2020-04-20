@@ -68,6 +68,7 @@ public final class MediaItem {
     private boolean drmMultiSession;
     private boolean drmPlayClearContentWithoutKey;
     private List<Integer> drmSessionForClearTypes;
+    @Nullable private byte[] drmKeySetId;
     private List<StreamKey> streamKeys;
     @Nullable private String customCacheKey;
     private List<Subtitle> subtitles;
@@ -110,6 +111,7 @@ public final class MediaItem {
           drmPlayClearContentWithoutKey = drmConfiguration.playClearContentWithoutKey;
           drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
           drmUuid = drmConfiguration.uuid;
+          drmKeySetId = drmConfiguration.getKeySetId();
         }
       }
     }
@@ -312,6 +314,20 @@ public final class MediaItem {
     }
 
     /**
+     * Sets the key set ID of the offline license.
+     *
+     * <p>The key set ID identifies an offline license. The ID is required to query, renew or
+     * release an existing offline license (see {@code DefaultDrmSessionManager#setMode(int
+     * mode,byte[] offlineLicenseKeySetId)}).
+     *
+     * <p>If no valid DRM configuration is specified, the key set ID is ignored.
+     */
+    public Builder setDrmKeySetId(@Nullable byte[] keySetId) {
+      this.drmKeySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+      return this;
+    }
+
+    /**
      * Sets the optional stream keys by which the manifest is filtered (only used for adaptive
      * streams).
      *
@@ -414,7 +430,8 @@ public final class MediaItem {
                         drmLicenseRequestHeaders,
                         drmMultiSession,
                         drmPlayClearContentWithoutKey,
-                        drmSessionForClearTypes)
+                        drmSessionForClearTypes,
+                        drmKeySetId)
                     : null,
                 streamKeys,
                 customCacheKey,
@@ -463,19 +480,29 @@ public final class MediaItem {
     /** The types of clear tracks for which to use a drm session. */
     public final List<Integer> sessionForClearTypes;
 
+    @Nullable private final byte[] keySetId;
+
     private DrmConfiguration(
         UUID uuid,
         @Nullable Uri licenseUri,
         Map<String, String> requestHeaders,
         boolean multiSession,
         boolean playClearContentWithoutKey,
-        List<Integer> drmSessionForClearTypes) {
+        List<Integer> drmSessionForClearTypes,
+        @Nullable byte[] keySetId) {
       this.uuid = uuid;
       this.licenseUri = licenseUri;
       this.requestHeaders = requestHeaders;
       this.multiSession = multiSession;
       this.playClearContentWithoutKey = playClearContentWithoutKey;
       this.sessionForClearTypes = drmSessionForClearTypes;
+      this.keySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
+    }
+
+    /** Returns the key set ID of the offline license. */
+    @Nullable
+    public byte[] getKeySetId() {
+      return keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
     }
 
     @Override
@@ -493,7 +520,8 @@ public final class MediaItem {
           && Util.areEqual(requestHeaders, other.requestHeaders)
           && multiSession == other.multiSession
           && playClearContentWithoutKey == other.playClearContentWithoutKey
-          && sessionForClearTypes.equals(other.sessionForClearTypes);
+          && sessionForClearTypes.equals(other.sessionForClearTypes)
+          && Arrays.equals(keySetId, other.keySetId);
     }
 
     @Override
@@ -504,6 +532,7 @@ public final class MediaItem {
       result = 31 * result + (multiSession ? 1 : 0);
       result = 31 * result + (playClearContentWithoutKey ? 1 : 0);
       result = 31 * result + sessionForClearTypes.hashCode();
+      result = 31 * result + Arrays.hashCode(keySetId);
       return result;
     }
   }
