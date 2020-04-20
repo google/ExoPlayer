@@ -65,7 +65,7 @@ public final class H265Reader implements ElementaryStreamReader {
   private final NalUnitTargetBuffer sps;
   private final NalUnitTargetBuffer pps;
   private final NalUnitTargetBuffer prefixSei;
-  private final NalUnitTargetBuffer suffixSei; // TODO: Are both needed?
+  private final NalUnitTargetBuffer suffixSei;
   private long totalBytesWritten;
 
   // Per packet state that gets reset at the start of each packet.
@@ -424,17 +424,17 @@ public final class H265Reader implements ElementaryStreamReader {
     private final TrackOutput output;
 
     // Per NAL unit state. A sample consists of one or more NAL units.
-    private long nalUnitStartPosition;
+    private long nalUnitPosition;
     private boolean nalUnitHasKeyframeData;
     private int nalUnitBytesRead;
     private long nalUnitTimeUs;
     private boolean lookingForFirstSliceFlag;
     private boolean isFirstSlice;
-    private boolean isFirstParameterSet;
+    private boolean isFirstPrefixNalUnit;
 
     // Per sample state that gets reset at the start of each sample.
     private boolean readingSample;
-    private boolean writingParameterSets;
+    private boolean readingPrefix;
     private long samplePosition;
     private long sampleTimeUs;
     private boolean sampleIsKeyframe;
@@ -446,31 +446,29 @@ public final class H265Reader implements ElementaryStreamReader {
     public void reset() {
       lookingForFirstSliceFlag = false;
       isFirstSlice = false;
-      isFirstParameterSet = false;
+      isFirstPrefixNalUnit = false;
       readingSample = false;
-      writingParameterSets = false;
+      readingPrefix = false;
     }
 
     public void startNalUnit(
         long position, int offset, int nalUnitType, long pesTimeUs, boolean hasOutputFormat) {
       isFirstSlice = false;
-      isFirstParameterSet = false;
+      isFirstPrefixNalUnit = false;
       nalUnitTimeUs = pesTimeUs;
       nalUnitBytesRead = 0;
-      nalUnitStartPosition = position;
+      nalUnitPosition = position;
 
-      if (nalUnitType >= VPS_NUT) {
-        if (!writingParameterSets && readingSample) {
-          // This is a non-VCL NAL unit, so flush the previous sample.
+      if (!isVclBodyNalUnit(nalUnitType)) {
+        if (readingSample && !readingPrefix) {
           if (hasOutputFormat) {
             outputSample(offset);
           }
           readingSample = false;
         }
-        if (nalUnitType <= PPS_NUT) {
-          // This sample will have parameter sets at the start.
-          isFirstParameterSet = !writingParameterSets;
-          writingParameterSets = true;
+        if (isPrefixNalUnit(nalUnitType)) {
+          isFirstPrefixNalUnit = !readingPrefix;
+          readingPrefix = true;
         }
       }
 
@@ -492,30 +490,40 @@ public final class H265Reader implements ElementaryStreamReader {
     }
 
     public void endNalUnit(long position, int offset, boolean hasOutputFormat) {
-      if (writingParameterSets && isFirstSlice) {
+      if (readingPrefix && isFirstSlice) {
         // This sample has parameter sets. Reset the key-frame flag based on the first slice.
         sampleIsKeyframe = nalUnitHasKeyframeData;
-        writingParameterSets = false;
-      } else if (isFirstParameterSet || isFirstSlice) {
+        readingPrefix = false;
+      } else if (isFirstPrefixNalUnit || isFirstSlice) {
         // This NAL unit is at the start of a new sample (access unit).
         if (hasOutputFormat && readingSample) {
           // Output the sample ending before this NAL unit.
-          int nalUnitLength = (int) (position - nalUnitStartPosition);
+          int nalUnitLength = (int) (position - nalUnitPosition);
           outputSample(offset + nalUnitLength);
         }
-        samplePosition = nalUnitStartPosition;
+        samplePosition = nalUnitPosition;
         sampleTimeUs = nalUnitTimeUs;
-        readingSample = true;
         sampleIsKeyframe = nalUnitHasKeyframeData;
+        readingSample = true;
       }
     }
 
     private void outputSample(int offset) {
       @C.BufferFlags int flags = sampleIsKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
-      int size = (int) (nalUnitStartPosition - samplePosition);
+      int size = (int) (nalUnitPosition - samplePosition);
       output.sampleMetadata(sampleTimeUs, flags, size, offset, null);
     }
 
-  }
+    /** Returns whether a NAL unit type is one that occurs before any VCL NAL units in a sample. */
+    private static boolean isPrefixNalUnit(int nalUnitType) {
+      // TODO: Include AUD_NUT and PREFIX_SEI_NUT
+      return VPS_NUT <= nalUnitType && nalUnitType <= PPS_NUT;
+    }
 
+    /** Returns whether a NAL unit type is one that occurs in the VLC body of a sample. */
+    private static boolean isVclBodyNalUnit(int nalUnitType) {
+      // TODO: Include SUFFIX_SEI_NUT
+      return nalUnitType < VPS_NUT;
+    }
+  }
 }
