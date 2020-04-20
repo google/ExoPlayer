@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -1144,6 +1145,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return outputIndex >= 0;
   }
 
+  /**
+   * Check if the renderer has one or more output frames queued to render.  For non-tunneled
+   * mode MediaCodecRenderer's this is true if the codec has returned a frame ready to render
+   * (that is {@see #hasOutputBuffer() is true}.
+   *
+   * This factors into the ready {@link Renderer#isReady()} decision
+   *
+   * @return
+   */
+  protected boolean hasOutputReady() {
+    return hasOutputBuffer();
+  }
+
   private void resetInputBuffer() {
     inputIndex = C.INDEX_UNSET;
     buffer.data = null;
@@ -1528,7 +1542,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return inputFormat != null
         && !waitingForKeys
         && (isSourceReady()
-            || hasOutputBuffer()
+            || hasOutputReady()
             || (codecHotswapDeadlineMs != C.TIME_UNSET
                 && SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
   }

@@ -145,6 +145,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /* package */ @Nullable OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
   @Nullable private VideoFrameMetadataListener frameMetadataListener;
 
+  private long lastInputTimeUs;
+  private long lastOutputTimeUs;
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
@@ -231,6 +233,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
+    lastInputTimeUs = C.TIME_UNSET;
+    lastOutputTimeUs = C.TIME_UNSET;
     joiningDeadlineMs = C.TIME_UNSET;
     currentWidth = Format.NO_VALUE;
     currentHeight = Format.NO_VALUE;
@@ -370,6 +374,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearRenderedFirstFrame();
     initialPositionUs = C.TIME_UNSET;
     consecutiveDroppedFrameCount = 0;
+    lastInputTimeUs = C.TIME_UNSET;
+    lastOutputTimeUs = C.TIME_UNSET;
     if (joining) {
       setJoiningDeadlineMs();
     } else {
@@ -398,6 +404,26 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       joiningDeadlineMs = C.TIME_UNSET;
       return false;
     }
+  }
+
+  /**
+   * Override, to handle tunneling.  In the tunneled case we must assume there is
+   * output ready to render whenever we have queued any sample buffers to the codec that
+   * it has not reported as rendered.
+   *
+   * @return
+   */
+  @Override
+  protected boolean hasOutputReady() {
+    boolean fifoReady = true;
+    if (lastOutputTimeUs != C.TIME_UNSET) {
+      long fifoLengthUs = lastInputTimeUs - lastOutputTimeUs;
+
+      // make sure there is at least 1/3s of video available in decoder FIFO,
+      // otherwise decoder may start stalling
+      fifoReady = fifoLengthUs > 333333;
+    }
+    return tunneling && fifoReady || super.hasOutputReady();
   }
 
   @Override
@@ -846,6 +872,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   /** Called when a buffer was processed in tunneling mode. */
   protected void onProcessedTunneledBuffer(long presentationTimeUs) {
+    lastOutputTimeUs = presentationTimeUs;
     @Nullable Format format = updateOutputFormatForTime(presentationTimeUs);
     if (format != null) {
       processOutputFormat(getCodec(), format.width, format.height);
