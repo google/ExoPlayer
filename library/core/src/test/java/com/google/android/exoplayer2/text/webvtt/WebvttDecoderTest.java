@@ -184,14 +184,14 @@ public class WebvttDecoderTest {
   public void decodeWithPositioning() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_POSITIONING_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(16);
 
     assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
     assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
-    assertThat(firstCue.position).isEqualTo(0.1f);
-    assertThat(firstCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
+    assertThat(firstCue.position).isEqualTo(0.6f);
+    assertThat(firstCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
     assertThat(firstCue.textAlignment).isEqualTo(Alignment.ALIGN_NORMAL);
     assertThat(firstCue.size).isEqualTo(0.35f);
     // Unspecified values should use WebVTT defaults
@@ -246,6 +246,18 @@ public class WebvttDecoderTest {
     // Derived from `align:center`:
     assertThat(sixthCue.position).isEqualTo(0.5f);
     assertThat(sixthCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    assertThat(subtitle.getEventTime(12)).isEqualTo(12_000_000L);
+    assertThat(subtitle.getEventTime(13)).isEqualTo(13_000_000L);
+    Cue seventhCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(12)));
+    assertThat(seventhCue.text.toString()).isEqualTo("This is the seventh subtitle.");
+    assertThat(seventhCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
+
+    assertThat(subtitle.getEventTime(14)).isEqualTo(14_000_000L);
+    assertThat(subtitle.getEventTime(15)).isEqualTo(15_000_000L);
+    Cue eighthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(14)));
+    assertThat(eighthCue.text.toString()).isEqualTo("This is the eighth subtitle.");
+    assertThat(eighthCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
   }
 
   @Test
