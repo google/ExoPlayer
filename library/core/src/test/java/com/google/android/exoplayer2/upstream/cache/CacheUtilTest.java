@@ -201,11 +201,7 @@ public final class CacheUtilTest {
 
     CachingCounters counters = new CachingCounters();
     CacheUtil.cache(
-        new DataSpec(Uri.parse("test_data")),
-        cache,
-        dataSource,
-        counters,
-        /* isCanceled= */ null);
+        cache, new DataSpec(Uri.parse("test_data")), dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 100, 100);
     assertCachedData(cache, fakeDataSet);
@@ -219,17 +215,12 @@ public final class CacheUtilTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, /* position= */ 10, /* length= */ 20);
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
+    CacheUtil.cache(cache, dataSpec, dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 20, 20);
     counters.reset();
 
-    CacheUtil.cache(
-        new DataSpec(testUri),
-        cache,
-        dataSource,
-        counters,
-        /* isCanceled= */ null);
+    CacheUtil.cache(cache, new DataSpec(testUri), dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(20, 80, 100);
     assertCachedData(cache, fakeDataSet);
@@ -244,7 +235,7 @@ public final class CacheUtilTest {
 
     DataSpec dataSpec = new DataSpec(Uri.parse("test_data"));
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
+    CacheUtil.cache(cache, dataSpec, dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 100, 100);
     assertCachedData(cache, fakeDataSet);
@@ -260,17 +251,12 @@ public final class CacheUtilTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, /* position= */ 10, /* length= */ 20);
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
+    CacheUtil.cache(cache, dataSpec, dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 20, 20);
     counters.reset();
 
-    CacheUtil.cache(
-        new DataSpec(testUri),
-        cache,
-        dataSource,
-        counters,
-        /* isCanceled= */ null);
+    CacheUtil.cache(cache, new DataSpec(testUri), dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(20, 80, 100);
     assertCachedData(cache, fakeDataSet);
@@ -284,7 +270,7 @@ public final class CacheUtilTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, /* position= */ 0, /* length= */ 1000);
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
+    CacheUtil.cache(cache, dataSpec, dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 100, 1000);
     assertCachedData(cache, fakeDataSet);
@@ -300,14 +286,12 @@ public final class CacheUtilTest {
 
     try {
       CacheUtil.cache(
-          dataSpec,
           new CacheDataSource(cache, dataSource),
-          new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES],
-          /* priorityTaskManager= */ null,
-          /* priority= */ 0,
+          dataSpec,
           /* progressListener= */ null,
           /* isCanceled= */ null,
-          /* enableEOFException= */ true);
+          /* enableEOFException= */ true,
+          /* temporaryBuffer= */ new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES]);
       fail();
     } catch (EOFException e) {
       // Do nothing.
@@ -329,11 +313,7 @@ public final class CacheUtilTest {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
 
     CacheUtil.cache(
-        new DataSpec(Uri.parse("test_data")),
-        cache,
-        dataSource,
-        counters,
-        /* isCanceled= */ null);
+        cache, new DataSpec(Uri.parse("test_data")), dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 300, 300);
     assertCachedData(cache, fakeDataSet);
@@ -350,7 +330,6 @@ public final class CacheUtilTest {
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
     CacheUtil.cache(
-        dataSpec,
         // Set fragmentSize to 10 to make sure there are multiple spans.
         new CacheDataSource(
             cache,
@@ -359,12 +338,11 @@ public final class CacheUtilTest {
             new CacheDataSink(cache, /* fragmentSize= */ 10),
             /* flags= */ 0,
             /* eventListener= */ null),
-        new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES],
-        /* priorityTaskManager= */ null,
-        /* priority= */ 0,
+        dataSpec,
         /* progressListener= */ null,
         /* isCanceled= */ null,
-        true);
+        /* enableEOFException= */ true,
+        /* temporaryBuffer= */ new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES]);
     CacheUtil.remove(dataSpec, cache, /* cacheKeyFactory= */ null);
 
     assertCacheEmpty(cache);

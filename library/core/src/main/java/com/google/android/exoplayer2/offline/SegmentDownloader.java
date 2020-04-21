@@ -68,7 +68,6 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private final DataSpec manifestDataSpec;
   private final CacheDataSource dataSource;
   private final CacheDataSource offlineDataSource;
-  private final PriorityTaskManager priorityTaskManager;
   private final ArrayList<StreamKey> streamKeys;
   private final AtomicBoolean isCanceled;
 
@@ -84,7 +83,6 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     this.streamKeys = new ArrayList<>(streamKeys);
     this.dataSource = constructorHelper.createCacheDataSource();
     this.offlineDataSource = constructorHelper.createOfflineCacheDataSource();
-    this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     isCanceled = new AtomicBoolean();
   }
 
@@ -98,7 +96,10 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   @Override
   public final void download(@Nullable ProgressListener progressListener)
       throws IOException, InterruptedException {
-    priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+    @Nullable PriorityTaskManager priorityTaskManager = dataSource.getUpstreamPriorityTaskManager();
+    if (priorityTaskManager != null) {
+      priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+    }
     try {
       // Get the manifest and all of the segments.
       M manifest = getManifest(dataSource, manifestDataSpec);
@@ -147,23 +148,23 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
                 bytesDownloaded,
                 segmentsDownloaded);
       }
-      byte[] buffer = new byte[BUFFER_SIZE_BYTES];
+      byte[] temporaryBuffer = new byte[BUFFER_SIZE_BYTES];
       for (int i = 0; i < segments.size(); i++) {
         CacheUtil.cache(
-            segments.get(i).dataSpec,
             dataSource,
-            buffer,
-            priorityTaskManager,
-            C.PRIORITY_DOWNLOAD,
+            segments.get(i).dataSpec,
             progressNotifier,
             isCanceled,
-            true);
+            /* enableEOFException= */ true,
+            temporaryBuffer);
         if (progressNotifier != null) {
           progressNotifier.onSegmentDownloaded();
         }
       }
     } finally {
-      priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      if (priorityTaskManager != null) {
+        priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      }
     }
   }
 

@@ -40,7 +40,6 @@ public final class ProgressiveDownloader implements Downloader {
 
   private final DataSpec dataSpec;
   private final CacheDataSource dataSource;
-  private final PriorityTaskManager priorityTaskManager;
   private final AtomicBoolean isCanceled;
 
   /**
@@ -58,26 +57,28 @@ public final class ProgressiveDownloader implements Downloader {
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
     this.dataSource = constructorHelper.createCacheDataSource();
-    this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
     isCanceled = new AtomicBoolean();
   }
 
   @Override
   public void download(@Nullable ProgressListener progressListener)
       throws InterruptedException, IOException {
-    priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+    @Nullable PriorityTaskManager priorityTaskManager = dataSource.getUpstreamPriorityTaskManager();
+    if (priorityTaskManager != null) {
+      priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+    }
     try {
       CacheUtil.cache(
-          dataSpec,
           dataSource,
-          new byte[BUFFER_SIZE_BYTES],
-          priorityTaskManager,
-          C.PRIORITY_DOWNLOAD,
+          dataSpec,
           progressListener == null ? null : new ProgressForwarder(progressListener),
           isCanceled,
-          /* enableEOFException= */ true);
+          /* enableEOFException= */ true,
+          /* temporaryBuffer= */ new byte[BUFFER_SIZE_BYTES]);
     } finally {
-      priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      if (priorityTaskManager != null) {
+        priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      }
     }
   }
 
