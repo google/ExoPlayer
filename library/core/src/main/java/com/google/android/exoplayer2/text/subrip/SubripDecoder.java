@@ -135,8 +135,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       cues.add(Cue.EMPTY);
     }
 
-    Cue[] cuesArray = new Cue[cues.size()];
-    cues.toArray(cuesArray);
+    Cue[] cuesArray = cues.toArray(new Cue[0]);
     long[] cueTimesUsArray = cueTimesUs.toArray();
     return new SubripSubtitle(cuesArray, cueTimesUsArray);
   }
