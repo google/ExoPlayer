@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.util.Util;
   @C.StreamType private int streamType;
   private int volume;
   private boolean muted;
+  private boolean released;
 
   /** Creates a manager. */
   public StreamVolumeManager(Context context, Handler eventHandler, Listener listener) {
@@ -158,7 +159,11 @@ import com.google.android.exoplayer2.util.Util;
 
   /** Releases the manager. It must be called when the manager is no longer required. */
   public void release() {
+    if (released) {
+      return;
+    }
     applicationContext.unregisterReceiver(receiver);
+    released = true;
   }
 
   private void updateVolumeAndNotifyIfChanged() {
