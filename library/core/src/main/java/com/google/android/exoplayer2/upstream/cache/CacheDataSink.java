@@ -39,6 +39,78 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public final class CacheDataSink implements DataSink {
 
+  /** {@link DataSink.Factory} for {@link CacheDataSink} instances. */
+  public static final class Factory implements DataSink.Factory {
+
+    private @MonotonicNonNull Cache cache;
+    private long fragmentSize;
+    private int bufferSize;
+
+    /** Creates an instance. */
+    public Factory() {
+      fragmentSize = CacheDataSink.DEFAULT_FRAGMENT_SIZE;
+      bufferSize = CacheDataSink.DEFAULT_BUFFER_SIZE;
+    }
+
+    /**
+     * Sets the cache to which data will be written.
+     *
+     * <p>Must be called before the factory is used.
+     *
+     * @param cache The cache to which data will be written.
+     * @return This factory.
+     */
+    public Factory setCache(Cache cache) {
+      this.cache = cache;
+      return this;
+    }
+
+    /**
+     * Sets the cache file fragment size. For requests that should be fragmented into multiple cache
+     * files, this is the maximum size of a cache file in bytes. If set to {@link C#LENGTH_UNSET}
+     * then no fragmentation will occur. Using a small value allows for finer-grained cache eviction
+     * policies, at the cost of increased overhead both on the cache implementation and the file
+     * system. Values under {@code (2 * 1024 * 1024)} are not recommended.
+     *
+     * <p>The default value is {@link CacheDataSink#DEFAULT_FRAGMENT_SIZE}.
+     *
+     * @param fragmentSize The fragment size in bytes, or {@link C#LENGTH_UNSET} to disable
+     *     fragmentation.
+     * @return This factory.
+     */
+    public Factory setFragmentSize(long fragmentSize) {
+      this.fragmentSize = fragmentSize;
+      return this;
+    }
+
+    /**
+     * Sets the size of an in-memory buffer used when writing to a cache file. A zero or negative
+     * value disables buffering.
+     *
+     * <p>The default value is {@link CacheDataSink#DEFAULT_BUFFER_SIZE}.
+     *
+     * @param bufferSize The buffer size in bytes.
+     * @return This factory.
+     */
+    public Factory setBufferSize(int bufferSize) {
+      this.bufferSize = bufferSize;
+      return this;
+    }
+
+    @Override
+    public DataSink createDataSink() {
+      return new CacheDataSink(Assertions.checkNotNull(cache), fragmentSize, bufferSize);
+    }
+  }
+
+  /** Thrown when an {@link IOException} is encountered when writing data to the sink. */
+  public static final class CacheDataSinkException extends CacheException {
+
+    public CacheDataSinkException(IOException cause) {
+      super(cause);
+    }
+  }
+
   /** Default {@code fragmentSize} recommended for caching use cases. */
   public static final long DEFAULT_FRAGMENT_SIZE = 5 * 1024 * 1024;
   /** Default buffer size in bytes. */
@@ -58,17 +130,6 @@ public final class CacheDataSink implements DataSink {
   private long outputStreamBytesWritten;
   private long dataSpecBytesWritten;
   private @MonotonicNonNull ReusableBufferedOutputStream bufferedOutputStream;
-
-  /**
-   * Thrown when IOException is encountered when writing data into sink.
-   */
-  public static class CacheDataSinkException extends CacheException {
-
-    public CacheDataSinkException(IOException cause) {
-      super(cause);
-    }
-
-  }
 
   /**
    * Constructs an instance using {@link #DEFAULT_BUFFER_SIZE}.
