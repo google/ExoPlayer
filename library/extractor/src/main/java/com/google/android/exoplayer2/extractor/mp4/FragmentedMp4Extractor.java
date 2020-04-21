@@ -965,20 +965,20 @@ public class FragmentedMp4Extractor implements Extractor {
 
     // Offset to the entire video timeline. In the presence of B-frames this is usually used to
     // ensure that the first frame's presentation timestamp is zero.
-    long edtsOffset = 0;
+    long edtsOffsetUs = 0;
 
     // Currently we only support a single edit that moves the entire media timeline (indicated by
     // duration == 0). Other uses of edit lists are uncommon and unsupported.
     if (track.editListDurations != null && track.editListDurations.length == 1
         && track.editListDurations[0] == 0) {
-      edtsOffset =
+      edtsOffsetUs =
           Util.scaleLargeTimestamp(
-              track.editListMediaTimes[0], C.MILLIS_PER_SECOND, track.timescale);
+              track.editListMediaTimes[0], C.MICROS_PER_SECOND, track.timescale);
     }
 
     int[] sampleSizeTable = fragment.sampleSizeTable;
-    int[] sampleCompositionTimeOffsetTable = fragment.sampleCompositionTimeOffsetTable;
-    long[] sampleDecodingTimeTable = fragment.sampleDecodingTimeTable;
+    int[] sampleCompositionTimeOffsetUsTable = fragment.sampleCompositionTimeOffsetUsTable;
+    long[] sampleDecodingTimeUsTable = fragment.sampleDecodingTimeUsTable;
     boolean[] sampleIsSyncFrameTable = fragment.sampleIsSyncFrameTable;
 
     boolean workaroundEveryVideoFrameIsSyncFrame = track.type == C.TRACK_TYPE_VIDEO
@@ -1002,13 +1002,13 @@ public class FragmentedMp4Extractor implements Extractor {
         // here, because unsigned integers will still be parsed correctly (unless their top bit is
         // set, which is never true in practice because sample offsets are always small).
         int sampleOffset = trun.readInt();
-        sampleCompositionTimeOffsetTable[i] =
-            (int) ((sampleOffset * C.MILLIS_PER_SECOND) / timescale);
+        sampleCompositionTimeOffsetUsTable[i] =
+            (int) ((sampleOffset * C.MICROS_PER_SECOND) / timescale);
       } else {
-        sampleCompositionTimeOffsetTable[i] = 0;
+        sampleCompositionTimeOffsetUsTable[i] = 0;
       }
-      sampleDecodingTimeTable[i] =
-          Util.scaleLargeTimestamp(cumulativeTime, C.MILLIS_PER_SECOND, timescale) - edtsOffset;
+      sampleDecodingTimeUsTable[i] =
+          Util.scaleLargeTimestamp(cumulativeTime, C.MICROS_PER_SECOND, timescale) - edtsOffsetUs;
       sampleSizeTable[i] = sampleSize;
       sampleIsSyncFrameTable[i] = ((sampleFlags >> 16) & 0x1) == 0
           && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);
@@ -1297,7 +1297,7 @@ public class FragmentedMp4Extractor implements Extractor {
     Track track = currentTrackBundle.track;
     TrackOutput output = currentTrackBundle.output;
     int sampleIndex = currentTrackBundle.currentSampleIndex;
-    long sampleTimeUs = fragment.getSamplePresentationTime(sampleIndex) * 1000L;
+    long sampleTimeUs = fragment.getSamplePresentationTimeUs(sampleIndex);
     if (timestampAdjuster != null) {
       sampleTimeUs = timestampAdjuster.adjustSampleTimestamp(sampleTimeUs);
     }
@@ -1545,10 +1545,9 @@ public class FragmentedMp4Extractor implements Extractor {
      * @param timeUs The seek time, in microseconds.
      */
     public void seek(long timeUs) {
-      long timeMs = C.usToMs(timeUs);
       int searchIndex = currentSampleIndex;
       while (searchIndex < fragment.sampleCount
-          && fragment.getSamplePresentationTime(searchIndex) < timeMs) {
+          && fragment.getSamplePresentationTimeUs(searchIndex) < timeUs) {
         if (fragment.sampleIsSyncFrameTable[searchIndex]) {
           firstSampleToOutputIndex = searchIndex;
         }
