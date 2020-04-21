@@ -158,8 +158,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Copy the new streams back into the streams array.
     System.arraycopy(newStreams, 0, streams, 0, newStreams.length);
     // Update the local state.
-    enabledPeriods = new MediaPeriod[enabledPeriodsList.size()];
-    enabledPeriodsList.toArray(enabledPeriods);
+    enabledPeriods = enabledPeriodsList.toArray(new MediaPeriod[0]);
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(enabledPeriods);
     return positionUs;
