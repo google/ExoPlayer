@@ -477,13 +477,15 @@ public class SampleQueue implements TrackOutput {
   }
 
   @Override
-  public final int sampleData(DataReader input, int length, boolean allowEndOfInput)
+  public final int sampleData(
+      DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
       throws IOException {
     return sampleDataQueue.sampleData(input, length, allowEndOfInput);
   }
 
   @Override
-  public final void sampleData(ParsableByteArray buffer, int length) {
+  public final void sampleData(
+      ParsableByteArray buffer, int length, @SampleDataPart int sampleDataPart) {
     sampleDataQueue.sampleData(buffer, length);
   }
 

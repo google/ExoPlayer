@@ -1521,7 +1521,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     @Override
-    public int sampleData(DataReader input, int length, boolean allowEndOfInput)
+    public int sampleData(
+        DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
         throws IOException {
       ensureBufferCapacity(bufferPosition + length);
       int numBytesRead = input.read(buffer, bufferPosition, length);
@@ -1537,7 +1538,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     @Override
-    public void sampleData(ParsableByteArray buffer, int length) {
+    public void sampleData(
+        ParsableByteArray buffer, int length, @SampleDataPart int sampleDataPart) {
       ensureBufferCapacity(bufferPosition + length);
       buffer.readBytes(this.buffer, bufferPosition, length);
       bufferPosition += length;

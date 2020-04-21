@@ -203,13 +203,14 @@ public final class ChunkExtractorWrapper implements ExtractorOutput {
     }
 
     @Override
-    public int sampleData(DataReader input, int length, boolean allowEndOfInput)
+    public int sampleData(
+        DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
         throws IOException {
       return castNonNull(trackOutput).sampleData(input, length, allowEndOfInput);
     }
 
     @Override
-    public void sampleData(ParsableByteArray data, int length) {
+    public void sampleData(ParsableByteArray data, int length, @SampleDataPart int sampleDataPart) {
       castNonNull(trackOutput).sampleData(data, length);
     }
 
