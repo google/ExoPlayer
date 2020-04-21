@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
@@ -120,9 +119,11 @@ public final class DashDownloadTest {
         }
       }
     }
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(cache, httpDataSourceFactory);
-    return new DashDownloader(MANIFEST_URI, keys, constructorHelper);
+    CacheDataSource.Factory cacheDataSourceFactory =
+        new CacheDataSource.Factory()
+            .setCache(cache)
+            .setUpstreamDataSourceFactory(httpDataSourceFactory);
+    return new DashDownloader(MANIFEST_URI, keys, cacheDataSourceFactory);
   }
 
 }

@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.scheduler.RequirementsWatcher;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
 import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.util.Assertions;
@@ -197,7 +198,10 @@ public final class DownloadManager {
     this(
         context,
         new DefaultDownloadIndex(databaseProvider),
-        new DefaultDownloaderFactory(new DownloaderConstructorHelper(cache, upstreamFactory)));
+        new DefaultDownloaderFactory(
+            new CacheDataSource.Factory()
+                .setCache(cache)
+                .setUpstreamDataSourceFactory(upstreamFactory)));
   }
 
   /**

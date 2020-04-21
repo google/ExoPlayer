@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloadService;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
@@ -42,6 +41,7 @@ import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -113,12 +113,14 @@ public class DownloadServiceDashTest {
         () -> {
           DefaultDownloadIndex downloadIndex =
               new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
+          DefaultDownloaderFactory downloaderFactory =
+              new DefaultDownloaderFactory(
+                  new CacheDataSource.Factory()
+                      .setCache(cache)
+                      .setUpstreamDataSourceFactory(fakeDataSourceFactory));
           final DownloadManager dashDownloadManager =
               new DownloadManager(
-                  ApplicationProvider.getApplicationContext(),
-                  downloadIndex,
-                  new DefaultDownloaderFactory(
-                      new DownloaderConstructorHelper(cache, fakeDataSourceFactory)));
+                  ApplicationProvider.getApplicationContext(), downloadIndex, downloaderFactory);
           downloadManagerListener =
               new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
           dashDownloadManager.resumeDownloads();

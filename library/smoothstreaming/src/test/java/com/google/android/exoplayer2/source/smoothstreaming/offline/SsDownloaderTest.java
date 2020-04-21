@@ -22,11 +22,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.Downloader;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.DownloaderFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,9 +38,11 @@ public final class SsDownloaderTest {
 
   @Test
   public void createWithDefaultDownloaderFactory() throws Exception {
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
-    DownloaderFactory factory = new DefaultDownloaderFactory(constructorHelper);
+    CacheDataSource.Factory cacheDataSourceFactory =
+        new CacheDataSource.Factory()
+            .setCache(Mockito.mock(Cache.class))
+            .setUpstreamDataSourceFactory(DummyDataSource.FACTORY);
+    DownloaderFactory factory = new DefaultDownloaderFactory(cacheDataSourceFactory);
 
     Downloader downloader =
         factory.createDownloader(

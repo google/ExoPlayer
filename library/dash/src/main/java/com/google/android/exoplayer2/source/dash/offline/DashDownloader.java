@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.offline.DownloadException;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
@@ -35,6 +34,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,19 +46,20 @@ import java.util.List;
  *
  * <pre>{@code
  * SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor(), databaseProvider);
- * DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
- * DownloaderConstructorHelper constructorHelper =
- *     new DownloaderConstructorHelper(cache, factory);
+ * CacheDataSource.Factory cacheDataSourceFactory =
+ *     new CacheDataSource.Factory()
+ *         .setCache(cache)
+ *         .setUpstreamDataSourceFactory(new DefaultHttpDataSourceFactory(userAgent));
  * // Create a downloader for the first representation of the first adaptation set of the first
  * // period.
  * DashDownloader dashDownloader =
  *     new DashDownloader(
- *         manifestUrl, Collections.singletonList(new StreamKey(0, 0, 0)), constructorHelper);
+ *         manifestUrl, Collections.singletonList(new StreamKey(0, 0, 0)), cacheDataSourceFactory);
  * // Perform the download.
  * dashDownloader.download(progressListener);
- * // Access downloaded data using CacheDataSource
- * CacheDataSource cacheDataSource =
- *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
+ * // Use the downloaded data for playback.
+ * DashMediaSource mediaSource =
+ *     new DashMediaSource.Factory(cacheDataSourceFactory).createMediaSource(mediaItem);
  * }</pre>
  */
 public final class DashDownloader extends SegmentDownloader<DashManifest> {
@@ -67,11 +68,12 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
    * @param streamKeys Keys defining which representations in the manifest should be selected for
    *     download. If empty, all representations are downloaded.
-   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
    */
   public DashDownloader(
-      Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
-    super(manifestUri, streamKeys, constructorHelper);
+      Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
+    super(manifestUri, streamKeys, cacheDataSourceFactory);
   }
 
   @Override
