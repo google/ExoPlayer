@@ -1611,9 +1611,10 @@ public class FragmentedMp4Extractor implements Extractor {
       encryptionSignalByte.data[0] =
           (byte) (vectorSize | (writeSubsampleEncryptionData ? 0x80 : 0));
       encryptionSignalByte.setPosition(0);
-      output.sampleData(encryptionSignalByte, 1);
+      output.sampleData(encryptionSignalByte, 1, TrackOutput.SAMPLE_DATA_PART_ENCRYPTION);
       // Write the vector.
-      output.sampleData(initializationVectorData, vectorSize);
+      output.sampleData(
+          initializationVectorData, vectorSize, TrackOutput.SAMPLE_DATA_PART_ENCRYPTION);
 
       if (!writeSubsampleEncryptionData) {
         return 1 + vectorSize;
@@ -1635,7 +1636,10 @@ public class FragmentedMp4Extractor implements Extractor {
         scratch.data[5] = (byte) ((sampleSize >> 16) & 0xFF);
         scratch.data[6] = (byte) ((sampleSize >> 8) & 0xFF);
         scratch.data[7] = (byte) (sampleSize & 0xFF);
-        output.sampleData(scratch, SINGLE_SUBSAMPLE_ENCRYPTION_DATA_LENGTH);
+        output.sampleData(
+            scratch,
+            SINGLE_SUBSAMPLE_ENCRYPTION_DATA_LENGTH,
+            TrackOutput.SAMPLE_DATA_PART_ENCRYPTION);
         return 1 + vectorSize + SINGLE_SUBSAMPLE_ENCRYPTION_DATA_LENGTH;
       }
 
@@ -1658,7 +1662,8 @@ public class FragmentedMp4Extractor implements Extractor {
         subsampleEncryptionData = scratch;
       }
 
-      output.sampleData(subsampleEncryptionData, subsampleDataLength);
+      output.sampleData(
+          subsampleEncryptionData, subsampleDataLength, TrackOutput.SAMPLE_DATA_PART_ENCRYPTION);
       return 1 + vectorSize + subsampleDataLength;
     }
 
