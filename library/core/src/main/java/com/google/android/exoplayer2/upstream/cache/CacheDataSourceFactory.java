@@ -52,7 +52,7 @@ public final class CacheDataSourceFactory implements DataSource.Factory {
         cache,
         upstreamFactory,
         new FileDataSource.Factory(),
-        new CacheDataSinkFactory(cache, CacheDataSink.DEFAULT_FRAGMENT_SIZE),
+        new CacheDataSink.Factory().setCache(cache),
         flags,
         /* eventListener= */ null);
   }
