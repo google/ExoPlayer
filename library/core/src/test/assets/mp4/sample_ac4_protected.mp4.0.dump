@@ -107,7 +107,7 @@ track 0:
     crypto mode = 1
     encryption key = length 16, hash 9FDDEA52
   sample 13:
-    time = 520000
+    time = 519999
     flags = 1073741825
     data = length 616, hash 3F657E23
     crypto mode = 1
