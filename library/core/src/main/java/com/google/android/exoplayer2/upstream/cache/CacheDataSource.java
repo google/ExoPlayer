@@ -25,10 +25,12 @@ import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.upstream.PriorityDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.annotation.Documented;
@@ -55,6 +57,8 @@ public final class CacheDataSource implements DataSource {
     private CacheKeyFactory cacheKeyFactory;
     private boolean cacheIsReadOnly;
     @Nullable private DataSource.Factory upstreamDataSourceFactory;
+    @Nullable private PriorityTaskManager upstreamPriorityTaskManager;
+    private int upstreamPriority;
     @CacheDataSource.Flags private int flags;
     @Nullable private CacheDataSource.EventListener eventListener;
 
@@ -138,6 +142,44 @@ public final class CacheDataSource implements DataSource {
     }
 
     /**
+     * Sets an optional {@link PriorityTaskManager} to use when requesting data from upstream.
+     *
+     * <p>If set, reads from the upstream {@link DataSource} will only be allowed to proceed if
+     * there are no higher priority tasks registered to the {@link PriorityTaskManager}. If there
+     * exists a higher priority task then {@link PriorityTaskManager.PriorityTooLowException} will
+     * be thrown instead.
+     *
+     * <p>Note that requests to {@link CacheDataSource} instances are intended to be used as parts
+     * of (possibly larger) tasks that are registered with the {@link PriorityTaskManager}, and
+     * hence {@link CacheDataSource} does <em>not</em> register a task by itself. This must be done
+     * by the surrounding code that uses the {@link CacheDataSource} instances.
+     *
+     * <p>The default is {@code null}.
+     *
+     * @param upstreamPriorityTaskManager The upstream {@link PriorityTaskManager}.
+     * @return This factory.
+     */
+    public Factory setUpstreamPriorityTaskManager(
+        @Nullable PriorityTaskManager upstreamPriorityTaskManager) {
+      this.upstreamPriorityTaskManager = upstreamPriorityTaskManager;
+      return this;
+    }
+
+    /**
+     * Sets the priority to use when requesting data from upstream. The priority is only used if a
+     * {@link PriorityTaskManager} is set by calling {@link #setUpstreamPriorityTaskManager}.
+     *
+     * <p>The default is {@link C#PRIORITY_PLAYBACK}.
+     *
+     * @param upstreamPriority The priority to use when requesting data from upstream.
+     * @return This factory.
+     */
+    public Factory setUpstreamPriority(int upstreamPriority) {
+      this.upstreamPriority = upstreamPriority;
+      return this;
+    }
+
+    /**
      * Sets the {@link CacheDataSource.Flags}.
      *
      * <p>The default is {@code 0}.
@@ -182,9 +224,11 @@ public final class CacheDataSource implements DataSource {
           upstreamDataSource,
           cacheReadDataSourceFactory.createDataSource(),
           cacheWriteDataSink,
+          cacheKeyFactory,
           flags,
-          eventListener,
-          cacheKeyFactory);
+          upstreamPriorityTaskManager,
+          upstreamPriority,
+          eventListener);
     }
   }
 
@@ -267,6 +311,8 @@ public final class CacheDataSource implements DataSource {
   @Nullable private final DataSource cacheWriteDataSource;
   private final DataSource upstreamDataSource;
   private final CacheKeyFactory cacheKeyFactory;
+  @Nullable private final PriorityTaskManager upstreamPriorityTaskManager;
+  private final int upstreamPriority;
   @Nullable private final EventListener eventListener;
 
   private final boolean blockOnCache;
@@ -373,6 +419,28 @@ public final class CacheDataSource implements DataSource {
       @Flags int flags,
       @Nullable EventListener eventListener,
       @Nullable CacheKeyFactory cacheKeyFactory) {
+    this(
+        cache,
+        upstreamDataSource,
+        cacheReadDataSource,
+        cacheWriteDataSink,
+        cacheKeyFactory,
+        flags,
+        /* upstreamPriorityTaskManager= */ null,
+        /* upstreamPriority= */ C.PRIORITY_PLAYBACK,
+        eventListener);
+  }
+
+  private CacheDataSource(
+      Cache cache,
+      @Nullable DataSource upstreamDataSource,
+      DataSource cacheReadDataSource,
+      @Nullable DataSink cacheWriteDataSink,
+      @Nullable CacheKeyFactory cacheKeyFactory,
+      @Flags int flags,
+      @Nullable PriorityTaskManager upstreamPriorityTaskManager,
+      int upstreamPriority,
+      @Nullable EventListener eventListener) {
     this.cache = cache;
     this.cacheReadDataSource = cacheReadDataSource;
     this.cacheKeyFactory =
@@ -381,14 +449,22 @@ public final class CacheDataSource implements DataSource {
     this.ignoreCacheOnError = (flags & FLAG_IGNORE_CACHE_ON_ERROR) != 0;
     this.ignoreCacheForUnsetLengthRequests =
         (flags & FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS) != 0;
+    this.upstreamPriority = upstreamPriority;
     if (upstreamDataSource != null) {
+      if (upstreamPriorityTaskManager != null) {
+        upstreamDataSource =
+            new PriorityDataSource(
+                upstreamDataSource, upstreamPriorityTaskManager, upstreamPriority);
+      }
       this.upstreamDataSource = upstreamDataSource;
+      this.upstreamPriorityTaskManager = upstreamPriorityTaskManager;
       this.cacheWriteDataSource =
           cacheWriteDataSink != null
               ? new TeeDataSource(upstreamDataSource, cacheWriteDataSink)
               : null;
     } else {
       this.upstreamDataSource = DummyDataSource.INSTANCE;
+      this.upstreamPriorityTaskManager = null;
       this.cacheWriteDataSource = null;
     }
     this.eventListener = eventListener;
@@ -402,6 +478,24 @@ public final class CacheDataSource implements DataSource {
   /** Returns the {@link CacheKeyFactory} used by this instance. */
   public CacheKeyFactory getCacheKeyFactory() {
     return cacheKeyFactory;
+  }
+
+  /**
+   * Returns the {@link PriorityTaskManager} used when there's a cache miss and requests need to be
+   * made to the upstream {@link DataSource}, or {@code null} if there is none.
+   */
+  @Nullable
+  public PriorityTaskManager getUpstreamPriorityTaskManager() {
+    return upstreamPriorityTaskManager;
+  }
+
+  /**
+   * Returns the priority used when there's a cache miss and requests need to be made to the
+   * upstream {@link DataSource}. The priority is only used if the source has a {@link
+   * PriorityTaskManager}.
+   */
+  public int getUpstreamPriority() {
+    return upstreamPriority;
   }
 
   @Override

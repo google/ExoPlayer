@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
-import com.google.android.exoplayer2.upstream.PriorityDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSinkFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
@@ -30,7 +29,6 @@ import com.google.android.exoplayer2.util.PriorityTaskManager;
 /** A helper class that holds necessary parameters for {@link Downloader} construction. */
 public final class DownloaderConstructorHelper {
 
-  @Nullable private final PriorityTaskManager priorityTaskManager;
   private final CacheDataSource.Factory onlineCacheDataSourceFactory;
   private final CacheDataSource.Factory offlineCacheDataSourceFactory;
 
@@ -97,15 +95,12 @@ public final class DownloaderConstructorHelper {
       @Nullable DataSink.Factory cacheWriteDataSinkFactory,
       @Nullable PriorityTaskManager priorityTaskManager,
       @Nullable CacheKeyFactory cacheKeyFactory) {
-    this.priorityTaskManager = priorityTaskManager;
-    if (priorityTaskManager != null) {
-      upstreamFactory =
-          new PriorityDataSourceFactory(upstreamFactory, priorityTaskManager, C.PRIORITY_DOWNLOAD);
-    }
     onlineCacheDataSourceFactory =
         new CacheDataSource.Factory()
             .setCache(cache)
             .setUpstreamDataSourceFactory(upstreamFactory)
+            .setUpstreamPriorityTaskManager(priorityTaskManager)
+            .setUpstreamPriority(C.PRIORITY_DOWNLOAD)
             .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE);
     offlineCacheDataSourceFactory =
         new CacheDataSource.Factory()
@@ -123,13 +118,6 @@ public final class DownloaderConstructorHelper {
     if (cacheWriteDataSinkFactory != null) {
       onlineCacheDataSourceFactory.setCacheWriteDataSinkFactory(cacheWriteDataSinkFactory);
     }
-  }
-
-  /** Returns a {@link PriorityTaskManager} instance. */
-  public PriorityTaskManager getPriorityTaskManager() {
-    // Return a dummy PriorityTaskManager if none is provided. Create a new PriorityTaskManager
-    // each time so clients don't affect each other over the dummy PriorityTaskManager instance.
-    return priorityTaskManager != null ? priorityTaskManager : new PriorityTaskManager();
   }
 
   /** Returns a new {@link CacheDataSource} instance. */
