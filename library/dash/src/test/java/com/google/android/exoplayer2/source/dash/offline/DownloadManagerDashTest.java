@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadRequest;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.CacheAsserts.RequestSet;
@@ -40,6 +39,7 @@ import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
@@ -253,12 +253,14 @@ public class DownloadManagerDashTest {
     runOnMainThread(
         () -> {
           Factory fakeDataSourceFactory = new FakeDataSource.Factory().setFakeDataSet(fakeDataSet);
+          DefaultDownloaderFactory downloaderFactory =
+              new DefaultDownloaderFactory(
+                  new CacheDataSource.Factory()
+                      .setCache(cache)
+                      .setUpstreamDataSourceFactory(fakeDataSourceFactory));
           downloadManager =
               new DownloadManager(
-                  ApplicationProvider.getApplicationContext(),
-                  downloadIndex,
-                  new DefaultDownloaderFactory(
-                      new DownloaderConstructorHelper(cache, fakeDataSourceFactory)));
+                  ApplicationProvider.getApplicationContext(), downloadIndex, downloaderFactory);
           downloadManager.setRequirements(new Requirements(0));
 
           downloadManagerListener =

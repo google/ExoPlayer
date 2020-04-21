@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
@@ -27,6 +26,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.UriUtil;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,20 +40,20 @@ import java.util.List;
  *
  * <pre>{@code
  * SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor(), databaseProvider);
- * DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
- * DownloaderConstructorHelper constructorHelper =
- *     new DownloaderConstructorHelper(cache, factory);
+ * CacheDataSource.Factory cacheDataSourceFactory =
+ *     new CacheDataSource.Factory()
+ *         .setCache(cache)
+ *         .setUpstreamDataSourceFactory(new DefaultHttpDataSourceFactory(userAgent));
  * // Create a downloader for the first variant in a master playlist.
  * HlsDownloader hlsDownloader =
  *     new HlsDownloader(
  *         playlistUri,
- *         Collections.singletonList(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, 0)),
- *         constructorHelper);
+ *         Collections.singletonList(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, 0));
  * // Perform the download.
  * hlsDownloader.download(progressListener);
- * // Access downloaded data using CacheDataSource
- * CacheDataSource cacheDataSource =
- *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
+ * // Use the downloaded data for playback.
+ * HlsMediaSource mediaSource =
+ *     new HlsMediaSource.Factory(cacheDataSourceFactory).createMediaSource(mediaItem);
  * }</pre>
  */
 public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
@@ -62,11 +62,12 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
    * @param playlistUri The {@link Uri} of the playlist to be downloaded.
    * @param streamKeys Keys defining which renditions in the playlist should be selected for
    *     download. If empty, all renditions are downloaded.
-   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
    */
   public HlsDownloader(
-      Uri playlistUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
-    super(playlistUri, streamKeys, constructorHelper);
+      Uri playlistUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
+    super(playlistUri, streamKeys, cacheDataSourceFactory);
   }
 
   @Override

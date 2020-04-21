@@ -25,15 +25,7 @@ import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * A downloader for progressive media streams.
- *
- * <p>The downloader attempts to download the entire media bytes referenced by a {@link Uri} into a
- * cache as defined by {@link DownloaderConstructorHelper}. Callers can use the constructor to
- * specify a custom cache key for the downloaded bytes.
- *
- * <p>The downloader will avoid downloading already-downloaded media bytes.
- */
+/** A downloader for progressive media streams. */
 public final class ProgressiveDownloader implements Downloader {
 
   private static final int BUFFER_SIZE_BYTES = 128 * 1024;
@@ -46,17 +38,18 @@ public final class ProgressiveDownloader implements Downloader {
    * @param uri Uri of the data to be downloaded.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
    *     indexing. May be null.
-   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
    */
   public ProgressiveDownloader(
-      Uri uri, @Nullable String customCacheKey, DownloaderConstructorHelper constructorHelper) {
-    this.dataSpec =
+      Uri uri, @Nullable String customCacheKey, CacheDataSource.Factory cacheDataSourceFactory) {
+    dataSpec =
         new DataSpec.Builder()
             .setUri(uri)
             .setKey(customCacheKey)
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
-    this.dataSource = constructorHelper.createCacheDataSource();
+    dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
     isCanceled = new AtomicBoolean();
   }
 

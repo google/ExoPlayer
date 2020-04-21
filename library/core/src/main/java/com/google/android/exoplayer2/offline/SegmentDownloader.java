@@ -67,7 +67,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
   private final DataSpec manifestDataSpec;
   private final CacheDataSource dataSource;
-  private final CacheDataSource offlineDataSource;
+  private final CacheDataSource removingDataSource;
   private final ArrayList<StreamKey> streamKeys;
   private final AtomicBoolean isCanceled;
 
@@ -75,14 +75,15 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
    * @param streamKeys Keys defining which streams in the manifest should be selected for download.
    *     If empty, all streams are downloaded.
-   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
    */
   public SegmentDownloader(
-      Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
+      Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
     this.manifestDataSpec = getCompressibleDataSpec(manifestUri);
     this.streamKeys = new ArrayList<>(streamKeys);
-    this.dataSource = constructorHelper.createCacheDataSource();
-    this.offlineDataSource = constructorHelper.createOfflineCacheDataSource();
+    this.dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
+    this.removingDataSource = cacheDataSourceFactory.createDataSourceForRemovingDownload();
     isCanceled = new AtomicBoolean();
   }
 
@@ -176,8 +177,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   @Override
   public final void remove() throws InterruptedException {
     try {
-      M manifest = getManifest(offlineDataSource, manifestDataSpec);
-      List<Segment> segments = getSegments(offlineDataSource, manifest, true);
+      M manifest = getManifest(removingDataSource, manifestDataSpec);
+      List<Segment> segments = getSegments(removingDataSource, manifest, true);
       for (int i = 0; i < segments.size(); i++) {
         removeDataSpec(segments.get(i).dataSpec);
       }

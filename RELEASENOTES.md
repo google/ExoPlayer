@@ -60,8 +60,6 @@
         `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
         generalized to work with `Decoder` rather than `SimpleDecoder`.
     *   Add media item based playlist API to Player.
-    *   Update `CachedContentIndex` to use `SecureRandom` for generating the
-        initialization vector used to encrypt the cache contents.
     *   Remove deprecated members in `DefaultTrackSelector`.
     *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
         that the device volume can be controlled by player.
@@ -108,8 +106,15 @@
         `OfflineLicenseHelper`
         ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
     *   Remove generics from DRM components.
-*   Downloads: Merge downloads in `SegmentDownloader` to improve overall
-    download speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+*   Downloads and caching:
+    *   Merge downloads in `SegmentDownloader` to improve overall download
+        speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+    *   Replace `CacheDataSinkFactory` and `CacheDataSourceFactory` with
+        `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
+    *   Remove `DownloadConstructorHelper` and use `CacheDataSource.Factory`
+        directly instead.
+    *   Update `CachedContentIndex` to use `SecureRandom` for generating the
+        initialization vector used to encrypt the cache contents.
 *   DASH:
     *   Merge trick play adaptation sets (i.e., adaptation sets marked with
         `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as

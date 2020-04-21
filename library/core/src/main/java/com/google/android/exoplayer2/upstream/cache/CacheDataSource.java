@@ -207,12 +207,54 @@ public final class CacheDataSource implements DataSource {
 
     @Override
     public CacheDataSource createDataSource() {
+      return createDataSourceInternal(
+          upstreamDataSourceFactory != null ? upstreamDataSourceFactory.createDataSource() : null,
+          flags,
+          upstreamPriority);
+    }
+
+    /**
+     * Returns an instance suitable for downloading content. The created instance is equivalent to
+     * one that would be created by {@link #createDataSource()}, except:
+     *
+     * <ul>
+     *   <li>The {@link #FLAG_BLOCK_ON_CACHE} is always set.
+     *   <li>The task priority is overridden to be {@link C#PRIORITY_DOWNLOAD}.
+     * </ul>
+     *
+     * @return An instance suitable for downloading content.
+     */
+    public CacheDataSource createDataSourceForDownloading() {
+      return createDataSourceInternal(
+          upstreamDataSourceFactory != null ? upstreamDataSourceFactory.createDataSource() : null,
+          flags | FLAG_BLOCK_ON_CACHE,
+          C.PRIORITY_DOWNLOAD);
+    }
+
+    /**
+     * Returns an instance suitable for reading cached content as part of removing a download. The
+     * created instance is equivalent to one that would be created by {@link #createDataSource()},
+     * except:
+     *
+     * <ul>
+     *   <li>The upstream is overridden to be {@code null}, since when removing content we don't
+     *       want to request anything that's not already cached.
+     *   <li>The {@link #FLAG_BLOCK_ON_CACHE} is always set.
+     *   <li>The task priority is overridden to be {@link C#PRIORITY_DOWNLOAD}.
+     * </ul>
+     *
+     * @return An instance suitable for reading cached content as part of removing a download.
+     */
+    public CacheDataSource createDataSourceForRemovingDownload() {
+      return createDataSourceInternal(
+          /* upstreamDataSource= */ null, flags | FLAG_BLOCK_ON_CACHE, C.PRIORITY_DOWNLOAD);
+    }
+
+    private CacheDataSource createDataSourceInternal(
+        @Nullable DataSource upstreamDataSource, @Flags int flags, int upstreamPriority) {
       Cache cache = Assertions.checkNotNull(this.cache);
-      @Nullable
-      DataSource upstreamDataSource =
-          upstreamDataSourceFactory != null ? upstreamDataSourceFactory.createDataSource() : null;
       @Nullable DataSink cacheWriteDataSink;
-      if (cacheIsReadOnly) {
+      if (cacheIsReadOnly || upstreamDataSource == null) {
         cacheWriteDataSink = null;
       } else if (cacheWriteDataSinkFactory != null) {
         cacheWriteDataSink = cacheWriteDataSinkFactory.createDataSink();
