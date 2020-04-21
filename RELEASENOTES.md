@@ -73,6 +73,8 @@
     *   Fix `AdsMediaSource` child `MediaSource`s not being released.
     *   Parse track titles from Matroska files
         ([#7247](https://github.com/google/ExoPlayer/pull/7247)).
+    *   Replace `CacheDataSinkFactory` and `CacheDataSourceFactory` with
+        `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).

@@ -19,14 +19,11 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.PriorityDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.Cache;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSink;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSinkFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 
@@ -34,8 +31,8 @@ import com.google.android.exoplayer2.util.PriorityTaskManager;
 public final class DownloaderConstructorHelper {
 
   @Nullable private final PriorityTaskManager priorityTaskManager;
-  private final CacheDataSourceFactory onlineCacheDataSourceFactory;
-  private final CacheDataSourceFactory offlineCacheDataSourceFactory;
+  private final CacheDataSource.Factory onlineCacheDataSourceFactory;
+  private final CacheDataSource.Factory offlineCacheDataSourceFactory;
 
   /**
    * @param cache Cache instance to be used to store downloaded data.
@@ -100,37 +97,32 @@ public final class DownloaderConstructorHelper {
       @Nullable DataSink.Factory cacheWriteDataSinkFactory,
       @Nullable PriorityTaskManager priorityTaskManager,
       @Nullable CacheKeyFactory cacheKeyFactory) {
+    this.priorityTaskManager = priorityTaskManager;
     if (priorityTaskManager != null) {
       upstreamFactory =
           new PriorityDataSourceFactory(upstreamFactory, priorityTaskManager, C.PRIORITY_DOWNLOAD);
     }
-    DataSource.Factory readDataSourceFactory =
-        cacheReadDataSourceFactory != null
-            ? cacheReadDataSourceFactory
-            : new FileDataSource.Factory();
-    if (cacheWriteDataSinkFactory == null) {
-      cacheWriteDataSinkFactory =
-          new CacheDataSinkFactory(cache, CacheDataSink.DEFAULT_FRAGMENT_SIZE);
-    }
     onlineCacheDataSourceFactory =
-        new CacheDataSourceFactory(
-            cache,
-            upstreamFactory,
-            readDataSourceFactory,
-            cacheWriteDataSinkFactory,
-            CacheDataSource.FLAG_BLOCK_ON_CACHE,
-            /* eventListener= */ null,
-            cacheKeyFactory);
+        new CacheDataSource.Factory()
+            .setCache(cache)
+            .setUpstreamDataSourceFactory(upstreamFactory)
+            .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE);
     offlineCacheDataSourceFactory =
-        new CacheDataSourceFactory(
-            cache,
-            DummyDataSource.FACTORY,
-            readDataSourceFactory,
-            null,
-            CacheDataSource.FLAG_BLOCK_ON_CACHE,
-            /* eventListener= */ null,
-            cacheKeyFactory);
-    this.priorityTaskManager = priorityTaskManager;
+        new CacheDataSource.Factory()
+            .setCache(cache)
+            .setCacheWriteDataSinkFactory(null)
+            .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE);
+    if (cacheKeyFactory != null) {
+      onlineCacheDataSourceFactory.setCacheKeyFactory(cacheKeyFactory);
+      offlineCacheDataSourceFactory.setCacheKeyFactory(cacheKeyFactory);
+    }
+    if (cacheReadDataSourceFactory != null) {
+      onlineCacheDataSourceFactory.setCacheReadDataSourceFactory(cacheReadDataSourceFactory);
+      offlineCacheDataSourceFactory.setCacheReadDataSourceFactory(cacheReadDataSourceFactory);
+    }
+    if (cacheWriteDataSinkFactory != null) {
+      onlineCacheDataSourceFactory.setCacheWriteDataSinkFactory(cacheWriteDataSinkFactory);
+    }
   }
 
   /** Returns a {@link PriorityTaskManager} instance. */
