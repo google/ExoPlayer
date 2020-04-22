@@ -77,6 +77,14 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void sampleWithH264AndDtsAudio() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new TsExtractor(DefaultTsPayloadReaderFactory.FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS),
+        "ts/sample_h264_dts_audio.ts",
+        assertionConfig);
+  }
+
+  @Test
   public void sampleWithH265() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h265.ts", assertionConfig);
   }
