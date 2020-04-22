@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * A downloader for HLS streams.
@@ -67,7 +69,27 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
    */
   public HlsDownloader(
       Uri playlistUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
-    super(playlistUri, streamKeys, cacheDataSourceFactory);
+    this(playlistUri, streamKeys, cacheDataSourceFactory, /* executorService= */ null);
+  }
+
+  /**
+   * @param playlistUri The {@link Uri} of the playlist to be downloaded.
+   * @param streamKeys Keys defining which renditions in the playlist should be selected for
+   *     download. If empty, all renditions are downloaded.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   * @param executorService An {@link ExecutorService} used to make requests for the media being
+   *     downloaded. Must not be a direct executor, but may be {@code null} if the requests should
+   *     be made directly from the thread that calls {@link #download(ProgressListener)}. Providing
+   *     an {@link ExecutorService} that uses multiple threads will speed up the download by
+   *     allowing parts of it to be executed in parallel.
+   */
+  public HlsDownloader(
+      Uri playlistUri,
+      List<StreamKey> streamKeys,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      @Nullable ExecutorService executorService) {
+    super(playlistUri, streamKeys, cacheDataSourceFactory, executorService);
   }
 
   @Override

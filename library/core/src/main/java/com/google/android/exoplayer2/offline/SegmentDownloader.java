@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -77,9 +78,17 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
    *     If empty, all streams are downloaded.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
    *     download will be written.
+   * @param executorService An {@link ExecutorService} used to make requests for the media being
+   *     downloaded. Must not be a direct executor, but may be {@code null} if the requests should
+   *     be made directly from the thread that calls {@link #download(ProgressListener)}. Providing
+   *     an {@link ExecutorService} that uses multiple threads will speed up the download by
+   *     allowing parts of it to be executed in parallel.
    */
   public SegmentDownloader(
-      Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
+      Uri manifestUri,
+      List<StreamKey> streamKeys,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      @Nullable ExecutorService executorService) {
     this.manifestDataSpec = getCompressibleDataSpec(manifestUri);
     this.streamKeys = new ArrayList<>(streamKeys);
     this.dataSource = cacheDataSourceFactory.createDataSourceForDownloading();

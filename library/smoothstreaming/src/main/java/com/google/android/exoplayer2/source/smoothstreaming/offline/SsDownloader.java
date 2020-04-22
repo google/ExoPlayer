@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -30,6 +31,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * A downloader for SmoothStreaming streams.
@@ -66,7 +68,27 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
    */
   public SsDownloader(
       Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
-    super(SsUtil.fixManifestUri(manifestUri), streamKeys, cacheDataSourceFactory);
+    this(manifestUri, streamKeys, cacheDataSourceFactory, /* executorService= */ null);
+  }
+
+  /**
+   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
+   * @param streamKeys Keys defining which streams in the manifest should be selected for download.
+   *     If empty, all streams are downloaded.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   * @param executorService An {@link ExecutorService} used to make requests for the media being
+   *     downloaded. Must not be a direct executor, but may be {@code null} if the requests should
+   *     be made directly from the thread that calls {@link #download(ProgressListener)}. Providing
+   *     an {@link ExecutorService} that uses multiple threads will speed up the download by
+   *     allowing parts of it to be executed in parallel.
+   */
+  public SsDownloader(
+      Uri manifestUri,
+      List<StreamKey> streamKeys,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      @Nullable ExecutorService executorService) {
+    super(SsUtil.fixManifestUri(manifestUri), streamKeys, cacheDataSourceFactory, executorService);
   }
 
   @Override
