@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package com.google.android.exoplayer2.extractor.amr;
 
@@ -22,6 +23,7 @@ import static com.google.android.exoplayer2.extractor.amr.AmrExtractor.frameSize
 import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.Assert.fail;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.PositionHolder;
@@ -30,28 +32,20 @@ import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.util.List;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
-import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
-/** Unit test for {@link AmrExtractor}. */
-// TODO(ibaker): Split this into two test classes: one parameterized, and one not.
-@RunWith(ParameterizedRobolectricTestRunner.class)
-public final class AmrExtractorTest {
+/**
+ * Tests for {@link AmrExtractor} that test specific behaviours and don't need to be parameterized.
+ *
+ * <p>For parameterized tests using {@link ExtractorAsserts} see {@link
+ * AmrExtractorParameterizedTest}.
+ */
+@RunWith(AndroidJUnit4.class)
+public final class AmrExtractorNonParameterizedTest {
 
   private static final Random RANDOM = new Random(1234);
-
-  @Parameters(name = "{0}")
-  public static List<Object[]> params() {
-    return ExtractorAsserts.configs();
-  }
-
-  @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
 
   @Test
   public void sniff_nonAmrSignature_returnFalse() throws IOException {
@@ -181,34 +175,6 @@ public final class AmrExtractorTest {
     }
   }
 
-  @Test
-  public void extractingNarrowBandSamples() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_nb.amr", assertionConfig);
-  }
-
-  @Test
-  public void extractingWideBandSamples() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_wb.amr", assertionConfig);
-  }
-
-  @Test
-  public void extractingNarrowBandSamples_withSeeking() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ true),
-        "amr/sample_nb_cbr.amr",
-        assertionConfig);
-  }
-
-  @Test
-  public void extractingWideBandSamples_withSeeking() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ true),
-        "amr/sample_wb_cbr.amr",
-        assertionConfig);
-  }
-
   private byte[] newWideBandAmrFrameWithType(int frameType) {
     byte frameHeader = (byte) ((frameType << 3) & (0b01111100));
     int frameContentInBytes = frameSizeBytesByTypeWb(frameType) - 1;
@@ -252,15 +218,5 @@ public final class AmrExtractorTest {
 
   private static FakeExtractorInput fakeExtractorInputWithData(byte[] data) {
     return new FakeExtractorInput.Builder().setData(data).build();
-  }
-
-  private static ExtractorAsserts.ExtractorFactory createAmrExtractorFactory(boolean withSeeking) {
-    return () -> {
-      if (!withSeeking) {
-        return new AmrExtractor();
-      } else {
-        return new AmrExtractor(AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
-      }
-    };
   }
 }

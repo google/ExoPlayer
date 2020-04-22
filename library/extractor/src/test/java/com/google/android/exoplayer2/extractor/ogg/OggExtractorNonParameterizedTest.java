@@ -18,50 +18,21 @@ package com.google.android.exoplayer2.extractor.ogg;
 import static com.google.android.exoplayer2.testutil.TestUtil.getByteArray;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import java.io.IOException;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.ParameterizedRobolectricTestRunner;
-import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
-import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
-/** Unit test for {@link OggExtractor}. */
-// TODO(ibaker): Split this into OggExtractorSniffTest and OggExtractorTest after parameterization,
-// otherwise we'll be running all the sniff tests multiple times.
-@RunWith(ParameterizedRobolectricTestRunner.class)
-public final class OggExtractorTest {
-
-  @Parameters(name = "{0}")
-  public static List<Object[]> params() {
-    return ExtractorAsserts.configs();
-  }
-
-  @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
-
-  @Test
-  public void opus() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear.opus", assertionConfig);
-  }
-
-  @Test
-  public void flac() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_flac.ogg", assertionConfig);
-  }
-
-  @Test
-  public void flacNoSeektable() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        OggExtractor::new, "ogg/bear_flac_noseektable.ogg", assertionConfig);
-  }
-
-  @Test
-  public void vorbis() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_vorbis.ogg", assertionConfig);
-  }
+/**
+ * Tests for {@link OggExtractor} that test specific behaviours and don't need to be parameterized.
+ *
+ * <p>For parameterized tests using {@link ExtractorAsserts} see {@link
+ * OggExtractorParameterizedTest}.
+ */
+@RunWith(AndroidJUnit4.class)
+public final class OggExtractorNonParameterizedTest {
 
   @Test
   public void sniffVorbis() throws Exception {

@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link AmrExtractor}. */
+/** Unit tests for {@link AmrExtractor} seeking behaviour. */
 @RunWith(AndroidJUnit4.class)
 public final class AmrExtractorSeekTest {
 
