@@ -461,8 +461,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     return parentStyleIds.isEmpty() ? new String[0] : Util.split(parentStyleIds, "\\s+");
   }
 
-  @PolyNull
-  private TtmlStyle parseStyleAttributes(XmlPullParser parser, @PolyNull TtmlStyle style) {
+  private @PolyNull TtmlStyle parseStyleAttributes(
+      XmlPullParser parser, @PolyNull TtmlStyle style) {
     int attributeCount = parser.getAttributeCount();
     for (int i = 0; i < attributeCount; i++) {
       String attributeValue = parser.getAttributeValue(i);
