@@ -15,17 +15,28 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Unit test for {@link FlvExtractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class FlvExtractorTest {
+
+  @Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @Parameter(0)
+  public ExtractorAsserts.Config assertionConfig;
 
   @Test
   public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(FlvExtractor::new, "flv/sample.flv");
+    ExtractorAsserts.assertBehavior(FlvExtractor::new, "flv/sample.flv", assertionConfig);
   }
 }
