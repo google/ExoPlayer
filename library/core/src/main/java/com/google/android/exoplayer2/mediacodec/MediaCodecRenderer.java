@@ -368,7 +368,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final long[] pendingOutputStreamSwitchTimesUs;
 
   @Nullable private Format inputFormat;
-  private Format outputFormat;
+  @Nullable private Format outputFormat;
   @Nullable private DrmSession codecDrmSession;
   @Nullable private DrmSession sourceDrmSession;
   @Nullable private MediaCrypto mediaCrypto;
@@ -420,6 +420,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected DecoderCounters decoderCounters;
   private long outputStreamOffsetUs;
   private int pendingOutputStreamOffsetCount;
+  private boolean receivedOutputMediaFormatChange;
 
   /**
    * @param trackType The track type that the renderer handles. One of the {@code C.TRACK_TYPE_*}
@@ -635,13 +636,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * method if they are taking over responsibility for output format propagation (e.g., when using
    * video tunneling).
    */
-  @Nullable
-  protected final Format updateOutputFormatForTime(long presentationTimeUs) {
-    Format format = formatQueue.pollFloor(presentationTimeUs);
+  protected final void updateOutputFormatForTime(long presentationTimeUs) {
+    @Nullable Format format = formatQueue.pollFloor(presentationTimeUs);
     if (format != null) {
       outputFormat = format;
+      onOutputFormatChanged(outputFormat);
+    } else if (receivedOutputMediaFormatChange && outputFormat != null) {
+      // No Format change with the MediaFormat change, so we need to update based on the existing
+      // Format.
+      configureOutput(outputFormat);
     }
-    return format;
+
+    receivedOutputMediaFormatChange = false;
   }
 
   @Nullable
@@ -1446,6 +1452,28 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Called when the output {@link Format} changes.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param outputFormat The new output {@link Format}.
+   */
+  protected void onOutputFormatChanged(Format outputFormat) {
+    // Do nothing.
+  }
+
+  /**
+   * Configures the renderer output based on a {@link Format}.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param outputFormat The format to configure the output with.
+   */
+  protected void configureOutput(Format outputFormat) {
+    // Do nothing.
+  }
+
+  /**
    * Handles supplemental data associated with an input buffer.
    *
    * <p>The default implementation is a no-op.
@@ -1650,6 +1678,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (outputIndex < 0) {
         if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
           processOutputMediaFormat();
+          receivedOutputMediaFormatChange = true;
           return true;
         } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
           processOutputBuffersChanged();
