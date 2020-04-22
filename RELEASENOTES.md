@@ -148,6 +148,8 @@
 *   Change the order of extractors for sniffing to reduce start-up latency in
     `DefaultExtractorsFactory` and `DefaultHlsExtractorsFactory`
     ([#6410](https://github.com/google/ExoPlayer/issues/6410)).
+*   Add missing `@Nullable` annotations to `MediaSessionConnector`
+    ([#7234](https://github.com/google/ExoPlayer/issues/7234)).
 
 ### 2.11.4 (2020-04-08)
 
