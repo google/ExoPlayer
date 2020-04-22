@@ -89,7 +89,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private long allowedVideoJoiningTimeMs;
   private boolean enableDecoderFallback;
   private MediaCodecSelector mediaCodecSelector;
-  @MediaCodecRenderer.MediaCodecOperationMode private int mediaCodecOperationMode;
+  private @MediaCodecRenderer.MediaCodecOperationMode int mediaCodecOperationMode;
 
   /** @param context A {@link Context}. */
   public DefaultRenderersFactory(Context context) {

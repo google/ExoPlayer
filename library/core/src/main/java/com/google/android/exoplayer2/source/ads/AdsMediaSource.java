@@ -402,7 +402,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     private final MediaSource adMediaSource;
     private final List<MaskingMediaPeriod> activeMediaPeriods;
 
-    @MonotonicNonNull private Timeline timeline;
+    private @MonotonicNonNull Timeline timeline;
 
     public AdMediaSourceHolder(MediaSource adMediaSource) {
       this.adMediaSource = adMediaSource;

@@ -39,7 +39,7 @@ public final class InitializationChunk extends Chunk {
 
   private final ChunkExtractorWrapper extractorWrapper;
 
-  @MonotonicNonNull private TrackOutputProvider trackOutputProvider;
+  private @MonotonicNonNull TrackOutputProvider trackOutputProvider;
   private long nextLoadPosition;
   private volatile boolean loadCanceled;
 
