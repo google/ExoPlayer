@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Default {@link DownloaderFactory}, supporting creation of progressive, DASH, HLS and
@@ -70,6 +71,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
   }
 
   private final CacheDataSource.Factory cacheDataSourceFactory;
+  @Nullable private final ExecutorService executorService;
 
   /**
    * Creates an instance.
@@ -78,7 +80,24 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
    *     downloads will be written.
    */
   public DefaultDownloaderFactory(CacheDataSource.Factory cacheDataSourceFactory) {
+    this(cacheDataSourceFactory, /* executorService= */ null);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which
+   *     downloads will be written.
+   * @param executorService An {@link ExecutorService} used to make requests for media being
+   *     downloaded. Must not be a direct executor, but may be {@code null} if each download should
+   *     make its requests directly on its own thread. Providing an {@link ExecutorService} that
+   *     uses multiple threads will speed up download tasks that can be split into smaller parts for
+   *     parallel execution.
+   */
+  public DefaultDownloaderFactory(
+      CacheDataSource.Factory cacheDataSourceFactory, @Nullable ExecutorService executorService) {
     this.cacheDataSourceFactory = cacheDataSourceFactory;
+    this.executorService = executorService;
   }
 
   @Override
@@ -86,7 +105,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     switch (request.type) {
       case DownloadRequest.TYPE_PROGRESSIVE:
         return new ProgressiveDownloader(
-            request.uri, request.customCacheKey, cacheDataSourceFactory);
+            request.uri, request.customCacheKey, cacheDataSourceFactory, executorService);
       case DownloadRequest.TYPE_DASH:
         return createDownloader(request, DASH_DOWNLOADER_CONSTRUCTOR);
       case DownloadRequest.TYPE_HLS:
@@ -98,13 +117,18 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     }
   }
 
+  // Checker framework has no way of knowing whether arguments to newInstance can be null or not,
+  // and so opts to be conservative and assumes they cannot. In this case executorService can be
+  // nullable, so we suppress the warning.
+  @SuppressWarnings("nullness:argument.type.incompatible")
   private Downloader createDownloader(
       DownloadRequest request, @Nullable Constructor<? extends Downloader> constructor) {
     if (constructor == null) {
       throw new IllegalStateException("Module missing for: " + request.type);
     }
     try {
-      return constructor.newInstance(request.uri, request.streamKeys, cacheDataSourceFactory);
+      return constructor.newInstance(
+          request.uri, request.streamKeys, cacheDataSourceFactory, executorService);
     } catch (Exception e) {
       throw new RuntimeException("Failed to instantiate downloader for: " + request.type, e);
     }
@@ -115,7 +139,8 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     try {
       return clazz
           .asSubclass(Downloader.class)
-          .getConstructor(Uri.class, List.class, CacheDataSource.Factory.class);
+          .getConstructor(
+              Uri.class, List.class, CacheDataSource.Factory.class, ExecutorService.class);
     } catch (NoSuchMethodException e) {
       // The downloader is present, but the expected constructor is missing.
       throw new RuntimeException("Downloader constructor missing", e);

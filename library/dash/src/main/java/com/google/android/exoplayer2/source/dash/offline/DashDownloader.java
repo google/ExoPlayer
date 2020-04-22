@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * A downloader for DASH streams.
@@ -73,7 +74,27 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
    */
   public DashDownloader(
       Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
-    super(manifestUri, streamKeys, cacheDataSourceFactory);
+    this(manifestUri, streamKeys, cacheDataSourceFactory, /* executorService= */ null);
+  }
+
+  /**
+   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
+   * @param streamKeys Keys defining which representations in the manifest should be selected for
+   *     download. If empty, all representations are downloaded.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   * @param executorService An {@link ExecutorService} used to make requests for the media being
+   *     downloaded. Must not be a direct executor, but may be {@code null} if the requests should
+   *     be made directly from the thread that calls {@link #download(ProgressListener)}. Providing
+   *     an {@link ExecutorService} that uses multiple threads will speed up the download by
+   *     allowing parts of it to be executed in parallel.
+   */
+  public DashDownloader(
+      Uri manifestUri,
+      List<StreamKey> streamKeys,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      @Nullable ExecutorService executorService) {
+    super(manifestUri, streamKeys, cacheDataSourceFactory, executorService);
   }
 
   @Override
