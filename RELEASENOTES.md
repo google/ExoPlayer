@@ -35,8 +35,11 @@
     negligible increase in application size, compared to approximately 8MB when
     embedding the library.
 *   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
-*   MediaSession extension: Set session playback state to `BUFFERING` only when
-    actually playing ([#7206](https://github.com/google/ExoPlayer/issues/7206)).
+*   MediaSession extension:
+    *   One set the playback state to `BUFFERING` if `playWhenReady` is true
+        ([#7206](https://github.com/google/ExoPlayer/issues/7206)).
+    *   Add missing `@Nullable` annotations to `MediaSessionConnector`
+        ([#7234](https://github.com/google/ExoPlayer/issues/7234)).
 *   AV1 extension: Add a heuristic to determine the default number of threads
     used for AV1 playback using the extension.
 
