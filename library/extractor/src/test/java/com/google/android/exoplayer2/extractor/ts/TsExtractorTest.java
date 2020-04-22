@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_DETECT_ACCESS_UNITS;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.util.SparseArray;
@@ -52,6 +53,13 @@ public final class TsExtractorTest {
   @Test
   public void sampleWithH264AndMpegAudio() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h264_mpeg_audio.ts");
+  }
+
+  @Test
+  public void sampleWithH264NoAccessUnitDelimiters() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new TsExtractor(FLAG_DETECT_ACCESS_UNITS),
+        "ts/sample_h264_no_access_unit_delimiters.ts");
   }
 
   @Test
