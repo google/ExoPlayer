@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -49,6 +50,20 @@ public final class LoadEventInfo {
   public final long loadDurationMs;
   /** The number of bytes that were loaded up to the event time. */
   public final long bytesLoaded;
+
+  /**
+   * Equivalent to {@link #LoadEventInfo(DataSpec, Uri, Map, long, long, long)
+   * LoadEventInfo(dataSpec, dataSpec.uri, Collections.emptyMap(), elapsedRealtimeMs, 0, 0)}.
+   */
+  public LoadEventInfo(DataSpec dataSpec, long elapsedRealtimeMs) {
+    this(
+        dataSpec,
+        dataSpec.uri,
+        Collections.emptyMap(),
+        elapsedRealtimeMs,
+        /* loadDurationMs= */ 0,
+        /* bytesLoaded= */ 0);
+  }
 
   /**
    * Creates load event info.

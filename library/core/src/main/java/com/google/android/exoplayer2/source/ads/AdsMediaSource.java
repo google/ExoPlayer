@@ -45,7 +45,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -356,13 +355,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       }
       createEventDispatcher(/* mediaPeriodId= */ null)
           .loadError(
-              dataSpec,
-              dataSpec.uri,
-              /* responseHeaders= */ Collections.emptyMap(),
+              new LoadEventInfo(dataSpec, /* elapsedRealtimeMs= */ SystemClock.elapsedRealtime()),
               C.DATA_TYPE_AD,
-              /* elapsedRealtimeMs= */ SystemClock.elapsedRealtime(),
-              /* loadDurationMs= */ 0,
-              /* bytesLoaded= */ 0,
               error,
               /* wasCanceled= */ true);
     }
@@ -384,13 +378,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     public void onPrepareError(MediaPeriodId mediaPeriodId, final IOException exception) {
       createEventDispatcher(mediaPeriodId)
           .loadError(
-              new DataSpec(adUri),
-              adUri,
-              /* responseHeaders= */ Collections.emptyMap(),
+              new LoadEventInfo(
+                  new DataSpec(adUri), /* elapsedRealtimeMs= */ SystemClock.elapsedRealtime()),
               C.DATA_TYPE_AD,
-              C.TRACK_TYPE_UNKNOWN,
-              /* loadDurationMs= */ 0,
-              /* bytesLoaded= */ 0,
               AdLoadException.createForAd(exception),
               /* wasCanceled= */ true);
       mainHandler.post(
