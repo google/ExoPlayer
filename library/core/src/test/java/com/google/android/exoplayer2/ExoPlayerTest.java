@@ -3507,11 +3507,12 @@ public final class ExoPlayerTest {
   // Disabled until the flag to throw exceptions for [internal: b/144538905] is enabled by default.
   @Ignore
   @Test
-  public void loadControlNeverWantsToLoad_throwsIllegalStateException() throws Exception {
+  public void loadControlNeverWantsToLoad_throwsIllegalStateException() {
     LoadControl neverLoadingLoadControl =
         new DefaultLoadControl() {
           @Override
-          public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
+          public boolean shouldContinueLoading(
+              long playbackPositionUs, long bufferedDurationUs, float playbackSpeed) {
             return false;
           }
 
@@ -3553,7 +3554,8 @@ public final class ExoPlayerTest {
     LoadControl loadControlWithMaxBufferUs =
         new DefaultLoadControl() {
           @Override
-          public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
+          public boolean shouldContinueLoading(
+              long playbackPositionUs, long bufferedDurationUs, float playbackSpeed) {
             return bufferedDurationUs < maxBufferUs;
           }
 
@@ -3623,7 +3625,8 @@ public final class ExoPlayerTest {
     LoadControl neverLoadingOrPlayingLoadControl =
         new DefaultLoadControl() {
           @Override
-          public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
+          public boolean shouldContinueLoading(
+              long playbackPositionUs, long bufferedDurationUs, float playbackSpeed) {
             return true;
           }
 
