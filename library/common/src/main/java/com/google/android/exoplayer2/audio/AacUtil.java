@@ -15,11 +15,15 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** Utility methods for handling AAC audio streams. */
 public final class AacUtil {
@@ -132,19 +136,37 @@ public final class AacUtil {
   private static final String CODECS_STRING_PREFIX = "mp4a.40.";
 
   // Advanced Audio Coding Low-Complexity profile.
-  private static final int AUDIO_OBJECT_TYPE_AAC_LC = 2;
+  public static final int AUDIO_OBJECT_TYPE_AAC_LC = 2;
   // Spectral Band Replication.
-  private static final int AUDIO_OBJECT_TYPE_AAC_SBR = 5;
+  public static final int AUDIO_OBJECT_TYPE_AAC_SBR = 5;
   // Error Resilient Bit-Sliced Arithmetic Coding.
-  private static final int AUDIO_OBJECT_TYPE_AAC_ER_BSAC = 22;
+  public static final int AUDIO_OBJECT_TYPE_AAC_ER_BSAC = 22;
   // Enhanced low delay.
-  private static final int AUDIO_OBJECT_TYPE_AAC_ELD = 23;
+  public static final int AUDIO_OBJECT_TYPE_AAC_ELD = 23;
   // Parametric Stereo.
-  private static final int AUDIO_OBJECT_TYPE_AAC_PS = 29;
+  public static final int AUDIO_OBJECT_TYPE_AAC_PS = 29;
   // Escape code for extended audio object types.
   private static final int AUDIO_OBJECT_TYPE_ESCAPE = 31;
   // Extended high efficiency.
-  private static final int AUDIO_OBJECT_TYPE_AAC_XHE = 42;
+  public static final int AUDIO_OBJECT_TYPE_AAC_XHE = 42;
+
+  /**
+   * Valid AAC Audio object types. One of {@link #AUDIO_OBJECT_TYPE_AAC_LC}, {@link
+   * #AUDIO_OBJECT_TYPE_AAC_SBR}, {@link #AUDIO_OBJECT_TYPE_AAC_ER_BSAC}, {@link
+   * #AUDIO_OBJECT_TYPE_AAC_ELD}, {@link #AUDIO_OBJECT_TYPE_AAC_PS} or {@link
+   * #AUDIO_OBJECT_TYPE_AAC_XHE}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    AUDIO_OBJECT_TYPE_AAC_LC,
+    AUDIO_OBJECT_TYPE_AAC_SBR,
+    AUDIO_OBJECT_TYPE_AAC_ER_BSAC,
+    AUDIO_OBJECT_TYPE_AAC_ELD,
+    AUDIO_OBJECT_TYPE_AAC_PS,
+    AUDIO_OBJECT_TYPE_AAC_XHE
+  })
+  public @interface AacAudioObjectType {}
 
   /**
    * Parses an AAC AudioSpecificConfig, as defined in ISO 14496-3 1.6.2.1
@@ -275,7 +297,7 @@ public final class AacUtil {
 
   /** Returns the encoding for a given AAC audio object type. */
   @C.Encoding
-  public static int getEncodingForAudioObjectType(int audioObjectType) {
+  public static int getEncodingForAudioObjectType(@AacAudioObjectType int audioObjectType) {
     switch (audioObjectType) {
       case AUDIO_OBJECT_TYPE_AAC_LC:
         return C.ENCODING_AAC_LC;
