@@ -1669,6 +1669,29 @@ public final class Util {
   }
 
   /**
+   * Makes a best guess to infer the type from a {@link Uri} and MIME type.
+   *
+   * @param uri The {@link Uri}.
+   * @param mimeType If not null, used to infer the type.
+   * @return The content type.
+   */
+  public static int inferContentTypeWithMimeType(Uri uri, @Nullable String mimeType) {
+    if (mimeType == null) {
+      return Util.inferContentType(uri);
+    }
+    switch (mimeType) {
+      case MimeTypes.APPLICATION_MPD:
+        return C.TYPE_DASH;
+      case MimeTypes.APPLICATION_M3U8:
+        return C.TYPE_HLS;
+      case MimeTypes.APPLICATION_SS:
+        return C.TYPE_SS;
+      default:
+        return Util.inferContentType(uri);
+    }
+  }
+
+  /**
    * Returns the specified millisecond time formatted as a string.
    *
    * @param builder The builder that {@code formatter} will write to.

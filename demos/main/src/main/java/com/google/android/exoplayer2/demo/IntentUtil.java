@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.demo;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.DownloadRequest;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
@@ -32,8 +34,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-/** Util to read from an intent. */
+/** Util to read from and populate an intent. */
 public class IntentUtil {
+
+  /** A tag to hold custom playback configuration attributes. */
+  public static class Tag {
+
+    /** Whether the stream is a live stream. */
+    public final boolean isLive;
+    /** The spherical stereo mode or null. */
+    @Nullable public final String sphericalStereoMode;
+
+    /** Creates an instance. */
+    public Tag(boolean isLive, @Nullable String sphericalStereoMode) {
+      this.isLive = isLive;
+      this.sphericalStereoMode = sphericalStereoMode;
+    }
+  }
 
   // Actions.
 
@@ -57,8 +74,10 @@ public class IntentUtil {
   // Media item configuration extras.
 
   public static final String URI_EXTRA = "uri";
-  public static final String EXTENSION_EXTRA = "extension";
   public static final String IS_LIVE_EXTRA = "is_live";
+  public static final String MIME_TYPE_EXTRA = "mime_type";
+  // For backwards compatibility only.
+  public static final String EXTENSION_EXTRA = "extension";
 
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
@@ -100,15 +119,56 @@ public class IntentUtil {
     return mediaItems;
   }
 
+  /** Populates the intent with the given list of {@link MediaItem media items}. */
+  public static void addToIntent(List<MediaItem> mediaItems, Intent intent) {
+    Assertions.checkArgument(!mediaItems.isEmpty());
+    if (mediaItems.size() == 1) {
+      MediaItem.PlaybackProperties playbackProperties =
+          checkNotNull(mediaItems.get(0).playbackProperties);
+      intent.setAction(IntentUtil.ACTION_VIEW).setData(playbackProperties.sourceUri);
+      addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "");
+    } else {
+      intent.setAction(IntentUtil.ACTION_VIEW_LIST);
+      for (int i = 0; i < mediaItems.size(); i++) {
+        MediaItem.PlaybackProperties playbackProperties =
+            checkNotNull(mediaItems.get(i).playbackProperties);
+        intent.putExtra(IntentUtil.URI_EXTRA + ("_" + i), playbackProperties.sourceUri.toString());
+        addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "_" + i);
+      }
+    }
+  }
+
+  /** Makes a best guess to infer the MIME type from a {@link Uri} and an optional extension. */
+  @Nullable
+  public static String inferAdaptiveStreamMimeType(Uri uri, @Nullable String extension) {
+    @C.ContentType int contentType = Util.inferContentType(uri, extension);
+    switch (contentType) {
+      case C.TYPE_DASH:
+        return MimeTypes.APPLICATION_MPD;
+      case C.TYPE_HLS:
+        return MimeTypes.APPLICATION_M3U8;
+      case C.TYPE_SS:
+        return MimeTypes.APPLICATION_SS;
+      case C.TYPE_OTHER:
+      default:
+        return null;
+    }
+  }
+
   private static MediaItem createMediaItemFromIntent(
       Uri uri, Intent intent, String extrasKeySuffix, @Nullable DownloadRequest downloadRequest) {
-    String extension = intent.getStringExtra(EXTENSION_EXTRA + extrasKeySuffix);
+    String mimeType = intent.getStringExtra(MIME_TYPE_EXTRA + extrasKeySuffix);
+    if (mimeType == null) {
+      // Try to use extension for backwards compatibility.
+      String extension = intent.getStringExtra(EXTENSION_EXTRA + extrasKeySuffix);
+      mimeType = inferAdaptiveStreamMimeType(uri, extension);
+    }
     MediaItem.Builder builder =
         new MediaItem.Builder()
             .setSourceUri(uri)
             .setStreamKeys(downloadRequest != null ? downloadRequest.streamKeys : null)
             .setCustomCacheKey(downloadRequest != null ? downloadRequest.customCacheKey : null)
-            .setMimeType(inferAdaptiveStreamMimeType(uri, extension))
+            .setMimeType(mimeType)
             .setAdTagUri(intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix))
             .setSubtitles(createSubtitlesFromIntent(intent, extrasKeySuffix));
     return populateDrmPropertiesFromIntent(builder, intent, extrasKeySuffix).build();
@@ -178,19 +238,57 @@ public class IntentUtil {
     return new ArrayList<>(trackTypes);
   }
 
-  @Nullable
-  private static String inferAdaptiveStreamMimeType(Uri uri, @Nullable String extension) {
-    @C.ContentType int contentType = Util.inferContentType(uri, extension);
-    switch (contentType) {
-      case C.TYPE_DASH:
-        return MimeTypes.APPLICATION_MPD;
-      case C.TYPE_HLS:
-        return MimeTypes.APPLICATION_M3U8;
-      case C.TYPE_SS:
-        return MimeTypes.APPLICATION_SS;
-      case C.TYPE_OTHER:
-      default:
-        return null;
+  private static void addPlaybackPropertiesToIntent(
+      MediaItem.PlaybackProperties playbackProperties, Intent intent, String extrasKeySuffix) {
+    boolean isLive = false;
+    String sphericalStereoMode = null;
+    if (playbackProperties.tag instanceof Tag) {
+      Tag tag = (Tag) playbackProperties.tag;
+      isLive = tag.isLive;
+      sphericalStereoMode = tag.sphericalStereoMode;
     }
+    intent
+        .putExtra(MIME_TYPE_EXTRA + extrasKeySuffix, playbackProperties.mimeType)
+        .putExtra(
+            AD_TAG_URI_EXTRA + extrasKeySuffix,
+            playbackProperties.adTagUri != null ? playbackProperties.adTagUri.toString() : null)
+        .putExtra(IS_LIVE_EXTRA + extrasKeySuffix, isLive)
+        .putExtra(SPHERICAL_STEREO_MODE_EXTRA, sphericalStereoMode);
+    if (playbackProperties.drmConfiguration != null) {
+      addDrmConfigurationToIntent(playbackProperties.drmConfiguration, intent, extrasKeySuffix);
+    }
+    if (!playbackProperties.subtitles.isEmpty()) {
+      checkState(playbackProperties.subtitles.size() == 1);
+      MediaItem.Subtitle subtitle = playbackProperties.subtitles.get(0);
+      intent.putExtra(SUBTITLE_URI_EXTRA + extrasKeySuffix, subtitle.uri.toString());
+      intent.putExtra(SUBTITLE_MIME_TYPE_EXTRA + extrasKeySuffix, subtitle.mimeType);
+      intent.putExtra(SUBTITLE_LANGUAGE_EXTRA + extrasKeySuffix, subtitle.language);
+    }
+  }
+
+  private static void addDrmConfigurationToIntent(
+      MediaItem.DrmConfiguration drmConfiguration, Intent intent, String extrasKeySuffix) {
+    intent.putExtra(DRM_SCHEME_EXTRA + extrasKeySuffix, drmConfiguration.uuid.toString());
+    intent.putExtra(
+        DRM_LICENSE_URL_EXTRA + extrasKeySuffix,
+        checkNotNull(drmConfiguration.licenseUri).toString());
+    intent.putExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, drmConfiguration.multiSession);
+
+    String[] drmKeyRequestProperties = new String[drmConfiguration.requestHeaders.size() * 2];
+    int index = 0;
+    for (Map.Entry<String, String> entry : drmConfiguration.requestHeaders.entrySet()) {
+      drmKeyRequestProperties[index++] = entry.getKey();
+      drmKeyRequestProperties[index++] = entry.getValue();
+    }
+    intent.putExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA + extrasKeySuffix, drmKeyRequestProperties);
+
+    ArrayList<String> typeStrings = new ArrayList<>();
+    for (int type : drmConfiguration.sessionForClearTypes) {
+      // Only audio and video are supported.
+      Assertions.checkState(type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO);
+      typeStrings.add(type == C.TRACK_TYPE_AUDIO ? "audio" : "video");
+    }
+    intent.putExtra(
+        DRM_SESSION_FOR_CLEAR_TYPES_EXTRA + extrasKeySuffix, typeStrings.toArray(new String[0]));
   }
 }
