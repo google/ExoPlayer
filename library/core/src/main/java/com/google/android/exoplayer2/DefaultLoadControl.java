@@ -370,7 +370,8 @@ public class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
+  public boolean shouldContinueLoading(
+      long playbackPositionUs, long bufferedDurationUs, float playbackSpeed) {
     boolean targetBufferSizeReached = allocator.getTotalBytesAllocated() >= targetBufferBytes;
     long minBufferUs = this.minBufferUs;
     if (playbackSpeed > 1) {
