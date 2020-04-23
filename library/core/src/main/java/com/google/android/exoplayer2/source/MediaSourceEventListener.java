@@ -15,20 +15,15 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CopyOnWriteMultiset;
 import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /** Interface for callbacks to be notified of {@link MediaSource} events. */
 public interface MediaSourceEventListener {
@@ -201,37 +196,29 @@ public interface MediaSourceEventListener {
           MediaSourceEventListener.class);
     }
 
-    public void loadStarted(DataSpec dataSpec, int dataType, long elapsedRealtimeMs) {
+    public void loadStarted(LoadEventInfo loadEventInfo, int dataType) {
       loadStarted(
-          dataSpec,
+          loadEventInfo,
           dataType,
-          C.TRACK_TYPE_UNKNOWN,
-          null,
-          C.SELECTION_REASON_UNKNOWN,
-          null,
-          C.TIME_UNSET,
-          C.TIME_UNSET,
-          elapsedRealtimeMs);
+          /* trackType= */ C.TRACK_TYPE_UNKNOWN,
+          /* trackFormat= */ null,
+          /* trackSelectionReason= */ C.SELECTION_REASON_UNKNOWN,
+          /* trackSelectionData= */ null,
+          /* mediaStartTimeUs= */ C.TIME_UNSET,
+          /* mediaEndTimeUs= */ C.TIME_UNSET);
     }
 
     public void loadStarted(
-        DataSpec dataSpec,
+        LoadEventInfo loadEventInfo,
         int dataType,
         int trackType,
         @Nullable Format trackFormat,
         int trackSelectionReason,
         @Nullable Object trackSelectionData,
         long mediaStartTimeUs,
-        long mediaEndTimeUs,
-        long elapsedRealtimeMs) {
+        long mediaEndTimeUs) {
       loadStarted(
-          new LoadEventInfo(
-              dataSpec,
-              dataSpec.uri,
-              /* responseHeaders= */ Collections.emptyMap(),
-              elapsedRealtimeMs,
-              /* loadDurationMs= */ 0,
-              /* bytesLoaded= */ 0),
+          loadEventInfo,
           new MediaLoadData(
               dataType,
               trackType,
@@ -249,47 +236,29 @@ public interface MediaSourceEventListener {
           MediaSourceEventListener.class);
     }
 
-    public void loadCompleted(
-        DataSpec dataSpec,
-        Uri uri,
-        Map<String, List<String>> responseHeaders,
-        int dataType,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
+    public void loadCompleted(LoadEventInfo loadEventInfo, int dataType) {
       loadCompleted(
-          dataSpec,
-          uri,
-          responseHeaders,
+          loadEventInfo,
           dataType,
-          C.TRACK_TYPE_UNKNOWN,
-          null,
-          C.SELECTION_REASON_UNKNOWN,
-          null,
-          C.TIME_UNSET,
-          C.TIME_UNSET,
-          elapsedRealtimeMs,
-          loadDurationMs,
-          bytesLoaded);
+          /* trackType= */ C.TRACK_TYPE_UNKNOWN,
+          /* trackFormat= */ null,
+          /* trackSelectionReason= */ C.SELECTION_REASON_UNKNOWN,
+          /* trackSelectionData= */ null,
+          /* mediaStartTimeUs= */ C.TIME_UNSET,
+          /* mediaEndTimeUs= */ C.TIME_UNSET);
     }
 
     public void loadCompleted(
-        DataSpec dataSpec,
-        Uri uri,
-        Map<String, List<String>> responseHeaders,
+        LoadEventInfo loadEventInfo,
         int dataType,
         int trackType,
         @Nullable Format trackFormat,
         int trackSelectionReason,
         @Nullable Object trackSelectionData,
         long mediaStartTimeUs,
-        long mediaEndTimeUs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
+        long mediaEndTimeUs) {
       loadCompleted(
-          new LoadEventInfo(
-              dataSpec, uri, responseHeaders, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
+          loadEventInfo,
           new MediaLoadData(
               dataType,
               trackType,
@@ -307,47 +276,29 @@ public interface MediaSourceEventListener {
           MediaSourceEventListener.class);
     }
 
-    public void loadCanceled(
-        DataSpec dataSpec,
-        Uri uri,
-        Map<String, List<String>> responseHeaders,
-        int dataType,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
+    public void loadCanceled(LoadEventInfo loadEventInfo, int dataType) {
       loadCanceled(
-          dataSpec,
-          uri,
-          responseHeaders,
+          loadEventInfo,
           dataType,
-          C.TRACK_TYPE_UNKNOWN,
-          null,
-          C.SELECTION_REASON_UNKNOWN,
-          null,
-          C.TIME_UNSET,
-          C.TIME_UNSET,
-          elapsedRealtimeMs,
-          loadDurationMs,
-          bytesLoaded);
+          /* trackType= */ C.TRACK_TYPE_UNKNOWN,
+          /* trackFormat= */ null,
+          /* trackSelectionReason= */ C.SELECTION_REASON_UNKNOWN,
+          /* trackSelectionData= */ null,
+          /* mediaStartTimeUs= */ C.TIME_UNSET,
+          /* mediaEndTimeUs= */ C.TIME_UNSET);
     }
 
     public void loadCanceled(
-        DataSpec dataSpec,
-        Uri uri,
-        Map<String, List<String>> responseHeaders,
+        LoadEventInfo loadEventInfo,
         int dataType,
         int trackType,
         @Nullable Format trackFormat,
         int trackSelectionReason,
         @Nullable Object trackSelectionData,
         long mediaStartTimeUs,
-        long mediaEndTimeUs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded) {
+        long mediaEndTimeUs) {
       loadCanceled(
-          new LoadEventInfo(
-              dataSpec, uri, responseHeaders, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
+          loadEventInfo,
           new MediaLoadData(
               dataType,
               trackType,
@@ -366,37 +317,22 @@ public interface MediaSourceEventListener {
     }
 
     public void loadError(
-        DataSpec dataSpec,
-        Uri uri,
-        Map<String, List<String>> responseHeaders,
-        int dataType,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded,
-        IOException error,
-        boolean wasCanceled) {
+        LoadEventInfo loadEventInfo, int dataType, IOException error, boolean wasCanceled) {
       loadError(
-          dataSpec,
-          uri,
-          responseHeaders,
+          loadEventInfo,
           dataType,
-          C.TRACK_TYPE_UNKNOWN,
-          null,
-          C.SELECTION_REASON_UNKNOWN,
-          null,
-          C.TIME_UNSET,
-          C.TIME_UNSET,
-          elapsedRealtimeMs,
-          loadDurationMs,
-          bytesLoaded,
+          /* trackType= */ C.TRACK_TYPE_UNKNOWN,
+          /* trackFormat= */ null,
+          /* trackSelectionReason= */ C.SELECTION_REASON_UNKNOWN,
+          /* trackSelectionData= */ null,
+          /* mediaStartTimeUs= */ C.TIME_UNSET,
+          /* mediaEndTimeUs= */ C.TIME_UNSET,
           error,
           wasCanceled);
     }
 
     public void loadError(
-        DataSpec dataSpec,
-        Uri uri,
-        Map<String, List<String>> responseHeaders,
+        LoadEventInfo loadEventInfo,
         int dataType,
         int trackType,
         @Nullable Format trackFormat,
@@ -404,14 +340,10 @@ public interface MediaSourceEventListener {
         @Nullable Object trackSelectionData,
         long mediaStartTimeUs,
         long mediaEndTimeUs,
-        long elapsedRealtimeMs,
-        long loadDurationMs,
-        long bytesLoaded,
         IOException error,
         boolean wasCanceled) {
       loadError(
-          new LoadEventInfo(
-              dataSpec, uri, responseHeaders, elapsedRealtimeMs, loadDurationMs, bytesLoaded),
+          loadEventInfo,
           new MediaLoadData(
               dataType,
               trackType,
