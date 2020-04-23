@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -516,7 +517,7 @@ public final class Ac3Util {
     int endIndex = buffer.limit() - TRUEHD_SYNCFRAME_PREFIX_LENGTH;
     for (int i = startIndex; i <= endIndex; i++) {
       // The syncword ends 0xBA for TrueHD or 0xBB for MLP.
-      if ((buffer.getInt(i + 4) & 0xFEFFFFFF) == 0xBA6F72F8) {
+      if ((Util.getBigEndianInt(buffer, i + 4) & 0xFFFFFFFE) == 0xF8726FBA) {
         return i - startIndex;
       }
     }

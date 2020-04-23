@@ -27,6 +27,8 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -787,6 +789,30 @@ public class UtilTest {
     int result = Util.crc8(bytes, start, end, initialValue);
 
     assertThat(result).isEqualTo(0x4);
+  }
+
+  @Test
+  public void getBigEndianInt_fromBigEndian() {
+    byte[] bytes = {0x1F, 0x2E, 0x3D, 0x4C};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN);
+
+    assertThat(Util.getBigEndianInt(byteBuffer, 0)).isEqualTo(0x1F2E3D4C);
+  }
+
+  @Test
+  public void getBigEndianInt_fromLittleEndian() {
+    byte[] bytes = {(byte) 0xC2, (byte) 0xD3, (byte) 0xE4, (byte) 0xF5};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+
+    assertThat(Util.getBigEndianInt(byteBuffer, 0)).isEqualTo(0xC2D3E4F5);
+  }
+
+  @Test
+  public void getBigEndianInt_unaligned() {
+    byte[] bytes = {9, 8, 7, 6, 5};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+
+    assertThat(Util.getBigEndianInt(byteBuffer, 1)).isEqualTo(0x08070605);
   }
 
   @Test

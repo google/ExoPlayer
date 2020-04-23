@@ -60,6 +60,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1857,6 +1859,21 @@ public final class Util {
       initialValue = CRC8_BYTES_MSBF[initialValue ^ (bytes[i] & 0xFF)];
     }
     return initialValue;
+  }
+
+  /**
+   * Absolute <i>get</i> method for reading an int value in {@link ByteOrder#BIG_ENDIAN} in a {@link
+   * ByteBuffer}. Same as {@link ByteBuffer#getInt(int)} except the buffer's order as returned by
+   * {@link ByteBuffer#order()} is ignored and {@link ByteOrder#BIG_ENDIAN} is used instead.
+   *
+   * @param buffer The buffer from which to read an int in big endian.
+   * @param index The index from which the bytes will be read.
+   * @return The int value at the given index with the buffer bytes ordered most significant to
+   *     least significant.
+   */
+  public static int getBigEndianInt(ByteBuffer buffer, int index) {
+    int value = buffer.getInt(index);
+    return buffer.order() == ByteOrder.BIG_ENDIAN ? value : Integer.reverseBytes(value);
   }
 
   /**
