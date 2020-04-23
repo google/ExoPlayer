@@ -734,7 +734,7 @@ public final class DownloadManager {
           break;
         case MSG_CONTENT_LENGTH_CHANGED:
           task = (Task) message.obj;
-          onContentLengthChanged(task);
+          onContentLengthChanged(task, Util.toLong(message.arg1, message.arg2));
           return; // No need to post back to mainHandler.
         case MSG_UPDATE_PROGRESS:
           updateProgress();
@@ -1030,9 +1030,8 @@ public final class DownloadManager {
 
     // Task event processing.
 
-    private void onContentLengthChanged(Task task) {
+    private void onContentLengthChanged(Task task, long contentLength) {
       String downloadId = task.request.id;
-      long contentLength = task.contentLength;
       Download download =
           Assertions.checkNotNull(getDownload(downloadId, /* loadFromIndex= */ false));
       if (contentLength == download.contentLength || contentLength == C.LENGTH_UNSET) {
@@ -1325,7 +1324,13 @@ public final class DownloadManager {
         this.contentLength = contentLength;
         @Nullable Handler internalHandler = this.internalHandler;
         if (internalHandler != null) {
-          internalHandler.obtainMessage(MSG_CONTENT_LENGTH_CHANGED, this).sendToTarget();
+          internalHandler
+              .obtainMessage(
+                  MSG_CONTENT_LENGTH_CHANGED,
+                  (int) (contentLength >> 32),
+                  (int) contentLength,
+                  this)
+              .sendToTarget();
         }
       }
     }
