@@ -248,7 +248,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     Assertions.checkNotNull(mediaItem.playbackProperties);
     @C.ContentType
     int type =
-        inferContentType(
+        Util.inferContentTypeWithMimeType(
             mediaItem.playbackProperties.sourceUri, mediaItem.playbackProperties.mimeType);
     @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
     Assertions.checkNotNull(
@@ -395,21 +395,5 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
     factories.put(C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory));
     return factories;
-  }
-
-  private static int inferContentType(Uri sourceUri, @Nullable String mimeType) {
-    if (mimeType == null) {
-      return Util.inferContentType(sourceUri);
-    }
-    switch (mimeType) {
-      case MimeTypes.APPLICATION_MPD:
-        return C.TYPE_DASH;
-      case MimeTypes.APPLICATION_M3U8:
-        return C.TYPE_HLS;
-      case MimeTypes.APPLICATION_SS:
-        return C.TYPE_SS;
-      default:
-        return Util.inferContentType(sourceUri);
-    }
   }
 }
