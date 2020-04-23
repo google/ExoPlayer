@@ -1242,7 +1242,8 @@ public final class DefaultAudioSink implements AudioSink {
   private static int getFramesPerEncodedSample(@C.Encoding int encoding, ByteBuffer buffer) {
     switch (encoding) {
       case C.ENCODING_MP3:
-        return MpegAudioUtil.parseMpegAudioFrameSampleCount(buffer.get(buffer.position()));
+        int headerDataInBigEndian = Util.getBigEndianInt(buffer, buffer.position());
+        return MpegAudioUtil.parseMpegAudioFrameSampleCount(headerDataInBigEndian);
       case C.ENCODING_AAC_LC:
         return AacUtil.AAC_LC_AUDIO_SAMPLE_COUNT;
       case C.ENCODING_AAC_HE_V1:
