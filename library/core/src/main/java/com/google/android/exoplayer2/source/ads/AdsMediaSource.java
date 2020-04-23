@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.ads;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -358,7 +359,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
               dataSpec.uri,
               /* responseHeaders= */ Collections.emptyMap(),
               C.DATA_TYPE_AD,
-              C.TRACK_TYPE_UNKNOWN,
+              /* elapsedRealtimeMs= */ SystemClock.elapsedRealtime(),
               /* loadDurationMs= */ 0,
               /* bytesLoaded= */ 0,
               error,
