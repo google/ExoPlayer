@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.testutil.FakeTimeline;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,7 +30,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class PlaybackStatsListenerTest {
 
-  private static final AnalyticsListener.EventTime TEST_EVENT_TIME =
+  private static final AnalyticsListener.EventTime EMPTY_TIMELINE_EVENT_TIME =
       new AnalyticsListener.EventTime(
           /* realtimeMs= */ 500,
           Timeline.EMPTY,
@@ -37,6 +39,58 @@ public final class PlaybackStatsListenerTest {
           /* eventPlaybackPositionMs= */ 0,
           /* currentPlaybackPositionMs= */ 0,
           /* totalBufferedDurationMs= */ 0);
+  private static final Timeline TEST_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
+  private static final AnalyticsListener.EventTime TEST_EVENT_TIME =
+      new AnalyticsListener.EventTime(
+          /* realtimeMs= */ 700,
+          TEST_TIMELINE,
+          /* windowIndex= */ 0,
+          new MediaSource.MediaPeriodId(
+              TEST_TIMELINE.getPeriod(
+                      /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
+                  .uid,
+              /* windowSequenceNumber= */ 42),
+          /* eventPlaybackPositionMs= */ 123,
+          /* currentPlaybackPositionMs= */ 123,
+          /* totalBufferedDurationMs= */ 456);
+
+  @Test
+  public void events_duringInitialIdleState_dontCreateNewPlaybackStats() {
+    PlaybackStatsListener playbackStatsListener =
+        new PlaybackStatsListener(/* keepHistory= */ true, /* callback= */ null);
+
+    playbackStatsListener.onPositionDiscontinuity(
+        EMPTY_TIMELINE_EVENT_TIME, Player.DISCONTINUITY_REASON_SEEK);
+    playbackStatsListener.onPlaybackSpeedChanged(
+        EMPTY_TIMELINE_EVENT_TIME, /* playbackSpeed= */ 2.0f);
+    playbackStatsListener.onPlayWhenReadyChanged(
+        EMPTY_TIMELINE_EVENT_TIME,
+        /* playWhenReady= */ true,
+        Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+
+    assertThat(playbackStatsListener.getPlaybackStats()).isNull();
+  }
+
+  @Test
+  public void stateChangeEvent_toNonIdle_createsInitialPlaybackStats() {
+    PlaybackStatsListener playbackStatsListener =
+        new PlaybackStatsListener(/* keepHistory= */ true, /* callback= */ null);
+
+    playbackStatsListener.onPlaybackStateChanged(EMPTY_TIMELINE_EVENT_TIME, Player.STATE_BUFFERING);
+
+    assertThat(playbackStatsListener.getPlaybackStats()).isNotNull();
+  }
+
+  @Test
+  public void timelineChangeEvent_toNonEmpty_createsInitialPlaybackStats() {
+    PlaybackStatsListener playbackStatsListener =
+        new PlaybackStatsListener(/* keepHistory= */ true, /* callback= */ null);
+
+    playbackStatsListener.onTimelineChanged(
+        TEST_EVENT_TIME, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+
+    assertThat(playbackStatsListener.getPlaybackStats()).isNotNull();
+  }
 
   @Test
   public void playback_withKeepHistory_updatesStats() {
