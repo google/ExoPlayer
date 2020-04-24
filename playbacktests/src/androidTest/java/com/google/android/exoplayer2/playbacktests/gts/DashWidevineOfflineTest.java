@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import android.media.MediaDrm.MediaDrmStateException;
 import android.net.Uri;
@@ -111,29 +111,47 @@ public final class DashWidevineOfflineTest {
 
   @Test
   public void widevineOfflineReleasedLicenseV22() throws Throwable {
-    if (Util.SDK_INT < 22) {
+    if (Util.SDK_INT < 22 || Util.SDK_INT > 28) {
       return; // Pass.
     }
     downloadLicense();
     releaseLicense(); // keySetId no longer valid.
 
-    try {
-      testRunner.run();
-      fail("Playback should fail because the license has been released.");
-    } catch (Throwable e) {
-      // Get the root cause
-      while (true) {
-        Throwable cause = e.getCause();
-        if (cause == null || cause == e) {
-          break;
-        }
-        e = cause;
-      }
-      // It should be a MediaDrmStateException instance
-      if (!(e instanceof MediaDrmStateException)) {
-        throw e;
-      }
+    Throwable error =
+        assertThrows(
+            "Playback should fail because the license has been released.",
+            Throwable.class,
+            () -> testRunner.run());
+
+    // Get the root cause
+    Throwable cause = error.getCause();
+    while (cause != null && cause != error) {
+      error = cause;
+      cause = error.getCause();
     }
+    assertThat(error).isInstanceOf(MediaDrmStateException.class);
+  }
+
+  @Test
+  public void widevineOfflineReleasedLicenseV29() throws Throwable {
+    if (Util.SDK_INT < 29) {
+      return; // Pass.
+    }
+    downloadLicense();
+    releaseLicense(); // keySetId no longer valid.
+
+    Throwable error =
+        assertThrows(
+            "Playback should fail because the license has been released.",
+            Throwable.class,
+            () -> testRunner.run());
+    // Get the root cause
+    Throwable cause = error.getCause();
+    while (cause != null && cause != error) {
+      error = cause;
+      cause = error.getCause();
+    }
+    assertThat(error).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
