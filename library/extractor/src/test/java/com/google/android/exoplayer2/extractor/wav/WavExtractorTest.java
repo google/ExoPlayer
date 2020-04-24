@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
-import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import java.util.List;
 import org.junit.Test;
@@ -45,7 +44,6 @@ public final class WavExtractorTest {
         WavExtractor::new,
         "wav/sample_with_trailing_bytes.wav",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "wav/sample.wav");
   }
 

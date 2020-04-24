@@ -132,11 +132,7 @@ public final class TsExtractorTest {
 
   @Test
   public void streamWithJunkData() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        TsExtractor::new,
-        "ts/sample_with_junk",
-        assertionConfig,
-        ApplicationProvider.getApplicationContext());
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_with_junk", assertionConfig);
   }
 
   @Test

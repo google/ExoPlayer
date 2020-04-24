@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
-import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import java.util.List;
 import org.junit.Test;
@@ -67,7 +66,6 @@ public final class Mp3ExtractorTest {
         Mp3Extractor::new,
         /* file= */ "mp3/bear-id3.mp3",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "mp3/bear-id3-enabled");
   }
 
@@ -77,7 +75,6 @@ public final class Mp3ExtractorTest {
         () -> new Mp3Extractor(Mp3Extractor.FLAG_DISABLE_ID3_METADATA),
         /* file= */ "mp3/bear-id3.mp3",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "mp3/bear-id3-disabled");
   }
 }
