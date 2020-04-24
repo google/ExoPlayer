@@ -136,7 +136,7 @@ public final class ExtractorAsserts {
    * @throws IOException If reading from the input fails.
    */
   public static void assertBehavior(ExtractorFactory factory, String file) throws IOException {
-    assertBehavior(factory, file, ApplicationProvider.getApplicationContext());
+    assertBehavior(factory, file, file);
   }
 
   /**
@@ -152,39 +152,17 @@ public final class ExtractorAsserts {
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
    *     class which is to be tested.
    * @param file The path to the input sample.
-   * @param context To be used to load the sample file.
-   * @throws IOException If reading from the input fails.
-   */
-  public static void assertBehavior(ExtractorFactory factory, String file, Context context)
-      throws IOException {
-    assertBehavior(factory, file, context, file);
-  }
-
-  /**
-   * Asserts that an extractor behaves correctly given valid input data:
-   *
-   * <ul>
-   *   <li>Calls {@link Extractor#seek(long, long)} and {@link Extractor#release()} without calling
-   *       {@link Extractor#init(ExtractorOutput)} to check these calls do not fail.
-   *   <li>Calls {@link #assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
-   *       boolean)} with all possible combinations of "simulate" parameters.
-   * </ul>
-   *
-   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
-   *     class which is to be tested.
-   * @param file The path to the input sample.
-   * @param context To be used to load the sample file.
    * @param dumpFilesPrefix The dump files prefix appended to the dump files path.
    * @throws IOException If reading from the input fails.
    */
-  public static void assertBehavior(
-      ExtractorFactory factory, String file, Context context, String dumpFilesPrefix)
+  public static void assertBehavior(ExtractorFactory factory, String file, String dumpFilesPrefix)
       throws IOException {
     // Check behavior prior to initialization.
     Extractor extractor = factory.create();
     extractor.seek(0, 0);
     extractor.release();
     // Assert output.
+    Context context = ApplicationProvider.getApplicationContext();
     byte[] fileData = TestUtil.getByteArray(context, file);
     assertOutput(factory, dumpFilesPrefix, fileData, context);
   }
@@ -204,26 +182,7 @@ public final class ExtractorAsserts {
    */
   public static void assertBehavior(ExtractorFactory factory, String file, Config config)
       throws IOException {
-    assertBehavior(factory, file, config, ApplicationProvider.getApplicationContext());
-  }
-
-  /**
-   * Asserts that an extractor consumes valid input data successfully successfully under the
-   * conditions specified by {@code config}.
-   *
-   * <p>The output of the extractor is compared against prerecorded dump files whose names are
-   * derived from the {@code file} parameter.
-   *
-   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
-   *     class which is to be tested.
-   * @param file The path to the input sample.
-   * @param config Details on the environment to simulate and behaviours to assert.
-   * @param context To be used to load the sample file.
-   * @throws IOException If reading from the input fails.
-   */
-  public static void assertBehavior(
-      ExtractorFactory factory, String file, Config config, Context context) throws IOException {
-    assertBehavior(factory, file, config, context, file);
+    assertBehavior(factory, file, config, file);
   }
 
   /**
@@ -236,18 +195,18 @@ public final class ExtractorAsserts {
    *     class which is to be tested.
    * @param file The path to the input sample.
    * @param config Details on the environment to simulate and behaviours to assert.
-   * @param context To be used to load the sample file.
    * @param dumpFilesPrefix The dump files prefix prepended to the dump files path.
    * @throws IOException If reading from the input fails.
    */
   public static void assertBehavior(
-      ExtractorFactory factory, String file, Config config, Context context, String dumpFilesPrefix)
+      ExtractorFactory factory, String file, Config config, String dumpFilesPrefix)
       throws IOException {
     // Check behavior prior to initialization.
     Extractor extractor = factory.create();
     extractor.seek(0, 0);
     extractor.release();
     // Assert output.
+    Context context = ApplicationProvider.getApplicationContext();
     byte[] fileData = TestUtil.getByteArray(context, file);
     assertOutput(
         factory.create(),
@@ -273,7 +232,7 @@ public final class ExtractorAsserts {
    * @param context To be used to load the sample file.
    * @throws IOException If reading from the input fails.
    */
-  public static void assertOutput(
+  private static void assertOutput(
       ExtractorFactory factory, String dumpFilesPrefix, byte[] data, Context context)
       throws IOException {
     assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, false, false);
@@ -303,7 +262,7 @@ public final class ExtractorAsserts {
    * @return The {@link FakeExtractorOutput} used in the test.
    * @throws IOException If reading from the input fails.
    */
-  public static FakeExtractorOutput assertOutput(
+  private static FakeExtractorOutput assertOutput(
       Extractor extractor,
       String dumpFilesPrefix,
       byte[] data,

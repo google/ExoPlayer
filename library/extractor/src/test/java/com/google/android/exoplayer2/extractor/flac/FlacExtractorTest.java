@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.flac;
 
-import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import java.util.List;
 import org.junit.Test;
@@ -42,7 +41,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_flac");
   }
 
@@ -52,7 +50,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_with_id3.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_with_id3_enabled_flac");
   }
 
@@ -62,7 +59,6 @@ public class FlacExtractorTest {
         () -> new FlacExtractor(FlacExtractor.FLAG_DISABLE_ID3_METADATA),
         /* file= */ "flac/bear_with_id3.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_with_id3_disabled_flac");
   }
 
@@ -72,7 +68,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_no_seek_table_no_num_samples.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_no_seek_table_no_num_samples_flac");
   }
 
@@ -82,7 +77,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_with_vorbis_comments.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_with_vorbis_comments_flac");
   }
 
@@ -92,7 +86,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_with_picture.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_with_picture_flac");
   }
 
@@ -102,7 +95,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_one_metadata_block.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_one_metadata_block_flac");
   }
 
@@ -112,7 +104,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_no_min_max_frame_size.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_no_min_max_frame_size_flac");
   }
 
@@ -122,7 +113,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_no_num_samples.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_no_num_samples_flac");
   }
 
@@ -132,7 +122,6 @@ public class FlacExtractorTest {
         FlacExtractor::new,
         /* file= */ "flac/bear_uncommon_sample_rate.flac",
         assertionConfig,
-        ApplicationProvider.getApplicationContext(),
         /* dumpFilesPrefix= */ "flac/bear_uncommon_sample_rate_flac");
   }
 }
