@@ -554,6 +554,7 @@ public class AnalyticsCollector
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public final void onSeekProcessed() {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
