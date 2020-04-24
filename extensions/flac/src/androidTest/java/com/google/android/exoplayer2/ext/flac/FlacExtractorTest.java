@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Unit test for {@link FlacExtractor}. */
+// TODO(internal: b/26110951): Use org.junit.runners.Parameterized (and corresponding methods on
+//  ExtractorAsserts) when it's supported by our testing infrastructure.
 @RunWith(AndroidJUnit4.class)
 public class FlacExtractorTest {
 
@@ -36,15 +38,13 @@ public class FlacExtractorTest {
 
   @Test
   public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        FlacExtractor::new,
-        /* file= */ "flac/bear.flac",
-        /* dumpFilesPrefix= */ "flac/bear_raw");
+    ExtractorAsserts.assertAllBehaviors(
+        FlacExtractor::new, /* file= */ "flac/bear.flac", /* dumpFilesPrefix= */ "flac/bear_raw");
   }
 
   @Test
   public void sampleWithId3HeaderAndId3Enabled() throws Exception {
-    ExtractorAsserts.assertBehavior(
+    ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
         /* file= */ "flac/bear_with_id3.flac",
         /* dumpFilesPrefix= */ "flac/bear_with_id3_enabled_raw");
@@ -52,7 +52,7 @@ public class FlacExtractorTest {
 
   @Test
   public void sampleWithId3HeaderAndId3Disabled() throws Exception {
-    ExtractorAsserts.assertBehavior(
+    ExtractorAsserts.assertAllBehaviors(
         () -> new FlacExtractor(FlacExtractor.FLAG_DISABLE_ID3_METADATA),
         /* file= */ "flac/bear_with_id3.flac",
         /* dumpFilesPrefix= */ "flac/bear_with_id3_disabled_raw");
@@ -60,7 +60,7 @@ public class FlacExtractorTest {
 
   @Test
   public void sampleUnseekable() throws Exception {
-    ExtractorAsserts.assertBehavior(
+    ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
         /* file= */ "flac/bear_no_seek_table_no_num_samples.flac",
         /* dumpFilesPrefix= */ "flac/bear_no_seek_table_no_num_samples_raw");
@@ -68,7 +68,7 @@ public class FlacExtractorTest {
 
   @Test
   public void sampleWithVorbisComments() throws Exception {
-    ExtractorAsserts.assertBehavior(
+    ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
         /* file= */ "flac/bear_with_vorbis_comments.flac",
         /* dumpFilesPrefix= */ "flac/bear_with_vorbis_comments_raw");
@@ -76,7 +76,7 @@ public class FlacExtractorTest {
 
   @Test
   public void sampleWithPicture() throws Exception {
-    ExtractorAsserts.assertBehavior(
+    ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
         /* file= */ "flac/bear_with_picture.flac",
         /* dumpFilesPrefix= */ "flac/bear_with_picture_raw");
@@ -84,7 +84,7 @@ public class FlacExtractorTest {
 
   @Test
   public void oneMetadataBlock() throws Exception {
-    ExtractorAsserts.assertBehavior(
+    ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
         /* file= */ "flac/bear_one_metadata_block.flac",
         /* dumpFilesPrefix= */ "flac/bear_one_metadata_block_raw");
@@ -92,7 +92,7 @@ public class FlacExtractorTest {
 
   @Test
   public void noMinMaxFrameSize() throws Exception {
-    ExtractorAsserts.assertBehavior(
+    ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
         /* file= */ "flac/bear_no_min_max_frame_size.flac",
         /* dumpFilesPrefix= */ "flac/bear_no_min_max_frame_size_raw");
@@ -100,7 +100,7 @@ public class FlacExtractorTest {
 
   @Test
   public void noNumSamples() throws Exception {
-    ExtractorAsserts.assertBehavior(
+    ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
         /* file= */ "flac/bear_no_num_samples.flac",
         /* dumpFilesPrefix= */ "flac/bear_no_num_samples_raw");
@@ -108,7 +108,7 @@ public class FlacExtractorTest {
 
   @Test
   public void uncommonSampleRate() throws Exception {
-    ExtractorAsserts.assertBehavior(
+    ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
         /* file= */ "flac/bear_uncommon_sample_rate.flac",
         /* dumpFilesPrefix= */ "flac/bear_uncommon_sample_rate_raw");

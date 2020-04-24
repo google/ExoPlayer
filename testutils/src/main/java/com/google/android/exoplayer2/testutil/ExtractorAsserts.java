@@ -135,8 +135,8 @@ public final class ExtractorAsserts {
    * @param file The path to the input sample.
    * @throws IOException If reading from the input fails.
    */
-  public static void assertBehavior(ExtractorFactory factory, String file) throws IOException {
-    assertBehavior(factory, file, file);
+  public static void assertAllBehaviors(ExtractorFactory factory, String file) throws IOException {
+    assertAllBehaviors(factory, file, file);
   }
 
   /**
@@ -155,8 +155,8 @@ public final class ExtractorAsserts {
    * @param dumpFilesPrefix The dump files prefix appended to the dump files path.
    * @throws IOException If reading from the input fails.
    */
-  public static void assertBehavior(ExtractorFactory factory, String file, String dumpFilesPrefix)
-      throws IOException {
+  public static void assertAllBehaviors(
+      ExtractorFactory factory, String file, String dumpFilesPrefix) throws IOException {
     // Check behavior prior to initialization.
     Extractor extractor = factory.create();
     extractor.seek(0, 0);
