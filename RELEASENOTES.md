@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Release notes #
 
 ### Next release ###
@@ -14,6 +13,8 @@
         `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as
         the main adaptation sets to which they refer. Trick play tracks are
         marked with the `C.ROLE_FLAG_TRICK_PLAY` flag.
+    *   Fix assertion failure in `SampleQueue` when playing DASH streams with
+        EMSG tracks ([#7273](https://github.com/google/ExoPlayer/issues/7273)).
 *   MPEG-TS: Fix issue where SEI NAL units were incorrectly dropped from H.265
     samples ([#7113](https://github.com/google/ExoPlayer/issues/7113)).
 * Text

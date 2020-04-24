@@ -679,7 +679,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         return sampleQueues[i];
       }
     }
-    SampleQueue trackOutput = new SampleQueue(allocator, drmSessionManager);
+    SampleQueue trackOutput = new SampleQueue(
+        allocator, /* playbackLooper= */ handler.getLooper(), drmSessionManager);
     trackOutput.setUpstreamFormatChangeListener(this);
     @NullableType
     TrackId[] sampleQueueTrackIds = Arrays.copyOf(this.sampleQueueTrackIds, trackCount + 1);

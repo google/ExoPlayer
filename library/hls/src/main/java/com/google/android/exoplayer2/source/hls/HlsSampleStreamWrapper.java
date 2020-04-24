@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -907,7 +908,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
     FormatAdjustingSampleQueue trackOutput =
-        new FormatAdjustingSampleQueue(allocator, drmSessionManager, overridingDrmInitData);
+        new FormatAdjustingSampleQueue(
+            allocator,
+            /* playbackLooper= */ handler.getLooper(),
+            drmSessionManager,
+            overridingDrmInitData);
     if (isAudioVideo) {
       trackOutput.setDrmInitData(drmInitData);
     }
@@ -1331,9 +1336,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     public FormatAdjustingSampleQueue(
         Allocator allocator,
+        Looper playbackLooper,
         DrmSessionManager<?> drmSessionManager,
         Map<String, DrmInitData> overridingDrmInitData) {
-      super(allocator, drmSessionManager);
+      super(allocator, playbackLooper, drmSessionManager);
       this.overridingDrmInitData = overridingDrmInitData;
     }
 

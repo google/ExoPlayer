@@ -26,6 +26,7 @@ import static java.util.Arrays.copyOfRange;
 import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Mockito.when;
 
+import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -40,6 +41,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import java.util.Arrays;
@@ -143,7 +145,10 @@ public final class SampleQueueTest {
     mockDrmSession = (DrmSession<ExoMediaCrypto>) Mockito.mock(DrmSession.class);
     when(mockDrmSessionManager.acquireSession(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(mockDrmSession);
-    sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
+    sampleQueue = new SampleQueue(
+        allocator,
+        /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+        mockDrmSessionManager);
     formatHolder = new FormatHolder();
     inputBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
   }
@@ -360,7 +365,10 @@ public final class SampleQueueTest {
   public void testIsReadyReturnsTrueForClearSampleAndPlayClearSamplesWithoutKeysIsTrue() {
     when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
     // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
-    sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
+    sampleQueue = new SampleQueue(
+        allocator,
+        /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+        mockDrmSessionManager);
     writeTestDataWithEncryptedSections();
     assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
   }
@@ -542,7 +550,10 @@ public final class SampleQueueTest {
   public void testAllowPlayClearSamplesWithoutKeysReadsClearSamples() {
     when(mockDrmSession.playClearSamplesWithoutKeys()).thenReturn(true);
     // We recreate the queue to ensure the mock DRM session manager flags are taken into account.
-    sampleQueue = new SampleQueue(allocator, mockDrmSessionManager);
+    sampleQueue = new SampleQueue(
+        allocator,
+        /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+        mockDrmSessionManager);
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
     writeTestDataWithEncryptedSections();
 
@@ -931,7 +942,10 @@ public final class SampleQueueTest {
   public void testAdjustUpstreamFormat() {
     String label = "label";
     sampleQueue =
-        new SampleQueue(allocator, mockDrmSessionManager) {
+        new SampleQueue(
+            allocator,
+            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+            mockDrmSessionManager) {
           @Override
           public Format getAdjustedUpstreamFormat(Format format) {
             return super.getAdjustedUpstreamFormat(format.copyWithLabel(label));
@@ -947,7 +961,10 @@ public final class SampleQueueTest {
   public void testInvalidateUpstreamFormatAdjustment() {
     AtomicReference<String> label = new AtomicReference<>("label1");
     sampleQueue =
-        new SampleQueue(allocator, mockDrmSessionManager) {
+        new SampleQueue(
+            allocator,
+            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+            mockDrmSessionManager) {
           @Override
           public Format getAdjustedUpstreamFormat(Format format) {
             return super.getAdjustedUpstreamFormat(format.copyWithLabel(label.get()));
