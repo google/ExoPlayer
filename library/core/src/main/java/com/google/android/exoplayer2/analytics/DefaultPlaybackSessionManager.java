@@ -168,6 +168,21 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
     updateActiveSession(eventTime, activeSessionDescriptor);
   }
 
+  @Override
+  public void finishAllSessions(EventTime eventTime) {
+    currentMediaPeriodId = null;
+    activeSessionId = null;
+    Iterator<SessionDescriptor> iterator = sessions.values().iterator();
+    while (iterator.hasNext()) {
+      SessionDescriptor session = iterator.next();
+      iterator.remove();
+      if (session.isCreated && listener != null) {
+        listener.onSessionFinished(
+            eventTime, session.sessionId, /* automaticTransitionToNextPlayback= */ false);
+      }
+    }
+  }
+
   private SessionDescriptor getOrAddSession(
       int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
     // There should only be one matching session if mediaPeriodId is non-null. If mediaPeriodId is
