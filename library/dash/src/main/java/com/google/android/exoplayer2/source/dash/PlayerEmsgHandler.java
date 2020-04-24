@@ -288,6 +288,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
       this.sampleQueue =
           new SampleQueue(
               allocator,
+              /* playbackLooper= */ handler.getLooper(),
               DrmSessionManager.getDummyDrmSessionManager(),
               new MediaSourceEventDispatcher());
       formatHolder = new FormatHolder();

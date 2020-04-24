@@ -122,6 +122,8 @@
         `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as
         the main adaptation sets to which they refer. Trick play tracks are
         marked with the `C.ROLE_FLAG_TRICK_PLAY` flag.
+    *   Fix assertion failure in `SampleQueue` when playing DASH streams with
+        EMSG tracks ([#7273](https://github.com/google/ExoPlayer/issues/7273)).
 *   MP3: Add `IndexSeeker` for accurate seeks in VBR streams
     ([#6787](https://github.com/google/ExoPlayer/issues/6787)). This seeker is
     enabled by passing `FLAG_ENABLE_INDEX_SEEKING` to the `Mp3Extractor`. It may
