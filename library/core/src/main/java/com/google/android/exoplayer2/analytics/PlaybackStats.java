@@ -163,9 +163,8 @@ public final class PlaybackStats {
    * #PLAYBACK_STATE_JOINING_FOREGROUND}, {@link #PLAYBACK_STATE_JOINING_BACKGROUND}, {@link
    * #PLAYBACK_STATE_PLAYING}, {@link #PLAYBACK_STATE_PAUSED}, {@link #PLAYBACK_STATE_SEEKING},
    * {@link #PLAYBACK_STATE_BUFFERING}, {@link #PLAYBACK_STATE_PAUSED_BUFFERING}, {@link
-   * #PLAYBACK_STATE_SEEK_BUFFERING}, {@link #PLAYBACK_STATE_SUPPRESSED}, {@link
-   * #PLAYBACK_STATE_SUPPRESSED_BUFFERING}, {@link #PLAYBACK_STATE_ENDED}, {@link
-   * #PLAYBACK_STATE_STOPPED}, {@link #PLAYBACK_STATE_FAILED}, {@link
+   * #PLAYBACK_STATE_SUPPRESSED}, {@link #PLAYBACK_STATE_SUPPRESSED_BUFFERING}, {@link
+   * #PLAYBACK_STATE_ENDED}, {@link #PLAYBACK_STATE_STOPPED}, {@link #PLAYBACK_STATE_FAILED}, {@link
    * #PLAYBACK_STATE_INTERRUPTED_BY_AD} or {@link #PLAYBACK_STATE_ABANDONED}.
    */
   @Documented
@@ -180,7 +179,6 @@ public final class PlaybackStats {
     PLAYBACK_STATE_SEEKING,
     PLAYBACK_STATE_BUFFERING,
     PLAYBACK_STATE_PAUSED_BUFFERING,
-    PLAYBACK_STATE_SEEK_BUFFERING,
     PLAYBACK_STATE_SUPPRESSED,
     PLAYBACK_STATE_SUPPRESSED_BUFFERING,
     PLAYBACK_STATE_ENDED,
@@ -206,8 +204,6 @@ public final class PlaybackStats {
   public static final int PLAYBACK_STATE_BUFFERING = 6;
   /** Playback is buffering while paused. */
   public static final int PLAYBACK_STATE_PAUSED_BUFFERING = 7;
-  /** Playback is buffering after a seek. */
-  public static final int PLAYBACK_STATE_SEEK_BUFFERING = 8;
   /** Playback is suppressed (e.g. due to audio focus loss). */
   public static final int PLAYBACK_STATE_SUPPRESSED = 9;
   /** Playback is suppressed (e.g. due to audio focus loss) while buffering to resume a playback. */
@@ -769,8 +765,7 @@ public final class PlaybackStats {
    * milliseconds.
    */
   public long getTotalSeekTimeMs() {
-    return getPlaybackStateDurationMs(PLAYBACK_STATE_SEEKING)
-        + getPlaybackStateDurationMs(PLAYBACK_STATE_SEEK_BUFFERING);
+    return getPlaybackStateDurationMs(PLAYBACK_STATE_SEEKING);
   }
 
   /**
@@ -799,8 +794,7 @@ public final class PlaybackStats {
   public long getTotalWaitTimeMs() {
     return getPlaybackStateDurationMs(PLAYBACK_STATE_JOINING_FOREGROUND)
         + getPlaybackStateDurationMs(PLAYBACK_STATE_BUFFERING)
-        + getPlaybackStateDurationMs(PLAYBACK_STATE_SEEKING)
-        + getPlaybackStateDurationMs(PLAYBACK_STATE_SEEK_BUFFERING);
+        + getPlaybackStateDurationMs(PLAYBACK_STATE_SEEKING);
   }
 
   /**

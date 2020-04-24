@@ -83,7 +83,7 @@ public final class PlaybackStatsListener
   @Player.State private int playbackState;
   private boolean isSuppressed;
   private float playbackSpeed;
-  private boolean isSeeking;
+  private boolean onSeekStartedCalled;
 
   /**
    * Creates listener for playback stats.
@@ -170,7 +170,7 @@ public final class PlaybackStatsListener
   @Override
   public void onSessionCreated(EventTime eventTime, String session) {
     PlaybackStatsTracker tracker = new PlaybackStatsTracker(keepHistory, eventTime);
-    if (isSeeking) {
+    if (onSeekStartedCalled) {
       tracker.onSeekStarted(eventTime, /* belongsToPlayback= */ true);
     }
     tracker.onPlaybackStateChanged(eventTime, playbackState, /* belongsToPlayback= */ true);
@@ -269,7 +269,7 @@ public final class PlaybackStatsListener
 
   @Override
   public void onPlaybackSuppressionReasonChanged(
-      EventTime eventTime, int playbackSuppressionReason) {
+      EventTime eventTime, @Player.PlaybackSuppressionReason int playbackSuppressionReason) {
     isSuppressed = playbackSuppressionReason != Player.PLAYBACK_SUPPRESSION_REASON_NONE;
     maybeAddSession(eventTime);
     for (String session : playbackStatsTrackers.keySet()) {
@@ -281,23 +281,29 @@ public final class PlaybackStatsListener
   }
 
   @Override
-  public void onTimelineChanged(EventTime eventTime, int reason) {
+  public void onTimelineChanged(EventTime eventTime, @Player.TimelineChangeReason int reason) {
     sessionManager.handleTimelineUpdate(eventTime);
     maybeAddSession(eventTime);
     for (String session : playbackStatsTrackers.keySet()) {
       if (sessionManager.belongsToSession(eventTime, session)) {
-        playbackStatsTrackers.get(session).onPositionDiscontinuity(eventTime);
+        playbackStatsTrackers.get(session).onPositionDiscontinuity(eventTime, /* isSeek= */ false);
       }
     }
   }
 
   @Override
-  public void onPositionDiscontinuity(EventTime eventTime, int reason) {
+  public void onPositionDiscontinuity(EventTime eventTime, @Player.DiscontinuityReason int reason) {
     sessionManager.handlePositionDiscontinuity(eventTime, reason);
     maybeAddSession(eventTime);
+    if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+      onSeekStartedCalled = false;
+    }
     for (String session : playbackStatsTrackers.keySet()) {
       if (sessionManager.belongsToSession(eventTime, session)) {
-        playbackStatsTrackers.get(session).onPositionDiscontinuity(eventTime);
+        playbackStatsTrackers
+            .get(session)
+            .onPositionDiscontinuity(
+                eventTime, /* isSeek= */ reason == Player.DISCONTINUITY_REASON_SEEK);
       }
     }
   }
@@ -309,17 +315,7 @@ public final class PlaybackStatsListener
       boolean belongsToPlayback = sessionManager.belongsToSession(eventTime, session);
       playbackStatsTrackers.get(session).onSeekStarted(eventTime, belongsToPlayback);
     }
-    isSeeking = true;
-  }
-
-  @Override
-  public void onSeekProcessed(EventTime eventTime) {
-    maybeAddSession(eventTime);
-    for (String session : playbackStatsTrackers.keySet()) {
-      boolean belongsToPlayback = sessionManager.belongsToSession(eventTime, session);
-      playbackStatsTrackers.get(session).onSeekProcessed(eventTime, belongsToPlayback);
-    }
-    isSeeking = false;
+    onSeekStartedCalled = true;
   }
 
   @Override
@@ -551,6 +547,9 @@ public final class PlaybackStatsListener
       if (state != Player.STATE_IDLE) {
         hasFatalError = false;
       }
+      if (state != Player.STATE_BUFFERING) {
+        isSeeking = false;
+      }
       if (state == Player.STATE_IDLE || state == Player.STATE_ENDED) {
         isInterruptedByAd = false;
       }
@@ -589,8 +588,12 @@ public final class PlaybackStatsListener
      * Notifies the tracker of a position discontinuity or timeline update for the current playback.
      *
      * @param eventTime The {@link EventTime}.
+     * @param isSeek Whether the position discontinuity is for a seek.
      */
-    public void onPositionDiscontinuity(EventTime eventTime) {
+    public void onPositionDiscontinuity(EventTime eventTime, boolean isSeek) {
+      if (isSeek && playerPlaybackState == Player.STATE_IDLE) {
+        isSeeking = false;
+      }
       isInterruptedByAd = false;
       maybeUpdatePlaybackState(eventTime, /* belongsToPlayback= */ true);
     }
@@ -604,18 +607,6 @@ public final class PlaybackStatsListener
      */
     public void onSeekStarted(EventTime eventTime, boolean belongsToPlayback) {
       isSeeking = true;
-      maybeUpdatePlaybackState(eventTime, belongsToPlayback);
-    }
-
-    /**
-     * Notifies the tracker that a seek has been processed, including all seeks while the playback
-     * is not in the foreground.
-     *
-     * @param eventTime The {@link EventTime}.
-     * @param belongsToPlayback Whether the {@code eventTime} belongs to the current playback.
-     */
-    public void onSeekProcessed(EventTime eventTime, boolean belongsToPlayback) {
-      isSeeking = false;
       maybeUpdatePlaybackState(eventTime, belongsToPlayback);
     }
 
@@ -933,10 +924,6 @@ public final class PlaybackStatsListener
             || currentPlaybackState == PlaybackStats.PLAYBACK_STATE_JOINING_FOREGROUND
             || currentPlaybackState == PlaybackStats.PLAYBACK_STATE_INTERRUPTED_BY_AD) {
           return PlaybackStats.PLAYBACK_STATE_JOINING_FOREGROUND;
-        }
-        if (currentPlaybackState == PlaybackStats.PLAYBACK_STATE_SEEKING
-            || currentPlaybackState == PlaybackStats.PLAYBACK_STATE_SEEK_BUFFERING) {
-          return PlaybackStats.PLAYBACK_STATE_SEEK_BUFFERING;
         }
         if (!playWhenReady) {
           return PlaybackStats.PLAYBACK_STATE_PAUSED_BUFFERING;
