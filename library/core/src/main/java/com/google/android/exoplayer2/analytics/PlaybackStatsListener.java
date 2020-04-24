@@ -150,7 +150,6 @@ public final class PlaybackStatsListener
     // TODO: Add AnalyticsListener.onAttachedToPlayer and onDetachedFromPlayer to auto-release with
     // an actual EventTime. Should also simplify other cases where the listener needs to be released
     // separately from the player.
-    HashMap<String, PlaybackStatsTracker> trackerCopy = new HashMap<>(playbackStatsTrackers);
     EventTime dummyEventTime =
         new EventTime(
             SystemClock.elapsedRealtime(),
@@ -160,9 +159,7 @@ public final class PlaybackStatsListener
             /* eventPlaybackPositionMs= */ 0,
             /* currentPlaybackPositionMs= */ 0,
             /* totalBufferedDurationMs= */ 0);
-    for (String session : trackerCopy.keySet()) {
-      onSessionFinished(dummyEventTime, session, /* automaticTransition= */ false);
-    }
+    sessionManager.finishAllSessions(dummyEventTime);
   }
 
   // PlaybackSessionManager.Listener implementation.
