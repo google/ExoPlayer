@@ -582,10 +582,10 @@ public interface Player {
     default void onPlaybackSpeedChanged(float playbackSpeed) {}
 
     /**
-     * Called when all pending seek requests have been processed by the player. This is guaranteed
-     * to happen after any necessary changes to the player state were reported to {@link
-     * #onPlaybackStateChanged(int)}.
+     * @deprecated Seeks are processed without delay. Listen to {@link
+     *     #onPositionDiscontinuity(int)} with reason {@link #DISCONTINUITY_REASON_SEEK} instead.
      */
+    @Deprecated
     default void onSeekProcessed() {}
   }
 

@@ -26,6 +26,8 @@
         consistency.
     *   Deprecate and rename `onLoadingChanged` to `onIsLoadingChanged` for
         consistency.
+    *   Deprecate `onSeekProcessed` because all seek changes happen instantly
+        now and listening to `onPositionDiscontinuity` is sufficient.
     *   Add `ExoPlayer.setPauseAtEndOfMediaItems` to let the player pause at the
         end of each media item
         ([#5660](https://github.com/google/ExoPlayer/issues/5660)).
