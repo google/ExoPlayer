@@ -16,7 +16,14 @@
 package com.google.android.exoplayer2.analytics;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Player;
@@ -42,7 +49,7 @@ public final class PlaybackStatsListenerTest {
   private static final Timeline TEST_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
   private static final AnalyticsListener.EventTime TEST_EVENT_TIME =
       new AnalyticsListener.EventTime(
-          /* realtimeMs= */ 700,
+          /* realtimeMs= */ 500,
           TEST_TIMELINE,
           /* windowIndex= */ 0,
           new MediaSource.MediaPeriodId(
@@ -118,5 +125,69 @@ public final class PlaybackStatsListenerTest {
     @Nullable PlaybackStats playbackStats = playbackStatsListener.getPlaybackStats();
     assertThat(playbackStats).isNotNull();
     assertThat(playbackStats.endedCount).isEqualTo(1);
+  }
+
+  @Test
+  public void finishedSession_callsCallback() {
+    PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);
+    PlaybackStatsListener playbackStatsListener =
+        new PlaybackStatsListener(/* keepHistory= */ true, callback);
+
+    // Create session with an event and finish it by simulating removal from playlist.
+    playbackStatsListener.onPlaybackStateChanged(TEST_EVENT_TIME, Player.STATE_BUFFERING);
+    verify(callback, never()).onPlaybackStatsReady(any(), any());
+    playbackStatsListener.onTimelineChanged(
+        EMPTY_TIMELINE_EVENT_TIME, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+
+    verify(callback).onPlaybackStatsReady(eq(TEST_EVENT_TIME), any());
+  }
+
+  @Test
+  public void finishAllSessions_callsAllPendingCallbacks() {
+    AnalyticsListener.EventTime eventTimeWindow0 =
+        new AnalyticsListener.EventTime(
+            /* realtimeMs= */ 0,
+            Timeline.EMPTY,
+            /* windowIndex= */ 0,
+            /* mediaPeriodId= */ null,
+            /* eventPlaybackPositionMs= */ 0,
+            /* currentPlaybackPositionMs= */ 0,
+            /* totalBufferedDurationMs= */ 0);
+    AnalyticsListener.EventTime eventTimeWindow1 =
+        new AnalyticsListener.EventTime(
+            /* realtimeMs= */ 0,
+            Timeline.EMPTY,
+            /* windowIndex= */ 1,
+            /* mediaPeriodId= */ null,
+            /* eventPlaybackPositionMs= */ 0,
+            /* currentPlaybackPositionMs= */ 0,
+            /* totalBufferedDurationMs= */ 0);
+    PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);
+    PlaybackStatsListener playbackStatsListener =
+        new PlaybackStatsListener(/* keepHistory= */ true, callback);
+    playbackStatsListener.onPlaybackStateChanged(eventTimeWindow0, Player.STATE_BUFFERING);
+    playbackStatsListener.onPlaybackStateChanged(eventTimeWindow1, Player.STATE_BUFFERING);
+
+    playbackStatsListener.finishAllSessions();
+
+    verify(callback, times(2)).onPlaybackStatsReady(any(), any());
+    verify(callback).onPlaybackStatsReady(eq(eventTimeWindow0), any());
+    verify(callback).onPlaybackStatsReady(eq(eventTimeWindow1), any());
+  }
+
+  @Test
+  public void finishAllSessions_doesNotCallCallbackAgainWhenSessionWouldBeAutomaticallyFinished() {
+    PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);
+    PlaybackStatsListener playbackStatsListener =
+        new PlaybackStatsListener(/* keepHistory= */ true, callback);
+    playbackStatsListener.onPlaybackStateChanged(TEST_EVENT_TIME, Player.STATE_BUFFERING);
+    SystemClock.setCurrentTimeMillis(TEST_EVENT_TIME.realtimeMs + 100);
+
+    playbackStatsListener.finishAllSessions();
+    // Simulate removing the playback item to ensure the session would finish if it hadn't already.
+    playbackStatsListener.onTimelineChanged(
+        EMPTY_TIMELINE_EVENT_TIME, Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+
+    verify(callback).onPlaybackStatsReady(any(), any());
   }
 }
