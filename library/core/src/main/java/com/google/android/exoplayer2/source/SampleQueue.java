@@ -55,6 +55,7 @@ public class SampleQueue implements TrackOutput {
 
   private final SampleDataQueue sampleDataQueue;
   private final SampleExtrasHolder extrasHolder;
+  private final Looper playbackLooper;
   private final DrmSessionManager drmSessionManager;
   private final MediaSourceEventDispatcher eventDispatcher;
   @Nullable private UpstreamFormatChangedListener upstreamFormatChangeListener;
@@ -94,6 +95,7 @@ public class SampleQueue implements TrackOutput {
    * Creates a sample queue.
    *
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
+   * @param playbackLooper The looper associated with the media playback thread.
    * @param drmSessionManager The {@link DrmSessionManager} to obtain {@link DrmSession DrmSessions}
    *     from. The created instance does not take ownership of this {@link DrmSessionManager}.
    * @param eventDispatcher A {@link MediaSourceEventDispatcher} to notify of events related to this
@@ -101,11 +103,13 @@ public class SampleQueue implements TrackOutput {
    */
   public SampleQueue(
       Allocator allocator,
+      Looper playbackLooper,
       DrmSessionManager drmSessionManager,
       MediaSourceEventDispatcher eventDispatcher) {
-    sampleDataQueue = new SampleDataQueue(allocator);
+    this.playbackLooper = playbackLooper;
     this.drmSessionManager = drmSessionManager;
     this.eventDispatcher = eventDispatcher;
+    sampleDataQueue = new SampleDataQueue(allocator);
     extrasHolder = new SampleExtrasHolder();
     capacity = SAMPLE_CAPACITY_INCREMENT;
     sourceIds = new int[capacity];
@@ -799,7 +803,6 @@ public class SampleQueue implements TrackOutput {
     // Ensure we acquire the new session before releasing the previous one in case the same session
     // is being used for both DrmInitData.
     @Nullable DrmSession previousSession = currentDrmSession;
-    Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
     currentDrmSession =
         newDrmInitData != null
             ? drmSessionManager.acquireSession(playbackLooper, eventDispatcher, newDrmInitData)

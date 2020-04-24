@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -910,7 +911,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
     HlsSampleQueue sampleQueue =
-        new HlsSampleQueue(allocator, drmSessionManager, eventDispatcher, overridingDrmInitData);
+        new HlsSampleQueue(
+            allocator,
+            /* playbackLooper= */ handler.getLooper(),
+            drmSessionManager,
+            eventDispatcher,
+            overridingDrmInitData);
     if (isAudioVideo) {
       sampleQueue.setDrmInitData(drmInitData);
     }
@@ -1380,10 +1386,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     private HlsSampleQueue(
         Allocator allocator,
+        Looper playbackLooper,
         DrmSessionManager drmSessionManager,
         MediaSourceEventDispatcher eventDispatcher,
         Map<String, DrmInitData> overridingDrmInitData) {
-      super(allocator, drmSessionManager, eventDispatcher);
+      super(allocator, playbackLooper, drmSessionManager, eventDispatcher);
       this.overridingDrmInitData = overridingDrmInitData;
     }
 

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -132,14 +133,22 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     int[] trackTypes = new int[1 + embeddedTrackCount];
     SampleQueue[] sampleQueues = new SampleQueue[1 + embeddedTrackCount];
 
-    primarySampleQueue = new SampleQueue(allocator, drmSessionManager, eventDispatcher);
+    primarySampleQueue =
+        new SampleQueue(
+            allocator,
+            /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+            drmSessionManager,
+            eventDispatcher);
     trackTypes[0] = primaryTrackType;
     sampleQueues[0] = primarySampleQueue;
 
     for (int i = 0; i < embeddedTrackCount; i++) {
       SampleQueue sampleQueue =
           new SampleQueue(
-              allocator, DrmSessionManager.getDummyDrmSessionManager(), eventDispatcher);
+              allocator,
+              /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
+              DrmSessionManager.getDummyDrmSessionManager(),
+              eventDispatcher);
       embeddedSampleQueues[i] = sampleQueue;
       sampleQueues[i + 1] = sampleQueue;
       trackTypes[i + 1] = this.embeddedTrackTypes[i];
