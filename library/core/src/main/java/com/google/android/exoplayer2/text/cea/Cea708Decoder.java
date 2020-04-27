@@ -1296,14 +1296,6 @@ public final class Cea708Decoder extends CeaDecoder {
     }
   }
 
-  protected void clearStuckCaptions()
-  {
-    // Do nothing for CEA-708.
-    // As per spec CEA-708 Caption text sequences shall be terminated by either the start of a new
-    // DTVCC Command, or with an ASCII ETX (End of Text) (0x03) character when no other DTVCC
-    // Commands follow.
-  }
-
   /** A {@link Cue} for CEA-708. */
   private static final class Cea708CueInfo {
 
