@@ -157,6 +157,8 @@
     ([#6410](https://github.com/google/ExoPlayer/issues/6410)).
 *   Add missing `@Nullable` annotations to `MediaSessionConnector`
     ([#7234](https://github.com/google/ExoPlayer/issues/7234)).
+*   AV1 extension: Add a heuristic to determine the default number of threads
+    used for AV1 playback using the extension.
 
 ### 2.11.4 (2020-04-08)
 
