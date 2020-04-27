@@ -477,7 +477,9 @@ public final class ImaAdsLoader
     adCallbacks = new ArrayList<>(/* initialCapacity= */ 1);
     adDisplayContainer = imaFactory.createAdDisplayContainer();
     adDisplayContainer.setPlayer(/* videoAdPlayer= */ this);
-    adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings, adDisplayContainer);
+    adsLoader =
+        imaFactory.createAdsLoader(
+            context.getApplicationContext(), imaSdkSettings, adDisplayContainer);
     adsLoader.addAdErrorListener(/* adErrorListener= */ this);
     adsLoader.addAdsLoadedListener(/* adsLoadedListener= */ this);
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
