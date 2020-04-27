@@ -555,6 +555,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadCompleted(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             dataSource.getLastOpenedUri(),
             dataSource.getLastResponseHeaders(),
@@ -579,6 +580,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadCanceled(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             dataSource.getLastOpenedUri(),
             dataSource.getLastResponseHeaders(),
@@ -628,6 +630,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadError(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             dataSource.getLastOpenedUri(),
             dataSource.getLastResponseHeaders(),
@@ -789,7 +792,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(dataType));
     DataSpec dataSpec = loadable.dataSpec;
     eventDispatcher.loadStarted(
-        new LoadEventInfo(dataSpec, elapsedRealtimeMs),
+        new LoadEventInfo(loadable.loadTaskId, dataSpec, elapsedRealtimeMs),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -928,6 +931,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /** Loads the media stream and extracts sample data from it. */
   /* package */ final class ExtractingLoadable implements Loadable, IcyDataSource.Listener {
 
+    private final long loadTaskId;
     private final Uri uri;
     private final StatsDataSource dataSource;
     private final ProgressiveMediaExtractor progressiveMediaExtractor;
@@ -959,6 +963,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.positionHolder = new PositionHolder();
       this.pendingExtractorSeek = true;
       this.length = C.LENGTH_UNSET;
+      loadTaskId = LoadEventInfo.getNewId();
       dataSpec = buildDataSpec(/* position= */ 0);
     }
 

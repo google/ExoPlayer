@@ -50,6 +50,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   private final TrackGroupArray trackGroupArray;
   private final List<SampleStream> sampleStreams;
   private final EventDispatcher eventDispatcher;
+  private final long fakePreparationLoadTaskId;
 
   @Nullable private Handler playerHandler;
   @Nullable private Callback prepareCallback;
@@ -82,6 +83,7 @@ public class FakeMediaPeriod implements MediaPeriod {
     this.deferOnPrepared = deferOnPrepared;
     discontinuityPositionUs = C.TIME_UNSET;
     sampleStreams = new ArrayList<>();
+    fakePreparationLoadTaskId = LoadEventInfo.getNewId();
     eventDispatcher.mediaPeriodCreated();
   }
 
@@ -122,7 +124,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public synchronized void prepare(Callback callback, long positionUs) {
     eventDispatcher.loadStarted(
-        new LoadEventInfo(FAKE_DATA_SPEC, SystemClock.elapsedRealtime()),
+        new LoadEventInfo(fakePreparationLoadTaskId, FAKE_DATA_SPEC, SystemClock.elapsedRealtime()),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -274,6 +276,7 @@ public class FakeMediaPeriod implements MediaPeriod {
     Util.castNonNull(prepareCallback).onPrepared(this);
     eventDispatcher.loadCompleted(
         new LoadEventInfo(
+            fakePreparationLoadTaskId,
             FAKE_DATA_SPEC,
             FAKE_DATA_SPEC.uri,
             /* responseHeaders= */ Collections.emptyMap(),

@@ -19,6 +19,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
@@ -33,9 +34,9 @@ import java.util.Map;
  */
 public abstract class Chunk implements Loadable {
 
-  /**
-   * The {@link DataSpec} that defines the data to be loaded.
-   */
+  /** Identifies the load task for this loadable. */
+  public final long loadTaskId;
+  /** The {@link DataSpec} that defines the data to be loaded. */
   public final DataSpec dataSpec;
   /**
    * The type of the chunk. One of the {@code DATA_TYPE_*} constants defined in {@link C}. For
@@ -95,6 +96,7 @@ public abstract class Chunk implements Loadable {
     this.trackSelectionData = trackSelectionData;
     this.startTimeUs = startTimeUs;
     this.endTimeUs = endTimeUs;
+    loadTaskId = LoadEventInfo.getNewId();
   }
 
   /**
