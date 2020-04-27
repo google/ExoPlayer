@@ -101,6 +101,9 @@
         used `start`, `middle` and `end`).
     *   Use anti-aliasing and bitmap filtering when displaying bitmap subtitles
         ([#6950](https://github.com/google/ExoPlayer/pull/6950)).
+    *   Implement timing-out of stuck CEA-608 captions (as permitted by
+        ANSI/CTA-608-E R-2014 Annex C.9) and set the default timeout to 16
+        seconds ([#7181](https://github.com/google/ExoPlayer/issues/7181)).
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.
@@ -111,8 +114,8 @@
         ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
     *   Remove generics from DRM components.
 *   Downloads and caching:
-    *   Merge downloads in `SegmentDownloader` to improve overall download
-        speed ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+    *   Merge downloads in `SegmentDownloader` to improve overall download speed
+        ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
     *   Replace `CacheDataSinkFactory` and `CacheDataSourceFactory` with
         `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
     *   Remove `DownloadConstructorHelper` and use `CacheDataSource.Factory`

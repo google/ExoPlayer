@@ -97,8 +97,6 @@ import java.util.PriorityQueue;
     if (availableOutputBuffers.isEmpty()) {
       return null;
     }
-    // check if 608 decoder needs to clean up the stale caption
-    clearStuckCaptions();
     // iterate through all available input buffers whose timestamps are less than or equal
     // to the current playback position; processing input buffers for future content should
     // be deferred until they would be applicable
@@ -181,6 +179,15 @@ import java.util.PriorityQueue;
    */
   protected abstract void decode(SubtitleInputBuffer inputBuffer);
 
+  @Nullable
+  protected final SubtitleOutputBuffer getAvailableOutputBuffer() {
+    return availableOutputBuffers.pollFirst();
+  }
+
+  protected final long getPositionUs() {
+    return playbackPositionUs;
+  }
+
   private static final class CeaInputBuffer extends SubtitleInputBuffer
       implements Comparable<CeaInputBuffer> {
 
@@ -215,9 +222,4 @@ import java.util.PriorityQueue;
       owner.releaseOutputBuffer(this);
     }
   }
-
-  /**
-   * Implements CEA-608 Annex C.9 automatic Caption Erase Logic
-   */
-  protected abstract void clearStuckCaptions();
 }
