@@ -44,7 +44,9 @@ add_subdirectory("${libgav1_root}"
 # Build libgav1JNI.
 add_library(gav1JNI
             SHARED
-            gav1_jni.cc)
+            gav1_jni.cc
+            cpu_info.cc
+            cpu_info.h)
 
 # Locate NDK log library.
 find_library(android_log_lib log)

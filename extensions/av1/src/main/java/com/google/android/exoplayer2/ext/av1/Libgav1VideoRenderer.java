@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.ext.av1;
 
-import static java.lang.Runtime.getRuntime;
-
 import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -54,6 +52,13 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  * </ul>
  */
 public class Libgav1VideoRenderer extends SimpleDecoderVideoRenderer {
+
+  /**
+   * Attempts to use as many threads as performance processors available on the device. If the
+   * number of performance processors cannot be detected, the number of available processors is
+   * used.
+   */
+  public static final int THREAD_COUNT_AUTODETECT = 0;
 
   private static final int DEFAULT_NUM_OF_INPUT_BUFFERS = 4;
   private static final int DEFAULT_NUM_OF_OUTPUT_BUFFERS = 4;
@@ -94,7 +99,7 @@ public class Libgav1VideoRenderer extends SimpleDecoderVideoRenderer {
         eventHandler,
         eventListener,
         maxDroppedFramesToNotify,
-        /* threads= */ getRuntime().availableProcessors(),
+        THREAD_COUNT_AUTODETECT,
         DEFAULT_NUM_OF_INPUT_BUFFERS,
         DEFAULT_NUM_OF_OUTPUT_BUFFERS);
   }
@@ -109,7 +114,9 @@ public class Libgav1VideoRenderer extends SimpleDecoderVideoRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
-   * @param threads Number of threads libgav1 will use to decode.
+   * @param threads Number of threads libgav1 will use to decode. If
+   *     {@link #THREAD_COUNT_AUTODETECT} is passed, then the number of threads to use is
+   *     auto-detected based on CPU capabilities.
    * @param numInputBuffers Number of input buffers.
    * @param numOutputBuffers Number of output buffers.
    */

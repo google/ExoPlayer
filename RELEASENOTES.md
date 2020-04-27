@@ -20,6 +20,8 @@
 * Text
     *   Use anti-aliasing and bitmap filtering when displaying bitmap subtitles
         ([#6950](https://github.com/google/ExoPlayer/pull/6950)).
+*   AV1 extension: Add a heuristic to determine the default number of threads
+    used for AV1 playback using the extension.
 
 ### 2.11.4 (2020-04-08) ###
 
