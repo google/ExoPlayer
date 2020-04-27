@@ -407,6 +407,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     chunkSource.onChunkLoadCompleted(loadable);
     eventDispatcher.loadCompleted(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -428,6 +429,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
     eventDispatcher.loadCanceled(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -497,6 +499,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     boolean canceled = !loadErrorAction.isRetry();
     eventDispatcher.loadError(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -568,7 +571,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         loader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
     eventDispatcher.loadStarted(
-        new LoadEventInfo(loadable.dataSpec, elapsedRealtimeMs),
+        new LoadEventInfo(loadable.loadTaskId, loadable.dataSpec, elapsedRealtimeMs),
         loadable.type,
         primaryTrackType,
         loadable.trackFormat,

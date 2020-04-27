@@ -136,7 +136,8 @@ public final class DefaultHlsPlaylistTracker
             this,
             loadErrorHandlingPolicy.getMinimumLoadableRetryCount(masterPlaylistLoadable.type));
     eventDispatcher.loadStarted(
-        new LoadEventInfo(masterPlaylistLoadable.dataSpec, elapsedRealtime),
+        new LoadEventInfo(
+            masterPlaylistLoadable.loadTaskId, masterPlaylistLoadable.dataSpec, elapsedRealtime),
         masterPlaylistLoadable.type);
   }
 
@@ -243,6 +244,7 @@ public final class DefaultHlsPlaylistTracker
     }
     eventDispatcher.loadCompleted(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -260,6 +262,7 @@ public final class DefaultHlsPlaylistTracker
       boolean released) {
     eventDispatcher.loadCanceled(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -282,6 +285,7 @@ public final class DefaultHlsPlaylistTracker
     boolean isFatal = retryDelayMs == C.TIME_UNSET;
     eventDispatcher.loadError(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -525,6 +529,7 @@ public final class DefaultHlsPlaylistTracker
         processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
         eventDispatcher.loadCompleted(
             new LoadEventInfo(
+                loadable.loadTaskId,
                 loadable.dataSpec,
                 loadable.getUri(),
                 loadable.getResponseHeaders(),
@@ -545,6 +550,7 @@ public final class DefaultHlsPlaylistTracker
         boolean released) {
       eventDispatcher.loadCanceled(
           new LoadEventInfo(
+              loadable.loadTaskId,
               loadable.dataSpec,
               loadable.getUri(),
               loadable.getResponseHeaders(),
@@ -588,6 +594,7 @@ public final class DefaultHlsPlaylistTracker
 
       eventDispatcher.loadError(
           new LoadEventInfo(
+              loadable.loadTaskId,
               loadable.dataSpec,
               loadable.getUri(),
               loadable.getResponseHeaders(),
@@ -618,7 +625,8 @@ public final class DefaultHlsPlaylistTracker
               this,
               loadErrorHandlingPolicy.getMinimumLoadableRetryCount(mediaPlaylistLoadable.type));
       eventDispatcher.loadStarted(
-          new LoadEventInfo(mediaPlaylistLoadable.dataSpec, elapsedRealtime),
+          new LoadEventInfo(
+              mediaPlaylistLoadable.loadTaskId, mediaPlaylistLoadable.dataSpec, elapsedRealtime),
           mediaPlaylistLoadable.type);
     }
 

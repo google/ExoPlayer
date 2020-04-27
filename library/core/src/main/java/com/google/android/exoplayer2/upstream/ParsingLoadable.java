@@ -19,6 +19,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -87,9 +88,9 @@ public final class ParsingLoadable<T> implements Loadable {
     return Assertions.checkNotNull(loadable.getResult());
   }
 
-  /**
-   * The {@link DataSpec} that defines the data to be loaded.
-   */
+  /** Identifies the load task for this loadable. */
+  public final long loadTaskId;
+  /** The {@link DataSpec} that defines the data to be loaded. */
   public final DataSpec dataSpec;
   /**
    * The type of the data. One of the {@code DATA_TYPE_*} constants defined in {@link C}. For
@@ -128,6 +129,7 @@ public final class ParsingLoadable<T> implements Loadable {
     this.dataSpec = dataSpec;
     this.type = type;
     this.parser = parser;
+    loadTaskId = LoadEventInfo.getNewId();
   }
 
   /** Returns the loaded object, or null if an object has not been loaded. */

@@ -261,8 +261,10 @@ public class FakeMediaSource extends BaseMediaSource {
               /* mediaEndTimeMs = */ C.TIME_UNSET);
       long elapsedRealTimeMs = SystemClock.elapsedRealtime();
       EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+      long loadTaskId = LoadEventInfo.getNewId();
       eventDispatcher.loadStarted(
           new LoadEventInfo(
+              loadTaskId,
               FAKE_DATA_SPEC,
               FAKE_DATA_SPEC.uri,
               /* responseHeaders= */ Collections.emptyMap(),
@@ -272,6 +274,7 @@ public class FakeMediaSource extends BaseMediaSource {
           mediaLoadData);
       eventDispatcher.loadCompleted(
           new LoadEventInfo(
+              loadTaskId,
               FAKE_DATA_SPEC,
               FAKE_DATA_SPEC.uri,
               /* responseHeaders= */ Collections.emptyMap(),

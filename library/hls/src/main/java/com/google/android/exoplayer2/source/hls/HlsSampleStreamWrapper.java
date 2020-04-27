@@ -676,7 +676,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         loader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
     eventDispatcher.loadStarted(
-        new LoadEventInfo(loadable.dataSpec, elapsedRealtimeMs),
+        new LoadEventInfo(loadable.loadTaskId, loadable.dataSpec, elapsedRealtimeMs),
         loadable.type,
         trackType,
         loadable.trackFormat,
@@ -704,6 +704,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     chunkSource.onChunkLoadCompleted(loadable);
     eventDispatcher.loadCompleted(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -729,6 +730,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
     eventDispatcher.loadCanceled(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -790,6 +792,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     eventDispatcher.loadError(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),

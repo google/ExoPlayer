@@ -154,13 +154,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (transferListener != null) {
       dataSource.addTransferListener(transferListener);
     }
+    SourceLoadable loadable = new SourceLoadable(dataSpec, dataSource);
     long elapsedRealtimeMs =
         loader.startLoading(
-            new SourceLoadable(dataSpec, dataSource),
+            loadable,
             /* callback= */ this,
             loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_MEDIA));
     eventDispatcher.loadStarted(
-        new LoadEventInfo(dataSpec, elapsedRealtimeMs),
+        new LoadEventInfo(loadable.loadTaskId, dataSpec, elapsedRealtimeMs),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,
@@ -219,6 +220,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadCompleted(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             dataSource.getLastOpenedUri(),
             dataSource.getLastResponseHeaders(),
@@ -240,6 +242,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadCanceled(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             dataSource.getLastOpenedUri(),
             dataSource.getLastResponseHeaders(),
@@ -283,6 +286,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadError(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             dataSource.getLastOpenedUri(),
             dataSource.getLastResponseHeaders(),
@@ -382,6 +386,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /* package */ static final class SourceLoadable implements Loadable {
 
+    public final long loadTaskId;
     public final DataSpec dataSpec;
 
     private final StatsDataSource dataSource;
@@ -389,6 +394,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable private byte[] sampleData;
 
     public SourceLoadable(DataSpec dataSpec, DataSource dataSource) {
+      this.loadTaskId = LoadEventInfo.getNewId();
       this.dataSpec = dataSpec;
       this.dataSource = new StatsDataSource(dataSource);
     }

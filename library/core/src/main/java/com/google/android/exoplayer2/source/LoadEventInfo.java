@@ -34,6 +34,8 @@ public final class LoadEventInfo {
     return idSource.getAndIncrement();
   }
 
+  /** Identifies the load task to which this event corresponds. */
+  public final long loadTaskId;
   /** Defines the requested data. */
   public final DataSpec dataSpec;
   /**
@@ -52,11 +54,13 @@ public final class LoadEventInfo {
   public final long bytesLoaded;
 
   /**
-   * Equivalent to {@link #LoadEventInfo(DataSpec, Uri, Map, long, long, long)
-   * LoadEventInfo(dataSpec, dataSpec.uri, Collections.emptyMap(), elapsedRealtimeMs, 0, 0)}.
+   * Equivalent to {@link #LoadEventInfo(long, DataSpec, Uri, Map, long, long, long)
+   * LoadEventInfo(loadTaskId, dataSpec, dataSpec.uri, Collections.emptyMap(), elapsedRealtimeMs, 0,
+   * 0)}.
    */
-  public LoadEventInfo(DataSpec dataSpec, long elapsedRealtimeMs) {
+  public LoadEventInfo(long loadTaskId, DataSpec dataSpec, long elapsedRealtimeMs) {
     this(
+        loadTaskId,
         dataSpec,
         dataSpec.uri,
         Collections.emptyMap(),
@@ -68,25 +72,23 @@ public final class LoadEventInfo {
   /**
    * Creates load event info.
    *
-   * @param dataSpec Defines the requested data.
-   * @param uri The {@link Uri} from which data is being read. The uri must be identical to the one
-   *     in {@code dataSpec.uri} unless redirection has occurred. If redirection has occurred, this
-   *     is the uri after redirection.
-   * @param responseHeaders The response headers associated with the load, or an empty map if
-   *     unavailable.
-   * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} at the time of the
-   *     load event.
-   * @param loadDurationMs The duration of the load up to the event time.
-   * @param bytesLoaded The number of bytes that were loaded up to the event time. For compressed
-   *     network responses, this is the decompressed size.
+   * @param loadTaskId See {@link #loadTaskId}.
+   * @param dataSpec See {@link #dataSpec}.
+   * @param uri See {@link #uri}.
+   * @param responseHeaders See {@link #responseHeaders}.
+   * @param elapsedRealtimeMs See {@link #elapsedRealtimeMs}.
+   * @param loadDurationMs See {@link #loadDurationMs}.
+   * @param bytesLoaded See {@link #bytesLoaded}.
    */
   public LoadEventInfo(
+      long loadTaskId,
       DataSpec dataSpec,
       Uri uri,
       Map<String, List<String>> responseHeaders,
       long elapsedRealtimeMs,
       long loadDurationMs,
       long bytesLoaded) {
+    this.loadTaskId = loadTaskId;
     this.dataSpec = dataSpec;
     this.uri = uri;
     this.responseHeaders = responseHeaders;

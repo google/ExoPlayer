@@ -756,6 +756,7 @@ public final class DashMediaSource extends BaseMediaSource {
       long elapsedRealtimeMs, long loadDurationMs) {
     manifestEventDispatcher.loadCompleted(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -859,6 +860,7 @@ public final class DashMediaSource extends BaseMediaSource {
             : Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs);
     manifestEventDispatcher.loadError(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -875,6 +877,7 @@ public final class DashMediaSource extends BaseMediaSource {
       long elapsedRealtimeMs, long loadDurationMs) {
     manifestEventDispatcher.loadCompleted(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -892,6 +895,7 @@ public final class DashMediaSource extends BaseMediaSource {
       IOException error) {
     manifestEventDispatcher.loadError(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -909,6 +913,7 @@ public final class DashMediaSource extends BaseMediaSource {
       long loadDurationMs) {
     manifestEventDispatcher.loadCanceled(
         new LoadEventInfo(
+            loadable.loadTaskId,
             loadable.dataSpec,
             loadable.getUri(),
             loadable.getResponseHeaders(),
@@ -1129,7 +1134,8 @@ public final class DashMediaSource extends BaseMediaSource {
       Loader.Callback<ParsingLoadable<T>> callback, int minRetryCount) {
     long elapsedRealtimeMs = loader.startLoading(loadable, callback, minRetryCount);
     manifestEventDispatcher.loadStarted(
-        new LoadEventInfo(loadable.dataSpec, elapsedRealtimeMs), loadable.type);
+        new LoadEventInfo(loadable.loadTaskId, loadable.dataSpec, elapsedRealtimeMs),
+        loadable.type);
   }
 
   private static final class PeriodSeekInfo {
