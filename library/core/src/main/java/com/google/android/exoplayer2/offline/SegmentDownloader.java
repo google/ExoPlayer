@@ -105,12 +105,17 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   @Override
   public final void download(@Nullable ProgressListener progressListener)
       throws IOException, InterruptedException {
-    CacheDataSource dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
-    @Nullable PriorityTaskManager priorityTaskManager = dataSource.getUpstreamPriorityTaskManager();
+    @Nullable
+    PriorityTaskManager priorityTaskManager =
+        cacheDataSourceFactory.getUpstreamPriorityTaskManager();
     if (priorityTaskManager != null) {
       priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
     }
     try {
+      Cache cache = Assertions.checkNotNull(cacheDataSourceFactory.getCache());
+      CacheKeyFactory cacheKeyFactory = cacheDataSourceFactory.getCacheKeyFactory();
+      CacheDataSource dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
+
       // Get the manifest and all of the segments.
       M manifest = getManifest(dataSource, manifestDataSpec);
       if (!streamKeys.isEmpty()) {
@@ -118,7 +123,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       }
       List<Segment> segments = getSegments(dataSource, manifest, /* allowIncompleteList= */ false);
       Collections.sort(segments);
-      mergeSegments(segments, dataSource.getCacheKeyFactory());
+      mergeSegments(segments, cacheKeyFactory);
 
       // Scan the segments, removing any that are fully downloaded.
       int totalSegments = segments.size();
@@ -128,8 +133,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       for (int i = segments.size() - 1; i >= 0; i--) {
         Segment segment = segments.get(i);
         Pair<Long, Long> segmentLengthAndBytesDownloaded =
-            CacheUtil.getCached(
-                segment.dataSpec, dataSource.getCache(), dataSource.getCacheKeyFactory());
+            CacheUtil.getCached(segment.dataSpec, cache, cacheKeyFactory);
         long segmentLength = segmentLengthAndBytesDownloaded.first;
         long segmentBytesDownloaded = segmentLengthAndBytesDownloaded.second;
         bytesDownloaded += segmentBytesDownloaded;
@@ -185,9 +189,9 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
   @Override
   public final void remove() throws InterruptedException {
+    Cache cache = Assertions.checkNotNull(cacheDataSourceFactory.getCache());
+    CacheKeyFactory cacheKeyFactory = cacheDataSourceFactory.getCacheKeyFactory();
     CacheDataSource dataSource = cacheDataSourceFactory.createDataSourceForRemovingDownload();
-    Cache cache = dataSource.getCache();
-    CacheKeyFactory cacheKeyFactory = dataSource.getCacheKeyFactory();
     try {
       M manifest = getManifest(dataSource, manifestDataSpec);
       List<Segment> segments = getSegments(dataSource, manifest, true);

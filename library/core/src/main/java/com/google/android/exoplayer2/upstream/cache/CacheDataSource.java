@@ -81,6 +81,15 @@ public final class CacheDataSource implements DataSource {
     }
 
     /**
+     * Returns the cache that will be used, or {@code null} if {@link #setCache} has yet to be
+     * called.
+     */
+    @Nullable
+    public Cache getCache() {
+      return cache;
+    }
+
+    /**
      * Sets the {@link DataSource.Factory} for {@link DataSource DataSources} for reading from the
      * cache.
      *
@@ -124,6 +133,11 @@ public final class CacheDataSource implements DataSource {
       return this;
     }
 
+    /** Returns the {@link CacheKeyFactory} that will be used. */
+    public CacheKeyFactory getCacheKeyFactory() {
+      return cacheKeyFactory;
+    }
+
     /**
      * Sets the {@link DataSource.Factory} for upstream {@link DataSource DataSources}, which are
      * used to read data in the case of a cache miss.
@@ -163,6 +177,15 @@ public final class CacheDataSource implements DataSource {
         @Nullable PriorityTaskManager upstreamPriorityTaskManager) {
       this.upstreamPriorityTaskManager = upstreamPriorityTaskManager;
       return this;
+    }
+
+    /**
+     * Returns the {@link PriorityTaskManager} that will bs used when requesting data from upstream,
+     * or {@code null} if there is none.
+     */
+    @Nullable
+    public PriorityTaskManager getUpstreamPriorityTaskManager() {
+      return upstreamPriorityTaskManager;
     }
 
     /**
@@ -492,6 +515,7 @@ public final class CacheDataSource implements DataSource {
     this.ignoreCacheForUnsetLengthRequests =
         (flags & FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS) != 0;
     this.upstreamPriority = upstreamPriority;
+    this.upstreamPriorityTaskManager = upstreamPriorityTaskManager;
     if (upstreamDataSource != null) {
       if (upstreamPriorityTaskManager != null) {
         upstreamDataSource =
@@ -499,14 +523,12 @@ public final class CacheDataSource implements DataSource {
                 upstreamDataSource, upstreamPriorityTaskManager, upstreamPriority);
       }
       this.upstreamDataSource = upstreamDataSource;
-      this.upstreamPriorityTaskManager = upstreamPriorityTaskManager;
       this.cacheWriteDataSource =
           cacheWriteDataSink != null
               ? new TeeDataSource(upstreamDataSource, cacheWriteDataSink)
               : null;
     } else {
       this.upstreamDataSource = DummyDataSource.INSTANCE;
-      this.upstreamPriorityTaskManager = null;
       this.cacheWriteDataSource = null;
     }
     this.eventListener = eventListener;
