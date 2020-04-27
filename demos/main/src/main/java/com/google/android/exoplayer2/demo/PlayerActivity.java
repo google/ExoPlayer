@@ -448,7 +448,7 @@ public class PlayerActivity extends AppCompatActivity
    * otherwise.
    */
   @Nullable
-  private AdsLoader createAdsLoader(Uri adTagUri) {
+  private AdsLoader maybeCreateAdsLoader(Uri adTagUri) {
     // Load the extension source using reflection so the demo app doesn't have to depend on it.
     try {
       Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
@@ -593,14 +593,14 @@ public class PlayerActivity extends AppCompatActivity
         releaseAdsLoader();
         loadedAdTagUri = adTagUri;
       }
+      // The ads loader is reused for multiple playbacks, so that ad playback can resume.
       if (adsLoader == null) {
-        // The ads loader is reused for multiple playbacks, so that ad playback can resume.
-        adsLoader = createAdsLoader(adTagUri);
-        if (adsLoader != null) {
-          adsLoader.setPlayer(player);
-        } else {
-          showToast(R.string.ima_not_loaded);
-        }
+        adsLoader = maybeCreateAdsLoader(adTagUri);
+      }
+      if (adsLoader != null) {
+        adsLoader.setPlayer(player);
+      } else {
+        showToast(R.string.ima_not_loaded);
       }
       return adsLoader;
     }
