@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -31,7 +30,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * A downloader for SmoothStreaming streams.
@@ -68,7 +67,7 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
    */
   public SsDownloader(
       Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
-    this(manifestUri, streamKeys, cacheDataSourceFactory, /* executorService= */ null);
+    this(manifestUri, streamKeys, cacheDataSourceFactory, Runnable::run);
   }
 
   /**
@@ -77,18 +76,16 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
    *     If empty, all streams are downloaded.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
    *     download will be written.
-   * @param executorService An {@link ExecutorService} used to make requests for the media being
-   *     downloaded. Must not be a direct executor, but may be {@code null} if the requests should
-   *     be made directly from the thread that calls {@link #download(ProgressListener)}. Providing
-   *     an {@link ExecutorService} that uses multiple threads will speed up the download by
+   * @param executor An {@link Executor} used to make requests for the media being downloaded.
+   *     Providing an {@link Executor} that uses multiple threads will speed up the download by
    *     allowing parts of it to be executed in parallel.
    */
   public SsDownloader(
       Uri manifestUri,
       List<StreamKey> streamKeys,
       CacheDataSource.Factory cacheDataSourceFactory,
-      @Nullable ExecutorService executorService) {
-    super(SsUtil.fixManifestUri(manifestUri), streamKeys, cacheDataSourceFactory, executorService);
+      Executor executor) {
+    super(SsUtil.fixManifestUri(manifestUri), streamKeys, cacheDataSourceFactory, executor);
   }
 
   @Override

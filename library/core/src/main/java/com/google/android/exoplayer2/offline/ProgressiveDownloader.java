@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** A downloader for progressive media streams. */
@@ -44,7 +44,7 @@ public final class ProgressiveDownloader implements Downloader {
    */
   public ProgressiveDownloader(
       Uri uri, @Nullable String customCacheKey, CacheDataSource.Factory cacheDataSourceFactory) {
-    this(uri, customCacheKey, cacheDataSourceFactory, /* executorService= */ null);
+    this(uri, customCacheKey, cacheDataSourceFactory, Runnable::run);
   }
 
   /**
@@ -53,17 +53,15 @@ public final class ProgressiveDownloader implements Downloader {
    *     indexing. May be null.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
    *     download will be written.
-   * @param executorService An {@link ExecutorService} used to make requests for the media being
-   *     downloaded. Must not be a direct executor, but may be {@code null} if the requests should
-   *     be made directly from the thread that calls {@link #download(ProgressListener)}. In the
-   *     future, providing an {@link ExecutorService} that uses multiple threads may speed up the
+   * @param executor An {@link Executor} used to make requests for the media being downloaded. In
+   *     the future, providing an {@link Executor} that uses multiple threads may speed up the
    *     download by allowing parts of it to be executed in parallel.
    */
   public ProgressiveDownloader(
       Uri uri,
       @Nullable String customCacheKey,
       CacheDataSource.Factory cacheDataSourceFactory,
-      @Nullable ExecutorService executorService) {
+      Executor executor) {
     dataSpec =
         new DataSpec.Builder()
             .setUri(uri)
