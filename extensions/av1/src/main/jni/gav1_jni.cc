@@ -32,6 +32,7 @@
 #include <mutex>  // NOLINT
 #include <new>
 
+#include "cpu_info.h"  // NOLINT
 #include "gav1/decoder.h"
 
 #define LOG_TAG "gav1_jni"
@@ -772,6 +773,10 @@ DECODER_FUNC(jint, gav1CheckError, jlong jContext) {
     return kStatusError;
   }
   return kStatusOk;
+}
+
+DECODER_FUNC(jint, gav1GetThreads) {
+  return gav1_jni::GetNumberOfPerformanceCoresOnline();
 }
 
 // TODO(b/139902005): Add functions for getting libgav1 version and build
