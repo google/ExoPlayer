@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
@@ -25,9 +24,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestP
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -85,12 +82,12 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
       List<StreamKey> streamKeys,
       CacheDataSource.Factory cacheDataSourceFactory,
       Executor executor) {
-    super(SsUtil.fixManifestUri(manifestUri), streamKeys, cacheDataSourceFactory, executor);
-  }
-
-  @Override
-  protected SsManifest getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException {
-    return ParsingLoadable.load(dataSource, new SsManifestParser(), dataSpec, C.DATA_TYPE_MANIFEST);
+    super(
+        SsUtil.fixManifestUri(manifestUri),
+        new SsManifestParser(),
+        streamKeys,
+        cacheDataSourceFactory,
+        executor);
   }
 
   @Override

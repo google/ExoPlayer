@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
-import com.google.android.exoplayer2.C;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.UriUtil;
 import java.io.IOException;
@@ -86,12 +85,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
       List<StreamKey> streamKeys,
       CacheDataSource.Factory cacheDataSourceFactory,
       Executor executor) {
-    super(playlistUri, streamKeys, cacheDataSourceFactory, executor);
-  }
-
-  @Override
-  protected HlsPlaylist getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException {
-    return loadManifest(dataSource, dataSpec);
+    super(playlistUri, new HlsPlaylistParser(), streamKeys, cacheDataSourceFactory, executor);
   }
 
   @Override
@@ -112,7 +106,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
       segments.add(new Segment(/* startTimeUs= */ 0, mediaPlaylistDataSpec));
       HlsMediaPlaylist mediaPlaylist;
       try {
-        mediaPlaylist = (HlsMediaPlaylist) loadManifest(dataSource, mediaPlaylistDataSpec);
+        mediaPlaylist = (HlsMediaPlaylist) getManifest(dataSource, mediaPlaylistDataSpec);
       } catch (IOException e) {
         if (!allowIncompleteList) {
           throw e;
@@ -120,7 +114,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
         // Generating an incomplete segment list is allowed. Advance to the next media playlist.
         continue;
       }
-      HlsMediaPlaylist.Segment lastInitSegment = null;
+      @Nullable HlsMediaPlaylist.Segment lastInitSegment = null;
       List<HlsMediaPlaylist.Segment> hlsSegments = mediaPlaylist.segments;
       for (int i = 0; i < hlsSegments.size(); i++) {
         HlsMediaPlaylist.Segment segment = hlsSegments.get(i);
@@ -139,12 +133,6 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
     for (int i = 0; i < mediaPlaylistUrls.size(); i++) {
       out.add(SegmentDownloader.getCompressibleDataSpec(mediaPlaylistUrls.get(i)));
     }
-  }
-
-  private static HlsPlaylist loadManifest(DataSource dataSource, DataSpec dataSpec)
-      throws IOException {
-    return ParsingLoadable.load(
-        dataSource, new HlsPlaylistParser(), dataSpec, C.DATA_TYPE_MANIFEST);
   }
 
   private void addSegment(

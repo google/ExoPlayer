@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
@@ -68,6 +70,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private static final long MAX_MERGED_SEGMENT_START_TIME_DIFF_US = 20 * C.MICROS_PER_SECOND;
 
   private final DataSpec manifestDataSpec;
+  private final Parser<M> manifestParser;
   private final ArrayList<StreamKey> streamKeys;
   private final CacheDataSource.Factory cacheDataSourceFactory;
   private final Executor executor;
@@ -75,6 +78,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
+   * @param manifestParser A parser for the manifest.
    * @param streamKeys Keys defining which streams in the manifest should be selected for download.
    *     If empty, all streams are downloaded.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
@@ -85,10 +89,12 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
    */
   public SegmentDownloader(
       Uri manifestUri,
+      Parser<M> manifestParser,
       List<StreamKey> streamKeys,
       CacheDataSource.Factory cacheDataSourceFactory,
       Executor executor) {
     this.manifestDataSpec = getCompressibleDataSpec(manifestUri);
+    this.manifestParser = manifestParser;
     this.streamKeys = new ArrayList<>(streamKeys);
     this.cacheDataSourceFactory = cacheDataSourceFactory;
     this.executor = executor;
@@ -209,14 +215,16 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   // Internal methods.
 
   /**
-   * Loads and parses the manifest.
+   * Loads and parses a manifest.
    *
    * @param dataSource The {@link DataSource} through which to load.
    * @param dataSpec The manifest {@link DataSpec}.
    * @return The manifest.
    * @throws IOException If an error occurs reading data.
    */
-  protected abstract M getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException;
+  protected final M getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException {
+    return ParsingLoadable.load(dataSource, manifestParser, dataSpec, C.DATA_TYPE_MANIFEST);
+  }
 
   /**
    * Returns a list of all downloadable {@link Segment}s for a given manifest.

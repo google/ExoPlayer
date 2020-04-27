@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,13 +91,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
       List<StreamKey> streamKeys,
       CacheDataSource.Factory cacheDataSourceFactory,
       Executor executor) {
-    super(manifestUri, streamKeys, cacheDataSourceFactory, executor);
-  }
-
-  @Override
-  protected DashManifest getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException {
-    return ParsingLoadable.load(
-        dataSource, new DashManifestParser(), dataSpec, C.DATA_TYPE_MANIFEST);
+    super(manifestUri, new DashManifestParser(), streamKeys, cacheDataSourceFactory, executor);
   }
 
   @Override
