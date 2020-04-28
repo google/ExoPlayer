@@ -86,6 +86,29 @@ public final class PlatformScheduler implements Scheduler {
     return true;
   }
 
+  @Override
+  public Requirements getSupportedRequirements(Requirements requirements) {
+    Requirements supportedRequirements = requirements;
+    if (Util.SDK_INT < 26) {
+      if (requirements.isBatteryNotLowRequired()) {
+        Log.w(TAG, "Battery not low requirement not supported on the PlatformScheduler"
+            + "on API below 26. Requirement removed.");
+        int newRequirements =
+            supportedRequirements.getRequirements() ^ Requirements.DEVICE_BATTERY_NOT_LOW;
+        supportedRequirements = new Requirements(newRequirements);
+      }
+
+      if (requirements.isStorageNotLowRequired()) {
+        Log.w(TAG, "Storage not low requirement not supported on the PlatformScheduler"
+            + "on API below 26. Requirement removed.");
+        int newRequirements =
+            supportedRequirements.getRequirements() ^ Requirements.DEVICE_STORAGE_NOT_LOW;
+        supportedRequirements = new Requirements(newRequirements);
+      }
+    }
+    return supportedRequirements;
+  }
+
   // @RequiresPermission constructor annotation should ensure the permission is present.
   @SuppressWarnings("MissingPermission")
   private static JobInfo buildJobInfo(
@@ -107,8 +130,8 @@ public final class PlatformScheduler implements Scheduler {
       builder.setRequiresStorageNotLow(requirements.isStorageNotLowRequired());
       builder.setRequiresBatteryNotLow(requirements.isBatteryNotLowRequired());
     } else if (requirements.isStorageNotLowRequired() || requirements.isBatteryNotLowRequired()) {
-      Log.w(TAG, "Storage not low and battery not low requirements are only available on "
-          + "API 26 and up. Consider using the WorkManagerScheduler.");
+      Log.w(TAG, "Storage not low and battery not low requirements are only available on API 26"
+          + " and up.");
     }
     builder.setPersisted(true);
 
