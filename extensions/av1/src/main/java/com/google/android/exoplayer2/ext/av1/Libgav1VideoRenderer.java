@@ -94,8 +94,9 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param maxDroppedFramesToNotify The maximum number of frames that can be dropped between
    *     invocations of {@link VideoRendererEventListener#onDroppedFrames(int, long)}.
-   * @param threads Number of threads libgav1 will use to decode. If {@link THREAD_COUNT_AUTODETECT}
-   *     is passed, then the number of threads to use is autodetected based on CPU capabilities.
+   * @param threads Number of threads libgav1 will use to decode. If {@link
+   *     #THREAD_COUNT_AUTODETECT} is passed, then the number of threads to use is autodetected
+   *     based on CPU capabilities.
    * @param numInputBuffers Number of input buffers.
    * @param numOutputBuffers Number of output buffers.
    */
