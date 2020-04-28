@@ -43,7 +43,7 @@ public class ConditionVariableTest {
   public void blockWithTimeout_blocksForAtLeastTimeout() throws InterruptedException {
     ConditionVariable conditionVariable = buildTestConditionVariable();
     long startTimeMs = System.currentTimeMillis();
-    assertThat(conditionVariable.block(/* timeout= */ 500)).isFalse();
+    assertThat(conditionVariable.block(/* timeoutMs= */ 500)).isFalse();
     long endTimeMs = System.currentTimeMillis();
     assertThat(endTimeMs - startTimeMs).isAtLeast(500L);
   }
@@ -59,6 +59,33 @@ public class ConditionVariableTest {
             () -> {
               try {
                 conditionVariable.block();
+                blockReturned.set(true);
+              } catch (InterruptedException e) {
+                blockWasInterrupted.set(true);
+              }
+            });
+
+    blockingThread.start();
+    Thread.sleep(500);
+    assertThat(blockReturned.get()).isFalse();
+
+    blockingThread.interrupt();
+    blockingThread.join();
+    assertThat(blockWasInterrupted.get()).isTrue();
+    assertThat(conditionVariable.isOpen()).isFalse();
+  }
+
+  @Test
+  public void blockWithMaxTimeout_blocks() throws InterruptedException {
+    ConditionVariable conditionVariable = buildTestConditionVariable();
+
+    AtomicBoolean blockReturned = new AtomicBoolean();
+    AtomicBoolean blockWasInterrupted = new AtomicBoolean();
+    Thread blockingThread =
+        new Thread(
+            () -> {
+              try {
+                conditionVariable.block(/* timeoutMs= */ Long.MAX_VALUE);
                 blockReturned.set(true);
               } catch (InterruptedException e) {
                 blockWasInterrupted.set(true);
