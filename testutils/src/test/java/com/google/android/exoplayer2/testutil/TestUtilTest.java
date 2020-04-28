@@ -30,7 +30,7 @@ public class TestUtilTest {
   public void createRobolectricConditionVariable_blockWithTimeout_timesOut()
       throws InterruptedException {
     ConditionVariable conditionVariable = TestUtil.createRobolectricConditionVariable();
-    assertThat(conditionVariable.block(/* timeout= */ 1)).isFalse();
+    assertThat(conditionVariable.block(/* timeoutMs= */ 1)).isFalse();
     assertThat(conditionVariable.isOpen()).isFalse();
   }
 
@@ -39,7 +39,7 @@ public class TestUtilTest {
       throws InterruptedException {
     ConditionVariable conditionVariable = TestUtil.createRobolectricConditionVariable();
     long startTimeMs = System.currentTimeMillis();
-    assertThat(conditionVariable.block(/* timeout= */ 500)).isFalse();
+    assertThat(conditionVariable.block(/* timeoutMs= */ 500)).isFalse();
     long endTimeMs = System.currentTimeMillis();
     assertThat(endTimeMs - startTimeMs).isAtLeast(500);
   }

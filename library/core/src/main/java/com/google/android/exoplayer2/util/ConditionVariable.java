@@ -86,18 +86,27 @@ public class ConditionVariable {
   }
 
   /**
-   * Blocks until the condition is opened or until {@code timeout} milliseconds have passed.
+   * Blocks until the condition is opened or until {@code timeoutMs} have passed.
    *
-   * @param timeout The maximum time to wait in milliseconds.
+   * @param timeoutMs The maximum time to wait in milliseconds. If {@code timeoutMs <= 0} then the
+   *     call will return immediately without blocking.
    * @return True if the condition was opened, false if the call returns because of the timeout.
    * @throws InterruptedException If the thread is interrupted.
    */
-  public synchronized boolean block(long timeout) throws InterruptedException {
-    long now = clock.elapsedRealtime();
-    long end = now + timeout;
-    while (!isOpen && now < end) {
-      wait(end - now);
-      now = clock.elapsedRealtime();
+  public synchronized boolean block(long timeoutMs) throws InterruptedException {
+    if (timeoutMs <= 0) {
+      return isOpen;
+    }
+    long nowMs = clock.elapsedRealtime();
+    long endMs = nowMs + timeoutMs;
+    if (endMs < nowMs) {
+      // timeoutMs is large enough for (nowMs + timeoutMs) to rollover. Block indefinitely.
+      block();
+    } else {
+      while (!isOpen && nowMs < endMs) {
+        wait(endMs - nowMs);
+        nowMs = clock.elapsedRealtime();
+      }
     }
     return isOpen;
   }
