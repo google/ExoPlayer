@@ -85,7 +85,7 @@ public class DownloadTracker {
   }
 
   public boolean isDownloaded(MediaItem mediaItem) {
-    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).sourceUri);
+    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
     return download != null && download.state != Download.STATE_FAILED;
   }
 
@@ -96,7 +96,7 @@ public class DownloadTracker {
 
   public void toggleDownload(
       FragmentManager fragmentManager, MediaItem mediaItem, RenderersFactory renderersFactory) {
-    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).sourceUri);
+    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
     if (download != null) {
       DownloadService.sendRemoveDownload(
           context, DemoDownloadService.class, download.request.id, /* foreground= */ false);
@@ -125,20 +125,19 @@ public class DownloadTracker {
     MediaItem.PlaybackProperties playbackProperties = checkNotNull(mediaItem.playbackProperties);
     @C.ContentType
     int type =
-        Util.inferContentTypeWithMimeType(
-            playbackProperties.sourceUri, playbackProperties.mimeType);
+        Util.inferContentTypeWithMimeType(playbackProperties.uri, playbackProperties.mimeType);
     switch (type) {
       case C.TYPE_DASH:
         return DownloadHelper.forDash(
-            context, playbackProperties.sourceUri, dataSourceFactory, renderersFactory);
+            context, playbackProperties.uri, dataSourceFactory, renderersFactory);
       case C.TYPE_SS:
         return DownloadHelper.forSmoothStreaming(
-            context, playbackProperties.sourceUri, dataSourceFactory, renderersFactory);
+            context, playbackProperties.uri, dataSourceFactory, renderersFactory);
       case C.TYPE_HLS:
         return DownloadHelper.forHls(
-            context, playbackProperties.sourceUri, dataSourceFactory, renderersFactory);
+            context, playbackProperties.uri, dataSourceFactory, renderersFactory);
       case C.TYPE_OTHER:
-        return DownloadHelper.forProgressive(context, playbackProperties.sourceUri);
+        return DownloadHelper.forProgressive(context, playbackProperties.uri);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }

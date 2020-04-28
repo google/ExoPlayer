@@ -41,19 +41,19 @@ import java.util.List;
     // Clear content.
     samples.add(
         new MediaItem.Builder()
-            .setSourceUri("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd")
+            .setUri("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd")
             .setMediaMetadata(new MediaMetadata.Builder().setTitle("Clear DASH: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
             .build());
     samples.add(
         new MediaItem.Builder()
-            .setSourceUri("https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8")
+            .setUri("https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8")
             .setMediaMetadata(new MediaMetadata.Builder().setTitle("Clear HLS: Angel one").build())
             .setMimeType(MIME_TYPE_HLS)
             .build());
     samples.add(
         new MediaItem.Builder()
-            .setSourceUri("https://html5demos.com/assets/dizzy.mp4")
+            .setUri("https://html5demos.com/assets/dizzy.mp4")
             .setMediaMetadata(new MediaMetadata.Builder().setTitle("Clear MP4: Dizzy").build())
             .setMimeType(MIME_TYPE_VIDEO_MP4)
             .build());
@@ -61,8 +61,7 @@ import java.util.List;
     // DRM content.
     samples.add(
         new MediaItem.Builder()
-            .setSourceUri(
-                Uri.parse("https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"))
+            .setUri(Uri.parse("https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"))
             .setMediaMetadata(
                 new MediaMetadata.Builder().setTitle("Widevine DASH cenc: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
@@ -71,8 +70,7 @@ import java.util.List;
             .build());
     samples.add(
         new MediaItem.Builder()
-            .setSourceUri(
-                "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd")
+            .setUri("https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd")
             .setMediaMetadata(
                 new MediaMetadata.Builder().setTitle("Widevine DASH cbc1: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
@@ -81,8 +79,7 @@ import java.util.List;
             .build());
     samples.add(
         new MediaItem.Builder()
-            .setSourceUri(
-                "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd")
+            .setUri("https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd")
             .setMediaMetadata(
                 new MediaMetadata.Builder().setTitle("Widevine DASH cbcs: Tears").build())
             .setMimeType(MIME_TYPE_DASH)

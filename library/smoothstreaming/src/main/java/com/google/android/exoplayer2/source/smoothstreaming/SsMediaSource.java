@@ -223,7 +223,7 @@ public final class SsMediaSource extends BaseMediaSource
     @Deprecated
     @Override
     public SsMediaSource createMediaSource(Uri uri) {
-      return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());
+      return createMediaSource(new MediaItem.Builder().setUri(uri).build());
     }
 
     /**
@@ -307,7 +307,7 @@ public final class SsMediaSource extends BaseMediaSource
       }
       return new SsMediaSource(
           /* manifest= */ null,
-          mediaItem.playbackProperties.sourceUri,
+          mediaItem.playbackProperties.uri,
           manifestDataSourceFactory,
           manifestParser,
           chunkSourceFactory,

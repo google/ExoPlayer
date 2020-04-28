@@ -38,10 +38,7 @@ public class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setSourceUri(URI_MEDIA)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .build();
+        new MediaItem.Builder().setUri(URI_MEDIA).setMimeType(MimeTypes.APPLICATION_MPD).build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -55,7 +52,7 @@ public class DefaultMediaSourceFactoryTest {
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setSourceUri(URI_MEDIA)
+            .setUri(URI_MEDIA)
             .setMimeType(MimeTypes.APPLICATION_MPD)
             .setTag(tag)
             .build();
@@ -69,7 +66,7 @@ public class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withPath_dashSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + "/file.mpd").build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.mpd").build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -80,7 +77,7 @@ public class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withNull_usesNonNullDefaults() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + "/file.mpd").build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.mpd").build();
 
     MediaSource mediaSource =
         defaultMediaSourceFactory

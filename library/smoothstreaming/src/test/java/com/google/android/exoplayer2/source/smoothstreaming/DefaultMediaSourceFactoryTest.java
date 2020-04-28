@@ -40,10 +40,7 @@ public class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setSourceUri(URI_MEDIA)
-            .setMimeType(MimeTypes.APPLICATION_SS)
-            .build();
+        new MediaItem.Builder().setUri(URI_MEDIA).setMimeType(MimeTypes.APPLICATION_SS).build();
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
     assertThat(mediaSource).isInstanceOf(SsMediaSource.class);
   }
@@ -55,7 +52,7 @@ public class DefaultMediaSourceFactoryTest {
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setSourceUri(URI_MEDIA)
+            .setUri(URI_MEDIA)
             .setMimeType(MimeTypes.APPLICATION_SS)
             .setTag(tag)
             .build();
@@ -69,7 +66,7 @@ public class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withIsmPath_smoothstreamingSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + "/file.ism").build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.ism").build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -80,7 +77,7 @@ public class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withManifestPath_smoothstreamingSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + ".ism/Manifest").build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + ".ism/Manifest").build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -91,7 +88,7 @@ public class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withNull_usesNonNullDefaults() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + "/file.ism").build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.ism").build();
 
     MediaSource mediaSource =
         defaultMediaSourceFactory
