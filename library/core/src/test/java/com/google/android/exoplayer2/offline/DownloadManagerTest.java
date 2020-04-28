@@ -100,7 +100,7 @@ public class DownloadManagerTest {
 
     assertCompleted(ID1);
     assertDownloaderCount(ID1, 1);
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
     assertThat(downloadManager.getCurrentDownloads()).isEmpty();
   }
 
@@ -117,7 +117,7 @@ public class DownloadManagerTest {
 
     assertRemoved(ID1);
     assertDownloaderCount(ID1, 2);
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
     assertThat(downloadManager.getCurrentDownloads()).isEmpty();
   }
 
@@ -134,7 +134,7 @@ public class DownloadManagerTest {
     downloader.assertStartCount(MIN_RETRY_COUNT + 1);
 
     assertFailed(ID1);
-    downloadManagerListener.blockUntilTasksComplete();
+    downloadManagerListener.blockUntilIdle();
     assertCurrentDownloadCount(0);
   }
 
@@ -153,7 +153,7 @@ public class DownloadManagerTest {
     downloader.assertStartCount(MIN_RETRY_COUNT + 1);
 
     assertCompleted(ID1);
-    downloadManagerListener.blockUntilTasksComplete();
+    downloadManagerListener.blockUntilIdle();
     assertCurrentDownloadCount(0);
   }
 
@@ -174,7 +174,7 @@ public class DownloadManagerTest {
     downloader.assertStartCount(tooManyRetries + 1);
 
     assertCompleted(ID1);
-    downloadManagerListener.blockUntilTasksComplete();
+    downloadManagerListener.blockUntilIdle();
   }
 
   @Test
@@ -192,7 +192,7 @@ public class DownloadManagerTest {
     downloader2.unblock();
     downloader2.assertCompleted();
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -212,7 +212,7 @@ public class DownloadManagerTest {
     downloader2.unblock();
     downloader2.assertCompleted();
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -230,7 +230,7 @@ public class DownloadManagerTest {
 
     assertRemoved(ID1);
     assertDownloaderCount(ID1, 2);
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -238,13 +238,13 @@ public class DownloadManagerTest {
     // Finish one download and keep one running.
     postDownloadRequest(ID1);
     getDownloader(ID1, 0).unblock();
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
     postDownloadRequest(ID2);
 
     postRemoveAllRequest();
     getDownloader(ID1, 1).unblock();
     getDownloader(ID2, 1).unblock();
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
 
     assertRemoved(ID1);
     assertRemoved(ID2);
@@ -270,7 +270,7 @@ public class DownloadManagerTest {
 
     assertCompleted(ID1);
     assertDownloaderCount(ID1, 2);
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -287,7 +287,7 @@ public class DownloadManagerTest {
 
     assertCompleted(ID1);
     assertCompleted(ID2);
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -307,7 +307,7 @@ public class DownloadManagerTest {
 
     assertCompleted(ID1);
     assertCompleted(ID2);
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -327,7 +327,7 @@ public class DownloadManagerTest {
 
     assertCompleted(ID1);
     assertRemoved(ID2);
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -351,7 +351,7 @@ public class DownloadManagerTest {
 
     assertCompleted(ID1);
     assertCompleted(ID2);
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -412,7 +412,7 @@ public class DownloadManagerTest {
     downloader5.assertStarted();
     downloader5.unblock();
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -431,7 +431,7 @@ public class DownloadManagerTest {
     downloader.assertStarted();
     downloader.unblock();
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -450,7 +450,7 @@ public class DownloadManagerTest {
     downloader.unblock();
     assertRemoving(ID1);
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -476,7 +476,7 @@ public class DownloadManagerTest {
     downloader2.assertStarted();
     downloader2.unblock();
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
   }
 
   @Test
@@ -563,8 +563,7 @@ public class DownloadManagerTest {
             downloadManager.setMinRetryCount(MIN_RETRY_COUNT);
             downloadManager.setRequirements(new Requirements(0));
             downloadManager.resumeDownloads();
-            downloadManagerListener =
-                new TestDownloadManagerListener(downloadManager, dummyMainThread);
+            downloadManagerListener = new TestDownloadManagerListener(downloadManager);
           });
       downloadManagerListener.blockUntilInitialized();
     } catch (Throwable throwable) {
@@ -632,31 +631,31 @@ public class DownloadManagerTest {
   }
 
   private void assertDownloading(String id) {
-    downloadManagerListener.assertState(id, Download.STATE_DOWNLOADING, TIMEOUT_MS);
+    downloadManagerListener.assertState(id, Download.STATE_DOWNLOADING);
   }
 
   private void assertCompleted(String id) {
-    downloadManagerListener.assertState(id, Download.STATE_COMPLETED, TIMEOUT_MS);
+    downloadManagerListener.assertState(id, Download.STATE_COMPLETED);
   }
 
   private void assertRemoving(String id) {
-    downloadManagerListener.assertState(id, Download.STATE_REMOVING, TIMEOUT_MS);
+    downloadManagerListener.assertState(id, Download.STATE_REMOVING);
   }
 
   private void assertFailed(String id) {
-    downloadManagerListener.assertState(id, Download.STATE_FAILED, TIMEOUT_MS);
+    downloadManagerListener.assertState(id, Download.STATE_FAILED);
   }
 
   private void assertQueued(String id) {
-    downloadManagerListener.assertState(id, Download.STATE_QUEUED, TIMEOUT_MS);
+    downloadManagerListener.assertState(id, Download.STATE_QUEUED);
   }
 
   private void assertStopped(String id) {
-    downloadManagerListener.assertState(id, Download.STATE_STOPPED, TIMEOUT_MS);
+    downloadManagerListener.assertState(id, Download.STATE_STOPPED);
   }
 
   private void assertRemoved(String id) {
-    downloadManagerListener.assertRemoved(id, TIMEOUT_MS);
+    downloadManagerListener.assertRemoved(id);
   }
 
   private void assertCurrentDownloadCount(int expectedCount) {

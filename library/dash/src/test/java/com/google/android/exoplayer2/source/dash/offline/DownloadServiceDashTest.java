@@ -121,8 +121,7 @@ public class DownloadServiceDashTest {
           final DownloadManager dashDownloadManager =
               new DownloadManager(
                   ApplicationProvider.getApplicationContext(), downloadIndex, downloaderFactory);
-          downloadManagerListener =
-              new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
+          downloadManagerListener = new TestDownloadManagerListener(dashDownloadManager);
           dashDownloadManager.resumeDownloads();
 
           dashDownloadService =
@@ -160,7 +159,7 @@ public class DownloadServiceDashTest {
     downloadKeys(fakeStreamKey1);
     downloadKeys(fakeStreamKey2);
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
 
     assertCachedData(cache, fakeDataSet);
   }
@@ -170,11 +169,11 @@ public class DownloadServiceDashTest {
   public void removeAction() throws Throwable {
     downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
 
     removeAll();
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
 
     assertCacheEmpty(cache);
   }
@@ -187,7 +186,7 @@ public class DownloadServiceDashTest {
 
     removeAll();
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
 
     assertCacheEmpty(cache);
   }
@@ -221,5 +220,4 @@ public class DownloadServiceDashTest {
           dashDownloadService.onStartCommand(startIntent, 0, 0);
         });
   }
-
 }
