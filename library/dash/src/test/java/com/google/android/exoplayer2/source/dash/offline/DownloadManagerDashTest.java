@@ -264,8 +264,7 @@ public class DownloadManagerDashTest {
           downloadManager.setRequirements(new Requirements(0));
 
           downloadManagerListener =
-              new TestDownloadManagerListener(
-                  downloadManager, dummyMainThread, /* timeoutMs= */ 3000);
+              new TestDownloadManagerListener(downloadManager, dummyMainThread);
           downloadManager.resumeDownloads();
         });
   }
