@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.offline;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -114,7 +116,7 @@ public class DownloadManagerTest {
     downloader.assertStartCount(1);
 
     runner.assertCompleted();
-    runner.assertCreatedDownloaderCount(1);
+    runner.assertDownloaderCount(1);
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertThat(downloadManager.getCurrentDownloads()).isEmpty();
   }
@@ -132,7 +134,7 @@ public class DownloadManagerTest {
     downloader.assertStartCount(1);
 
     runner.assertRemoved();
-    runner.assertCreatedDownloaderCount(2);
+    runner.assertDownloaderCount(2);
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
     assertThat(downloadManager.getCurrentDownloads()).isEmpty();
   }
@@ -251,7 +253,7 @@ public class DownloadManagerTest {
     downloader.assertCompleted();
 
     runner.assertRemoved();
-    runner.assertCreatedDownloaderCount(2);
+    runner.assertDownloaderCount(2);
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
@@ -279,15 +281,13 @@ public class DownloadManagerTest {
   @Test
   public void differentDownloadRequestsMerged() throws Throwable {
     DownloadRunner runner = new DownloadRunner(uri1);
-    FakeDownloader downloader1 = runner.getDownloader(0);
-
     StreamKey streamKey1 = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0);
     StreamKey streamKey2 = new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1);
-
     runner.postDownloadRequest(streamKey1);
-    downloader1.assertStarted();
     runner.postDownloadRequest(streamKey2);
 
+    FakeDownloader downloader1 = runner.getDownloader(0);
+    downloader1.assertStarted();
     downloader1.assertCanceled();
 
     FakeDownloader downloader2 = runner.getDownloader(1);
@@ -296,7 +296,7 @@ public class DownloadManagerTest {
     downloader2.unblock();
 
     runner.assertCompleted();
-    runner.assertCreatedDownloaderCount(2);
+    runner.assertDownloaderCount(2);
     downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
   }
 
@@ -328,11 +328,11 @@ public class DownloadManagerTest {
     runner2.postDownloadRequest();
 
     FakeDownloader downloader1 = runner1.getDownloader(0);
-    FakeDownloader downloader2 = runner2.getDownloader(0);
     downloader1.assertStarted();
-    downloader2.assertDoesNotStart();
+    runner2.assertDownloaderNotCreated(0);
     runner2.assertQueued();
     downloader1.unblock();
+    FakeDownloader downloader2 = runner2.getDownloader(0);
     downloader2.assertStarted();
     downloader2.unblock();
 
@@ -375,12 +375,12 @@ public class DownloadManagerTest {
 
     FakeDownloader downloader1 = runner1.getDownloader(0);
     FakeDownloader downloader2 = runner2.getDownloader(0);
-    FakeDownloader downloader3 = runner2.getDownloader(1);
     downloader1.assertStarted();
     downloader2.assertStarted();
     downloader2.unblock();
-    downloader3.assertDoesNotStart();
+    runner2.assertDownloaderNotCreated(1);
     downloader1.unblock();
+    FakeDownloader downloader3 = runner2.getDownloader(1);
     downloader3.assertStarted();
     downloader3.unblock();
 
@@ -432,7 +432,7 @@ public class DownloadManagerTest {
     downloader1.assertCompleted();
     runner2.assertQueued();
     // Although remove2 is finished, download2 doesn't start.
-    runner2.getDownloader(2).assertDoesNotStart();
+    runner2.assertDownloaderNotCreated(2);
 
     // When a new remove request is added, it cancels stopped download requests with the same media.
     runner1.postRemoveRequest();
@@ -443,8 +443,7 @@ public class DownloadManagerTest {
 
     // New download requests can be added but they don't start.
     runner3.postDownloadRequest();
-    FakeDownloader downloader3 = runner3.getDownloader(0);
-    downloader3.assertDoesNotStart();
+    runner3.assertDownloaderNotCreated(0);
 
     runOnMainThread(() -> downloadManager.resumeDownloads());
 
@@ -657,14 +656,11 @@ public class DownloadManagerTest {
     private final Uri uri;
     private final String id;
     private final ArrayList<FakeDownloader> downloaders;
-    private int createdDownloaderCount = 0;
-    private FakeDownloader downloader;
 
     private DownloadRunner(Uri uri) {
       this.uri = uri;
       id = uri.toString();
       downloaders = new ArrayList<>();
-      downloader = addDownloader();
       downloaderFactory.registerDownloadRunner(this);
     }
 
@@ -692,23 +688,31 @@ public class DownloadManagerTest {
       assertState(Download.STATE_STOPPED);
     }
 
-    public void assertState(@State int expectedState) {
-      downloadManagerListener.assertState(id, expectedState, ASSERT_TRUE_TIMEOUT);
-    }
-
     public void assertRemoved() {
       downloadManagerListener.assertRemoved(id, ASSERT_TRUE_TIMEOUT);
     }
 
-    private void postRemoveRequest() {
+    public synchronized void assertDownloaderCount(int count) {
+      assertThat(downloaders).hasSize(count);
+    }
+
+    public void assertDownloaderNotCreated(int index) throws InterruptedException {
+      assertThat(getDownloaderInternal(index, ASSERT_FALSE_TIME)).isNull();
+    }
+
+    public FakeDownloader getDownloader(int index) throws InterruptedException {
+      return Assertions.checkNotNull(getDownloaderInternal(index, ASSERT_TRUE_TIMEOUT));
+    }
+
+    public void postRemoveRequest() {
       runOnMainThread(() -> downloadManager.removeDownload(id));
     }
 
-    private void postRemoveAllRequest() {
+    public void postRemoveAllRequest() {
       runOnMainThread(() -> downloadManager.removeAllDownloads());
     }
 
-    private void postDownloadRequest(StreamKey... keys) {
+    public void postDownloadRequest(StreamKey... keys) {
       DownloadRequest downloadRequest =
           new DownloadRequest(
               id,
@@ -720,27 +724,29 @@ public class DownloadManagerTest {
       runOnMainThread(() -> downloadManager.addDownload(downloadRequest));
     }
 
-    private synchronized FakeDownloader addDownloader() {
-      FakeDownloader fakeDownloader = new FakeDownloader();
-      downloaders.add(fakeDownloader);
-      return fakeDownloader;
+    // Internal methods.
+
+    private void assertState(@State int expectedState) {
+      downloadManagerListener.assertState(id, expectedState, ASSERT_TRUE_TIMEOUT);
     }
 
-    private synchronized FakeDownloader getDownloader(int index) {
-      while (downloaders.size() <= index) {
-        addDownloader();
+    @Nullable
+    private synchronized FakeDownloader getDownloaderInternal(int index, long timeoutMs)
+        throws InterruptedException {
+      long nowMs = System.currentTimeMillis();
+      long endMs = nowMs + timeoutMs;
+      while (downloaders.size() <= index && nowMs < endMs) {
+        wait(endMs - nowMs);
+        nowMs = System.currentTimeMillis();
       }
-      return downloaders.get(index);
+      return downloaders.size() <= index ? null : downloaders.get(index);
     }
 
     private synchronized Downloader createDownloader(DownloadRequest request) {
-      downloader = getDownloader(createdDownloaderCount++);
-      downloader.request = request;
-      return downloader;
-    }
-
-    private void assertCreatedDownloaderCount(int count) {
-      assertThat(createdDownloaderCount).isEqualTo(count);
+      FakeDownloader fakeDownloader = new FakeDownloader(request);
+      downloaders.add(fakeDownloader);
+      notifyAll();
+      return fakeDownloader;
     }
   }
 
@@ -764,8 +770,7 @@ public class DownloadManagerTest {
 
   private static final class FakeDownloader implements Downloader {
 
-    private DownloadRequest request;
-
+    private final DownloadRequest request;
     private final ConditionVariable started;
     private final ConditionVariable finished;
     private final ConditionVariable blocker;
@@ -776,7 +781,8 @@ public class DownloadManagerTest {
     private volatile boolean canceled;
     private volatile boolean enableDownloadIOException;
 
-    private FakeDownloader() {
+    private FakeDownloader(DownloadRequest request) {
+      this.request = request;
       started = TestUtil.createRobolectricConditionVariable();
       finished = TestUtil.createRobolectricConditionVariable();
       blocker = TestUtil.createRobolectricConditionVariable();
@@ -856,11 +862,6 @@ public class DownloadManagerTest {
       blockUntilFinished();
       assertThat(interrupted).isTrue();
       assertThat(canceled).isTrue();
-    }
-
-    public void assertDoesNotStart() throws InterruptedException {
-      Thread.sleep(ASSERT_FALSE_TIME);
-      assertThat(started.isOpen()).isFalse();
     }
 
     // Internal methods.
