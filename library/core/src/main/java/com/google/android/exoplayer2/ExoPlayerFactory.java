@@ -153,14 +153,14 @@ public final class ExoPlayerFactory {
       RenderersFactory renderersFactory,
       TrackSelector trackSelector,
       LoadControl loadControl,
-      Looper looper) {
+      Looper applicationLooper) {
     return newSimpleInstance(
         context,
         renderersFactory,
         trackSelector,
         loadControl,
         new AnalyticsCollector(Clock.DEFAULT),
-        looper);
+        applicationLooper);
   }
 
   /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
@@ -172,7 +172,7 @@ public final class ExoPlayerFactory {
       TrackSelector trackSelector,
       LoadControl loadControl,
       AnalyticsCollector analyticsCollector,
-      Looper looper) {
+      Looper applicationLooper) {
     return newSimpleInstance(
         context,
         renderersFactory,
@@ -180,7 +180,7 @@ public final class ExoPlayerFactory {
         loadControl,
         DefaultBandwidthMeter.getSingletonInstance(context),
         analyticsCollector,
-        looper);
+        applicationLooper);
   }
 
   /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
@@ -193,7 +193,7 @@ public final class ExoPlayerFactory {
       LoadControl loadControl,
       BandwidthMeter bandwidthMeter,
       AnalyticsCollector analyticsCollector,
-      Looper looper) {
+      Looper applicationLooper) {
     return new SimpleExoPlayer(
         context,
         renderersFactory,
@@ -204,7 +204,7 @@ public final class ExoPlayerFactory {
         analyticsCollector,
         /* useLazyPreparation= */ true,
         Clock.DEFAULT,
-        looper);
+        applicationLooper);
   }
 
   /** @deprecated Use {@link ExoPlayer.Builder} instead. */
@@ -231,14 +231,14 @@ public final class ExoPlayerFactory {
       Renderer[] renderers,
       TrackSelector trackSelector,
       LoadControl loadControl,
-      Looper looper) {
+      Looper applicationLooper) {
     return newInstance(
         context,
         renderers,
         trackSelector,
         loadControl,
         DefaultBandwidthMeter.getSingletonInstance(context),
-        looper);
+        applicationLooper);
   }
 
   /** @deprecated Use {@link ExoPlayer.Builder} instead. */
@@ -249,7 +249,7 @@ public final class ExoPlayerFactory {
       TrackSelector trackSelector,
       LoadControl loadControl,
       BandwidthMeter bandwidthMeter,
-      Looper looper) {
+      Looper applicationLooper) {
     return new ExoPlayerImpl(
         renderers,
         trackSelector,
@@ -259,6 +259,6 @@ public final class ExoPlayerFactory {
         /* analyticsCollector= */ null,
         /* useLazyPreparation= */ true,
         Clock.DEFAULT,
-        looper);
+        applicationLooper);
   }
 }
