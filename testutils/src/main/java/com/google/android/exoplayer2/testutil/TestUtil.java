@@ -271,10 +271,10 @@ public class TestUtil {
   /** Returns whether two {@link android.media.MediaCodec.BufferInfo BufferInfos} are equal. */
   public static void assertBufferInfosEqual(
       MediaCodec.BufferInfo expected, MediaCodec.BufferInfo actual) {
-    assertThat(expected.flags).isEqualTo(actual.flags);
-    assertThat(expected.offset).isEqualTo(actual.offset);
-    assertThat(expected.presentationTimeUs).isEqualTo(actual.presentationTimeUs);
-    assertThat(expected.size).isEqualTo(actual.size);
+    assertThat(actual.flags).isEqualTo(expected.flags);
+    assertThat(actual.offset).isEqualTo(expected.offset);
+    assertThat(actual.presentationTimeUs).isEqualTo(expected.presentationTimeUs);
+    assertThat(actual.size).isEqualTo(expected.size);
   }
 
   /**
