@@ -125,14 +125,14 @@ public class IntentUtil {
     if (mediaItems.size() == 1) {
       MediaItem.PlaybackProperties playbackProperties =
           checkNotNull(mediaItems.get(0).playbackProperties);
-      intent.setAction(IntentUtil.ACTION_VIEW).setData(playbackProperties.sourceUri);
+      intent.setAction(IntentUtil.ACTION_VIEW).setData(playbackProperties.uri);
       addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "");
     } else {
       intent.setAction(IntentUtil.ACTION_VIEW_LIST);
       for (int i = 0; i < mediaItems.size(); i++) {
         MediaItem.PlaybackProperties playbackProperties =
             checkNotNull(mediaItems.get(i).playbackProperties);
-        intent.putExtra(IntentUtil.URI_EXTRA + ("_" + i), playbackProperties.sourceUri.toString());
+        intent.putExtra(IntentUtil.URI_EXTRA + ("_" + i), playbackProperties.uri.toString());
         addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "_" + i);
       }
     }
@@ -165,7 +165,7 @@ public class IntentUtil {
     }
     MediaItem.Builder builder =
         new MediaItem.Builder()
-            .setSourceUri(uri)
+            .setUri(uri)
             .setStreamKeys(downloadRequest != null ? downloadRequest.streamKeys : null)
             .setCustomCacheKey(downloadRequest != null ? downloadRequest.customCacheKey : null)
             .setMimeType(mimeType)

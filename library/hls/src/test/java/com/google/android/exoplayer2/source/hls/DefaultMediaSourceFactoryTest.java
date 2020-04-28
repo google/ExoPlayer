@@ -38,10 +38,7 @@ public class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setSourceUri(URI_MEDIA)
-            .setMimeType(MimeTypes.APPLICATION_M3U8)
-            .build();
+        new MediaItem.Builder().setUri(URI_MEDIA).setMimeType(MimeTypes.APPLICATION_M3U8).build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -55,7 +52,7 @@ public class DefaultMediaSourceFactoryTest {
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setSourceUri(URI_MEDIA)
+            .setUri(URI_MEDIA)
             .setMimeType(MimeTypes.APPLICATION_M3U8)
             .setTag(tag)
             .build();
@@ -69,7 +66,7 @@ public class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withPath_hlsSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + "/file.m3u8").build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.m3u8").build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -80,7 +77,7 @@ public class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withNull_usesNonNullDefaults() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + "/file.m3u8").build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.m3u8").build();
 
     MediaSource mediaSource =
         defaultMediaSourceFactory

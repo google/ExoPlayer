@@ -313,7 +313,7 @@ public final class DashMediaSource extends BaseMediaSource {
     @Deprecated
     @Override
     public DashMediaSource createMediaSource(Uri uri) {
-      return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());
+      return createMediaSource(new MediaItem.Builder().setUri(uri).build());
     }
 
     /**
@@ -339,7 +339,7 @@ public final class DashMediaSource extends BaseMediaSource {
       }
       return new DashMediaSource(
           /* manifest= */ null,
-          mediaItem.playbackProperties.sourceUri,
+          mediaItem.playbackProperties.uri,
           manifestDataSourceFactory,
           manifestParser,
           chunkSourceFactory,

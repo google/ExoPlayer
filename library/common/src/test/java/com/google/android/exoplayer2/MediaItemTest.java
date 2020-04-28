@@ -38,26 +38,26 @@ public class MediaItemTest {
   private static final String URI_STRING = "http://www.google.com";
 
   @Test
-  public void builder_needsSourceUriOrMediaId() {
+  public void builder_needsUriOrMediaId() {
     assertThrows(NullPointerException.class, () -> new MediaItem.Builder().build());
   }
 
   @Test
-  public void builderWithUri_setsSourceUri() {
+  public void builderWithUri_setsUri() {
     Uri uri = Uri.parse(URI_STRING);
 
     MediaItem mediaItem = MediaItem.fromUri(uri);
 
-    assertThat(mediaItem.playbackProperties.sourceUri.toString()).isEqualTo(URI_STRING);
+    assertThat(mediaItem.playbackProperties.uri.toString()).isEqualTo(URI_STRING);
     assertThat(mediaItem.mediaId).isEqualTo(URI_STRING);
     assertThat(mediaItem.mediaMetadata).isNotNull();
   }
 
   @Test
-  public void builderWithUriAsString_setsSourceUri() {
+  public void builderWithUriAsString_setsUri() {
     MediaItem mediaItem = MediaItem.fromUri(URI_STRING);
 
-    assertThat(mediaItem.playbackProperties.sourceUri.toString()).isEqualTo(URI_STRING);
+    assertThat(mediaItem.playbackProperties.uri.toString()).isEqualTo(URI_STRING);
     assertThat(mediaItem.mediaId).isEqualTo(URI_STRING);
   }
 
@@ -71,10 +71,7 @@ public class MediaItemTest {
   @Test
   public void builderSetMimeType_setsMimeType() {
     MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setSourceUri(URI_STRING)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .build();
+        new MediaItem.Builder().setUri(URI_STRING).setMimeType(MimeTypes.APPLICATION_MPD).build();
 
     assertThat(mediaItem.playbackProperties.mimeType).isEqualTo(MimeTypes.APPLICATION_MPD);
   }
@@ -82,7 +79,7 @@ public class MediaItemTest {
   @Test
   public void builderSetDrmConfig_isNullByDefault() {
     // Null value by default.
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_STRING).build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
     assertThat(mediaItem.playbackProperties.drmConfiguration).isNull();
   }
 
@@ -94,7 +91,7 @@ public class MediaItemTest {
     byte[] keySetId = new byte[] {1, 2, 3};
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setSourceUri(URI_STRING)
+            .setUri(URI_STRING)
             .setDrmUuid(C.WIDEVINE_UUID)
             .setDrmLicenseUri(licenseUri)
             .setDrmLicenseRequestHeaders(requestHeaders)
@@ -121,7 +118,7 @@ public class MediaItemTest {
     Uri licenseUri = Uri.parse(URI_STRING);
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setSourceUri(URI_STRING)
+            .setUri(URI_STRING)
             .setDrmUuid(C.WIDEVINE_UUID)
             .setDrmLicenseUri(licenseUri)
             .setDrmSessionForClearTypes(Arrays.asList(C.TRACK_TYPE_AUDIO))
@@ -138,7 +135,7 @@ public class MediaItemTest {
         IllegalStateException.class,
         () ->
             new MediaItem.Builder()
-                .setSourceUri(URI_STRING)
+                .setUri(URI_STRING)
                 // missing uuid
                 .setDrmLicenseUri(Uri.parse(URI_STRING))
                 .build());
@@ -147,7 +144,7 @@ public class MediaItemTest {
   @Test
   public void builderSetCustomCacheKey_setsCustomCacheKey() {
     MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_STRING).setCustomCacheKey("key").build();
+        new MediaItem.Builder().setUri(URI_STRING).setCustomCacheKey("key").build();
 
     assertThat(mediaItem.playbackProperties.customCacheKey).isEqualTo("key");
   }
@@ -159,7 +156,7 @@ public class MediaItemTest {
     streamKeys.add(new StreamKey(0, 1, 1));
 
     MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_STRING).setStreamKeys(streamKeys).build();
+        new MediaItem.Builder().setUri(URI_STRING).setStreamKeys(streamKeys).build();
 
     assertThat(mediaItem.playbackProperties.streamKeys).isEqualTo(streamKeys);
   }
@@ -177,14 +174,14 @@ public class MediaItemTest {
                 C.SELECTION_FLAG_DEFAULT));
 
     MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_STRING).setSubtitles(subtitles).build();
+        new MediaItem.Builder().setUri(URI_STRING).setSubtitles(subtitles).build();
 
     assertThat(mediaItem.playbackProperties.subtitles).isEqualTo(subtitles);
   }
 
   @Test
   public void builderSetTag_isNullByDefault() {
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_STRING).build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
     assertThat(mediaItem.playbackProperties.tag).isNull();
   }
@@ -193,7 +190,7 @@ public class MediaItemTest {
   public void builderSetTag_setsTag() {
     Object tag = new Object();
 
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_STRING).setTag(tag).build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).setTag(tag).build();
 
     assertThat(mediaItem.playbackProperties.tag).isEqualTo(tag);
   }
@@ -201,14 +198,14 @@ public class MediaItemTest {
   @Test
   public void builderSetStartPositionMs_setsStartPositionMs() {
     MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_STRING).setClipStartPositionMs(1000L).build();
+        new MediaItem.Builder().setUri(URI_STRING).setClipStartPositionMs(1000L).build();
 
     assertThat(mediaItem.clippingProperties.startPositionMs).isEqualTo(1000L);
   }
 
   @Test
   public void builderSetStartPositionMs_zeroByDefault() {
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_STRING).build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
     assertThat(mediaItem.clippingProperties.startPositionMs).isEqualTo(0);
   }
@@ -223,14 +220,14 @@ public class MediaItemTest {
   @Test
   public void builderSetEndPositionMs_setsEndPositionMs() {
     MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_STRING).setClipEndPositionMs(1000L).build();
+        new MediaItem.Builder().setUri(URI_STRING).setClipEndPositionMs(1000L).build();
 
     assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(1000L);
   }
 
   @Test
   public void builderSetEndPositionMs_timeEndOfSourceByDefault() {
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_STRING).build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
     assertThat(mediaItem.clippingProperties.endPositionMs).isEqualTo(C.TIME_END_OF_SOURCE);
   }
@@ -239,7 +236,7 @@ public class MediaItemTest {
   public void builderSetEndPositionMs_timeEndOfSource_setsEndPositionMs() {
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setSourceUri(URI_STRING)
+            .setUri(URI_STRING)
             .setClipEndPositionMs(1000)
             .setClipEndPositionMs(C.TIME_END_OF_SOURCE)
             .build();
@@ -258,7 +255,7 @@ public class MediaItemTest {
   public void builderSetClippingFlags_setsClippingFlags() {
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setSourceUri(URI_STRING)
+            .setUri(URI_STRING)
             .setClipRelativeToDefaultPosition(true)
             .setClipRelativeToLiveWindow(true)
             .setClipStartsAtKeyFrame(true)
@@ -273,8 +270,7 @@ public class MediaItemTest {
   public void builderSetAdTagUri_setsAdTagUri() {
     Uri adTagUri = Uri.parse(URI_STRING + "/ad");
 
-    MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_STRING).setAdTagUri(adTagUri).build();
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).setAdTagUri(adTagUri).build();
 
     assertThat(mediaItem.playbackProperties.adTagUri).isEqualTo(adTagUri);
   }
@@ -284,7 +280,7 @@ public class MediaItemTest {
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
 
     MediaItem mediaItem =
-        new MediaItem.Builder().setSourceUri(URI_STRING).setMediaMetadata(mediaMetadata).build();
+        new MediaItem.Builder().setUri(URI_STRING).setMediaMetadata(mediaMetadata).build();
 
     assertThat(mediaItem.mediaMetadata).isEqualTo(mediaMetadata);
   }
@@ -311,7 +307,7 @@ public class MediaItemTest {
             .setMediaId("mediaId")
             .setMediaMetadata(new MediaMetadata.Builder().setTitle("title").build())
             .setMimeType(MimeTypes.APPLICATION_MP4)
-            .setSourceUri(URI_STRING)
+            .setUri(URI_STRING)
             .setStreamKeys(Collections.singletonList(new StreamKey(1, 0, 0)))
             .setSubtitles(
                 Collections.singletonList(

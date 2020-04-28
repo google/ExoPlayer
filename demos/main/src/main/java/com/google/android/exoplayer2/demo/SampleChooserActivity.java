@@ -278,7 +278,7 @@ public class SampleChooserActivity extends AppCompatActivity
     if (playbackProperties.adTagUri != null) {
       return R.string.download_ads_unsupported;
     }
-    String scheme = playbackProperties.sourceUri.getScheme();
+    String scheme = playbackProperties.uri.getScheme();
     if (!("http".equals(scheme) || "https".equals(scheme))) {
       return R.string.download_scheme_unsupported;
     }
@@ -457,7 +457,7 @@ public class SampleChooserActivity extends AppCompatActivity
         return new PlaylistHolder(title, mediaItems);
       } else {
         mediaItem
-            .setSourceUri(uri)
+            .setUri(uri)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
             .setMimeType(IntentUtil.inferAdaptiveStreamMimeType(uri, extension))
             .setTag(new IntentUtil.Tag(isLive, sphericalStereoMode));

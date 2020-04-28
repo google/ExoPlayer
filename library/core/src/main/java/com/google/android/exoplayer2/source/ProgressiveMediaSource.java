@@ -166,7 +166,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     @Deprecated
     @Override
     public ProgressiveMediaSource createMediaSource(Uri uri) {
-      return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());
+      return createMediaSource(new MediaItem.Builder().setUri(uri).build());
     }
 
     /**
@@ -180,7 +180,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     public ProgressiveMediaSource createMediaSource(MediaItem mediaItem) {
       Assertions.checkNotNull(mediaItem.playbackProperties);
       return new ProgressiveMediaSource(
-          mediaItem.playbackProperties.sourceUri,
+          mediaItem.playbackProperties.uri,
           dataSourceFactory,
           extractorsFactory,
           drmSessionManager,

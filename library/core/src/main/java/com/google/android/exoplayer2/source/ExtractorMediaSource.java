@@ -173,7 +173,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
     @Deprecated
     @Override
     public ExtractorMediaSource createMediaSource(Uri uri) {
-      return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());
+      return createMediaSource(new MediaItem.Builder().setUri(uri).build());
     }
 
     /**
@@ -187,7 +187,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
     public ExtractorMediaSource createMediaSource(MediaItem mediaItem) {
       Assertions.checkNotNull(mediaItem.playbackProperties);
       return new ExtractorMediaSource(
-          mediaItem.playbackProperties.sourceUri,
+          mediaItem.playbackProperties.uri,
           dataSourceFactory,
           extractorsFactory,
           loadErrorHandlingPolicy,

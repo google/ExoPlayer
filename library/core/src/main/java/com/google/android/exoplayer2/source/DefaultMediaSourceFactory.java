@@ -52,25 +52,24 @@ import java.util.Map;
  * factories:
  *
  * <ul>
- *   <li>{@code DashMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#sourceUri
- *       sourceUri} ends in '.mpd' or if its {@link MediaItem.PlaybackProperties#mimeType mimeType
- *       field} is explicitly set to {@link MimeTypes#APPLICATION_MPD} (Requires the <a
+ *   <li>{@code DashMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#uri uri}
+ *       ends in '.mpd' or if its {@link MediaItem.PlaybackProperties#mimeType mimeType field} is
+ *       explicitly set to {@link MimeTypes#APPLICATION_MPD} (Requires the <a
  *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-dash module
  *       to be added</a> to the app).
- *   <li>{@code HlsMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#sourceUri
- *       sourceUri} ends in '.m3u8' or if its {@link MediaItem.PlaybackProperties#mimeType mimeType
- *       field} is explicitly set to {@link MimeTypes#APPLICATION_M3U8} (Requires the <a
+ *   <li>{@code HlsMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#uri uri}
+ *       ends in '.m3u8' or if its {@link MediaItem.PlaybackProperties#mimeType mimeType field} is
+ *       explicitly set to {@link MimeTypes#APPLICATION_M3U8} (Requires the <a
  *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">exoplayer-hls module to
  *       be added</a> to the app).
- *   <li>{@code SsMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#sourceUri
- *       sourceUri} ends in '.ism', '.ism/Manifest' or if its {@link
- *       MediaItem.PlaybackProperties#mimeType mimeType field} is explicitly set to {@link
- *       MimeTypes#APPLICATION_SS} (Requires the <a
+ *   <li>{@code SsMediaSource.Factory} if the item's {@link MediaItem.PlaybackProperties#uri uri}
+ *       ends in '.ism', '.ism/Manifest' or if its {@link MediaItem.PlaybackProperties#mimeType
+ *       mimeType field} is explicitly set to {@link MimeTypes#APPLICATION_SS} (Requires the <a
  *       href="https://exoplayer.dev/hello-world.html#add-exoplayer-modules">
  *       exoplayer-smoothstreaming module to be added</a> to the app).
  *   <li>{@link ProgressiveMediaSource.Factory} serves as a fallback if the item's {@link
- *       MediaItem.PlaybackProperties#sourceUri sourceUri} doesn't match one of the above. It tries
- *       to infer the required extractor by using the {@link
+ *       MediaItem.PlaybackProperties#uri uri} doesn't match one of the above. It tries to infer the
+ *       required extractor by using the {@link
  *       com.google.android.exoplayer2.extractor.DefaultExtractorsFactory}. An {@link
  *       UnrecognizedInputFormatException} is thrown if none of the available extractors can read
  *       the stream.
@@ -249,7 +248,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     @C.ContentType
     int type =
         Util.inferContentTypeWithMimeType(
-            mediaItem.playbackProperties.sourceUri, mediaItem.playbackProperties.mimeType);
+            mediaItem.playbackProperties.uri, mediaItem.playbackProperties.mimeType);
     @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
     Assertions.checkNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);

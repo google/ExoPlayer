@@ -213,7 +213,7 @@ public final class Util {
       if (mediaItem.playbackProperties == null) {
         continue;
       }
-      if (isLocalFileUri(mediaItem.playbackProperties.sourceUri)) {
+      if (isLocalFileUri(mediaItem.playbackProperties.uri)) {
         return requestExternalStoragePermission(activity);
       }
       for (int i = 0; i < mediaItem.playbackProperties.subtitles.size(); i++) {
@@ -241,7 +241,7 @@ public final class Util {
       if (mediaItem.playbackProperties == null) {
         continue;
       }
-      if (isTrafficRestricted(mediaItem.playbackProperties.sourceUri)) {
+      if (isTrafficRestricted(mediaItem.playbackProperties.uri)) {
         return false;
       }
       for (int i = 0; i < mediaItem.playbackProperties.subtitles.size(); i++) {

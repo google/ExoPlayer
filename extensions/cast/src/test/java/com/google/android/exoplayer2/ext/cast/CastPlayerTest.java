@@ -232,36 +232,30 @@ public class CastPlayerTest {
   @Test
   public void setMediaItems_callsRemoteMediaClient() {
     List<MediaItem> mediaItems = new ArrayList<>();
-    String sourceUri1 = "http://www.google.com/video1";
-    String sourceUri2 = "http://www.google.com/video2";
+    String uri1 = "http://www.google.com/video1";
+    String uri2 = "http://www.google.com/video2";
     mediaItems.add(
-        new MediaItem.Builder()
-            .setSourceUri(sourceUri1)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .build());
+        new MediaItem.Builder().setUri(uri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
     mediaItems.add(
-        new MediaItem.Builder()
-            .setSourceUri(sourceUri2)
-            .setMimeType(MimeTypes.APPLICATION_MP4)
-            .build());
+        new MediaItem.Builder().setUri(uri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
 
     castPlayer.setMediaItems(mediaItems, /* startWindowIndex= */ 1, /* startPositionMs= */ 2000L);
 
     verify(mockRemoteMediaClient)
         .queueLoad(queueItemsArgumentCaptor.capture(), eq(1), anyInt(), eq(2000L), any());
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
-    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(sourceUri1);
-    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(sourceUri2);
+    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri1);
+    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(uri2);
   }
 
   @Test
   public void setMediaItems_doNotReset_callsRemoteMediaClient() {
     MediaItem.Builder builder = new MediaItem.Builder();
     List<MediaItem> mediaItems = new ArrayList<>();
-    String sourceUri1 = "http://www.google.com/video1";
-    String sourceUri2 = "http://www.google.com/video2";
-    mediaItems.add(builder.setSourceUri(sourceUri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
-    mediaItems.add(builder.setSourceUri(sourceUri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
+    String uri1 = "http://www.google.com/video1";
+    String uri2 = "http://www.google.com/video2";
+    mediaItems.add(builder.setUri(uri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
+    mediaItems.add(builder.setUri(uri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
     int startWindowIndex = C.INDEX_UNSET;
     long startPositionMs = 2000L;
 
@@ -271,18 +265,18 @@ public class CastPlayerTest {
         .queueLoad(queueItemsArgumentCaptor.capture(), eq(0), anyInt(), eq(0L), any());
 
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
-    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(sourceUri1);
-    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(sourceUri2);
+    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri1);
+    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(uri2);
   }
 
   @Test
   public void addMediaItems_callsRemoteMediaClient() {
     MediaItem.Builder builder = new MediaItem.Builder();
     List<MediaItem> mediaItems = new ArrayList<>();
-    String sourceUri1 = "http://www.google.com/video1";
-    String sourceUri2 = "http://www.google.com/video2";
-    mediaItems.add(builder.setSourceUri(sourceUri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
-    mediaItems.add(builder.setSourceUri(sourceUri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
+    String uri1 = "http://www.google.com/video1";
+    String uri2 = "http://www.google.com/video2";
+    mediaItems.add(builder.setUri(uri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
+    mediaItems.add(builder.setUri(uri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
 
     castPlayer.addMediaItems(mediaItems);
 
@@ -291,8 +285,8 @@ public class CastPlayerTest {
             queueItemsArgumentCaptor.capture(), eq(MediaQueueItem.INVALID_ITEM_ID), any());
 
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
-    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(sourceUri1);
-    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(sourceUri2);
+    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri1);
+    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(uri2);
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -301,12 +295,9 @@ public class CastPlayerTest {
     int[] mediaQueueItemIds = createMediaQueueItemIds(/* numberOfIds= */ 2);
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
     fillTimeline(mediaItems, mediaQueueItemIds);
-    String sourceUri = "http://www.google.com/video3";
+    String uri = "http://www.google.com/video3";
     MediaItem anotherMediaItem =
-        new MediaItem.Builder()
-            .setSourceUri(sourceUri)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .build();
+        new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_MPD).build();
 
     // Add another on position 1
     int index = 1;
@@ -319,7 +310,7 @@ public class CastPlayerTest {
             any());
 
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
-    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(sourceUri);
+    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri);
   }
 
   @Test
@@ -477,7 +468,7 @@ public class CastPlayerTest {
     for (int mediaQueueItemId : mediaQueueItemIds) {
       MediaItem mediaItem =
           builder
-              .setSourceUri("http://www.google.com/video" + mediaQueueItemId)
+              .setUri("http://www.google.com/video" + mediaQueueItemId)
               .setMimeType(MimeTypes.APPLICATION_MPD)
               .setTag(mediaQueueItemId)
               .build();
