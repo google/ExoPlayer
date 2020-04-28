@@ -62,7 +62,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *
  * <p>A download manager instance must be accessed only from the thread that created it, unless that
  * thread does not have a {@link Looper}. In that case, it must be accessed only from the
- * application's main thread. Registered listeners will be called on the same thread.
+ * application's main thread. Registered listeners will be called on the same thread. In all cases
+ * the `Looper` of the thread from which the manager must be accessed can be queried using {@link
+ * #getApplicationLooper()}.
  */
 public final class DownloadManager {
 
@@ -167,7 +169,7 @@ public final class DownloadManager {
 
   private final Context context;
   private final WritableDownloadIndex downloadIndex;
-  private final Handler mainHandler;
+  private final Handler applicationHandler;
   private final InternalHandler internalHandler;
   private final RequirementsWatcher.Listener requirementsListener;
   private final CopyOnWriteArraySet<Listener> listeners;
@@ -224,7 +226,7 @@ public final class DownloadManager {
 
     @SuppressWarnings("methodref.receiver.bound.invalid")
     Handler mainHandler = Util.createHandler(this::handleMainMessage);
-    this.mainHandler = mainHandler;
+    this.applicationHandler = mainHandler;
     HandlerThread internalThread = new HandlerThread("ExoPlayer:DownloadManager");
     internalThread.start();
     internalHandler =
@@ -248,6 +250,14 @@ public final class DownloadManager {
     internalHandler
         .obtainMessage(MSG_INITIALIZE, notMetRequirements, /* unused */ 0)
         .sendToTarget();
+  }
+
+  /**
+   * Returns the {@link Looper} associated with the application thread that's used to access the
+   * manager, and on which the manager will call its {@link Listener Listeners}.
+   */
+  public Looper getApplicationLooper() {
+    return applicationHandler.getLooper();
   }
 
   /** Returns whether the manager has completed initialization. */
@@ -488,7 +498,7 @@ public final class DownloadManager {
         // Restore the interrupted status.
         Thread.currentThread().interrupt();
       }
-      mainHandler.removeCallbacksAndMessages(/* token= */ null);
+      applicationHandler.removeCallbacksAndMessages(/* token= */ null);
       // Reset state.
       downloads = Collections.emptyList();
       pendingMessages = 0;

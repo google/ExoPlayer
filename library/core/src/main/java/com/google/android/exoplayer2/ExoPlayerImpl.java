@@ -65,7 +65,7 @@ import java.util.concurrent.TimeoutException;
 
   private final Renderer[] renderers;
   private final TrackSelector trackSelector;
-  private final Handler eventHandler;
+  private final Handler applicationHandler;
   private final ExoPlayerImplInternal internalPlayer;
   private final Handler internalPlayerHandler;
   private final CopyOnWriteArrayList<ListenerHolder> listeners;
@@ -110,8 +110,8 @@ import java.util.concurrent.TimeoutException;
    *     loads and other initial preparation steps happen immediately. If true, these initial
    *     preparations are triggered only when the player starts buffering the media.
    * @param clock The {@link Clock}.
-   * @param looper The {@link Looper} which must be used for all calls to the player and which is
-   *     used to call listeners on.
+   * @param applicationLooper The {@link Looper} that must be used for all calls to the player and
+   *     which is used to call listeners on.
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(
@@ -123,7 +123,7 @@ import java.util.concurrent.TimeoutException;
       @Nullable AnalyticsCollector analyticsCollector,
       boolean useLazyPreparation,
       Clock clock,
-      Looper looper) {
+      Looper applicationLooper) {
     Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
     Assertions.checkState(renderers.length > 0);
@@ -144,8 +144,8 @@ import java.util.concurrent.TimeoutException;
     playbackSpeed = Player.DEFAULT_PLAYBACK_SPEED;
     seekParameters = SeekParameters.DEFAULT;
     maskingWindowIndex = C.INDEX_UNSET;
-    eventHandler =
-        new Handler(looper) {
+    applicationHandler =
+        new Handler(applicationLooper) {
           @Override
           public void handleMessage(Message msg) {
             ExoPlayerImpl.this.handleEvent(msg);
@@ -166,7 +166,7 @@ import java.util.concurrent.TimeoutException;
             repeatMode,
             shuffleModeEnabled,
             analyticsCollector,
-            eventHandler,
+            applicationHandler,
             clock);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
@@ -232,7 +232,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public Looper getApplicationLooper() {
-    return eventHandler.getLooper();
+    return applicationHandler.getLooper();
   }
 
   @Override
@@ -568,7 +568,7 @@ import java.util.concurrent.TimeoutException;
       // general because the midroll ad preceding the seek destination must be played before the
       // content position can be played, if a different ad is playing at the moment.
       Log.w(TAG, "seekTo ignored because an ad is playing");
-      eventHandler
+      applicationHandler
           .obtainMessage(
               ExoPlayerImplInternal.MSG_PLAYBACK_INFO_CHANGED,
               /* operationAcks */ 1,
@@ -690,7 +690,7 @@ import java.util.concurrent.TimeoutException;
                   ExoPlaybackException.createForUnexpected(
                       new RuntimeException(new TimeoutException("Player release timed out.")))));
     }
-    eventHandler.removeCallbacksAndMessages(null);
+    applicationHandler.removeCallbacksAndMessages(null);
     playbackInfo =
         getResetPlaybackInfo(
             /* clearPlaylist= */ false,

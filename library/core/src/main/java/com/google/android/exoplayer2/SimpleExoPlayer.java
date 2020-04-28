@@ -343,7 +343,6 @@ public class SimpleExoPlayer extends BasePlayer
   protected final Renderer[] renderers;
 
   private final ExoPlayerImpl player;
-  private final Handler eventHandler;
   private final ComponentListener componentListener;
   private final CopyOnWriteArraySet<com.google.android.exoplayer2.video.VideoListener>
       videoListeners;
@@ -420,8 +419,8 @@ public class SimpleExoPlayer extends BasePlayer
    *     preparations are triggered only when the player starts buffering the media.
    * @param clock The {@link Clock} that will be used by the instance. Should always be {@link
    *     Clock#DEFAULT}, unless the player is being used from a test.
-   * @param looper The {@link Looper} which must be used for all calls to the player and which is
-   *     used to call listeners on.
+   * @param applicationLooper The {@link Looper} which must be used for all calls to the player and
+   *     which is used to call listeners on.
    */
   protected SimpleExoPlayer(
       Context context,
@@ -433,7 +432,7 @@ public class SimpleExoPlayer extends BasePlayer
       AnalyticsCollector analyticsCollector,
       boolean useLazyPreparation,
       Clock clock,
-      Looper looper) {
+      Looper applicationLooper) {
     this.bandwidthMeter = bandwidthMeter;
     this.analyticsCollector = analyticsCollector;
     componentListener = new ComponentListener();
@@ -444,7 +443,7 @@ public class SimpleExoPlayer extends BasePlayer
     deviceListeners = new CopyOnWriteArraySet<>();
     videoDebugListeners = new CopyOnWriteArraySet<>();
     audioDebugListeners = new CopyOnWriteArraySet<>();
-    eventHandler = new Handler(looper);
+    Handler eventHandler = new Handler(applicationLooper);
     renderers =
         renderersFactory.createRenderers(
             eventHandler,
@@ -471,7 +470,7 @@ public class SimpleExoPlayer extends BasePlayer
             analyticsCollector,
             useLazyPreparation,
             clock,
-            looper);
+            applicationLooper);
     analyticsCollector.setPlayer(player);
     player.addListener(analyticsCollector);
     player.addListener(componentListener);
