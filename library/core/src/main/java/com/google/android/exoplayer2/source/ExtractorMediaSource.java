@@ -168,12 +168,9 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
       throw new UnsupportedOperationException();
     }
 
-    /**
-     * Returns a new {@link ExtractorMediaSource} using the current parameters.
-     *
-     * @param uri The {@link Uri uri}.
-     * @return The new {@link ExtractorMediaSource}.
-     */
+    /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
     public ExtractorMediaSource createMediaSource(Uri uri) {
       return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());

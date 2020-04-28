@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Default {@link DownloaderFactory}, supporting creation of progressive, DASH, HLS and
@@ -32,7 +34,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
   @Nullable private static final Constructor<? extends Downloader> SS_DOWNLOADER_CONSTRUCTOR;
 
   static {
-    Constructor<? extends Downloader> dashDownloaderConstructor = null;
+    @Nullable Constructor<? extends Downloader> dashDownloaderConstructor = null;
     try {
       // LINT.IfChange
       dashDownloaderConstructor =
@@ -43,7 +45,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
       // Expected if the app was built without the DASH module.
     }
     DASH_DOWNLOADER_CONSTRUCTOR = dashDownloaderConstructor;
-    Constructor<? extends Downloader> hlsDownloaderConstructor = null;
+    @Nullable Constructor<? extends Downloader> hlsDownloaderConstructor = null;
     try {
       // LINT.IfChange
       hlsDownloaderConstructor =
@@ -54,7 +56,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
       // Expected if the app was built without the HLS module.
     }
     HLS_DOWNLOADER_CONSTRUCTOR = hlsDownloaderConstructor;
-    Constructor<? extends Downloader> ssDownloaderConstructor = null;
+    @Nullable Constructor<? extends Downloader> ssDownloaderConstructor = null;
     try {
       // LINT.IfChange
       ssDownloaderConstructor =
@@ -68,11 +70,32 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     SS_DOWNLOADER_CONSTRUCTOR = ssDownloaderConstructor;
   }
 
-  private final DownloaderConstructorHelper downloaderConstructorHelper;
+  private final CacheDataSource.Factory cacheDataSourceFactory;
+  private final Executor executor;
 
-  /** @param downloaderConstructorHelper A helper for instantiating downloaders. */
-  public DefaultDownloaderFactory(DownloaderConstructorHelper downloaderConstructorHelper) {
-    this.downloaderConstructorHelper = downloaderConstructorHelper;
+  /**
+   * Creates an instance.
+   *
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which
+   *     downloads will be written.
+   */
+  public DefaultDownloaderFactory(CacheDataSource.Factory cacheDataSourceFactory) {
+    this(cacheDataSourceFactory, Runnable::run);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which
+   *     downloads will be written.
+   * @param executor An {@link Executor} used to make requests for media being downloaded. Providing
+   *     an {@link Executor} that uses multiple threads will speed up download tasks that can be
+   *     split into smaller parts for parallel execution.
+   */
+  public DefaultDownloaderFactory(
+      CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {
+    this.cacheDataSourceFactory = cacheDataSourceFactory;
+    this.executor = executor;
   }
 
   @Override
@@ -80,7 +103,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     switch (request.type) {
       case DownloadRequest.TYPE_PROGRESSIVE:
         return new ProgressiveDownloader(
-            request.uri, request.customCacheKey, downloaderConstructorHelper);
+            request.uri, request.customCacheKey, cacheDataSourceFactory, executor);
       case DownloadRequest.TYPE_DASH:
         return createDownloader(request, DASH_DOWNLOADER_CONSTRUCTOR);
       case DownloadRequest.TYPE_HLS:
@@ -98,7 +121,8 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
       throw new IllegalStateException("Module missing for: " + request.type);
     }
     try {
-      return constructor.newInstance(request.uri, request.streamKeys, downloaderConstructorHelper);
+      return constructor.newInstance(
+          request.uri, request.streamKeys, cacheDataSourceFactory, executor);
     } catch (Exception e) {
       throw new RuntimeException("Failed to instantiate downloader for: " + request.type, e);
     }
@@ -109,7 +133,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     try {
       return clazz
           .asSubclass(Downloader.class)
-          .getConstructor(Uri.class, List.class, DownloaderConstructorHelper.class);
+          .getConstructor(Uri.class, List.class, CacheDataSource.Factory.class, Executor.class);
     } catch (NoSuchMethodException e) {
       // The downloader is present, but the expected constructor is missing.
       throw new RuntimeException("Downloader constructor missing", e);

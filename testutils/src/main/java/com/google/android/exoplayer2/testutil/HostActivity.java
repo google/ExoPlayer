@@ -29,6 +29,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.Window;
+import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -45,14 +46,15 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
 
     /**
      * Called on the main thread when the test is started.
-     * <p>
-     * The test will not be started until the {@link HostActivity} has been resumed and its
+     *
+     * <p>The test will not be started until the {@link HostActivity} has been resumed and its
      * {@link Surface} has been created.
      *
      * @param host The {@link HostActivity} in which the test is being run.
      * @param surface The {@link Surface}.
+     * @param overlayFrameLayout A {@link FrameLayout} that is on top of the surface.
      */
-    void onStart(HostActivity host, Surface surface);
+    void onStart(HostActivity host, Surface surface, FrameLayout overlayFrameLayout);
 
     /**
      * Called on the main thread to block until the test has stopped or {@link #forceStop()} is
@@ -86,6 +88,7 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
   @Nullable private WakeLock wakeLock;
   @Nullable private WifiLock wifiLock;
   private @MonotonicNonNull SurfaceView surfaceView;
+  private @MonotonicNonNull FrameLayout overlayFrameLayout;
 
   @Nullable private HostedTest hostedTest;
   private boolean hostedTestStarted;
@@ -171,6 +174,8 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     surfaceView = findViewById(
         getResources().getIdentifier("surface_view", "id", getPackageName()));
     surfaceView.getHolder().addCallback(this);
+    overlayFrameLayout =
+        findViewById(getResources().getIdentifier("overlay_frame_layout", "id", getPackageName()));
   }
 
   @Override
@@ -240,7 +245,8 @@ public final class HostActivity extends Activity implements SurfaceHolder.Callba
     if (surface != null && surface.isValid()) {
       hostedTestStarted = true;
       Log.d(TAG, "Starting test.");
-      Util.castNonNull(hostedTest).onStart(this, surface);
+      Util.castNonNull(hostedTest)
+          .onStart(this, surface, Assertions.checkNotNull(overlayFrameLayout));
       Util.castNonNull(hostedTestStartedCondition).open();
     }
   }

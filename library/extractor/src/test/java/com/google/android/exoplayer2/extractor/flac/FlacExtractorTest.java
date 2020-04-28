@@ -15,22 +15,32 @@
  */
 package com.google.android.exoplayer2.extractor.flac;
 
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Unit tests for {@link FlacExtractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public class FlacExtractorTest {
+
+  @Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @Parameter(0)
+  public ExtractorAsserts.Config assertionConfig;
 
   @Test
   public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_flac");
   }
 
@@ -39,7 +49,7 @@ public class FlacExtractorTest {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_with_id3.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_with_id3_enabled_flac");
   }
 
@@ -48,7 +58,7 @@ public class FlacExtractorTest {
     ExtractorAsserts.assertBehavior(
         () -> new FlacExtractor(FlacExtractor.FLAG_DISABLE_ID3_METADATA),
         /* file= */ "flac/bear_with_id3.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_with_id3_disabled_flac");
   }
 
@@ -57,7 +67,7 @@ public class FlacExtractorTest {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_no_seek_table_no_num_samples.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_no_seek_table_no_num_samples_flac");
   }
 
@@ -66,7 +76,7 @@ public class FlacExtractorTest {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_with_vorbis_comments.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_with_vorbis_comments_flac");
   }
 
@@ -75,7 +85,7 @@ public class FlacExtractorTest {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_with_picture.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_with_picture_flac");
   }
 
@@ -84,7 +94,7 @@ public class FlacExtractorTest {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_one_metadata_block.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_one_metadata_block_flac");
   }
 
@@ -93,7 +103,7 @@ public class FlacExtractorTest {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_no_min_max_frame_size.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_no_min_max_frame_size_flac");
   }
 
@@ -102,7 +112,7 @@ public class FlacExtractorTest {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_no_num_samples.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_no_num_samples_flac");
   }
 
@@ -111,7 +121,7 @@ public class FlacExtractorTest {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
         /* file= */ "flac/bear_uncommon_sample_rate.flac",
-        ApplicationProvider.getApplicationContext(),
+        assertionConfig,
         /* dumpFilesPrefix= */ "flac/bear_uncommon_sample_rate_flac");
   }
 }

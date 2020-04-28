@@ -28,19 +28,18 @@ import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-/**
- * FFmpeg audio decoder.
- */
-/* package */ final class FfmpegDecoder extends
-    SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, FfmpegDecoderException> {
+/** FFmpeg audio decoder. */
+/* package */ final class FfmpegAudioDecoder
+    extends SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, FfmpegDecoderException> {
 
   // Output buffer sizes when decoding PCM mu-law streams, which is the maximum FFmpeg outputs.
   private static final int OUTPUT_BUFFER_SIZE_16BIT = 65536;
   private static final int OUTPUT_BUFFER_SIZE_32BIT = OUTPUT_BUFFER_SIZE_16BIT * 2;
 
-  // Error codes matching ffmpeg_jni.cc.
-  private static final int DECODER_ERROR_INVALID_DATA = -1;
-  private static final int DECODER_ERROR_OTHER = -2;
+  // LINT.IfChange
+  private static final int AUDIO_DECODER_ERROR_INVALID_DATA = -1;
+  private static final int AUDIO_DECODER_ERROR_OTHER = -2;
+  // LINT.ThenChange(../../../../../../../jni/ffmpeg_jni.cc)
 
   private final String codecName;
   @Nullable private final byte[] extraData;
@@ -52,7 +51,7 @@ import java.util.List;
   private volatile int channelCount;
   private volatile int sampleRate;
 
-  public FfmpegDecoder(
+  public FfmpegAudioDecoder(
       int numInputBuffers,
       int numOutputBuffers,
       int initialInputBufferSize,
@@ -109,13 +108,13 @@ import java.util.List;
     int inputSize = inputData.limit();
     ByteBuffer outputData = outputBuffer.init(inputBuffer.timeUs, outputBufferSize);
     int result = ffmpegDecode(nativeContext, inputData, inputSize, outputData, outputBufferSize);
-    if (result == DECODER_ERROR_INVALID_DATA) {
+    if (result == AUDIO_DECODER_ERROR_INVALID_DATA) {
       // Treat invalid data errors as non-fatal to match the behavior of MediaCodec. No output will
       // be produced for this buffer, so mark it as decode-only to ensure that the audio sink's
       // position is reset when more audio is produced.
       outputBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
       return null;
-    } else if (result == DECODER_ERROR_OTHER) {
+    } else if (result == AUDIO_DECODER_ERROR_OTHER) {
       return new FfmpegDecoderException("Error decoding (see logcat).");
     }
     if (!hasOutputFormat) {
@@ -123,8 +122,8 @@ import java.util.List;
       sampleRate = ffmpegGetSampleRate(nativeContext);
       if (sampleRate == 0 && "alac".equals(codecName)) {
         Assertions.checkNotNull(extraData);
-        // ALAC decoder did not set the sample rate in earlier versions of FFMPEG.
-        // See https://trac.ffmpeg.org/ticket/6096
+        // ALAC decoder did not set the sample rate in earlier versions of FFmpeg. See
+        // https://trac.ffmpeg.org/ticket/6096.
         ParsableByteArray parsableExtraData = new ParsableByteArray(extraData);
         parsableExtraData.setPosition(extraData.length - 4);
         sampleRate = parsableExtraData.readUnsignedIntToInt();
@@ -153,9 +152,7 @@ import java.util.List;
     return sampleRate;
   }
 
-  /**
-   * Returns the encoding of output audio.
-   */
+  /** Returns the encoding of output audio. */
   public @C.Encoding int getEncoding() {
     return encoding;
   }
@@ -217,13 +214,14 @@ import java.util.List;
       int rawSampleRate,
       int rawChannelCount);
 
-  private native int ffmpegDecode(long context, ByteBuffer inputData, int inputSize,
-      ByteBuffer outputData, int outputSize);
+  private native int ffmpegDecode(
+      long context, ByteBuffer inputData, int inputSize, ByteBuffer outputData, int outputSize);
+
   private native int ffmpegGetChannelCount(long context);
+
   private native int ffmpegGetSampleRate(long context);
 
   private native long ffmpegReset(long context, @Nullable byte[] extraData);
 
   private native void ffmpegRelease(long context);
-
 }

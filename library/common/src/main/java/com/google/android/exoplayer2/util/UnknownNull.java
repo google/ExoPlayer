@@ -23,7 +23,7 @@ import javax.annotation.meta.TypeQualifierDefault;
 import javax.annotation.meta.When;
 
 /**
- * Annotation for specifiying unknown nullness. Useful for clearing the effects of an automatically
+ * Annotation for specifying unknown nullness. Useful for clearing the effects of an automatically
  * propagated {@link Nonnull} annotation.
  */
 @Nonnull(when = When.UNKNOWN)

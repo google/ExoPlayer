@@ -27,6 +27,8 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -790,6 +792,30 @@ public class UtilTest {
   }
 
   @Test
+  public void getBigEndianInt_fromBigEndian() {
+    byte[] bytes = {0x1F, 0x2E, 0x3D, 0x4C};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN);
+
+    assertThat(Util.getBigEndianInt(byteBuffer, 0)).isEqualTo(0x1F2E3D4C);
+  }
+
+  @Test
+  public void getBigEndianInt_fromLittleEndian() {
+    byte[] bytes = {(byte) 0xC2, (byte) 0xD3, (byte) 0xE4, (byte) 0xF5};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+
+    assertThat(Util.getBigEndianInt(byteBuffer, 0)).isEqualTo(0xC2D3E4F5);
+  }
+
+  @Test
+  public void getBigEndianInt_unaligned() {
+    byte[] bytes = {9, 8, 7, 6, 5};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+
+    assertThat(Util.getBigEndianInt(byteBuffer, 1)).isEqualTo(0x08070605);
+  }
+
+  @Test
   public void inflate_withDeflatedData_success() {
     byte[] testData = TestUtil.buildTestData(/*arbitrary test data size*/ 256 * 1024);
     byte[] compressedData = new byte[testData.length * 2];
@@ -932,6 +958,21 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("hak")).isEqualTo("zh-hak");
     assertThat(Util.normalizeLanguageCode("nan")).isEqualTo("zh-nan");
     assertThat(Util.normalizeLanguageCode("hsn")).isEqualTo("zh-hsn");
+  }
+
+  @Test
+  public void toList() {
+    assertThat(Util.toList(0, 3, 4)).containsExactly(0, 3, 4).inOrder();
+  }
+
+  @Test
+  public void toList_nullPassed_returnsEmptyList() {
+    assertThat(Util.toList(null)).isEmpty();
+  }
+
+  @Test
+  public void toList_emptyArrayPassed_returnsEmptyList() {
+    assertThat(Util.toList(new int[0])).isEmpty();
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {

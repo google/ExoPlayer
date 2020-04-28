@@ -224,9 +224,14 @@ public class DashManifest implements FilterableManifest<DashManifest> {
         key = keys.poll();
       } while (key.periodIndex == periodIndex && key.groupIndex == adaptationSetIndex);
 
-      copyAdaptationSets.add(new AdaptationSet(adaptationSet.id, adaptationSet.type,
-          copyRepresentations, adaptationSet.accessibilityDescriptors,
-          adaptationSet.supplementalProperties));
+      copyAdaptationSets.add(
+          new AdaptationSet(
+              adaptationSet.id,
+              adaptationSet.type,
+              copyRepresentations,
+              adaptationSet.accessibilityDescriptors,
+              adaptationSet.essentialProperties,
+              adaptationSet.supplementalProperties));
     } while(key.periodIndex == periodIndex);
     // Add back the last key which doesn't belong to the period being processed
     keys.addFirst(key);

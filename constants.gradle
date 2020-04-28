@@ -13,15 +13,15 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.11.3'
-    releaseVersionCode = 2011003
+    releaseVersion = '2.11.4'
+    releaseVersionCode = 2011004
     minSdkVersion = 16
     appTargetSdkVersion = 29
     targetSdkVersion = 28 // TODO: Bump once b/143232359 is resolved. Also fix TODOs in UtilTest.
     compileSdkVersion = 29
     dexmakerVersion = '2.21.0'
     junitVersion = '4.13-rc-2'
-    guavaVersion = '23.5-android'
+    guavaVersion = '28.2-android'
     mockitoVersion = '2.25.0'
     robolectricVersion = '4.3.1'
     checkerframeworkVersion = '2.5.0'

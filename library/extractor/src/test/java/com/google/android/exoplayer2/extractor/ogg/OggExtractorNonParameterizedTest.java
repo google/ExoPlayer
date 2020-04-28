@@ -20,37 +20,19 @@ import static com.google.android.exoplayer2.testutil.TestUtil.getByteArray;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
-import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link OggExtractor}. */
+/**
+ * Tests for {@link OggExtractor} that test specific behaviours and don't need to be parameterized.
+ *
+ * <p>For parameterized tests using {@link ExtractorAsserts} see {@link
+ * OggExtractorParameterizedTest}.
+ */
 @RunWith(AndroidJUnit4.class)
-public final class OggExtractorTest {
-
-  private static final ExtractorFactory OGG_EXTRACTOR_FACTORY = OggExtractor::new;
-
-  @Test
-  public void opus() throws Exception {
-    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear.opus");
-  }
-
-  @Test
-  public void flac() throws Exception {
-    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac.ogg");
-  }
-
-  @Test
-  public void flacNoSeektable() throws Exception {
-    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_flac_noseektable.ogg");
-  }
-
-  @Test
-  public void vorbis() throws Exception {
-    ExtractorAsserts.assertBehavior(OGG_EXTRACTOR_FACTORY, "ogg/bear_vorbis.ogg");
-  }
+public final class OggExtractorNonParameterizedTest {
 
   @Test
   public void sniffVorbis() throws Exception {
@@ -97,6 +79,6 @@ public final class OggExtractorTest {
             .setSimulateUnknownLength(true)
             .setSimulatePartialReads(true)
             .build();
-    ExtractorAsserts.assertSniff(OGG_EXTRACTOR_FACTORY.create(), input, expectedResult);
+    ExtractorAsserts.assertSniff(new OggExtractor(), input, expectedResult);
   }
 }

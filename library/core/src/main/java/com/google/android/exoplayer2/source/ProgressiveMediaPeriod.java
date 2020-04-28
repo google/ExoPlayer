@@ -543,8 +543,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(ExtractingLoadable loadable, long elapsedRealtimeMs,
-      long loadDurationMs) {
+  public void onLoadCompleted(
+      ExtractingLoadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
     if (durationUs == C.TIME_UNSET && seekMap != null) {
       boolean isSeekable = seekMap.isSeekable();
       long largestQueuedTimestampUs = getLargestQueuedTimestampUs();
@@ -552,42 +552,46 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           : largestQueuedTimestampUs + DEFAULT_LAST_SAMPLE_DURATION_US;
       listener.onSourceInfoRefreshed(durationUs, isSeekable, isLive);
     }
+    StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadCompleted(
-        loadable.dataSpec,
-        loadable.dataSource.getLastOpenedUri(),
-        loadable.dataSource.getLastResponseHeaders(),
+        new LoadEventInfo(
+            loadable.dataSpec,
+            dataSource.getLastOpenedUri(),
+            dataSource.getLastResponseHeaders(),
+            elapsedRealtimeMs,
+            loadDurationMs,
+            dataSource.getBytesRead()),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ loadable.seekTimeUs,
-        durationUs,
-        elapsedRealtimeMs,
-        loadDurationMs,
-        loadable.dataSource.getBytesRead());
+        durationUs);
     copyLengthFromLoader(loadable);
     loadingFinished = true;
     Assertions.checkNotNull(callback).onContinueLoadingRequested(this);
   }
 
   @Override
-  public void onLoadCanceled(ExtractingLoadable loadable, long elapsedRealtimeMs,
-      long loadDurationMs, boolean released) {
+  public void onLoadCanceled(
+      ExtractingLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
+    StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadCanceled(
-        loadable.dataSpec,
-        loadable.dataSource.getLastOpenedUri(),
-        loadable.dataSource.getLastResponseHeaders(),
+        new LoadEventInfo(
+            loadable.dataSpec,
+            dataSource.getLastOpenedUri(),
+            dataSource.getLastResponseHeaders(),
+            elapsedRealtimeMs,
+            loadDurationMs,
+            dataSource.getBytesRead()),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ loadable.seekTimeUs,
-        durationUs,
-        elapsedRealtimeMs,
-        loadDurationMs,
-        loadable.dataSource.getBytesRead());
+        durationUs);
     if (!released) {
       copyLengthFromLoader(loadable);
       for (SampleQueue sampleQueue : sampleQueues) {
@@ -621,10 +625,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               : Loader.DONT_RETRY;
     }
 
+    StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadError(
-        loadable.dataSpec,
-        loadable.dataSource.getLastOpenedUri(),
-        loadable.dataSource.getLastResponseHeaders(),
+        new LoadEventInfo(
+            loadable.dataSpec,
+            dataSource.getLastOpenedUri(),
+            dataSource.getLastResponseHeaders(),
+            elapsedRealtimeMs,
+            loadDurationMs,
+            dataSource.getBytesRead()),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -632,9 +641,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ loadable.seekTimeUs,
         durationUs,
-        elapsedRealtimeMs,
-        loadDurationMs,
-        loadable.dataSource.getBytesRead(),
         error,
         !loadErrorAction.isRetry());
     return loadErrorAction;
@@ -680,7 +686,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return sampleQueues[i];
       }
     }
-    SampleQueue trackOutput = new SampleQueue(allocator, drmSessionManager, eventDispatcher);
+    SampleQueue trackOutput =
+        new SampleQueue(
+            allocator,
+            /* playbackLooper= */ handler.getLooper(),
+            drmSessionManager,
+            eventDispatcher);
     trackOutput.setUpstreamFormatChangeListener(this);
     @NullableType
     TrackId[] sampleQueueTrackIds = Arrays.copyOf(this.sampleQueueTrackIds, trackCount + 1);
@@ -776,16 +787,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     long elapsedRealtimeMs =
         loader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(dataType));
+    DataSpec dataSpec = loadable.dataSpec;
     eventDispatcher.loadStarted(
-        loadable.dataSpec,
+        new LoadEventInfo(dataSpec, elapsedRealtimeMs),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ loadable.seekTimeUs,
-        durationUs,
-        elapsedRealtimeMs);
+        durationUs);
   }
 
   /**

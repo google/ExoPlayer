@@ -122,6 +122,11 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   @Override
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
   @Capabilities
   public int supportsFormat(Format format) {
     if (decoderFactory.supportsFormat(format)) {

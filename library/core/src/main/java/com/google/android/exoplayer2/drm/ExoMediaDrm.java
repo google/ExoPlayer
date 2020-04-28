@@ -224,13 +224,40 @@ public interface ExoMediaDrm {
 
   }
 
-  /** @see MediaDrm#setOnEventListener(MediaDrm.OnEventListener) */
+  /**
+   * Sets the listener for DRM events.
+   *
+   * <p>This is an optional method, and some implementations may only support it on certain Android
+   * API levels.
+   *
+   * @param listener The listener to receive events, or {@code null} to stop receiving events.
+   * @throws UnsupportedOperationException if the implementation doesn't support this method.
+   * @see MediaDrm#setOnEventListener(MediaDrm.OnEventListener)
+   */
   void setOnEventListener(@Nullable OnEventListener listener);
 
-  /** @see MediaDrm#setOnKeyStatusChangeListener(MediaDrm.OnKeyStatusChangeListener, Handler) */
+  /**
+   * Sets the listener for key status change events.
+   *
+   * <p>This is an optional method, and some implementations may only support it on certain Android
+   * API levels.
+   *
+   * @param listener The listener to receive events, or {@code null} to stop receiving events.
+   * @throws UnsupportedOperationException if the implementation doesn't support this method.
+   * @see MediaDrm#setOnKeyStatusChangeListener(MediaDrm.OnKeyStatusChangeListener, Handler)
+   */
   void setOnKeyStatusChangeListener(@Nullable OnKeyStatusChangeListener listener);
 
-  /** @see MediaDrm#setOnExpirationUpdateListener(MediaDrm.OnExpirationUpdateListener, Handler) */
+  /**
+   * Sets the listener for session expiration events.
+   *
+   * <p>This is an optional method, and some implementations may only support it on certain Android
+   * API levels.
+   *
+   * @param listener The listener to receive events, or {@code null} to stop receiving events.
+   * @throws UnsupportedOperationException if the implementation doesn't support this method.
+   * @see MediaDrm#setOnExpirationUpdateListener(MediaDrm.OnExpirationUpdateListener, Handler)
+   */
   void setOnExpirationUpdateListener(@Nullable OnExpirationUpdateListener listener);
 
   /** @see MediaDrm#openSession() */

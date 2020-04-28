@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -1056,6 +1057,31 @@ public final class DefaultPlaybackSessionManagerTest {
     sessionManager.updateSessions(adEventTime2);
 
     verify(mockListener, never()).onSessionActive(any(), eq(adSessionId2));
+  }
+
+  @Test
+  public void finishAllSessions_callsOnSessionFinishedForAllCreatedSessions() {
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 4);
+    EventTime eventTimeWindow0 =
+        createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
+    EventTime eventTimeWindow2 =
+        createEventTime(timeline, /* windowIndex= */ 2, /* mediaPeriodId= */ null);
+    // Actually create sessions for window 0 and 2.
+    sessionManager.updateSessions(eventTimeWindow0);
+    sessionManager.updateSessions(eventTimeWindow2);
+    // Query information about session for window 1, but don't create it.
+    sessionManager.getSessionForMediaPeriodId(
+        timeline,
+        new MediaPeriodId(
+            timeline.getPeriod(/* periodIndex= */ 1, new Timeline.Period(), /* setIds= */ true).uid,
+            /* windowSequenceNumber= */ 123));
+    verify(mockListener, times(2)).onSessionCreated(any(), anyString());
+
+    EventTime finishEventTime =
+        createEventTime(Timeline.EMPTY, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
+    sessionManager.finishAllSessions(finishEventTime);
+
+    verify(mockListener, times(2)).onSessionFinished(eq(finishEventTime), anyString(), eq(false));
   }
 
   private static EventTime createEventTime(

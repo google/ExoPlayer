@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.EOFException;
@@ -51,6 +52,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   public static final String M4_FILE_EXTENSION_PREFIX = ".m4";
   public static final String MP4_FILE_EXTENSION_PREFIX = ".mp4";
   public static final String CMF_FILE_EXTENSION_PREFIX = ".cmf";
+  public static final String TS_FILE_EXTENSION = ".ts";
+  public static final String TS_FILE_EXTENSION_PREFIX = ".ts";
   public static final String VTT_FILE_EXTENSION = ".vtt";
   public static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
@@ -94,7 +97,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       throws IOException {
 
     if (previousExtractor != null) {
-      // A extractor has already been successfully used. Return one of the same type.
+      // An extractor has already been successfully used. Return one of the same type.
       if (isReusable(previousExtractor)) {
         return buildResult(previousExtractor);
       } else {
@@ -108,20 +111,50 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     }
 
     // Try selecting the extractor by the file extension.
+    @Nullable
     Extractor extractorByFileExtension =
         createExtractorByFileExtension(uri, format, muxedCaptionFormats, timestampAdjuster);
     extractorInput.resetPeekPosition();
-    if (sniffQuietly(extractorByFileExtension, extractorInput)) {
+    if (extractorByFileExtension != null
+        && sniffQuietly(extractorByFileExtension, extractorInput)) {
       return buildResult(extractorByFileExtension);
     }
 
     // We need to manually sniff each known type, without retrying the one selected by file
-    // extension.
+    // extension. Extractors order is optimized according to
+    // https://docs.google.com/document/d/1w2mKaWMxfz2Ei8-LdxqbPs1VLe_oudB-eryXXw9OvQQ.
+
+    // Extractor to be used if the type is not recognized.
+    @Nullable Extractor fallBackExtractor = extractorByFileExtension;
+
+    if (!(extractorByFileExtension instanceof FragmentedMp4Extractor)) {
+      FragmentedMp4Extractor fragmentedMp4Extractor =
+          createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
+      if (sniffQuietly(fragmentedMp4Extractor, extractorInput)) {
+        return buildResult(fragmentedMp4Extractor);
+      }
+    }
 
     if (!(extractorByFileExtension instanceof WebvttExtractor)) {
       WebvttExtractor webvttExtractor = new WebvttExtractor(format.language, timestampAdjuster);
       if (sniffQuietly(webvttExtractor, extractorInput)) {
         return buildResult(webvttExtractor);
+      }
+    }
+
+    if (!(extractorByFileExtension instanceof TsExtractor)) {
+      TsExtractor tsExtractor =
+          createTsExtractor(
+              payloadReaderFactoryFlags,
+              exposeCea608WhenMissingDeclarations,
+              format,
+              muxedCaptionFormats,
+              timestampAdjuster);
+      if (sniffQuietly(tsExtractor, extractorInput)) {
+        return buildResult(tsExtractor);
+      }
+      if (fallBackExtractor == null) {
+        fallBackExtractor = tsExtractor;
       }
     }
 
@@ -154,31 +187,10 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       }
     }
 
-    if (!(extractorByFileExtension instanceof FragmentedMp4Extractor)) {
-      FragmentedMp4Extractor fragmentedMp4Extractor =
-          createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
-      if (sniffQuietly(fragmentedMp4Extractor, extractorInput)) {
-        return buildResult(fragmentedMp4Extractor);
-      }
-    }
-
-    if (!(extractorByFileExtension instanceof TsExtractor)) {
-      TsExtractor tsExtractor =
-          createTsExtractor(
-              payloadReaderFactoryFlags,
-              exposeCea608WhenMissingDeclarations,
-              format,
-              muxedCaptionFormats,
-              timestampAdjuster);
-      if (sniffQuietly(tsExtractor, extractorInput)) {
-        return buildResult(tsExtractor);
-      }
-    }
-
-    // Fall back on the extractor created by file extension.
-    return buildResult(extractorByFileExtension);
+    return buildResult(Assertions.checkNotNull(fallBackExtractor));
   }
 
+  @Nullable
   private Extractor createExtractorByFileExtension(
       Uri uri,
       Format format,
@@ -206,14 +218,16 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         || lastPathSegment.startsWith(MP4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)
         || lastPathSegment.startsWith(CMF_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)) {
       return createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
-    } else {
-      // For any other file extension, we assume TS format.
+    } else if (lastPathSegment.endsWith(TS_FILE_EXTENSION)
+        || lastPathSegment.startsWith(TS_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)) {
       return createTsExtractor(
           payloadReaderFactoryFlags,
           exposeCea608WhenMissingDeclarations,
           format,
           muxedCaptionFormats,
           timestampAdjuster);
+    } else {
+      return null;
     }
   }
 

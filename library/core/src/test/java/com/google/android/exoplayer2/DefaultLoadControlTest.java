@@ -49,9 +49,16 @@ public class DefaultLoadControlTest {
   public void shouldContinueLoading_untilMaxBufferExceeded() {
     createDefaultLoadControl();
 
-    assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isTrue();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US - 1, SPEED)).isTrue();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, /* bufferedDurationUs= */ 0, SPEED))
+        .isTrue();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, MAX_BUFFER_US - 1, SPEED))
+        .isTrue();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MAX_BUFFER_US, SPEED))
+        .isFalse();
   }
 
   @Test
@@ -63,10 +70,18 @@ public class DefaultLoadControlTest {
         /* bufferForPlaybackAfterRebufferMs= */ 0);
     createDefaultLoadControl();
 
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US - 1, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US - 1, SPEED)).isTrue();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MAX_BUFFER_US, SPEED))
+        .isFalse();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, MAX_BUFFER_US - 1, SPEED))
+        .isFalse();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MIN_BUFFER_US, SPEED))
+        .isFalse();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, MIN_BUFFER_US - 1, SPEED))
+        .isTrue();
   }
 
   @Test
@@ -78,9 +93,14 @@ public class DefaultLoadControlTest {
         /* bufferForPlaybackAfterRebufferMs= */ 0);
     createDefaultLoadControl();
 
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(5 * C.MICROS_PER_SECOND, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(500L, SPEED)).isTrue();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MAX_BUFFER_US, SPEED))
+        .isFalse();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, 5 * C.MICROS_PER_SECOND, SPEED))
+        .isFalse();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, 500L, SPEED))
+        .isTrue();
   }
 
   @Test
@@ -94,10 +114,18 @@ public class DefaultLoadControlTest {
     createDefaultLoadControl();
     makeSureTargetBufferBytesReached();
 
-    assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isTrue();
-    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US - 1, SPEED)).isTrue();
-    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, /* bufferedDurationUs= */ 0, SPEED))
+        .isTrue();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, MIN_BUFFER_US - 1, SPEED))
+        .isTrue();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MIN_BUFFER_US, SPEED))
+        .isFalse();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MAX_BUFFER_US, SPEED))
+        .isFalse();
   }
 
   @Test
@@ -107,13 +135,24 @@ public class DefaultLoadControlTest {
     createDefaultLoadControl();
 
     // Put loadControl in buffering state.
-    assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isTrue();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, /* bufferedDurationUs= */ 0, SPEED))
+        .isTrue();
     makeSureTargetBufferBytesReached();
 
-    assertThat(loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US - 1, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, SPEED)).isFalse();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, /* bufferedDurationUs= */ 0, SPEED))
+        .isFalse();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, MIN_BUFFER_US - 1, SPEED))
+        .isFalse();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MIN_BUFFER_US, SPEED))
+        .isFalse();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MAX_BUFFER_US, SPEED))
+        .isFalse();
   }
 
   @Test
@@ -126,16 +165,22 @@ public class DefaultLoadControlTest {
     createDefaultLoadControl();
 
     // At normal playback speed, we stop buffering when the buffer reaches the minimum.
-    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, SPEED)).isFalse();
+    assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MIN_BUFFER_US, SPEED))
+        .isFalse();
     // At double playback speed, we continue loading.
-    assertThat(loadControl.shouldContinueLoading(MIN_BUFFER_US, /* playbackSpeed= */ 2f)).isTrue();
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, MIN_BUFFER_US, /* playbackSpeed= */ 2f))
+        .isTrue();
   }
 
   @Test
   public void shouldNotContinueLoadingWithMaxBufferReached_inFastPlayback() {
     createDefaultLoadControl();
 
-    assertThat(loadControl.shouldContinueLoading(MAX_BUFFER_US, /* playbackSpeed= */ 100f))
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, MAX_BUFFER_US, /* playbackSpeed= */ 100f))
         .isFalse();
   }
 
@@ -153,7 +198,8 @@ public class DefaultLoadControlTest {
     loadControl.onTracksSelected(new Renderer[0], TrackGroupArray.EMPTY, new TrackSelectionArray());
 
     assertThat(
-            loadControl.shouldContinueLoading(/* bufferedDurationUs= */ 0, /* playbackSpeed= */ 1f))
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, /* bufferedDurationUs= */ 0, /* playbackSpeed= */ 1f))
         .isTrue();
   }
 

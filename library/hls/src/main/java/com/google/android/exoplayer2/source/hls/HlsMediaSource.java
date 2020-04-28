@@ -327,12 +327,9 @@ public final class HlsMediaSource extends BaseMediaSource
       return mediaSource;
     }
 
-    /**
-     * Returns a new {@link HlsMediaSource} using the current parameters.
-     *
-     * @param uri The {@link Uri uri}.
-     * @return The new {@link HlsMediaSource}.
-     */
+    /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     @Override
     public HlsMediaSource createMediaSource(Uri uri) {
       return createMediaSource(new MediaItem.Builder().setSourceUri(uri).build());

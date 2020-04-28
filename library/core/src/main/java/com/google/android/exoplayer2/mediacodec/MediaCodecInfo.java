@@ -50,15 +50,14 @@ public final class MediaCodecInfo {
    */
   public final String name;
 
-  /** The MIME type handled by the codec, or {@code null} if this is a passthrough codec. */
-  @Nullable public final String mimeType;
+  /** The MIME type handled by the codec. */
+  public final String mimeType;
 
   /**
-   * The MIME type that the codec uses for media of type {@link #mimeType}, or {@code null} if this
-   * is a passthrough codec. Equal to {@link #mimeType} unless the codec is known to use a
-   * non-standard MIME type alias.
+   * The MIME type that the codec uses for media of type {@link #mimeType}. Equal to {@link
+   * #mimeType} unless the codec is known to use a non-standard MIME type alias.
    */
-  @Nullable public final String codecMimeType;
+  public final String codecMimeType;
 
   /**
    * The capabilities of the decoder, like the profiles/levels it supports, or {@code null} if not
@@ -90,9 +89,6 @@ public final class MediaCodecInfo {
    */
   public final boolean secure;
 
-  /** Whether this instance describes a passthrough codec. */
-  public final boolean passthrough;
-
   /**
    * Whether the codec is hardware accelerated.
    *
@@ -121,26 +117,6 @@ public final class MediaCodecInfo {
   public final boolean vendor;
 
   private final boolean isVideo;
-
-  /**
-   * Creates an instance representing an audio passthrough decoder.
-   *
-   * @param name The name of the {@link MediaCodec}.
-   * @return The created instance.
-   */
-  public static MediaCodecInfo newPassthroughInstance(String name) {
-    return new MediaCodecInfo(
-        name,
-        /* mimeType= */ null,
-        /* codecMimeType= */ null,
-        /* capabilities= */ null,
-        /* passthrough= */ true,
-        /* hardwareAccelerated= */ false,
-        /* softwareOnly= */ true,
-        /* vendor= */ false,
-        /* forceDisableAdaptive= */ false,
-        /* forceSecure= */ false);
-  }
 
   /**
    * Creates an instance.
@@ -173,7 +149,6 @@ public final class MediaCodecInfo {
         mimeType,
         codecMimeType,
         capabilities,
-        /* passthrough= */ false,
         hardwareAccelerated,
         softwareOnly,
         vendor,
@@ -183,10 +158,9 @@ public final class MediaCodecInfo {
 
   private MediaCodecInfo(
       String name,
-      @Nullable String mimeType,
-      @Nullable String codecMimeType,
+      String mimeType,
+      String codecMimeType,
       @Nullable CodecCapabilities capabilities,
-      boolean passthrough,
       boolean hardwareAccelerated,
       boolean softwareOnly,
       boolean vendor,
@@ -196,7 +170,6 @@ public final class MediaCodecInfo {
     this.mimeType = mimeType;
     this.codecMimeType = codecMimeType;
     this.capabilities = capabilities;
-    this.passthrough = passthrough;
     this.hardwareAccelerated = hardwareAccelerated;
     this.softwareOnly = softwareOnly;
     this.vendor = vendor;
@@ -574,7 +547,9 @@ public final class MediaCodecInfo {
     width = alignedSize.x;
     height = alignedSize.y;
 
-    if (frameRate == Format.NO_VALUE || frameRate <= 0) {
+    // VideoCapabilities.areSizeAndRateSupported incorrectly returns false if frameRate < 1 on some
+    // versions of Android, so we only check the size in this case [Internal ref: b/153940404].
+    if (frameRate == Format.NO_VALUE || frameRate < 1) {
       return capabilities.isSizeSupported(width, height);
     } else {
       // The signaled frame rate may be slightly higher than the actual frame rate, so we take the

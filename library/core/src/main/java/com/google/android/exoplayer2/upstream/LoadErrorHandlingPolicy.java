@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.upstream;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.upstream.Loader.Callback;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import java.io.IOException;
@@ -41,22 +43,23 @@ public interface LoadErrorHandlingPolicy {
   /** Holds information about a load task error. */
   final class LoadErrorInfo {
 
-    /** One of the {@link C C.DATA_TYPE_*} constants indicating the type of data to load. */
-    public final int dataType;
-    /**
-     * The duration in milliseconds of the load from the start of the first load attempt up to the
-     * point at which the error occurred.
-     */
-    public final long loadDurationMs;
+    /** The {@link LoadEventInfo} associated with the load that encountered an error. */
+    public final LoadEventInfo loadEventInfo;
+    /** {@link MediaLoadData} associated with the load that encountered an error. */
+    public final MediaLoadData mediaLoadData;
     /** The exception associated to the load error. */
     public final IOException exception;
     /** The number of errors this load task has encountered, including this one. */
     public final int errorCount;
 
     /** Creates an instance with the given values. */
-    public LoadErrorInfo(int dataType, long loadDurationMs, IOException exception, int errorCount) {
-      this.dataType = dataType;
-      this.loadDurationMs = loadDurationMs;
+    public LoadErrorInfo(
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData,
+        IOException exception,
+        int errorCount) {
+      this.loadEventInfo = loadEventInfo;
+      this.mediaLoadData = mediaLoadData;
       this.exception = exception;
       this.errorCount = errorCount;
     }
@@ -88,8 +91,8 @@ public interface LoadErrorHandlingPolicy {
    */
   default long getBlacklistDurationMsFor(LoadErrorInfo loadErrorInfo) {
     return getBlacklistDurationMsFor(
-        loadErrorInfo.dataType,
-        loadErrorInfo.loadDurationMs,
+        loadErrorInfo.mediaLoadData.dataType,
+        loadErrorInfo.loadEventInfo.loadDurationMs,
         loadErrorInfo.exception,
         loadErrorInfo.errorCount);
   }
@@ -127,8 +130,8 @@ public interface LoadErrorHandlingPolicy {
    */
   default long getRetryDelayMsFor(LoadErrorInfo loadErrorInfo) {
     return getRetryDelayMsFor(
-        loadErrorInfo.dataType,
-        loadErrorInfo.loadDurationMs,
+        loadErrorInfo.mediaLoadData.dataType,
+        loadErrorInfo.loadEventInfo.loadDurationMs,
         loadErrorInfo.exception,
         loadErrorInfo.errorCount);
   }

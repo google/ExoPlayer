@@ -28,12 +28,14 @@ import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Decodes and renders audio using the native Flac decoder. */
 public final class LibflacAudioRenderer extends DecoderAudioRenderer {
 
+  private static final String TAG = "LibflacAudioRenderer";
   private static final int NUM_BUFFERS = 16;
 
   private @MonotonicNonNull FlacStreamMetadata streamMetadata;
@@ -72,6 +74,11 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
   }
 
   @Override
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
   @FormatSupport
   protected int supportsFormatInternal(Format format) {
     if (!FlacLibrary.isAvailable()
@@ -105,9 +112,11 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
   @Override
   protected FlacDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws FlacDecoderException {
+    TraceUtil.beginSection("createFlacDecoder");
     FlacDecoder decoder =
         new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, format.maxInputSize, format.initializationData);
     streamMetadata = decoder.getStreamMetadata();
+    TraceUtil.endSection();
     return decoder;
   }
 

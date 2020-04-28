@@ -51,15 +51,15 @@
 # Constructors accessed via reflection in DefaultDownloaderFactory
 -dontnote com.google.android.exoplayer2.source.dash.offline.DashDownloader
 -keepclassmembers class com.google.android.exoplayer2.source.dash.offline.DashDownloader {
-  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offline.DownloaderConstructorHelper);
+  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory, java.util.concurrent.Executor);
 }
 -dontnote com.google.android.exoplayer2.source.hls.offline.HlsDownloader
 -keepclassmembers class com.google.android.exoplayer2.source.hls.offline.HlsDownloader {
-  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offline.DownloaderConstructorHelper);
+  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory, java.util.concurrent.Executor);
 }
 -dontnote com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader
 -keepclassmembers class com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloader {
-  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.offline.DownloaderConstructorHelper);
+  <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory, java.util.concurrent.Executor);
 }
 
 # Constructors accessed via reflection in DefaultMediaSourceFactory and DownloadHelper

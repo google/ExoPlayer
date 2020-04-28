@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
@@ -28,10 +27,9 @@ import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.offline.DashDownloader;
 import com.google.android.exoplayer2.testutil.HostActivity;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
@@ -57,8 +55,8 @@ public final class DashDownloadTest {
   private DashTestRunner testRunner;
   private File tempFolder;
   private SimpleCache cache;
-  private DefaultHttpDataSourceFactory httpDataSourceFactory;
-  private CacheDataSourceFactory offlineDataSourceFactory;
+  private DataSource.Factory httpDataSourceFactory;
+  private DataSource.Factory offlineDataSourceFactory;
 
   @Before
   public void setUp() throws Exception {
@@ -72,9 +70,7 @@ public final class DashDownloadTest {
     tempFolder = Util.createTempDirectory(testRule.getActivity(), "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
     httpDataSourceFactory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
-    offlineDataSourceFactory =
-        new CacheDataSourceFactory(
-            cache, DummyDataSource.FACTORY, CacheDataSource.FLAG_BLOCK_ON_CACHE);
+    offlineDataSourceFactory = new CacheDataSource.Factory().setCache(cache);
   }
 
   @After
@@ -120,9 +116,11 @@ public final class DashDownloadTest {
         }
       }
     }
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(cache, httpDataSourceFactory);
-    return new DashDownloader(MANIFEST_URI, keys, constructorHelper);
+    CacheDataSource.Factory cacheDataSourceFactory =
+        new CacheDataSource.Factory()
+            .setCache(cache)
+            .setUpstreamDataSourceFactory(httpDataSourceFactory);
+    return new DashDownloader(MANIFEST_URI, keys, cacheDataSourceFactory);
   }
 
 }

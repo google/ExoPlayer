@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.annotation.Documented;
@@ -34,10 +35,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * A fake {@link ExtractorOutput}.
- */
+/** A fake {@link ExtractorOutput}. */
 public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpable {
+
+  private static final String DUMP_UPDATE_INSTRUCTIONS =
+      "To update the dump file, change FakeExtractorOutput#DUMP_FILE_ACTION to WRITE_TO_LOCAL (for"
+          + " Robolectric tests) or WRITE_TO_DEVICE (for instrumentation tests) and re-run the"
+          + " test.";
 
   /**
    * Possible actions to take with the dumps generated from this {@code FakeExtractorOutput} in
@@ -128,13 +132,15 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
     String actual = new Dumper().add(this).toString();
 
     if (DUMP_FILE_ACTION == COMPARE_WITH_EXISTING) {
-      String expected = TestUtil.getString(context, dumpFile);
+      String expected;
+      try {
+        expected = TestUtil.getString(context, dumpFile);
+      } catch (FileNotFoundException e) {
+        throw new IOException("Dump file not found. " + DUMP_UPDATE_INSTRUCTIONS, e);
+      }
       assertWithMessage(
-              "Extractor output doesn't match golden file: %s\n"
-                  + "To update the golden, change FakeExtractorOutput#DUMP_FILE_ACTION to"
-                  + " WRITE_TO_LOCAL (for Robolectric tests) or WRITE_TO_DEVICE (for"
-                  + " instrumentation tests) and re-run the test.",
-              dumpFile)
+              "Extractor output doesn't match dump file: %s\n%s",
+              dumpFile, DUMP_UPDATE_INSTRUCTIONS)
           .that(actual)
           .isEqualTo(expected);
     } else {

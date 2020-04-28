@@ -55,6 +55,7 @@ bazel-testlogs
 .DS_Store
 cmake-build-debug
 dist
+jacoco.exec
 tmp
 
 # VP9 extension

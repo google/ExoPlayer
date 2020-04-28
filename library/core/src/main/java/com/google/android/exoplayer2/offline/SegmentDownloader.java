@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -67,29 +68,30 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private static final long MAX_MERGED_SEGMENT_START_TIME_DIFF_US = 20 * C.MICROS_PER_SECOND;
 
   private final DataSpec manifestDataSpec;
-  private final Cache cache;
-  private final CacheDataSource dataSource;
-  private final CacheDataSource offlineDataSource;
-  private final CacheKeyFactory cacheKeyFactory;
-  private final PriorityTaskManager priorityTaskManager;
   private final ArrayList<StreamKey> streamKeys;
+  private final CacheDataSource.Factory cacheDataSourceFactory;
+  private final Executor executor;
   private final AtomicBoolean isCanceled;
 
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
    * @param streamKeys Keys defining which streams in the manifest should be selected for download.
    *     If empty, all streams are downloaded.
-   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   * @param executor An {@link Executor} used to make requests for the media being downloaded.
+   *     Providing an {@link Executor} that uses multiple threads will speed up the download by
+   *     allowing parts of it to be executed in parallel.
    */
   public SegmentDownloader(
-      Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
+      Uri manifestUri,
+      List<StreamKey> streamKeys,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
     this.manifestDataSpec = getCompressibleDataSpec(manifestUri);
     this.streamKeys = new ArrayList<>(streamKeys);
-    this.cache = constructorHelper.getCache();
-    this.dataSource = constructorHelper.createCacheDataSource();
-    this.offlineDataSource = constructorHelper.createOfflineCacheDataSource();
-    this.cacheKeyFactory = constructorHelper.getCacheKeyFactory();
-    this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
+    this.cacheDataSourceFactory = cacheDataSourceFactory;
+    this.executor = executor;
     isCanceled = new AtomicBoolean();
   }
 
@@ -103,7 +105,11 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   @Override
   public final void download(@Nullable ProgressListener progressListener)
       throws IOException, InterruptedException {
-    priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+    CacheDataSource dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
+    @Nullable PriorityTaskManager priorityTaskManager = dataSource.getUpstreamPriorityTaskManager();
+    if (priorityTaskManager != null) {
+      priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+    }
     try {
       // Get the manifest and all of the segments.
       M manifest = getManifest(dataSource, manifestDataSpec);
@@ -112,7 +118,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       }
       List<Segment> segments = getSegments(dataSource, manifest, /* allowIncompleteList= */ false);
       Collections.sort(segments);
-      mergeSegments(segments, cacheKeyFactory);
+      mergeSegments(segments, dataSource.getCacheKeyFactory());
 
       // Scan the segments, removing any that are fully downloaded.
       int totalSegments = segments.size();
@@ -122,7 +128,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       for (int i = segments.size() - 1; i >= 0; i--) {
         Segment segment = segments.get(i);
         Pair<Long, Long> segmentLengthAndBytesDownloaded =
-            CacheUtil.getCached(segment.dataSpec, cache, cacheKeyFactory);
+            CacheUtil.getCached(
+                segment.dataSpec, dataSource.getCache(), dataSource.getCacheKeyFactory());
         long segmentLength = segmentLengthAndBytesDownloaded.first;
         long segmentBytesDownloaded = segmentLengthAndBytesDownloaded.second;
         bytesDownloaded += segmentBytesDownloaded;
@@ -141,35 +148,33 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       }
 
       // Download the segments.
-      @Nullable ProgressNotifier progressNotifier = null;
-      if (progressListener != null) {
-        progressNotifier =
-            new ProgressNotifier(
-                progressListener,
-                contentLength,
-                totalSegments,
-                bytesDownloaded,
-                segmentsDownloaded);
-      }
-      byte[] buffer = new byte[BUFFER_SIZE_BYTES];
+      @Nullable
+      ProgressNotifier progressNotifier =
+          progressListener != null
+              ? new ProgressNotifier(
+                  progressListener,
+                  contentLength,
+                  totalSegments,
+                  bytesDownloaded,
+                  segmentsDownloaded)
+              : null;
+      byte[] temporaryBuffer = new byte[BUFFER_SIZE_BYTES];
       for (int i = 0; i < segments.size(); i++) {
         CacheUtil.cache(
-            segments.get(i).dataSpec,
-            cache,
-            cacheKeyFactory,
             dataSource,
-            buffer,
-            priorityTaskManager,
-            C.PRIORITY_DOWNLOAD,
+            segments.get(i).dataSpec,
             progressNotifier,
             isCanceled,
-            true);
+            /* enableEOFException= */ true,
+            temporaryBuffer);
         if (progressNotifier != null) {
           progressNotifier.onSegmentDownloaded();
         }
       }
     } finally {
-      priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      if (priorityTaskManager != null) {
+        priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      }
     }
   }
 
@@ -180,17 +185,20 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
   @Override
   public final void remove() throws InterruptedException {
+    CacheDataSource dataSource = cacheDataSourceFactory.createDataSourceForRemovingDownload();
+    Cache cache = dataSource.getCache();
+    CacheKeyFactory cacheKeyFactory = dataSource.getCacheKeyFactory();
     try {
-      M manifest = getManifest(offlineDataSource, manifestDataSpec);
-      List<Segment> segments = getSegments(offlineDataSource, manifest, true);
+      M manifest = getManifest(dataSource, manifestDataSpec);
+      List<Segment> segments = getSegments(dataSource, manifest, true);
       for (int i = 0; i < segments.size(); i++) {
-        removeDataSpec(segments.get(i).dataSpec);
+        CacheUtil.remove(segments.get(i).dataSpec, cache, cacheKeyFactory);
       }
     } catch (IOException e) {
       // Ignore exceptions when removing.
     } finally {
       // Always attempt to remove the manifest.
-      removeDataSpec(manifestDataSpec);
+      CacheUtil.remove(manifestDataSpec, cache, cacheKeyFactory);
     }
   }
 
@@ -222,10 +230,6 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   protected abstract List<Segment> getSegments(
       DataSource dataSource, M manifest, boolean allowIncompleteList)
       throws InterruptedException, IOException;
-
-  private void removeDataSpec(DataSpec dataSpec) {
-    CacheUtil.remove(dataSpec, cache, cacheKeyFactory);
-  }
 
   protected static DataSpec getCompressibleDataSpec(Uri uri) {
     return new DataSpec.Builder().setUri(uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();

@@ -252,14 +252,14 @@ public final class WavExtractor implements Extractor {
     @Override
     public boolean sampleData(ExtractorInput input, long bytesLeft) throws IOException {
       // Write sample data until we've reached the target sample size, or the end of the data.
-      boolean endOfSampleData = bytesLeft == 0;
-      while (!endOfSampleData && pendingOutputBytes < targetSampleSizeBytes) {
+      while (bytesLeft > 0 && pendingOutputBytes < targetSampleSizeBytes) {
         int bytesToRead = (int) Math.min(targetSampleSizeBytes - pendingOutputBytes, bytesLeft);
         int bytesAppended = trackOutput.sampleData(input, bytesToRead, true);
         if (bytesAppended == RESULT_END_OF_INPUT) {
-          endOfSampleData = true;
+          bytesLeft = 0;
         } else {
           pendingOutputBytes += bytesAppended;
+          bytesLeft -= bytesAppended;
         }
       }
 
@@ -281,7 +281,7 @@ public final class WavExtractor implements Extractor {
         pendingOutputBytes = offset;
       }
 
-      return endOfSampleData;
+      return bytesLeft <= 0;
     }
   }
 

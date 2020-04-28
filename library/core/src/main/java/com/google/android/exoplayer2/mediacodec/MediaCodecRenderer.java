@@ -368,7 +368,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final long[] pendingOutputStreamSwitchTimesUs;
 
   @Nullable private Format inputFormat;
-  private Format outputFormat;
+  @Nullable private Format outputFormat;
   @Nullable private DrmSession codecDrmSession;
   @Nullable private DrmSession sourceDrmSession;
   @Nullable private MediaCrypto mediaCrypto;
@@ -386,6 +386,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean codecNeedsReconfigureWorkaround;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
+  private boolean codecNeedsSosFlushWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
   private boolean codecNeedsEosOutputExceptionWorkaround;
   private boolean codecNeedsMonoChannelCountWorkaround;
@@ -406,6 +407,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @DrainAction private int codecDrainAction;
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
+  private boolean codecHasOutputMediaFormat;
   private long largestQueuedPresentationTimeUs;
   private long lastBufferInStreamPresentationTimeUs;
   private boolean inputStreamEnded;
@@ -418,6 +420,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected DecoderCounters decoderCounters;
   private long outputStreamOffsetUs;
   private int pendingOutputStreamOffsetCount;
+  private boolean receivedOutputMediaFormatChange;
 
   /**
    * @param trackType The track type that the renderer handles. One of the {@code C.TRACK_TYPE_*}
@@ -633,13 +636,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * method if they are taking over responsibility for output format propagation (e.g., when using
    * video tunneling).
    */
-  @Nullable
-  protected final Format updateOutputFormatForTime(long presentationTimeUs) {
-    Format format = formatQueue.pollFloor(presentationTimeUs);
+  protected final void updateOutputFormatForTime(long presentationTimeUs) {
+    @Nullable Format format = formatQueue.pollFloor(presentationTimeUs);
     if (format != null) {
       outputFormat = format;
+      onOutputFormatChanged(outputFormat);
+    } else if (receivedOutputMediaFormatChange && outputFormat != null) {
+      // No Format change with the MediaFormat change, so we need to update based on the existing
+      // Format.
+      configureOutput(outputFormat);
     }
-    return format;
+
+    receivedOutputMediaFormatChange = false;
   }
 
   @Nullable
@@ -838,6 +846,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     if (codecDrainAction == DRAIN_ACTION_REINITIALIZE
         || codecNeedsFlushWorkaround
+        || (codecNeedsSosFlushWorkaround && !codecHasOutputMediaFormat)
         || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
       releaseCodec();
       return true;
@@ -889,11 +898,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     availableCodecInfos = null;
     codecInfo = null;
     codecFormat = null;
+    codecHasOutputMediaFormat = false;
     codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
     codecNeedsReconfigureWorkaround = false;
     codecNeedsDiscardToSpsWorkaround = false;
     codecNeedsFlushWorkaround = false;
+    codecNeedsSosFlushWorkaround = false;
     codecNeedsEosFlushWorkaround = false;
     codecNeedsEosOutputExceptionWorkaround = false;
     codecNeedsMonoChannelCountWorkaround = false;
@@ -1084,6 +1095,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsReconfigureWorkaround = codecNeedsReconfigureWorkaround(codecName);
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, codecFormat);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
+    codecNeedsSosFlushWorkaround = codecNeedsSosFlushWorkaround(codecName);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
     codecNeedsMonoChannelCountWorkaround =
@@ -1355,7 +1367,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param formatHolder A {@link FormatHolder} that holds the new {@link Format}.
    * @throws ExoPlaybackException If an error occurs re-initializing the {@link MediaCodec}.
    */
-  @SuppressWarnings("unchecked")
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     waitingForFirstSampleInFormat = true;
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
@@ -1437,6 +1448,28 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected void onOutputMediaFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
       throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  /**
+   * Called when the output {@link Format} changes.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param outputFormat The new output {@link Format}.
+   */
+  protected void onOutputFormatChanged(Format outputFormat) {
+    // Do nothing.
+  }
+
+  /**
+   * Configures the renderer output based on a {@link Format}.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param outputFormat The format to configure the output with.
+   */
+  protected void configureOutput(Format outputFormat) {
     // Do nothing.
   }
 
@@ -1645,6 +1678,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (outputIndex < 0) {
         if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
           processOutputMediaFormat();
+          receivedOutputMediaFormatChange = true;
           return true;
         } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
           processOutputBuffersChanged();
@@ -1739,6 +1773,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** Processes a new output {@link MediaFormat}. */
   private void processOutputMediaFormat() throws ExoPlaybackException {
+    codecHasOutputMediaFormat = true;
     MediaFormat mediaFormat = codecAdapter.getOutputFormat();
     if (codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER
         && mediaFormat.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
@@ -2139,5 +2174,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static boolean codecNeedsMonoChannelCountWorkaround(String name, Format format) {
     return Util.SDK_INT <= 18 && format.channelCount == 1
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
+  }
+
+  /**
+   * Returns whether the decoder is known to behave incorrectly if flushed prior to having output a
+   * {@link MediaFormat}.
+   *
+   * <p>If true is returned, the renderer will work around the issue by instantiating a new decoder
+   * when this case occurs.
+   *
+   * <p>See [Internal: b/141097367].
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to behave incorrectly if flushed prior to having output a
+   *     {@link MediaFormat}. False otherwise.
+   */
+  private static boolean codecNeedsSosFlushWorkaround(String name) {
+    return Util.SDK_INT == 29 && "c2.android.aac.decoder".equals(name);
   }
 }

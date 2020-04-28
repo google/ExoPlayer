@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.video.DecoderVideoRenderer;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
@@ -35,6 +36,8 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  * <p>Decodes and renders video using FFmpeg.
  */
 public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
+
+  private static final String TAG = "FfmpegAudioRenderer";
 
   /**
    * Creates a new instance.
@@ -54,6 +57,11 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
       int maxDroppedFramesToNotify) {
     super(allowedJoiningTimeMs, eventHandler, eventListener, maxDroppedFramesToNotify);
     // TODO: Implement.
+  }
+
+  @Override
+  public String getName() {
+    return TAG;
   }
 
   @Override
@@ -83,8 +91,10 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
   protected Decoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, FfmpegDecoderException>
       createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
           throws FfmpegDecoderException {
+    TraceUtil.beginSection("createFfmpegVideoDecoder");
     // TODO: Implement, remove the SuppressWarnings annotation, and update the return type to use
     // the concrete type of the decoder (probably FfmepgVideoDecoder).
+    TraceUtil.endSection();
     return null;
   }
 

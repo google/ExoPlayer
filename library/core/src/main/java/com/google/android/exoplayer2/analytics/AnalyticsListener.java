@@ -190,10 +190,11 @@ public interface AnalyticsListener {
   default void onSeekStarted(EventTime eventTime) {}
 
   /**
-   * Called when a seek operation was processed.
-   *
-   * @param eventTime The event time.
+   * @deprecated Seeks are processed without delay. Listen to {@link
+   *     #onPositionDiscontinuity(EventTime, int)} with reason {@link
+   *     Player#DISCONTINUITY_REASON_SEEK} instead.
    */
+  @Deprecated
   default void onSeekProcessed(EventTime eventTime) {}
 
   /**

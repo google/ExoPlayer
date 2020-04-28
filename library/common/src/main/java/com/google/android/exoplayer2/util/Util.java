@@ -50,6 +50,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import java.io.ByteArrayOutputStream;
@@ -59,7 +60,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -184,35 +188,66 @@ public final class Util {
     }
     for (Uri uri : uris) {
       if (isLocalFileUri(uri)) {
-        if (activity.checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-          activity.requestPermissions(new String[] {permission.READ_EXTERNAL_STORAGE}, 0);
-          return true;
-        }
-        break;
+        return requestExternalStoragePermission(activity);
       }
     }
     return false;
   }
 
   /**
-   * Returns whether it may be possible to load the given URIs based on the network security
-   * policy's cleartext traffic permissions.
+   * Checks whether it's necessary to request the {@link permission#READ_EXTERNAL_STORAGE}
+   * permission for the specified {@link MediaItem media items}, requesting the permission if
+   * necessary.
    *
-   * @param uris A list of URIs that will be loaded.
-   * @return Whether it may be possible to load the given URIs.
+   * @param activity The host activity for checking and requesting the permission.
+   * @param mediaItems {@link MediaItem Media items}s that may require {@link
+   *     permission#READ_EXTERNAL_STORAGE} to read.
+   * @return Whether a permission request was made.
    */
-  public static boolean checkCleartextTrafficPermitted(Uri... uris) {
+  public static boolean maybeRequestReadExternalStoragePermission(
+      Activity activity, MediaItem... mediaItems) {
+    if (Util.SDK_INT < 23) {
+      return false;
+    }
+    for (MediaItem mediaItem : mediaItems) {
+      if (mediaItem.playbackProperties == null) {
+        continue;
+      }
+      if (isLocalFileUri(mediaItem.playbackProperties.sourceUri)) {
+        return requestExternalStoragePermission(activity);
+      }
+      for (int i = 0; i < mediaItem.playbackProperties.subtitles.size(); i++) {
+        if (isLocalFileUri(mediaItem.playbackProperties.subtitles.get(i).uri)) {
+          return requestExternalStoragePermission(activity);
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Returns whether it may be possible to load the URIs of the given media items based on the
+   * network security policy's cleartext traffic permissions.
+   *
+   * @param mediaItems A list of {@link MediaItem media items}.
+   * @return Whether it may be possible to load the URIs of the given media items.
+   */
+  public static boolean checkCleartextTrafficPermitted(MediaItem... mediaItems) {
     if (Util.SDK_INT < 24) {
       // We assume cleartext traffic is permitted.
       return true;
     }
-    for (Uri uri : uris) {
-      if ("http".equals(uri.getScheme())
-          && !NetworkSecurityPolicy.getInstance()
-              .isCleartextTrafficPermitted(Assertions.checkNotNull(uri.getHost()))) {
-        // The security policy prevents cleartext traffic.
+    for (MediaItem mediaItem : mediaItems) {
+      if (mediaItem.playbackProperties == null) {
+        continue;
+      }
+      if (isTrafficRestricted(mediaItem.playbackProperties.sourceUri)) {
         return false;
+      }
+      for (int i = 0; i < mediaItem.playbackProperties.subtitles.size(); i++) {
+        if (isTrafficRestricted(mediaItem.playbackProperties.subtitles.get(i).uri)) {
+          return false;
+        }
       }
     }
     return true;
@@ -1021,13 +1056,16 @@ public final class Util {
   }
 
   /**
-   * Parses an xs:dateTime attribute value, returning the parsed timestamp in milliseconds since
-   * the epoch.
+   * Parses an xs:dateTime attribute value, returning the parsed timestamp in milliseconds since the
+   * epoch.
    *
    * @param value The attribute value to decode.
    * @return The parsed timestamp in milliseconds since the epoch.
    * @throws ParserException if an error occurs parsing the dateTime attribute value.
    */
+  // incompatible types in argument.
+  // dereference of possibly-null reference matcher.group(9)
+  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:dereference.of.nullable"})
   public static long parseXsDateTime(String value) throws ParserException {
     Matcher matcher = XS_DATE_TIME_PATTERN.matcher(value);
     if (!matcher.matches()) {
@@ -1194,6 +1232,23 @@ public final class Util {
       intArray[i] = list.get(i);
     }
     return intArray;
+  }
+
+  /**
+   * Converts an array of primitive ints to a list of integers.
+   *
+   * @param ints The ints.
+   * @return The input array in list form.
+   */
+  public static List<Integer> toList(int... ints) {
+    if (ints == null) {
+      return new ArrayList<>();
+    }
+    List<Integer> integers = new ArrayList<>();
+    for (int anInt : ints) {
+      integers.add(anInt);
+    }
+    return integers;
   }
 
   /**
@@ -1385,13 +1440,15 @@ public final class Util {
   }
 
   /**
-   * Returns whether {@code encoding} is high resolution (&gt; 16-bit) integer PCM.
+   * Returns whether {@code encoding} is high resolution (&gt; 16-bit) PCM.
    *
    * @param encoding The encoding of the audio data.
-   * @return Whether the encoding is high resolution integer PCM.
+   * @return Whether the encoding is high resolution PCM.
    */
-  public static boolean isEncodingHighResolutionIntegerPcm(@C.PcmEncoding int encoding) {
-    return encoding == C.ENCODING_PCM_24BIT || encoding == C.ENCODING_PCM_32BIT;
+  public static boolean isEncodingHighResolutionPcm(@C.PcmEncoding int encoding) {
+    return encoding == C.ENCODING_PCM_24BIT
+        || encoding == C.ENCODING_PCM_32BIT
+        || encoding == C.ENCODING_PCM_FLOAT;
   }
 
   /**
@@ -1612,6 +1669,29 @@ public final class Util {
   }
 
   /**
+   * Makes a best guess to infer the type from a {@link Uri} and MIME type.
+   *
+   * @param uri The {@link Uri}.
+   * @param mimeType If not null, used to infer the type.
+   * @return The content type.
+   */
+  public static int inferContentTypeWithMimeType(Uri uri, @Nullable String mimeType) {
+    if (mimeType == null) {
+      return Util.inferContentType(uri);
+    }
+    switch (mimeType) {
+      case MimeTypes.APPLICATION_MPD:
+        return C.TYPE_DASH;
+      case MimeTypes.APPLICATION_M3U8:
+        return C.TYPE_HLS;
+      case MimeTypes.APPLICATION_SS:
+        return C.TYPE_SS;
+      default:
+        return Util.inferContentType(uri);
+    }
+  }
+
+  /**
    * Returns the specified millisecond time formatted as a string.
    *
    * @param builder The builder that {@code formatter} will write to.
@@ -1717,7 +1797,8 @@ public final class Util {
     Matcher matcher = ESCAPED_CHARACTER_PATTERN.matcher(fileName);
     int startOfNotEscaped = 0;
     while (percentCharacterCount > 0 && matcher.find()) {
-      char unescapedCharacter = (char) Integer.parseInt(matcher.group(1), 16);
+      char unescapedCharacter =
+          (char) Integer.parseInt(Assertions.checkNotNull(matcher.group(1)), 16);
       builder.append(fileName, startOfNotEscaped, matcher.start()).append(unescapedCharacter);
       startOfNotEscaped = matcher.end();
       percentCharacterCount--;
@@ -1801,6 +1882,21 @@ public final class Util {
       initialValue = CRC8_BYTES_MSBF[initialValue ^ (bytes[i] & 0xFF)];
     }
     return initialValue;
+  }
+
+  /**
+   * Absolute <i>get</i> method for reading an int value in {@link ByteOrder#BIG_ENDIAN} in a {@link
+   * ByteBuffer}. Same as {@link ByteBuffer#getInt(int)} except the buffer's order as returned by
+   * {@link ByteBuffer#order()} is ignored and {@link ByteOrder#BIG_ENDIAN} is used instead.
+   *
+   * @param buffer The buffer from which to read an int in big endian.
+   * @param index The index from which the bytes will be read.
+   * @return The int value at the given index with the buffer bytes ordered most significant to
+   *     least significant.
+   */
+  public static int getBigEndianInt(ByteBuffer buffer, int index) {
+    int value = buffer.getInt(index);
+    return buffer.order() == ByteOrder.BIG_ENDIAN ? value : Integer.reverseBytes(value);
   }
 
   /**
@@ -2159,6 +2255,24 @@ public final class Util {
           additionalIsoLanguageReplacements[i], additionalIsoLanguageReplacements[i + 1]);
     }
     return replacedLanguages;
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.M)
+  private static boolean requestExternalStoragePermission(Activity activity) {
+    if (activity.checkSelfPermission(permission.READ_EXTERNAL_STORAGE)
+        != PackageManager.PERMISSION_GRANTED) {
+      activity.requestPermissions(
+          new String[] {permission.READ_EXTERNAL_STORAGE}, /* requestCode= */ 0);
+      return true;
+    }
+    return false;
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.N)
+  private static boolean isTrafficRestricted(Uri uri) {
+    return "http".equals(uri.getScheme())
+        && !NetworkSecurityPolicy.getInstance()
+            .isCleartextTrafficPermitted(Assertions.checkNotNull(uri.getHost()));
   }
 
   private static String maybeReplaceGrandfatheredLanguageTags(String languageTag) {

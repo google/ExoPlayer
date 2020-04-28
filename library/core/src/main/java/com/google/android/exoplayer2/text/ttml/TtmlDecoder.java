@@ -184,7 +184,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     }
   }
 
-  private FrameAndTickRate parseFrameAndTickRates(XmlPullParser xmlParser)
+  private static FrameAndTickRate parseFrameAndTickRates(XmlPullParser xmlParser)
       throws SubtitleDecoderException {
     int frameRate = DEFAULT_FRAME_RATE;
     String frameRateString = xmlParser.getAttributeValue(TTP, "frameRate");
@@ -218,8 +218,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     return new FrameAndTickRate(frameRate * frameRateMultiplier, subFrameRate, tickRate);
   }
 
-  private CellResolution parseCellResolution(XmlPullParser xmlParser, CellResolution defaultValue)
-      throws SubtitleDecoderException {
+  private static CellResolution parseCellResolution(
+      XmlPullParser xmlParser, CellResolution defaultValue) throws SubtitleDecoderException {
     String cellResolution = xmlParser.getAttributeValue(TTP, "cellResolution");
     if (cellResolution == null) {
       return defaultValue;
@@ -244,7 +244,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   }
 
   @Nullable
-  private TtsExtent parseTtsExtent(XmlPullParser xmlParser) {
+  private static TtsExtent parseTtsExtent(XmlPullParser xmlParser) {
     @Nullable
     String ttsExtent = XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_TTS_EXTENT);
     if (ttsExtent == null) {
@@ -266,7 +266,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     }
   }
 
-  private Map<String, TtmlStyle> parseHeader(
+  private static Map<String, TtmlStyle> parseHeader(
       XmlPullParser xmlParser,
       Map<String, TtmlStyle> globalStyles,
       CellResolution cellResolution,
@@ -301,7 +301,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     return globalStyles;
   }
 
-  private void parseMetadata(XmlPullParser xmlParser, Map<String, String> imageMap)
+  private static void parseMetadata(XmlPullParser xmlParser, Map<String, String> imageMap)
       throws IOException, XmlPullParserException {
     do {
       xmlParser.next();
@@ -324,7 +324,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
    * returned.
    */
   @Nullable
-  private TtmlRegion parseRegionAttributes(
+  private static TtmlRegion parseRegionAttributes(
       XmlPullParser xmlParser, CellResolution cellResolution, @Nullable TtsExtent ttsExtent) {
     @Nullable String regionId = XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_ID);
     if (regionId == null) {
@@ -456,13 +456,13 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         /* textSize= */ regionTextHeight);
   }
 
-  private String[] parseStyleIds(String parentStyleIds) {
+  private static String[] parseStyleIds(String parentStyleIds) {
     parentStyleIds = parentStyleIds.trim();
     return parentStyleIds.isEmpty() ? new String[0] : Util.split(parentStyleIds, "\\s+");
   }
 
-  @PolyNull
-  private TtmlStyle parseStyleAttributes(XmlPullParser parser, @PolyNull TtmlStyle style) {
+  private static @PolyNull TtmlStyle parseStyleAttributes(
+      XmlPullParser parser, @PolyNull TtmlStyle style) {
     int attributeCount = parser.getAttributeCount();
     for (int i = 0; i < attributeCount; i++) {
       String attributeValue = parser.getAttributeValue(i);
@@ -611,11 +611,11 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     return style;
   }
 
-  private TtmlStyle createIfNull(@Nullable TtmlStyle style) {
+  private static TtmlStyle createIfNull(@Nullable TtmlStyle style) {
     return style == null ? new TtmlStyle() : style;
   }
 
-  private TtmlNode parseNode(
+  private static TtmlNode parseNode(
       XmlPullParser parser,
       @Nullable TtmlNode parent,
       Map<String, TtmlRegion> regionMap,

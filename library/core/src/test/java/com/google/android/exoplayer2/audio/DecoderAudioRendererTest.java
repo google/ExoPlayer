@@ -59,6 +59,11 @@ public class DecoderAudioRendererTest {
     audioRenderer =
         new DecoderAudioRenderer(null, null, mockAudioSink) {
           @Override
+          public String getName() {
+            return "TestAudioRenderer";
+          }
+
+          @Override
           @FormatSupport
           protected int supportsFormatInternal(Format format) {
             return FORMAT_HANDLED;

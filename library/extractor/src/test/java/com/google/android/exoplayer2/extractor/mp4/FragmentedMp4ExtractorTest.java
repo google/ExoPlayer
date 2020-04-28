@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory;
@@ -25,21 +24,34 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Unit test for {@link FragmentedMp4Extractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class FragmentedMp4ExtractorTest {
+
+  @Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @Parameter(0)
+  public ExtractorAsserts.Config assertionConfig;
 
   @Test
   public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_fragmented.mp4");
+        getExtractorFactory(ImmutableList.of()), "mp4/sample_fragmented.mp4", assertionConfig);
   }
 
   @Test
   public void sampleSeekable() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_fragmented_seekable.mp4");
+        getExtractorFactory(ImmutableList.of()),
+        "mp4/sample_fragmented_seekable.mp4",
+        assertionConfig);
   }
 
   @Test
@@ -49,37 +61,40 @@ public final class FragmentedMp4ExtractorTest {
         getExtractorFactory(
             Collections.singletonList(
                 new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA608).build()));
-    ExtractorAsserts.assertBehavior(extractorFactory, "mp4/sample_fragmented_sei.mp4");
+    ExtractorAsserts.assertBehavior(
+        extractorFactory, "mp4/sample_fragmented_sei.mp4", assertionConfig);
   }
 
   @Test
   public void sampleWithAc3Track() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_ac3_fragmented.mp4");
+        getExtractorFactory(ImmutableList.of()), "mp4/sample_ac3_fragmented.mp4", assertionConfig);
   }
 
   @Test
   public void sampleWithAc4Track() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_ac4_fragmented.mp4");
+        getExtractorFactory(ImmutableList.of()), "mp4/sample_ac4_fragmented.mp4", assertionConfig);
   }
 
   @Test
   public void sampleWithProtectedAc4Track() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_ac4_protected.mp4");
+        getExtractorFactory(ImmutableList.of()), "mp4/sample_ac4_protected.mp4", assertionConfig);
   }
 
   @Test
   public void sampleWithEac3Track() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_eac3_fragmented.mp4");
+        getExtractorFactory(ImmutableList.of()), "mp4/sample_eac3_fragmented.mp4", assertionConfig);
   }
 
   @Test
   public void sampleWithEac3jocTrack() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_eac3joc_fragmented.mp4");
+        getExtractorFactory(ImmutableList.of()),
+        "mp4/sample_eac3joc_fragmented.mp4",
+        assertionConfig);
   }
 
   private static ExtractorFactory getExtractorFactory(final List<Format> closedCaptionFormats) {

@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTimelineElement;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.StringReader;
@@ -47,6 +48,8 @@ public class DashManifestParserTest {
   private static final String SAMPLE_MPD_EVENT_STREAM = "mpd/sample_mpd_event_stream";
   private static final String SAMPLE_MPD_LABELS = "mpd/sample_mpd_labels";
   private static final String SAMPLE_MPD_ASSET_IDENTIFIER = "mpd/sample_mpd_asset_identifier";
+  private static final String SAMPLE_MPD_TEXT = "mpd/sample_mpd_text";
+  private static final String SAMPLE_MPD_TRICK_PLAY = "mpd/sample_mpd_trick_play";
 
   private static final String NEXT_TAG_NAME = "Next";
   private static final String NEXT_TAG = "<" + NEXT_TAG_NAME + "/>";
@@ -67,15 +70,15 @@ public class DashManifestParserTest {
   @Test
   public void parseMediaPresentationDescription_segmentTemplate() throws IOException {
     DashManifestParser parser = new DashManifestParser();
-    DashManifest mpd =
+    DashManifest manifest =
         parser.parse(
             Uri.parse("https://example.com/test.mpd"),
             TestUtil.getInputStream(
                 ApplicationProvider.getApplicationContext(), SAMPLE_MPD_SEGMENT_TEMPLATE));
 
-    assertThat(mpd.getPeriodCount()).isEqualTo(1);
+    assertThat(manifest.getPeriodCount()).isEqualTo(1);
 
-    Period period = mpd.getPeriod(0);
+    Period period = manifest.getPeriod(0);
     assertThat(period).isNotNull();
     assertThat(period.adaptationSets).hasSize(2);
 
@@ -99,13 +102,13 @@ public class DashManifestParserTest {
   @Test
   public void parseMediaPresentationDescription_eventStream() throws IOException {
     DashManifestParser parser = new DashManifestParser();
-    DashManifest mpd =
+    DashManifest manifest =
         parser.parse(
             Uri.parse("https://example.com/test.mpd"),
             TestUtil.getInputStream(
                 ApplicationProvider.getApplicationContext(), SAMPLE_MPD_EVENT_STREAM));
 
-    Period period = mpd.getPeriod(0);
+    Period period = manifest.getPeriod(0);
     assertThat(period.eventStreams).hasSize(3);
 
     // assert text-only event stream
@@ -169,14 +172,14 @@ public class DashManifestParserTest {
   @Test
   public void parseMediaPresentationDescription_programInformation() throws IOException {
     DashManifestParser parser = new DashManifestParser();
-    DashManifest mpd =
+    DashManifest manifest =
         parser.parse(
-            Uri.parse("Https://example.com/test.mpd"),
+            Uri.parse("https://example.com/test.mpd"),
             TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD));
     ProgramInformation expectedProgramInformation =
         new ProgramInformation(
             "MediaTitle", "MediaSource", "MediaCopyright", "www.example.com", "enUs");
-    assertThat(mpd.programInformation).isEqualTo(expectedProgramInformation);
+    assertThat(manifest.programInformation).isEqualTo(expectedProgramInformation);
   }
 
   @Test
@@ -192,6 +195,75 @@ public class DashManifestParserTest {
 
     assertThat(adaptationSets.get(0).representations.get(0).format.label).isEqualTo("audio label");
     assertThat(adaptationSets.get(1).representations.get(0).format.label).isEqualTo("video label");
+  }
+
+  @Test
+  public void parseMediaPresentationDescription_text() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD_TEXT));
+
+    List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
+
+    Format format = adaptationSets.get(0).representations.get(0).format;
+    assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_RAWCC);
+    assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_CEA608);
+    assertThat(format.codecs).isEqualTo("cea608");
+    assertThat(adaptationSets.get(0).type).isEqualTo(C.TRACK_TYPE_TEXT);
+
+    format = adaptationSets.get(1).representations.get(0).format;
+    assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_MP4);
+    assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
+    assertThat(format.codecs).isEqualTo("stpp.ttml.im1t");
+    assertThat(adaptationSets.get(1).type).isEqualTo(C.TRACK_TYPE_TEXT);
+
+    format = adaptationSets.get(2).representations.get(0).format;
+    assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
+    assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
+    assertThat(format.codecs).isNull();
+    assertThat(adaptationSets.get(2).type).isEqualTo(C.TRACK_TYPE_TEXT);
+  }
+
+  @Test
+  public void parseMediaPresentationDescription_trickPlay() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(), SAMPLE_MPD_TRICK_PLAY));
+
+    List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
+
+    AdaptationSet adaptationSet = adaptationSets.get(0);
+    assertThat(adaptationSet.essentialProperties).isEmpty();
+    assertThat(adaptationSet.supplementalProperties).isEmpty();
+    assertThat(adaptationSet.representations.get(0).format.roleFlags).isEqualTo(0);
+
+    adaptationSet = adaptationSets.get(1);
+    assertThat(adaptationSet.essentialProperties).isEmpty();
+    assertThat(adaptationSet.supplementalProperties).isEmpty();
+    assertThat(adaptationSet.representations.get(0).format.roleFlags).isEqualTo(0);
+
+    adaptationSet = adaptationSets.get(2);
+    assertThat(adaptationSet.essentialProperties).hasSize(1);
+    assertThat(adaptationSet.essentialProperties.get(0).schemeIdUri)
+        .isEqualTo("http://dashif.org/guidelines/trickmode");
+    assertThat(adaptationSet.essentialProperties.get(0).value).isEqualTo("0");
+    assertThat(adaptationSet.supplementalProperties).isEmpty();
+    assertThat(adaptationSet.representations.get(0).format.roleFlags)
+        .isEqualTo(C.ROLE_FLAG_TRICK_PLAY);
+
+    adaptationSet = adaptationSets.get(3);
+    assertThat(adaptationSet.essentialProperties).isEmpty();
+    assertThat(adaptationSet.supplementalProperties).hasSize(1);
+    assertThat(adaptationSet.supplementalProperties.get(0).schemeIdUri)
+        .isEqualTo("http://dashif.org/guidelines/trickmode");
+    assertThat(adaptationSet.supplementalProperties.get(0).value).isEqualTo("1");
+    assertThat(adaptationSet.representations.get(0).format.roleFlags)
+        .isEqualTo(C.ROLE_FLAG_TRICK_PLAY);
   }
 
   @Test
@@ -382,15 +454,15 @@ public class DashManifestParserTest {
   @Test
   public void parsePeriodAssetIdentifier() throws IOException {
     DashManifestParser parser = new DashManifestParser();
-    DashManifest mpd =
+    DashManifest manifest =
         parser.parse(
             Uri.parse("https://example.com/test.mpd"),
             TestUtil.getInputStream(
                 ApplicationProvider.getApplicationContext(), SAMPLE_MPD_ASSET_IDENTIFIER));
 
-    assertThat(mpd.getPeriodCount()).isEqualTo(1);
+    assertThat(manifest.getPeriodCount()).isEqualTo(1);
 
-    Period period = mpd.getPeriod(0);
+    Period period = manifest.getPeriod(0);
     assertThat(period).isNotNull();
     @Nullable Descriptor assetIdentifier = period.assetIdentifier;
     assertThat(assetIdentifier).isNotNull();

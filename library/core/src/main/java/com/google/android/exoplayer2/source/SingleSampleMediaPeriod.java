@@ -160,15 +160,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* callback= */ this,
             loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_MEDIA));
     eventDispatcher.loadStarted(
-        dataSpec,
+        new LoadEventInfo(dataSpec, elapsedRealtimeMs),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
-        durationUs,
-        elapsedRealtimeMs);
+        durationUs);
     return true;
   }
 
@@ -212,44 +211,48 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Loader.Callback implementation.
 
   @Override
-  public void onLoadCompleted(SourceLoadable loadable, long elapsedRealtimeMs,
-      long loadDurationMs) {
+  public void onLoadCompleted(
+      SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
     sampleSize = (int) loadable.dataSource.getBytesRead();
     sampleData = Assertions.checkNotNull(loadable.sampleData);
     loadingFinished = true;
+    StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadCompleted(
-        loadable.dataSpec,
-        loadable.dataSource.getLastOpenedUri(),
-        loadable.dataSource.getLastResponseHeaders(),
+        new LoadEventInfo(
+            loadable.dataSpec,
+            dataSource.getLastOpenedUri(),
+            dataSource.getLastResponseHeaders(),
+            elapsedRealtimeMs,
+            loadDurationMs,
+            sampleSize),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
-        durationUs,
-        elapsedRealtimeMs,
-        loadDurationMs,
-        sampleSize);
+        durationUs);
   }
 
   @Override
-  public void onLoadCanceled(SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs,
-      boolean released) {
+  public void onLoadCanceled(
+      SourceLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
+    StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadCanceled(
-        loadable.dataSpec,
-        loadable.dataSource.getLastOpenedUri(),
-        loadable.dataSource.getLastResponseHeaders(),
+        new LoadEventInfo(
+            loadable.dataSpec,
+            dataSource.getLastOpenedUri(),
+            dataSource.getLastResponseHeaders(),
+            elapsedRealtimeMs,
+            loadDurationMs,
+            dataSource.getBytesRead()),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
-        durationUs,
-        elapsedRealtimeMs,
-        loadDurationMs,
-        loadable.dataSource.getBytesRead());
+        durationUs);
   }
 
   @Override
@@ -277,10 +280,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               ? Loader.createRetryAction(/* resetErrorCount= */ false, retryDelay)
               : Loader.DONT_RETRY_FATAL;
     }
+    StatsDataSource dataSource = loadable.dataSource;
     eventDispatcher.loadError(
-        loadable.dataSpec,
-        loadable.dataSource.getLastOpenedUri(),
-        loadable.dataSource.getLastResponseHeaders(),
+        new LoadEventInfo(
+            loadable.dataSpec,
+            dataSource.getLastOpenedUri(),
+            dataSource.getLastResponseHeaders(),
+            elapsedRealtimeMs,
+            loadDurationMs,
+            dataSource.getBytesRead()),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         format,
@@ -288,9 +296,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
         durationUs,
-        elapsedRealtimeMs,
-        loadDurationMs,
-        loadable.dataSource.getBytesRead(),
         error,
         /* wasCanceled= */ !action.isRetry());
     return action;

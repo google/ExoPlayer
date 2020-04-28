@@ -819,7 +819,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       if (matcher.find()) {
         try {
           long contentLengthFromRange =
-              Long.parseLong(matcher.group(2)) - Long.parseLong(matcher.group(1)) + 1;
+              Long.parseLong(Assertions.checkNotNull(matcher.group(2)))
+                  - Long.parseLong(Assertions.checkNotNull(matcher.group(1)))
+                  + 1;
           if (contentLength < 0) {
             // Some proxy servers strip the Content-Length header. Fall back to the length
             // calculated here in this case.

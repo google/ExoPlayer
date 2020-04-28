@@ -157,8 +157,12 @@ public final class WebvttExtractor implements Extractor {
         if (!mediaTimestampMatcher.find()) {
           throw new ParserException("X-TIMESTAMP-MAP doesn't contain media timestamp: " + line);
         }
-        vttTimestampUs = WebvttParserUtil.parseTimestampUs(localTimestampMatcher.group(1));
-        tsTimestampUs = TimestampAdjuster.ptsToUs(Long.parseLong(mediaTimestampMatcher.group(1)));
+        vttTimestampUs =
+            WebvttParserUtil.parseTimestampUs(
+                Assertions.checkNotNull(localTimestampMatcher.group(1)));
+        tsTimestampUs =
+            TimestampAdjuster.ptsToUs(
+                Long.parseLong(Assertions.checkNotNull(mediaTimestampMatcher.group(1))));
       }
     }
 
@@ -170,7 +174,8 @@ public final class WebvttExtractor implements Extractor {
       return;
     }
 
-    long firstCueTimeUs = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1));
+    long firstCueTimeUs =
+        WebvttParserUtil.parseTimestampUs(Assertions.checkNotNull(cueHeaderMatcher.group(1)));
     long sampleTimeUs = timestampAdjuster.adjustTsTimestamp(
         TimestampAdjuster.usToPts(firstCueTimeUs + tsTimestampUs - vttTimestampUs));
     long subsampleOffsetUs = sampleTimeUs - firstCueTimeUs;

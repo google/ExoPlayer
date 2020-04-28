@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -121,15 +122,14 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public synchronized void prepare(Callback callback, long positionUs) {
     eventDispatcher.loadStarted(
-        FAKE_DATA_SPEC,
+        new LoadEventInfo(FAKE_DATA_SPEC, SystemClock.elapsedRealtime()),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
-        /* mediaEndTimeUs = */ C.TIME_UNSET,
-        SystemClock.elapsedRealtime());
+        /* mediaEndTimeUs = */ C.TIME_UNSET);
     prepareCallback = callback;
     if (deferOnPrepared) {
       playerHandler = Util.createHandler();
@@ -273,18 +273,19 @@ public class FakeMediaPeriod implements MediaPeriod {
     prepared = true;
     Util.castNonNull(prepareCallback).onPrepared(this);
     eventDispatcher.loadCompleted(
-        FAKE_DATA_SPEC,
-        FAKE_DATA_SPEC.uri,
-        /* responseHeaders= */ Collections.emptyMap(),
+        new LoadEventInfo(
+            FAKE_DATA_SPEC,
+            FAKE_DATA_SPEC.uri,
+            /* responseHeaders= */ Collections.emptyMap(),
+            SystemClock.elapsedRealtime(),
+            /* loadDurationMs= */ 0,
+            /* bytesLoaded= */ 100),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
-        /* mediaEndTimeUs = */ C.TIME_UNSET,
-        SystemClock.elapsedRealtime(),
-        /* loadDurationMs= */ 0,
-        /* bytesLoaded= */ 100);
+        /* mediaEndTimeUs = */ C.TIME_UNSET);
   }
 }

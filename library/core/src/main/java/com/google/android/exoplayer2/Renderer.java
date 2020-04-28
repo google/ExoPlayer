@@ -190,6 +190,14 @@ public interface Renderer extends PlayerMessage.Target {
   int STATE_STARTED = 2;
 
   /**
+   * Returns the name of this renderer, for logging and debugging purposes. Should typically be the
+   * renderer's (un-obfuscated) class name.
+   *
+   * @return The name of this renderer.
+   */
+  String getName();
+
+  /**
    * Returns the track type that the renderer handles. For example, a video renderer will return
    * {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a text
    * renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.

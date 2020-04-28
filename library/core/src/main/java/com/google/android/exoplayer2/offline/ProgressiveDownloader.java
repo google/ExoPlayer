@@ -19,73 +19,78 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * A downloader for progressive media streams.
- *
- * <p>The downloader attempts to download the entire media bytes referenced by a {@link Uri} into a
- * cache as defined by {@link DownloaderConstructorHelper}. Callers can use the constructor to
- * specify a custom cache key for the downloaded bytes.
- *
- * <p>The downloader will avoid downloading already-downloaded media bytes.
- */
+/** A downloader for progressive media streams. */
 public final class ProgressiveDownloader implements Downloader {
 
   private static final int BUFFER_SIZE_BYTES = 128 * 1024;
 
   private final DataSpec dataSpec;
-  private final Cache cache;
   private final CacheDataSource dataSource;
-  private final CacheKeyFactory cacheKeyFactory;
-  private final PriorityTaskManager priorityTaskManager;
   private final AtomicBoolean isCanceled;
 
   /**
    * @param uri Uri of the data to be downloaded.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
    *     indexing. May be null.
-   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
    */
   public ProgressiveDownloader(
-      Uri uri, @Nullable String customCacheKey, DownloaderConstructorHelper constructorHelper) {
-    this.dataSpec =
+      Uri uri, @Nullable String customCacheKey, CacheDataSource.Factory cacheDataSourceFactory) {
+    this(uri, customCacheKey, cacheDataSourceFactory, Runnable::run);
+  }
+
+  /**
+   * @param uri Uri of the data to be downloaded.
+   * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
+   *     indexing. May be null.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   * @param executor An {@link Executor} used to make requests for the media being downloaded. In
+   *     the future, providing an {@link Executor} that uses multiple threads may speed up the
+   *     download by allowing parts of it to be executed in parallel.
+   */
+  public ProgressiveDownloader(
+      Uri uri,
+      @Nullable String customCacheKey,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
+    dataSpec =
         new DataSpec.Builder()
             .setUri(uri)
             .setKey(customCacheKey)
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
-    this.cache = constructorHelper.getCache();
-    this.dataSource = constructorHelper.createCacheDataSource();
-    this.cacheKeyFactory = constructorHelper.getCacheKeyFactory();
-    this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
+    dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
     isCanceled = new AtomicBoolean();
   }
 
   @Override
   public void download(@Nullable ProgressListener progressListener)
       throws InterruptedException, IOException {
-    priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+    @Nullable PriorityTaskManager priorityTaskManager = dataSource.getUpstreamPriorityTaskManager();
+    if (priorityTaskManager != null) {
+      priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+    }
     try {
       CacheUtil.cache(
-          dataSpec,
-          cache,
-          cacheKeyFactory,
           dataSource,
-          new byte[BUFFER_SIZE_BYTES],
-          priorityTaskManager,
-          C.PRIORITY_DOWNLOAD,
+          dataSpec,
           progressListener == null ? null : new ProgressForwarder(progressListener),
           isCanceled,
-          /* enableEOFException= */ true);
+          /* enableEOFException= */ true,
+          /* temporaryBuffer= */ new byte[BUFFER_SIZE_BYTES]);
     } finally {
-      priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      if (priorityTaskManager != null) {
+        priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      }
     }
   }
 
@@ -96,7 +101,7 @@ public final class ProgressiveDownloader implements Downloader {
 
   @Override
   public void remove() {
-    CacheUtil.remove(dataSpec, cache, cacheKeyFactory);
+    CacheUtil.remove(dataSpec, dataSource.getCache(), dataSource.getCacheKeyFactory());
   }
 
   private static final class ProgressForwarder implements CacheUtil.ProgressListener {

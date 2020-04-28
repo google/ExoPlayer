@@ -145,27 +145,32 @@ public final class Cue {
 
   /**
    * The position of the {@link #lineAnchor} of the cue box within the viewport in the direction
-   * orthogonal to the writing direction, or {@link #DIMEN_UNSET}. When set, the interpretation of
-   * the value depends on the value of {@link #lineType}.
-   * <p>
-   * For horizontal text and {@link #lineType} equal to {@link #LINE_TYPE_FRACTION}, this is the
-   * fractional vertical position relative to the top of the viewport.
+   * orthogonal to the writing direction (determined by {@link #verticalType}), or {@link
+   * #DIMEN_UNSET}. When set, the interpretation of the value depends on the value of {@link
+   * #lineType}.
+   *
+   * <p>The measurement direction depends on {@link #verticalType}:
+   *
+   * <ul>
+   *   <li>For {@link #TYPE_UNSET} (i.e. horizontal), this is the vertical position relative to the
+   *       top of the viewport.
+   *   <li>For {@link #VERTICAL_TYPE_LR} this is the horizontal position relative to the left of the
+   *       viewport.
+   *   <li>For {@link #VERTICAL_TYPE_RL} this is the horizontal position relative to the right of
+   *       the viewport.
+   * </ul>
    */
   public final float line;
 
   /**
    * The type of the {@link #line} value.
    *
-   * <p>{@link #LINE_TYPE_FRACTION} indicates that {@link #line} is a fractional position within the
-   * viewport.
-   *
    * <ul>
    *   <li>{@link #LINE_TYPE_FRACTION} indicates that {@link #line} is a fractional position within
    *       the viewport.
-   *   <li>
+   *   <li>{@link #LINE_TYPE_NUMBER} indicates that {@link #line} is a line number, where the size
+   *       of each line is taken to be the size of the first line of the cue.
    *       <ul>
-   *         <li>{@link #LINE_TYPE_NUMBER} indicates that {@link #line} is a line number, where the
-   *             size of each line is taken to be the size of the first line of the cue.
    *         <li>When {@link #line} is greater than or equal to 0 lines count from the start of the
    *             viewport, with 0 indicating zero offset from the start edge. When {@link #line} is
    *             negative lines count from the end of the viewport, with -1 indicating zero offset
@@ -206,10 +211,16 @@ public final class Cue {
   /**
    * The fractional position of the {@link #positionAnchor} of the cue box within the viewport in
    * the direction orthogonal to {@link #line}, or {@link #DIMEN_UNSET}.
-   * <p>
-   * For horizontal text, this is the horizontal position relative to the left of the viewport. Note
-   * that positioning is relative to the left of the viewport even in the case of right-to-left
-   * text.
+   *
+   * <p>The measurement direction depends on {@link #verticalType}.
+   *
+   * <ul>
+   *   <li>For {@link #TYPE_UNSET} (i.e. horizontal), this is the horizontal position relative to
+   *       the left of the viewport. Note that positioning is relative to the left of the viewport
+   *       even in the case of right-to-left text.
+   *   <li>For {@link #VERTICAL_TYPE_LR} and {@link #VERTICAL_TYPE_RL} (i.e. vertical), this is the
+   *       vertical position relative to the top of the viewport.
+   * </ul>
    */
   public final float position;
 

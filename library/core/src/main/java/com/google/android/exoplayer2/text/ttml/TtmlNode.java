@@ -120,7 +120,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final HashMap<String, Integer> nodeStartsByRegion;
   private final HashMap<String, Integer> nodeEndsByRegion;
 
-  @MonotonicNonNull private List<TtmlNode> children;
+  private @MonotonicNonNull List<TtmlNode> children;
 
   public static TtmlNode buildTextNode(String text) {
     return new TtmlNode(

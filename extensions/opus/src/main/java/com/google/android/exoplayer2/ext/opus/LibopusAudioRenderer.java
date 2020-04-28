@@ -24,10 +24,12 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.TraceUtil;
 
 /** Decodes and renders audio using the native Opus decoder. */
 public class LibopusAudioRenderer extends DecoderAudioRenderer {
 
+  private static final String TAG = "LibopusAudioRenderer";
   /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
   /** The default input buffer size. */
@@ -54,6 +56,11 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
   }
 
   @Override
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
   @FormatSupport
   protected int supportsFormatInternal(Format format) {
     boolean drmIsSupported =
@@ -74,6 +81,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
   @Override
   protected OpusDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws OpusDecoderException {
+    TraceUtil.beginSection("createOpusDecoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     OpusDecoder decoder =
@@ -85,6 +93,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
             mediaCrypto);
     channelCount = decoder.getChannelCount();
     sampleRate = decoder.getSampleRate();
+    TraceUtil.endSection();
     return decoder;
   }
 

@@ -288,6 +288,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
       this.sampleQueue =
           new SampleQueue(
               allocator,
+              /* playbackLooper= */ handler.getLooper(),
               DrmSessionManager.getDummyDrmSessionManager(),
               new MediaSourceEventDispatcher());
       formatHolder = new FormatHolder();
@@ -300,13 +301,14 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     }
 
     @Override
-    public int sampleData(DataReader input, int length, boolean allowEndOfInput)
+    public int sampleData(
+        DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
         throws IOException {
       return sampleQueue.sampleData(input, length, allowEndOfInput);
     }
 
     @Override
-    public void sampleData(ParsableByteArray data, int length) {
+    public void sampleData(ParsableByteArray data, int length, @SampleDataPart int sampleDataPart) {
       sampleQueue.sampleData(data, length);
     }
 

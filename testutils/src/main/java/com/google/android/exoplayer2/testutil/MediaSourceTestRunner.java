@@ -71,7 +71,7 @@ public class MediaSourceTestRunner {
   public MediaSourceTestRunner(MediaSource mediaSource, Allocator allocator) {
     this.mediaSource = mediaSource;
     this.allocator = allocator;
-    playbackThread = new HandlerThread("PlaybackThread");
+    playbackThread = new HandlerThread("TestHandler");
     playbackThread.start();
     Looper playbackLooper = playbackThread.getLooper();
     playbackHandler = new Handler(playbackLooper);

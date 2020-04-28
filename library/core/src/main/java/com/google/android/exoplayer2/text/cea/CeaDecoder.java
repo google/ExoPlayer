@@ -179,6 +179,15 @@ import java.util.PriorityQueue;
    */
   protected abstract void decode(SubtitleInputBuffer inputBuffer);
 
+  @Nullable
+  protected final SubtitleOutputBuffer getAvailableOutputBuffer() {
+    return availableOutputBuffers.pollFirst();
+  }
+
+  protected final long getPositionUs() {
+    return playbackPositionUs;
+  }
+
   private static final class CeaInputBuffer extends SubtitleInputBuffer
       implements Comparable<CeaInputBuffer> {
 

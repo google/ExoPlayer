@@ -48,6 +48,7 @@ import java.lang.annotation.Retention;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -331,14 +332,16 @@ public final class WebvttCueParser {
     WebvttCueInfoBuilder builder = new WebvttCueInfoBuilder();
     try {
       // Parse the cue start and end times.
-      builder.startTimeUs = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1));
-      builder.endTimeUs = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(2));
+      builder.startTimeUs =
+          WebvttParserUtil.parseTimestampUs(Assertions.checkNotNull(cueHeaderMatcher.group(1)));
+      builder.endTimeUs =
+          WebvttParserUtil.parseTimestampUs(Assertions.checkNotNull(cueHeaderMatcher.group(2)));
     } catch (NumberFormatException e) {
       Log.w(TAG, "Skipping cue with bad header: " + cueHeaderMatcher.group());
       return null;
     }
 
-    parseCueSettingsList(cueHeaderMatcher.group(3), builder);
+    parseCueSettingsList(Assertions.checkNotNull(cueHeaderMatcher.group(3)), builder);
 
     // Parse the cue text.
     StringBuilder textBuilder = new StringBuilder();
@@ -359,8 +362,8 @@ public final class WebvttCueParser {
     Matcher cueSettingMatcher = CUE_SETTING_PATTERN.matcher(cueSettingsList);
 
     while (cueSettingMatcher.find()) {
-      String name = cueSettingMatcher.group(1);
-      String value = cueSettingMatcher.group(2);
+      String name = Assertions.checkNotNull(cueSettingMatcher.group(1));
+      String value = Assertions.checkNotNull(cueSettingMatcher.group(2));
       try {
         if ("line".equals(name)) {
           parseLineAttribute(value, builder);
@@ -384,7 +387,7 @@ public final class WebvttCueParser {
   private static void parseLineAttribute(String s, WebvttCueInfoBuilder builder) {
     int commaIndex = s.indexOf(',');
     if (commaIndex != -1) {
-      builder.lineAnchor = parsePositionAnchor(s.substring(commaIndex + 1));
+      builder.lineAnchor = parseLineAnchor(s.substring(commaIndex + 1));
       s = s.substring(0, commaIndex);
     }
     if (s.endsWith("%")) {
@@ -402,6 +405,22 @@ public final class WebvttCueParser {
     }
   }
 
+  @Cue.AnchorType
+  private static int parseLineAnchor(String s) {
+    switch (s) {
+      case "start":
+        return Cue.ANCHOR_TYPE_START;
+      case "center":
+      case "middle":
+        return Cue.ANCHOR_TYPE_MIDDLE;
+      case "end":
+        return Cue.ANCHOR_TYPE_END;
+      default:
+        Log.w(TAG, "Invalid anchor value: " + s);
+        return Cue.TYPE_UNSET;
+    }
+  }
+
   private static void parsePositionAttribute(String s, WebvttCueInfoBuilder builder) {
     int commaIndex = s.indexOf(',');
     if (commaIndex != -1) {
@@ -414,11 +433,13 @@ public final class WebvttCueParser {
   @Cue.AnchorType
   private static int parsePositionAnchor(String s) {
     switch (s) {
+      case "line-left":
       case "start":
         return Cue.ANCHOR_TYPE_START;
       case "center":
       case "middle":
         return Cue.ANCHOR_TYPE_MIDDLE;
+      case "line-right":
       case "end":
         return Cue.ANCHOR_TYPE_END;
       default:
@@ -528,27 +549,7 @@ public final class WebvttCueParser {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TAG_RUBY:
-        @Nullable Element rubyTextElement = null;
-        for (int i = 0; i < nestedElements.size(); i++) {
-          if (TAG_RUBY_TEXT.equals(nestedElements.get(i).startTag.name)) {
-            rubyTextElement = nestedElements.get(i);
-            // Behaviour of multiple <rt> tags inside <ruby> is undefined, so use the first one.
-            break;
-          }
-        }
-        if (rubyTextElement == null) {
-          break;
-        }
-        // Move the rubyText from spannedText into the RubySpan.
-        CharSequence rubyText =
-            text.subSequence(rubyTextElement.startTag.position, rubyTextElement.endPosition);
-        text.delete(rubyTextElement.startTag.position, rubyTextElement.endPosition);
-        end -= rubyText.length();
-        text.setSpan(
-            new RubySpan(rubyText.toString(), RubySpan.POSITION_OVER),
-            start,
-            end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        applyRubySpans(nestedElements, text, start);
         break;
       case TAG_UNDERLINE:
         text.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -568,6 +569,34 @@ public final class WebvttCueParser {
     int styleMatchesCount = scratchStyleMatches.size();
     for (int i = 0; i < styleMatchesCount; i++) {
       applyStyleToText(text, scratchStyleMatches.get(i).style, start, end);
+    }
+  }
+
+  private static void applyRubySpans(
+      List<Element> nestedElements, SpannableStringBuilder text, int startTagPosition) {
+    List<Element> sortedNestedElements = new ArrayList<>(nestedElements.size());
+    sortedNestedElements.addAll(nestedElements);
+    Collections.sort(sortedNestedElements, Element.BY_START_POSITION_ASC);
+    int deletedCharCount = 0;
+    int lastRubyTextEnd = startTagPosition;
+    for (int i = 0; i < sortedNestedElements.size(); i++) {
+      if (!TAG_RUBY_TEXT.equals(sortedNestedElements.get(i).startTag.name)) {
+        continue;
+      }
+      Element rubyTextElement = sortedNestedElements.get(i);
+      // Move the rubyText from spannedText into the RubySpan.
+      int adjustedRubyTextStart = rubyTextElement.startTag.position - deletedCharCount;
+      int adjustedRubyTextEnd = rubyTextElement.endPosition - deletedCharCount;
+      CharSequence rubyText = text.subSequence(adjustedRubyTextStart, adjustedRubyTextEnd);
+      text.delete(adjustedRubyTextStart, adjustedRubyTextEnd);
+      text.setSpan(
+          new RubySpan(rubyText.toString(), RubySpan.POSITION_OVER),
+          lastRubyTextEnd,
+          adjustedRubyTextStart,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+      deletedCharCount += rubyText.length();
+      // The ruby text has been deleted, so new-start == old-end.
+      lastRubyTextEnd = adjustedRubyTextStart;
     }
   }
 
@@ -917,6 +946,9 @@ public final class WebvttCueParser {
 
   /** Information about a complete element (i.e. start tag and end position). */
   private static class Element {
+    private static final Comparator<Element> BY_START_POSITION_ASC =
+        (e1, e2) -> Integer.compare(e1.startTag.position, e2.startTag.position);
+
     private final StartTag startTag;
     /**
      * The position of the end of this element's text in the un-marked-up cue text (i.e. the

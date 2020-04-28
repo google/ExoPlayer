@@ -33,10 +33,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public final class PassthroughSectionPayloadReader implements SectionPayloadReader {
 
-  private final String mimeType;
+  private Format format;
   private @MonotonicNonNull TimestampAdjuster timestampAdjuster;
   private @MonotonicNonNull TrackOutput output;
-  private boolean formatDeclared;
 
   /**
    * Create a new PassthroughSectionPayloadReader.
@@ -44,7 +43,7 @@ public final class PassthroughSectionPayloadReader implements SectionPayloadRead
    * @param mimeType The MIME type set as {@link Format#sampleMimeType} on the created output track.
    */
   public PassthroughSectionPayloadReader(String mimeType) {
-    this.mimeType = mimeType;
+    this.format = new Format.Builder().setSampleMimeType(mimeType).build();
   }
 
   @Override
@@ -55,22 +54,22 @@ public final class PassthroughSectionPayloadReader implements SectionPayloadRead
     this.timestampAdjuster = timestampAdjuster;
     idGenerator.generateNewId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_METADATA);
+    // Eagerly output an incomplete format (missing timestamp offset) to ensure source preparation
+    // is not blocked waiting for potentially sparse metadata.
+    output.format(format);
   }
 
   @Override
   public void consume(ParsableByteArray sectionData) {
     assertInitialized();
-    if (!formatDeclared) {
-      if (timestampAdjuster.getTimestampOffsetUs() == C.TIME_UNSET) {
-        // There is not enough information to initialize the timestamp adjuster.
-        return;
-      }
-      output.format(
-          new Format.Builder()
-              .setSampleMimeType(mimeType)
-              .setSubsampleOffsetUs(timestampAdjuster.getTimestampOffsetUs())
-              .build());
-      formatDeclared = true;
+    long subsampleOffsetUs = timestampAdjuster.getTimestampOffsetUs();
+    if (subsampleOffsetUs == C.TIME_UNSET) {
+      // Don't output samples without a known subsample offset.
+      return;
+    }
+    if (subsampleOffsetUs != format.subsampleOffsetUs) {
+      format = format.buildUpon().setSubsampleOffsetUs(subsampleOffsetUs).build();
+      output.format(format);
     }
     int sampleSize = sectionData.bytesLeft();
     output.sampleData(sectionData, sampleSize);

@@ -20,7 +20,8 @@ import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 
-/** A {@link DataSource.Factory} that produces {@link CacheDataSource}. */
+/** @deprecated Use {@link CacheDataSource.Factory}. */
+@Deprecated
 public final class CacheDataSourceFactory implements DataSource.Factory {
 
   private final Cache cache;
@@ -44,13 +45,14 @@ public final class CacheDataSourceFactory implements DataSource.Factory {
   }
 
   /** @see CacheDataSource#CacheDataSource(Cache, DataSource, int) */
+  @SuppressWarnings("deprecation")
   public CacheDataSourceFactory(
       Cache cache, DataSource.Factory upstreamFactory, @CacheDataSource.Flags int flags) {
     this(
         cache,
         upstreamFactory,
         new FileDataSource.Factory(),
-        new CacheDataSinkFactory(cache, CacheDataSink.DEFAULT_FRAGMENT_SIZE),
+        new CacheDataSink.Factory().setCache(cache),
         flags,
         /* eventListener= */ null);
   }

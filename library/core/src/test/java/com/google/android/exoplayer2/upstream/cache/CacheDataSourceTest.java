@@ -358,12 +358,7 @@ public final class CacheDataSourceTest {
                 .appendReadData(1024 * 1024)
                 .endData());
     CacheUtil.cache(
-        unboundedDataSpec,
-        cache,
-        /* cacheKeyFactory= */ null,
-        upstream2,
-        /* progressListener= */ null,
-        /* isCanceled= */ null);
+        cache, unboundedDataSpec, upstream2, /* progressListener= */ null, /* isCanceled= */ null);
 
     // Read the rest of the data.
     TestUtil.readToEnd(cacheDataSource);
@@ -407,12 +402,7 @@ public final class CacheDataSourceTest {
                 .appendReadData(1024 * 1024)
                 .endData());
     CacheUtil.cache(
-        unboundedDataSpec,
-        cache,
-        /* cacheKeyFactory= */ null,
-        upstream2,
-        /* progressListener= */ null,
-        /* isCanceled= */ null);
+        cache, unboundedDataSpec, upstream2, /* progressListener= */ null, /* isCanceled= */ null);
 
     // Read the rest of the data.
     TestUtil.readToEnd(cacheDataSource);
@@ -431,12 +421,7 @@ public final class CacheDataSourceTest {
     int halfDataLength = 512;
     DataSpec dataSpec = buildDataSpec(halfDataLength, C.LENGTH_UNSET);
     CacheUtil.cache(
-        dataSpec,
-        cache,
-        /* cacheKeyFactory= */ null,
-        upstream,
-        /* progressListener= */ null,
-        /* isCanceled= */ null);
+        cache, dataSpec, upstream, /* progressListener= */ null, /* isCanceled= */ null);
 
     // Create cache read-only CacheDataSource.
     CacheDataSource cacheDataSource =
@@ -467,12 +452,7 @@ public final class CacheDataSourceTest {
     int halfDataLength = 512;
     DataSpec dataSpec = buildDataSpec(/* position= */ 0, halfDataLength);
     CacheUtil.cache(
-        dataSpec,
-        cache,
-        /* cacheKeyFactory= */ null,
-        upstream,
-        /* progressListener= */ null,
-        /* isCanceled= */ null);
+        cache, dataSpec, upstream, /* progressListener= */ null, /* isCanceled= */ null);
 
     // Create blocking CacheDataSource.
     CacheDataSource cacheDataSource =

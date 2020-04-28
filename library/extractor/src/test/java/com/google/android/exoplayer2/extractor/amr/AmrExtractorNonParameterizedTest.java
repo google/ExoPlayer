@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 package com.google.android.exoplayer2.extractor.amr;
 
@@ -35,9 +36,14 @@ import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link AmrExtractor}. */
+/**
+ * Tests for {@link AmrExtractor} that test specific behaviours and don't need to be parameterized.
+ *
+ * <p>For parameterized tests using {@link ExtractorAsserts} see {@link
+ * AmrExtractorParameterizedTest}.
+ */
 @RunWith(AndroidJUnit4.class)
-public final class AmrExtractorTest {
+public final class AmrExtractorNonParameterizedTest {
 
   private static final Random RANDOM = new Random(1234);
 
@@ -169,30 +175,6 @@ public final class AmrExtractorTest {
     }
   }
 
-  @Test
-  public void extractingNarrowBandSamples() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_nb.amr");
-  }
-
-  @Test
-  public void extractingWideBandSamples() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_wb.amr");
-  }
-
-  @Test
-  public void extractingNarrowBandSamples_withSeeking() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ true), "amr/sample_nb_cbr.amr");
-  }
-
-  @Test
-  public void extractingWideBandSamples_withSeeking() throws Exception {
-    ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ true), "amr/sample_wb_cbr.amr");
-  }
-
   private byte[] newWideBandAmrFrameWithType(int frameType) {
     byte frameHeader = (byte) ((frameType << 3) & (0b01111100));
     int frameContentInBytes = frameSizeBytesByTypeWb(frameType) - 1;
@@ -236,15 +218,5 @@ public final class AmrExtractorTest {
 
   private static FakeExtractorInput fakeExtractorInputWithData(byte[] data) {
     return new FakeExtractorInput.Builder().setData(data).build();
-  }
-
-  private static ExtractorAsserts.ExtractorFactory createAmrExtractorFactory(boolean withSeeking) {
-    return () -> {
-      if (!withSeeking) {
-        return new AmrExtractor();
-      } else {
-        return new AmrExtractor(AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
-      }
-    };
   }
 }

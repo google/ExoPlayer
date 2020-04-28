@@ -107,10 +107,9 @@ public final class CacheUtil {
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
-   * @param dataSpec Defines the data to be cached.
    * @param cache A {@link Cache} to store the data.
-   * @param cacheKeyFactory An optional factory for cache keys.
-   * @param upstream A {@link DataSource} for reading data not in the cache.
+   * @param dataSpec Defines the data to be cached.
+   * @param upstreamDataSource A {@link DataSource} for reading data not in the cache.
    * @param progressListener A listener to receive progress updates, or {@code null}.
    * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @throws IOException If an error occurs reading from the source.
@@ -118,69 +117,55 @@ public final class CacheUtil {
    */
   @WorkerThread
   public static void cache(
-      DataSpec dataSpec,
       Cache cache,
-      @Nullable CacheKeyFactory cacheKeyFactory,
-      DataSource upstream,
+      DataSpec dataSpec,
+      DataSource upstreamDataSource,
       @Nullable ProgressListener progressListener,
       @Nullable AtomicBoolean isCanceled)
       throws IOException, InterruptedException {
     cache(
+        new CacheDataSource(cache, upstreamDataSource),
         dataSpec,
-        cache,
-        cacheKeyFactory,
-        new CacheDataSource(cache, upstream),
-        new byte[DEFAULT_BUFFER_SIZE_BYTES],
-        /* priorityTaskManager= */ null,
-        /* priority= */ 0,
         progressListener,
         isCanceled,
-        /* enableEOFException= */ false);
+        /* enableEOFException= */ false,
+        new byte[DEFAULT_BUFFER_SIZE_BYTES]);
   }
 
   /**
-   * Caches the data defined by {@code dataSpec} while skipping already cached data. Caching stops
-   * early if end of input is reached and {@code enableEOFException} is false.
+   * Caches the data defined by {@code dataSpec}, skipping already cached data. Caching stops early
+   * if end of input is reached and {@code enableEOFException} is false.
    *
-   * <p>If a {@link PriorityTaskManager} is given, it's used to pause and resume caching depending
-   * on {@code priority} and the priority of other tasks registered to the PriorityTaskManager.
-   * Please note that it's the responsibility of the calling code to call {@link
-   * PriorityTaskManager#add} to register with the manager before calling this method, and to call
-   * {@link PriorityTaskManager#remove} afterwards to unregister.
+   * <p>If {@code dataSource} has a {@link PriorityTaskManager}, then it's the responsibility of the
+   * calling code to call {@link PriorityTaskManager#add} to register with the manager before
+   * calling this method, and to call {@link PriorityTaskManager#remove} afterwards to unregister.
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
+   * @param dataSource A {@link CacheDataSource} to be used for caching the data.
    * @param dataSpec Defines the data to be cached.
-   * @param cache A {@link Cache} to store the data.
-   * @param cacheKeyFactory An optional factory for cache keys.
-   * @param dataSource A {@link CacheDataSource} that works on the {@code cache}.
-   * @param buffer The buffer to be used while caching.
-   * @param priorityTaskManager If not null it's used to check whether it is allowed to proceed with
-   *     caching.
-   * @param priority The priority of this task. Used with {@code priorityTaskManager}.
    * @param progressListener A listener to receive progress updates, or {@code null}.
    * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @param enableEOFException Whether to throw an {@link EOFException} if end of input has been
    *     reached unexpectedly.
+   * @param temporaryBuffer A temporary buffer to be used during caching.
    * @throws IOException If an error occurs reading from the source.
    * @throws InterruptedException If the thread was interrupted directly or via {@code isCanceled}.
    */
   @WorkerThread
   public static void cache(
-      DataSpec dataSpec,
-      Cache cache,
-      @Nullable CacheKeyFactory cacheKeyFactory,
       CacheDataSource dataSource,
-      byte[] buffer,
-      @Nullable PriorityTaskManager priorityTaskManager,
-      int priority,
+      DataSpec dataSpec,
       @Nullable ProgressListener progressListener,
       @Nullable AtomicBoolean isCanceled,
-      boolean enableEOFException)
+      boolean enableEOFException,
+      byte[] temporaryBuffer)
       throws IOException, InterruptedException {
     Assertions.checkNotNull(dataSource);
-    Assertions.checkNotNull(buffer);
+    Assertions.checkNotNull(temporaryBuffer);
 
+    Cache cache = dataSource.getCache();
+    CacheKeyFactory cacheKeyFactory = dataSource.getCacheKeyFactory();
     String key = buildCacheKey(dataSpec, cacheKeyFactory);
     long bytesLeft;
     @Nullable ProgressNotifier progressNotifier = null;
@@ -212,12 +197,10 @@ public final class CacheUtil {
                 position,
                 length,
                 dataSource,
-                buffer,
-                priorityTaskManager,
-                priority,
+                isCanceled,
                 progressNotifier,
                 isLastBlock,
-                isCanceled);
+                temporaryBuffer);
         if (read < blockLength) {
           // Reached to the end of the data.
           if (enableEOFException && !lengthUnset) {
@@ -249,14 +232,11 @@ public final class CacheUtil {
    *     overwritten by the following parameters.
    * @param position The position of the data to be read.
    * @param length Length of the data to be read, or {@link C#LENGTH_UNSET} if it is unknown.
-   * @param dataSource The {@link DataSource} to read the data from.
-   * @param buffer The buffer to be used while downloading.
-   * @param priorityTaskManager If not null it's used to check whether it is allowed to proceed with
-   *     caching.
-   * @param priority The priority of this task.
+   * @param dataSource The {@link CacheDataSource} to read the data from.
+   * @param isCanceled An optional flag that will interrupt caching if set to true.
    * @param progressNotifier A notifier through which to report progress updates, or {@code null}.
    * @param isLastBlock Whether this read block is the last block of the content.
-   * @param isCanceled An optional flag that will interrupt caching if set to true.
+   * @param temporaryBuffer A temporary buffer to be used during caching.
    * @return Number of read bytes, or 0 if no data is available because the end of the opened range
    *     has been reached.
    */
@@ -264,21 +244,20 @@ public final class CacheUtil {
       DataSpec dataSpec,
       long position,
       long length,
-      DataSource dataSource,
-      byte[] buffer,
-      @Nullable PriorityTaskManager priorityTaskManager,
-      int priority,
+      CacheDataSource dataSource,
+      @Nullable AtomicBoolean isCanceled,
       @Nullable ProgressNotifier progressNotifier,
       boolean isLastBlock,
-      @Nullable AtomicBoolean isCanceled)
+      byte[] temporaryBuffer)
       throws IOException, InterruptedException {
     long positionOffset = position - dataSpec.position;
     long initialPositionOffset = positionOffset;
     long endOffset = length != C.LENGTH_UNSET ? positionOffset + length : C.POSITION_UNSET;
+    @Nullable PriorityTaskManager priorityTaskManager = dataSource.getUpstreamPriorityTaskManager();
     while (true) {
       if (priorityTaskManager != null) {
         // Wait for any other thread with higher priority to finish its job.
-        priorityTaskManager.proceed(priority);
+        priorityTaskManager.proceed(dataSource.getUpstreamPriority());
       }
       throwExceptionIfInterruptedOrCancelled(isCanceled);
       try {
@@ -310,11 +289,11 @@ public final class CacheUtil {
           throwExceptionIfInterruptedOrCancelled(isCanceled);
           int bytesRead =
               dataSource.read(
-                  buffer,
+                  temporaryBuffer,
                   0,
                   endOffset != C.POSITION_UNSET
-                      ? (int) Math.min(buffer.length, endOffset - positionOffset)
-                      : buffer.length);
+                      ? (int) Math.min(temporaryBuffer.length, endOffset - positionOffset)
+                      : temporaryBuffer.length);
           if (bytesRead == C.RESULT_END_OF_INPUT) {
             if (progressNotifier != null) {
               progressNotifier.onRequestLengthResolved(positionOffset);

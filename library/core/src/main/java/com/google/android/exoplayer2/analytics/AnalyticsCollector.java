@@ -522,6 +522,9 @@ public class AnalyticsCollector
 
   @Override
   public final void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+    if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+      isSeeking = false;
+    }
     mediaPeriodQueueTracker.onPositionDiscontinuity(Assertions.checkNotNull(player));
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {
@@ -551,14 +554,12 @@ public class AnalyticsCollector
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public final void onSeekProcessed() {
-    if (isSeeking) {
-      isSeeking = false;
-      EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
-      for (AnalyticsListener listener : listeners) {
-        listener.onSeekProcessed(eventTime);
-      }
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onSeekProcessed(eventTime);
     }
   }
 

@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -41,10 +42,12 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
 
   private static final String TAG = "SubripDecoder";
 
-  private static final String SUBRIP_TIMECODE = "(?:(\\d+):)?(\\d+):(\\d+),(\\d+)";
+  // Some SRT files don't include hours or milliseconds in the timecode, so we use optional groups.
+  private static final String SUBRIP_TIMECODE = "(?:(\\d+):)?(\\d+):(\\d+)(?:,(\\d+))?";
   private static final Pattern SUBRIP_TIMING_LINE =
       Pattern.compile("\\s*(" + SUBRIP_TIMECODE + ")\\s*-->\\s*(" + SUBRIP_TIMECODE + ")\\s*");
 
+  // NOTE: Android Studio's suggestion to simplify '\\}' is incorrect [internal: b/144480183].
   private static final Pattern SUBRIP_TAG_PATTERN = Pattern.compile("\\{\\\\.*?\\}");
   private static final String SUBRIP_ALIGNMENT_TAG = "\\{\\\\an[1-9]\\}";
 
@@ -132,8 +135,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       cues.add(Cue.EMPTY);
     }
 
-    Cue[] cuesArray = new Cue[cues.size()];
-    cues.toArray(cuesArray);
+    Cue[] cuesArray = cues.toArray(new Cue[0]);
     long[] cueTimesUsArray = cueTimesUs.toArray();
     return new SubripSubtitle(cuesArray, cueTimesUsArray);
   }
@@ -229,10 +231,15 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
   }
 
   private static long parseTimecode(Matcher matcher, int groupOffset) {
-    long timestampMs = Long.parseLong(matcher.group(groupOffset + 1)) * 60 * 60 * 1000;
-    timestampMs += Long.parseLong(matcher.group(groupOffset + 2)) * 60 * 1000;
-    timestampMs += Long.parseLong(matcher.group(groupOffset + 3)) * 1000;
-    timestampMs += Long.parseLong(matcher.group(groupOffset + 4));
+    @Nullable String hours = matcher.group(groupOffset + 1);
+    long timestampMs = hours != null ? Long.parseLong(hours) * 60 * 60 * 1000 : 0;
+    timestampMs +=
+        Long.parseLong(Assertions.checkNotNull(matcher.group(groupOffset + 2))) * 60 * 1000;
+    timestampMs += Long.parseLong(Assertions.checkNotNull(matcher.group(groupOffset + 3))) * 1000;
+    @Nullable String millis = matcher.group(groupOffset + 4);
+    if (millis != null) {
+      timestampMs += Long.parseLong(millis);
+    }
     return timestampMs * 1000;
   }
 
