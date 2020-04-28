@@ -3,6 +3,9 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
+    *   Add opt-in to verify correct thread usage with
+        `SimpleExoPlayer.setThrowsWhenUsingWrongThread(true)`
+        ([#4463](https://github.com/google/ExoPlayer/issues/4463)).
     *   Add playbackPositionUs parameter to 'LoadControl.shouldContinueLoading'.
     *   The `DefaultLoadControl` default minimum buffer is set to 50 seconds,
         equal to the default maximum buffer. `DefaultLoadControl` applies the
