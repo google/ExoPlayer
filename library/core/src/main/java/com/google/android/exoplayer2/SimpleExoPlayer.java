@@ -336,6 +336,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   private static final String TAG = "SimpleExoPlayer";
+  private static final String WRONG_THREAD_ERROR_MESSAGE =
+      "Player is accessed on the wrong thread. See "
+          + "https://exoplayer.dev/issues/player-accessed-on-wrong-thread";
 
   protected final Renderer[] renderers;
 
@@ -379,6 +382,7 @@ public class SimpleExoPlayer extends BasePlayer
   private List<Cue> currentCues;
   @Nullable private VideoFrameMetadataListener videoFrameMetadataListener;
   @Nullable private CameraMotionListener cameraMotionListener;
+  private boolean throwsWhenUsingWrongThread;
   private boolean hasNotifiedFullWrongThreadWarning;
   @Nullable private PriorityTaskManager priorityTaskManager;
   private boolean isPriorityTaskManagerRegistered;
@@ -1822,6 +1826,18 @@ public class SimpleExoPlayer extends BasePlayer
     streamVolumeManager.setMuted(muted);
   }
 
+  /**
+   * Sets whether the player should throw an {@link IllegalStateException} when methods are called
+   * from a thread other than the one associated with {@link #getApplicationLooper()}.
+   *
+   * <p>The default is {@code false}, but will change to {@code true} in the future.
+   *
+   * @param throwsWhenUsingWrongThread Whether to throw when methods are called from a wrong thread.
+   */
+  public void setThrowsWhenUsingWrongThread(boolean throwsWhenUsingWrongThread) {
+    this.throwsWhenUsingWrongThread = throwsWhenUsingWrongThread;
+  }
+
   // Internal methods.
 
   private void removeSurfaceCallbacks() {
@@ -1968,10 +1984,12 @@ public class SimpleExoPlayer extends BasePlayer
 
   private void verifyApplicationThread() {
     if (Looper.myLooper() != getApplicationLooper()) {
+      if (throwsWhenUsingWrongThread) {
+        throw new IllegalStateException(WRONG_THREAD_ERROR_MESSAGE);
+      }
       Log.w(
           TAG,
-          "Player is accessed on the wrong thread. See "
-              + "https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
+          WRONG_THREAD_ERROR_MESSAGE,
           hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
       hasNotifiedFullWrongThreadWarning = true;
     }
