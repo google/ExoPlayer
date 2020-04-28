@@ -16,12 +16,38 @@
 package com.google.android.exoplayer2.util;
 
 /**
- * An interruptible condition variable whose {@link #open()} and {@link #close()} methods return
- * whether they resulted in a change of state.
+ * An interruptible condition variable. This class provides a number of benefits over {@link
+ * android.os.ConditionVariable}:
+ *
+ * <ul>
+ *   <li>Consistent use of ({@link Clock#elapsedRealtime()} for timing {@link #block(long)} timeout
+ *       intervals. {@link android.os.ConditionVariable} used {@link System#currentTimeMillis()}
+ *       prior to Android 10, which is not a correct clock to use for interval timing because it's
+ *       not guaranteed to be monotonic.
+ *   <li>Support for injecting a custom {@link Clock}.
+ *   <li>The ability to query the variable's current state, by calling {@link #isOpen()}.
+ *   <li>{@link #open()} and {@link #close()} return whether they changed the variable's state.
+ * </ul>
  */
 public final class ConditionVariable {
 
+  private final Clock clock;
   private boolean isOpen;
+
+  /** Creates an instance using {@link Clock#DEFAULT}. */
+  public ConditionVariable() {
+    this(Clock.DEFAULT);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param clock The {@link Clock} whose {@link Clock#elapsedRealtime()} method is used to
+   *     determine when {@link #block(long)} should time out.
+   */
+  public ConditionVariable(Clock clock) {
+    this.clock = clock;
+  }
 
   /**
    * Opens the condition and releases all threads that are blocked.
@@ -67,11 +93,11 @@ public final class ConditionVariable {
    * @throws InterruptedException If the thread is interrupted.
    */
   public synchronized boolean block(long timeout) throws InterruptedException {
-    long now = android.os.SystemClock.elapsedRealtime();
+    long now = clock.elapsedRealtime();
     long end = now + timeout;
     while (!isOpen && now < end) {
       wait(end - now);
-      now = android.os.SystemClock.elapsedRealtime();
+      now = clock.elapsedRealtime();
     }
     return isOpen;
   }

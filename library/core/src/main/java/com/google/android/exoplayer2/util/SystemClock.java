@@ -21,9 +21,12 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 
 /**
- * The standard implementation of {@link Clock}.
+ * The standard implementation of {@link Clock}, an instance of which is available via {@link
+ * SystemClock#DEFAULT}.
  */
-/* package */ final class SystemClock implements Clock {
+public class SystemClock implements Clock {
+
+  protected SystemClock() {}
 
   @Override
   public long currentTimeMillis() {
