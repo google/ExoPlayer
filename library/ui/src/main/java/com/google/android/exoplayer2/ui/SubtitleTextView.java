@@ -154,6 +154,9 @@ import java.util.List;
     int cueCount = cues.size();
     for (int i = 0; i < cueCount; i++) {
       Cue cue = cues.get(i);
+      if (cue.verticalType != Cue.TYPE_UNSET) {
+        cue = repositionVerticalCue(cue);
+      }
       float cueTextSizePx =
           SubtitleViewUtils.resolveCueTextSize(cue, rawViewHeight, viewHeightMinusPadding);
       SubtitlePainter painter = painters.get(i);
@@ -171,5 +174,47 @@ import java.util.List;
           right,
           bottom);
     }
+  }
+
+  /**
+   * Reposition a vertical cue for horizontal display.
+   *
+   * <p>This class doesn't support rendering vertical text, but if we naively interpret vertical
+   * {@link Cue#position} and{@link Cue#line} values for horizontal display then the cues will often
+   * be displayed in unexpected positions. For example, the 'default' position for vertical-rl
+   * subtitles is the right-hand edge of the viewport, so cues that would appear vertically in this
+   * position should appear horizontally at the bottom of the viewport (generally the default
+   * position). Similarly left-edge vertical-rl cues should be shown at the top of a horizontal
+   * viewport.
+   *
+   * <p>There isn't a meaningful way to transform {@link Cue#position} and related values (e.g.
+   * alignment), so we clear these and allow {@link SubtitlePainter} to do the default behaviour of
+   * centering the cue.
+   */
+  private static Cue repositionVerticalCue(Cue cue) {
+    Cue.Builder cueBuilder =
+        cue.buildUpon()
+            .setPosition(Cue.DIMEN_UNSET)
+            .setPositionAnchor(Cue.TYPE_UNSET)
+            .setTextAlignment(null);
+
+    if (cue.lineType == Cue.LINE_TYPE_FRACTION) {
+      cueBuilder.setLine(1.0f - cue.line, Cue.LINE_TYPE_FRACTION);
+    } else {
+      cueBuilder.setLine(-cue.line - 1f, Cue.LINE_TYPE_NUMBER);
+    }
+    switch (cue.lineAnchor) {
+      case Cue.ANCHOR_TYPE_END:
+        cueBuilder.setLineAnchor(Cue.ANCHOR_TYPE_START);
+        break;
+      case Cue.ANCHOR_TYPE_START:
+        cueBuilder.setLineAnchor(Cue.ANCHOR_TYPE_END);
+        break;
+      case Cue.ANCHOR_TYPE_MIDDLE:
+      case Cue.TYPE_UNSET:
+      default:
+        // Fall through
+    }
+    return cueBuilder.build();
   }
 }

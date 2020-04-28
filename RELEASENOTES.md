@@ -107,6 +107,8 @@
     *   Implement timing-out of stuck CEA-608 captions (as permitted by
         ANSI/CTA-608-E R-2014 Annex C.9) and set the default timeout to 16
         seconds ([#7181](https://github.com/google/ExoPlayer/issues/7181)).
+    *   Add special-case positioning behaviour for vertical cues being rendered
+        horizontally.
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.

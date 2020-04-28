@@ -460,6 +460,11 @@ public final class Cue {
     this.verticalType = verticalType;
   }
 
+  /** Returns a new {@link Cue.Builder} initialized with the same values as this Cue. */
+  public Builder buildUpon() {
+    return new Cue.Builder(this);
+  }
+
   /** A builder for {@link Cue} objects. */
   public static final class Builder {
     @Nullable private CharSequence text;
@@ -494,6 +499,24 @@ public final class Cue {
       windowColorSet = false;
       windowColor = Color.BLACK;
       verticalType = TYPE_UNSET;
+    }
+
+    private Builder(Cue cue) {
+      text = cue.text;
+      bitmap = cue.bitmap;
+      textAlignment = cue.textAlignment;
+      line = cue.line;
+      lineType = cue.lineType;
+      lineAnchor = cue.lineAnchor;
+      position = cue.position;
+      positionAnchor = cue.positionAnchor;
+      textSizeType = cue.textSizeType;
+      textSize = cue.textSize;
+      size = cue.size;
+      bitmapHeight = cue.bitmapHeight;
+      windowColorSet = cue.windowColorSet;
+      windowColor = cue.windowColor;
+      verticalType = cue.verticalType;
     }
 
     /**
