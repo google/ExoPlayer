@@ -33,10 +33,10 @@ public final class Ac4ExtractorTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void ac4Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac4Extractor::new, "ts/sample.ac4", assertionConfig);
+    ExtractorAsserts.assertBehavior(Ac4Extractor::new, "ts/sample.ac4", simulationConfig);
   }
 }

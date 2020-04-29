@@ -33,16 +33,16 @@ public final class PsExtractorTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sampleWithH262AndMpegAudio() throws Exception {
     ExtractorAsserts.assertBehavior(
-        PsExtractor::new, "ts/sample_h262_mpeg_audio.ps", assertionConfig);
+        PsExtractor::new, "ts/sample_h262_mpeg_audio.ps", simulationConfig);
   }
 
   @Test
   public void sampleWithAc3() throws Exception {
-    ExtractorAsserts.assertBehavior(PsExtractor::new, "ts/sample_ac3.ps", assertionConfig);
+    ExtractorAsserts.assertBehavior(PsExtractor::new, "ts/sample_ac3.ps", simulationConfig);
   }
 }

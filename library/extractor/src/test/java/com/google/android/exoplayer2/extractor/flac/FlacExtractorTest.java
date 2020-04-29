@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.flac;
 
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.AssertionConfig;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,95 +34,107 @@ public class FlacExtractorTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
-        /* file= */ "flac/bear.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_flac");
+        "flac/bear.flac",
+        new AssertionConfig.Builder().setDumpFilesPrefix("flac/bear_flac").build(),
+        simulationConfig);
   }
 
   @Test
   public void sampleWithId3HeaderAndId3Enabled() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
-        /* file= */ "flac/bear_with_id3.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_with_id3_enabled_flac");
+        "flac/bear_with_id3.flac",
+        new AssertionConfig.Builder().setDumpFilesPrefix("flac/bear_with_id3_enabled_flac").build(),
+        simulationConfig);
   }
 
   @Test
   public void sampleWithId3HeaderAndId3Disabled() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new FlacExtractor(FlacExtractor.FLAG_DISABLE_ID3_METADATA),
-        /* file= */ "flac/bear_with_id3.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_with_id3_disabled_flac");
+        "flac/bear_with_id3.flac",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("flac/bear_with_id3_disabled_flac")
+            .build(),
+        simulationConfig);
   }
 
   @Test
   public void sampleUnseekable() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
-        /* file= */ "flac/bear_no_seek_table_no_num_samples.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_no_seek_table_no_num_samples_flac");
+        "flac/bear_no_seek_table_no_num_samples.flac",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("flac/bear_no_seek_table_no_num_samples_flac")
+            .build(),
+        simulationConfig);
   }
 
   @Test
   public void sampleWithVorbisComments() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
-        /* file= */ "flac/bear_with_vorbis_comments.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_with_vorbis_comments_flac");
+        "flac/bear_with_vorbis_comments.flac",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("flac/bear_with_vorbis_comments_flac")
+            .build(),
+        simulationConfig);
   }
 
   @Test
   public void sampleWithPicture() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
-        /* file= */ "flac/bear_with_picture.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_with_picture_flac");
+        "flac/bear_with_picture.flac",
+        new AssertionConfig.Builder().setDumpFilesPrefix("flac/bear_with_picture_flac").build(),
+        simulationConfig);
   }
 
   @Test
   public void oneMetadataBlock() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
-        /* file= */ "flac/bear_one_metadata_block.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_one_metadata_block_flac");
+        "flac/bear_one_metadata_block.flac",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("flac/bear_one_metadata_block_flac")
+            .build(),
+        simulationConfig);
   }
 
   @Test
   public void noMinMaxFrameSize() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
-        /* file= */ "flac/bear_no_min_max_frame_size.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_no_min_max_frame_size_flac");
+        "flac/bear_no_min_max_frame_size.flac",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("flac/bear_no_min_max_frame_size_flac")
+            .build(),
+        simulationConfig);
   }
 
   @Test
   public void noNumSamples() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
-        /* file= */ "flac/bear_no_num_samples.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_no_num_samples_flac");
+        "flac/bear_no_num_samples.flac",
+        new AssertionConfig.Builder().setDumpFilesPrefix("flac/bear_no_num_samples_flac").build(),
+        simulationConfig);
   }
 
   @Test
   public void uncommonSampleRate() throws Exception {
     ExtractorAsserts.assertBehavior(
         FlacExtractor::new,
-        /* file= */ "flac/bear_uncommon_sample_rate.flac",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "flac/bear_uncommon_sample_rate_flac");
+        "flac/bear_uncommon_sample_rate.flac",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("flac/bear_uncommon_sample_rate_flac")
+            .build(),
+        simulationConfig);
   }
 }

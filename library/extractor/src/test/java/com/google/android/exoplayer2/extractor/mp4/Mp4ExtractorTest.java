@@ -33,17 +33,17 @@ public final class Mp4ExtractorTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void mp4Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample.mp4", assertionConfig);
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithSlowMotionMetadata() throws Exception {
     ExtractorAsserts.assertBehavior(
-        Mp4Extractor::new, "mp4/sample_android_slow_motion.mp4", assertionConfig);
+        Mp4Extractor::new, "mp4/sample_android_slow_motion.mp4", simulationConfig);
   }
 
   /**
@@ -53,26 +53,26 @@ public final class Mp4ExtractorTest {
   @Test
   public void mp4SampleWithMdatTooLong() throws Exception {
     ExtractorAsserts.assertBehavior(
-        Mp4Extractor::new, "mp4/sample_mdat_too_long.mp4", assertionConfig);
+        Mp4Extractor::new, "mp4/sample_mdat_too_long.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithAc3Track() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_ac3.mp4", assertionConfig);
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_ac3.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithAc4Track() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_ac4.mp4", assertionConfig);
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_ac4.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithEac3Track() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_eac3.mp4", assertionConfig);
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_eac3.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithEac3jocTrack() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_eac3joc.mp4", assertionConfig);
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_eac3joc.mp4", simulationConfig);
   }
 }

@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Assertion methods for {@link Extractor}.
@@ -38,27 +40,27 @@ import java.util.List;
 public final class ExtractorAsserts {
 
   /**
-   * Returns a list of arrays containing {@link Config} objects to exercise different extractor
-   * paths.
+   * Returns a list of arrays containing {@link SimulationConfig} objects to exercise different
+   * extractor paths.
    *
    * <p>This is intended to be used from tests using {@code ParameterizedRobolectricTestRunner} or
    * {@code org.junit.runners.Parameterized}.
    */
   public static List<Object[]> configs() {
     return Arrays.asList(
-        new Object[] {new Config(true, false, false, false)},
-        new Object[] {new Config(true, false, false, true)},
-        new Object[] {new Config(true, false, true, false)},
-        new Object[] {new Config(true, false, true, true)},
-        new Object[] {new Config(true, true, false, false)},
-        new Object[] {new Config(true, true, false, true)},
-        new Object[] {new Config(true, true, true, false)},
-        new Object[] {new Config(true, true, true, true)},
-        new Object[] {new Config(false, false, false, false)});
+        new Object[] {new SimulationConfig(true, false, false, false)},
+        new Object[] {new SimulationConfig(true, false, false, true)},
+        new Object[] {new SimulationConfig(true, false, true, false)},
+        new Object[] {new SimulationConfig(true, false, true, true)},
+        new Object[] {new SimulationConfig(true, true, false, false)},
+        new Object[] {new SimulationConfig(true, true, false, true)},
+        new Object[] {new SimulationConfig(true, true, true, false)},
+        new Object[] {new SimulationConfig(true, true, true, true)},
+        new Object[] {new SimulationConfig(false, false, false, false)});
   }
 
-  /** A config of different environments to simulate and extractor behaviour to test. */
-  public static class Config {
+  /** A config of different environments to simulate and extractor behaviours to test. */
+  public static class SimulationConfig {
 
     /**
      * Whether to sniff the data by calling {@link Extractor#sniff(ExtractorInput)} prior to
@@ -72,7 +74,7 @@ public final class ExtractorAsserts {
     /** Whether to simulate partial reads. */
     public final boolean simulatePartialReads;
 
-    private Config(
+    private SimulationConfig(
         boolean sniffFirst,
         boolean simulateIOErrors,
         boolean simulateUnknownLength,
@@ -88,6 +90,49 @@ public final class ExtractorAsserts {
       return Util.formatInvariant(
           "sniff=%s,ioErr=%s,unknownLen=%s,partRead=%s",
           sniffFirst, simulateIOErrors, simulateUnknownLength, simulatePartialReads);
+    }
+  }
+
+  /** A config for the assertions made (e.g. dump file location). */
+  public static class AssertionConfig {
+
+    /**
+     * The prefix prepended to the dump files path. If not set, the path to the source data will be
+     * used.
+     */
+    @Nullable public final String dumpFilesPrefix;
+
+    /**
+     * Controls how consecutive formats with no intervening samples are handled. If true, only the
+     * last format received is retained. If false, consecutive formats with no samples cause the
+     * test to fail.
+     */
+    public final boolean deduplicateConsecutiveFormats;
+
+    private AssertionConfig(
+        @Nullable String dumpFilesPrefix, boolean deduplicateConsecutiveFormats) {
+      this.dumpFilesPrefix = dumpFilesPrefix;
+      this.deduplicateConsecutiveFormats = deduplicateConsecutiveFormats;
+    }
+
+    /** Builder for {@link AssertionConfig} instances. */
+    public static class Builder {
+      private @MonotonicNonNull String dumpFilesPrefix;
+      private boolean deduplicateConsecutiveFormats;
+
+      public Builder setDumpFilesPrefix(String dumpFilesPrefix) {
+        this.dumpFilesPrefix = dumpFilesPrefix;
+        return this;
+      }
+
+      public Builder setDeduplicateConsecutiveFormats(boolean deduplicateConsecutiveFormats) {
+        this.deduplicateConsecutiveFormats = deduplicateConsecutiveFormats;
+        return this;
+      }
+
+      public AssertionConfig build() {
+        return new AssertionConfig(dumpFilesPrefix, deduplicateConsecutiveFormats);
+      }
     }
   }
 
@@ -127,7 +172,7 @@ public final class ExtractorAsserts {
    *   <li>Calls {@link Extractor#seek(long, long)} and {@link Extractor#release()} without calling
    *       {@link Extractor#init(ExtractorOutput)} to check these calls do not fail.
    *   <li>Calls {@link #assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
-   *       boolean)} with all possible combinations of "simulate" parameters.
+   *       boolean, boolean)} with all possible combinations of "simulate" parameters.
    * </ul>
    *
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
@@ -146,7 +191,7 @@ public final class ExtractorAsserts {
    *   <li>Calls {@link Extractor#seek(long, long)} and {@link Extractor#release()} without calling
    *       {@link Extractor#init(ExtractorOutput)} to check these calls do not fail.
    *   <li>Calls {@link #assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
-   *       boolean)} with all possible combinations of "simulate" parameters.
+   *       boolean, boolean)} with all possible combinations of "simulate" parameters.
    * </ul>
    *
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
@@ -169,7 +214,7 @@ public final class ExtractorAsserts {
 
   /**
    * Asserts that an extractor consumes valid input data successfully under the conditions specified
-   * by {@code config}.
+   * by {@code simulationConfig}.
    *
    * <p>The output of the extractor is compared against prerecorded dump files whose names are
    * derived from the {@code file} parameter.
@@ -177,29 +222,29 @@ public final class ExtractorAsserts {
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
    *     class which is to be tested.
    * @param file The path to the input sample.
-   * @param config Details on the environment to simulate and behaviours to assert.
+   * @param simulationConfig Details on the environment to simulate and behaviours to assert.
    * @throws IOException If reading from the input fails.
    */
-  public static void assertBehavior(ExtractorFactory factory, String file, Config config)
-      throws IOException {
-    assertBehavior(factory, file, config, file);
+  public static void assertBehavior(
+      ExtractorFactory factory, String file, SimulationConfig simulationConfig) throws IOException {
+    assertBehavior(factory, file, new AssertionConfig.Builder().build(), simulationConfig);
   }
 
   /**
    * Asserts that an extractor consumes valid input data successfully successfully under the
-   * conditions specified by {@code config}.
+   * conditions specified by {@code simulationConfig}.
    *
    * <p>The output of the extractor is compared against prerecorded dump files.
    *
-   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
-   *     class which is to be tested.
-   * @param file The path to the input sample.
-   * @param config Details on the environment to simulate and behaviours to assert.
-   * @param dumpFilesPrefix The dump files prefix prepended to the dump files path.
+   * @param assertionConfig Details of how to read and process the source and dump files.
+   * @param simulationConfig Details on the environment to simulate and behaviours to assert.
    * @throws IOException If reading from the input fails.
    */
   public static void assertBehavior(
-      ExtractorFactory factory, String file, Config config, String dumpFilesPrefix)
+      ExtractorFactory factory,
+      String file,
+      AssertionConfig assertionConfig,
+      SimulationConfig simulationConfig)
       throws IOException {
     // Check behavior prior to initialization.
     Extractor extractor = factory.create();
@@ -208,22 +253,25 @@ public final class ExtractorAsserts {
     // Assert output.
     Context context = ApplicationProvider.getApplicationContext();
     byte[] fileData = TestUtil.getByteArray(context, file);
+    String dumpFilesPrefix =
+        assertionConfig.dumpFilesPrefix != null ? assertionConfig.dumpFilesPrefix : file;
     assertOutput(
         factory.create(),
         dumpFilesPrefix,
         fileData,
         context,
-        config.sniffFirst,
-        config.simulateIOErrors,
-        config.simulateUnknownLength,
-        config.simulatePartialReads);
+        assertionConfig.deduplicateConsecutiveFormats,
+        simulationConfig.sniffFirst,
+        simulationConfig.simulateIOErrors,
+        simulationConfig.simulateUnknownLength,
+        simulationConfig.simulatePartialReads);
   }
 
   /**
    * Calls {@link #assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
-   * boolean)} with all possible combinations of "simulate" parameters with {@code sniffFirst} set
-   * to true, and makes one additional call with the "simulate" and {@code sniffFirst} parameters
-   * all set to false.
+   * boolean, boolean)} with all possible combinations of "simulate" parameters with {@code
+   * sniffFirst} set to true, and makes one additional call with the "simulate" and {@code
+   * sniffFirst} parameters all set to false.
    *
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
    *     class which is to be tested.
@@ -235,15 +283,17 @@ public final class ExtractorAsserts {
   private static void assertOutput(
       ExtractorFactory factory, String dumpFilesPrefix, byte[] data, Context context)
       throws IOException {
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, false, false);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, false, true);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, true, false);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, false, true, true);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, true, false, false);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, true, false, true);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, true, true, false);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, true, true, true, true);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, false, false, false);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, data, context, false, true, false, false, false);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, false, false, true);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, false, true, false);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, false, true, true);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, true, false, false);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, true, false, true);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, true, true, false);
+    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, true, true, true);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, data, context, false, false, false, false, false);
   }
 
   /**
@@ -267,6 +317,7 @@ public final class ExtractorAsserts {
       String dumpFilesPrefix,
       byte[] data,
       Context context,
+      boolean deduplicateConsecutiveFormats,
       boolean sniffFirst,
       boolean simulateIOErrors,
       boolean simulateUnknownLength,
@@ -282,7 +333,8 @@ public final class ExtractorAsserts {
       input.resetPeekPosition();
     }
 
-    FakeExtractorOutput extractorOutput = consumeTestData(extractor, input, 0, true);
+    FakeExtractorOutput extractorOutput =
+        consumeTestData(extractor, input, 0, true, deduplicateConsecutiveFormats);
     if (simulateUnknownLength) {
       extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
     } else {
@@ -323,9 +375,14 @@ public final class ExtractorAsserts {
   private ExtractorAsserts() {}
 
   private static FakeExtractorOutput consumeTestData(
-      Extractor extractor, FakeExtractorInput input, long timeUs, boolean retryFromStartIfLive)
+      Extractor extractor,
+      FakeExtractorInput input,
+      long timeUs,
+      boolean retryFromStartIfLive,
+      boolean deduplicateConsecutiveFormats)
       throws IOException {
-    FakeExtractorOutput output = new FakeExtractorOutput();
+    FakeExtractorOutput output =
+        new FakeExtractorOutput((id, type) -> new FakeTrackOutput(deduplicateConsecutiveFormats));
     extractor.init(output);
     consumeTestData(extractor, input, timeUs, output, retryFromStartIfLive);
     return output;

@@ -33,16 +33,17 @@ public final class AdtsExtractorTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "ts/sample.adts", assertionConfig);
+    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "ts/sample.adts", simulationConfig);
   }
 
   @Test
   public void sample_with_id3() throws Exception {
-    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "ts/sample_with_id3.adts", assertionConfig);
+    ExtractorAsserts.assertBehavior(
+        AdtsExtractor::new, "ts/sample_with_id3.adts", simulationConfig);
   }
 
   @Test
@@ -50,7 +51,7 @@ public final class AdtsExtractorTest {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
         "ts/sample_cbs.adts",
-        assertionConfig);
+        simulationConfig);
   }
 
   // https://github.com/google/ExoPlayer/issues/6700
@@ -59,6 +60,6 @@ public final class AdtsExtractorTest {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
         "ts/sample_cbs_truncated.adts",
-        assertionConfig);
+        simulationConfig);
   }
 }

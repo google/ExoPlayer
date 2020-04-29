@@ -35,11 +35,18 @@ import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * A fake {@link TrackOutput}.
- */
+/** A fake {@link TrackOutput}. */
 public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
+  public static final Factory DEFAULT_FACTORY =
+      (id, type) -> new FakeTrackOutput(/* deduplicateConsecutiveFormats= */ false);
+
+  /** Factory for {@link FakeTrackOutput} instances. */
+  public interface Factory {
+    FakeTrackOutput create(int id, int type);
+  }
+
+  private final boolean deduplicateConsecutiveFormats;
   private final ArrayList<DumpableSampleInfo> sampleInfos;
   private final ArrayList<Dumpable> dumpables;
 
@@ -49,7 +56,8 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
   @Nullable public Format lastFormat;
 
-  public FakeTrackOutput() {
+  public FakeTrackOutput(boolean deduplicateConsecutiveFormats) {
+    this.deduplicateConsecutiveFormats = deduplicateConsecutiveFormats;
     sampleInfos = new ArrayList<>();
     dumpables = new ArrayList<>();
     sampleData = Util.EMPTY_BYTE_ARRAY;
@@ -67,9 +75,19 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
 
   @Override
   public void format(Format format) {
-    Assertions.checkState(
-        receivedSampleInFormat,
-        "TrackOutput must receive at least one sampleMetadata() call between format() calls.");
+    if (!deduplicateConsecutiveFormats) {
+      Assertions.checkState(
+          receivedSampleInFormat,
+          "deduplicateConsecutiveFormats=false so TrackOutput must receive at least one"
+              + " sampleMetadata() call between format() calls.");
+    } else if (!receivedSampleInFormat) {
+      Dumpable dumpable = dumpables.remove(dumpables.size() - 1);
+      formatCount--;
+      Assertions.checkState(
+          dumpable instanceof DumpableFormat,
+          "receivedSampleInFormat=false so expected last dumpable to be a DumpableFormat. Found: "
+              + dumpable.getClass().getCanonicalName());
+    }
     receivedSampleInFormat = false;
     addFormat(format);
   }

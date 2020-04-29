@@ -33,7 +33,7 @@ public final class RawCcExtractorTest {
   }
 
   @ParameterizedRobolectricTestRunner.Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void rawCcSample() throws Exception {
@@ -44,6 +44,6 @@ public final class RawCcExtractorTest {
             .setAccessibilityChannel(1)
             .build();
     ExtractorAsserts.assertBehavior(
-        () -> new RawCcExtractor(format), "rawcc/sample.rawcc", assertionConfig);
+        () -> new RawCcExtractor(format), "rawcc/sample.rawcc", simulationConfig);
   }
 }
