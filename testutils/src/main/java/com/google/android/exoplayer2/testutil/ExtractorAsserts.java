@@ -209,7 +209,24 @@ public final class ExtractorAsserts {
     // Assert output.
     Context context = ApplicationProvider.getApplicationContext();
     byte[] fileData = TestUtil.getByteArray(context, file);
-    assertOutput(factory, dumpFilesPrefix, fileData, context);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, fileData, context, false, true, false, false, false);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, fileData, context, false, true, false, false, true);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, fileData, context, false, true, false, true, false);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, fileData, context, false, true, false, true, true);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, fileData, context, false, true, true, false, false);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, fileData, context, false, true, true, false, true);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, fileData, context, false, true, true, true, false);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, fileData, context, false, true, true, true, true);
+    assertOutput(
+        factory.create(), dumpFilesPrefix, fileData, context, false, false, false, false, false);
   }
 
   /**
@@ -266,36 +283,6 @@ public final class ExtractorAsserts {
         simulationConfig.simulateUnknownLength,
         simulationConfig.simulatePartialReads);
   }
-
-  /**
-   * Calls {@link #assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
-   * boolean, boolean)} with all possible combinations of "simulate" parameters with {@code
-   * sniffFirst} set to true, and makes one additional call with the "simulate" and {@code
-   * sniffFirst} parameters all set to false.
-   *
-   * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
-   *     class which is to be tested.
-   * @param dumpFilesPrefix The dump files prefix appended to the dump files path.
-   * @param data Content of the input file.
-   * @param context To be used to load the sample file.
-   * @throws IOException If reading from the input fails.
-   */
-  private static void assertOutput(
-      ExtractorFactory factory, String dumpFilesPrefix, byte[] data, Context context)
-      throws IOException {
-    assertOutput(
-        factory.create(), dumpFilesPrefix, data, context, false, true, false, false, false);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, false, false, true);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, false, true, false);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, false, true, true);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, true, false, false);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, true, false, true);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, true, true, false);
-    assertOutput(factory.create(), dumpFilesPrefix, data, context, false, true, true, true, true);
-    assertOutput(
-        factory.create(), dumpFilesPrefix, data, context, false, false, false, false, false);
-  }
-
   /**
    * Asserts that an extractor consumes valid input data successfully under the specified
    * conditions.
@@ -309,10 +296,9 @@ public final class ExtractorAsserts {
    * @param simulateIOErrors Whether to simulate IO errors.
    * @param simulateUnknownLength Whether to simulate unknown input length.
    * @param simulatePartialReads Whether to simulate partial reads.
-   * @return The {@link FakeExtractorOutput} used in the test.
    * @throws IOException If reading from the input fails.
    */
-  private static FakeExtractorOutput assertOutput(
+  private static void assertOutput(
       Extractor extractor,
       String dumpFilesPrefix,
       byte[] data,
@@ -368,8 +354,6 @@ public final class ExtractorAsserts {
         }
       }
     }
-
-    return extractorOutput;
   }
 
   private ExtractorAsserts() {}
