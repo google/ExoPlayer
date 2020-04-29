@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.util.List;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
@@ -54,18 +53,18 @@ public final class TsExtractorTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sampleWithH262AndMpegAudio() throws Exception {
     ExtractorAsserts.assertBehavior(
-        TsExtractor::new, "ts/sample_h262_mpeg_audio.ts", assertionConfig);
+        TsExtractor::new, "ts/sample_h262_mpeg_audio.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithH264AndMpegAudio() throws Exception {
     ExtractorAsserts.assertBehavior(
-        TsExtractor::new, "ts/sample_h264_mpeg_audio.ts", assertionConfig);
+        TsExtractor::new, "ts/sample_h264_mpeg_audio.ts", simulationConfig);
   }
 
   @Test
@@ -73,7 +72,7 @@ public final class TsExtractorTest {
     ExtractorAsserts.assertBehavior(
         () -> new TsExtractor(FLAG_DETECT_ACCESS_UNITS),
         "ts/sample_h264_no_access_unit_delimiters.ts",
-        assertionConfig);
+        simulationConfig);
   }
 
   @Test
@@ -81,58 +80,64 @@ public final class TsExtractorTest {
     ExtractorAsserts.assertBehavior(
         () -> new TsExtractor(DefaultTsPayloadReaderFactory.FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS),
         "ts/sample_h264_dts_audio.ts",
-        assertionConfig);
+        simulationConfig);
   }
 
   @Test
   public void sampleWithH265() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h265.ts", assertionConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h265.ts", simulationConfig);
   }
 
   @Test
-  @Ignore
-  // TODO(internal: b/153539929) Re-enable when ExtractorAsserts is less strict around repeated
-  // formats and seeking.
   public void sampleWithScte35() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_scte35.ts", assertionConfig);
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new,
+        "ts/sample_scte35.ts",
+        new ExtractorAsserts.AssertionConfig.Builder()
+            .setDeduplicateConsecutiveFormats(true)
+            .build(),
+        simulationConfig);
   }
 
   @Test
-  @Ignore
-  // TODO(internal: b/153539929) Re-enable when ExtractorAsserts is less strict around repeated
-  // formats and seeking.
   public void sampleWithAit() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ait.ts", assertionConfig);
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new,
+        "ts/sample_ait.ts",
+        new ExtractorAsserts.AssertionConfig.Builder()
+            .setDeduplicateConsecutiveFormats(true)
+            .build(),
+        simulationConfig);
   }
 
   @Test
   public void sampleWithAc3() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac3.ts", assertionConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac3.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithAc4() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac4.ts", assertionConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac4.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithEac3() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3.ts", assertionConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithEac3joc() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3joc.ts", assertionConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3joc.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithLatm() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_latm.ts", assertionConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_latm.ts", simulationConfig);
   }
 
   @Test
   public void streamWithJunkData() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_with_junk", assertionConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_with_junk", simulationConfig);
   }
 
   @Test

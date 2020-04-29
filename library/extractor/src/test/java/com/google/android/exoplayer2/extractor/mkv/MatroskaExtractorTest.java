@@ -33,39 +33,40 @@ public final class MatroskaExtractorTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void mkvSample() throws Exception {
-    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/sample.mkv", assertionConfig);
+    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/sample.mkv", simulationConfig);
   }
 
   @Test
   public void mkvSample_withSubripSubtitles() throws Exception {
     ExtractorAsserts.assertBehavior(
-        MatroskaExtractor::new, "mkv/sample_with_srt.mkv", assertionConfig);
+        MatroskaExtractor::new, "mkv/sample_with_srt.mkv", simulationConfig);
   }
 
   @Test
   public void mkvSample_withHtcRotationInfoInTrackName() throws Exception {
     ExtractorAsserts.assertBehavior(
-        MatroskaExtractor::new, "mkv/sample_with_htc_rotation_track_name.mkv", assertionConfig);
+        MatroskaExtractor::new, "mkv/sample_with_htc_rotation_track_name.mkv", simulationConfig);
   }
 
   @Test
   public void mkvFullBlocksSample() throws Exception {
-    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/full_blocks.mkv", assertionConfig);
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "mkv/full_blocks.mkv", simulationConfig);
   }
 
   @Test
   public void webmSubsampleEncryption() throws Exception {
     ExtractorAsserts.assertBehavior(
-        MatroskaExtractor::new, "mkv/subsample_encrypted_noaltref.webm", assertionConfig);
+        MatroskaExtractor::new, "mkv/subsample_encrypted_noaltref.webm", simulationConfig);
   }
 
   @Test
   public void webmSubsampleEncryptionWithAltrefFrames() throws Exception {
     ExtractorAsserts.assertBehavior(
-        MatroskaExtractor::new, "mkv/subsample_encrypted_altref.webm", assertionConfig);
+        MatroskaExtractor::new, "mkv/subsample_encrypted_altref.webm", simulationConfig);
   }
 }

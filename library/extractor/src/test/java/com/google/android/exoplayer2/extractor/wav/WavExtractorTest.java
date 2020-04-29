@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.wav;
 
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.AssertionConfig;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,11 +32,11 @@ public final class WavExtractorTest {
   }
 
   @ParameterizedRobolectricTestRunner.Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(WavExtractor::new, "wav/sample.wav", assertionConfig);
+    ExtractorAsserts.assertBehavior(WavExtractor::new, "wav/sample.wav", simulationConfig);
   }
 
   @Test
@@ -43,12 +44,13 @@ public final class WavExtractorTest {
     ExtractorAsserts.assertBehavior(
         WavExtractor::new,
         "wav/sample_with_trailing_bytes.wav",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "wav/sample.wav");
+        new AssertionConfig.Builder().setDumpFilesPrefix("wav/sample.wav").build(),
+        simulationConfig);
   }
 
   @Test
   public void sample_imaAdpcm() throws Exception {
-    ExtractorAsserts.assertBehavior(WavExtractor::new, "wav/sample_ima_adpcm.wav", assertionConfig);
+    ExtractorAsserts.assertBehavior(
+        WavExtractor::new, "wav/sample_ima_adpcm.wav", simulationConfig);
   }
 }

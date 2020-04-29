@@ -38,18 +38,18 @@ public final class AmrExtractorParameterizedTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void extractingNarrowBandSamples() throws Exception {
     ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_nb.amr", assertionConfig);
+        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_nb.amr", simulationConfig);
   }
 
   @Test
   public void extractingWideBandSamples() throws Exception {
     ExtractorAsserts.assertBehavior(
-        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_wb.amr", assertionConfig);
+        createAmrExtractorFactory(/* withSeeking= */ false), "amr/sample_wb.amr", simulationConfig);
   }
 
   @Test
@@ -57,7 +57,7 @@ public final class AmrExtractorParameterizedTest {
     ExtractorAsserts.assertBehavior(
         createAmrExtractorFactory(/* withSeeking= */ true),
         "amr/sample_nb_cbr.amr",
-        assertionConfig);
+        simulationConfig);
   }
 
   @Test
@@ -65,7 +65,7 @@ public final class AmrExtractorParameterizedTest {
     ExtractorAsserts.assertBehavior(
         createAmrExtractorFactory(/* withSeeking= */ true),
         "amr/sample_wb_cbr.amr",
-        assertionConfig);
+        simulationConfig);
   }
 
 

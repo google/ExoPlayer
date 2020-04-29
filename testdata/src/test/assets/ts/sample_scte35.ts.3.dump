@@ -39,7 +39,7 @@ track 600:
   sample count = 0
   format 0:
     sampleMimeType = application/x-scte35
-    subsampleOffsetUs = -1400000
+    subsampleOffsetUs = -1355512
 track 8448:
   total output bytes = 0
   sample count = 0

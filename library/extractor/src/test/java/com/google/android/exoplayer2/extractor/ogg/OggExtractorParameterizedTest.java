@@ -37,26 +37,26 @@ public final class OggExtractorParameterizedTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void opus() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear.opus", assertionConfig);
+    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear.opus", simulationConfig);
   }
 
   @Test
   public void flac() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_flac.ogg", assertionConfig);
+    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_flac.ogg", simulationConfig);
   }
 
   @Test
   public void flacNoSeektable() throws Exception {
     ExtractorAsserts.assertBehavior(
-        OggExtractor::new, "ogg/bear_flac_noseektable.ogg", assertionConfig);
+        OggExtractor::new, "ogg/bear_flac_noseektable.ogg", simulationConfig);
   }
 
   @Test
   public void vorbis() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_vorbis.ogg", assertionConfig);
+    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_vorbis.ogg", simulationConfig);
   }
 }

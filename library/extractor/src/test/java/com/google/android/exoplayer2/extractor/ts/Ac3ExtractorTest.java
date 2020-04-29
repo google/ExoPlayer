@@ -33,20 +33,20 @@ public final class Ac3ExtractorTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void ac3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.ac3", assertionConfig);
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.ac3", simulationConfig);
   }
 
   @Test
   public void eAc3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.eac3", assertionConfig);
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.eac3", simulationConfig);
   }
 
   @Test
   public void eAc3jocSample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample_eac3joc.ec3", assertionConfig);
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample_eac3joc.ec3", simulationConfig);
   }
 }

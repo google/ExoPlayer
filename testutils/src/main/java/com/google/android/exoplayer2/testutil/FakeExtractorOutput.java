@@ -68,12 +68,18 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
   @DumpFilesAction private static final int DUMP_FILE_ACTION = COMPARE_WITH_EXISTING;
 
   public final SparseArray<FakeTrackOutput> trackOutputs;
+  private final FakeTrackOutput.Factory trackOutputFactory;
 
   public int numberOfTracks;
   public boolean tracksEnded;
   public @MonotonicNonNull SeekMap seekMap;
 
   public FakeExtractorOutput() {
+    this(FakeTrackOutput.DEFAULT_FACTORY);
+  }
+
+  public FakeExtractorOutput(FakeTrackOutput.Factory trackOutputFactory) {
+    this.trackOutputFactory = trackOutputFactory;
     trackOutputs = new SparseArray<>();
   }
 
@@ -83,7 +89,7 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
     if (output == null) {
       assertThat(tracksEnded).isFalse();
       numberOfTracks++;
-      output = new FakeTrackOutput();
+      output = trackOutputFactory.create(id, type);
       trackOutputs.put(id, output);
     }
     return output;

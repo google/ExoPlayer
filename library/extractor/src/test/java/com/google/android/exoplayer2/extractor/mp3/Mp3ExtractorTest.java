@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp3;
 
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.AssertionConfig;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,18 +34,18 @@ public final class Mp3ExtractorTest {
   }
 
   @Parameter(0)
-  public ExtractorAsserts.Config assertionConfig;
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void mp3SampleWithXingHeader() throws Exception {
     ExtractorAsserts.assertBehavior(
-        Mp3Extractor::new, "mp3/bear-vbr-xing-header.mp3", assertionConfig);
+        Mp3Extractor::new, "mp3/bear-vbr-xing-header.mp3", simulationConfig);
   }
 
   @Test
   public void mp3SampleWithCbrSeeker() throws Exception {
     ExtractorAsserts.assertBehavior(
-        Mp3Extractor::new, "mp3/bear-cbr-variable-frame-size-no-seek-table.mp3", assertionConfig);
+        Mp3Extractor::new, "mp3/bear-cbr-variable-frame-size-no-seek-table.mp3", simulationConfig);
   }
 
   @Test
@@ -52,29 +53,29 @@ public final class Mp3ExtractorTest {
     ExtractorAsserts.assertBehavior(
         () -> new Mp3Extractor(Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING),
         "mp3/bear-vbr-no-seek-table.mp3",
-        assertionConfig);
+        simulationConfig);
   }
 
   @Test
   public void trimmedMp3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/play-trimmed.mp3", assertionConfig);
+    ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/play-trimmed.mp3", simulationConfig);
   }
 
   @Test
   public void mp3SampleWithId3Enabled() throws Exception {
     ExtractorAsserts.assertBehavior(
         Mp3Extractor::new,
-        /* file= */ "mp3/bear-id3.mp3",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "mp3/bear-id3-enabled");
+        "mp3/bear-id3.mp3",
+        new AssertionConfig.Builder().setDumpFilesPrefix("mp3/bear-id3-enabled").build(),
+        simulationConfig);
   }
 
   @Test
   public void mp3SampleWithId3Disabled() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new Mp3Extractor(Mp3Extractor.FLAG_DISABLE_ID3_METADATA),
-        /* file= */ "mp3/bear-id3.mp3",
-        assertionConfig,
-        /* dumpFilesPrefix= */ "mp3/bear-id3-disabled");
+        "mp3/bear-id3.mp3",
+        new AssertionConfig.Builder().setDumpFilesPrefix("mp3/bear-id3-disabled").build(),
+        simulationConfig);
   }
 }

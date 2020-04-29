@@ -55,7 +55,7 @@ track 600:
   sample count = 3
   format 0:
     sampleMimeType = application/x-scte35
-    subsampleOffsetUs = -1400000
+    subsampleOffsetUs = -1377756
   sample 0:
     time = 55610
     flags = 1
