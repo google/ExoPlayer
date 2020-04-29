@@ -84,43 +84,51 @@ public class DownloadManagerTest {
   }
 
   @Test
-  public void postDownloadRequest_downloads() throws Throwable {
+  public void downloadRequest_downloads() throws Throwable {
     postDownloadRequest(ID1);
     assertDownloading(ID1);
 
     FakeDownloader downloader = getDownloaderAt(0);
     downloader.assertId(ID1);
     downloader.assertDownloadStarted();
-    downloader.unblock();
-    downloader.assertCompleted();
-    downloader.assertStartCount(1);
-
+    downloader.finish();
     assertCompleted(ID1);
-    assertDownloaderCount(1);
+
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
-    assertThat(downloadManager.getCurrentDownloads()).isEmpty();
+    assertDownloaderCount(1);
+    assertDownloadIndexSize(1);
+    assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void postRemoveRequest_removes() throws Throwable {
+  public void removeRequest_cancelsAndRemovesDownload() throws Throwable {
     postDownloadRequest(ID1);
+
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    downloader0.assertId(ID1);
+    downloader0.assertDownloadStarted();
+    assertDownloading(ID1);
+
+    // The download will be canceled by the remove request.
     postRemoveRequest(ID1);
+    downloader0.assertCanceled();
     assertRemoving(ID1);
 
-    FakeDownloader downloader = getDownloaderAt(1);
-    downloader.assertId(ID1);
-    downloader.unblock();
-    downloader.assertCompleted();
-    downloader.assertStartCount(1);
-
+    // The download will be removed.
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader1.assertId(ID1);
+    downloader1.assertRemoveStarted();
+    downloader1.finish();
     assertRemoved(ID1);
-    assertDownloaderCount(2);
+
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
-    assertThat(downloadManager.getCurrentDownloads()).isEmpty();
+    assertDownloaderCount(2);
+    assertDownloadIndexSize(0);
+    assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void downloadFails_retriesThenTaskFails() throws Throwable {
+  public void download_retryUntilMinRetryCount_withoutProgress_thenFails() throws Throwable {
     postDownloadRequest(ID1);
 
     FakeDownloader downloader = getDownloaderAt(0);
@@ -129,16 +137,16 @@ public class DownloadManagerTest {
       downloader.assertDownloadStarted();
       downloader.fail();
     }
-    downloader.assertCompleted();
-    downloader.assertStartCount(MIN_RETRY_COUNT + 1);
-
     assertFailed(ID1);
+
     downloadManagerListener.blockUntilIdle();
+    assertDownloaderCount(1);
+    assertDownloadIndexSize(1);
     assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void downloadFails_retries() throws Throwable {
+  public void download_retryUntilMinRetryCountMinusOne_thenSucceeds() throws Throwable {
     postDownloadRequest(ID1);
 
     FakeDownloader downloader = getDownloaderAt(0);
@@ -148,375 +156,433 @@ public class DownloadManagerTest {
       downloader.fail();
     }
     downloader.assertDownloadStarted();
-    downloader.unblock();
-    downloader.assertCompleted();
-    downloader.assertStartCount(MIN_RETRY_COUNT + 1);
-
+    downloader.finish();
     assertCompleted(ID1);
+
     downloadManagerListener.blockUntilIdle();
+    assertDownloaderCount(1);
+    assertDownloadIndexSize(1);
     assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void downloadProgressOnRetry_retryCountResets() throws Throwable {
+  public void download_retryMakesProgress_resetsRetryCount() throws Throwable {
     postDownloadRequest(ID1);
 
     FakeDownloader downloader = getDownloaderAt(0);
     downloader.assertId(ID1);
-    int tooManyRetries = MIN_RETRY_COUNT + 10;
-    for (int i = 0; i < tooManyRetries; i++) {
+    for (int i = 0; i <= MIN_RETRY_COUNT; i++) {
       downloader.assertDownloadStarted();
       downloader.incrementBytesDownloaded(); // Make some progress.
       downloader.fail();
     }
+    // Since previous attempts all made progress the current error count should be 1. Therefore we
+    // should be able to fail (MIN_RETRY_COUNT - 1) more times and then still complete the download
+    // successfully.
+    for (int i = 0; i < MIN_RETRY_COUNT - 1; i++) {
+      downloader.assertDownloadStarted();
+      downloader.fail();
+    }
     downloader.assertDownloadStarted();
-    downloader.unblock();
-    downloader.assertCompleted();
-    downloader.assertStartCount(tooManyRetries + 1);
-
+    downloader.finish();
     assertCompleted(ID1);
+
     downloadManagerListener.blockUntilIdle();
+    assertDownloaderCount(1);
+    assertDownloadIndexSize(1);
+    assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void removeCancelsDownload() throws Throwable {
+  public void download_retryMakesProgress_resetsRetryCount_thenFails() throws Throwable {
     postDownloadRequest(ID1);
 
-    FakeDownloader downloader0 = getDownloaderAt(0);
-    downloader0.assertId(ID1);
-    downloader0.assertDownloadStarted();
+    FakeDownloader downloader = getDownloaderAt(0);
+    downloader.assertId(ID1);
+    for (int i = 0; i <= MIN_RETRY_COUNT; i++) {
+      downloader.assertDownloadStarted();
+      downloader.incrementBytesDownloaded(); // Make some progress.
+      downloader.fail();
+    }
+    // Since previous attempts all made progress the current error count should be 1. Therefore we
+    // should fail after MIN_RETRY_COUNT more attempts without making any progress.
+    for (int i = 0; i < MIN_RETRY_COUNT; i++) {
+      downloader.assertDownloadStarted();
+      downloader.fail();
+    }
+    assertFailed(ID1);
 
-    postRemoveRequest(ID1);
-
-    downloader0.assertCanceled();
-    downloader0.assertStartCount(1);
-    FakeDownloader downloader1 = getDownloaderAt(1);
-    downloader1.assertId(ID1);
-    downloader1.assertRemoveStarted();
-    downloader1.unblock();
-    downloader1.assertCompleted();
-
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    downloadManagerListener.blockUntilIdle();
+    assertDownloaderCount(1);
+    assertDownloadIndexSize(1);
+    assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void downloadNotCancelRemove() throws Throwable {
+  public void download_WhenRemovalInProgress_doesNotCancelRemoval() throws Throwable {
     postDownloadRequest(ID1);
     postRemoveRequest(ID1);
+    assertRemoving(ID1);
 
     FakeDownloader downloader1 = getDownloaderAt(1);
     downloader1.assertId(ID1);
     downloader1.assertRemoveStarted();
 
     postDownloadRequest(ID1);
+    // The removal should still complete.
+    downloader1.finish();
 
-    downloader1.unblock();
-    downloader1.assertCompleted();
-
+    // The download should then start and complete.
     FakeDownloader downloader2 = getDownloaderAt(2);
     downloader2.assertId(ID1);
-
     downloader2.assertDownloadStarted();
-    downloader2.unblock();
-    downloader2.assertCompleted();
+    downloader2.finish();
+    assertCompleted(ID1);
 
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(3);
+    assertDownloadIndexSize(1);
+    assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void secondSameRemoveRequestIgnored() throws Throwable {
+  public void remove_WhenRemovalInProgress_doesNothing() throws Throwable {
     postDownloadRequest(ID1);
     postRemoveRequest(ID1);
+    assertRemoving(ID1);
 
-    FakeDownloader downloader = getDownloaderAt(1);
-    downloader.assertId(ID1);
-    downloader.assertRemoveStarted();
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader1.assertId(ID1);
+    downloader1.assertRemoveStarted();
 
     postRemoveRequest(ID1);
-
-    downloader.unblock();
-    downloader.assertCompleted();
-
+    // The existing removal should still complete.
+    downloader1.finish();
     assertRemoved(ID1);
-    assertDownloaderCount(2);
+
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(2);
+    assertDownloadIndexSize(0);
+    assertCurrentDownloadCount(0);
   }
 
   @Test
   public void removeAllDownloads_removesAllDownloads() throws Throwable {
-    // Finish one download and keep one running.
+    // Finish one download.
     postDownloadRequest(ID1);
     FakeDownloader downloader0 = getDownloaderAt(0);
     downloader0.assertId(ID1);
-    downloader0.unblock();
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    downloader0.assertDownloadStarted();
+    downloader0.finish();
+    assertCompleted(ID1);
 
+    // Start a second download.
     postDownloadRequest(ID2);
     FakeDownloader downloader1 = getDownloaderAt(1);
     downloader1.assertId(ID2);
     downloader1.assertDownloadStarted();
 
     postRemoveAllRequest();
+    // Both downloads should be removed.
     FakeDownloader downloader2 = getDownloaderAt(2);
-    downloader2.assertId(ID1);
-    downloader2.unblock();
     FakeDownloader downloader3 = getDownloaderAt(3);
+    downloader2.assertId(ID1);
     downloader3.assertId(ID2);
-    downloader3.unblock();
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
-
+    downloader2.assertRemoveStarted();
+    downloader3.assertRemoveStarted();
+    downloader2.finish();
+    downloader3.finish();
     assertRemoved(ID1);
     assertRemoved(ID2);
-    assertCurrentDownloadCount(0);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(4);
     assertDownloadIndexSize(0);
+    assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void differentDownloadRequestsMerged() throws Throwable {
+  public void downloads_withSameIdsAndDifferentStreamKeys_areMerged() throws Throwable {
     StreamKey streamKey1 = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0);
-    StreamKey streamKey2 = new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1);
     postDownloadRequest(ID1, streamKey1);
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    downloader0.assertId(ID1);
+    downloader0.assertDownloadStarted();
+
+    StreamKey streamKey2 = new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1);
     postDownloadRequest(ID1, streamKey2);
+    // The request for streamKey2 will cause the downloader for streamKey1 to be canceled and
+    // replaced with a new downloader for both keys.
+    downloader0.assertCanceled();
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader1.assertId(ID1);
+    downloader1.assertStreamKeys(streamKey1, streamKey2);
+    downloader1.assertDownloadStarted();
+    downloader1.finish();
+    assertCompleted(ID1);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(2);
+    assertDownloadIndexSize(1);
+    assertCurrentDownloadCount(0);
+  }
+
+  @Test
+  public void downloads_withDifferentIds_executeInParallel() throws Throwable {
+    postDownloadRequest(ID1);
+    postDownloadRequest(ID2);
+
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader0.assertId(ID1);
+    downloader1.assertId(ID2);
+    downloader0.assertDownloadStarted();
+    downloader1.assertDownloadStarted();
+    downloader0.finish();
+    downloader1.finish();
+    assertCompleted(ID1);
+    assertCompleted(ID2);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(2);
+    assertDownloadIndexSize(2);
+    assertCurrentDownloadCount(0);
+  }
+
+  @Test
+  public void downloads_withDifferentIds_maxDownloadsIsOne_executedSequentially() throws Throwable {
+    setupDownloadManager(/* maxParallelDownloads= */ 1);
+    postDownloadRequest(ID1);
+    postDownloadRequest(ID2);
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    downloader0.assertId(ID1);
+    downloader0.assertDownloadStarted();
+
+    // The second download should be queued and the first one should be able to complete.
+    assertNoDownloaderAt(1);
+    assertQueued(ID2);
+    downloader0.finish();
+    assertCompleted(ID1);
+
+    // The second download can start once the first one has completed.
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader1.assertId(ID2);
+    downloader1.assertDownloadStarted();
+    downloader1.finish();
+    assertCompleted(ID2);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(2);
+    assertDownloadIndexSize(2);
+    assertCurrentDownloadCount(0);
+  }
+
+  @Test
+  public void downloadAndRemove_withDifferentIds_maxDownloadsIsOne_executeInParallel()
+      throws Throwable {
+    setupDownloadManager(/* maxParallelDownloads= */ 1);
+
+    // Complete a download so that we can remove it.
+    postDownloadRequest(ID1);
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    downloader0.assertId(ID1);
+    downloader0.assertDownloadStarted();
+    downloader0.finish();
+
+    // Request removal of the first download, and downloading of a second download.
+    postRemoveRequest(ID1);
+    postDownloadRequest(ID2);
+
+    // The removal and download should proceed in parallel.
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    FakeDownloader downloader2 = getDownloaderAt(2);
+    downloader1.assertId(ID1);
+    downloader2.assertId(ID2);
+    downloader1.assertRemoveStarted();
+    downloader2.assertDownloadStarted();
+    downloader1.finish();
+    downloader2.finish();
+    assertRemoved(ID1);
+    assertCompleted(ID2);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(3);
+    assertDownloadIndexSize(1);
+    assertCurrentDownloadCount(0);
+  }
+
+  @Test
+  public void downloadAfterRemove_maxDownloadIsOne_isNotStarted() throws Throwable {
+    setupDownloadManager(/* maxParallelDownloads= */ 1);
+    postDownloadRequest(ID1);
+    postDownloadRequest(ID2);
+    postRemoveRequest(ID2);
+    postDownloadRequest(ID2);
 
     FakeDownloader downloader0 = getDownloaderAt(0);
     downloader0.assertId(ID1);
     downloader0.assertDownloadStarted();
-    downloader0.assertCanceled();
 
+    // The second download shouldn't have been started, so the second downloader is for removal.
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader1.assertId(ID2);
+    downloader1.assertRemoveStarted();
+    downloader1.finish();
+    // A downloader to re-download the second download should not be started.
+    assertNoDownloaderAt(2);
+    // The first download should be able to complete.
+    downloader0.finish();
+    assertCompleted(ID1);
+
+    // Now the first download has completed, the second download should start.
+    FakeDownloader downloader2 = getDownloaderAt(2);
+    downloader2.assertId(ID2);
+    downloader2.assertDownloadStarted();
+    downloader2.finish();
+    assertCompleted(ID2);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(3);
+    assertDownloadIndexSize(2);
+    assertCurrentDownloadCount(0);
+  }
+
+  @Test
+  public void pauseAndResume_pausesAndResumesDownload() throws Throwable {
+    postDownloadRequest(ID1);
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    downloader0.assertId(ID1);
+    downloader0.assertDownloadStarted();
+
+    postPauseDownloads();
+    downloader0.assertCanceled();
+    assertQueued(ID1);
+
+    postResumeDownloads();
     FakeDownloader downloader1 = getDownloaderAt(1);
     downloader1.assertId(ID1);
     downloader1.assertDownloadStarted();
-    downloader1.assertStreamKeys(streamKey1, streamKey2);
-    downloader1.unblock();
-
+    downloader1.finish();
     assertCompleted(ID1);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
     assertDownloaderCount(2);
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloadIndexSize(1);
+    assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void requestsForDifferentContent_executedInParallel() throws Throwable {
+  public void pause_doesNotCancelRemove() throws Throwable {
     postDownloadRequest(ID1);
-    postDownloadRequest(ID2);
-
-    FakeDownloader downloader0 = getDownloaderAt(0);
-    downloader0.assertId(ID1);
-    FakeDownloader downloader1 = getDownloaderAt(1);
-    downloader1.assertId(ID2);
-    downloader0.assertDownloadStarted();
-    downloader1.assertDownloadStarted();
-    downloader0.unblock();
-    downloader1.unblock();
-
-    assertCompleted(ID1);
-    assertCompleted(ID2);
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
-  }
-
-  @Test
-  public void requestsForDifferentContent_ifMaxDownloadIs1_executedSequentially() throws Throwable {
-    setupDownloadManager(/* maxParallelDownloads= */ 1);
-    postDownloadRequest(ID1);
-    postDownloadRequest(ID2);
-
-    FakeDownloader downloader0 = getDownloaderAt(0);
-    downloader0.assertId(ID1);
-    downloader0.assertDownloadStarted();
-    assertNoDownloaderAt(1);
-    assertQueued(ID2);
-    downloader0.unblock();
-    FakeDownloader downloader1 = getDownloaderAt(1);
-    downloader1.assertId(ID2);
-    downloader1.assertDownloadStarted();
-    downloader1.unblock();
-
-    assertCompleted(ID1);
-    assertCompleted(ID2);
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
-  }
-
-  @Test
-  public void removeRequestForDifferentContent_ifMaxDownloadIs1_executedInParallel()
-      throws Throwable {
-    setupDownloadManager(/* maxParallelDownloads= */ 1);
-    postDownloadRequest(ID1);
-    postDownloadRequest(ID2);
-    postRemoveRequest(ID2);
-
-    FakeDownloader downloader0 = getDownloaderAt(0);
-    downloader0.assertId(ID1);
-    FakeDownloader downloader1 = getDownloaderAt(1);
-    downloader1.assertId(ID2);
-    downloader0.assertDownloadStarted();
-    downloader1.assertRemoveStarted();
-    downloader0.unblock();
-    downloader1.unblock();
-
-    assertCompleted(ID1);
-    assertRemoved(ID2);
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
-  }
-
-  @Test
-  public void downloadRequestFollowingRemove_ifMaxDownloadIs1_isNotStarted() throws Throwable {
-    setupDownloadManager(/* maxParallelDownloads= */ 1);
-    postDownloadRequest(ID1);
-    postDownloadRequest(ID2);
-    postRemoveRequest(ID2);
-    postDownloadRequest(ID2);
-
-    FakeDownloader downloader0 = getDownloaderAt(0);
-    downloader0.assertId(ID1);
-    FakeDownloader downloader1 = getDownloaderAt(1);
-    downloader1.assertId(ID2);
-    downloader0.assertDownloadStarted();
-    downloader1.assertRemoveStarted();
-    downloader1.unblock();
-    assertNoDownloaderAt(2);
-    downloader0.unblock();
-    FakeDownloader downloader2 = getDownloaderAt(2);
-    downloader2.assertId(ID2);
-
-    downloader2.assertDownloadStarted();
-    downloader2.unblock();
-
-    assertCompleted(ID1);
-    assertCompleted(ID2);
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
-  }
-
-  @Test
-  public void getCurrentDownloads_returnsCurrentDownloads() {
-    postDownloadRequest(ID1);
-    postDownloadRequest(ID2);
-    postDownloadRequest(ID3);
-    postRemoveRequest(ID3);
-    assertRemoving(ID3);
-
-    List<Download> downloads = downloadManager.getCurrentDownloads();
-    assertThat(downloads).hasSize(3);
-    String[] taskIds = {ID1, ID2, ID3};
-    String[] downloadIds = {
-      downloads.get(0).request.id, downloads.get(1).request.id, downloads.get(2).request.id
-    };
-    assertThat(downloadIds).isEqualTo(taskIds);
-  }
-
-  @Test
-  public void pauseAndResume() throws Throwable {
-    postDownloadRequest(ID1);
-    assertDownloading(ID1);
-    postDownloadRequest(ID2);
-    postRemoveRequest(ID2);
-    assertRemoving(ID2);
-    postDownloadRequest(ID2);
-
-    postPauseDownloads();
-
-    assertQueued(ID1);
-
-    // remove requests aren't stopped.
-    FakeDownloader downloader2 = getDownloaderAt(2);
-    downloader2.assertId(ID2);
-    downloader2.unblock();
-    downloader2.assertCompleted();
-    assertQueued(ID2);
-    // Although remove2 is finished, download2 doesn't start.
-    assertNoDownloaderAt(3);
-
-    // When a new remove request is added, it cancels stopped download requests with the same media.
-    postRemoveRequest(ID1);
-    FakeDownloader downloader3 = getDownloaderAt(3);
-    downloader3.assertId(ID1);
-    downloader3.assertRemoveStarted();
-    downloader3.unblock();
-    assertRemoved(ID1);
-
-    // New download requests can be added but they don't start.
-    postDownloadRequest(ID3);
-    assertNoDownloaderAt(4);
-
-    postResumeDownloads();
-
-    FakeDownloader downloader4 = getDownloaderAt(4);
-    downloader4.assertId(ID2);
-    downloader4.assertDownloadStarted();
-    downloader4.unblock();
-    FakeDownloader downloader5 = getDownloaderAt(5);
-    downloader5.assertId(ID3);
-    downloader5.assertDownloadStarted();
-    downloader5.unblock();
-
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
-  }
-
-  @Test
-  public void setAndClearSingleDownloadStopReason() throws Throwable {
-    postDownloadRequest(ID1);
-
-    assertDownloading(ID1);
-
-    postSetStopReason(ID1, APP_STOP_REASON);
-
-    assertStopped(ID1);
-
-    postSetStopReason(ID1, Download.STOP_REASON_NONE);
-
-    FakeDownloader downloader = getDownloaderAt(1);
-    downloader.assertId(ID1);
-    downloader.assertDownloadStarted();
-    downloader.unblock();
-
-    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
-  }
-
-  @Test
-  public void setSingleDownloadStopReasonThenRemove_removesDownload() throws Throwable {
-    postDownloadRequest(ID1);
-
-    assertDownloading(ID1);
-
-    postSetStopReason(ID1, APP_STOP_REASON);
-
-    assertStopped(ID1);
-
     postRemoveRequest(ID1);
     FakeDownloader downloader = getDownloaderAt(1);
     downloader.assertId(ID1);
     downloader.assertRemoveStarted();
-    downloader.unblock();
-    assertRemoving(ID1);
+
+    postPauseDownloads();
+    downloader.finish();
+    assertRemoved(ID1);
 
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(2);
+    assertDownloadIndexSize(0);
+    assertCurrentDownloadCount(0);
   }
 
   @Test
-  public void setSingleDownloadStopReason_doesNotAffectOtherDownloads() throws Throwable {
+  public void setAndClearStopReason_stopsAndRestartsDownload() throws Throwable {
     postDownloadRequest(ID1);
-    assertDownloading(ID1);
-    postDownloadRequest(ID2);
-    postRemoveRequest(ID2);
-    assertRemoving(ID2);
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    downloader0.assertId(ID1);
+    downloader0.assertDownloadStarted();
 
     postSetStopReason(ID1, APP_STOP_REASON);
-
+    downloader0.assertCanceled();
     assertStopped(ID1);
 
-    // Other downloaders aren't affected.
-    FakeDownloader downloader1 = getDownloaderAt(2);
-    downloader1.assertId(ID2);
-    downloader1.assertRemoveStarted();
-    downloader1.unblock();
-    downloader1.assertCompleted();
-
-    // New download requests can be added and they start.
-    postDownloadRequest(ID3);
-    FakeDownloader downloader3 = getDownloaderAt(3);
-    downloader3.assertId(ID3);
-    downloader3.assertDownloadStarted();
-    downloader3.unblock();
+    postSetStopReason(ID1, Download.STOP_REASON_NONE);
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader1.assertId(ID1);
+    downloader1.assertDownloadStarted();
+    downloader1.finish();
 
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(2);
+    assertDownloadIndexSize(1);
+    assertCurrentDownloadCount(0);
+  }
+
+  @Test
+  public void setStopReason_doesNotStopOtherDownload() throws Throwable {
+    postDownloadRequest(ID1);
+    postDownloadRequest(ID2);
+
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader0.assertId(ID1);
+    downloader1.assertId(ID2);
+    downloader0.assertDownloadStarted();
+    downloader1.assertDownloadStarted();
+
+    postSetStopReason(ID1, APP_STOP_REASON);
+    downloader0.assertCanceled();
+    assertStopped(ID1);
+
+    // The second download should still complete.
+    downloader1.finish();
+    assertCompleted(ID2);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(2);
+    assertDownloadIndexSize(2);
+    assertCurrentDownloadCount(1);
+  }
+
+  @Test
+  public void remove_removesStoppedDownload() throws Throwable {
+    postDownloadRequest(ID1);
+    FakeDownloader downloader0 = getDownloaderAt(0);
+    downloader0.assertId(ID1);
+    downloader0.assertDownloadStarted();
+
+    postSetStopReason(ID1, APP_STOP_REASON);
+    downloader0.assertCanceled();
+    assertStopped(ID1);
+
+    postRemoveRequest(ID1);
+    FakeDownloader downloader1 = getDownloaderAt(1);
+    downloader1.assertId(ID1);
+    downloader1.assertRemoveStarted();
+    downloader1.finish();
+    assertRemoved(ID1);
+
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
+    assertDownloaderCount(2);
+    assertDownloadIndexSize(0);
+    assertCurrentDownloadCount(0);
+  }
+
+  @Test
+  public void getCurrentDownloads_returnsCurrentDownloads() throws Throwable {
+    setupDownloadManager(/* maxParallelDownloads= */ 1);
+    postDownloadRequest(ID1);
+    postDownloadRequest(ID2);
+    postDownloadRequest(ID3);
+    postRemoveRequest(ID3);
+
+    assertRemoving(ID3); // Blocks until the downloads will be visible.
+
+    List<Download> downloads = postGetCurrentDownloads();
+    assertThat(downloads).hasSize(3);
+    Download download0 = downloads.get(0);
+    assertThat(download0.request.id).isEqualTo(ID1);
+    assertThat(download0.state).isEqualTo(Download.STATE_DOWNLOADING);
+    Download download1 = downloads.get(1);
+    assertThat(download1.request.id).isEqualTo(ID2);
+    assertThat(download1.state).isEqualTo(Download.STATE_QUEUED);
+    Download download2 = downloads.get(2);
+    assertThat(download2.request.id).isEqualTo(ID3);
+    assertThat(download2.state).isEqualTo(Download.STATE_REMOVING);
   }
 
   @Test
@@ -828,17 +894,17 @@ public class DownloadManagerTest {
       }
     }
 
-    /** Unblocks {@link #download} or {@link #remove}, allowing the task to finish successfully. */
-    public FakeDownloader unblock() {
+    /** Finishes the {@link #download} or {@link #remove} without an error. */
+    public void finish() throws InterruptedException {
       blocker.open();
-      return this;
+      blockUntilFinished();
     }
 
-    /** Fails {@link #download} or {@link #remove}, allowing the task to finish with an error. */
-    public FakeDownloader fail() {
+    /** Fails {@link #download} or {@link #remove} with an error. */
+    public void fail() throws InterruptedException {
       enableDownloadIOException = true;
       blocker.open();
-      return this;
+      blockUntilFinished();
     }
 
     /** Increments the number of bytes that the fake downloader has downloaded. */
@@ -862,15 +928,6 @@ public class DownloadManagerTest {
     public void assertRemoveStarted() throws InterruptedException {
       assertThat(removeStarted.block(TIMEOUT_MS)).isTrue();
       removeStarted.close();
-    }
-
-    public void assertStartCount(int count) {
-      assertThat(startCount.get()).isEqualTo(count);
-    }
-
-    public void assertCompleted() throws InterruptedException {
-      blockUntilFinished();
-      assertThat(canceled).isFalse();
     }
 
     public void assertCanceled() throws InterruptedException {
