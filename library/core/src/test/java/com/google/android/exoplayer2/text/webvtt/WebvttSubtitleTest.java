@@ -21,6 +21,7 @@ import static java.lang.Long.MAX_VALUE;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.Cue;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,8 +34,6 @@ public class WebvttSubtitleTest {
 
   private static final String FIRST_SUBTITLE_STRING = "This is the first subtitle.";
   private static final String SECOND_SUBTITLE_STRING = "This is the second subtitle.";
-  private static final String FIRST_AND_SECOND_SUBTITLE_STRING =
-      FIRST_SUBTITLE_STRING + "\n" + SECOND_SUBTITLE_STRING;
 
   private static final WebvttSubtitle emptySubtitle = new WebvttSubtitle(Collections.emptyList());
 
@@ -143,12 +142,12 @@ public class WebvttSubtitleTest {
     assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getCues(1_999_999));
 
     // Test after first and second subtitle
-    assertSingleCueTextEquals(
-        FIRST_AND_SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(2_000_000));
-    assertSingleCueTextEquals(
-        FIRST_AND_SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(2_500_000));
-    assertSingleCueTextEquals(
-        FIRST_AND_SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(2_999_999));
+    assertThat(getCueTexts(overlappingSubtitle.getCues(2_000_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(overlappingSubtitle.getCues(2_500_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(overlappingSubtitle.getCues(2_999_999)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
 
     // Test second subtitle
     assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(3_000_000));
@@ -184,9 +183,12 @@ public class WebvttSubtitleTest {
     assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(1_999_999));
 
     // Test after first and second subtitle
-    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getCues(2_000_000));
-    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getCues(2_500_000));
-    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getCues(2_999_999));
+    assertThat(getCueTexts(nestedSubtitle.getCues(2_000_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(nestedSubtitle.getCues(2_500_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(nestedSubtitle.getCues(2_999_999)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
 
     // Test first subtitle
     assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(3_000_000));
@@ -240,5 +242,13 @@ public class WebvttSubtitleTest {
   private void assertSingleCueTextEquals(String expected, List<Cue> cues) {
     assertThat(cues).hasSize(1);
     assertThat(cues.get(0).text.toString()).isEqualTo(expected);
+  }
+
+  private static List<String> getCueTexts(List<Cue> cues) {
+    List<String> cueTexts = new ArrayList<>();
+    for (int i = 0; i < cues.size(); i++) {
+      cueTexts.add(cues.get(i).text.toString());
+    }
+    return cueTexts;
   }
 }
