@@ -67,10 +67,10 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
             () -> {
               if (downloadManager.isIdle()) {
                 idleCondition.open();
-                checkedOnMainThread.open();
               }
+              checkedOnMainThread.open();
             });
-    checkedOnMainThread.block(TIMEOUT_MS);
+    assertThat(checkedOnMainThread.block(TIMEOUT_MS)).isTrue();
     assertThat(idleCondition.block(TIMEOUT_MS)).isTrue();
   }
 
