@@ -2401,6 +2401,56 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void timelineUpdateWithNewMidrollAdCuePoint_dropsPrebufferedPeriod() throws Exception {
+    Timeline timeline1 =
+        new FakeTimeline(new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 0));
+    AdPlaybackState adPlaybackStateWithMidroll =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 1,
+            /* adGroupTimesUs...= */ TimelineWindowDefinition
+                    .DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
+                + 5 * C.MICROS_PER_SECOND);
+    Timeline timeline2 =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ 10_000_000,
+                adPlaybackStateWithMidroll));
+    FakeMediaSource mediaSource = new FakeMediaSource(timeline1, ExoPlayerTestRunner.VIDEO_FORMAT);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(() -> mediaSource.setNewSourceInfo(timeline2))
+            .waitForTimelineChanged(
+                timeline2, /* expectedReason= */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
+            .play()
+            .build();
+    ExoPlayerTestRunner testRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
+
+    testRunner.assertTimelineChangeReasonsEqual(
+        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
+        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    testRunner.assertPlayedPeriodIndices(0);
+    assertThat(mediaSource.getCreatedMediaPeriods()).hasSize(4);
+    assertThat(mediaSource.getCreatedMediaPeriods().get(0).nextAdGroupIndex)
+        .isEqualTo(C.INDEX_UNSET);
+    assertThat(mediaSource.getCreatedMediaPeriods().get(1).nextAdGroupIndex).isEqualTo(0);
+    assertThat(mediaSource.getCreatedMediaPeriods().get(2).adGroupIndex).isEqualTo(0);
+    assertThat(mediaSource.getCreatedMediaPeriods().get(3).adGroupIndex).isEqualTo(C.INDEX_UNSET);
+  }
+
+  @Test
   public void repeatedSeeksToUnpreparedPeriodInSameWindowKeepsWindowSequenceNumber()
       throws Exception {
     Timeline timeline =
