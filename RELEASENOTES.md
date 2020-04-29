@@ -109,6 +109,8 @@
         seconds ([#7181](https://github.com/google/ExoPlayer/issues/7181)).
     *   Add special-case positioning behaviour for vertical cues being rendered
         horizontally.
+    *   Implement steps 4-10 of the
+        [WebVTT line computation algorithm](https://www.w3.org/TR/webvtt1/#cue-computed-line).
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.

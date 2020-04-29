@@ -1,0 +1,13 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:03.000
+Displayed at the bottom for 3 seconds.
+
+00:01.000 --> 00:02.000
+Appears directly above for 1 second.
+
+00:04.000 --> 00:06.000
+Displayed at the bottom for 2 seconds.
+
+00:05.000 --> 00:07.000
+Appears directly above the previous cue, then replaces it after 1 second.
