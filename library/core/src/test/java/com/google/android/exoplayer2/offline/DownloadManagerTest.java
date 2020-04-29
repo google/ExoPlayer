@@ -94,6 +94,7 @@ public class DownloadManagerTest {
     assertDownloading(ID1);
 
     FakeDownloader downloader = getDownloader(ID1, 0);
+    downloader.assertDownloadStarted();
     downloader.unblock();
     downloader.assertCompleted();
     downloader.assertStartCount(1);
@@ -127,7 +128,7 @@ public class DownloadManagerTest {
 
     FakeDownloader downloader = getDownloader(ID1, 0);
     for (int i = 0; i <= MIN_RETRY_COUNT; i++) {
-      downloader.assertStarted();
+      downloader.assertDownloadStarted();
       downloader.fail();
     }
     downloader.assertCompleted();
@@ -144,10 +145,10 @@ public class DownloadManagerTest {
 
     FakeDownloader downloader = getDownloader(ID1, 0);
     for (int i = 0; i < MIN_RETRY_COUNT; i++) {
-      downloader.assertStarted();
+      downloader.assertDownloadStarted();
       downloader.fail();
     }
-    downloader.assertStarted();
+    downloader.assertDownloadStarted();
     downloader.unblock();
     downloader.assertCompleted();
     downloader.assertStartCount(MIN_RETRY_COUNT + 1);
@@ -164,11 +165,11 @@ public class DownloadManagerTest {
     FakeDownloader downloader = getDownloader(ID1, 0);
     int tooManyRetries = MIN_RETRY_COUNT + 10;
     for (int i = 0; i < tooManyRetries; i++) {
-      downloader.incrementBytesDownloaded();
-      downloader.assertStarted();
+      downloader.assertDownloadStarted();
+      downloader.incrementBytesDownloaded(); // Make some progress.
       downloader.fail();
     }
-    downloader.assertStarted();
+    downloader.assertDownloadStarted();
     downloader.unblock();
     downloader.assertCompleted();
     downloader.assertStartCount(tooManyRetries + 1);
@@ -182,13 +183,14 @@ public class DownloadManagerTest {
     postDownloadRequest(ID1);
 
     FakeDownloader downloader1 = getDownloader(ID1, 0);
-    downloader1.assertStarted();
+    downloader1.assertDownloadStarted();
 
     postRemoveRequest(ID1);
 
     downloader1.assertCanceled();
     downloader1.assertStartCount(1);
     FakeDownloader downloader2 = getDownloader(ID1, 1);
+    downloader2.assertRemoveStarted();
     downloader2.unblock();
     downloader2.assertCompleted();
 
@@ -201,7 +203,7 @@ public class DownloadManagerTest {
     postRemoveRequest(ID1);
 
     FakeDownloader downloader1 = getDownloader(ID1, 1);
-    downloader1.assertStarted();
+    downloader1.assertRemoveStarted();
 
     postDownloadRequest(ID1);
 
@@ -209,6 +211,7 @@ public class DownloadManagerTest {
     downloader1.assertCompleted();
 
     FakeDownloader downloader2 = getDownloader(ID1, 2);
+    downloader2.assertDownloadStarted();
     downloader2.unblock();
     downloader2.assertCompleted();
 
@@ -221,7 +224,7 @@ public class DownloadManagerTest {
     postRemoveRequest(ID1);
 
     FakeDownloader downloader = getDownloader(ID1, 1);
-    downloader.assertStarted();
+    downloader.assertRemoveStarted();
 
     postRemoveRequest(ID1);
 
@@ -260,11 +263,11 @@ public class DownloadManagerTest {
     postDownloadRequest(ID1, streamKey2);
 
     FakeDownloader downloader1 = getDownloader(ID1, 0);
-    downloader1.assertStarted();
+    downloader1.assertDownloadStarted();
     downloader1.assertCanceled();
 
     FakeDownloader downloader2 = getDownloader(ID1, 1);
-    downloader2.assertStarted();
+    downloader2.assertDownloadStarted();
     assertThat(downloader2.request.streamKeys).containsExactly(streamKey1, streamKey2);
     downloader2.unblock();
 
@@ -280,8 +283,8 @@ public class DownloadManagerTest {
 
     FakeDownloader downloader1 = getDownloader(ID1, 0);
     FakeDownloader downloader2 = getDownloader(ID2, 0);
-    downloader1.assertStarted();
-    downloader2.assertStarted();
+    downloader1.assertDownloadStarted();
+    downloader2.assertDownloadStarted();
     downloader1.unblock();
     downloader2.unblock();
 
@@ -297,12 +300,12 @@ public class DownloadManagerTest {
     postDownloadRequest(ID2);
 
     FakeDownloader downloader1 = getDownloader(ID1, 0);
-    downloader1.assertStarted();
+    downloader1.assertDownloadStarted();
     assertDownloaderNotCreated(ID2, 0);
     assertQueued(ID2);
     downloader1.unblock();
     FakeDownloader downloader2 = getDownloader(ID2, 0);
-    downloader2.assertStarted();
+    downloader2.assertDownloadStarted();
     downloader2.unblock();
 
     assertCompleted(ID1);
@@ -320,8 +323,8 @@ public class DownloadManagerTest {
 
     FakeDownloader downloader1 = getDownloader(ID1, 0);
     FakeDownloader downloader2 = getDownloader(ID2, 0);
-    downloader1.assertStarted();
-    downloader2.assertStarted();
+    downloader1.assertDownloadStarted();
+    downloader2.assertRemoveStarted();
     downloader1.unblock();
     downloader2.unblock();
 
@@ -340,13 +343,13 @@ public class DownloadManagerTest {
 
     FakeDownloader downloader1 = getDownloader(ID1, 0);
     FakeDownloader downloader2 = getDownloader(ID2, 0);
-    downloader1.assertStarted();
-    downloader2.assertStarted();
+    downloader1.assertDownloadStarted();
+    downloader2.assertRemoveStarted();
     downloader2.unblock();
     assertDownloaderNotCreated(ID2, 1);
     downloader1.unblock();
     FakeDownloader downloader3 = getDownloader(ID2, 1);
-    downloader3.assertStarted();
+    downloader3.assertDownloadStarted();
     downloader3.unblock();
 
     assertCompleted(ID1);
@@ -395,7 +398,7 @@ public class DownloadManagerTest {
     // When a new remove request is added, it cancels stopped download requests with the same media.
     postRemoveRequest(ID1);
     FakeDownloader downloader2 = getDownloader(ID1, 1);
-    downloader2.assertStarted();
+    downloader2.assertRemoveStarted();
     downloader2.unblock();
     assertRemoved(ID1);
 
@@ -406,10 +409,10 @@ public class DownloadManagerTest {
     postResumeDownloads();
 
     FakeDownloader downloader4 = getDownloader(ID2, 2);
-    downloader4.assertStarted();
+    downloader4.assertDownloadStarted();
     downloader4.unblock();
     FakeDownloader downloader5 = getDownloader(ID3, 0);
-    downloader5.assertStarted();
+    downloader5.assertDownloadStarted();
     downloader5.unblock();
 
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
@@ -428,7 +431,7 @@ public class DownloadManagerTest {
     postSetStopReason(ID1, Download.STOP_REASON_NONE);
 
     FakeDownloader downloader = getDownloader(ID1, 1);
-    downloader.assertStarted();
+    downloader.assertDownloadStarted();
     downloader.unblock();
 
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
@@ -446,7 +449,7 @@ public class DownloadManagerTest {
 
     postRemoveRequest(ID1);
     FakeDownloader downloader = getDownloader(ID1, 1);
-    downloader.assertStarted();
+    downloader.assertRemoveStarted();
     downloader.unblock();
     assertRemoving(ID1);
 
@@ -473,7 +476,7 @@ public class DownloadManagerTest {
     // New download requests can be added and they start.
     postDownloadRequest(ID3);
     FakeDownloader downloader2 = getDownloader(ID3, 0);
-    downloader2.assertStarted();
+    downloader2.assertDownloadStarted();
     downloader2.unblock();
 
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
@@ -732,19 +735,20 @@ public class DownloadManagerTest {
   private static final class FakeDownloader implements Downloader {
 
     private final DownloadRequest request;
-    private final ConditionVariable started;
+    private final ConditionVariable downloadStarted;
+    private final ConditionVariable removeStarted;
     private final ConditionVariable finished;
     private final ConditionVariable blocker;
     private final AtomicInteger startCount;
     private final AtomicInteger bytesDownloaded;
 
-    private volatile boolean interrupted;
     private volatile boolean canceled;
     private volatile boolean enableDownloadIOException;
 
     private FakeDownloader(DownloadRequest request) {
       this.request = request;
-      started = TestUtil.createRobolectricConditionVariable();
+      downloadStarted = TestUtil.createRobolectricConditionVariable();
+      removeStarted = TestUtil.createRobolectricConditionVariable();
       finished = TestUtil.createRobolectricConditionVariable();
       blocker = TestUtil.createRobolectricConditionVariable();
       startCount = new AtomicInteger();
@@ -754,14 +758,18 @@ public class DownloadManagerTest {
     @Override
     public void cancel() {
       canceled = true;
+      blocker.open();
     }
 
     @Override
     public void download(ProgressListener listener) throws InterruptedException, IOException {
       startCount.incrementAndGet();
-      started.open();
+      downloadStarted.open();
       try {
         block();
+        if (canceled) {
+          return;
+        }
         int bytesDownloaded = this.bytesDownloaded.get();
         if (listener != null && bytesDownloaded > 0) {
           listener.onProgress(C.LENGTH_UNSET, bytesDownloaded, C.PERCENTAGE_UNSET);
@@ -778,7 +786,7 @@ public class DownloadManagerTest {
     @Override
     public void remove() throws InterruptedException {
       startCount.incrementAndGet();
-      started.open();
+      removeStarted.open();
       try {
         block();
       } finally {
@@ -804,9 +812,14 @@ public class DownloadManagerTest {
       bytesDownloaded.incrementAndGet();
     }
 
-    public void assertStarted() throws InterruptedException {
-      assertThat(started.block(TIMEOUT_MS)).isTrue();
-      started.close();
+    public void assertDownloadStarted() throws InterruptedException {
+      assertThat(downloadStarted.block(TIMEOUT_MS)).isTrue();
+      downloadStarted.close();
+    }
+
+    public void assertRemoveStarted() throws InterruptedException {
+      assertThat(removeStarted.block(TIMEOUT_MS)).isTrue();
+      removeStarted.close();
     }
 
     public void assertStartCount(int count) {
@@ -815,13 +828,11 @@ public class DownloadManagerTest {
 
     public void assertCompleted() throws InterruptedException {
       blockUntilFinished();
-      assertThat(interrupted).isFalse();
       assertThat(canceled).isFalse();
     }
 
     public void assertCanceled() throws InterruptedException {
       blockUntilFinished();
-      assertThat(interrupted).isTrue();
       assertThat(canceled).isTrue();
     }
 
@@ -830,9 +841,6 @@ public class DownloadManagerTest {
     private void block() throws InterruptedException {
       try {
         blocker.block();
-      } catch (InterruptedException e) {
-        interrupted = true;
-        throw e;
       } finally {
         blocker.close();
       }
