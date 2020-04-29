@@ -380,7 +380,7 @@ public class DownloadManagerTest {
     assertRemoving(ID2);
     postDownloadRequest(ID2);
 
-    runOnMainThread(() -> downloadManager.pauseDownloads());
+    postPauseDownloads();
 
     assertQueued(ID1);
 
@@ -403,7 +403,7 @@ public class DownloadManagerTest {
     postDownloadRequest(ID3);
     assertDownloaderNotCreated(ID3, 0);
 
-    runOnMainThread(() -> downloadManager.resumeDownloads());
+    postResumeDownloads();
 
     FakeDownloader downloader4 = getDownloader(ID2, 2);
     downloader4.assertStarted();
@@ -421,11 +421,11 @@ public class DownloadManagerTest {
 
     assertDownloading(ID1);
 
-    runOnMainThread(() -> downloadManager.setStopReason(ID1, APP_STOP_REASON));
+    postSetStopReason(ID1, APP_STOP_REASON);
 
     assertStopped(ID1);
 
-    runOnMainThread(() -> downloadManager.setStopReason(ID1, Download.STOP_REASON_NONE));
+    postSetStopReason(ID1, Download.STOP_REASON_NONE);
 
     FakeDownloader downloader = getDownloader(ID1, 1);
     downloader.assertStarted();
@@ -440,7 +440,7 @@ public class DownloadManagerTest {
 
     assertDownloading(ID1);
 
-    runOnMainThread(() -> downloadManager.setStopReason(ID1, APP_STOP_REASON));
+    postSetStopReason(ID1, APP_STOP_REASON);
 
     assertStopped(ID1);
 
@@ -461,7 +461,7 @@ public class DownloadManagerTest {
     postRemoveRequest(ID2);
     assertRemoving(ID2);
 
-    runOnMainThread(() -> downloadManager.setStopReason(ID1, APP_STOP_REASON));
+    postSetStopReason(ID1, APP_STOP_REASON);
 
     assertStopped(ID1);
 
@@ -585,6 +585,18 @@ public class DownloadManagerTest {
 
   private void postRemoveAllRequest() {
     runOnMainThread(() -> downloadManager.removeAllDownloads());
+  }
+
+  private void postPauseDownloads() {
+    runOnMainThread(() -> downloadManager.pauseDownloads());
+  }
+
+  private void postResumeDownloads() {
+    runOnMainThread(() -> downloadManager.resumeDownloads());
+  }
+
+  private void postSetStopReason(String id, int reason) {
+    runOnMainThread(() -> downloadManager.setStopReason(id, reason));
   }
 
   private void postDownloadRequest(String id, StreamKey... keys) {
