@@ -271,7 +271,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   }
 
   @Override
-  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       MediaPeriodId childId, MediaPeriodId mediaPeriodId) {
     // The child id for the content period is just DUMMY_CONTENT_MEDIA_PERIOD_ID. That's why we need
     // to forward the reported mediaPeriodId in this case.
