@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,6 +65,8 @@ import java.util.Set;
      */
     void onPlaylistUpdateRequested();
   }
+
+  private static final String TAG = "MediaSourceList";
 
   private final List<MediaSourceHolder> mediaSourceHolders;
   private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
@@ -323,7 +326,12 @@ import java.util.Set;
   /** Releases the playlist. */
   public final void release() {
     for (MediaSourceAndListener childSource : childSources.values()) {
-      childSource.mediaSource.releaseSource(childSource.caller);
+      try {
+        childSource.mediaSource.releaseSource(childSource.caller);
+      } catch (RuntimeException e) {
+        // There's nothing we can do.
+        Log.e(TAG, "Failed to release child source.", e);
+      }
       childSource.mediaSource.removeEventListener(childSource.eventListener);
     }
     childSources.clear();
