@@ -20,6 +20,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
@@ -125,6 +126,10 @@ import java.util.regex.Pattern;
       ForegroundColorSpan colorSpan = (ForegroundColorSpan) span;
       return Util.formatInvariant(
           "<span style='color:%s;'>", toCssColor(colorSpan.getForegroundColor()));
+    } else if (span instanceof BackgroundColorSpan) {
+      BackgroundColorSpan colorSpan = (BackgroundColorSpan) span;
+      return Util.formatInvariant(
+          "<span style='background-color:%s;'>", toCssColor(colorSpan.getBackgroundColor()));
     } else if (span instanceof HorizontalTextInVerticalContextSpan) {
       return "<span style='text-combine-upright:all;'>";
     } else if (span instanceof StyleSpan) {
@@ -159,9 +164,9 @@ import java.util.regex.Pattern;
 
   @Nullable
   private static String getClosingTag(Object span) {
-    if (span instanceof ForegroundColorSpan) {
-      return "</span>";
-    } else if (span instanceof HorizontalTextInVerticalContextSpan) {
+    if (span instanceof ForegroundColorSpan
+        || span instanceof BackgroundColorSpan
+        || span instanceof HorizontalTextInVerticalContextSpan) {
       return "</span>";
     } else if (span instanceof StyleSpan) {
       switch (((StyleSpan) span).getStyle()) {
