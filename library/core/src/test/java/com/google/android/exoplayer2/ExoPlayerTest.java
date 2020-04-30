@@ -19,6 +19,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
@@ -2311,6 +2316,43 @@ public final class ExoPlayerTest {
         .blockUntilEnded(TIMEOUT_MS);
     assertThat(message.get().isCanceled()).isTrue();
     assertThat(target.messageCount).isEqualTo(1);
+  }
+
+  @Test
+  public void sendMessages_withMediaRemoval_triggersCorrectMessagesAndDoesNotThrow()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayer.Builder(context).build();
+    MediaSource mediaSource = new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1));
+    player.addMediaSources(Arrays.asList(mediaSource, mediaSource));
+    player
+        .createMessage((messageType, payload) -> {})
+        .setPosition(/* windowIndex= */ 0, /* positionMs= */ 0)
+        .setDeleteAfterDelivery(false)
+        .send();
+    PlayerMessage.Target secondMediaItemTarget = mock(PlayerMessage.Target.class);
+    player
+        .createMessage(secondMediaItemTarget)
+        .setPosition(/* windowIndex= */ 1, /* positionMs= */ 0)
+        .setDeleteAfterDelivery(false)
+        .send();
+
+    // Play through media once to trigger all messages. This ensures any internally saved message
+    // indices are non-zero.
+    player.prepare();
+    player.play();
+    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    verify(secondMediaItemTarget).handleMessage(anyInt(), any());
+
+    // Remove first item and play second item again to check if message is triggered again.
+    // After removal, any internally saved message indices are invalid and will throw
+    // IndexOutOfBoundsException if used without updating.
+    // See https://github.com/google/ExoPlayer/issues/7278.
+    player.removeMediaItem(/* index= */ 0);
+    player.seekTo(/* positionMs= */ 0);
+    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    assertThat(player.getPlayerError()).isNull();
+    verify(secondMediaItemTarget, times(2)).handleMessage(anyInt(), any());
   }
 
   @Test

@@ -131,7 +131,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private int enabledRendererCount;
   @Nullable private SeekPosition pendingInitialSeekPosition;
   private long rendererPositionUs;
-  private int nextPendingMessageIndex;
+  private int nextPendingMessageIndexHint;
   private boolean deliverPendingMessageAtStartPositionRequired;
 
   private long releaseTimeoutMs;
@@ -1191,7 +1191,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         pendingMessageInfo.message.markAsProcessed(/* isDelivered= */ false);
       }
       pendingMessages.clear();
-      nextPendingMessageIndex = 0;
       resetPosition = true;
     }
     MediaPeriodId mediaPeriodId = playbackInfo.periodId;
@@ -1365,6 +1364,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Correct next index if necessary (e.g. after seeking, timeline changes, or new messages)
     int currentPeriodIndex =
         playbackInfo.timeline.getIndexOfPeriod(playbackInfo.periodId.periodUid);
+    int nextPendingMessageIndex = Math.min(nextPendingMessageIndexHint, pendingMessages.size());
     PendingMessageInfo previousInfo =
         nextPendingMessageIndex > 0 ? pendingMessages.get(nextPendingMessageIndex - 1) : null;
     while (previousInfo != null
@@ -1410,6 +1410,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
               ? pendingMessages.get(nextPendingMessageIndex)
               : null;
     }
+    nextPendingMessageIndexHint = nextPendingMessageIndex;
   }
 
   private void ensureStopped(Renderer renderer) throws ExoPlaybackException {
