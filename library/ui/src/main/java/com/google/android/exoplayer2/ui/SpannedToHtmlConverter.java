@@ -16,7 +16,6 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
 import android.text.Spanned;
@@ -25,7 +24,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.SparseArray;
-import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
@@ -125,11 +123,12 @@ import java.util.regex.Pattern;
     if (span instanceof ForegroundColorSpan) {
       ForegroundColorSpan colorSpan = (ForegroundColorSpan) span;
       return Util.formatInvariant(
-          "<span style='color:%s;'>", toCssColor(colorSpan.getForegroundColor()));
+          "<span style='color:%s;'>", HtmlUtils.toCssRgba(colorSpan.getForegroundColor()));
     } else if (span instanceof BackgroundColorSpan) {
       BackgroundColorSpan colorSpan = (BackgroundColorSpan) span;
       return Util.formatInvariant(
-          "<span style='background-color:%s;'>", toCssColor(colorSpan.getBackgroundColor()));
+          "<span style='background-color:%s;'>",
+          HtmlUtils.toCssRgba(colorSpan.getBackgroundColor()));
     } else if (span instanceof HorizontalTextInVerticalContextSpan) {
       return "<span style='text-combine-upright:all;'>";
     } else if (span instanceof StyleSpan) {
@@ -184,12 +183,6 @@ import java.util.regex.Pattern;
       return "</u>";
     }
     return null;
-  }
-
-  private static String toCssColor(@ColorInt int color) {
-    return Util.formatInvariant(
-        "rgba(%d,%d,%d,%.3f)",
-        Color.red(color), Color.green(color), Color.blue(color), Color.alpha(color) / 255.0);
   }
 
   private static Transition getOrCreate(SparseArray<Transition> transitions, int key) {

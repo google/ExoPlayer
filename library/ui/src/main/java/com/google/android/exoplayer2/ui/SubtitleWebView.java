@@ -157,10 +157,13 @@ import java.util.List;
                 + "bottom:0;"
                 + "left:0;"
                 + "right:0;"
+                + "color:%s;"
                 + "font-size:%s;"
-                + "color:red;"
                 + "\">",
+            HtmlUtils.toCssRgba(style.foregroundColor),
             convertTextSizeToCss(defaultTextSizeType, defaultTextSize)));
+
+    String backgroundColorCss = HtmlUtils.toCssRgba(style.backgroundColor);
 
     for (int i = 0; i < cues.size(); i++) {
       Cue cue = cues.get(i);
@@ -203,6 +206,9 @@ import java.util.List;
       String textAlign = convertAlignmentToCss(cue.textAlignment);
       String writingMode = convertVerticalTypeToCss(cue.verticalType);
       String cueTextSizeCssPx = convertTextSizeToCss(cue.textSizeType, cue.textSize);
+      String windowCssColor =
+          HtmlUtils.toCssRgba(
+              cue.windowColorSet && applyEmbeddedStyles ? cue.windowColor : style.windowColor);
 
       String positionProperty;
       String lineProperty;
@@ -244,6 +250,7 @@ import java.util.List;
                       + "text-align:%s;"
                       + "writing-mode:%s;"
                       + "font-size:%s;"
+                      + "background-color:%s;"
                       + "transform:translate(%s%%,%s%%);"
                       + "\">",
                   positionProperty,
@@ -255,9 +262,12 @@ import java.util.List;
                   textAlign,
                   writingMode,
                   cueTextSizeCssPx,
+                  windowCssColor,
                   horizontalTranslatePercent,
                   verticalTranslatePercent))
+          .append(Util.formatInvariant("<span style=\"background-color:%s;\">", backgroundColorCss))
           .append(SpannedToHtmlConverter.convert(cue.text))
+          .append("</span>")
           .append("</div>");
     }
 
