@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
@@ -50,8 +51,8 @@ import java.util.List;
   private final WebView webView;
 
   private List<Cue> cues;
-  @Cue.TextSizeType private int textSizeType;
-  private float textSize;
+  @Cue.TextSizeType private int defaultTextSizeType;
+  private float defaultTextSize;
   private boolean applyEmbeddedStyles;
   private boolean applyEmbeddedFontSizes;
   private CaptionStyleCompat style;
@@ -64,8 +65,8 @@ import java.util.List;
   public SubtitleWebView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     cues = Collections.emptyList();
-    textSizeType = Cue.TEXT_SIZE_TYPE_FRACTIONAL;
-    textSize = DEFAULT_TEXT_SIZE_FRACTION;
+    defaultTextSizeType = Cue.TEXT_SIZE_TYPE_FRACTIONAL;
+    defaultTextSize = DEFAULT_TEXT_SIZE_FRACTION;
     applyEmbeddedStyles = true;
     applyEmbeddedFontSizes = true;
     style = CaptionStyleCompat.DEFAULT;
@@ -99,11 +100,11 @@ import java.util.List;
 
   @Override
   public void setTextSize(@Cue.TextSizeType int textSizeType, float textSize) {
-    if (this.textSizeType == textSizeType && this.textSize == textSize) {
+    if (this.defaultTextSizeType == textSizeType && this.defaultTextSize == textSize) {
       return;
     }
-    this.textSizeType = textSizeType;
-    this.textSize = textSize;
+    this.defaultTextSizeType = textSizeType;
+    this.defaultTextSize = textSize;
     updateWebView();
   }
 
@@ -147,17 +148,19 @@ import java.util.List;
 
   private void updateWebView() {
     StringBuilder html = new StringBuilder();
-    html.append("<html><body>")
-        .append("<div style=\"")
-        .append("-webkit-user-select:none;")
-        .append("position:fixed;")
-        .append("top:0;")
-        .append("bottom:0;")
-        .append("left:0;")
-        .append("right:0;")
-        .append("font-size:20px;")
-        .append("color:red;")
-        .append("\">");
+    html.append(
+        Util.formatInvariant(
+            "<html><body><div style=\""
+                + "-webkit-user-select:none;"
+                + "position:fixed;"
+                + "top:0;"
+                + "bottom:0;"
+                + "left:0;"
+                + "right:0;"
+                + "font-size:%s;"
+                + "color:red;"
+                + "\">",
+            convertTextSizeToCss(defaultTextSizeType, defaultTextSize)));
 
     for (int i = 0; i < cues.size(); i++) {
       Cue cue = cues.get(i);
@@ -198,8 +201,8 @@ import java.util.List;
               : "fit-content";
 
       String textAlign = convertAlignmentToCss(cue.textAlignment);
-
       String writingMode = convertVerticalTypeToCss(cue.verticalType);
+      String cueTextSizeCssPx = convertTextSizeToCss(cue.textSizeType, cue.textSize);
 
       String positionProperty;
       String lineProperty;
@@ -240,6 +243,7 @@ import java.util.List;
                       + "%s:%s;"
                       + "text-align:%s;"
                       + "writing-mode:%s;"
+                      + "font-size:%s;"
                       + "transform:translate(%s%%,%s%%);"
                       + "\">",
                   positionProperty,
@@ -250,6 +254,7 @@ import java.util.List;
                   size,
                   textAlign,
                   writingMode,
+                  cueTextSizeCssPx,
                   horizontalTranslatePercent,
                   verticalTranslatePercent))
           .append(SpannedToHtmlConverter.convert(cue.text))
@@ -265,7 +270,27 @@ import java.util.List;
         "base64");
   }
 
-  private String convertVerticalTypeToCss(@Cue.VerticalType int verticalType) {
+  /**
+   * Converts a text size to a CSS px value.
+   *
+   * <p>First converts to Android px using {@link SubtitleViewUtils#resolveTextSize(int, float, int,
+   * int)}.
+   *
+   * <p>Then divides by {@link DisplayMetrics#density} to convert from Android px to dp because
+   * WebView treats one CSS px as one Android dp.
+   */
+  private String convertTextSizeToCss(@Cue.TextSizeType int type, float size) {
+    float sizePx =
+        SubtitleViewUtils.resolveTextSize(
+            type, size, getHeight(), getHeight() - getPaddingTop() - getPaddingBottom());
+    if (sizePx == Cue.DIMEN_UNSET) {
+      return "unset";
+    }
+    float sizeDp = sizePx / getContext().getResources().getDisplayMetrics().density;
+    return Util.formatInvariant("%.2fpx", sizeDp);
+  }
+
+  private static String convertVerticalTypeToCss(@Cue.VerticalType int verticalType) {
     switch (verticalType) {
       case Cue.VERTICAL_TYPE_LR:
         return "vertical-lr";
@@ -277,7 +302,7 @@ import java.util.List;
     }
   }
 
-  private String convertAlignmentToCss(@Nullable Layout.Alignment alignment) {
+  private static String convertAlignmentToCss(@Nullable Layout.Alignment alignment) {
     if (alignment == null) {
       return "unset";
     }

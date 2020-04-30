@@ -21,20 +21,20 @@ import com.google.android.exoplayer2.text.Cue;
 /** Utility class for subtitle layout logic. */
 /* package */ final class SubtitleViewUtils {
 
-  public static float resolveCueTextSize(Cue cue, int rawViewHeight, int viewHeightMinusPadding) {
-    if (cue.textSizeType == Cue.TYPE_UNSET || cue.textSize == Cue.DIMEN_UNSET) {
-      return 0;
-    }
-    float defaultCueTextSizePx =
-        resolveTextSize(cue.textSizeType, cue.textSize, rawViewHeight, viewHeightMinusPadding);
-    return Math.max(defaultCueTextSizePx, 0);
-  }
-
+  /**
+   * Returns the text size in px, derived from {@code textSize} and {@code textSizeType}.
+   *
+   * <p>Returns {@link Cue#DIMEN_UNSET} if {@code textSize == Cue.DIMEN_UNSET} or {@code
+   * textSizeType == Cue.TYPE_UNSET}.
+   */
   public static float resolveTextSize(
       @Cue.TextSizeType int textSizeType,
       float textSize,
       int rawViewHeight,
       int viewHeightMinusPadding) {
+    if (textSize == Cue.DIMEN_UNSET) {
+      return Cue.DIMEN_UNSET;
+    }
     switch (textSizeType) {
       case Cue.TEXT_SIZE_TYPE_ABSOLUTE:
         return textSize;
