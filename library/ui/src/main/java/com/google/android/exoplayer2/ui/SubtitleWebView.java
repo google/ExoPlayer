@@ -172,6 +172,7 @@ import java.util.List;
 
       float linePercent;
       int lineTranslatePercent;
+      @Cue.AnchorType int lineAnchor;
       if (cue.line != Cue.DIMEN_UNSET) {
         switch (cue.lineType) {
           case Cue.LINE_TYPE_NUMBER:
@@ -189,14 +190,17 @@ import java.util.List;
             linePercent = cue.line * 100;
             lineTranslatePercent = 0;
         }
+        lineAnchor = cue.lineAnchor;
       } else {
-        linePercent = 100;
+        linePercent = (1.0f - bottomPaddingFraction) * 100;
         lineTranslatePercent = 0;
+        // If Cue.line == DIMEN_UNSET then ignore Cue.lineAnchor and assume ANCHOR_TYPE_END.
+        lineAnchor = Cue.ANCHOR_TYPE_END;
       }
       int lineAnchorTranslatePercent =
           cue.verticalType == Cue.VERTICAL_TYPE_RL
-              ? -anchorTypeToTranslatePercent(cue.lineAnchor)
-              : anchorTypeToTranslatePercent(cue.lineAnchor);
+              ? -anchorTypeToTranslatePercent(lineAnchor)
+              : anchorTypeToTranslatePercent(lineAnchor);
 
       String size =
           cue.size != Cue.DIMEN_UNSET
