@@ -242,7 +242,7 @@ public final class DefaultHlsPlaylistTracker
     } else {
       primaryBundle.loadPlaylist();
     }
-    eventDispatcher.loadCompleted(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -250,8 +250,9 @@ public final class DefaultHlsPlaylistTracker
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
-        C.DATA_TYPE_MANIFEST);
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
   }
 
   @Override
@@ -260,7 +261,7 @@ public final class DefaultHlsPlaylistTracker
       long elapsedRealtimeMs,
       long loadDurationMs,
       boolean released) {
-    eventDispatcher.loadCanceled(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -268,8 +269,9 @@ public final class DefaultHlsPlaylistTracker
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
-        C.DATA_TYPE_MANIFEST);
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    eventDispatcher.loadCanceled(loadEventInfo, C.DATA_TYPE_MANIFEST);
   }
 
   @Override
@@ -525,18 +527,19 @@ public final class DefaultHlsPlaylistTracker
     public void onLoadCompleted(
         ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs, long loadDurationMs) {
       HlsPlaylist result = loadable.getResult();
+      LoadEventInfo loadEventInfo =
+          new LoadEventInfo(
+              loadable.loadTaskId,
+              loadable.dataSpec,
+              loadable.getUri(),
+              loadable.getResponseHeaders(),
+              elapsedRealtimeMs,
+              loadDurationMs,
+              loadable.bytesLoaded());
+      loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
       if (result instanceof HlsMediaPlaylist) {
         processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
-        eventDispatcher.loadCompleted(
-            new LoadEventInfo(
-                loadable.loadTaskId,
-                loadable.dataSpec,
-                loadable.getUri(),
-                loadable.getResponseHeaders(),
-                elapsedRealtimeMs,
-                loadDurationMs,
-                loadable.bytesLoaded()),
-            C.DATA_TYPE_MANIFEST);
+        eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
       } else {
         playlistError = new ParserException("Loaded playlist has unexpected type.");
       }
@@ -548,7 +551,7 @@ public final class DefaultHlsPlaylistTracker
         long elapsedRealtimeMs,
         long loadDurationMs,
         boolean released) {
-      eventDispatcher.loadCanceled(
+      LoadEventInfo loadEventInfo =
           new LoadEventInfo(
               loadable.loadTaskId,
               loadable.dataSpec,
@@ -556,8 +559,9 @@ public final class DefaultHlsPlaylistTracker
               loadable.getResponseHeaders(),
               elapsedRealtimeMs,
               loadDurationMs,
-              loadable.bytesLoaded()),
-          C.DATA_TYPE_MANIFEST);
+              loadable.bytesLoaded());
+      loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+      eventDispatcher.loadCanceled(loadEventInfo, C.DATA_TYPE_MANIFEST);
     }
 
     @Override

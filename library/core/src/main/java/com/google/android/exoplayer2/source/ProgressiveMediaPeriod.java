@@ -553,7 +553,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       listener.onSourceInfoRefreshed(durationUs, isSeekable, isLive);
     }
     StatsDataSource dataSource = loadable.dataSource;
-    eventDispatcher.loadCompleted(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -561,7 +561,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             dataSource.getLastResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            dataSource.getBytesRead()),
+            dataSource.getBytesRead());
+    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    eventDispatcher.loadCompleted(
+        loadEventInfo,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
@@ -578,7 +581,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void onLoadCanceled(
       ExtractingLoadable loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
     StatsDataSource dataSource = loadable.dataSource;
-    eventDispatcher.loadCanceled(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -586,7 +589,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             dataSource.getLastResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            dataSource.getBytesRead()),
+            dataSource.getBytesRead());
+    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    eventDispatcher.loadCanceled(
+        loadEventInfo,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,
