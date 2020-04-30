@@ -5,7 +5,11 @@
 *   Add `SilenceMediaSource.Factory` to support tags.
 *   Enable the configuration of `SilenceSkippingAudioProcessor`
     ([#6705](https://github.com/google/ExoPlayer/issues/6705)).
-*   DownloadService: Fix "Not allowed to start service" `IllegalStateException`
+*   Fix bug where `PlayerMessages` throw an exception after `MediaSources`
+    are removed from the playlist
+    ([#7278](https://github.com/google/ExoPlayer/issues/7278)).
+*   Fix "Not allowed to start service" `IllegalStateException` in
+    `DownloadService`
     ([#7306](https://github.com/google/ExoPlayer/issues/7306)).
 *   Ads:
     *   Fix `AdsMediaSource` child `MediaSource`s not being released.
