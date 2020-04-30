@@ -158,7 +158,8 @@ import java.util.List;
         cue = repositionVerticalCue(cue);
       }
       float cueTextSizePx =
-          SubtitleViewUtils.resolveCueTextSize(cue, rawViewHeight, viewHeightMinusPadding);
+          SubtitleViewUtils.resolveTextSize(
+              cue.textSizeType, cue.textSize, rawViewHeight, viewHeightMinusPadding);
       SubtitlePainter painter = painters.get(i);
       painter.draw(
           cue,
