@@ -178,7 +178,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     loader = new Loader("Loader:ProgressiveMediaPeriod");
-    progressiveMediaExtractor = new BundledExtractorsAdapter(extractors);
+    ProgressiveMediaExtractor progressiveMediaExtractor = new BundledExtractorsAdapter(extractors);
+    this.progressiveMediaExtractor = progressiveMediaExtractor;
     loadCondition = new ConditionVariable();
     maybeFinishPrepareRunnable = this::maybeFinishPrepare;
     onContinueLoadingRequestedRunnable =
