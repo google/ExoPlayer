@@ -621,7 +621,7 @@ public final class SsMediaSource extends BaseMediaSource
   @Override
   public void onLoadCompleted(
       ParsingLoadable<SsManifest> loadable, long elapsedRealtimeMs, long loadDurationMs) {
-    manifestEventDispatcher.loadCompleted(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -629,8 +629,9 @@ public final class SsMediaSource extends BaseMediaSource
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
-        loadable.type);
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    manifestEventDispatcher.loadCompleted(loadEventInfo, loadable.type);
     manifest = loadable.getResult();
     manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
     processManifest();
@@ -643,7 +644,7 @@ public final class SsMediaSource extends BaseMediaSource
       long elapsedRealtimeMs,
       long loadDurationMs,
       boolean released) {
-    manifestEventDispatcher.loadCanceled(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -651,8 +652,9 @@ public final class SsMediaSource extends BaseMediaSource
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
-        loadable.type);
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    manifestEventDispatcher.loadCanceled(loadEventInfo, loadable.type);
   }
 
   @Override

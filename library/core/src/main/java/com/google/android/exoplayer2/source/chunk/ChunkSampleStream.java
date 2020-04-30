@@ -405,7 +405,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   @Override
   public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
     chunkSource.onChunkLoadCompleted(loadable);
-    eventDispatcher.loadCompleted(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -413,7 +413,10 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    eventDispatcher.loadCompleted(
+        loadEventInfo,
         loadable.type,
         primaryTrackType,
         loadable.trackFormat,
@@ -427,7 +430,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   @Override
   public void onLoadCanceled(
       Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
-    eventDispatcher.loadCanceled(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -435,7 +438,10 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    eventDispatcher.loadCanceled(
+        loadEventInfo,
         loadable.type,
         primaryTrackType,
         loadable.trackFormat,

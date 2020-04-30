@@ -702,7 +702,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
     chunkSource.onChunkLoadCompleted(loadable);
-    eventDispatcher.loadCompleted(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -710,7 +710,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    eventDispatcher.loadCompleted(
+        loadEventInfo,
         loadable.type,
         trackType,
         loadable.trackFormat,
@@ -728,7 +731,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void onLoadCanceled(
       Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
-    eventDispatcher.loadCanceled(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -736,7 +739,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    eventDispatcher.loadCanceled(
+        loadEventInfo,
         loadable.type,
         trackType,
         loadable.trackFormat,

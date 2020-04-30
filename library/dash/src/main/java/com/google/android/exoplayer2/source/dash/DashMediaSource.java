@@ -754,7 +754,7 @@ public final class DashMediaSource extends BaseMediaSource {
 
   /* package */ void onManifestLoadCompleted(ParsingLoadable<DashManifest> loadable,
       long elapsedRealtimeMs, long loadDurationMs) {
-    manifestEventDispatcher.loadCompleted(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -762,8 +762,9 @@ public final class DashMediaSource extends BaseMediaSource {
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
-        loadable.type);
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    manifestEventDispatcher.loadCompleted(loadEventInfo, loadable.type);
     DashManifest newManifest = loadable.getResult();
 
     int oldPeriodCount = manifest == null ? 0 : manifest.getPeriodCount();
@@ -875,7 +876,7 @@ public final class DashMediaSource extends BaseMediaSource {
 
   /* package */ void onUtcTimestampLoadCompleted(ParsingLoadable<Long> loadable,
       long elapsedRealtimeMs, long loadDurationMs) {
-    manifestEventDispatcher.loadCompleted(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -883,8 +884,9 @@ public final class DashMediaSource extends BaseMediaSource {
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
-        loadable.type);
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    manifestEventDispatcher.loadCompleted(loadEventInfo, loadable.type);
     onUtcTimestampResolved(loadable.getResult() - elapsedRealtimeMs);
   }
 
@@ -911,7 +913,7 @@ public final class DashMediaSource extends BaseMediaSource {
 
   /* package */ void onLoadCanceled(ParsingLoadable<?> loadable, long elapsedRealtimeMs,
       long loadDurationMs) {
-    manifestEventDispatcher.loadCanceled(
+    LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
             loadable.dataSpec,
@@ -919,8 +921,9 @@ public final class DashMediaSource extends BaseMediaSource {
             loadable.getResponseHeaders(),
             elapsedRealtimeMs,
             loadDurationMs,
-            loadable.bytesLoaded()),
-        loadable.type);
+            loadable.bytesLoaded());
+    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    manifestEventDispatcher.loadCanceled(loadEventInfo, loadable.type);
   }
 
   // Internal methods.
