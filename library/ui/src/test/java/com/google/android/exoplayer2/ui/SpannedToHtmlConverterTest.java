@@ -22,6 +22,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
@@ -39,7 +40,7 @@ public class SpannedToHtmlConverterTest {
   public void convert_supportsForegroundColorSpan() {
     SpannableString spanned = new SpannableString("String with colored section");
     spanned.setSpan(
-        new ForegroundColorSpan(Color.argb(128, 64, 32, 16)),
+        new ForegroundColorSpan(Color.argb(51, 64, 32, 16)),
         "String with ".length(),
         "String with colored".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -47,7 +48,24 @@ public class SpannedToHtmlConverterTest {
     String html = SpannedToHtmlConverter.convert(spanned);
 
     assertThat(html)
-        .isEqualTo("String with <span style='color:rgba(64,32,16,0.502);'>colored</span> section");
+        .isEqualTo("String with <span style='color:rgba(64,32,16,0.200);'>colored</span> section");
+  }
+
+  @Test
+  public void convert_supportsBackgroundColorSpan() {
+    SpannableString spanned = new SpannableString("String with highlighted section");
+    spanned.setSpan(
+        new BackgroundColorSpan(Color.argb(51, 64, 32, 16)),
+        "String with ".length(),
+        "String with highlighted".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    String html = SpannedToHtmlConverter.convert(spanned);
+
+    assertThat(html)
+        .isEqualTo(
+            "String with <span style='background-color:rgba(64,32,16,0.200);'>highlighted</span>"
+                + " section");
   }
 
   @Test
