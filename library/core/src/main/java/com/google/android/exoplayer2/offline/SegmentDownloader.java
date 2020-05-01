@@ -76,6 +76,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private final Executor executor;
   private final AtomicBoolean isCanceled;
 
+  @Nullable private volatile Thread downloadThread;
+
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
    * @param manifestParser A parser for the manifest.
@@ -103,6 +105,10 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
   @Override
   public final void download(@Nullable ProgressListener progressListener) throws IOException {
+    downloadThread = Thread.currentThread();
+    if (isCanceled.get()) {
+      return;
+    }
     @Nullable
     PriorityTaskManager priorityTaskManager =
         cacheDataSourceFactory.getUpstreamPriorityTaskManager();
@@ -183,6 +189,10 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   @Override
   public void cancel() {
     isCanceled.set(true);
+    @Nullable Thread downloadThread = this.downloadThread;
+    if (downloadThread != null) {
+      downloadThread.interrupt();
+    }
   }
 
   @Override
