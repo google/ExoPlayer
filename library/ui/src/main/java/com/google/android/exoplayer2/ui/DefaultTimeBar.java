@@ -196,7 +196,6 @@ public class DefaultTimeBar extends View implements TimeBar {
   private final Formatter formatter;
   private final Runnable stopScrubbingRunnable;
   private final CopyOnWriteArraySet<OnScrubListener> listeners;
-  private final int[] locationOnScreen;
   private final Point touchPosition;
   private final float density;
 
@@ -248,7 +247,6 @@ public class DefaultTimeBar extends View implements TimeBar {
     scrubberPaint = new Paint();
     scrubberPaint.setAntiAlias(true);
     listeners = new CopyOnWriteArraySet<>();
-    locationOnScreen = new int[2];
     touchPosition = new Point();
 
     // Calculate the dimensions and paints for drawn elements.
@@ -798,10 +796,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   private Point resolveRelativeTouchPosition(MotionEvent motionEvent) {
-    getLocationOnScreen(locationOnScreen);
-    touchPosition.set(
-        ((int) motionEvent.getRawX()) - locationOnScreen[0],
-        ((int) motionEvent.getRawY()) - locationOnScreen[1]);
+    touchPosition.set((int) motionEvent.getX(), (int) motionEvent.getY());
     return touchPosition;
   }
 
