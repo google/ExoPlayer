@@ -22,6 +22,7 @@ import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
@@ -131,6 +132,11 @@ import java.util.regex.Pattern;
           HtmlUtils.toCssRgba(colorSpan.getBackgroundColor()));
     } else if (span instanceof HorizontalTextInVerticalContextSpan) {
       return "<span style='text-combine-upright:all;'>";
+    } else if (span instanceof TypefaceSpan) {
+      @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
+      return fontFamily != null
+          ? Util.formatInvariant("<span style='font-family:\"%s\";'>", fontFamily)
+          : null;
     } else if (span instanceof StyleSpan) {
       switch (((StyleSpan) span).getStyle()) {
         case Typeface.BOLD:
@@ -167,6 +173,9 @@ import java.util.regex.Pattern;
         || span instanceof BackgroundColorSpan
         || span instanceof HorizontalTextInVerticalContextSpan) {
       return "</span>";
+    } else if (span instanceof TypefaceSpan) {
+      @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
+      return fontFamily != null ? "</span>" : null;
     } else if (span instanceof StyleSpan) {
       switch (((StyleSpan) span).getStyle()) {
         case Typeface.BOLD:

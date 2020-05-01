@@ -25,6 +25,7 @@ import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
@@ -83,6 +84,37 @@ public class SpannedToHtmlConverterTest {
         .isEqualTo(
             "Vertical text with <span style='text-combine-upright:all;'>123</span> "
                 + "horizontal numbers");
+  }
+
+  @Test
+  public void convert_supportsTypefaceSpan() {
+    SpannableString spanned = new SpannableString("String with Times New Roman section");
+    spanned.setSpan(
+        new TypefaceSpan(/* family= */ "Times New Roman"),
+        "String with ".length(),
+        "String with Times New Roman".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    String html = SpannedToHtmlConverter.convert(spanned);
+
+    assertThat(html)
+        .isEqualTo(
+            "String with <span style='font-family:\"Times New Roman\";'>Times New Roman</span>"
+                + " section");
+  }
+
+  @Test
+  public void convert_supportsTypefaceSpan_nullFamily() {
+    SpannableString spanned = new SpannableString("String with unstyled section");
+    spanned.setSpan(
+        new TypefaceSpan(/* family= */ (String) null),
+        "String with ".length(),
+        "String with unstyled".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    String html = SpannedToHtmlConverter.convert(spanned);
+
+    assertThat(html).isEqualTo("String with unstyled section");
   }
 
   @Test
