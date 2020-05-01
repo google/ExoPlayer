@@ -174,6 +174,17 @@ import java.util.List;
     updateWebView();
   }
 
+  /**
+   * Cleans up internal state, including calling {@link WebView#destroy()} on the delegate view.
+   *
+   * <p>This method may only be called after this view has been removed from the view system. No
+   * other methods may be called on this view after destroy.
+   */
+  public void destroy() {
+    cues.clear();
+    webView.destroy();
+  }
+
   private void updateWebView() {
     StringBuilder html = new StringBuilder();
     html.append(
