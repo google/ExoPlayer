@@ -46,19 +46,13 @@ public interface Downloader {
    *
    * @param progressListener A listener to receive progress updates, or {@code null}.
    * @throws DownloadException Thrown if the content cannot be downloaded.
-   * @throws InterruptedException If the thread has been interrupted.
-   * @throws IOException Thrown when there is an io error while downloading.
+   * @throws IOException If the download did not complete successfully.
    */
-  void download(@Nullable ProgressListener progressListener)
-      throws InterruptedException, IOException;
+  void download(@Nullable ProgressListener progressListener) throws IOException;
 
   /** Cancels the download operation and prevents future download operations from running. */
   void cancel();
 
-  /**
-   * Removes the content.
-   *
-   * @throws InterruptedException Thrown if the thread was interrupted.
-   */
-  void remove() throws InterruptedException;
+  /** Removes the content. */
+  void remove();
 }

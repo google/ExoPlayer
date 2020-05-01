@@ -97,7 +97,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
   @Override
   protected List<Segment> getSegments(
       DataSource dataSource, DashManifest manifest, boolean allowIncompleteList)
-      throws InterruptedException, IOException {
+      throws IOException {
     ArrayList<Segment> segments = new ArrayList<>();
     for (int i = 0; i < manifest.getPeriodCount(); i++) {
       Period period = manifest.getPeriod(i);
@@ -124,7 +124,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
       long periodDurationUs,
       boolean allowIncompleteList,
       ArrayList<Segment> out)
-      throws IOException, InterruptedException {
+      throws IOException {
     for (int i = 0; i < adaptationSet.representations.size(); i++) {
       Representation representation = adaptationSet.representations.get(i);
       DashSegmentIndex index;
@@ -172,8 +172,7 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
   }
 
   private static @Nullable DashSegmentIndex getSegmentIndex(
-      DataSource dataSource, int trackType, Representation representation)
-      throws IOException, InterruptedException {
+      DataSource dataSource, int trackType, Representation representation) throws IOException {
     DashSegmentIndex index = representation.getIndex();
     if (index != null) {
       return index;

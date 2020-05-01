@@ -1019,7 +1019,7 @@ public final class DownloadManager {
           // Cancel the downloading task.
           activeTask.cancel(/* released= */ false);
         }
-        // The activeTask is either a remove task, or a downloading task that we just cancelled. In
+        // The activeTask is either a remove task, or a downloading task that we just canceled. In
         // the latter case we need to wait for the task to stop before we start a remove task.
         return;
       }
@@ -1284,6 +1284,7 @@ public final class DownloadManager {
       if (!isCanceled) {
         isCanceled = true;
         downloader.cancel();
+        // TODO - This will need propagating deeper as soon as we start using additional threads.
         interrupt();
       }
     }
