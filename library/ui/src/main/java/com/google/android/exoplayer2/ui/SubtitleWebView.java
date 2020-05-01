@@ -34,7 +34,7 @@ import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.charset.Charset;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,9 +48,17 @@ import java.util.List;
  */
 /* package */ final class SubtitleWebView extends FrameLayout implements SubtitleView.Output {
 
-  private final WebView webView;
+  /**
+   * A {@link SubtitleTextView} used for displaying bitmap cues.
+   *
+   * <p>There's no advantage to displaying bitmap cues in a {@link WebView}, so we re-use the
+   * existing logic.
+   */
+  private final SubtitleTextView subtitleTextView;
 
-  private List<Cue> cues;
+  private final WebView webView;
+  private final List<Cue> cues;
+
   @Cue.TextSizeType private int defaultTextSizeType;
   private float defaultTextSize;
   private boolean applyEmbeddedStyles;
@@ -64,7 +72,7 @@ import java.util.List;
 
   public SubtitleWebView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    cues = Collections.emptyList();
+    cues = new ArrayList<>();
     defaultTextSizeType = Cue.TEXT_SIZE_TYPE_FRACTIONAL;
     defaultTextSize = DEFAULT_TEXT_SIZE_FRACTION;
     applyEmbeddedStyles = true;
@@ -72,6 +80,7 @@ import java.util.List;
     style = CaptionStyleCompat.DEFAULT;
     bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
 
+    subtitleTextView = new SubtitleTextView(context, attrs);
     webView =
         new WebView(context, attrs) {
           @Override
@@ -89,12 +98,26 @@ import java.util.List;
           }
         };
     webView.setBackgroundColor(Color.TRANSPARENT);
+
+    addView(subtitleTextView);
     addView(webView);
   }
 
   @Override
   public void onCues(List<Cue> cues) {
-    this.cues = cues;
+    List<Cue> bitmapCues = new ArrayList<>();
+    this.cues.clear();
+    for (int i = 0; i < cues.size(); i++) {
+      Cue cue = cues.get(i);
+      if (cue.bitmap != null) {
+        bitmapCues.add(cue);
+      } else {
+        this.cues.add(cue);
+      }
+    }
+    subtitleTextView.onCues(bitmapCues);
+    // Invalidate to trigger subtitleTextView to draw.
+    invalidate();
     updateWebView();
   }
 
@@ -105,6 +128,7 @@ import java.util.List;
     }
     this.defaultTextSizeType = textSizeType;
     this.defaultTextSize = textSize;
+    invalidate();
     updateWebView();
   }
 
@@ -116,6 +140,7 @@ import java.util.List;
     }
     this.applyEmbeddedStyles = applyEmbeddedStyles;
     this.applyEmbeddedFontSizes = applyEmbeddedStyles;
+    invalidate();
     updateWebView();
   }
 
@@ -125,6 +150,7 @@ import java.util.List;
       return;
     }
     this.applyEmbeddedFontSizes = applyEmbeddedFontSizes;
+    invalidate();
     updateWebView();
   }
 
@@ -134,6 +160,7 @@ import java.util.List;
       return;
     }
     this.style = style;
+    invalidate();
     updateWebView();
   }
 
@@ -143,6 +170,7 @@ import java.util.List;
       return;
     }
     this.bottomPaddingFraction = bottomPaddingFraction;
+    invalidate();
     updateWebView();
   }
 
