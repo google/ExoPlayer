@@ -1284,8 +1284,6 @@ public final class DownloadManager {
       if (!isCanceled) {
         isCanceled = true;
         downloader.cancel();
-        // TODO - This will need propagating deeper as soon as we start using additional threads.
-        interrupt();
       }
     }
 

@@ -35,6 +35,8 @@ public final class ProgressiveDownloader implements Downloader {
   private final CacheDataSource dataSource;
   private final AtomicBoolean isCanceled;
 
+  @Nullable private volatile Thread downloadThread;
+
   /**
    * @param uri Uri of the data to be downloaded.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
@@ -74,6 +76,10 @@ public final class ProgressiveDownloader implements Downloader {
 
   @Override
   public void download(@Nullable ProgressListener progressListener) throws IOException {
+    downloadThread = Thread.currentThread();
+    if (isCanceled.get()) {
+      return;
+    }
     @Nullable PriorityTaskManager priorityTaskManager = dataSource.getUpstreamPriorityTaskManager();
     if (priorityTaskManager != null) {
       priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
@@ -96,6 +102,10 @@ public final class ProgressiveDownloader implements Downloader {
   @Override
   public void cancel() {
     isCanceled.set(true);
+    @Nullable Thread downloadThread = this.downloadThread;
+    if (downloadThread != null) {
+      downloadThread.interrupt();
+    }
   }
 
   @Override
