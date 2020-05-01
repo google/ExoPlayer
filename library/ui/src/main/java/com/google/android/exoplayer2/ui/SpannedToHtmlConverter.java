@@ -22,6 +22,7 @@ import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
@@ -145,6 +146,9 @@ import java.util.regex.Pattern;
               ? absoluteSizeSpan.getSize()
               : absoluteSizeSpan.getSize() / displayDensity;
       return Util.formatInvariant("<span style='font-size:%.2fpx;'>", sizeCssPx);
+    } else if (span instanceof RelativeSizeSpan) {
+      return Util.formatInvariant(
+          "<span style='font-size:%.2f%%;'>", ((RelativeSizeSpan) span).getSizeChange());
     } else if (span instanceof TypefaceSpan) {
       @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
       return fontFamily != null
@@ -185,7 +189,8 @@ import java.util.regex.Pattern;
     if (span instanceof ForegroundColorSpan
         || span instanceof BackgroundColorSpan
         || span instanceof HorizontalTextInVerticalContextSpan
-        || span instanceof AbsoluteSizeSpan) {
+        || span instanceof AbsoluteSizeSpan
+        || span instanceof RelativeSizeSpan) {
       return "</span>";
     } else if (span instanceof TypefaceSpan) {
       @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
