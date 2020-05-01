@@ -227,7 +227,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             elapsedRealtimeMs,
             loadDurationMs,
             sampleSize);
-    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCompleted(
         loadEventInfo,
         C.DATA_TYPE_MEDIA,
@@ -252,7 +252,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             elapsedRealtimeMs,
             loadDurationMs,
             dataSource.getBytesRead());
-    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCanceled(
         loadEventInfo,
         C.DATA_TYPE_MEDIA,
@@ -290,6 +290,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               : Loader.DONT_RETRY_FATAL;
     }
     StatsDataSource dataSource = loadable.dataSource;
+    boolean wasCanceled = !action.isRetry();
     eventDispatcher.loadError(
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -307,7 +308,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* mediaStartTimeUs= */ 0,
         durationUs,
         error,
-        /* wasCanceled= */ !action.isRetry());
+        wasCanceled);
+    if (wasCanceled) {
+      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
+    }
     return action;
   }
 

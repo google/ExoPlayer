@@ -414,7 +414,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
-    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCompleted(
         loadEventInfo,
         loadable.type,
@@ -439,7 +439,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
-    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCanceled(
         loadEventInfo,
         loadable.type,
@@ -522,6 +522,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         error,
         canceled);
     if (canceled) {
+      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
       callback.onContinueLoadingRequested(this);
     }
     return loadErrorAction;
