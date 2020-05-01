@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.ui;
 import android.graphics.Typeface;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
@@ -66,8 +67,12 @@ import java.util.regex.Pattern;
    *   <li>WebView/Chromium (the intended destination of this HTML) gracefully handles overlapping
    *       tags and usually renders the same result as spanned text in a TextView.
    * </ul>
+   *
+   * @param text The (possibly span-styled) text to convert to HTML.
+   * @param displayDensity The screen density of the device. WebView treats 1 CSS px as one Android
+   *     dp, so to convert size values from Android px to CSS px we need to know the screen density.
    */
-  public static String convert(@Nullable CharSequence text) {
+  public static String convert(@Nullable CharSequence text, float displayDensity) {
     if (text == null) {
       return "";
     }
@@ -75,7 +80,7 @@ import java.util.regex.Pattern;
       return escapeHtml(text);
     }
     Spanned spanned = (Spanned) text;
-    SparseArray<Transition> spanTransitions = findSpanTransitions(spanned);
+    SparseArray<Transition> spanTransitions = findSpanTransitions(spanned, displayDensity);
 
     StringBuilder html = new StringBuilder(spanned.length());
     int previousTransition = 0;
@@ -100,11 +105,12 @@ import java.util.regex.Pattern;
     return html.toString();
   }
 
-  private static SparseArray<Transition> findSpanTransitions(Spanned spanned) {
+  private static SparseArray<Transition> findSpanTransitions(
+      Spanned spanned, float displayDensity) {
     SparseArray<Transition> spanTransitions = new SparseArray<>();
 
     for (Object span : spanned.getSpans(0, spanned.length(), Object.class)) {
-      @Nullable String openingTag = getOpeningTag(span);
+      @Nullable String openingTag = getOpeningTag(span, displayDensity);
       @Nullable String closingTag = getClosingTag(span);
       int spanStart = spanned.getSpanStart(span);
       int spanEnd = spanned.getSpanEnd(span);
@@ -120,7 +126,7 @@ import java.util.regex.Pattern;
   }
 
   @Nullable
-  private static String getOpeningTag(Object span) {
+  private static String getOpeningTag(Object span, float displayDensity) {
     if (span instanceof ForegroundColorSpan) {
       ForegroundColorSpan colorSpan = (ForegroundColorSpan) span;
       return Util.formatInvariant(
@@ -132,6 +138,13 @@ import java.util.regex.Pattern;
           HtmlUtils.toCssRgba(colorSpan.getBackgroundColor()));
     } else if (span instanceof HorizontalTextInVerticalContextSpan) {
       return "<span style='text-combine-upright:all;'>";
+    } else if (span instanceof AbsoluteSizeSpan) {
+      AbsoluteSizeSpan absoluteSizeSpan = (AbsoluteSizeSpan) span;
+      float sizeCssPx =
+          absoluteSizeSpan.getDip()
+              ? absoluteSizeSpan.getSize()
+              : absoluteSizeSpan.getSize() / displayDensity;
+      return Util.formatInvariant("<span style='font-size:%.2fpx;'>", sizeCssPx);
     } else if (span instanceof TypefaceSpan) {
       @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
       return fontFamily != null
@@ -171,7 +184,8 @@ import java.util.regex.Pattern;
   private static String getClosingTag(Object span) {
     if (span instanceof ForegroundColorSpan
         || span instanceof BackgroundColorSpan
-        || span instanceof HorizontalTextInVerticalContextSpan) {
+        || span instanceof HorizontalTextInVerticalContextSpan
+        || span instanceof AbsoluteSizeSpan) {
       return "</span>";
     } else if (span instanceof TypefaceSpan) {
       @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();

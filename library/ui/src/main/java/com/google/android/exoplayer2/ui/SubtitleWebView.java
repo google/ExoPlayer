@@ -309,7 +309,9 @@ import java.util.List;
                   horizontalTranslatePercent,
                   verticalTranslatePercent))
           .append(Util.formatInvariant("<span style=\"background-color:%s;\">", backgroundColorCss))
-          .append(SpannedToHtmlConverter.convert(cue.text))
+          .append(
+              SpannedToHtmlConverter.convert(
+                  cue.text, getContext().getResources().getDisplayMetrics().density))
           .append("</span>")
           .append("</div>");
     }
