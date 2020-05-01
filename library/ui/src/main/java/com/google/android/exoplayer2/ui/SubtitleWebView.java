@@ -318,17 +318,16 @@ import java.util.List;
 
   private static String convertAlignmentToCss(@Nullable Layout.Alignment alignment) {
     if (alignment == null) {
-      return "unset";
+      return "center";
     }
     switch (alignment) {
       case ALIGN_NORMAL:
         return "start";
-      case ALIGN_CENTER:
-        return "center";
       case ALIGN_OPPOSITE:
         return "end";
+      case ALIGN_CENTER:
       default:
-        return "unset";
+        return "center";
     }
   }
 
