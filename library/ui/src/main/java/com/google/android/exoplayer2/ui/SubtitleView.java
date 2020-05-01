@@ -143,6 +143,9 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
 
   private <T extends View & Output> void setView(T view) {
     removeView(innerSubtitleView);
+    if (innerSubtitleView instanceof SubtitleWebView) {
+      ((SubtitleWebView) innerSubtitleView).destroy();
+    }
     innerSubtitleView = view;
     output = view;
     addView(view);
