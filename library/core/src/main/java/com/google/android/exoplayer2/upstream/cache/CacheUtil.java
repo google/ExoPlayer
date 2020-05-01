@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.NavigableSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -105,15 +106,17 @@ public final class CacheUtil {
    * Caches the data defined by {@code dataSpec}, skipping already cached data. Caching stops early
    * if the end of the input is reached.
    *
+   * <p>To cancel the operation, the caller should both set {@code isCanceled} to true and interrupt
+   * the calling thread.
+   *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
    * @param cache A {@link Cache} to store the data.
    * @param dataSpec Defines the data to be cached.
    * @param upstreamDataSource A {@link DataSource} for reading data not in the cache.
    * @param progressListener A listener to receive progress updates, or {@code null}.
-   * @param isCanceled An optional flag that will interrupt caching if set to true.
-   * @throws IOException If an error occurs reading from the source.
-   * @throws InterruptedException If the thread was interrupted directly or via {@code isCanceled}.
+   * @param isCanceled An optional flag that will cancel the operation if set to true.
+   * @throws IOException If an error occurs caching the data, or if the operation was canceled.
    */
   @WorkerThread
   public static void cache(
@@ -122,7 +125,7 @@ public final class CacheUtil {
       DataSource upstreamDataSource,
       @Nullable ProgressListener progressListener,
       @Nullable AtomicBoolean isCanceled)
-      throws IOException, InterruptedException {
+      throws IOException {
     cache(
         new CacheDataSource(cache, upstreamDataSource),
         dataSpec,
@@ -140,17 +143,19 @@ public final class CacheUtil {
    * calling code to call {@link PriorityTaskManager#add} to register with the manager before
    * calling this method, and to call {@link PriorityTaskManager#remove} afterwards to unregister.
    *
+   * <p>To cancel the operation, the caller should both set {@code isCanceled} to true and interrupt
+   * the calling thread.
+   *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
    * @param dataSource A {@link CacheDataSource} to be used for caching the data.
    * @param dataSpec Defines the data to be cached.
    * @param progressListener A listener to receive progress updates, or {@code null}.
-   * @param isCanceled An optional flag that will interrupt caching if set to true.
+   * @param isCanceled An optional flag that will cancel the operation if set to true.
    * @param enableEOFException Whether to throw an {@link EOFException} if end of input has been
    *     reached unexpectedly.
    * @param temporaryBuffer A temporary buffer to be used during caching.
-   * @throws IOException If an error occurs reading from the source.
-   * @throws InterruptedException If the thread was interrupted directly or via {@code isCanceled}.
+   * @throws IOException If an error occurs caching the data, or if the operation was canceled.
    */
   @WorkerThread
   public static void cache(
@@ -160,7 +165,7 @@ public final class CacheUtil {
       @Nullable AtomicBoolean isCanceled,
       boolean enableEOFException,
       byte[] temporaryBuffer)
-      throws IOException, InterruptedException {
+      throws IOException {
     Assertions.checkNotNull(dataSource);
     Assertions.checkNotNull(temporaryBuffer);
 
@@ -181,7 +186,7 @@ public final class CacheUtil {
     long position = dataSpec.position;
     boolean lengthUnset = bytesLeft == C.LENGTH_UNSET;
     while (bytesLeft != 0) {
-      throwExceptionIfInterruptedOrCancelled(isCanceled);
+      throwExceptionIfCanceled(isCanceled);
       long blockLength =
           cache.getCachedLength(key, position, lengthUnset ? Long.MAX_VALUE : bytesLeft);
       if (blockLength > 0) {
@@ -233,12 +238,13 @@ public final class CacheUtil {
    * @param position The position of the data to be read.
    * @param length Length of the data to be read, or {@link C#LENGTH_UNSET} if it is unknown.
    * @param dataSource The {@link CacheDataSource} to read the data from.
-   * @param isCanceled An optional flag that will interrupt caching if set to true.
+   * @param isCanceled An optional flag that will cancel the operation if set to true.
    * @param progressNotifier A notifier through which to report progress updates, or {@code null}.
    * @param isLastBlock Whether this read block is the last block of the content.
    * @param temporaryBuffer A temporary buffer to be used during caching.
    * @return Number of read bytes, or 0 if no data is available because the end of the opened range
    *     has been reached.
+   * @param isCanceled An optional flag that will cancel the operation if set to true.
    */
   private static long readAndDiscard(
       DataSpec dataSpec,
@@ -249,7 +255,7 @@ public final class CacheUtil {
       @Nullable ProgressNotifier progressNotifier,
       boolean isLastBlock,
       byte[] temporaryBuffer)
-      throws IOException, InterruptedException {
+      throws IOException {
     long positionOffset = position - dataSpec.position;
     long initialPositionOffset = positionOffset;
     long endOffset = length != C.LENGTH_UNSET ? positionOffset + length : C.POSITION_UNSET;
@@ -257,9 +263,13 @@ public final class CacheUtil {
     while (true) {
       if (priorityTaskManager != null) {
         // Wait for any other thread with higher priority to finish its job.
-        priorityTaskManager.proceed(dataSource.getUpstreamPriority());
+        try {
+          priorityTaskManager.proceed(dataSource.getUpstreamPriority());
+        } catch (InterruptedException e) {
+          throw new InterruptedIOException();
+        }
       }
-      throwExceptionIfInterruptedOrCancelled(isCanceled);
+      throwExceptionIfCanceled(isCanceled);
       try {
         long resolvedLength = C.LENGTH_UNSET;
         boolean isDataSourceOpen = false;
@@ -286,7 +296,7 @@ public final class CacheUtil {
           progressNotifier.onRequestLengthResolved(positionOffset + resolvedLength);
         }
         while (positionOffset != endOffset) {
-          throwExceptionIfInterruptedOrCancelled(isCanceled);
+          throwExceptionIfCanceled(isCanceled);
           int bytesRead =
               dataSource.read(
                   temporaryBuffer,
@@ -369,10 +379,10 @@ public final class CacheUtil {
         .buildCacheKey(dataSpec);
   }
 
-  private static void throwExceptionIfInterruptedOrCancelled(@Nullable AtomicBoolean isCanceled)
-      throws InterruptedException {
-    if (Thread.interrupted() || (isCanceled != null && isCanceled.get())) {
-      throw new InterruptedException();
+  private static void throwExceptionIfCanceled(@Nullable AtomicBoolean isCanceled)
+      throws InterruptedIOException {
+    if (isCanceled != null && isCanceled.get()) {
+      throw new InterruptedIOException();
     }
   }
 

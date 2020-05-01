@@ -862,7 +862,7 @@ public class DownloadManagerTest {
     }
 
     @Override
-    public void download(ProgressListener listener) throws InterruptedException, IOException {
+    public void download(ProgressListener listener) throws IOException {
       startCount.incrementAndGet();
       downloadStarted.open();
       try {
@@ -884,7 +884,7 @@ public class DownloadManagerTest {
     }
 
     @Override
-    public void remove() throws InterruptedException {
+    public void remove() {
       startCount.incrementAndGet();
       removeStarted.open();
       try {
@@ -937,9 +937,11 @@ public class DownloadManagerTest {
 
     // Internal methods.
 
-    private void block() throws InterruptedException {
+    private void block() {
       try {
         blocker.block();
+      } catch (InterruptedException e) {
+        throw new IllegalStateException(e); // Never happens.
       } finally {
         blocker.close();
       }

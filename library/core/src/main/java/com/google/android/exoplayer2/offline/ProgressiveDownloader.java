@@ -73,8 +73,7 @@ public final class ProgressiveDownloader implements Downloader {
   }
 
   @Override
-  public void download(@Nullable ProgressListener progressListener)
-      throws InterruptedException, IOException {
+  public void download(@Nullable ProgressListener progressListener) throws IOException {
     @Nullable PriorityTaskManager priorityTaskManager = dataSource.getUpstreamPriorityTaskManager();
     if (priorityTaskManager != null) {
       priorityTaskManager.add(C.PRIORITY_DOWNLOAD);

@@ -101,16 +101,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     isCanceled = new AtomicBoolean();
   }
 
-  /**
-   * Downloads the selected streams in the media. If multiple streams are selected, they are
-   * downloaded in sync with one another.
-   *
-   * @throws IOException Thrown when there is an error downloading.
-   * @throws InterruptedException If the thread has been interrupted.
-   */
   @Override
-  public final void download(@Nullable ProgressListener progressListener)
-      throws IOException, InterruptedException {
+  public final void download(@Nullable ProgressListener progressListener) throws IOException {
     @Nullable
     PriorityTaskManager priorityTaskManager =
         cacheDataSourceFactory.getUpstreamPriorityTaskManager();
@@ -194,7 +186,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   }
 
   @Override
-  public final void remove() throws InterruptedException {
+  public final void remove() {
     Cache cache = Assertions.checkNotNull(cacheDataSourceFactory.getCache());
     CacheKeyFactory cacheKeyFactory = cacheDataSourceFactory.getCacheKeyFactory();
     CacheDataSource dataSource = cacheDataSourceFactory.createDataSourceForRemovingDownload();
@@ -235,13 +227,11 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
    *     segments from being listed. If true then a partial segment list will be returned. If false
    *     an {@link IOException} will be thrown.
    * @return The list of downloadable {@link Segment}s.
-   * @throws InterruptedException Thrown if the thread was interrupted.
    * @throws IOException Thrown if {@code allowPartialIndex} is false and a load error occurs, or if
    *     the media is not in a form that allows for its segments to be listed.
    */
   protected abstract List<Segment> getSegments(
-      DataSource dataSource, M manifest, boolean allowIncompleteList)
-      throws InterruptedException, IOException;
+      DataSource dataSource, M manifest, boolean allowIncompleteList) throws IOException;
 
   protected static DataSpec getCompressibleDataSpec(Uri uri) {
     return new DataSpec.Builder().setUri(uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
