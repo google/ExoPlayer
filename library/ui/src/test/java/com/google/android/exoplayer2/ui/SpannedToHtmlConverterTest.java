@@ -25,6 +25,7 @@ import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
@@ -128,6 +129,20 @@ public class SpannedToHtmlConverterTest {
     String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
 
     assertThat(html).isEqualTo("String with <span style='font-size:10.00px;'>10dp</span> section");
+  }
+
+  @Test
+  public void convert_supportsRelativeSizeSpan() {
+    SpannableString spanned = new SpannableString("String with 10% section");
+    spanned.setSpan(
+        new RelativeSizeSpan(/* proportion= */ 10),
+        "String with ".length(),
+        "String with 10%".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+
+    assertThat(html).isEqualTo("String with <span style='font-size:10.00%;'>10%</span> section");
   }
 
   @Test
