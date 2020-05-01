@@ -545,6 +545,8 @@ public final class DefaultHlsPlaylistTracker
         eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
       } else {
         playlistError = new ParserException("Loaded playlist has unexpected type.");
+        eventDispatcher.loadError(
+            loadEventInfo, C.DATA_TYPE_MANIFEST, playlistError, /* wasCanceled= */ true);
       }
     }
 
