@@ -137,20 +137,12 @@ public interface LoadErrorHandlingPolicy {
   }
 
   /**
-   * Called when the load associated with the given {@link LoadEventInfo} completes.
+   * Called once {@code loadTaskId} will not be associated with any more load errors.
    *
-   * <p>Implementations of this interface should avoid resource leaks by releasing resources
-   * associated to the given {@link LoadEventInfo#loadTaskId}.
+   * <p>Implementations should clean up any resources associated with {@code loadTaskId} when this
+   * method is called.
    */
-  default void onLoadCompleted(LoadEventInfo loadEventInfo) {}
-
-  /**
-   * Called when the load associated with the given {@link LoadEventInfo} is canceled.
-   *
-   * <p>Implementations of this interface should avoid resource leaks by releasing resources
-   * associated to the given {@link LoadEventInfo#loadTaskId}.
-   */
-  default void onLoadCanceled(LoadEventInfo loadEventInfo) {}
+  default void onLoadTaskConcluded(long loadTaskId) {}
 
   /**
    * Returns the minimum number of times to retry a load in the case of a load error, before

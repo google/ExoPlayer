@@ -630,7 +630,7 @@ public final class SsMediaSource extends BaseMediaSource
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
-    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     manifestEventDispatcher.loadCompleted(loadEventInfo, loadable.type);
     manifest = loadable.getResult();
     manifestLoadStartTimestamp = elapsedRealtimeMs - loadDurationMs;
@@ -653,7 +653,7 @@ public final class SsMediaSource extends BaseMediaSource
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
-    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     manifestEventDispatcher.loadCanceled(loadEventInfo, loadable.type);
   }
 
@@ -671,6 +671,7 @@ public final class SsMediaSource extends BaseMediaSource
         retryDelayMs == C.TIME_UNSET
             ? Loader.DONT_RETRY_FATAL
             : Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs);
+    boolean wasCanceled = !loadErrorAction.isRetry();
     manifestEventDispatcher.loadError(
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -682,7 +683,10 @@ public final class SsMediaSource extends BaseMediaSource
             loadable.bytesLoaded()),
         loadable.type,
         error,
-        !loadErrorAction.isRetry());
+        wasCanceled);
+    if (wasCanceled) {
+      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
+    }
     return loadErrorAction;
   }
 

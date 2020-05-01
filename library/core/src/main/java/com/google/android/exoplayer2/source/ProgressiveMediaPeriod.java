@@ -563,7 +563,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             elapsedRealtimeMs,
             loadDurationMs,
             dataSource.getBytesRead());
-    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCompleted(
         loadEventInfo,
         C.DATA_TYPE_MEDIA,
@@ -591,7 +591,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             elapsedRealtimeMs,
             loadDurationMs,
             dataSource.getBytesRead());
-    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCanceled(
         loadEventInfo,
         C.DATA_TYPE_MEDIA,
@@ -635,6 +635,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     StatsDataSource dataSource = loadable.dataSource;
+    boolean wasCanceled = !loadErrorAction.isRetry();
     eventDispatcher.loadError(
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -652,7 +653,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         /* mediaStartTimeUs= */ loadable.seekTimeUs,
         durationUs,
         error,
-        !loadErrorAction.isRetry());
+        wasCanceled);
+    if (wasCanceled) {
+      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
+    }
     return loadErrorAction;
   }
 

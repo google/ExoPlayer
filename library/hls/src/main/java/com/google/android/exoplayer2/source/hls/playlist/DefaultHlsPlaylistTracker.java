@@ -251,7 +251,7 @@ public final class DefaultHlsPlaylistTracker
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
-    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
   }
 
@@ -270,7 +270,7 @@ public final class DefaultHlsPlaylistTracker
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
-    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCanceled(loadEventInfo, C.DATA_TYPE_MANIFEST);
   }
 
@@ -297,6 +297,9 @@ public final class DefaultHlsPlaylistTracker
         C.DATA_TYPE_MANIFEST,
         error,
         isFatal);
+    if (isFatal) {
+      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
+    }
     return isFatal
         ? Loader.DONT_RETRY_FATAL
         : Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs);
@@ -536,7 +539,7 @@ public final class DefaultHlsPlaylistTracker
               elapsedRealtimeMs,
               loadDurationMs,
               loadable.bytesLoaded());
-      loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
       if (result instanceof HlsMediaPlaylist) {
         processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
         eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
@@ -560,7 +563,7 @@ public final class DefaultHlsPlaylistTracker
               elapsedRealtimeMs,
               loadDurationMs,
               loadable.bytesLoaded());
-      loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
       eventDispatcher.loadCanceled(loadEventInfo, C.DATA_TYPE_MANIFEST);
     }
 
@@ -596,6 +599,7 @@ public final class DefaultHlsPlaylistTracker
         loadErrorAction = Loader.DONT_RETRY;
       }
 
+      boolean wasCanceled = !loadErrorAction.isRetry();
       eventDispatcher.loadError(
           new LoadEventInfo(
               loadable.loadTaskId,
@@ -607,8 +611,10 @@ public final class DefaultHlsPlaylistTracker
               loadable.bytesLoaded()),
           C.DATA_TYPE_MANIFEST,
           error,
-          /* wasCanceled= */ !loadErrorAction.isRetry());
-
+          wasCanceled);
+      if (wasCanceled) {
+        loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
+      }
       return loadErrorAction;
     }
 

@@ -711,7 +711,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
-    loadErrorHandlingPolicy.onLoadCompleted(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCompleted(
         loadEventInfo,
         loadable.type,
@@ -740,7 +740,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
-    loadErrorHandlingPolicy.onLoadCanceled(loadEventInfo);
+    loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCanceled(
         loadEventInfo,
         loadable.type,
@@ -796,6 +796,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               : Loader.DONT_RETRY_FATAL;
     }
 
+    boolean wasCanceled = !loadErrorAction.isRetry();
     eventDispatcher.loadError(
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -813,7 +814,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         loadable.startTimeUs,
         loadable.endTimeUs,
         error,
-        /* wasCanceled= */ !loadErrorAction.isRetry());
+        wasCanceled);
+    if (wasCanceled) {
+      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
+    }
 
     if (blacklistSucceeded) {
       if (!prepared) {
