@@ -64,8 +64,6 @@ public final class ImaPlaybackTest {
 
   private static final String CONTENT_URI =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
-  private static final String PREROLL_ADS_RESPONSE_FILE_NAME = "ad-responses/preroll.xml";
-  private static final String MIDROLL_ADS_RESPONSE_FILE_NAME = "ad-responses/midroll.xml";
 
   private static final AdId CONTENT = new AdId(C.INDEX_UNSET, C.INDEX_UNSET);
 
@@ -73,9 +71,9 @@ public final class ImaPlaybackTest {
 
   @Test
   public void playbackWithPrerollAdTag_playsAdAndContent() throws Exception {
-    AdId[] expectedAdIds = new AdId[] {ad(0), CONTENT};
     String adsResponse =
-        TestUtil.getString(/* context= */ testRule.getActivity(), PREROLL_ADS_RESPONSE_FILE_NAME);
+        TestUtil.getString(/* context= */ testRule.getActivity(), "ad-responses/preroll.xml");
+    AdId[] expectedAdIds = new AdId[] {ad(0), CONTENT};
     ImaHostedTest hostedTest =
         new ImaHostedTest(Uri.parse(CONTENT_URI), adsResponse, expectedAdIds);
 
@@ -84,9 +82,22 @@ public final class ImaPlaybackTest {
 
   @Test
   public void playbackWithMidrolls_playsAdAndContent() throws Exception {
-    AdId[] expectedAdIds = new AdId[] {ad(0), CONTENT, ad(1), CONTENT, ad(2), CONTENT};
     String adsResponse =
-        TestUtil.getString(/* context= */ testRule.getActivity(), MIDROLL_ADS_RESPONSE_FILE_NAME);
+        TestUtil.getString(
+            /* context= */ testRule.getActivity(), "ad-responses/preroll_midroll6s_postroll.xml");
+    AdId[] expectedAdIds = new AdId[] {ad(0), CONTENT, ad(1), CONTENT, ad(2), CONTENT};
+    ImaHostedTest hostedTest =
+        new ImaHostedTest(Uri.parse(CONTENT_URI), adsResponse, expectedAdIds);
+
+    testRule.getActivity().runTest(hostedTest, TIMEOUT_MS);
+  }
+
+  @Test
+  public void playbackWithMidrolls1And7_playsAdsAndContent() throws Exception {
+    String adsResponse =
+        TestUtil.getString(
+            /* context= */ testRule.getActivity(), "ad-responses/midroll1s_midroll7s.xml");
+    AdId[] expectedAdIds = new AdId[] {CONTENT, ad(0), CONTENT, ad(1), CONTENT};
     ImaHostedTest hostedTest =
         new ImaHostedTest(Uri.parse(CONTENT_URI), adsResponse, expectedAdIds);
 
