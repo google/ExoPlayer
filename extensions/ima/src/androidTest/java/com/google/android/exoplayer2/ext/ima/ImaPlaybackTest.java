@@ -28,6 +28,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
@@ -40,6 +41,7 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ExoHostedTest;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -52,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,11 +63,14 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class ImaPlaybackTest {
 
+  private static final String TAG = "ImaPlaybackTest";
+
   private static final long TIMEOUT_MS = 5 * 60 * C.MILLIS_PER_SECOND;
 
-  private static final String CONTENT_URI =
+  private static final String CONTENT_URI_SHORT =
       "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-10s.mp4";
-
+  private static final String CONTENT_URI_LONG =
+      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/android-screens-25s.mp4";
   private static final AdId CONTENT = new AdId(C.INDEX_UNSET, C.INDEX_UNSET);
 
   @Rule public ActivityTestRule<HostActivity> testRule = new ActivityTestRule<>(HostActivity.class);
@@ -75,7 +81,7 @@ public final class ImaPlaybackTest {
         TestUtil.getString(/* context= */ testRule.getActivity(), "ad-responses/preroll.xml");
     AdId[] expectedAdIds = new AdId[] {ad(0), CONTENT};
     ImaHostedTest hostedTest =
-        new ImaHostedTest(Uri.parse(CONTENT_URI), adsResponse, expectedAdIds);
+        new ImaHostedTest(Uri.parse(CONTENT_URI_SHORT), adsResponse, expectedAdIds);
 
     testRule.getActivity().runTest(hostedTest, TIMEOUT_MS);
   }
@@ -87,7 +93,7 @@ public final class ImaPlaybackTest {
             /* context= */ testRule.getActivity(), "ad-responses/preroll_midroll6s_postroll.xml");
     AdId[] expectedAdIds = new AdId[] {ad(0), CONTENT, ad(1), CONTENT, ad(2), CONTENT};
     ImaHostedTest hostedTest =
-        new ImaHostedTest(Uri.parse(CONTENT_URI), adsResponse, expectedAdIds);
+        new ImaHostedTest(Uri.parse(CONTENT_URI_SHORT), adsResponse, expectedAdIds);
 
     testRule.getActivity().runTest(hostedTest, TIMEOUT_MS);
   }
@@ -99,8 +105,41 @@ public final class ImaPlaybackTest {
             /* context= */ testRule.getActivity(), "ad-responses/midroll1s_midroll7s.xml");
     AdId[] expectedAdIds = new AdId[] {CONTENT, ad(0), CONTENT, ad(1), CONTENT};
     ImaHostedTest hostedTest =
-        new ImaHostedTest(Uri.parse(CONTENT_URI), adsResponse, expectedAdIds);
+        new ImaHostedTest(Uri.parse(CONTENT_URI_SHORT), adsResponse, expectedAdIds);
 
+    testRule.getActivity().runTest(hostedTest, TIMEOUT_MS);
+  }
+
+  @Test
+  public void playbackWithMidrolls10And20WithSeekTo12_playsAdsAndContent() throws Exception {
+    String adsResponse =
+        TestUtil.getString(
+            /* context= */ testRule.getActivity(), "ad-responses/midroll10s_midroll20s.xml");
+    AdId[] expectedAdIds = new AdId[] {CONTENT, ad(0), CONTENT, ad(1), CONTENT};
+    ImaHostedTest hostedTest =
+        new ImaHostedTest(Uri.parse(CONTENT_URI_LONG), adsResponse, expectedAdIds);
+    hostedTest.setSchedule(
+        new ActionSchedule.Builder(TAG)
+            .waitForPlaybackState(Player.STATE_READY)
+            .seek(12 * C.MILLIS_PER_SECOND)
+            .build());
+    testRule.getActivity().runTest(hostedTest, TIMEOUT_MS);
+  }
+
+  @Ignore("The second ad doesn't preload so playback gets stuck. See [internal: b/155615925].")
+  @Test
+  public void playbackWithMidrolls10And20WithSeekTo18_playsAdsAndContent() throws Exception {
+    String adsResponse =
+        TestUtil.getString(
+            /* context= */ testRule.getActivity(), "ad-responses/midroll10s_midroll20s.xml");
+    AdId[] expectedAdIds = new AdId[] {CONTENT, ad(0), CONTENT, ad(1), CONTENT};
+    ImaHostedTest hostedTest =
+        new ImaHostedTest(Uri.parse(CONTENT_URI_LONG), adsResponse, expectedAdIds);
+    hostedTest.setSchedule(
+        new ActionSchedule.Builder(TAG)
+            .waitForPlaybackState(Player.STATE_READY)
+            .seek(18 * C.MILLIS_PER_SECOND)
+            .build());
     testRule.getActivity().runTest(hostedTest, TIMEOUT_MS);
   }
 
@@ -181,7 +220,9 @@ public final class ImaPlaybackTest {
             @Override
             public void onPositionDiscontinuity(
                 EventTime eventTime, @DiscontinuityReason int reason) {
-              maybeUpdateSeenAdIdentifiers();
+              if (reason != Player.DISCONTINUITY_REASON_SEEK) {
+                maybeUpdateSeenAdIdentifiers();
+              }
             }
           });
       Context context = host.getApplicationContext();
