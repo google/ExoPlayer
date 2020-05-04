@@ -374,7 +374,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Nullable private MediaCrypto mediaCrypto;
   private boolean mediaCryptoRequiresSecureDecoder;
   private long renderTimeLimitMs;
-  private float rendererOperatingRate;
+  private float operatingRate;
   @Nullable private MediaCodec codec;
   @Nullable private MediaCodecAdapter codecAdapter;
   @Nullable private Format codecFormat;
@@ -447,7 +447,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     formatQueue = new TimedValueQueue<>();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
-    rendererOperatingRate = 1f;
+    operatingRate = 1f;
     renderTimeLimitMs = C.TIME_UNSET;
     mediaCodecOperationMode = OPERATION_MODE_SYNCHRONOUS;
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
@@ -710,8 +710,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  public final void setOperatingRate(float operatingRate) throws ExoPlaybackException {
-    rendererOperatingRate = operatingRate;
+  public void setOperatingRate(float operatingRate) throws ExoPlaybackException {
+    this.operatingRate = operatingRate;
     if (codec != null
         && codecDrainAction != DRAIN_ACTION_REINITIALIZE
         && getState() != STATE_DISABLED) {
@@ -1031,7 +1031,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     float codecOperatingRate =
         Util.SDK_INT < 23
             ? CODEC_OPERATING_RATE_UNSET
-            : getCodecOperatingRateV23(rendererOperatingRate, inputFormat, getStreamFormats());
+            : getCodecOperatingRateV23(operatingRate, inputFormat, getStreamFormats());
     if (codecOperatingRate <= assumedMinimumCodecOperatingRate) {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
@@ -1561,6 +1561,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
                 && SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
   }
 
+  /** Returns the renderer operating rate, as set by {@link #setOperatingRate}. */
+  protected float getOperatingRate() {
+    return operatingRate;
+  }
+
   /**
    * Returns the {@link MediaFormat#KEY_OPERATING_RATE} value for a given renderer operating rate,
    * current {@link Format} and set of possible stream formats.
@@ -1589,7 +1594,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     float newCodecOperatingRate =
-        getCodecOperatingRateV23(rendererOperatingRate, codecFormat, getStreamFormats());
+        getCodecOperatingRateV23(operatingRate, codecFormat, getStreamFormats());
     if (codecOperatingRate == newCodecOperatingRate) {
       // No change.
     } else if (newCodecOperatingRate == CODEC_OPERATING_RATE_UNSET) {

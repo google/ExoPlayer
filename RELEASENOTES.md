@@ -83,6 +83,7 @@
         ([#7247](https://github.com/google/ExoPlayer/pull/7247)).
     *   Replace `CacheDataSinkFactory` and `CacheDataSourceFactory` with
         `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
+*   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
