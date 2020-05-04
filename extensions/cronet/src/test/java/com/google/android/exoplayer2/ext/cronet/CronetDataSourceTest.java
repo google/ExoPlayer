@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -284,7 +285,7 @@ public final class CronetDataSourceTest {
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
       // Check for connection not automatically closed.
-      assertThat(e.getCause() instanceof UnknownHostException).isFalse();
+      assertThat(e).hasCauseThat().isNotInstanceOf(UnknownHostException.class);
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never())
           .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
@@ -322,7 +323,7 @@ public final class CronetDataSourceTest {
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
       // Check for connection not automatically closed.
-      assertThat(e.getCause() instanceof UnknownHostException).isTrue();
+      assertThat(e).hasCauseThat().isInstanceOf(UnknownHostException.class);
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never())
           .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
@@ -338,7 +339,7 @@ public final class CronetDataSourceTest {
       dataSourceUnderTest.open(testDataSpec);
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
-      assertThat(e instanceof HttpDataSource.InvalidResponseCodeException).isTrue();
+      assertThat(e).isInstanceOf(HttpDataSource.InvalidResponseCodeException.class);
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never())
@@ -361,7 +362,7 @@ public final class CronetDataSourceTest {
       dataSourceUnderTest.open(testDataSpec);
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
-      assertThat(e instanceof HttpDataSource.InvalidContentTypeException).isTrue();
+      assertThat(e).isInstanceOf(HttpDataSource.InvalidContentTypeException.class);
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
       assertThat(testedContentTypes).hasSize(1);
@@ -892,8 +893,8 @@ public final class CronetDataSourceTest {
           fail();
         } catch (HttpDataSourceException e) {
           // Expected.
-          assertThat(e instanceof CronetDataSource.OpenException).isTrue();
-          assertThat(e.getCause() instanceof SocketTimeoutException).isTrue();
+          assertThat(e).isInstanceOf(CronetDataSource.OpenException.class);
+          assertThat(e).hasCauseThat().isInstanceOf(SocketTimeoutException.class);
           assertThat(((CronetDataSource.OpenException) e).cronetConnectionStatus)
               .isEqualTo(TEST_CONNECTION_STATUS);
           timedOutLatch.countDown();
@@ -932,8 +933,8 @@ public final class CronetDataSourceTest {
               fail();
             } catch (HttpDataSourceException e) {
               // Expected.
-              assertThat(e instanceof CronetDataSource.OpenException).isTrue();
-              assertThat(e.getCause() instanceof CronetDataSource.InterruptedIOException).isTrue();
+              assertThat(e).isInstanceOf(CronetDataSource.OpenException.class);
+              assertThat(e).hasCauseThat().isInstanceOf(InterruptedIOException.class);
               assertThat(((CronetDataSource.OpenException) e).cronetConnectionStatus)
                   .isEqualTo(TEST_INVALID_CONNECTION_STATUS);
               timedOutLatch.countDown();
@@ -1005,8 +1006,8 @@ public final class CronetDataSourceTest {
           fail();
         } catch (HttpDataSourceException e) {
           // Expected.
-          assertThat(e instanceof CronetDataSource.OpenException).isTrue();
-          assertThat(e.getCause() instanceof SocketTimeoutException).isTrue();
+          assertThat(e).isInstanceOf(CronetDataSource.OpenException.class);
+          assertThat(e).hasCauseThat().isInstanceOf(SocketTimeoutException.class);
           openExceptions.getAndIncrement();
           timedOutLatch.countDown();
         }
@@ -1231,7 +1232,7 @@ public final class CronetDataSourceTest {
               fail();
             } catch (HttpDataSourceException e) {
               // Expected.
-              assertThat(e.getCause() instanceof CronetDataSource.InterruptedIOException).isTrue();
+              assertThat(e).hasCauseThat().isInstanceOf(InterruptedIOException.class);
               timedOutLatch.countDown();
             }
           }
@@ -1262,7 +1263,7 @@ public final class CronetDataSourceTest {
               fail();
             } catch (HttpDataSourceException e) {
               // Expected.
-              assertThat(e.getCause() instanceof CronetDataSource.InterruptedIOException).isTrue();
+              assertThat(e).hasCauseThat().isInstanceOf(InterruptedIOException.class);
               timedOutLatch.countDown();
             }
           }
