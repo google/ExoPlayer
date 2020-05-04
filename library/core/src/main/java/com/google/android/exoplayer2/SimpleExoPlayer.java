@@ -516,15 +516,7 @@ public class SimpleExoPlayer extends BasePlayer
   public void setVideoScalingMode(@Renderer.VideoScalingMode int videoScalingMode) {
     verifyApplicationThread();
     this.videoScalingMode = videoScalingMode;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_SCALING_MODE)
-            .setPayload(videoScalingMode)
-            .send();
-      }
-    }
+    sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_SCALING_MODE, videoScalingMode);
   }
 
   @Override
@@ -689,15 +681,7 @@ public class SimpleExoPlayer extends BasePlayer
     }
     if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
       this.audioAttributes = audioAttributes;
-      for (Renderer renderer : renderers) {
-        if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-          player
-              .createMessage(renderer)
-              .setType(Renderer.MSG_SET_AUDIO_ATTRIBUTES)
-              .setPayload(audioAttributes)
-              .send();
-        }
-      }
+      sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
       streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
       for (AudioListener audioListener : audioListeners) {
         audioListener.onAudioAttributesChanged(audioAttributes);
@@ -724,15 +708,7 @@ public class SimpleExoPlayer extends BasePlayer
       return;
     }
     this.audioSessionId = audioSessionId;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_AUDIO_SESSION_ID)
-            .setPayload(audioSessionId)
-            .send();
-      }
-    }
+    sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     if (audioSessionId != C.AUDIO_SESSION_ID_UNSET) {
       notifyAudioSessionIdSet();
     }
@@ -746,15 +722,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void setAuxEffectInfo(AuxEffectInfo auxEffectInfo) {
     verifyApplicationThread();
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_AUX_EFFECT_INFO)
-            .setPayload(auxEffectInfo)
-            .send();
-      }
-    }
+    sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUX_EFFECT_INFO, auxEffectInfo);
   }
 
   @Override
@@ -793,15 +761,8 @@ public class SimpleExoPlayer extends BasePlayer
       return;
     }
     this.skipSilenceEnabled = skipSilenceEnabled;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_SKIP_SILENCE_ENABLED)
-            .setPayload(skipSilenceEnabled)
-            .send();
-      }
-    }
+    sendRendererMessage(
+        C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
     notifySkipSilenceEnabledChanged();
   }
 
@@ -958,15 +919,8 @@ public class SimpleExoPlayer extends BasePlayer
   public void setVideoFrameMetadataListener(VideoFrameMetadataListener listener) {
     verifyApplicationThread();
     videoFrameMetadataListener = listener;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER)
-            .setPayload(listener)
-            .send();
-      }
-    }
+    sendRendererMessage(
+        C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER, listener);
   }
 
   @Override
@@ -975,30 +929,16 @@ public class SimpleExoPlayer extends BasePlayer
     if (videoFrameMetadataListener != listener) {
       return;
     }
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER)
-            .setPayload(null)
-            .send();
-      }
-    }
+    sendRendererMessage(
+        C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER, /* payload= */ null);
   }
 
   @Override
   public void setCameraMotionListener(CameraMotionListener listener) {
     verifyApplicationThread();
     cameraMotionListener = listener;
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_CAMERA_MOTION) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_CAMERA_MOTION_LISTENER)
-            .setPayload(listener)
-            .send();
-      }
-    }
+    sendRendererMessage(
+        C.TRACK_TYPE_CAMERA_MOTION, Renderer.MSG_SET_CAMERA_MOTION_LISTENER, listener);
   }
 
   @Override
@@ -1007,15 +947,8 @@ public class SimpleExoPlayer extends BasePlayer
     if (cameraMotionListener != listener) {
       return;
     }
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_CAMERA_MOTION) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_CAMERA_MOTION_LISTENER)
-            .setPayload(null)
-            .send();
-      }
-    }
+    sendRendererMessage(
+        C.TRACK_TYPE_CAMERA_MOTION, Renderer.MSG_SET_CAMERA_MOTION_LISTENER, /* payload= */ null);
   }
 
   /**
@@ -1869,15 +1802,10 @@ public class SimpleExoPlayer extends BasePlayer
 
   private void setVideoDecoderOutputBufferRendererInternal(
       @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer) {
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_VIDEO) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
-            .setPayload(videoDecoderOutputBufferRenderer)
-            .send();
-      }
-    }
+    sendRendererMessage(
+        C.TRACK_TYPE_VIDEO,
+        Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER,
+        videoDecoderOutputBufferRenderer);
     this.videoDecoderOutputBufferRenderer = videoDecoderOutputBufferRenderer;
   }
 
@@ -1893,15 +1821,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   private void sendVolumeToRenderers() {
     float scaledVolume = audioVolume * audioFocusManager.getVolumeMultiplier();
-    for (Renderer renderer : renderers) {
-      if (renderer.getTrackType() == C.TRACK_TYPE_AUDIO) {
-        player
-            .createMessage(renderer)
-            .setType(Renderer.MSG_SET_VOLUME)
-            .setPayload(scaledVolume)
-            .send();
-      }
-    }
+    sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_VOLUME, scaledVolume);
   }
 
   private void notifyAudioSessionIdSet() {
@@ -1972,6 +1892,14 @@ public class SimpleExoPlayer extends BasePlayer
           WRONG_THREAD_ERROR_MESSAGE,
           hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
       hasNotifiedFullWrongThreadWarning = true;
+    }
+  }
+
+  private void sendRendererMessage(int trackType, int messageType, @Nullable Object payload) {
+    for (Renderer renderer : renderers) {
+      if (renderer.getTrackType() == trackType) {
+        player.createMessage(renderer).setType(messageType).setPayload(payload).send();
+      }
     }
   }
 
