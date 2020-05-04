@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.Loader.Loadable;
@@ -620,9 +621,29 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       IOException error,
       int errorCount) {
     copyLengthFromLoader(loadable);
+    StatsDataSource dataSource = loadable.dataSource;
+    LoadEventInfo loadEventInfo =
+        new LoadEventInfo(
+            loadable.loadTaskId,
+            loadable.dataSpec,
+            dataSource.getLastOpenedUri(),
+            dataSource.getLastResponseHeaders(),
+            elapsedRealtimeMs,
+            loadDurationMs,
+            dataSource.getBytesRead());
+    MediaLoadData mediaLoadData =
+        new MediaLoadData(
+            C.DATA_TYPE_MEDIA,
+            C.TRACK_TYPE_UNKNOWN,
+            /* trackFormat= */ null,
+            C.SELECTION_REASON_UNKNOWN,
+            /* trackSelectionData= */ null,
+            /* mediaStartTimeMs= */ C.usToMs(loadable.seekTimeUs),
+            C.usToMs(durationUs));
     LoadErrorAction loadErrorAction;
     long retryDelayMs =
-        loadErrorHandlingPolicy.getRetryDelayMsFor(dataType, loadDurationMs, error, errorCount);
+        loadErrorHandlingPolicy.getRetryDelayMsFor(
+            new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount));
     if (retryDelayMs == C.TIME_UNSET) {
       loadErrorAction = Loader.DONT_RETRY_FATAL;
     } else /* the load should be retried */ {
@@ -634,17 +655,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               : Loader.DONT_RETRY;
     }
 
-    StatsDataSource dataSource = loadable.dataSource;
     boolean wasCanceled = !loadErrorAction.isRetry();
     eventDispatcher.loadError(
-        new LoadEventInfo(
-            loadable.loadTaskId,
-            loadable.dataSpec,
-            dataSource.getLastOpenedUri(),
-            dataSource.getLastResponseHeaders(),
-            elapsedRealtimeMs,
-            loadDurationMs,
-            dataSource.getBytesRead()),
+        loadEventInfo,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
         /* trackFormat= */ null,

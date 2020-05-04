@@ -25,12 +25,14 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.util.Assertions;
@@ -470,10 +472,30 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     int lastChunkIndex = mediaChunks.size() - 1;
     boolean cancelable =
         bytesLoaded == 0 || !isMediaChunk || !haveReadFromMediaChunk(lastChunkIndex);
+    LoadEventInfo loadEventInfo =
+        new LoadEventInfo(
+            loadable.loadTaskId,
+            loadable.dataSpec,
+            loadable.getUri(),
+            loadable.getResponseHeaders(),
+            elapsedRealtimeMs,
+            loadDurationMs,
+            bytesLoaded);
+    MediaLoadData mediaLoadData =
+        new MediaLoadData(
+            loadable.type,
+            primaryTrackType,
+            loadable.trackFormat,
+            loadable.trackSelectionReason,
+            loadable.trackSelectionData,
+            C.usToMs(loadable.startTimeUs),
+            C.usToMs(loadable.endTimeUs));
+    LoadErrorInfo loadErrorInfo =
+        new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
+
     long blacklistDurationMs =
         cancelable
-            ? loadErrorHandlingPolicy.getBlacklistDurationMsFor(
-                loadable.type, loadDurationMs, error, errorCount)
+            ? loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo)
             : C.TIME_UNSET;
     @Nullable LoadErrorAction loadErrorAction = null;
     if (chunkSource.onChunkLoadError(loadable, cancelable, error, blacklistDurationMs)) {
@@ -493,9 +515,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
     if (loadErrorAction == null) {
       // The load was not cancelled. Either the load must be retried or the error propagated.
-      long retryDelayMs =
-          loadErrorHandlingPolicy.getRetryDelayMsFor(
-              loadable.type, loadDurationMs, error, errorCount);
+      long retryDelayMs = loadErrorHandlingPolicy.getRetryDelayMsFor(loadErrorInfo);
       loadErrorAction =
           retryDelayMs != C.TIME_UNSET
               ? Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs)
@@ -504,14 +524,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
     boolean canceled = !loadErrorAction.isRetry();
     eventDispatcher.loadError(
-        new LoadEventInfo(
-            loadable.loadTaskId,
-            loadable.dataSpec,
-            loadable.getUri(),
-            loadable.getResponseHeaders(),
-            elapsedRealtimeMs,
-            loadDurationMs,
-            bytesLoaded),
+        loadEventInfo,
         loadable.type,
         primaryTrackType,
         loadable.trackFormat,
