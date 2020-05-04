@@ -367,7 +367,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Nullable private VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer;
   @Nullable private Surface surface;
   private boolean ownsSurface;
-  private @C.VideoScalingMode int videoScalingMode;
+  @Renderer.VideoScalingMode private int videoScalingMode;
   @Nullable private SurfaceHolder surfaceHolder;
   @Nullable private TextureView textureView;
   private int surfaceWidth;
@@ -510,10 +510,10 @@ public class SimpleExoPlayer extends BasePlayer
    * <p>Note that the scaling mode only applies if a {@link MediaCodec}-based video {@link Renderer}
    * is enabled and if the output surface is owned by a {@link android.view.SurfaceView}.
    *
-   * @param videoScalingMode The video scaling mode.
+   * @param videoScalingMode The {@link Renderer.VideoScalingMode}.
    */
   @Override
-  public void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
+  public void setVideoScalingMode(@Renderer.VideoScalingMode int videoScalingMode) {
     verifyApplicationThread();
     this.videoScalingMode = videoScalingMode;
     for (Renderer renderer : renderers) {
@@ -528,7 +528,8 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public @C.VideoScalingMode int getVideoScalingMode() {
+  @Renderer.VideoScalingMode
+  public int getVideoScalingMode() {
     return videoScalingMode;
   }
 

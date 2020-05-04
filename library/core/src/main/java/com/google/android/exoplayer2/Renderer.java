@@ -148,9 +148,16 @@ public interface Renderer extends PlayerMessage.Target {
    * Video scaling modes for {@link MediaCodec}-based renderers. One of {@link
    * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
    */
+  // VIDEO_SCALING_MODE_DEFAULT is an intentionally duplicated constant.
+  @SuppressWarnings("UniqueConstants")
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
+  @IntDef(
+      value = {
+        VIDEO_SCALING_MODE_DEFAULT,
+        VIDEO_SCALING_MODE_SCALE_TO_FIT,
+        VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+      })
   @interface VideoScalingMode {}
   /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
   @SuppressWarnings("deprecation")
