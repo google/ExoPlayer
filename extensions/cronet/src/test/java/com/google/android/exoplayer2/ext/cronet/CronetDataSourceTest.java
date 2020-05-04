@@ -156,7 +156,7 @@ public final class CronetDataSourceTest {
 
       @Override
       public List<String> getUrlChain() {
-        return null;
+        return Collections.singletonList(url);
       }
 
       @Override
