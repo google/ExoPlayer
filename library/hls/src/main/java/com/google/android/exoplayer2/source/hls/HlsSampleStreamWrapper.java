@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.metadata.emsg.EventMessageDecoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
@@ -51,6 +52,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.util.Assertions;
@@ -768,11 +770,28 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
     boolean blacklistSucceeded = false;
+    LoadEventInfo loadEventInfo =
+        new LoadEventInfo(
+            loadable.loadTaskId,
+            loadable.dataSpec,
+            loadable.getUri(),
+            loadable.getResponseHeaders(),
+            elapsedRealtimeMs,
+            loadDurationMs,
+            bytesLoaded);
+    MediaLoadData mediaLoadData =
+        new MediaLoadData(
+            loadable.type,
+            trackType,
+            loadable.trackFormat,
+            loadable.trackSelectionReason,
+            loadable.trackSelectionData,
+            C.usToMs(loadable.startTimeUs),
+            C.usToMs(loadable.endTimeUs));
+    LoadErrorInfo loadErrorInfo =
+        new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
     LoadErrorAction loadErrorAction;
-
-    long blacklistDurationMs =
-        loadErrorHandlingPolicy.getBlacklistDurationMsFor(
-            loadable.type, loadDurationMs, error, errorCount);
+    long blacklistDurationMs = loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
     if (blacklistDurationMs != C.TIME_UNSET) {
       blacklistSucceeded = chunkSource.maybeBlacklistTrack(loadable, blacklistDurationMs);
     }
@@ -787,9 +806,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
       loadErrorAction = Loader.DONT_RETRY;
     } else /* did not blacklist */ {
-      long retryDelayMs =
-          loadErrorHandlingPolicy.getRetryDelayMsFor(
-              loadable.type, loadDurationMs, error, errorCount);
+      long retryDelayMs = loadErrorHandlingPolicy.getRetryDelayMsFor(loadErrorInfo);
       loadErrorAction =
           retryDelayMs != C.TIME_UNSET
               ? Loader.createRetryAction(/* resetErrorCount= */ false, retryDelayMs)
@@ -798,14 +815,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     boolean wasCanceled = !loadErrorAction.isRetry();
     eventDispatcher.loadError(
-        new LoadEventInfo(
-            loadable.loadTaskId,
-            loadable.dataSpec,
-            loadable.getUri(),
-            loadable.getResponseHeaders(),
-            elapsedRealtimeMs,
-            loadDurationMs,
-            bytesLoaded),
+        loadEventInfo,
         loadable.type,
         trackType,
         loadable.trackFormat,
