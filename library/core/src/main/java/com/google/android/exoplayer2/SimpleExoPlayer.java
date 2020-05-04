@@ -388,40 +388,8 @@ public class SimpleExoPlayer extends BasePlayer
   private boolean playerReleased;
   private DeviceInfo deviceInfo;
 
-  /** @param builder The {@link Builder} to obtain all construction parameters. */
-  protected SimpleExoPlayer(Builder builder) {
-    this(
-        builder.context,
-        builder.renderersFactory,
-        builder.trackSelector,
-        builder.mediaSourceFactory,
-        builder.loadControl,
-        builder.bandwidthMeter,
-        builder.analyticsCollector,
-        builder.useLazyPreparation,
-        builder.clock,
-        builder.looper);
-    if (builder.throwWhenStuckBuffering) {
-      player.experimental_throwWhenStuckBuffering();
-    }
-  }
-
-  /**
-   * @param context A {@link Context}.
-   * @param renderersFactory A factory for creating {@link Renderer}s to be used by the instance.
-   * @param trackSelector The {@link TrackSelector} that will be used by the instance.
-   * @param loadControl The {@link LoadControl} that will be used by the instance.
-   * @param bandwidthMeter The {@link BandwidthMeter} that will be used by the instance.
-   * @param analyticsCollector A factory for creating the {@link AnalyticsCollector} that will
-   *     collect and forward all player events.
-   * @param useLazyPreparation Whether playlist items are prepared lazily. If false, all manifest
-   *     loads and other initial preparation steps happen immediately. If true, these initial
-   *     preparations are triggered only when the player starts buffering the media.
-   * @param clock The {@link Clock} that will be used by the instance. Should always be {@link
-   *     Clock#DEFAULT}, unless the player is being used from a test.
-   * @param applicationLooper The {@link Looper} which must be used for all calls to the player and
-   *     which is used to call listeners on.
-   */
+  /** @deprecated Use the {@link Builder} and pass it to {@link #SimpleExoPlayer(Builder)}. */
+  @Deprecated
   protected SimpleExoPlayer(
       Context context,
       RenderersFactory renderersFactory,
@@ -433,8 +401,22 @@ public class SimpleExoPlayer extends BasePlayer
       boolean useLazyPreparation,
       Clock clock,
       Looper applicationLooper) {
-    this.bandwidthMeter = bandwidthMeter;
-    this.analyticsCollector = analyticsCollector;
+    this(
+        new Builder(context, renderersFactory)
+            .setTrackSelector(trackSelector)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .setLoadControl(loadControl)
+            .setBandwidthMeter(bandwidthMeter)
+            .setAnalyticsCollector(analyticsCollector)
+            .setUseLazyPreparation(useLazyPreparation)
+            .setClock(clock)
+            .setLooper(applicationLooper));
+  }
+
+  /** @param builder The {@link Builder} to obtain all construction parameters. */
+  protected SimpleExoPlayer(Builder builder) {
+    bandwidthMeter = builder.bandwidthMeter;
+    analyticsCollector = builder.analyticsCollector;
     componentListener = new ComponentListener();
     videoListeners = new CopyOnWriteArraySet<>();
     audioListeners = new CopyOnWriteArraySet<>();
@@ -443,9 +425,9 @@ public class SimpleExoPlayer extends BasePlayer
     deviceListeners = new CopyOnWriteArraySet<>();
     videoDebugListeners = new CopyOnWriteArraySet<>();
     audioDebugListeners = new CopyOnWriteArraySet<>();
-    Handler eventHandler = new Handler(applicationLooper);
+    Handler eventHandler = new Handler(builder.looper);
     renderers =
-        renderersFactory.createRenderers(
+        builder.renderersFactory.createRenderers(
             eventHandler,
             componentListener,
             componentListener,
@@ -463,14 +445,14 @@ public class SimpleExoPlayer extends BasePlayer
     player =
         new ExoPlayerImpl(
             renderers,
-            trackSelector,
-            mediaSourceFactory,
-            loadControl,
+            builder.trackSelector,
+            builder.mediaSourceFactory,
+            builder.loadControl,
             bandwidthMeter,
             analyticsCollector,
-            useLazyPreparation,
-            clock,
-            applicationLooper);
+            builder.useLazyPreparation,
+            builder.clock,
+            builder.looper);
     analyticsCollector.setPlayer(player);
     player.addListener(analyticsCollector);
     player.addListener(componentListener);
@@ -481,12 +463,15 @@ public class SimpleExoPlayer extends BasePlayer
     addMetadataOutput(analyticsCollector);
     bandwidthMeter.addEventListener(eventHandler, analyticsCollector);
     audioBecomingNoisyManager =
-        new AudioBecomingNoisyManager(context, eventHandler, componentListener);
-    audioFocusManager = new AudioFocusManager(context, eventHandler, componentListener);
-    streamVolumeManager = new StreamVolumeManager(context, eventHandler, componentListener);
-    wakeLockManager = new WakeLockManager(context);
-    wifiLockManager = new WifiLockManager(context);
+        new AudioBecomingNoisyManager(builder.context, eventHandler, componentListener);
+    audioFocusManager = new AudioFocusManager(builder.context, eventHandler, componentListener);
+    streamVolumeManager = new StreamVolumeManager(builder.context, eventHandler, componentListener);
+    wakeLockManager = new WakeLockManager(builder.context);
+    wifiLockManager = new WifiLockManager(builder.context);
     deviceInfo = createDeviceInfo(streamVolumeManager);
+    if (builder.throwWhenStuckBuffering) {
+      player.experimental_throwWhenStuckBuffering();
+    }
   }
 
   @Override
@@ -1030,11 +1015,6 @@ public class SimpleExoPlayer extends BasePlayer
             .send();
       }
     }
-  }
-
-  /** Returns whether skipping silences in the audio stream is enabled. */
-  public boolean isSkipSilenceEnabled() {
-    return skipSilenceEnabled;
   }
 
   /**
