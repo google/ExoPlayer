@@ -41,6 +41,7 @@ import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
+import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -85,6 +86,7 @@ public final class ImaAdsLoaderTest {
   private static final long CONTENT_PERIOD_DURATION_US =
       CONTENT_TIMELINE.getPeriod(/* periodIndex= */ 0, new Period()).durationUs;
   private static final Uri TEST_URI = Uri.EMPTY;
+  private static final AdMediaInfo TEST_AD_MEDIA_INFO = new AdMediaInfo(TEST_URI.toString());
   private static final long TEST_AD_DURATION_US = 5 * C.MICROS_PER_SECOND;
   private static final long[][] PREROLL_ADS_DURATIONS_US = new long[][] {{TEST_AD_DURATION_US}};
   private static final Float[] PREROLL_CUE_POINTS_SECONDS = new Float[] {0f};
@@ -99,7 +101,7 @@ public final class ImaAdsLoaderTest {
   @Mock private AdsManagerLoadedEvent mockAdsManagerLoadedEvent;
   @Mock private com.google.ads.interactivemedia.v3.api.AdsLoader mockAdsLoader;
   @Mock private ImaFactory mockImaFactory;
-  @Mock private AdPodInfo mockPrerollSingleAdAdPodInfo;
+  @Mock private AdPodInfo mockAdPodInfo;
   @Mock private Ad mockPrerollSingleAd;
 
   private ViewGroup adViewGroup;
@@ -195,12 +197,12 @@ public final class ImaAdsLoaderTest {
     // SDK being proguarded.
     imaAdsLoader.requestAds(adViewGroup);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, mockPrerollSingleAd));
-    imaAdsLoader.loadAd(TEST_URI.toString());
+    imaAdsLoader.loadAd(TEST_AD_MEDIA_INFO, mockAdPodInfo);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, mockPrerollSingleAd));
-    imaAdsLoader.playAd();
+    imaAdsLoader.playAd(TEST_AD_MEDIA_INFO);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
-    imaAdsLoader.pauseAd();
-    imaAdsLoader.stopAd();
+    imaAdsLoader.pauseAd(TEST_AD_MEDIA_INFO);
+    imaAdsLoader.stopAd(TEST_AD_MEDIA_INFO);
     imaAdsLoader.onPlayerError(ExoPlaybackException.createForSource(new IOException()));
     imaAdsLoader.onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
@@ -215,11 +217,11 @@ public final class ImaAdsLoaderTest {
     // Load the preroll ad.
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, mockPrerollSingleAd));
-    imaAdsLoader.loadAd(TEST_URI.toString());
+    imaAdsLoader.loadAd(TEST_AD_MEDIA_INFO, mockAdPodInfo);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, mockPrerollSingleAd));
 
     // Play the preroll ad.
-    imaAdsLoader.playAd();
+    imaAdsLoader.playAd(TEST_AD_MEDIA_INFO);
     fakeExoPlayer.setPlayingAdPosition(
         /* adGroupIndex= */ 0,
         /* adIndexInAdGroup= */ 0,
@@ -233,7 +235,7 @@ public final class ImaAdsLoaderTest {
 
     // Play the content.
     fakeExoPlayer.setPlayingContentPosition(0);
-    imaAdsLoader.stopAd();
+    imaAdsLoader.stopAd(TEST_AD_MEDIA_INFO);
     imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
 
     // Verify that the preroll ad has been marked as played.
@@ -313,11 +315,11 @@ public final class ImaAdsLoaderTest {
     when(mockImaFactory.createAdsRequest()).thenReturn(mockAdsRequest);
     when(mockImaFactory.createAdsLoader(any(), any(), any())).thenReturn(mockAdsLoader);
 
-    when(mockPrerollSingleAdAdPodInfo.getPodIndex()).thenReturn(0);
-    when(mockPrerollSingleAdAdPodInfo.getTotalAds()).thenReturn(1);
-    when(mockPrerollSingleAdAdPodInfo.getAdPosition()).thenReturn(1);
+    when(mockAdPodInfo.getPodIndex()).thenReturn(0);
+    when(mockAdPodInfo.getTotalAds()).thenReturn(1);
+    when(mockAdPodInfo.getAdPosition()).thenReturn(1);
 
-    when(mockPrerollSingleAd.getAdPodInfo()).thenReturn(mockPrerollSingleAdAdPodInfo);
+    when(mockPrerollSingleAd.getAdPodInfo()).thenReturn(mockAdPodInfo);
   }
 
   private static AdEvent getAdEvent(AdEventType adEventType, @Nullable Ad ad) {
