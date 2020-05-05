@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCode
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,17 +139,13 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
       @Nullable Map<String, String> requestProperties)
       throws IOException {
     HttpDataSource dataSource = dataSourceFactory.createDataSource();
-    if (requestProperties != null) {
-      for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
-        dataSource.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
-      }
-    }
-
     int manualRedirectCount = 0;
     while (true) {
       DataSpec dataSpec =
           new DataSpec.Builder()
               .setUri(url)
+              .setHttpRequestHeaders(
+                  requestProperties != null ? requestProperties : Collections.emptyMap())
               .setHttpMethod(DataSpec.HTTP_METHOD_POST)
               .setHttpBody(httpBody)
               .setFlags(DataSpec.FLAG_ALLOW_GZIP)
