@@ -120,11 +120,11 @@ public interface TrackOutput {
    *       encryption data also contains:
    *       <ul>
    *         <li>(2 bytes) {@code subsample_encryption_data_length}.
-   *         <li>({@code subsample_encryption_data_length} bytes) Subsample encryption data
-   *             (repeated {@code subsample_encryption_data_length / 6} times:
+   *         <li>({@code subsample_encryption_data_length * 6} bytes) Subsample encryption data
+   *             (repeated {@code subsample_encryption_data_length} times:
    *             <ul>
-   *               <li>(3 bytes) Size of a clear section in sample.
-   *               <li>(3 bytes) Size of an encryption section in sample.
+   *               <li>(2 bytes) Size of a clear section in sample.
+   *               <li>(4 bytes) Size of an encryption section in sample.
    *             </ul>
    *       </ul>
    * </ul>

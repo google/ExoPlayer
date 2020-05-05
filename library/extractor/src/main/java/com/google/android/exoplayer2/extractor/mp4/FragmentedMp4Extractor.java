@@ -1630,7 +1630,7 @@ public class FragmentedMp4Extractor implements Extractor {
         // clearDataSize = clearHeaderSize (unsigned short)
         scratch.data[2] = (byte) ((clearHeaderSize >> 8) & 0xFF);
         scratch.data[3] = (byte) (clearHeaderSize & 0xFF);
-        // encryptedDataSize = sampleSize (unsigned short)
+        // encryptedDataSize = sampleSize (unsigned int)
         scratch.data[4] = (byte) ((sampleSize >> 24) & 0xFF);
         scratch.data[5] = (byte) ((sampleSize >> 16) & 0xFF);
         scratch.data[6] = (byte) ((sampleSize >> 8) & 0xFF);
