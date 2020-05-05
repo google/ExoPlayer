@@ -323,7 +323,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
    *
    * @param oldFormat The previous format.
    * @param newFormat The new format.
-   * @return True if the existing decoder can be kept.
+   * @return Whether the existing decoder can be kept.
    */
   protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
     return false;
@@ -643,7 +643,9 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
     Format oldFormat = inputFormat;
     inputFormat = newFormat;
 
-    if (!canKeepCodec(oldFormat, inputFormat)) {
+    if (decoder == null) {
+      maybeInitDecoder();
+    } else if (sourceDrmSession != decoderDrmSession || !canKeepCodec(oldFormat, inputFormat)) {
       if (decoderReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
         decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
@@ -657,7 +659,6 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
 
     encoderDelay = inputFormat.encoderDelay;
     encoderPadding = inputFormat.encoderPadding;
-
     eventDispatcher.inputFormatChanged(inputFormat);
   }
 

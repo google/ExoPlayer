@@ -56,7 +56,8 @@ public final class FfmpegLibrary {
   }
 
   /** Returns the version of the underlying library if available, or null otherwise. */
-  public static @Nullable String getVersion() {
+  @Nullable
+  public static String getVersion() {
     return isAvailable() ? ffmpegGetVersion() : null;
   }
 
@@ -69,7 +70,7 @@ public final class FfmpegLibrary {
     if (!isAvailable()) {
       return false;
     }
-    String codecName = getCodecName(mimeType);
+    @Nullable String codecName = getCodecName(mimeType);
     if (codecName == null) {
       return false;
     }
@@ -84,7 +85,8 @@ public final class FfmpegLibrary {
    * Returns the name of the FFmpeg decoder that could be used to decode the format, or {@code null}
    * if it's unsupported.
    */
-  /* package */ static @Nullable String getCodecName(String mimeType) {
+  @Nullable
+  /* package */ static String getCodecName(String mimeType) {
     switch (mimeType) {
       case MimeTypes.AUDIO_AAC:
         return "aac";
