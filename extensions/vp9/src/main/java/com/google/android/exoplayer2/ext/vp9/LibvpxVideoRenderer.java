@@ -168,4 +168,9 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
       decoder.setOutputMode(outputMode);
     }
   }
+
+  @Override
+  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
+    return true;
+  }
 }

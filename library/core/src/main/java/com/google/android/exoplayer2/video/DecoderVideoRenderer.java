@@ -379,9 +379,12 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     waitingForFirstSampleInFormat = true;
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
     setSourceDrmSession(formatHolder.drmSession);
+    Format oldFormat = inputFormat;
     inputFormat = newFormat;
 
-    if (sourceDrmSession != decoderDrmSession) {
+    if (decoder == null) {
+      maybeInitDecoder();
+    } else if (sourceDrmSession != decoderDrmSession || !canKeepCodec(oldFormat, inputFormat)) {
       if (decoderReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
         decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
@@ -639,6 +642,17 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
    * @param outputMode Output mode.
    */
   protected abstract void setDecoderOutputMode(@C.VideoOutputMode int outputMode);
+
+  /**
+   * Returns whether the existing decoder can be kept for a new format.
+   *
+   * @param oldFormat The previous format.
+   * @param newFormat The new format.
+   * @return Whether the existing decoder can be kept.
+   */
+  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
+    return false;
+  }
 
   // Internal methods.
 

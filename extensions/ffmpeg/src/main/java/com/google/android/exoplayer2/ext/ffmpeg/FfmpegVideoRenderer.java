@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.DecoderVideoRenderer;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBuffer;
@@ -112,5 +113,10 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
       decoder.setOutputMode(outputMode);
     }
     */
+  }
+
+  @Override
+  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
+    return Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType);
   }
 }

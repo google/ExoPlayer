@@ -162,4 +162,9 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
       decoder.setOutputMode(outputMode);
     }
   }
+
+  @Override
+  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
+    return true;
+  }
 }
