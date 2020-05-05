@@ -514,7 +514,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           setOutputSurfaceV23(codec, surface);
         } else {
           releaseCodec();
-          maybeInitCodec();
+          maybeInitCodecOrPassthrough();
         }
       }
       if (surface != null && surface != dummySurface) {
@@ -753,7 +753,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected boolean processOutputBuffer(
       long positionUs,
       long elapsedRealtimeUs,
-      MediaCodec codec,
+      @Nullable MediaCodec codec,
       ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,
@@ -763,6 +763,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       boolean isLastBuffer,
       Format format)
       throws ExoPlaybackException {
+    Assertions.checkNotNull(codec); // Can not render video without codec
+
     if (initialPositionUs == C.TIME_UNSET) {
       initialPositionUs = positionUs;
     }
