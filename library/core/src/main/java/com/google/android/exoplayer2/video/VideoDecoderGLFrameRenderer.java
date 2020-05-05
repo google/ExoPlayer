@@ -20,16 +20,19 @@ import android.opengl.GLSurfaceView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.GlUtil;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * GLSurfaceView.Renderer implementation that can render YUV Frames returned by a video decoder
  * after decoding. It does the YUV to RGB color conversion in the Fragment Shader.
  */
-/* package */ class VideoDecoderRenderer
+/* package */ class VideoDecoderGLFrameRenderer
     implements GLSurfaceView.Renderer, VideoDecoderOutputBufferRenderer {
 
   private static final float[] kColorConversion601 = {
@@ -86,7 +89,8 @@ import javax.microedition.khronos.opengles.GL10;
       GlUtil.createBuffer(new float[] {-1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f});
   private final GLSurfaceView surfaceView;
   private final int[] yuvTextures = new int[3];
-  private final AtomicReference<VideoDecoderOutputBuffer> pendingOutputBufferReference;
+  private final AtomicReference<@NullableType VideoDecoderOutputBuffer>
+      pendingOutputBufferReference;
 
   // Kept in field rather than a local variable in order not to get garbage collected before
   // glDrawArrays uses it.
@@ -98,10 +102,10 @@ import javax.microedition.khronos.opengles.GL10;
   private int[] previousWidths;
   private int[] previousStrides;
 
-  @Nullable
-  private VideoDecoderOutputBuffer renderedOutputBuffer; // Accessed only from the GL thread.
+  // Accessed only from the GL thread.
+  private @MonotonicNonNull VideoDecoderOutputBuffer renderedOutputBuffer;
 
-  public VideoDecoderRenderer(GLSurfaceView surfaceView) {
+  public VideoDecoderGLFrameRenderer(GLSurfaceView surfaceView) {
     this.surfaceView = surfaceView;
     pendingOutputBufferReference = new AtomicReference<>();
     textureCoords = new FloatBuffer[3];
@@ -119,7 +123,13 @@ import javax.microedition.khronos.opengles.GL10;
     GLES20.glUseProgram(program);
     int posLocation = GLES20.glGetAttribLocation(program, "in_pos");
     GLES20.glEnableVertexAttribArray(posLocation);
-    GLES20.glVertexAttribPointer(posLocation, 2, GLES20.GL_FLOAT, false, 0, TEXTURE_VERTICES);
+    GLES20.glVertexAttribPointer(
+        posLocation,
+        2,
+        GLES20.GL_FLOAT,
+        /* normalized= */ false,
+        /* stride= */ 0,
+        TEXTURE_VERTICES);
     texLocations[0] = GLES20.glGetAttribLocation(program, "in_tc_y");
     GLES20.glEnableVertexAttribArray(texLocations[0]);
     texLocations[1] = GLES20.glGetAttribLocation(program, "in_tc_u");
@@ -140,7 +150,9 @@ import javax.microedition.khronos.opengles.GL10;
 
   @Override
   public void onDrawFrame(GL10 unused) {
-    VideoDecoderOutputBuffer pendingOutputBuffer = pendingOutputBufferReference.getAndSet(null);
+    @Nullable
+    VideoDecoderOutputBuffer pendingOutputBuffer =
+        pendingOutputBufferReference.getAndSet(/* newValue= */ null);
     if (pendingOutputBuffer == null && renderedOutputBuffer == null) {
       // There is no output buffer to render at the moment.
       return;
@@ -151,7 +163,9 @@ import javax.microedition.khronos.opengles.GL10;
       }
       renderedOutputBuffer = pendingOutputBuffer;
     }
-    VideoDecoderOutputBuffer outputBuffer = renderedOutputBuffer;
+
+    VideoDecoderOutputBuffer outputBuffer = Assertions.checkNotNull(renderedOutputBuffer);
+
     // Set color matrix. Assume BT709 if the color space is unknown.
     float[] colorConversion = kColorConversion709;
     switch (outputBuffer.colorspace) {
@@ -163,9 +177,18 @@ import javax.microedition.khronos.opengles.GL10;
         break;
       case VideoDecoderOutputBuffer.COLORSPACE_BT709:
       default:
-        break; // Do nothing
+        // Do nothing.
+        break;
     }
-    GLES20.glUniformMatrix3fv(colorMatrixLocation, 1, false, colorConversion, 0);
+    GLES20.glUniformMatrix3fv(
+        colorMatrixLocation,
+        /* color= */ 1,
+        /* transpose= */ false,
+        colorConversion,
+        /* offset= */ 0);
+
+    int[] yuvStrides = Assertions.checkNotNull(outputBuffer.yuvStrides);
+    ByteBuffer[] yuvPlanes = Assertions.checkNotNull(outputBuffer.yuvPlanes);
 
     for (int i = 0; i < 3; i++) {
       int h = (i == 0) ? outputBuffer.height : (outputBuffer.height + 1) / 2;
@@ -174,14 +197,14 @@ import javax.microedition.khronos.opengles.GL10;
       GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
       GLES20.glTexImage2D(
           GLES20.GL_TEXTURE_2D,
-          0,
+          /* level= */ 0,
           GLES20.GL_LUMINANCE,
-          outputBuffer.yuvStrides[i],
+          yuvStrides[i],
           h,
-          0,
+          /* border= */ 0,
           GLES20.GL_LUMINANCE,
           GLES20.GL_UNSIGNED_BYTE,
-          outputBuffer.yuvPlanes[i]);
+          yuvPlanes[i]);
     }
 
     int[] widths = new int[3];
@@ -192,28 +215,34 @@ import javax.microedition.khronos.opengles.GL10;
     widths[1] = widths[2] = (widths[0] + 1) / 2;
     for (int i = 0; i < 3; i++) {
       // Set cropping of stride if either width or stride has changed.
-      if (previousWidths[i] != widths[i] || previousStrides[i] != outputBuffer.yuvStrides[i]) {
-        Assertions.checkState(outputBuffer.yuvStrides[i] != 0);
-        float widthRatio = (float) widths[i] / outputBuffer.yuvStrides[i];
+      if (previousWidths[i] != widths[i] || previousStrides[i] != yuvStrides[i]) {
+        Assertions.checkState(yuvStrides[i] != 0);
+        float widthRatio = (float) widths[i] / yuvStrides[i];
         // These buffers are consumed during each call to glDrawArrays. They need to be member
         // variables rather than local variables in order not to get garbage collected.
         textureCoords[i] =
             GlUtil.createBuffer(
                 new float[] {0.0f, 0.0f, 0.0f, 1.0f, widthRatio, 0.0f, widthRatio, 1.0f});
         GLES20.glVertexAttribPointer(
-            texLocations[i], 2, GLES20.GL_FLOAT, false, 0, textureCoords[i]);
+            texLocations[i],
+            /* size= */ 2,
+            GLES20.GL_FLOAT,
+            /* normalized= */ false,
+            /* stride= */ 0,
+            textureCoords[i]);
         previousWidths[i] = widths[i];
-        previousStrides[i] = outputBuffer.yuvStrides[i];
+        previousStrides[i] = yuvStrides[i];
       }
     }
 
     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     GlUtil.checkGlError();
   }
 
   @Override
   public void setOutputBuffer(VideoDecoderOutputBuffer outputBuffer) {
+    @Nullable
     VideoDecoderOutputBuffer oldPendingOutputBuffer =
         pendingOutputBufferReference.getAndSet(outputBuffer);
     if (oldPendingOutputBuffer != null) {
@@ -224,7 +253,7 @@ import javax.microedition.khronos.opengles.GL10;
   }
 
   private void setupTextures() {
-    GLES20.glGenTextures(3, yuvTextures, 0);
+    GLES20.glGenTextures(3, yuvTextures, /* offset= */ 0);
     for (int i = 0; i < 3; i++) {
       GLES20.glUniform1i(GLES20.glGetUniformLocation(program, TEXTURE_UNIFORMS[i]), i);
       GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + i);
