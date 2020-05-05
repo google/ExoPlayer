@@ -219,7 +219,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     boolean supportsFormatDrm = supportsFormatDrm(format);
     if (supportsFormatDrm
         && usePassthrough(format.channelCount, mimeType)
-        && MediaCodecUtil.getPassthroughDecoderInfo() != null) {
+        // A Passthrough decoder is only needed to decode the DRM encryption.
+        && (format.drmInitData == null || MediaCodecUtil.getPassthroughDecoderInfo() != null)) {
       return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
     }
     if ((MimeTypes.AUDIO_RAW.equals(mimeType)
