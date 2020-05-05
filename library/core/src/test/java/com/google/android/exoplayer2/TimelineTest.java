@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
@@ -61,13 +62,19 @@ public class TimelineTest {
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 0);
   }
 
+  @SuppressWarnings("deprecation") // Tests the deprecated window.tag property.
   @Test
   public void windowEquals() {
+    MediaItem mediaItem = new MediaItem.Builder().setUri("uri").setTag(new Object()).build();
     Timeline.Window window = new Timeline.Window();
     assertThat(window).isEqualTo(new Timeline.Window());
 
     Timeline.Window otherWindow = new Timeline.Window();
-    otherWindow.tag = new Object();
+    otherWindow.mediaItem = mediaItem;
+    assertThat(window).isNotEqualTo(otherWindow);
+
+    otherWindow = new Timeline.Window();
+    otherWindow.tag = mediaItem.playbackProperties.tag;
     assertThat(window).isNotEqualTo(otherWindow);
 
     otherWindow = new Timeline.Window();
@@ -118,19 +125,31 @@ public class TimelineTest {
     otherWindow.positionInFirstPeriodUs = C.TIME_UNSET;
     assertThat(window).isNotEqualTo(otherWindow);
 
-    window.uid = new Object();
-    window.tag = new Object();
-    window.manifest = new Object();
-    window.presentationStartTimeMs = C.TIME_UNSET;
-    window.windowStartTimeMs = C.TIME_UNSET;
-    window.isSeekable = true;
-    window.isDynamic = true;
-    window.isLive = true;
-    window.defaultPositionUs = C.TIME_UNSET;
-    window.durationUs = C.TIME_UNSET;
-    window.firstPeriodIndex = 1;
-    window.lastPeriodIndex = 1;
-    window.positionInFirstPeriodUs = C.TIME_UNSET;
+    window = populateWindow(mediaItem, mediaItem.playbackProperties.tag);
+    otherWindow =
+        otherWindow.set(
+            window.uid,
+            window.mediaItem,
+            window.manifest,
+            window.presentationStartTimeMs,
+            window.windowStartTimeMs,
+            window.elapsedRealtimeEpochOffsetMs,
+            window.isSeekable,
+            window.isDynamic,
+            window.isLive,
+            window.defaultPositionUs,
+            window.durationUs,
+            window.firstPeriodIndex,
+            window.lastPeriodIndex,
+            window.positionInFirstPeriodUs);
+    assertThat(window).isEqualTo(otherWindow);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  public void windowSet_withTag() {
+    Timeline.Window window = populateWindow(/* mediaItem= */ null, new Object());
+    Timeline.Window otherWindow = new Timeline.Window();
     otherWindow =
         otherWindow.set(
             window.uid,
@@ -156,9 +175,9 @@ public class TimelineTest {
     Timeline.Window otherWindow = new Timeline.Window();
     assertThat(window.hashCode()).isEqualTo(otherWindow.hashCode());
 
-    window.tag = new Object();
+    window.mediaItem = new MediaItem.Builder().setMediaId("mediaId").setTag(new Object()).build();
     assertThat(window.hashCode()).isNotEqualTo(otherWindow.hashCode());
-    otherWindow.tag = window.tag;
+    otherWindow.mediaItem = window.mediaItem;
     assertThat(window.hashCode()).isEqualTo(otherWindow.hashCode());
   }
 
@@ -208,5 +227,26 @@ public class TimelineTest {
     assertThat(period.hashCode()).isNotEqualTo(otherPeriod.hashCode());
     otherPeriod.windowIndex = period.windowIndex;
     assertThat(period.hashCode()).isEqualTo(otherPeriod.hashCode());
+  }
+
+  @SuppressWarnings("deprecation") // Populates the deprecated window.tag property.
+  private static Timeline.Window populateWindow(
+      @Nullable MediaItem mediaItem, @Nullable Object tag) {
+    Timeline.Window window = new Timeline.Window();
+    window.uid = new Object();
+    window.tag = tag;
+    window.mediaItem = mediaItem;
+    window.manifest = new Object();
+    window.presentationStartTimeMs = C.TIME_UNSET;
+    window.windowStartTimeMs = C.TIME_UNSET;
+    window.isSeekable = true;
+    window.isDynamic = true;
+    window.isLive = true;
+    window.defaultPositionUs = C.TIME_UNSET;
+    window.durationUs = C.TIME_UNSET;
+    window.firstPeriodIndex = 1;
+    window.lastPeriodIndex = 1;
+    window.positionInFirstPeriodUs = C.TIME_UNSET;
+    return window;
   }
 }

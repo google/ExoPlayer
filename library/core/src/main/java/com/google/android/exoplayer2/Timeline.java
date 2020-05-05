@@ -129,8 +129,11 @@ public abstract class Timeline {
      */
     public Object uid;
 
-    /** A tag for the window. Not necessarily unique. */
-    @Nullable public Object tag;
+    /** @deprecated Use {@link #mediaItem} instead. */
+    @Deprecated @Nullable public Object tag;
+
+    /** The {@link MediaItem} associated to the window. Not necessarily unique. */
+    @Nullable public MediaItem mediaItem;
 
     /** The manifest of the window. May be {@code null}. */
     @Nullable public Object manifest;
@@ -214,7 +217,12 @@ public abstract class Timeline {
       uid = SINGLE_WINDOW_UID;
     }
 
-    /** Sets the data held by this window. */
+    /**
+     * @deprecated Use {@link #set(Object, MediaItem, Object, long, long, long, boolean, boolean,
+     *     boolean, long, long, int, int, long)} instead.
+     */
+    @SuppressWarnings("deprecation")
+    @Deprecated
     public Window set(
         Object uid,
         @Nullable Object tag,
@@ -230,8 +238,48 @@ public abstract class Timeline {
         int firstPeriodIndex,
         int lastPeriodIndex,
         long positionInFirstPeriodUs) {
-      this.uid = uid;
+      set(
+          uid,
+          /* mediaItem= */ null,
+          manifest,
+          presentationStartTimeMs,
+          windowStartTimeMs,
+          elapsedRealtimeEpochOffsetMs,
+          isSeekable,
+          isDynamic,
+          isLive,
+          defaultPositionUs,
+          durationUs,
+          firstPeriodIndex,
+          lastPeriodIndex,
+          positionInFirstPeriodUs);
       this.tag = tag;
+      return this;
+    }
+
+    /** Sets the data held by this window. */
+    @SuppressWarnings("deprecation")
+    public Window set(
+        Object uid,
+        @Nullable MediaItem mediaItem,
+        @Nullable Object manifest,
+        long presentationStartTimeMs,
+        long windowStartTimeMs,
+        long elapsedRealtimeEpochOffsetMs,
+        boolean isSeekable,
+        boolean isDynamic,
+        boolean isLive,
+        long defaultPositionUs,
+        long durationUs,
+        int firstPeriodIndex,
+        int lastPeriodIndex,
+        long positionInFirstPeriodUs) {
+      this.uid = uid;
+      this.mediaItem = mediaItem;
+      this.tag =
+          mediaItem != null && mediaItem.playbackProperties != null
+              ? mediaItem.playbackProperties.tag
+              : null;
       this.manifest = manifest;
       this.presentationStartTimeMs = presentationStartTimeMs;
       this.windowStartTimeMs = windowStartTimeMs;
@@ -319,6 +367,7 @@ public abstract class Timeline {
       Window that = (Window) obj;
       return Util.areEqual(uid, that.uid)
           && Util.areEqual(tag, that.tag)
+          && Util.areEqual(mediaItem, that.mediaItem)
           && Util.areEqual(manifest, that.manifest)
           && presentationStartTimeMs == that.presentationStartTimeMs
           && windowStartTimeMs == that.windowStartTimeMs
@@ -339,6 +388,7 @@ public abstract class Timeline {
       int result = 7;
       result = 31 * result + uid.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
+      result = 31 * result + (mediaItem == null ? 0 : mediaItem.hashCode());
       result = 31 * result + (manifest == null ? 0 : manifest.hashCode());
       result = 31 * result + (int) (presentationStartTimeMs ^ (presentationStartTimeMs >>> 32));
       result = 31 * result + (int) (windowStartTimeMs ^ (windowStartTimeMs >>> 32));
