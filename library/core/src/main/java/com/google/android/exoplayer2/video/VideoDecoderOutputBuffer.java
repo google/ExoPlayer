@@ -33,7 +33,7 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
   //     ../../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
   // )
 
-  /** Decoder private data. */
+  /** Decoder private data. Used from native code. */
   public int decoderPrivate;
 
   /** Output mode. */
