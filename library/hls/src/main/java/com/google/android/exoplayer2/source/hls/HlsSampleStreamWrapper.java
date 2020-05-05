@@ -1324,6 +1324,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             .setLabel(playlistFormat.label)
             .setLanguage(playlistFormat.language)
             .setSelectionFlags(playlistFormat.selectionFlags)
+            .setRoleFlags(playlistFormat.roleFlags)
             .setAverageBitrate(propagateBitrates ? playlistFormat.averageBitrate : Format.NO_VALUE)
             .setPeakBitrate(propagateBitrates ? playlistFormat.peakBitrate : Format.NO_VALUE)
             .setCodecs(codecs)
