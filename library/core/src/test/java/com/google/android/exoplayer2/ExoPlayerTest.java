@@ -3641,7 +3641,8 @@ public final class ExoPlayerTest {
 
   @Test
   public void
-      nextLoadPositionExceedingLoadControlMaxBuffer_whileCurrentLoadInProgress_doesNotThrowException() {
+      nextLoadPositionExceedingLoadControlMaxBuffer_whileCurrentLoadInProgress_doesNotThrowException()
+          throws Exception {
     long maxBufferUs = 2 * C.MICROS_PER_SECOND;
     LoadControl loadControlWithMaxBufferUs =
         new DefaultLoadControl() {
@@ -3706,7 +3707,7 @@ public final class ExoPlayerTest {
 
     // Wait until the MediaSource is prepared, i.e. returned its timeline, and at least one
     // iteration of doSomeWork after this was run.
-    TestExoPlayer.runUntilTimelineChanged(player, /* expectedTimeline= */ null);
+    TestExoPlayer.runUntilTimelineChanged(player);
     TestExoPlayer.runUntilPendingCommandsAreFullyHandled(player);
 
     assertThat(player.getPlayerError()).isNull();
