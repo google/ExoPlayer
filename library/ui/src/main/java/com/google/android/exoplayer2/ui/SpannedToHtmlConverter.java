@@ -148,7 +148,7 @@ import java.util.regex.Pattern;
       return Util.formatInvariant("<span style='font-size:%.2fpx;'>", sizeCssPx);
     } else if (span instanceof RelativeSizeSpan) {
       return Util.formatInvariant(
-          "<span style='font-size:%.2f%%;'>", ((RelativeSizeSpan) span).getSizeChange());
+          "<span style='font-size:%.2f%%;'>", ((RelativeSizeSpan) span).getSizeChange() * 100);
     } else if (span instanceof TypefaceSpan) {
       @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
       return fontFamily != null

@@ -135,7 +135,7 @@ public class SpannedToHtmlConverterTest {
   public void convert_supportsRelativeSizeSpan() {
     SpannableString spanned = new SpannableString("String with 10% section");
     spanned.setSpan(
-        new RelativeSizeSpan(/* proportion= */ 10),
+        new RelativeSizeSpan(/* proportion= */ 0.1f),
         "String with ".length(),
         "String with 10%".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
