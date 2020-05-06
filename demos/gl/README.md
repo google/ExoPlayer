@@ -9,3 +9,5 @@ timestamp, to show how to get the timestamp of the frame currently in the
 off-screen surface texture.
 
 [GLSurfaceView]: https://developer.android.com/reference/android/opengl/GLSurfaceView
+
+Please see the [demos README](../README.md) for instructions on how to build and run this demo.

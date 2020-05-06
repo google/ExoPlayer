@@ -19,3 +19,5 @@ can't take a `null` surface, so the player has to use a `DummySurface`, which
 doesn't handle protected output on all devices).
 
 [SurfaceControl]: https://developer.android.com/reference/android/view/SurfaceControl
+
+Please see the [demos README](../README.md) for instructions on how to build and run this demo.
