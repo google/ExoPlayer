@@ -57,6 +57,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -2169,6 +2170,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return false; // The buffer could not be filled, there is nothing more to do.
     }
     batchBuffer.flip(); // Buffer at least partially full, it can now be processed.
+    // MediaCodec outputs buffers in native endian:
+    // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers
+    // and code called from processOutputBuffer expects this endianness.
+    batchBuffer.data.order(ByteOrder.nativeOrder());
     return true;
   }
 
