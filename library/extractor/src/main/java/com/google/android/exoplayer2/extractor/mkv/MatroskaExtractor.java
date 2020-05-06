@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -1940,6 +1941,7 @@ public class MatroskaExtractor implements Extractor {
       int maxInputSize = Format.NO_VALUE;
       @C.PcmEncoding int pcmEncoding = Format.NO_VALUE;
       @Nullable List<byte[]> initializationData = null;
+      @Nullable String codecs = null;
       switch (codecId) {
         case CODEC_ID_VP8:
           mimeType = MimeTypes.VIDEO_VP8;
@@ -2001,6 +2003,12 @@ public class MatroskaExtractor implements Extractor {
         case CODEC_ID_AAC:
           mimeType = MimeTypes.AUDIO_AAC;
           initializationData = Collections.singletonList(codecPrivate);
+          AacUtil.Config aacConfig = AacUtil.parseAudioSpecificConfig(codecPrivate);
+          // Update sampleRate and channelCount from the AudioSpecificConfig initialization data,
+          // which is more reliable. See [Internal: b/10903778].
+          sampleRate = aacConfig.sampleRateHz;
+          channelCount = aacConfig.channelCount;
+          codecs = aacConfig.codecs;
           break;
         case CODEC_ID_MP2:
           mimeType = MimeTypes.AUDIO_MPEG_L2;
@@ -2163,6 +2171,7 @@ public class MatroskaExtractor implements Extractor {
               .setLanguage(language)
               .setSelectionFlags(selectionFlags)
               .setInitializationData(initializationData)
+              .setCodecs(codecs)
               .setDrmInitData(drmInitData)
               .build();
 
