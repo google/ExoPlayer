@@ -3,6 +3,7 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
+    *   Add `Player.getTrackSelector` to access track selector from UI module.
     *   Added `TextComponent.getCurrentCues` because the current cues are no
         longer forwarded to a new `TextOutput` in `SimpleExoPlayer`
         automatically.

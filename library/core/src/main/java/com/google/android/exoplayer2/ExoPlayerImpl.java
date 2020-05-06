@@ -821,6 +821,12 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  @Nullable
+  public TrackSelector getTrackSelector() {
+    return trackSelector;
+  }
+
+  @Override
   public TrackGroupArray getCurrentTrackGroups() {
     return playbackInfo.trackGroups;
   }

@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -511,6 +512,12 @@ public final class CastPlayer extends BasePlayer {
       default:
         throw new IndexOutOfBoundsException();
     }
+  }
+
+  @Override
+  @Nullable
+  public TrackSelector getTrackSelector() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
