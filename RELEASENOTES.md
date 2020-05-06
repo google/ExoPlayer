@@ -179,6 +179,7 @@
     used for AV1 playback using the extension.
 *   IMA extension: Upgrade to IMA SDK version 3.18.1, and migrate to new
     preloading APIs ([#6429](https://github.com/google/ExoPlayer/issues/6429)).
+*   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
 
 ### 2.11.4 (2020-04-08)
 
