@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.annotation.TargetApi;
-import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -29,15 +27,13 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCode
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances.
- */
-@TargetApi(18)
+/** A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances. */
 public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
   private static final int MAX_MANUAL_REDIRECTS = 5;
@@ -53,7 +49,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
    */
   public HttpMediaDrmCallback(String defaultLicenseUrl, HttpDataSource.Factory dataSourceFactory) {
-    this(defaultLicenseUrl, false, dataSourceFactory);
+    this(defaultLicenseUrl, /* forceDefaultLicenseUrl= */ false, dataSourceFactory);
   }
 
   /**
@@ -143,24 +139,17 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
       @Nullable Map<String, String> requestProperties)
       throws IOException {
     HttpDataSource dataSource = dataSourceFactory.createDataSource();
-    if (requestProperties != null) {
-      for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
-        dataSource.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
-      }
-    }
-
     int manualRedirectCount = 0;
     while (true) {
       DataSpec dataSpec =
-          new DataSpec(
-              Uri.parse(url),
-              DataSpec.HTTP_METHOD_POST,
-              httpBody,
-              /* absoluteStreamPosition= */ 0,
-              /* position= */ 0,
-              /* length= */ C.LENGTH_UNSET,
-              /* key= */ null,
-              DataSpec.FLAG_ALLOW_GZIP);
+          new DataSpec.Builder()
+              .setUri(url)
+              .setHttpRequestHeaders(
+                  requestProperties != null ? requestProperties : Collections.emptyMap())
+              .setHttpMethod(DataSpec.HTTP_METHOD_POST)
+              .setHttpBody(httpBody)
+              .setFlags(DataSpec.FLAG_ALLOW_GZIP)
+              .build();
       DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
       try {
         return Util.toByteArray(inputStream);
@@ -170,7 +159,7 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
         boolean manuallyRedirect =
             (e.responseCode == 307 || e.responseCode == 308)
                 && manualRedirectCount++ < MAX_MANUAL_REDIRECTS;
-        String redirectUrl = manuallyRedirect ? getRedirectUrl(e) : null;
+        @Nullable String redirectUrl = manuallyRedirect ? getRedirectUrl(e) : null;
         if (redirectUrl == null) {
           throw e;
         }
@@ -184,12 +173,11 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   private static @Nullable String getRedirectUrl(InvalidResponseCodeException exception) {
     Map<String, List<String>> headerFields = exception.headerFields;
     if (headerFields != null) {
-      List<String> locationHeaders = headerFields.get("Location");
+      @Nullable List<String> locationHeaders = headerFields.get("Location");
       if (locationHeaders != null && !locationHeaders.isEmpty()) {
         return locationHeaders.get(0);
       }
     }
     return null;
   }
-
 }

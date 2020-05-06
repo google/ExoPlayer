@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.av1;
 
+import static java.lang.Runtime.getRuntime;
+
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -44,7 +46,9 @@ import java.nio.ByteBuffer;
    * @param numInputBuffers Number of input buffers.
    * @param numOutputBuffers Number of output buffers.
    * @param initialInputBufferSize The initial size of each input buffer, in bytes.
-   * @param threads Number of threads libgav1 will use to decode.
+   * @param threads Number of threads libgav1 will use to decode. If {@link
+   *     Libgav1VideoRenderer#THREAD_COUNT_AUTODETECT} is passed, then this class will auto detect
+   *     the number of threads to be used.
    * @throws Gav1DecoderException Thrown if an exception occurs when initializing the decoder.
    */
   public Gav1Decoder(
@@ -56,6 +60,16 @@ import java.nio.ByteBuffer;
     if (!Gav1Library.isAvailable()) {
       throw new Gav1DecoderException("Failed to load decoder native library.");
     }
+
+    if (threads == Libgav1VideoRenderer.THREAD_COUNT_AUTODETECT) {
+      // Try to get the optimal number of threads from the AV1 heuristic.
+      threads = gav1GetThreads();
+      if (threads <= 0) {
+        // If that is not available, default to the number of available processors.
+        threads = getRuntime().availableProcessors();
+      }
+    }
+
     gav1DecoderContext = gav1Init(threads);
     if (gav1DecoderContext == GAV1_ERROR || gav1CheckError(gav1DecoderContext) == GAV1_ERROR) {
       throw new Gav1DecoderException(
@@ -88,8 +102,8 @@ import java.nio.ByteBuffer;
     return new VideoDecoderOutputBuffer(this::releaseOutputBuffer);
   }
 
-  @Nullable
   @Override
+  @Nullable
   protected Gav1DecoderException decode(
       VideoDecoderInputBuffer inputBuffer, VideoDecoderOutputBuffer outputBuffer, boolean reset) {
     ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
@@ -203,7 +217,7 @@ import java.nio.ByteBuffer;
    * @param context Decoder context.
    * @param surface Output surface.
    * @param outputBuffer Output buffer with the decoded frame.
-   * @return {@link #GAV1_OK} if successful, {@link #GAV1_ERROR} if an error occured.
+   * @return {@link #GAV1_OK} if successful, {@link #GAV1_ERROR} if an error occurred.
    */
   private native int gav1RenderFrame(
       long context, Surface surface, VideoDecoderOutputBuffer outputBuffer);
@@ -225,10 +239,17 @@ import java.nio.ByteBuffer;
   private native String gav1GetErrorMessage(long context);
 
   /**
-   * Returns whether an error occured.
+   * Returns whether an error occurred.
    *
    * @param context Decoder context.
-   * @return {@link #GAV1_OK} if there was no error, {@link #GAV1_ERROR} if an error occured.
+   * @return {@link #GAV1_OK} if there was no error, {@link #GAV1_ERROR} if an error occurred.
    */
   private native int gav1CheckError(long context);
+
+  /**
+   * Returns the optimal number of threads to be used for AV1 decoding.
+   *
+   * @return Optimal number of threads if there was no error, 0 if an error occurred.
+   */
+  private native int gav1GetThreads();
 }

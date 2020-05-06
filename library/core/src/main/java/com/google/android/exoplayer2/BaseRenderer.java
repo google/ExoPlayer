@@ -15,17 +15,11 @@
  */
 package com.google.android.exoplayer2;
 
-import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.DrmSession;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
 /**
@@ -44,6 +38,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private long streamOffsetUs;
   private long readingPositionUs;
   private boolean streamIsFinal;
+  private boolean throwRendererExceptionIsExecuting;
 
   /**
    * @param trackType The track type that the renderer handles. One of the {@link C}
@@ -82,13 +77,19 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void enable(RendererConfiguration configuration, Format[] formats,
-      SampleStream stream, long positionUs, boolean joining, long offsetUs)
+  public final void enable(
+      RendererConfiguration configuration,
+      Format[] formats,
+      SampleStream stream,
+      long positionUs,
+      boolean joining,
+      boolean mayRenderStartOfStream,
+      long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
-    onEnabled(joining);
+    onEnabled(joining, mayRenderStartOfStream);
     replaceStream(formats, stream, offsetUs);
     onPositionReset(positionUs, joining);
   }
@@ -177,6 +178,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // RendererCapabilities implementation.
 
   @Override
+  @AdaptiveSupport
   public int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
     return ADAPTIVE_NOT_SUPPORTED;
   }
@@ -192,27 +194,30 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Called when the renderer is enabled.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
+   * @param mayRenderStartOfStream Whether this renderer is allowed to render the start of the
+   *     stream even if the state is not {@link #STATE_STARTED} yet.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onEnabled(boolean joining) throws ExoPlaybackException {
+  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 
   /**
    * Called when the renderer's stream has changed. This occurs when the renderer is enabled after
-   * {@link #onEnabled(boolean)} has been called, and also when the stream has been replaced whilst
-   * the renderer is enabled or started.
-   * <p>
-   * The default implementation is a no-op.
+   * {@link #onEnabled(boolean, boolean)} has been called, and also when the stream has been
+   * replaced whilst the renderer is enabled or started.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param formats The enabled formats.
-   * @param offsetUs The offset that will be added to the timestamps of buffers read via
-   *     {@link #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input
-   *     buffers have monotonically increasing timestamps.
+   * @param offsetUs The offset that will be added to the timestamps of buffers read via {@link
+   *     #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input buffers have
+   *     monotonically increasing timestamps.
    * @throws ExoPlaybackException If an error occurs.
    */
   protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
@@ -297,40 +302,36 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     return configuration;
   }
 
-  /** Returns a {@link DrmSession} ready for assignment, handling resource management. */
-  @Nullable
-  protected final <T extends ExoMediaCrypto> DrmSession<T> getUpdatedSourceDrmSession(
-      @Nullable Format oldFormat,
-      Format newFormat,
-      @Nullable DrmSessionManager<T> drmSessionManager,
-      @Nullable DrmSession<T> existingSourceSession)
-      throws ExoPlaybackException {
-    boolean drmInitDataChanged =
-        !Util.areEqual(newFormat.drmInitData, oldFormat == null ? null : oldFormat.drmInitData);
-    if (!drmInitDataChanged) {
-      return existingSourceSession;
-    }
-    @Nullable DrmSession<T> newSourceDrmSession = null;
-    if (newFormat.drmInitData != null) {
-      if (drmSessionManager == null) {
-        throw ExoPlaybackException.createForRenderer(
-            new IllegalStateException("Media requires a DrmSessionManager"), getIndex());
-      }
-      newSourceDrmSession =
-          drmSessionManager.acquireSession(
-              Assertions.checkNotNull(Looper.myLooper()), newFormat.drmInitData);
-    }
-    if (existingSourceSession != null) {
-      existingSourceSession.release();
-    }
-    return newSourceDrmSession;
-  }
-
   /**
    * Returns the index of the renderer within the player.
    */
   protected final int getIndex() {
     return index;
+  }
+
+  /**
+   * Creates an {@link ExoPlaybackException} of type {@link ExoPlaybackException#TYPE_RENDERER} for
+   * this renderer.
+   *
+   * @param cause The cause of the exception.
+   * @param format The current format used by the renderer. May be null.
+   */
+  protected final ExoPlaybackException createRendererException(
+      Exception cause, @Nullable Format format) {
+    @FormatSupport int formatSupport = RendererCapabilities.FORMAT_HANDLED;
+    if (format != null && !throwRendererExceptionIsExecuting) {
+      // Prevent recursive re-entry from subclass supportsFormat implementations.
+      throwRendererExceptionIsExecuting = true;
+      try {
+        formatSupport = RendererCapabilities.getFormatSupport(supportsFormat(format));
+      } catch (ExoPlaybackException e) {
+        // Ignore, we are already failing.
+      } finally {
+        throwRendererExceptionIsExecuting = false;
+      }
+    }
+    return ExoPlaybackException.createForRenderer(
+        cause, getName(), getIndex(), format, formatSupport);
   }
 
   /**
@@ -340,17 +341,17 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
-   *     end of the stream. If the end of the stream has been reached, the
-   *     {@link C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
+   *     end of the stream. If the end of the stream has been reached, the {@link
+   *     C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer.
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
-   * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
-   *     {@link C#RESULT_BUFFER_READ}.
+   * @return The status of read, one of {@link SampleStream.ReadDataResult}.
    */
-  protected final int readSource(FormatHolder formatHolder, DecoderInputBuffer buffer,
-      boolean formatRequired) {
-    int result = stream.readData(formatHolder, buffer, formatRequired);
+  @SampleStream.ReadDataResult
+  protected final int readSource(
+      FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
+    @SampleStream.ReadDataResult int result = stream.readData(formatHolder, buffer, formatRequired);
     if (result == C.RESULT_BUFFER_READ) {
       if (buffer.isEndOfStream()) {
         readingPositionUs = C.TIME_END_OF_SOURCE;
@@ -361,7 +362,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     } else if (result == C.RESULT_FORMAT_READ) {
       Format format = formatHolder.format;
       if (format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {
-        format = format.copyWithSubsampleOffsetUs(format.subsampleOffsetUs + streamOffsetUs);
+        format =
+            format
+                .buildUpon()
+                .setSubsampleOffsetUs(format.subsampleOffsetUs + streamOffsetUs)
+                .build();
         formatHolder.format = format;
       }
     }
@@ -385,26 +390,4 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   protected final boolean isSourceReady() {
     return hasReadStreamToEnd() ? streamIsFinal : stream.isReady();
   }
-
-  /**
-   * Returns whether {@code drmSessionManager} supports the specified {@code drmInitData}, or true
-   * if {@code drmInitData} is null.
-   *
-   * @param drmSessionManager The drm session manager.
-   * @param drmInitData {@link DrmInitData} of the format to check for support.
-   * @return Whether {@code drmSessionManager} supports the specified {@code drmInitData}, or
-   *     true if {@code drmInitData} is null.
-   */
-  protected static boolean supportsFormatDrm(@Nullable DrmSessionManager<?> drmSessionManager,
-      @Nullable DrmInitData drmInitData) {
-    if (drmInitData == null) {
-      // Content is unencrypted.
-      return true;
-    } else if (drmSessionManager == null) {
-      // Content is encrypted, but no drm session manager is available.
-      return false;
-    }
-    return drmSessionManager.canAcquireSession(drmInitData);
-  }
-
 }

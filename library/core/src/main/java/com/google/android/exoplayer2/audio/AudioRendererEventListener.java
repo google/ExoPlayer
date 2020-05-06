@@ -85,8 +85,13 @@ public interface AudioRendererEventListener {
   default void onAudioDisabled(DecoderCounters counters) {}
 
   /**
-   * Dispatches events to a {@link AudioRendererEventListener}.
+   * Called when skipping silences is enabled or disabled in the audio stream.
+   *
+   * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
    */
+  default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
+
+  /** Dispatches events to a {@link AudioRendererEventListener}. */
   final class EventDispatcher {
 
     @Nullable private final Handler handler;
@@ -168,6 +173,13 @@ public interface AudioRendererEventListener {
     public void audioSessionId(final int audioSessionId) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onAudioSessionId(audioSessionId));
+      }
+    }
+
+    /** Invokes {@link AudioRendererEventListener#onSkipSilenceEnabledChanged(boolean)}. */
+    public void skipSilenceEnabledChanged(final boolean skipSilenceEnabled) {
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onSkipSilenceEnabledChanged(skipSilenceEnabled));
       }
     }
   }

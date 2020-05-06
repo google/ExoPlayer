@@ -1,0 +1,44 @@
+seekMap:
+  isSeekable = true
+  duration = 1104000
+  getPosition(0) = [[timeUs=67000, position=5576]]
+  getPosition(1) = [[timeUs=67000, position=5576]]
+  getPosition(552000) = [[timeUs=547000, position=77334], [timeUs=567000, position=84155]]
+  getPosition(1104000) = [[timeUs=1035000, position=106570]]
+numberOfTracks = 2
+track 1:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    id = 1
+    sampleMimeType = video/avc
+    width = 1080
+    height = 720
+    selectionFlags = 1
+    language = und
+    initializationData:
+      data = length 30, hash F6F3D010
+      data = length 10, hash 7A0D0F2B
+track 2:
+  total output bytes = 1254
+  sample count = 3
+  format 0:
+    id = 2
+    sampleMimeType = audio/ac3
+    channelCount = 1
+    sampleRate = 44100
+    selectionFlags = 1
+    language = und
+  sample 0:
+    time = 1035000
+    flags = 1
+    data = length 418, hash 733A35AE
+  sample 1:
+    time = 1069829
+    flags = 1
+    data = length 418, hash DE46E5D3
+  sample 2:
+    time = 1104000
+    flags = 1
+    data = length 418, hash 56AB8D37
+tracksEnded = true

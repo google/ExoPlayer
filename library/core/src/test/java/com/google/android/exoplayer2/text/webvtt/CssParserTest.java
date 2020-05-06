@@ -38,7 +38,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testSkipWhitespacesAndComments() {
+  public void skipWhitespacesAndComments() {
     // Skip only whitespaces
     String skipOnlyWhitespaces = " \t\r\n\f End of skip\n /*  */";
     assertSkipsToEndOfSkip("End of skip", skipOnlyWhitespaces);
@@ -61,7 +61,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testGetInputLimit() {
+  public void getInputLimit() {
     // \r After 3 lines.
     String threeLinesThen3Cr = "One Line\nThen other\rAnd finally\r\r\r";
     assertInputLimit("", threeLinesThen3Cr);
@@ -87,7 +87,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testParseMethodSimpleInput() {
+  public void parseMethodSimpleInput() {
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
     String styleBlock1 = " ::cue { color : black; background-color: PapayaWhip }";
     expectedStyle.setFontColor(0xFF000000);
@@ -106,7 +106,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testParseMethodMultipleRulesInBlockInput() {
+  public void parseMethodMultipleRulesInBlockInput() {
     String styleBlock =
         "::cue {\n background-color\n:#00fFFe}      \n::cue {\n background-color\n:#00000000}\n";
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
@@ -117,7 +117,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testMultiplePropertiesInBlock() {
+  public void multiplePropertiesInBlock() {
     String styleBlock = "::cue(#id){text-decoration:underline; background-color:green;"
         + "color:red; font-family:Courier; font-weight:bold}";
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
@@ -132,7 +132,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testRgbaColorExpression() {
+  public void rgbaColorExpression() {
     String styleBlock = "::cue(#rgb){background-color: rgba(\n10/* Ugly color */,11\t, 12\n,.1);"
         + "color:rgb(1,1,\n1)}";
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
@@ -144,7 +144,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testGetNextToken() {
+  public void getNextToken() {
     String stringInput = " lorem:ipsum\n{dolor}#sit,amet;lorem:ipsum\r\t\f\ndolor(())\n";
     ParsableByteArray input = new ParsableByteArray(Util.getUtf8Bytes(stringInput));
     StringBuilder builder = new StringBuilder();
@@ -170,7 +170,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testStyleScoreSystem() {
+  public void styleScoreSystem() {
     WebvttCssStyle style = new WebvttCssStyle();
     // Universal selector.
     assertThat(style.getSpecificityScore("", "", new String[0], "")).isEqualTo(1);

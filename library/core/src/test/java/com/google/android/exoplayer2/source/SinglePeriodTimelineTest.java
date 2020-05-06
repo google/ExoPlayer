@@ -40,7 +40,7 @@ public final class SinglePeriodTimelineTest {
   }
 
   @Test
-  public void testGetPeriodPositionDynamicWindowUnknownDuration() {
+  public void getPeriodPositionDynamicWindowUnknownDuration() {
     SinglePeriodTimeline timeline =
         new SinglePeriodTimeline(
             C.TIME_UNSET, /* isSeekable= */ false, /* isDynamic= */ true, /* isLive= */ true);
@@ -54,7 +54,7 @@ public final class SinglePeriodTimelineTest {
   }
 
   @Test
-  public void testGetPeriodPositionDynamicWindowKnownDuration() {
+  public void getPeriodPositionDynamicWindowKnownDuration() {
     long windowDurationUs = 1000;
     SinglePeriodTimeline timeline =
         new SinglePeriodTimeline(

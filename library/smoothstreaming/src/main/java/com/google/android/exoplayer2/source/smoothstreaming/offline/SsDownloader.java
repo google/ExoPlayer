@@ -16,8 +16,6 @@
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
 import android.net.Uri;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
@@ -26,10 +24,10 @@ import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestP
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.ParsingLoadable;
-import java.io.IOException;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * A downloader for SmoothStreaming streams.
@@ -38,20 +36,21 @@ import java.util.List;
  *
  * <pre>{@code
  * SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor(), databaseProvider);
- * DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
- * DownloaderConstructorHelper constructorHelper =
- *     new DownloaderConstructorHelper(cache, factory);
+ * CacheDataSource.Factory cacheDataSourceFactory =
+ *     new CacheDataSource.Factory()
+ *         .setCache(cache)
+ *         .setUpstreamDataSourceFactory(new DefaultHttpDataSourceFactory(userAgent));
  * // Create a downloader for the first track of the first stream element.
  * SsDownloader ssDownloader =
  *     new SsDownloader(
  *         manifestUrl,
  *         Collections.singletonList(new StreamKey(0, 0)),
- *         constructorHelper);
+ *         cacheDataSourceFactory);
  * // Perform the download.
  * ssDownloader.download(progressListener);
- * // Access downloaded data using CacheDataSource
- * CacheDataSource cacheDataSource =
- *     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
+ * // Use the downloaded data for playback.
+ * SsMediaSource mediaSource =
+ *     new SsMediaSource.Factory(cacheDataSourceFactory).createMediaSource(mediaItem);
  * }</pre>
  */
 public final class SsDownloader extends SegmentDownloader<SsManifest> {
@@ -60,16 +59,35 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
    * @param streamKeys Keys defining which streams in the manifest should be selected for download.
    *     If empty, all streams are downloaded.
-   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
    */
   public SsDownloader(
-      Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
-    super(SsUtil.fixManifestUri(manifestUri), streamKeys, constructorHelper);
+      Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
+    this(manifestUri, streamKeys, cacheDataSourceFactory, Runnable::run);
   }
 
-  @Override
-  protected SsManifest getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException {
-    return ParsingLoadable.load(dataSource, new SsManifestParser(), dataSpec, C.DATA_TYPE_MANIFEST);
+  /**
+   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
+   * @param streamKeys Keys defining which streams in the manifest should be selected for download.
+   *     If empty, all streams are downloaded.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   * @param executor An {@link Executor} used to make requests for the media being downloaded.
+   *     Providing an {@link Executor} that uses multiple threads will speed up the download by
+   *     allowing parts of it to be executed in parallel.
+   */
+  public SsDownloader(
+      Uri manifestUri,
+      List<StreamKey> streamKeys,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
+    super(
+        SsUtil.fixManifestUri(manifestUri),
+        new SsManifestParser(),
+        streamKeys,
+        cacheDataSourceFactory,
+        executor);
   }
 
   @Override

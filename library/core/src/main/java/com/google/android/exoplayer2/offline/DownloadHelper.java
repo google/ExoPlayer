@@ -24,11 +24,12 @@ import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -54,6 +55,7 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -154,6 +156,28 @@ public final class DownloadHelper {
   private static final Constructor<? extends MediaSourceFactory> HLS_FACTORY_CONSTRUCTOR =
       getConstructor("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory");
 
+  /**
+   * Extracts renderer capabilities for the renderers created by the provided renderers factory.
+   *
+   * @param renderersFactory A {@link RenderersFactory}.
+   * @return The {@link RendererCapabilities} for each renderer created by the {@code
+   *     renderersFactory}.
+   */
+  public static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {
+    Renderer[] renderers =
+        renderersFactory.createRenderers(
+            Util.createHandler(),
+            new VideoRendererEventListener() {},
+            new AudioRendererEventListener() {},
+            (cues) -> {},
+            (metadata) -> {});
+    RendererCapabilities[] capabilities = new RendererCapabilities[renderers.length];
+    for (int i = 0; i < renderers.length; i++) {
+      capabilities[i] = renderers[i].getCapabilities();
+    }
+    return capabilities;
+  }
+
   /** @deprecated Use {@link #forProgressive(Context, Uri)} */
   @Deprecated
   @SuppressWarnings("deprecation")
@@ -245,8 +269,8 @@ public final class DownloadHelper {
    * @param dataSourceFactory A {@link DataSource.Factory} used to load the manifest.
    * @param renderersFactory A {@link RenderersFactory} creating the renderers for which tracks are
    *     selected.
-   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers created by
-   *     {@code renderersFactory}.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. Used to help determine which
+   *     tracks can be selected.
    * @param trackSelectorParameters {@link DefaultTrackSelector.Parameters} for selecting tracks for
    *     downloading.
    * @return A {@link DownloadHelper} for DASH streams.
@@ -256,16 +280,20 @@ public final class DownloadHelper {
       Uri uri,
       DataSource.Factory dataSourceFactory,
       RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager drmSessionManager,
       DefaultTrackSelector.Parameters trackSelectorParameters) {
     return new DownloadHelper(
         DownloadRequest.TYPE_DASH,
         uri,
         /* cacheKey= */ null,
         createMediaSourceInternal(
-            DASH_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
+            DASH_FACTORY_CONSTRUCTOR,
+            uri,
+            dataSourceFactory,
+            drmSessionManager,
+            /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+        getRendererCapabilities(renderersFactory));
   }
 
   /** @deprecated Use {@link #forHls(Context, Uri, Factory, RenderersFactory)} */
@@ -311,8 +339,8 @@ public final class DownloadHelper {
    * @param dataSourceFactory A {@link DataSource.Factory} used to load the playlist.
    * @param renderersFactory A {@link RenderersFactory} creating the renderers for which tracks are
    *     selected.
-   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers created by
-   *     {@code renderersFactory}.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. Used to help determine which
+   *     tracks can be selected.
    * @param trackSelectorParameters {@link DefaultTrackSelector.Parameters} for selecting tracks for
    *     downloading.
    * @return A {@link DownloadHelper} for HLS streams.
@@ -322,16 +350,20 @@ public final class DownloadHelper {
       Uri uri,
       DataSource.Factory dataSourceFactory,
       RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager drmSessionManager,
       DefaultTrackSelector.Parameters trackSelectorParameters) {
     return new DownloadHelper(
         DownloadRequest.TYPE_HLS,
         uri,
         /* cacheKey= */ null,
         createMediaSourceInternal(
-            HLS_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
+            HLS_FACTORY_CONSTRUCTOR,
+            uri,
+            dataSourceFactory,
+            drmSessionManager,
+            /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+        getRendererCapabilities(renderersFactory));
   }
 
   /** @deprecated Use {@link #forSmoothStreaming(Context, Uri, Factory, RenderersFactory)} */
@@ -377,8 +409,8 @@ public final class DownloadHelper {
    * @param dataSourceFactory A {@link DataSource.Factory} used to load the manifest.
    * @param renderersFactory A {@link RenderersFactory} creating the renderers for which tracks are
    *     selected.
-   * @param drmSessionManager An optional {@link DrmSessionManager} used by the renderers created by
-   *     {@code renderersFactory}.
+   * @param drmSessionManager An optional {@link DrmSessionManager}. Used to help determine which
+   *     tracks can be selected.
    * @param trackSelectorParameters {@link DefaultTrackSelector.Parameters} for selecting tracks for
    *     downloading.
    * @return A {@link DownloadHelper} for SmoothStreaming streams.
@@ -388,28 +420,45 @@ public final class DownloadHelper {
       Uri uri,
       DataSource.Factory dataSourceFactory,
       RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
+      @Nullable DrmSessionManager drmSessionManager,
       DefaultTrackSelector.Parameters trackSelectorParameters) {
     return new DownloadHelper(
         DownloadRequest.TYPE_SS,
         uri,
         /* cacheKey= */ null,
         createMediaSourceInternal(
-            SS_FACTORY_CONSTRUCTOR, uri, dataSourceFactory, /* streamKeys= */ null),
+            SS_FACTORY_CONSTRUCTOR,
+            uri,
+            dataSourceFactory,
+            drmSessionManager,
+            /* streamKeys= */ null),
         trackSelectorParameters,
-        Util.getRendererCapabilities(renderersFactory, drmSessionManager));
+        getRendererCapabilities(renderersFactory));
   }
 
   /**
-   * Utility method to create a MediaSource which only contains the tracks defined in {@code
+   * Equivalent to {@link #createMediaSource(DownloadRequest, Factory, DrmSessionManager)
+   * createMediaSource(downloadRequest, dataSourceFactory, null)}.
+   */
+  public static MediaSource createMediaSource(
+      DownloadRequest downloadRequest, DataSource.Factory dataSourceFactory) {
+    return createMediaSource(downloadRequest, dataSourceFactory, /* drmSessionManager= */ null);
+  }
+
+  /**
+   * Utility method to create a {@link MediaSource} that only exposes the tracks defined in {@code
    * downloadRequest}.
    *
    * @param downloadRequest A {@link DownloadRequest}.
    * @param dataSourceFactory A factory for {@link DataSource}s to read the media.
-   * @return A MediaSource which only contains the tracks defined in {@code downloadRequest}.
+   * @param drmSessionManager An optional {@link DrmSessionManager} to be passed to the {@link
+   *     MediaSource}.
+   * @return A {@link MediaSource} that only exposes the tracks defined in {@code downloadRequest}.
    */
   public static MediaSource createMediaSource(
-      DownloadRequest downloadRequest, DataSource.Factory dataSourceFactory) {
+      DownloadRequest downloadRequest,
+      DataSource.Factory dataSourceFactory,
+      @Nullable DrmSessionManager drmSessionManager) {
     @Nullable Constructor<? extends MediaSourceFactory> constructor;
     switch (downloadRequest.type) {
       case DownloadRequest.TYPE_DASH:
@@ -423,12 +472,17 @@ public final class DownloadHelper {
         break;
       case DownloadRequest.TYPE_PROGRESSIVE:
         return new ProgressiveMediaSource.Factory(dataSourceFactory)
+            .setCustomCacheKey(downloadRequest.customCacheKey)
             .createMediaSource(downloadRequest.uri);
       default:
         throw new IllegalStateException("Unsupported type: " + downloadRequest.type);
     }
     return createMediaSourceInternal(
-        constructor, downloadRequest.uri, dataSourceFactory, downloadRequest.streamKeys);
+        constructor,
+        downloadRequest.uri,
+        dataSourceFactory,
+        drmSessionManager,
+        downloadRequest.streamKeys);
   }
 
   private final String downloadType;
@@ -888,12 +942,16 @@ public final class DownloadHelper {
       @Nullable Constructor<? extends MediaSourceFactory> constructor,
       Uri uri,
       Factory dataSourceFactory,
+      @Nullable DrmSessionManager drmSessionManager,
       @Nullable List<StreamKey> streamKeys) {
     if (constructor == null) {
       throw new IllegalStateException("Module missing to create media source.");
     }
     try {
       MediaSourceFactory factory = constructor.newInstance(dataSourceFactory);
+      if (drmSessionManager != null) {
+        factory.setDrmSessionManager(drmSessionManager);
+      }
       if (streamKeys != null) {
         factory.setStreamKeys(streamKeys);
       }
@@ -935,7 +993,7 @@ public final class DownloadHelper {
       @SuppressWarnings("methodref.receiver.bound.invalid")
       Handler downloadThreadHandler = Util.createHandler(this::handleDownloadHelperCallbackMessage);
       this.downloadHelperHandler = downloadThreadHandler;
-      mediaSourceThread = new HandlerThread("DownloadHelper");
+      mediaSourceThread = new HandlerThread("ExoPlayer:DownloadHelper");
       mediaSourceThread.start();
       mediaSourceHandler = Util.createHandler(mediaSourceThread.getLooper(), /* callback= */ this);
       mediaSourceHandler.sendEmptyMessage(MESSAGE_PREPARE_SOURCE);
@@ -1097,8 +1155,8 @@ public final class DownloadHelper {
       return C.SELECTION_REASON_UNKNOWN;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public Object getSelectionData() {
       return null;
     }
@@ -1121,8 +1179,8 @@ public final class DownloadHelper {
       return 0;
     }
 
-    @Nullable
     @Override
+    @Nullable
     public TransferListener getTransferListener() {
       return null;
     }

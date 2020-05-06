@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
@@ -120,25 +119,24 @@ import java.util.ArrayDeque;
   }
 
   @Override
-  public void onInputBufferAvailable(@NonNull MediaCodec mediaCodec, int i) {
+  public void onInputBufferAvailable(MediaCodec mediaCodec, int i) {
     availableInputBuffers.add(i);
   }
 
   @Override
   public void onOutputBufferAvailable(
-      @NonNull MediaCodec mediaCodec, int i, @NonNull MediaCodec.BufferInfo bufferInfo) {
+      MediaCodec mediaCodec, int i, MediaCodec.BufferInfo bufferInfo) {
     availableOutputBuffers.add(i);
     bufferInfos.add(bufferInfo);
   }
 
   @Override
-  public void onError(@NonNull MediaCodec mediaCodec, @NonNull MediaCodec.CodecException e) {
+  public void onError(MediaCodec mediaCodec, MediaCodec.CodecException e) {
     onMediaCodecError(e);
   }
 
   @Override
-  public void onOutputFormatChanged(
-      @NonNull MediaCodec mediaCodec, @NonNull MediaFormat mediaFormat) {
+  public void onOutputFormatChanged(MediaCodec mediaCodec, MediaFormat mediaFormat) {
     availableOutputBuffers.add(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
     formats.add(mediaFormat);
   }

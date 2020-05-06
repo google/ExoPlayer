@@ -48,7 +48,7 @@ public final class SonicAudioProcessorTest {
   }
 
   @Test
-  public void testReconfigureWithSameSampleRate() throws Exception {
+  public void reconfigureWithSameSampleRate() throws Exception {
     // When configured for resampling from 44.1 kHz to 48 kHz, the output sample rate is correct.
     sonicAudioProcessor.setOutputSampleRateHz(48000);
     AudioFormat outputAudioFormat = sonicAudioProcessor.configure(AUDIO_FORMAT_44100_HZ);
@@ -65,7 +65,7 @@ public final class SonicAudioProcessorTest {
   }
 
   @Test
-  public void testNoSampleRateChange() throws Exception {
+  public void noSampleRateChange() throws Exception {
     // Configure for resampling 44.1 kHz to 48 kHz.
     sonicAudioProcessor.setOutputSampleRateHz(48000);
     sonicAudioProcessor.configure(AUDIO_FORMAT_44100_HZ);
@@ -78,7 +78,7 @@ public final class SonicAudioProcessorTest {
   }
 
   @Test
-  public void testIsActiveWithSpeedChange() throws Exception {
+  public void isActiveWithSpeedChange() throws Exception {
     sonicAudioProcessor.setSpeed(1.5f);
     sonicAudioProcessor.configure(AUDIO_FORMAT_44100_HZ);
     sonicAudioProcessor.flush();
@@ -86,21 +86,13 @@ public final class SonicAudioProcessorTest {
   }
 
   @Test
-  public void testIsActiveWithPitchChange() throws Exception {
-    sonicAudioProcessor.setPitch(1.5f);
-    sonicAudioProcessor.configure(AUDIO_FORMAT_44100_HZ);
-    sonicAudioProcessor.flush();
-    assertThat(sonicAudioProcessor.isActive()).isTrue();
-  }
-
-  @Test
-  public void testIsNotActiveWithNoChange() throws Exception {
+  public void isNotActiveWithNoChange() throws Exception {
     sonicAudioProcessor.configure(AUDIO_FORMAT_44100_HZ);
     assertThat(sonicAudioProcessor.isActive()).isFalse();
   }
 
   @Test
-  public void testDoesNotSupportNon16BitInput() throws Exception {
+  public void doesNotSupportNon16BitInput() throws Exception {
     try {
       sonicAudioProcessor.configure(
           new AudioFormat(

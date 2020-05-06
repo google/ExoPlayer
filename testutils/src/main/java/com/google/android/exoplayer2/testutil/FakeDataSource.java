@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
@@ -24,8 +25,10 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A fake {@link DataSource} capable of simulating various scenarios. It uses a {@link FakeDataSet}
@@ -38,7 +41,7 @@ public class FakeDataSource extends BaseDataSource {
    */
   public static class Factory implements DataSource.Factory {
 
-    protected FakeDataSet fakeDataSet;
+    protected @MonotonicNonNull FakeDataSet fakeDataSet;
     protected boolean isNetwork;
 
     public final Factory setFakeDataSet(FakeDataSet fakeDataSet) {
@@ -53,17 +56,17 @@ public class FakeDataSource extends BaseDataSource {
 
     @Override
     public FakeDataSource createDataSource() {
-      return new FakeDataSource(fakeDataSet, isNetwork);
+      return new FakeDataSource(Assertions.checkStateNotNull(fakeDataSet), isNetwork);
     }
   }
 
   private final FakeDataSet fakeDataSet;
   private final ArrayList<DataSpec> openedDataSpecs;
 
-  private Uri uri;
+  @Nullable private Uri uri;
   private boolean openCalled;
   private boolean sourceOpened;
-  private FakeData fakeData;
+  @Nullable private FakeData fakeData;
   private int currentSegmentIndex;
   private long bytesRemaining;
 
@@ -96,10 +99,11 @@ public class FakeDataSource extends BaseDataSource {
     openedDataSpecs.add(dataSpec);
 
     transferInitializing(dataSpec);
-    fakeData = fakeDataSet.getData(uri.toString());
+    FakeData fakeData = fakeDataSet.getData(dataSpec.uri.toString());
     if (fakeData == null) {
       throw new IOException("Data not found: " + dataSpec.uri);
     }
+    this.fakeData = fakeData;
 
     long totalLength = 0;
     for (Segment segment : fakeData.getSegments()) {
@@ -145,6 +149,7 @@ public class FakeDataSource extends BaseDataSource {
   public final int read(byte[] buffer, int offset, int readLength) throws IOException {
     Assertions.checkState(sourceOpened);
     while (true) {
+      FakeData fakeData = Util.castNonNull(this.fakeData);
       if (currentSegmentIndex == fakeData.getSegments().size() || bytesRemaining == 0) {
         return C.RESULT_END_OF_INPUT;
       }
@@ -152,13 +157,13 @@ public class FakeDataSource extends BaseDataSource {
       if (current.isErrorSegment()) {
         if (!current.exceptionCleared) {
           current.exceptionThrown = true;
-          throw (IOException) current.exception.fillInStackTrace();
+          throw (IOException) Util.castNonNull(current.exception).fillInStackTrace();
         } else {
           currentSegmentIndex++;
         }
       } else if (current.isActionSegment()) {
         currentSegmentIndex++;
-        current.action.run();
+        Util.castNonNull(current.action).run();
       } else {
         // Read at most bytesRemaining.
         readLength = (int) Math.min(readLength, bytesRemaining);
@@ -182,12 +187,13 @@ public class FakeDataSource extends BaseDataSource {
   }
 
   @Override
+  @Nullable
   public final Uri getUri() {
     return uri;
   }
 
   @Override
-  public final void close() throws IOException {
+  public final void close() {
     Assertions.checkState(openCalled);
     openCalled = false;
     uri = null;

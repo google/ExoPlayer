@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 package com.google.android.exoplayer2.metadata;
 
@@ -28,6 +27,7 @@ import com.google.android.exoplayer2.metadata.emsg.EventMessageEncoder;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.scte35.TimeSignalCommand;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
+import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -64,7 +64,7 @@ public class MetadataRendererTest {
               0x00, 0x00, 0x00, 0x00)); // CRC_32 (ignored, check happens at extraction).
 
   private static final Format EMSG_FORMAT =
-      Format.createSampleFormat(null, MimeTypes.APPLICATION_EMSG, Format.OFFSET_SAMPLE_RELATIVE);
+      new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_EMSG).build();
 
   private final EventMessageEncoder eventMessageEncoder = new EventMessageEncoder();
 
@@ -142,7 +142,13 @@ public class MetadataRendererTest {
     MetadataRenderer renderer = new MetadataRenderer(metadata::add, /* outputLooper= */ null);
     renderer.replaceStream(
         new Format[] {EMSG_FORMAT},
-        new FakeSampleStream(EMSG_FORMAT, /* eventDispatcher= */ null, input),
+        new FakeSampleStream(
+            EMSG_FORMAT,
+            /* eventDispatcher= */ null,
+            /* firstSampleTimeUs= */ 0,
+            /* timeUsIncrement= */ 0,
+            new FakeSampleStreamItem(input),
+            FakeSampleStreamItem.END_OF_STREAM_ITEM),
         /* offsetUs= */ 0L);
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the format
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the data

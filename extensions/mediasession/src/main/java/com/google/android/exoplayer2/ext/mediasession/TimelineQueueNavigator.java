@@ -36,7 +36,6 @@ import java.util.Collections;
  */
 public abstract class TimelineQueueNavigator implements MediaSessionConnector.QueueNavigator {
 
-  public static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
   public static final int DEFAULT_MAX_QUEUE_SIZE = 10;
 
   private final MediaSessionCompat mediaSession;
@@ -136,20 +135,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   @Override
   public void onSkipToPrevious(Player player, ControlDispatcher controlDispatcher) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    timeline.getWindow(windowIndex, window);
-    int previousWindowIndex = player.getPreviousWindowIndex();
-    if (previousWindowIndex != C.INDEX_UNSET
-        && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
-            || (window.isDynamic && !window.isSeekable))) {
-      controlDispatcher.dispatchSeekTo(player, previousWindowIndex, C.TIME_UNSET);
-    } else {
-      controlDispatcher.dispatchSeekTo(player, windowIndex, 0);
-    }
+    controlDispatcher.dispatchPrevious(player);
   }
 
   @Override
@@ -166,17 +152,7 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
 
   @Override
   public void onSkipToNext(Player player, ControlDispatcher controlDispatcher) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    int nextWindowIndex = player.getNextWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      controlDispatcher.dispatchSeekTo(player, nextWindowIndex, C.TIME_UNSET);
-    } else if (timeline.getWindow(windowIndex, window).isDynamic) {
-      controlDispatcher.dispatchSeekTo(player, windowIndex, C.TIME_UNSET);
-    }
+    controlDispatcher.dispatchNext(player);
   }
 
   // CommandReceiver implementation.
@@ -186,8 +162,8 @@ public abstract class TimelineQueueNavigator implements MediaSessionConnector.Qu
       Player player,
       ControlDispatcher controlDispatcher,
       String command,
-      Bundle extras,
-      ResultReceiver cb) {
+      @Nullable Bundle extras,
+      @Nullable ResultReceiver cb) {
     return false;
   }
 

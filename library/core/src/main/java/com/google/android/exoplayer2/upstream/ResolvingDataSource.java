@@ -110,10 +110,10 @@ public final class ResolvingDataSource implements DataSource {
     return upstreamDataSource.read(buffer, offset, readLength);
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Uri getUri() {
-    Uri reportedUri = upstreamDataSource.getUri();
+    @Nullable Uri reportedUri = upstreamDataSource.getUri();
     return reportedUri == null ? null : resolver.resolveReportedUri(reportedUri);
   }
 

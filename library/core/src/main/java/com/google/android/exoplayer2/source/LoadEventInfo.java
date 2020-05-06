@@ -18,12 +18,24 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import android.os.SystemClock;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /** {@link MediaSource} load event information. */
 public final class LoadEventInfo {
 
+  /** Used for the generation of unique ids. */
+  private static final AtomicLong idSource = new AtomicLong();
+
+  /** Returns an non-negative identifier which is unique to the JVM instance. */
+  public static long getNewId() {
+    return idSource.getAndIncrement();
+  }
+
+  /** Identifies the load task to which this event corresponds. */
+  public final long loadTaskId;
   /** Defines the requested data. */
   public final DataSpec dataSpec;
   /**
@@ -42,27 +54,41 @@ public final class LoadEventInfo {
   public final long bytesLoaded;
 
   /**
+   * Equivalent to {@link #LoadEventInfo(long, DataSpec, Uri, Map, long, long, long)
+   * LoadEventInfo(loadTaskId, dataSpec, dataSpec.uri, Collections.emptyMap(), elapsedRealtimeMs, 0,
+   * 0)}.
+   */
+  public LoadEventInfo(long loadTaskId, DataSpec dataSpec, long elapsedRealtimeMs) {
+    this(
+        loadTaskId,
+        dataSpec,
+        dataSpec.uri,
+        Collections.emptyMap(),
+        elapsedRealtimeMs,
+        /* loadDurationMs= */ 0,
+        /* bytesLoaded= */ 0);
+  }
+
+  /**
    * Creates load event info.
    *
-   * @param dataSpec Defines the requested data.
-   * @param uri The {@link Uri} from which data is being read. The uri must be identical to the one
-   *     in {@code dataSpec.uri} unless redirection has occurred. If redirection has occurred, this
-   *     is the uri after redirection.
-   * @param responseHeaders The response headers associated with the load, or an empty map if
-   *     unavailable.
-   * @param elapsedRealtimeMs The value of {@link SystemClock#elapsedRealtime} at the time of the
-   *     load event.
-   * @param loadDurationMs The duration of the load up to the event time.
-   * @param bytesLoaded The number of bytes that were loaded up to the event time. For compressed
-   *     network responses, this is the decompressed size.
+   * @param loadTaskId See {@link #loadTaskId}.
+   * @param dataSpec See {@link #dataSpec}.
+   * @param uri See {@link #uri}.
+   * @param responseHeaders See {@link #responseHeaders}.
+   * @param elapsedRealtimeMs See {@link #elapsedRealtimeMs}.
+   * @param loadDurationMs See {@link #loadDurationMs}.
+   * @param bytesLoaded See {@link #bytesLoaded}.
    */
   public LoadEventInfo(
+      long loadTaskId,
       DataSpec dataSpec,
       Uri uri,
       Map<String, List<String>> responseHeaders,
       long elapsedRealtimeMs,
       long loadDurationMs,
       long bytesLoaded) {
+    this.loadTaskId = loadTaskId;
     this.dataSpec = dataSpec;
     this.uri = uri;
     this.responseHeaders = responseHeaders;

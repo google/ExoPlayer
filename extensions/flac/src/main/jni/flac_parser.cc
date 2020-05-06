@@ -349,26 +349,6 @@ bool FLACParser::decodeMetadata() {
         ALOGE("unsupported bits per sample %u", getBitsPerSample());
         return false;
     }
-    // check sample rate
-    switch (getSampleRate()) {
-      case 8000:
-      case 11025:
-      case 12000:
-      case 16000:
-      case 22050:
-      case 24000:
-      case 32000:
-      case 44100:
-      case 48000:
-      case 88200:
-      case 96000:
-      case 176400:
-      case 192000:
-        break;
-      default:
-        ALOGE("unsupported sample rate %u", getSampleRate());
-        return false;
-    }
     // configure the appropriate copy function based on device endianness.
     if (isBigEndian()) {
       mCopy = copyToByteArrayBigEndian;
@@ -462,8 +442,9 @@ bool FLACParser::getSeekPositions(int64_t timeUs,
     if (sampleNumber <= targetSampleNumber) {
       result[0] = (sampleNumber * 1000000LL) / sampleRate;
       result[1] = firstFrameOffset + points[i - 1].stream_offset;
-      if (sampleNumber == targetSampleNumber || i >= length) {
-        // exact seek, or no following seek point.
+      if (sampleNumber == targetSampleNumber || i >= length ||
+          points[i].sample_number == -1) {  // placeholder
+        // exact seek, or no following non-placeholder seek point
         result[2] = result[0];
         result[3] = result[1];
       } else {

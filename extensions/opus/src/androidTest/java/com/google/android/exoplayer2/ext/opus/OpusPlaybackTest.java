@@ -20,6 +20,7 @@ import static org.junit.Assert.fail;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -37,7 +38,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class OpusPlaybackTest {
 
-  private static final String BEAR_OPUS_URI = "asset:///bear-opus.webm";
+  private static final String BEAR_OPUS_URI = "asset:///mka/bear-opus.mka";
+  private static final String BEAR_OPUS_NEGATIVE_GAIN_URI =
+      "asset:///mka/bear-opus-negative-gain.mka";
 
   @Before
   public void setUp() {
@@ -47,8 +50,13 @@ public class OpusPlaybackTest {
   }
 
   @Test
-  public void testBasicPlayback() throws Exception {
+  public void basicPlayback() throws Exception {
     playUri(BEAR_OPUS_URI);
+  }
+
+  @Test
+  public void basicPlaybackNegativeGain() throws Exception {
+    playUri(BEAR_OPUS_NEGATIVE_GAIN_URI);
   }
 
   private void playUri(String uri) throws Exception {
@@ -67,8 +75,8 @@ public class OpusPlaybackTest {
     private final Context context;
     private final Uri uri;
 
-    private ExoPlayer player;
-    private ExoPlaybackException playbackException;
+    @Nullable private ExoPlayer player;
+    @Nullable private ExoPlaybackException playbackException;
 
     public TestPlaybackRunnable(Uri uri, Context context) {
       this.uri = uri;
@@ -87,7 +95,7 @@ public class OpusPlaybackTest {
                   MatroskaExtractor.FACTORY)
               .createMediaSource(uri);
       player.prepare(mediaSource);
-      player.setPlayWhenReady(true);
+      player.play();
       Looper.loop();
     }
 
@@ -97,7 +105,7 @@ public class OpusPlaybackTest {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       if (playbackState == Player.STATE_ENDED
           || (playbackState == Player.STATE_IDLE && playbackException != null)) {
         player.release();

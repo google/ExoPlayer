@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -76,15 +75,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    AUDIO_FOCUS_STATE_LOST_FOCUS,
     AUDIO_FOCUS_STATE_NO_FOCUS,
     AUDIO_FOCUS_STATE_HAVE_FOCUS,
     AUDIO_FOCUS_STATE_LOSS_TRANSIENT,
     AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK
   })
   private @interface AudioFocusState {}
-  /** No audio focus was held, but has been lost by another app taking it permanently. */
-  private static final int AUDIO_FOCUS_STATE_LOST_FOCUS = -1;
   /** No audio focus is currently being held. */
   private static final int AUDIO_FOCUS_STATE_NO_FOCUS = 0;
   /** The requested audio focus is currently held. */
@@ -101,7 +97,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private final AudioManager audioManager;
   private final AudioFocusListener focusListener;
-  private final PlayerControl playerControl;
+  @Nullable private PlayerControl playerControl;
   @Nullable private AudioAttributes audioAttributes;
 
   @AudioFocusState private int audioFocusState;
@@ -134,64 +130,45 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Sets audio attributes that should be used to manage audio focus.
    *
+   * <p>Call {@link #updateAudioFocus(boolean, int)} to update the audio focus based on these
+   * attributes.
+   *
    * @param audioAttributes The audio attributes or {@code null} if audio focus should not be
    *     managed automatically.
-   * @param playWhenReady The current state of {@link ExoPlayer#getPlayWhenReady()}.
-   * @param playerState The current player state; {@link ExoPlayer#getPlaybackState()}.
-   * @return A {@link PlayerCommand} to execute on the player.
    */
-  @PlayerCommand
-  public int setAudioAttributes(
-      @Nullable AudioAttributes audioAttributes, boolean playWhenReady, int playerState) {
+  public void setAudioAttributes(@Nullable AudioAttributes audioAttributes) {
     if (!Util.areEqual(this.audioAttributes, audioAttributes)) {
       this.audioAttributes = audioAttributes;
       focusGain = convertAudioAttributesToFocusGain(audioAttributes);
-
       Assertions.checkArgument(
           focusGain == C.AUDIOFOCUS_GAIN || focusGain == C.AUDIOFOCUS_NONE,
           "Automatic handling of audio focus is only available for USAGE_MEDIA and USAGE_GAME.");
-      if (playWhenReady
-          && (playerState == Player.STATE_BUFFERING || playerState == Player.STATE_READY)) {
-        return requestAudioFocus();
-      }
     }
-
-    return playerState == Player.STATE_IDLE
-        ? handleIdle(playWhenReady)
-        : handlePrepare(playWhenReady);
   }
 
   /**
-   * Called by a player as part of {@link ExoPlayer#prepare(MediaSource, boolean, boolean)}.
+   * Called by the player to abandon or request audio focus based on the desired player state.
    *
-   * @param playWhenReady The current state of {@link ExoPlayer#getPlayWhenReady()}.
+   * @param playWhenReady The desired value of playWhenReady.
+   * @param playbackState The desired playback state.
    * @return A {@link PlayerCommand} to execute on the player.
    */
   @PlayerCommand
-  public int handlePrepare(boolean playWhenReady) {
+  public int updateAudioFocus(boolean playWhenReady, @Player.State int playbackState) {
+    if (shouldAbandonAudioFocus(playbackState)) {
+      abandonAudioFocus();
+      return playWhenReady ? PLAYER_COMMAND_PLAY_WHEN_READY : PLAYER_COMMAND_DO_NOT_PLAY;
+    }
     return playWhenReady ? requestAudioFocus() : PLAYER_COMMAND_DO_NOT_PLAY;
   }
 
   /**
-   * Called by the player as part of {@link ExoPlayer#setPlayWhenReady(boolean)}.
-   *
-   * @param playWhenReady The desired value of playWhenReady.
-   * @param playerState The current state of the player.
-   * @return A {@link PlayerCommand} to execute on the player.
+   * Called when the manager is no longer required. Audio focus will be released without making any
+   * calls to the {@link PlayerControl}.
    */
-  @PlayerCommand
-  public int handleSetPlayWhenReady(boolean playWhenReady, int playerState) {
-    if (!playWhenReady) {
-      abandonAudioFocus();
-      return PLAYER_COMMAND_DO_NOT_PLAY;
-    }
-
-    return playerState == Player.STATE_IDLE ? handleIdle(playWhenReady) : requestAudioFocus();
-  }
-
-  /** Called by the player as part of {@link ExoPlayer#stop(boolean)}. */
-  public void handleStop() {
-    abandonAudioFocus(/* forceAbandon= */ true);
+  public void release() {
+    playerControl = null;
+    abandonAudioFocus();
   }
 
   // Internal methods.
@@ -201,62 +178,35 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return focusListener;
   }
 
-  @PlayerCommand
-  private int handleIdle(boolean playWhenReady) {
-    return playWhenReady ? PLAYER_COMMAND_PLAY_WHEN_READY : PLAYER_COMMAND_DO_NOT_PLAY;
+  private boolean shouldAbandonAudioFocus(@Player.State int playbackState) {
+    return playbackState == Player.STATE_IDLE || focusGain != C.AUDIOFOCUS_GAIN;
   }
 
   @PlayerCommand
   private int requestAudioFocus() {
-    int focusRequestResult;
-
-    if (focusGain == C.AUDIOFOCUS_NONE) {
-      if (audioFocusState != AUDIO_FOCUS_STATE_NO_FOCUS) {
-        abandonAudioFocus(/* forceAbandon= */ true);
-      }
+    if (audioFocusState == AUDIO_FOCUS_STATE_HAVE_FOCUS) {
       return PLAYER_COMMAND_PLAY_WHEN_READY;
     }
-
-    if (audioFocusState == AUDIO_FOCUS_STATE_NO_FOCUS) {
-      if (Util.SDK_INT >= 26) {
-        focusRequestResult = requestAudioFocusV26();
-      } else {
-        focusRequestResult = requestAudioFocusDefault();
-      }
-      audioFocusState =
-          focusRequestResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-              ? AUDIO_FOCUS_STATE_HAVE_FOCUS
-              : AUDIO_FOCUS_STATE_NO_FOCUS;
-    }
-
-    if (audioFocusState == AUDIO_FOCUS_STATE_NO_FOCUS) {
+    int requestResult = Util.SDK_INT >= 26 ? requestAudioFocusV26() : requestAudioFocusDefault();
+    if (requestResult == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+      setAudioFocusState(AUDIO_FOCUS_STATE_HAVE_FOCUS);
+      return PLAYER_COMMAND_PLAY_WHEN_READY;
+    } else {
+      setAudioFocusState(AUDIO_FOCUS_STATE_NO_FOCUS);
       return PLAYER_COMMAND_DO_NOT_PLAY;
     }
-
-    return audioFocusState == AUDIO_FOCUS_STATE_LOSS_TRANSIENT
-        ? PLAYER_COMMAND_WAIT_FOR_CALLBACK
-        : PLAYER_COMMAND_PLAY_WHEN_READY;
   }
 
   private void abandonAudioFocus() {
-    abandonAudioFocus(/* forceAbandon= */ false);
-  }
-
-  private void abandonAudioFocus(boolean forceAbandon) {
-    if (focusGain == C.AUDIOFOCUS_NONE && audioFocusState == AUDIO_FOCUS_STATE_NO_FOCUS) {
+    if (audioFocusState == AUDIO_FOCUS_STATE_NO_FOCUS) {
       return;
     }
-
-    if (focusGain != C.AUDIOFOCUS_GAIN
-        || audioFocusState == AUDIO_FOCUS_STATE_LOST_FOCUS
-        || forceAbandon) {
-      if (Util.SDK_INT >= 26) {
-        abandonAudioFocusV26();
-      } else {
-        abandonAudioFocusDefault();
-      }
-      audioFocusState = AUDIO_FOCUS_STATE_NO_FOCUS;
+    if (Util.SDK_INT >= 26) {
+      abandonAudioFocusV26();
+    } else {
+      abandonAudioFocusDefault();
     }
+    setAudioFocusState(AUDIO_FOCUS_STATE_NO_FOCUS);
   }
 
   private int requestAudioFocusDefault() {
@@ -312,7 +262,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   @C.AudioFocusGain
   private static int convertAudioAttributesToFocusGain(@Nullable AudioAttributes audioAttributes) {
-
     if (audioAttributes == null) {
       // Don't handle audio focus. It may be either video only contents or developers
       // want to have more finer grained control. (e.g. adding audio focus listener)
@@ -382,60 +331,52 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void handleAudioFocusChange(int focusChange) {
-    // Convert the platform focus change to internal state.
-    switch (focusChange) {
-      case AudioManager.AUDIOFOCUS_LOSS:
-        audioFocusState = AUDIO_FOCUS_STATE_LOST_FOCUS;
-        break;
-      case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-        audioFocusState = AUDIO_FOCUS_STATE_LOSS_TRANSIENT;
-        break;
-      case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-        if (willPauseWhenDucked()) {
-          audioFocusState = AUDIO_FOCUS_STATE_LOSS_TRANSIENT;
-        } else {
-          audioFocusState = AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK;
-        }
-        break;
-      case AudioManager.AUDIOFOCUS_GAIN:
-        audioFocusState = AUDIO_FOCUS_STATE_HAVE_FOCUS;
-        break;
-      default:
-        Log.w(TAG, "Unknown focus change type: " + focusChange);
-        // Early return.
-        return;
+  private void setAudioFocusState(@AudioFocusState int audioFocusState) {
+    if (this.audioFocusState == audioFocusState) {
+      return;
     }
-
-    // Handle the internal state (change).
-    switch (audioFocusState) {
-      case AUDIO_FOCUS_STATE_NO_FOCUS:
-        // Focus was not requested; nothing to do.
-        break;
-      case AUDIO_FOCUS_STATE_LOST_FOCUS:
-        playerControl.executePlayerCommand(PLAYER_COMMAND_DO_NOT_PLAY);
-        abandonAudioFocus(/* forceAbandon= */ true);
-        break;
-      case AUDIO_FOCUS_STATE_LOSS_TRANSIENT:
-        playerControl.executePlayerCommand(PLAYER_COMMAND_WAIT_FOR_CALLBACK);
-        break;
-      case AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK:
-        // Volume will be adjusted by the code below.
-        break;
-      case AUDIO_FOCUS_STATE_HAVE_FOCUS:
-        playerControl.executePlayerCommand(PLAYER_COMMAND_PLAY_WHEN_READY);
-        break;
-      default:
-        throw new IllegalStateException("Unknown audio focus state: " + audioFocusState);
-    }
+    this.audioFocusState = audioFocusState;
 
     float volumeMultiplier =
         (audioFocusState == AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK)
             ? AudioFocusManager.VOLUME_MULTIPLIER_DUCK
             : AudioFocusManager.VOLUME_MULTIPLIER_DEFAULT;
-    if (AudioFocusManager.this.volumeMultiplier != volumeMultiplier) {
-      AudioFocusManager.this.volumeMultiplier = volumeMultiplier;
+    if (this.volumeMultiplier == volumeMultiplier) {
+      return;
+    }
+    this.volumeMultiplier = volumeMultiplier;
+    if (playerControl != null) {
       playerControl.setVolumeMultiplier(volumeMultiplier);
+    }
+  }
+
+  private void handlePlatformAudioFocusChange(int focusChange) {
+    switch (focusChange) {
+      case AudioManager.AUDIOFOCUS_GAIN:
+        setAudioFocusState(AUDIO_FOCUS_STATE_HAVE_FOCUS);
+        executePlayerCommand(PLAYER_COMMAND_PLAY_WHEN_READY);
+        return;
+      case AudioManager.AUDIOFOCUS_LOSS:
+        executePlayerCommand(PLAYER_COMMAND_DO_NOT_PLAY);
+        abandonAudioFocus();
+        return;
+      case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+      case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT || willPauseWhenDucked()) {
+          executePlayerCommand(PLAYER_COMMAND_WAIT_FOR_CALLBACK);
+          setAudioFocusState(AUDIO_FOCUS_STATE_LOSS_TRANSIENT);
+        } else {
+          setAudioFocusState(AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK);
+        }
+        return;
+      default:
+        Log.w(TAG, "Unknown focus change type: " + focusChange);
+    }
+  }
+
+  private void executePlayerCommand(@PlayerCommand int playerCommand) {
+    if (playerControl != null) {
+      playerControl.executePlayerCommand(playerCommand);
     }
   }
 
@@ -450,7 +391,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void onAudioFocusChange(int focusChange) {
-      eventHandler.post(() -> handleAudioFocusChange(focusChange));
+      eventHandler.post(() -> handlePlatformAudioFocusChange(focusChange));
     }
   }
 }

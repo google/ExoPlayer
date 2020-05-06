@@ -15,13 +15,17 @@
  */
 package com.google.android.exoplayer2.demo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadCursor;
@@ -80,8 +84,8 @@ public class DownloadTracker {
     listeners.remove(listener);
   }
 
-  public boolean isDownloaded(Uri uri) {
-    Download download = downloads.get(uri);
+  public boolean isDownloaded(MediaItem mediaItem) {
+    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
     return download != null && download.state != Download.STATE_FAILED;
   }
 
@@ -91,12 +95,8 @@ public class DownloadTracker {
   }
 
   public void toggleDownload(
-      FragmentManager fragmentManager,
-      String name,
-      Uri uri,
-      String extension,
-      RenderersFactory renderersFactory) {
-    Download download = downloads.get(uri);
+      FragmentManager fragmentManager, MediaItem mediaItem, RenderersFactory renderersFactory) {
+    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
     if (download != null) {
       DownloadService.sendRemoveDownload(
           context, DemoDownloadService.class, download.request.id, /* foreground= */ false);
@@ -106,7 +106,7 @@ public class DownloadTracker {
       }
       startDownloadDialogHelper =
           new StartDownloadDialogHelper(
-              fragmentManager, getDownloadHelper(uri, extension, renderersFactory), name);
+              fragmentManager, getDownloadHelper(mediaItem, renderersFactory), mediaItem);
     }
   }
 
@@ -121,18 +121,23 @@ public class DownloadTracker {
     }
   }
 
-  private DownloadHelper getDownloadHelper(
-      Uri uri, String extension, RenderersFactory renderersFactory) {
-    int type = Util.inferContentType(uri, extension);
+  private DownloadHelper getDownloadHelper(MediaItem mediaItem, RenderersFactory renderersFactory) {
+    MediaItem.PlaybackProperties playbackProperties = checkNotNull(mediaItem.playbackProperties);
+    @C.ContentType
+    int type =
+        Util.inferContentTypeWithMimeType(playbackProperties.uri, playbackProperties.mimeType);
     switch (type) {
       case C.TYPE_DASH:
-        return DownloadHelper.forDash(context, uri, dataSourceFactory, renderersFactory);
+        return DownloadHelper.forDash(
+            context, playbackProperties.uri, dataSourceFactory, renderersFactory);
       case C.TYPE_SS:
-        return DownloadHelper.forSmoothStreaming(context, uri, dataSourceFactory, renderersFactory);
+        return DownloadHelper.forSmoothStreaming(
+            context, playbackProperties.uri, dataSourceFactory, renderersFactory);
       case C.TYPE_HLS:
-        return DownloadHelper.forHls(context, uri, dataSourceFactory, renderersFactory);
+        return DownloadHelper.forHls(
+            context, playbackProperties.uri, dataSourceFactory, renderersFactory);
       case C.TYPE_OTHER:
-        return DownloadHelper.forProgressive(context, uri);
+        return DownloadHelper.forProgressive(context, playbackProperties.uri);
       default:
         throw new IllegalStateException("Unsupported type: " + type);
     }
@@ -141,7 +146,8 @@ public class DownloadTracker {
   private class DownloadManagerListener implements DownloadManager.Listener {
 
     @Override
-    public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+    public void onDownloadChanged(
+        @NonNull DownloadManager downloadManager, @NonNull Download download) {
       downloads.put(download.request.uri, download);
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
@@ -149,7 +155,8 @@ public class DownloadTracker {
     }
 
     @Override
-    public void onDownloadRemoved(DownloadManager downloadManager, Download download) {
+    public void onDownloadRemoved(
+        @NonNull DownloadManager downloadManager, @NonNull Download download) {
       downloads.remove(download.request.uri);
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
@@ -164,16 +171,16 @@ public class DownloadTracker {
 
     private final FragmentManager fragmentManager;
     private final DownloadHelper downloadHelper;
-    private final String name;
+    private final MediaItem mediaItem;
 
     private TrackSelectionDialog trackSelectionDialog;
     private MappedTrackInfo mappedTrackInfo;
 
     public StartDownloadDialogHelper(
-        FragmentManager fragmentManager, DownloadHelper downloadHelper, String name) {
+        FragmentManager fragmentManager, DownloadHelper downloadHelper, MediaItem mediaItem) {
       this.fragmentManager = fragmentManager;
       this.downloadHelper = downloadHelper;
-      this.name = name;
+      this.mediaItem = mediaItem;
       downloadHelper.prepare(this);
     }
 
@@ -187,7 +194,7 @@ public class DownloadTracker {
     // DownloadHelper.Callback implementation.
 
     @Override
-    public void onPrepared(DownloadHelper helper) {
+    public void onPrepared(@NonNull DownloadHelper helper) {
       if (helper.getPeriodCount() == 0) {
         Log.d(TAG, "No periods found. Downloading entire stream.");
         startDownload();
@@ -214,7 +221,7 @@ public class DownloadTracker {
     }
 
     @Override
-    public void onPrepareError(DownloadHelper helper, IOException e) {
+    public void onPrepareError(@NonNull DownloadHelper helper, @NonNull IOException e) {
       Toast.makeText(context, R.string.download_start_error, Toast.LENGTH_LONG).show();
       Log.e(
           TAG,
@@ -268,7 +275,8 @@ public class DownloadTracker {
     }
 
     private DownloadRequest buildDownloadRequest() {
-      return downloadHelper.getDownloadRequest(Util.getUtf8Bytes(name));
+      return downloadHelper.getDownloadRequest(
+          Util.getUtf8Bytes(checkNotNull(mediaItem.mediaMetadata.title)));
     }
   }
 }

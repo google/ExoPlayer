@@ -17,8 +17,8 @@ package com.google.android.exoplayer2.castdemo;
 
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ext.cast.MediaItem;
-import com.google.android.exoplayer2.ext.cast.MediaItem.DrmConfiguration;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,19 +42,19 @@ import java.util.List;
     samples.add(
         new MediaItem.Builder()
             .setUri("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd")
-            .setTitle("Clear DASH: Tears")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("Clear DASH: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
             .build());
     samples.add(
         new MediaItem.Builder()
             .setUri("https://storage.googleapis.com/shaka-demo-assets/angel-one-hls/hls.m3u8")
-            .setTitle("Clear HLS: Angel one")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("Clear HLS: Angel one").build())
             .setMimeType(MIME_TYPE_HLS)
             .build());
     samples.add(
         new MediaItem.Builder()
             .setUri("https://html5demos.com/assets/dizzy.mp4")
-            .setTitle("Clear MP4: Dizzy")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("Clear MP4: Dizzy").build())
             .setMimeType(MIME_TYPE_VIDEO_MP4)
             .build());
 
@@ -62,39 +62,29 @@ import java.util.List;
     samples.add(
         new MediaItem.Builder()
             .setUri(Uri.parse("https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"))
-            .setTitle("Widevine DASH cenc: Tears")
+            .setMediaMetadata(
+                new MediaMetadata.Builder().setTitle("Widevine DASH cenc: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
-            .setDrmConfiguration(
-                new DrmConfiguration(
-                    C.WIDEVINE_UUID,
-                    Uri.parse("https://proxy.uat.widevine.com/proxy?provider=widevine_test"),
-                    Collections.emptyMap()))
+            .setDrmUuid(C.WIDEVINE_UUID)
+            .setDrmLicenseUri("https://proxy.uat.widevine.com/proxy?provider=widevine_test")
             .build());
     samples.add(
         new MediaItem.Builder()
-            .setUri(
-                Uri.parse(
-                    "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd"))
-            .setTitle("Widevine DASH cbc1: Tears")
+            .setUri("https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd")
+            .setMediaMetadata(
+                new MediaMetadata.Builder().setTitle("Widevine DASH cbc1: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
-            .setDrmConfiguration(
-                new DrmConfiguration(
-                    C.WIDEVINE_UUID,
-                    Uri.parse("https://proxy.uat.widevine.com/proxy?provider=widevine_test"),
-                    Collections.emptyMap()))
+            .setDrmUuid(C.WIDEVINE_UUID)
+            .setDrmLicenseUri("https://proxy.uat.widevine.com/proxy?provider=widevine_test")
             .build());
     samples.add(
         new MediaItem.Builder()
-            .setUri(
-                Uri.parse(
-                    "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd"))
-            .setTitle("Widevine DASH cbcs: Tears")
+            .setUri("https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd")
+            .setMediaMetadata(
+                new MediaMetadata.Builder().setTitle("Widevine DASH cbcs: Tears").build())
             .setMimeType(MIME_TYPE_DASH)
-            .setDrmConfiguration(
-                new DrmConfiguration(
-                    C.WIDEVINE_UUID,
-                    Uri.parse("https://proxy.uat.widevine.com/proxy?provider=widevine_test"),
-                    Collections.emptyMap()))
+            .setDrmUuid(C.WIDEVINE_UUID)
+            .setDrmLicenseUri("https://proxy.uat.widevine.com/proxy?provider=widevine_test")
             .build());
 
     SAMPLES = Collections.unmodifiableList(samples);

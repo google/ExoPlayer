@@ -19,36 +19,28 @@ import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_N
 import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_PROTECTED_PBUFFER;
 import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_SURFACELESS_CONTEXT;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
-import android.opengl.EGL14;
-import android.opengl.EGLDisplay;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EGLSurfaceTexture;
 import com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureMode;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
-import javax.microedition.khronos.egl.EGL10;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * A dummy {@link Surface}.
- */
-@TargetApi(17)
+/** A dummy {@link Surface}. */
+@RequiresApi(17)
 public final class DummySurface extends Surface {
 
   private static final String TAG = "DummySurface";
-
-  private static final String EXTENSION_PROTECTED_CONTENT = "EGL_EXT_protected_content";
-  private static final String EXTENSION_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
 
   /**
    * Whether the surface is secure.
@@ -69,7 +61,7 @@ public final class DummySurface extends Surface {
    */
   public static synchronized boolean isSecureSupported(Context context) {
     if (!secureModeInitialized) {
-      secureMode = Util.SDK_INT < 24 ? SECURE_MODE_NONE : getSecureModeV24(context);
+      secureMode = getSecureMode(context);
       secureModeInitialized = true;
     }
     return secureMode != SECURE_MODE_NONE;
@@ -88,7 +80,6 @@ public final class DummySurface extends Surface {
    *     {@link #isSecureSupported(Context)} returns {@code false}.
    */
   public static DummySurface newInstanceV17(Context context, boolean secure) {
-    assertApiLevel17OrHigher();
     Assertions.checkState(!secure || isSecureSupported(context));
     DummySurfaceThread thread = new DummySurfaceThread();
     return thread.init(secure ? secureMode : SECURE_MODE_NONE);
@@ -115,40 +106,21 @@ public final class DummySurface extends Surface {
     }
   }
 
-  private static void assertApiLevel17OrHigher() {
-    if (Util.SDK_INT < 17) {
-      throw new UnsupportedOperationException("Unsupported prior to API level 17");
-    }
-  }
-
-  @TargetApi(24)
-  private static @SecureMode int getSecureModeV24(Context context) {
-    if (Util.SDK_INT < 26 && ("samsung".equals(Util.MANUFACTURER) || "XT1650".equals(Util.MODEL))) {
-      // Samsung devices running Nougat are known to be broken. See
-      // https://github.com/google/ExoPlayer/issues/3373 and [Internal: b/37197802].
-      // Moto Z XT1650 is also affected. See
-      // https://github.com/google/ExoPlayer/issues/3215.
+  @SecureMode
+  private static int getSecureMode(Context context) {
+    if (GlUtil.isProtectedContentExtensionSupported(context)) {
+      if (GlUtil.isSurfacelessContextExtensionSupported()) {
+        return SECURE_MODE_SURFACELESS_CONTEXT;
+      } else {
+        // If we can't use surfaceless contexts, we use a protected 1 * 1 pixel buffer surface.
+        // This may require support for EXT_protected_surface, but in practice it works on some
+        // devices that don't have that extension. See also
+        // https://github.com/google/ExoPlayer/issues/3558.
+        return SECURE_MODE_PROTECTED_PBUFFER;
+      }
+    } else {
       return SECURE_MODE_NONE;
     }
-    if (Util.SDK_INT < 26 && !context.getPackageManager().hasSystemFeature(
-        PackageManager.FEATURE_VR_MODE_HIGH_PERFORMANCE)) {
-      // Pre API level 26 devices were not well tested unless they supported VR mode.
-      return SECURE_MODE_NONE;
-    }
-    EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-    String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-    if (eglExtensions == null) {
-      return SECURE_MODE_NONE;
-    }
-    if (!eglExtensions.contains(EXTENSION_PROTECTED_CONTENT)) {
-      return SECURE_MODE_NONE;
-    }
-    // If we can't use surfaceless contexts, we use a protected 1 * 1 pixel buffer surface. This may
-    // require support for EXT_protected_surface, but in practice it works on some devices that
-    // don't have that extension. See also https://github.com/google/ExoPlayer/issues/3558.
-    return eglExtensions.contains(EXTENSION_SURFACELESS_CONTEXT)
-        ? SECURE_MODE_SURFACELESS_CONTEXT
-        : SECURE_MODE_PROTECTED_PBUFFER;
   }
 
   private static class DummySurfaceThread extends HandlerThread implements Callback {
@@ -163,7 +135,7 @@ public final class DummySurface extends Surface {
     @Nullable private DummySurface surface;
 
     public DummySurfaceThread() {
-      super("dummySurface");
+      super("ExoPlayer:DummySurface");
     }
 
     public DummySurface init(@SecureMode int secureMode) {

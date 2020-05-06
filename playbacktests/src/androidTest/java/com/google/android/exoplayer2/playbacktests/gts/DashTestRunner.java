@@ -17,11 +17,13 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 
-import android.annotation.TargetApi;
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
 import android.net.Uri;
 import android.view.Surface;
+import android.widget.FrameLayout;
+import androidx.annotation.RequiresApi;
+import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -29,7 +31,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
@@ -256,8 +257,7 @@ import java.util.List;
     }
 
     @Override
-    protected DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(
-        final String userAgent) {
+    protected DrmSessionManager buildDrmSessionManager(final String userAgent) {
       if (widevineLicenseUrl == null) {
         return DrmSessionManager.getDummyDrmSessionManager();
       }
@@ -265,12 +265,12 @@ import java.util.List;
         MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
             new DefaultHttpDataSourceFactory(userAgent));
         FrameworkMediaDrm frameworkMediaDrm = FrameworkMediaDrm.newInstance(WIDEVINE_UUID);
-        DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager =
-            new DefaultDrmSessionManager<>(
+        DefaultDrmSessionManager drmSessionManager =
+            new DefaultDrmSessionManager(
                 C.WIDEVINE_UUID,
                 frameworkMediaDrm,
                 drmCallback,
-                /* optionalKeyRequestParameters= */ null,
+                /* keyRequestParameters= */ null,
                 /* multiSession= */ false,
                 DefaultDrmSessionManager.INITIAL_DRM_REQUEST_RETRY_COUNT);
         if (!useL1Widevine) {
@@ -299,7 +299,10 @@ import java.util.List;
 
     @Override
     protected MediaSource buildSource(
-        HostActivity host, String userAgent, DrmSessionManager<?> drmSessionManager) {
+        HostActivity host,
+        String userAgent,
+        DrmSessionManager drmSessionManager,
+        FrameLayout overlayFrameLayout) {
       DataSource.Factory dataSourceFactory =
           this.dataSourceFactory != null
               ? this.dataSourceFactory
@@ -312,7 +315,7 @@ import java.util.List;
     }
 
     @Override
-    protected void onTestFinished(DecoderCounters audioCounters, DecoderCounters videoCounters) {
+    protected void logMetrics(DecoderCounters audioCounters, DecoderCounters videoCounters) {
       metricsLogger.logMetric(MetricsLogger.KEY_TEST_NAME, streamName);
       metricsLogger.logMetric(MetricsLogger.KEY_IS_CDD_LIMITED_RETRY, isCddLimitedRetry);
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_DROPPED_COUNT,
@@ -324,7 +327,10 @@ import java.util.List;
       metricsLogger.logMetric(MetricsLogger.KEY_FRAMES_RENDERED_COUNT,
           videoCounters.renderedOutputBufferCount);
       metricsLogger.close();
+    }
 
+    @Override
+    protected void assertPassed(DecoderCounters audioCounters, DecoderCounters videoCounters) {
       if (fullPlaybackNoSeeking) {
         // We shouldn't have skipped any output buffers.
         DecoderCountersUtil
@@ -371,7 +377,9 @@ import java.util.List;
 
     private DashTestTrackSelector(String tag, String audioFormatId, String[] videoFormatIds,
         boolean canIncludeAdditionalVideoFormats) {
-      super(new RandomTrackSelection.Factory(/* seed= */ 0));
+      super(
+          ApplicationProvider.getApplicationContext(),
+          new RandomTrackSelection.Factory(/* seed= */ 0));
       this.tag = tag;
       this.audioFormatId = audioFormatId;
       this.videoFormatIds = videoFormatIds;
@@ -451,17 +459,17 @@ import java.util.List;
     }
 
     private static boolean isFormatHandled(int formatSupport) {
-      return (formatSupport & RendererCapabilities.FORMAT_SUPPORT_MASK)
+      return RendererCapabilities.getFormatSupport(formatSupport)
           == RendererCapabilities.FORMAT_HANDLED;
     }
 
   }
 
   /**
-   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be
-   * executed for API level < 18.
+   * Creates a new {@code MediaDrm} object. The encapsulation ensures that the tests can be executed
+   * for API level < 18.
    */
-  @TargetApi(18)
+  @RequiresApi(18)
   private static final class MediaDrmBuilder {
 
     public static MediaDrm build () {

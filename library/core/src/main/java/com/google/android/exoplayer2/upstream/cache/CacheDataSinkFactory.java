@@ -17,9 +17,8 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import com.google.android.exoplayer2.upstream.DataSink;
 
-/**
- * A {@link DataSink.Factory} that produces {@link CacheDataSink}.
- */
+/** @deprecated Use {@link CacheDataSink.Factory}. */
+@Deprecated
 public final class CacheDataSinkFactory implements DataSink.Factory {
 
   private final Cache cache;

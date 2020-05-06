@@ -20,14 +20,12 @@ import android.media.MediaCodec;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -87,12 +85,11 @@ public class DefaultRenderersFactory implements RenderersFactory {
   protected static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
   private final Context context;
-  @Nullable private DrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
   @ExtensionRendererMode private int extensionRendererMode;
   private long allowedVideoJoiningTimeMs;
-  private boolean playClearSamplesWithoutKeys;
   private boolean enableDecoderFallback;
   private MediaCodecSelector mediaCodecSelector;
+  private @MediaCodecRenderer.MediaCodecOperationMode int mediaCodecOperationMode;
 
   /** @param context A {@link Context}. */
   public DefaultRenderersFactory(Context context) {
@@ -100,17 +97,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
     extensionRendererMode = EXTENSION_RENDERER_MODE_OFF;
     allowedVideoJoiningTimeMs = DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS;
     mediaCodecSelector = MediaCodecSelector.DEFAULT;
-  }
-
-  /**
-   * @deprecated Use {@link #DefaultRenderersFactory(Context)} and pass {@link DrmSessionManager}
-   *     directly to {@link SimpleExoPlayer.Builder}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DefaultRenderersFactory(
-      Context context, @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    this(context, drmSessionManager, EXTENSION_RENDERER_MODE_OFF);
+    mediaCodecOperationMode = MediaCodecRenderer.OPERATION_MODE_SYNCHRONOUS;
   }
 
   /**
@@ -125,47 +112,17 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * @deprecated Use {@link #DefaultRenderersFactory(Context)} and {@link
-   *     #setExtensionRendererMode(int)}, and pass {@link DrmSessionManager} directly to {@link
-   *     SimpleExoPlayer.Builder}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DefaultRenderersFactory(
-      Context context,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      @ExtensionRendererMode int extensionRendererMode) {
-    this(context, drmSessionManager, extensionRendererMode, DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS);
-  }
-
-  /**
    * @deprecated Use {@link #DefaultRenderersFactory(Context)}, {@link
    *     #setExtensionRendererMode(int)} and {@link #setAllowedVideoJoiningTimeMs(long)}.
    */
   @Deprecated
-  @SuppressWarnings("deprecation")
   public DefaultRenderersFactory(
       Context context,
-      @ExtensionRendererMode int extensionRendererMode,
-      long allowedVideoJoiningTimeMs) {
-    this(context, null, extensionRendererMode, allowedVideoJoiningTimeMs);
-  }
-
-  /**
-   * @deprecated Use {@link #DefaultRenderersFactory(Context)}, {@link
-   *     #setExtensionRendererMode(int)} and {@link #setAllowedVideoJoiningTimeMs(long)}, and pass
-   *     {@link DrmSessionManager} directly to {@link SimpleExoPlayer.Builder}.
-   */
-  @Deprecated
-  public DefaultRenderersFactory(
-      Context context,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
       @ExtensionRendererMode int extensionRendererMode,
       long allowedVideoJoiningTimeMs) {
     this.context = context;
     this.extensionRendererMode = extensionRendererMode;
     this.allowedVideoJoiningTimeMs = allowedVideoJoiningTimeMs;
-    this.drmSessionManager = drmSessionManager;
     mediaCodecSelector = MediaCodecSelector.DEFAULT;
   }
 
@@ -186,21 +143,17 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * Sets whether renderers are permitted to play clear regions of encrypted media prior to having
-   * obtained the keys necessary to decrypt encrypted regions of the media. For encrypted media that
-   * starts with a short clear region, this allows playback to begin in parallel with key
-   * acquisition, which can reduce startup latency.
+   * Set the {@link MediaCodecRenderer.MediaCodecOperationMode} of {@link MediaCodecRenderer}
+   * instances.
    *
-   * <p>The default value is {@code false}.
+   * <p>This method is experimental, and will be renamed or removed in a future release.
    *
-   * @param playClearSamplesWithoutKeys Whether renderers are permitted to play clear regions of
-   *     encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
-   *     the media.
+   * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory setPlayClearSamplesWithoutKeys(
-      boolean playClearSamplesWithoutKeys) {
-    this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
+  public DefaultRenderersFactory experimental_setMediaCodecOperationMode(
+      @MediaCodecRenderer.MediaCodecOperationMode int mode) {
+    mediaCodecOperationMode = mode;
     return this;
   }
 
@@ -251,18 +204,12 @@ public class DefaultRenderersFactory implements RenderersFactory {
       VideoRendererEventListener videoRendererEventListener,
       AudioRendererEventListener audioRendererEventListener,
       TextOutput textRendererOutput,
-      MetadataOutput metadataRendererOutput,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
-    if (drmSessionManager == null) {
-      drmSessionManager = this.drmSessionManager;
-    }
+      MetadataOutput metadataRendererOutput) {
     ArrayList<Renderer> renderersList = new ArrayList<>();
     buildVideoRenderers(
         context,
         extensionRendererMode,
         mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         enableDecoderFallback,
         eventHandler,
         videoRendererEventListener,
@@ -272,8 +219,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
         context,
         extensionRendererMode,
         mediaCodecSelector,
-        drmSessionManager,
-        playClearSamplesWithoutKeys,
         enableDecoderFallback,
         buildAudioProcessors(),
         eventHandler,
@@ -294,11 +239,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param context The {@link Context} associated with the player.
    * @param extensionRendererMode The extension renderer mode.
    * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the player will
-   *     not be used for DRM protected playbacks.
-   * @param playClearSamplesWithoutKeys Whether renderers are permitted to play clear regions of
-   *     encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
-   *     the media.
    * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
    *     initialization fails. This may result in using a decoder that is slower/less efficient than
    *     the primary decoder.
@@ -312,24 +252,22 @@ public class DefaultRenderersFactory implements RenderersFactory {
       Context context,
       @ExtensionRendererMode int extensionRendererMode,
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       boolean enableDecoderFallback,
       Handler eventHandler,
       VideoRendererEventListener eventListener,
       long allowedVideoJoiningTimeMs,
       ArrayList<Renderer> out) {
-    out.add(
+    MediaCodecVideoRenderer videoRenderer =
         new MediaCodecVideoRenderer(
             context,
             mediaCodecSelector,
             allowedVideoJoiningTimeMs,
-            drmSessionManager,
-            playClearSamplesWithoutKeys,
             enableDecoderFallback,
             eventHandler,
             eventListener,
-            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
+            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+    videoRenderer.experimental_setMediaCodecOperationMode(mediaCodecOperationMode);
+    out.add(videoRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;
@@ -392,6 +330,34 @@ public class DefaultRenderersFactory implements RenderersFactory {
       // The extension is present, but instantiation failed.
       throw new RuntimeException("Error instantiating AV1 extension", e);
     }
+
+    try {
+      // Full class names used for constructor args so the LINT rule triggers if any of them move.
+      // LINT.IfChange
+      Class<?> clazz =
+          Class.forName("com.google.android.exoplayer2.ext.ffmpeg.FfmpegVideoRenderer");
+      Constructor<?> constructor =
+          clazz.getConstructor(
+              long.class,
+              android.os.Handler.class,
+              com.google.android.exoplayer2.video.VideoRendererEventListener.class,
+              int.class);
+      // LINT.ThenChange(../../../../../../../proguard-rules.txt)
+      Renderer renderer =
+          (Renderer)
+              constructor.newInstance(
+                  allowedVideoJoiningTimeMs,
+                  eventHandler,
+                  eventListener,
+                  MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+      out.add(extensionRendererIndex++, renderer);
+      Log.i(TAG, "Loaded FfmpegVideoRenderer.");
+    } catch (ClassNotFoundException e) {
+      // Expected if the app was built without the extension.
+    } catch (Exception e) {
+      // The extension is present, but instantiation failed.
+      throw new RuntimeException("Error instantiating FFmpeg extension", e);
+    }
   }
 
   /**
@@ -400,11 +366,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param context The {@link Context} associated with the player.
    * @param extensionRendererMode The extension renderer mode.
    * @param mediaCodecSelector A decoder selector.
-   * @param drmSessionManager An optional {@link DrmSessionManager}. May be null if the player will
-   *     not be used for DRM protected playbacks.
-   * @param playClearSamplesWithoutKeys Whether renderers are permitted to play clear regions of
-   *     encrypted media prior to having obtained the keys necessary to decrypt encrypted regions of
-   *     the media.
    * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
    *     initialization fails. This may result in using a decoder that is slower/less efficient than
    *     the primary decoder.
@@ -418,23 +379,21 @@ public class DefaultRenderersFactory implements RenderersFactory {
       Context context,
       @ExtensionRendererMode int extensionRendererMode,
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       boolean enableDecoderFallback,
       AudioProcessor[] audioProcessors,
       Handler eventHandler,
       AudioRendererEventListener eventListener,
       ArrayList<Renderer> out) {
-    out.add(
+    MediaCodecAudioRenderer audioRenderer =
         new MediaCodecAudioRenderer(
             context,
             mediaCodecSelector,
-            drmSessionManager,
-            playClearSamplesWithoutKeys,
             enableDecoderFallback,
             eventHandler,
             eventListener,
-            new DefaultAudioSink(AudioCapabilities.getCapabilities(context), audioProcessors)));
+            new DefaultAudioSink(AudioCapabilities.getCapabilities(context), audioProcessors));
+    audioRenderer.experimental_setMediaCodecOperationMode(mediaCodecOperationMode);
+    out.add(audioRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;

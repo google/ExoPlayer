@@ -27,10 +27,12 @@
 #endif  // CPU_FEATURES_COMPILED_ANY_ARM_NEON
 #include <jni.h>
 
+#include <cstdint>
 #include <cstring>
 #include <mutex>  // NOLINT
 #include <new>
 
+#include "cpu_info.h"  // NOLINT
 #include "gav1/decoder.h"
 
 #define LOG_TAG "gav1_jni"
@@ -71,7 +73,7 @@ const int kImageFormatYV12 = 0x32315659;
 // Output modes.
 const int kOutputModeYuv = 0;
 const int kOutputModeSurfaceYuv = 1;
-// LINT.ThenChange(../../../../../library/core/src/main/java/com/google/android/exoplayer2/C.java)
+// LINT.ThenChange(../../../../../library/common/src/main/java/com/google/android/exoplayer2/C.java)
 
 // LINT.IfChange
 const int kColorSpaceUnknown = 0;
@@ -121,17 +123,21 @@ const char* GetJniErrorMessage(JniStatusCode error_code) {
   }
 }
 
-// Manages Libgav1FrameBuffer and reference information.
+// Manages frame buffer and reference information.
 class JniFrameBuffer {
  public:
-  explicit JniFrameBuffer(int id) : id_(id), reference_count_(0) {
-    gav1_frame_buffer_.private_data = &id_;
-  }
+  explicit JniFrameBuffer(int id) : id_(id), reference_count_(0) {}
   ~JniFrameBuffer() {
     for (int plane_index = kPlaneY; plane_index < kMaxPlanes; plane_index++) {
-      delete[] gav1_frame_buffer_.data[plane_index];
+      delete[] raw_buffer_[plane_index];
     }
   }
+
+  // Not copyable or movable.
+  JniFrameBuffer(const JniFrameBuffer&) = delete;
+  JniFrameBuffer(JniFrameBuffer&&) = delete;
+  JniFrameBuffer& operator=(const JniFrameBuffer&) = delete;
+  JniFrameBuffer& operator=(JniFrameBuffer&&) = delete;
 
   void SetFrameData(const libgav1::DecoderBuffer& decoder_buffer) {
     for (int plane_index = kPlaneY; plane_index < decoder_buffer.NumPlanes();
@@ -160,9 +166,8 @@ class JniFrameBuffer {
   void RemoveReference() { reference_count_--; }
   bool InUse() const { return reference_count_ != 0; }
 
-  const Libgav1FrameBuffer& GetGav1FrameBuffer() const {
-    return gav1_frame_buffer_;
-  }
+  uint8_t* RawBuffer(int plane_index) const { return raw_buffer_[plane_index]; }
+  void* BufferPrivateData() const { return const_cast<int*>(&id_); }
 
   // Attempts to reallocate data planes if the existing ones don't have enough
   // capacity. Returns true if the allocation was successful or wasn't needed,
@@ -172,15 +177,14 @@ class JniFrameBuffer {
     for (int plane_index = kPlaneY; plane_index < kMaxPlanes; plane_index++) {
       const int min_size =
           (plane_index == kPlaneY) ? y_plane_min_size : uv_plane_min_size;
-      if (gav1_frame_buffer_.size[plane_index] >= min_size) continue;
-      delete[] gav1_frame_buffer_.data[plane_index];
-      gav1_frame_buffer_.data[plane_index] =
-          new (std::nothrow) uint8_t[min_size];
-      if (!gav1_frame_buffer_.data[plane_index]) {
-        gav1_frame_buffer_.size[plane_index] = 0;
+      if (raw_buffer_size_[plane_index] >= min_size) continue;
+      delete[] raw_buffer_[plane_index];
+      raw_buffer_[plane_index] = new (std::nothrow) uint8_t[min_size];
+      if (!raw_buffer_[plane_index]) {
+        raw_buffer_size_[plane_index] = 0;
         return false;
       }
-      gav1_frame_buffer_.size[plane_index] = min_size;
+      raw_buffer_size_[plane_index] = min_size;
     }
     return true;
   }
@@ -190,9 +194,12 @@ class JniFrameBuffer {
   uint8_t* plane_[kMaxPlanes];
   int displayed_width_[kMaxPlanes];
   int displayed_height_[kMaxPlanes];
-  int id_;
+  const int id_;
   int reference_count_;
-  Libgav1FrameBuffer gav1_frame_buffer_ = {};
+  // Pointers to the raw buffers allocated for the data planes.
+  uint8_t* raw_buffer_[kMaxPlanes] = {};
+  // Sizes of the raw buffers in bytes.
+  size_t raw_buffer_size_[kMaxPlanes] = {};
 };
 
 // Manages frame buffers used by libgav1 decoder and ExoPlayer.
@@ -210,7 +217,7 @@ class JniBufferManager {
   }
 
   JniStatusCode GetBuffer(size_t y_plane_min_size, size_t uv_plane_min_size,
-                          Libgav1FrameBuffer* frame_buffer) {
+                          JniFrameBuffer** jni_buffer) {
     std::lock_guard<std::mutex> lock(mutex_);
 
     JniFrameBuffer* output_buffer;
@@ -230,7 +237,7 @@ class JniBufferManager {
     }
 
     output_buffer->AddReference();
-    *frame_buffer = output_buffer->GetGav1FrameBuffer();
+    *jni_buffer = output_buffer;
 
     return kJniStatusOk;
   }
@@ -316,29 +323,46 @@ struct JniContext {
   JniStatusCode jni_status_code = kJniStatusOk;
 };
 
-int Libgav1GetFrameBuffer(void* private_data, size_t y_plane_min_size,
-                          size_t uv_plane_min_size,
-                          Libgav1FrameBuffer* frame_buffer) {
-  JniContext* const context = reinterpret_cast<JniContext*>(private_data);
+Libgav1StatusCode Libgav1GetFrameBuffer(void* callback_private_data,
+                                        int bitdepth,
+                                        libgav1::ImageFormat image_format,
+                                        int width, int height, int left_border,
+                                        int right_border, int top_border,
+                                        int bottom_border, int stride_alignment,
+                                        libgav1::FrameBuffer* frame_buffer) {
+  libgav1::FrameBufferInfo info;
+  Libgav1StatusCode status = libgav1::ComputeFrameBufferInfo(
+      bitdepth, image_format, width, height, left_border, right_border,
+      top_border, bottom_border, stride_alignment, &info);
+  if (status != kLibgav1StatusOk) return status;
+
+  JniContext* const context = static_cast<JniContext*>(callback_private_data);
+  JniFrameBuffer* jni_buffer;
   context->jni_status_code = context->buffer_manager.GetBuffer(
-      y_plane_min_size, uv_plane_min_size, frame_buffer);
+      info.y_buffer_size, info.uv_buffer_size, &jni_buffer);
   if (context->jni_status_code != kJniStatusOk) {
     LOGE("%s", GetJniErrorMessage(context->jni_status_code));
-    return -1;
+    return kLibgav1StatusOutOfMemory;
   }
-  return 0;
+
+  uint8_t* const y_buffer = jni_buffer->RawBuffer(0);
+  uint8_t* const u_buffer =
+      (info.uv_buffer_size != 0) ? jni_buffer->RawBuffer(1) : nullptr;
+  uint8_t* const v_buffer =
+      (info.uv_buffer_size != 0) ? jni_buffer->RawBuffer(2) : nullptr;
+
+  return libgav1::SetFrameBuffer(&info, y_buffer, u_buffer, v_buffer,
+                                 jni_buffer->BufferPrivateData(), frame_buffer);
 }
 
-int Libgav1ReleaseFrameBuffer(void* private_data,
-                              Libgav1FrameBuffer* frame_buffer) {
-  JniContext* const context = reinterpret_cast<JniContext*>(private_data);
-  const int buffer_id = *reinterpret_cast<int*>(frame_buffer->private_data);
+void Libgav1ReleaseFrameBuffer(void* callback_private_data,
+                               void* buffer_private_data) {
+  JniContext* const context = static_cast<JniContext*>(callback_private_data);
+  const int buffer_id = *static_cast<const int*>(buffer_private_data);
   context->jni_status_code = context->buffer_manager.ReleaseBuffer(buffer_id);
   if (context->jni_status_code != kJniStatusOk) {
     LOGE("%s", GetJniErrorMessage(context->jni_status_code));
-    return -1;
   }
-  return 0;
 }
 
 constexpr int AlignTo16(int value) { return (value + 15) & (~15); }
@@ -508,8 +532,8 @@ DECODER_FUNC(jlong, gav1Init, jint threads) {
 
   libgav1::DecoderSettings settings;
   settings.threads = threads;
-  settings.get = Libgav1GetFrameBuffer;
-  settings.release = Libgav1ReleaseFrameBuffer;
+  settings.get_frame_buffer = Libgav1GetFrameBuffer;
+  settings.release_frame_buffer = Libgav1ReleaseFrameBuffer;
   settings.callback_private_data = context;
 
   context->libgav1_status_code = context->decoder.Init(&settings);
@@ -544,7 +568,8 @@ DECODER_FUNC(jint, gav1Decode, jlong jContext, jobject encodedData,
   const uint8_t* const buffer = reinterpret_cast<const uint8_t*>(
       env->GetDirectBufferAddress(encodedData));
   context->libgav1_status_code =
-      context->decoder.EnqueueFrame(buffer, length, /*user_private_data=*/0);
+      context->decoder.EnqueueFrame(buffer, length, /*user_private_data=*/0,
+                                    /*buffer_private_data=*/nullptr);
   if (context->libgav1_status_code != kLibgav1StatusOk) {
     return kStatusError;
   }
@@ -619,7 +644,7 @@ DECODER_FUNC(jint, gav1GetFrame, jlong jContext, jobject jOutputBuffer,
     }
 
     const int buffer_id =
-        *reinterpret_cast<int*>(decoder_buffer->buffer_private_data);
+        *static_cast<const int*>(decoder_buffer->buffer_private_data);
     context->buffer_manager.AddBufferReference(buffer_id);
     JniFrameBuffer* const jni_buffer =
         context->buffer_manager.GetBuffer(buffer_id);
@@ -748,6 +773,10 @@ DECODER_FUNC(jint, gav1CheckError, jlong jContext) {
     return kStatusError;
   }
   return kStatusOk;
+}
+
+DECODER_FUNC(jint, gav1GetThreads) {
+  return gav1_jni::GetNumberOfPerformanceCoresOnline();
 }
 
 // TODO(b/139902005): Add functions for getting libgav1 version and build

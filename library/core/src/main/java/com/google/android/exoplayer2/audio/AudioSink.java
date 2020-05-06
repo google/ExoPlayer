@@ -28,18 +28,19 @@ import java.nio.ByteBuffer;
  * <p>Before starting playback, specify the input audio format by calling {@link #configure(int,
  * int, int, int, int[], int, int)}.
  *
- * <p>Call {@link #handleBuffer(ByteBuffer, long)} to write data, and {@link #handleDiscontinuity()}
- * when the data being fed is discontinuous. Call {@link #play()} to start playing the written data.
+ * <p>Call {@link #handleBuffer(ByteBuffer, long, int)} to write data, and {@link
+ * #handleDiscontinuity()} when the data being fed is discontinuous. Call {@link #play()} to start
+ * playing the written data.
  *
  * <p>Call {@link #configure(int, int, int, int, int[], int, int)} whenever the input format
  * changes. The sink will be reinitialized on the next call to {@link #handleBuffer(ByteBuffer,
- * long)}.
+ * long, int)}.
  *
  * <p>Call {@link #flush()} to prepare the sink to receive audio data from a new playback position.
  *
  * <p>Call {@link #playToEndOfStream()} repeatedly to play out all data when no more input buffers
- * will be provided via {@link #handleBuffer(ByteBuffer, long)} until the next {@link #flush()}.
- * Call {@link #reset()} when the instance is no longer required.
+ * will be provided via {@link #handleBuffer(ByteBuffer, long, int)} until the next {@link
+ * #flush()}. Call {@link #reset()} when the instance is no longer required.
  *
  * <p>The implementation may be backed by a platform {@link AudioTrack}. In this case, {@link
  * #setAudioSessionId(int)}, {@link #setAudioAttributes(AudioAttributes)}, {@link
@@ -83,6 +84,12 @@ public interface AudioSink {
      */
     void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
 
+    /**
+     * Called when skipping silences is enabled or disabled.
+     *
+     * @param skipSilenceEnabled Whether skipping silences is enabled.
+     */
+    void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled);
   }
 
   /**
@@ -234,11 +241,14 @@ public interface AudioSink {
    *
    * @param buffer The buffer containing audio data.
    * @param presentationTimeUs The presentation timestamp of the buffer in microseconds.
+   * @param encodedAccessUnitCount The number of encoded access units in the buffer, or 1 if the
+   *     buffer contains PCM audio. This allows batching multiple encoded access units in one
+   *     buffer.
    * @return Whether the buffer was handled fully.
    * @throws InitializationException If an error occurs initializing the sink.
    * @throws WriteException If an error occurs writing the audio data.
    */
-  boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
+  boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs, int encodedAccessUnitCount)
       throws InitializationException, WriteException;
 
   /**
@@ -259,17 +269,28 @@ public interface AudioSink {
   boolean hasPendingData();
 
   /**
-   * Attempts to set the playback parameters. The audio sink may override these parameters if they
-   * are not supported.
-   *
-   * @param playbackParameters The new playback parameters to attempt to set.
+   * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
+   *     instead.
    */
+  @Deprecated
   void setPlaybackParameters(PlaybackParameters playbackParameters);
 
-  /**
-   * Gets the active {@link PlaybackParameters}.
-   */
+  /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   PlaybackParameters getPlaybackParameters();
+
+  /** Sets the playback speed. */
+  void setPlaybackSpeed(float playbackSpeed);
+
+  /** Gets the playback speed. */
+  float getPlaybackSpeed();
+
+  /** Sets whether silences should be skipped in the audio stream. */
+  void setSkipSilenceEnabled(boolean skipSilenceEnabled);
+
+  /** Gets whether silences are skipped in the audio stream. */
+  boolean getSkipSilenceEnabled();
 
   /**
    * Sets attributes for audio playback. If the attributes have changed and if the sink is not

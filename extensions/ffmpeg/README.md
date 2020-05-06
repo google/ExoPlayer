@@ -35,22 +35,22 @@ FFMPEG_EXT_PATH="$(pwd)/extensions/ffmpeg/src/main/jni"
 NDK_PATH="<path to Android NDK>"
 ```
 
-* Set up host platform ("darwin-x86_64" for Mac OS X):
+* Set the host platform (use "darwin-x86_64" for Mac OS X):
 
 ```
 HOST_PLATFORM="linux-x86_64"
 ```
 
-* Configure the formats supported by adapting the following variable if needed
-  and by setting it. See the [Supported formats][] page for more details of the
-  formats.
+* Configure the decoders to include. See the [Supported formats][] page for
+  details of the available decoders, and which formats they support.
 
 ```
 ENABLED_DECODERS=(vorbis opus flac)
 ```
 
-* Fetch and build FFmpeg. For example, executing script `build_ffmpeg.sh` will
-  fetch and build FFmpeg release 4.2 for armeabi-v7a, arm64-v8a and x86:
+* Fetch and build FFmpeg. Executing `build_ffmpeg.sh` will fetch and build
+  FFmpeg 4.2 for `armeabi-v7a`, `arm64-v8a`, `x86` and `x86_64`. The script can
+  be edited if you need to build for different architectures.
 
 ```
 cd "${FFMPEG_EXT_PATH}" && \
@@ -63,7 +63,7 @@ cd "${FFMPEG_EXT_PATH}" && \
 
 ```
 cd "${FFMPEG_EXT_PATH}" && \
-${NDK_PATH}/ndk-build APP_ABI="armeabi-v7a arm64-v8a x86" -j4
+${NDK_PATH}/ndk-build APP_ABI="armeabi-v7a arm64-v8a x86 x86_64" -j4
 ```
 
 ## Build instructions (Windows) ##
@@ -106,9 +106,19 @@ then implement your own logic to use the renderer for a given track.
 [#2781]: https://github.com/google/ExoPlayer/issues/2781
 [Supported formats]: https://exoplayer.dev/supported-formats.html#ffmpeg-extension
 
+## Using the extension in the demo application ##
+
+To try out playback using the extension in the [demo application][], see
+[enabling extension decoders][].
+
+[demo application]: https://exoplayer.dev/demo-application.html
+[enabling extension decoders]: https://exoplayer.dev/demo-application.html#enabling-extension-decoders
+
 ## Links ##
 
+* [Troubleshooting using extensions][]
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ffmpeg.*`
   belong to this module.
 
+[Troubleshooting using extensions]: https://exoplayer.dev/troubleshooting.html#how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

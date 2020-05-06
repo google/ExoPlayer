@@ -24,6 +24,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaCodec;
 import android.net.Uri;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.database.DatabaseProvider;
@@ -33,12 +34,19 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -180,6 +188,26 @@ public class TestUtil {
     return joined;
   }
 
+  /** Writes one byte long dummy test data to the file and returns it. */
+  public static File createTestFile(File directory, String name) throws IOException {
+    return createTestFile(directory, name, /* length= */ 1);
+  }
+
+  /** Writes dummy test data with the specified length to the file and returns it. */
+  public static File createTestFile(File directory, String name, long length) throws IOException {
+    return createTestFile(new File(directory, name), length);
+  }
+
+  /** Writes dummy test data with the specified length to the file and returns it. */
+  public static File createTestFile(File file, long length) throws IOException {
+    FileOutputStream output = new FileOutputStream(file);
+    for (long i = 0; i < length; i++) {
+      output.write((int) i);
+    }
+    output.close();
+    return file;
+  }
+
   /** Returns the bytes of an asset file. */
   public static byte[] getByteArray(Context context, String fileName) throws IOException {
     return Util.toByteArray(getInputStream(context, fileName));
@@ -238,6 +266,15 @@ public class TestUtil {
     } finally {
       dataSource.close();
     }
+  }
+
+  /** Returns whether two {@link android.media.MediaCodec.BufferInfo BufferInfos} are equal. */
+  public static void assertBufferInfosEqual(
+      MediaCodec.BufferInfo expected, MediaCodec.BufferInfo actual) {
+    assertThat(actual.flags).isEqualTo(expected.flags);
+    assertThat(actual.offset).isEqualTo(expected.offset);
+    assertThat(actual.presentationTimeUs).isEqualTo(expected.presentationTimeUs);
+    assertThat(actual.size).isEqualTo(expected.size);
   }
 
   /**
@@ -307,11 +344,10 @@ public class TestUtil {
    * @return The extracted {@link SeekMap}.
    * @throws IOException If an error occurred reading from the input, or if the extractor finishes
    *     reading from input without extracting any {@link SeekMap}.
-   * @throws InterruptedException If the thread was interrupted.
    */
   public static SeekMap extractSeekMap(
       Extractor extractor, FakeExtractorOutput output, DataSource dataSource, Uri uri)
-      throws IOException, InterruptedException {
+      throws IOException {
     ExtractorInput input = getExtractorInputFromPosition(dataSource, /* position= */ 0, uri);
     extractor.init(output);
     PositionHolder positionHolder = new PositionHolder();
@@ -348,11 +384,9 @@ public class TestUtil {
    * @return The {@link FakeTrackOutput} containing the extracted samples.
    * @throws IOException If an error occurred reading from the input, or if the extractor finishes
    *     reading from input without extracting any {@link SeekMap}.
-   * @throws InterruptedException If the thread was interrupted.
    */
   public static FakeExtractorOutput extractAllSamplesFromFile(
-      Extractor extractor, Context context, String fileName)
-      throws IOException, InterruptedException {
+      Extractor extractor, Context context, String fileName) throws IOException {
     byte[] data = TestUtil.getByteArray(context, fileName);
     FakeExtractorOutput expectedOutput = new FakeExtractorOutput();
     extractor.init(expectedOutput);
@@ -377,14 +411,15 @@ public class TestUtil {
    * input until we can extract at least one sample following the seek position, or until
    * end-of-input is reached.
    *
-   * @param extractor The {@link Extractor} to extractor from input.
+   * @param extractor The {@link Extractor} to extract from input.
    * @param seekMap The {@link SeekMap} of the stream from the given input.
    * @param seekTimeUs The seek time, in micro-seconds.
    * @param trackOutput The {@link FakeTrackOutput} to store the extracted samples.
    * @param dataSource The {@link DataSource} that will be used to read from the input.
    * @param uri The Uri of the input.
    * @return The index of the first extracted sample written to the given {@code trackOutput} after
-   *     the seek is completed, or -1 if the seek is completed without any extracted sample.
+   *     the seek is completed, or {@link C#INDEX_UNSET} if the seek is completed without any
+   *     extracted sample.
    */
   public static int seekToTimeUs(
       Extractor extractor,
@@ -393,7 +428,7 @@ public class TestUtil {
       DataSource dataSource,
       FakeTrackOutput trackOutput,
       Uri uri)
-      throws IOException, InterruptedException {
+      throws IOException {
     int numSampleBeforeSeek = trackOutput.getSampleCount();
     SeekMap.SeekPoints seekPoints = seekMap.getSeekPoints(seekTimeUs);
 
@@ -420,8 +455,9 @@ public class TestUtil {
         extractorInput =
             TestUtil.getExtractorInputFromPosition(dataSource, positionHolder.position, uri);
         extractorReadResult = Extractor.RESULT_CONTINUE;
-      } else if (extractorReadResult == Extractor.RESULT_END_OF_INPUT) {
-        return -1;
+      } else if (extractorReadResult == Extractor.RESULT_END_OF_INPUT
+          && trackOutput.getSampleCount() == numSampleBeforeSeek) {
+        return C.INDEX_UNSET;
       } else if (trackOutput.getSampleCount() > numSampleBeforeSeek) {
         // First index after seek = num sample before seek.
         return numSampleBeforeSeek;
@@ -432,11 +468,40 @@ public class TestUtil {
   /** Returns an {@link ExtractorInput} to read from the given input at given position. */
   public static ExtractorInput getExtractorInputFromPosition(
       DataSource dataSource, long position, Uri uri) throws IOException {
-    DataSpec dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET, /* key= */ null);
+    DataSpec dataSpec = new DataSpec(uri, position, C.LENGTH_UNSET);
     long length = dataSource.open(dataSpec);
     if (length != C.LENGTH_UNSET) {
       length += position;
     }
     return new DefaultExtractorInput(dataSource, position, length);
+  }
+
+  /**
+   * Create a new {@link MetadataInputBuffer} and copy {@code data} into the backing {@link
+   * ByteBuffer}.
+   */
+  public static MetadataInputBuffer createMetadataInputBuffer(byte[] data) {
+    MetadataInputBuffer buffer = new MetadataInputBuffer();
+    buffer.data = ByteBuffer.allocate(data.length).put(data);
+    buffer.data.flip();
+    return buffer;
+  }
+
+  /**
+   * Creates a {@link ConditionVariable} whose {@link ConditionVariable#block(long)} method times
+   * out according to wallclock time when used in Robolectric tests.
+   */
+  public static ConditionVariable createRobolectricConditionVariable() {
+    return new ConditionVariable(
+        new SystemClock() {
+          @Override
+          public long elapsedRealtime() {
+            // elapsedRealtime() does not advance during Robolectric test execution, so use
+            // currentTimeMillis() instead. This is technically unsafe because this clock is not
+            // guaranteed to be monotonic, but in practice it will work provided the clock of the
+            // host machine does not change during test execution.
+            return Clock.DEFAULT.currentTimeMillis();
+          }
+        });
   }
 }

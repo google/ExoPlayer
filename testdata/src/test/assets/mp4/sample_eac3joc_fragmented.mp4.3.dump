@@ -1,0 +1,22 @@
+seekMap:
+  isSeekable = true
+  duration = 2048000
+  getPosition(0) = [[timeUs=0, position=640]]
+  getPosition(1) = [[timeUs=0, position=640]]
+  getPosition(1024000) = [[timeUs=0, position=640]]
+  getPosition(2048000) = [[timeUs=0, position=640]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 2560
+  sample count = 1
+  format 0:
+    id = 1
+    sampleMimeType = audio/eac3-joc
+    channelCount = 6
+    sampleRate = 48000
+    language = und
+  sample 0:
+    time = 2016000
+    flags = 1
+    data = length 2560, hash EE4F848A
+tracksEnded = true

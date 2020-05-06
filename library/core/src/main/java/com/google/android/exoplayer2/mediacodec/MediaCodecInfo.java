@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
-import android.annotation.TargetApi;
 import android.graphics.Point;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo.AudioCapabilities;
@@ -24,6 +23,7 @@ import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
 import android.util.Pair;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -50,15 +50,14 @@ public final class MediaCodecInfo {
    */
   public final String name;
 
-  /** The MIME type handled by the codec, or {@code null} if this is a passthrough codec. */
-  @Nullable public final String mimeType;
+  /** The MIME type handled by the codec. */
+  public final String mimeType;
 
   /**
-   * The MIME type that the codec uses for media of type {@link #mimeType}, or {@code null} if this
-   * is a passthrough codec. Equal to {@link #mimeType} unless the codec is known to use a
-   * non-standard MIME type alias.
+   * The MIME type that the codec uses for media of type {@link #mimeType}. Equal to {@link
+   * #mimeType} unless the codec is known to use a non-standard MIME type alias.
    */
-  @Nullable public final String codecMimeType;
+  public final String codecMimeType;
 
   /**
    * The capabilities of the decoder, like the profiles/levels it supports, or {@code null} if not
@@ -90,9 +89,6 @@ public final class MediaCodecInfo {
    */
   public final boolean secure;
 
-  /** Whether this instance describes a passthrough codec. */
-  public final boolean passthrough;
-
   /**
    * Whether the codec is hardware accelerated.
    *
@@ -121,26 +117,6 @@ public final class MediaCodecInfo {
   public final boolean vendor;
 
   private final boolean isVideo;
-
-  /**
-   * Creates an instance representing an audio passthrough decoder.
-   *
-   * @param name The name of the {@link MediaCodec}.
-   * @return The created instance.
-   */
-  public static MediaCodecInfo newPassthroughInstance(String name) {
-    return new MediaCodecInfo(
-        name,
-        /* mimeType= */ null,
-        /* codecMimeType= */ null,
-        /* capabilities= */ null,
-        /* passthrough= */ true,
-        /* hardwareAccelerated= */ false,
-        /* softwareOnly= */ true,
-        /* vendor= */ false,
-        /* forceDisableAdaptive= */ false,
-        /* forceSecure= */ false);
-  }
 
   /**
    * Creates an instance.
@@ -173,7 +149,6 @@ public final class MediaCodecInfo {
         mimeType,
         codecMimeType,
         capabilities,
-        /* passthrough= */ false,
         hardwareAccelerated,
         softwareOnly,
         vendor,
@@ -183,10 +158,9 @@ public final class MediaCodecInfo {
 
   private MediaCodecInfo(
       String name,
-      @Nullable String mimeType,
-      @Nullable String codecMimeType,
+      String mimeType,
+      String codecMimeType,
       @Nullable CodecCapabilities capabilities,
-      boolean passthrough,
       boolean hardwareAccelerated,
       boolean softwareOnly,
       boolean vendor,
@@ -196,7 +170,6 @@ public final class MediaCodecInfo {
     this.mimeType = mimeType;
     this.codecMimeType = codecMimeType;
     this.capabilities = capabilities;
-    this.passthrough = passthrough;
     this.hardwareAccelerated = hardwareAccelerated;
     this.softwareOnly = softwareOnly;
     this.vendor = vendor;
@@ -229,9 +202,10 @@ public final class MediaCodecInfo {
    * @see CodecCapabilities#getMaxSupportedInstances()
    */
   public int getMaxSupportedInstances() {
-    return (Util.SDK_INT < 23 || capabilities == null)
-        ? MAX_SUPPORTED_INSTANCES_UNKNOWN
-        : getMaxSupportedInstancesV23(capabilities);
+    if (Util.SDK_INT < 23 || capabilities == null) {
+      return MAX_SUPPORTED_INSTANCES_UNKNOWN;
+    }
+    return getMaxSupportedInstancesV23(capabilities);
   }
 
   /**
@@ -393,7 +367,7 @@ public final class MediaCodecInfo {
    *     Format#NO_VALUE} or any value less than or equal to 0.
    * @return Whether the decoder supports video with the given width, height and frame rate.
    */
-  @TargetApi(21)
+  @RequiresApi(21)
   public boolean isVideoSizeAndRateSupportedV21(int width, int height, double frameRate) {
     if (capabilities == null) {
       logNoSupport("sizeAndRate.caps");
@@ -419,8 +393,8 @@ public final class MediaCodecInfo {
   /**
    * Returns the smallest video size greater than or equal to a specified size that also satisfies
    * the {@link MediaCodec}'s width and height alignment requirements.
-   * <p>
-   * Must not be called if the device SDK version is less than 21.
+   *
+   * <p>Must not be called if the device SDK version is less than 21.
    *
    * @param width Width in pixels.
    * @param height Height in pixels.
@@ -428,7 +402,7 @@ public final class MediaCodecInfo {
    *     the {@link MediaCodec}'s width and height alignment requirements, or null if not a video
    *     codec.
    */
-  @TargetApi(21)
+  @RequiresApi(21)
   public Point alignVideoSizeV21(int width, int height) {
     if (capabilities == null) {
       return null;
@@ -442,13 +416,13 @@ public final class MediaCodecInfo {
 
   /**
    * Whether the decoder supports audio with a given sample rate.
-   * <p>
-   * Must not be called if the device SDK version is less than 21.
+   *
+   * <p>Must not be called if the device SDK version is less than 21.
    *
    * @param sampleRate The sample rate in Hz.
    * @return Whether the decoder supports audio with the given sample rate.
    */
-  @TargetApi(21)
+  @RequiresApi(21)
   public boolean isAudioSampleRateSupportedV21(int sampleRate) {
     if (capabilities == null) {
       logNoSupport("sampleRate.caps");
@@ -468,13 +442,13 @@ public final class MediaCodecInfo {
 
   /**
    * Whether the decoder supports audio with a given channel count.
-   * <p>
-   * Must not be called if the device SDK version is less than 21.
+   *
+   * <p>Must not be called if the device SDK version is less than 21.
    *
    * @param channelCount The channel count.
    * @return Whether the decoder supports audio with the given channel count.
    */
-  @TargetApi(21)
+  @RequiresApi(21)
   public boolean isAudioChannelCountSupportedV21(int channelCount) {
     if (capabilities == null) {
       logNoSupport("channelCount.caps");
@@ -542,7 +516,7 @@ public final class MediaCodecInfo {
     return Util.SDK_INT >= 19 && isAdaptiveV19(capabilities);
   }
 
-  @TargetApi(19)
+  @RequiresApi(19)
   private static boolean isAdaptiveV19(CodecCapabilities capabilities) {
     return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback);
   }
@@ -551,7 +525,7 @@ public final class MediaCodecInfo {
     return Util.SDK_INT >= 21 && isTunnelingV21(capabilities);
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static boolean isTunnelingV21(CodecCapabilities capabilities) {
     return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_TunneledPlayback);
   }
@@ -560,20 +534,22 @@ public final class MediaCodecInfo {
     return Util.SDK_INT >= 21 && isSecureV21(capabilities);
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static boolean isSecureV21(CodecCapabilities capabilities) {
     return capabilities.isFeatureSupported(CodecCapabilities.FEATURE_SecurePlayback);
   }
 
-  @TargetApi(21)
-  private static boolean areSizeAndRateSupportedV21(VideoCapabilities capabilities, int width,
-      int height, double frameRate) {
+  @RequiresApi(21)
+  private static boolean areSizeAndRateSupportedV21(
+      VideoCapabilities capabilities, int width, int height, double frameRate) {
     // Don't ever fail due to alignment. See: https://github.com/google/ExoPlayer/issues/6551.
     Point alignedSize = alignVideoSizeV21(capabilities, width, height);
     width = alignedSize.x;
     height = alignedSize.y;
 
-    if (frameRate == Format.NO_VALUE || frameRate <= 0) {
+    // VideoCapabilities.areSizeAndRateSupported incorrectly returns false if frameRate < 1 on some
+    // versions of Android, so we only check the size in this case [Internal ref: b/153940404].
+    if (frameRate == Format.NO_VALUE || frameRate < 1) {
       return capabilities.isSizeSupported(width, height);
     } else {
       // The signaled frame rate may be slightly higher than the actual frame rate, so we take the
@@ -584,7 +560,7 @@ public final class MediaCodecInfo {
     }
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static Point alignVideoSizeV21(VideoCapabilities capabilities, int width, int height) {
     int widthAlignment = capabilities.getWidthAlignment();
     int heightAlignment = capabilities.getHeightAlignment();
@@ -593,7 +569,7 @@ public final class MediaCodecInfo {
         Util.ceilDivide(height, heightAlignment) * heightAlignment);
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private static int getMaxSupportedInstancesV23(CodecCapabilities capabilities) {
     return capabilities.getMaxSupportedInstances();
   }

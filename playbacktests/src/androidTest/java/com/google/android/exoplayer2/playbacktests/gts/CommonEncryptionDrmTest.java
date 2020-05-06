@@ -63,7 +63,7 @@ public final class CommonEncryptionDrmTest {
   }
 
   @Test
-  public void testCencSchemeTypeV18() {
+  public void cencSchemeTypeV18() {
     if (Util.SDK_INT < 18) {
       // Pass.
       return;
@@ -75,7 +75,7 @@ public final class CommonEncryptionDrmTest {
   }
 
   @Test
-  public void testCbc1SchemeTypeV25() {
+  public void cbc1SchemeTypeV25() {
     if (Util.SDK_INT < 25) {
       // cbc1 support was added in API 24, but it is stable from API 25 onwards.
       // See [internal: b/65634809].
@@ -89,7 +89,7 @@ public final class CommonEncryptionDrmTest {
   }
 
   @Test
-  public void testCbcsSchemeTypeV25() {
+  public void cbcsSchemeTypeV25() {
     if (Util.SDK_INT < 25) {
       // cbcs support was added in API 24, but it is stable from API 25 onwards.
       // See [internal: b/65634809].
@@ -103,7 +103,7 @@ public final class CommonEncryptionDrmTest {
   }
 
   @Test
-  public void testCensSchemeTypeV25() {
+  public void censSchemeTypeV25() {
     // TODO: Implement once content is available. Track [internal: b/31219813].
   }
 }

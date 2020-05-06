@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.List;
 
@@ -81,7 +81,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
   private SsManifest manifest;
   private int currentManifestChunkOffset;
 
-  private IOException fatalError;
+  @Nullable private IOException fatalError;
 
   /**
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
@@ -107,15 +107,21 @@ public class DefaultSsChunkSource implements SsChunkSource {
     for (int i = 0; i < extractorWrappers.length; i++) {
       int manifestTrackIndex = trackSelection.getIndexInTrackGroup(i);
       Format format = streamElement.formats[manifestTrackIndex];
+      @Nullable
       TrackEncryptionBox[] trackEncryptionBoxes =
-          format.drmInitData != null ? manifest.protectionElement.trackEncryptionBoxes : null;
+          format.drmInitData != null
+              ? Assertions.checkNotNull(manifest.protectionElement).trackEncryptionBoxes
+              : null;
       int nalUnitLengthFieldLength = streamElement.type == C.TRACK_TYPE_VIDEO ? 4 : 0;
       Track track = new Track(manifestTrackIndex, streamElement.type, streamElement.timescale,
           C.TIME_UNSET, manifest.durationUs, format, Track.TRANSFORMATION_NONE,
           trackEncryptionBoxes, nalUnitLengthFieldLength, null, null);
-      FragmentedMp4Extractor extractor = new FragmentedMp4Extractor(
-          FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
-          | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX, null, track, null);
+      FragmentedMp4Extractor extractor =
+          new FragmentedMp4Extractor(
+              FragmentedMp4Extractor.FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME
+                  | FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_TFDT_BOX,
+              /* timestampAdjuster= */ null,
+              track);
       extractorWrappers[i] = new ChunkExtractorWrapper(extractor, streamElement.type, format);
     }
   }
@@ -129,7 +135,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
         firstSyncUs < positionUs && chunkIndex < streamElement.chunkCount - 1
             ? streamElement.getStartTimeUs(chunkIndex + 1)
             : firstSyncUs;
-    return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+    return seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
   }
 
   @Override
@@ -242,7 +248,6 @@ public class DefaultSsChunkSource implements SsChunkSource {
             trackSelection.getSelectedFormat(),
             dataSource,
             uri,
-            null,
             currentAbsoluteChunkIndex,
             chunkStartTimeUs,
             chunkEndTimeUs,
@@ -271,15 +276,14 @@ public class DefaultSsChunkSource implements SsChunkSource {
       Format format,
       DataSource dataSource,
       Uri uri,
-      String cacheKey,
       int chunkIndex,
       long chunkStartTimeUs,
       long chunkEndTimeUs,
       long chunkSeekTimeUs,
       int trackSelectionReason,
-      Object trackSelectionData,
+      @Nullable Object trackSelectionData,
       ChunkExtractorWrapper extractorWrapper) {
-    DataSpec dataSpec = new DataSpec(uri, 0, C.LENGTH_UNSET, cacheKey);
+    DataSpec dataSpec = new DataSpec(uri);
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to chunkStartTimeUs.
     long sampleOffsetUs = chunkStartTimeUs;

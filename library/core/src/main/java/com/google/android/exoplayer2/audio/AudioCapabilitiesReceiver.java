@@ -54,7 +54,7 @@ public final class AudioCapabilitiesReceiver {
   @Nullable private final BroadcastReceiver receiver;
   @Nullable private final ExternalSurroundSoundSettingObserver externalSurroundSoundSettingObserver;
 
-  /* package */ @Nullable AudioCapabilities audioCapabilities;
+  @Nullable /* package */ AudioCapabilities audioCapabilities;
   private boolean registered;
 
   /**

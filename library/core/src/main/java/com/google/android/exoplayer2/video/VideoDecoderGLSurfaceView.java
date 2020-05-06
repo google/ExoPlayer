@@ -30,7 +30,7 @@ import androidx.annotation.Nullable;
  */
 public class VideoDecoderGLSurfaceView extends GLSurfaceView {
 
-  private final VideoDecoderRenderer renderer;
+  private final VideoDecoderGLFrameRenderer renderer;
 
   /** @param context A {@link Context}. */
   public VideoDecoderGLSurfaceView(Context context) {
@@ -41,9 +41,14 @@ public class VideoDecoderGLSurfaceView extends GLSurfaceView {
    * @param context A {@link Context}.
    * @param attrs Custom attributes.
    */
+  @SuppressWarnings({
+    "nullness:assignment.type.incompatible",
+    "nullness:argument.type.incompatible",
+    "nullness:method.invocation.invalid"
+  })
   public VideoDecoderGLSurfaceView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    renderer = new VideoDecoderRenderer(this);
+    renderer = new VideoDecoderGLFrameRenderer(/* surfaceView= */ this);
     setPreserveEGLContextOnPause(true);
     setEGLContextClientVersion(2);
     setRenderer(renderer);

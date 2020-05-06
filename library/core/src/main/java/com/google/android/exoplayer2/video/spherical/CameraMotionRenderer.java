@@ -22,7 +22,9 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -31,6 +33,7 @@ import java.nio.ByteBuffer;
 /** A {@link Renderer} that parses the camera motion track. */
 public class CameraMotionRenderer extends BaseRenderer {
 
+  private static final String TAG = "CameraMotionRenderer";
   // The amount of time to read samples ahead of the current time.
   private static final int SAMPLE_WINDOW_DURATION_US = 100000;
 
@@ -48,15 +51,21 @@ public class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
+  @Capabilities
   public int supportsFormat(Format format) {
     return MimeTypes.APPLICATION_CAMERA_MOTION.equals(format.sampleMimeType)
-        ? FORMAT_HANDLED
-        : FORMAT_UNSUPPORTED_TYPE;
+        ? RendererCapabilities.create(FORMAT_HANDLED)
+        : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
-    if (messageType == C.MSG_SET_CAMERA_MOTION_LISTENER) {
+    if (messageType == MSG_SET_CAMERA_MOTION_LISTENER) {
       listener = (CameraMotionListener) message;
     } else {
       super.handleMessage(messageType, message);
@@ -84,6 +93,7 @@ public class CameraMotionRenderer extends BaseRenderer {
     while (!hasReadStreamToEnd() && lastTimestampUs < positionUs + SAMPLE_WINDOW_DURATION_US) {
       buffer.clear();
       FormatHolder formatHolder = getFormatHolder();
+      @SampleStream.ReadDataResult
       int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
       if (result != C.RESULT_BUFFER_READ || buffer.isEndOfStream()) {
         return;
@@ -110,7 +120,8 @@ public class CameraMotionRenderer extends BaseRenderer {
     return true;
   }
 
-  private @Nullable float[] parseMetadata(ByteBuffer data) {
+  @Nullable
+  private float[] parseMetadata(ByteBuffer data) {
     if (data.remaining() != 16) {
       return null;
     }

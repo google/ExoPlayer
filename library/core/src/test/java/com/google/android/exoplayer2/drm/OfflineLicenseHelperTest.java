@@ -25,6 +25,7 @@ import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
+import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.util.HashMap;
 import org.junit.After;
 import org.junit.Before;
@@ -39,9 +40,9 @@ import org.robolectric.annotation.LooperMode;
 @LooperMode(LooperMode.Mode.PAUSED)
 public class OfflineLicenseHelperTest {
 
-  private OfflineLicenseHelper<?> offlineLicenseHelper;
+  private OfflineLicenseHelper offlineLicenseHelper;
   @Mock private MediaDrmCallback mediaDrmCallback;
-  @Mock private ExoMediaDrm<ExoMediaCrypto> mediaDrm;
+  @Mock private ExoMediaDrm mediaDrm;
 
   @Before
   public void setUp() throws Exception {
@@ -51,11 +52,12 @@ public class OfflineLicenseHelperTest {
         .thenReturn(
             new ExoMediaDrm.KeyRequest(/* data= */ new byte[0], /* licenseServerUrl= */ ""));
     offlineLicenseHelper =
-        new OfflineLicenseHelper<>(
+        new OfflineLicenseHelper(
             C.WIDEVINE_UUID,
-            new ExoMediaDrm.AppManagedProvider<>(mediaDrm),
+            new ExoMediaDrm.AppManagedProvider(mediaDrm),
             mediaDrmCallback,
-            null);
+            /* optionalKeyRequestParameters= */ null,
+            new MediaSourceEventDispatcher());
   }
 
   @After
@@ -65,7 +67,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testDownloadRenewReleaseKey() throws Exception {
+  public void downloadRenewReleaseKey() throws Exception {
     setStubLicenseAndPlaybackDurationValues(1000, 200);
 
     byte[] keySetId = {2, 5, 8};
@@ -86,7 +88,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testDownloadLicenseFailsIfNullInitData() throws Exception {
+  public void downloadLicenseFailsIfNullInitData() throws Exception {
     try {
       offlineLicenseHelper.downloadLicense(null);
       fail();
@@ -96,7 +98,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testDownloadLicenseFailsIfNoKeySetIdIsReturned() throws Exception {
+  public void downloadLicenseFailsIfNoKeySetIdIsReturned() throws Exception {
     setStubLicenseAndPlaybackDurationValues(1000, 200);
 
     try {
@@ -108,7 +110,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testDownloadLicenseDoesNotFailIfDurationNotAvailable() throws Exception {
+  public void downloadLicenseDoesNotFailIfDurationNotAvailable() throws Exception {
     setDefaultStubKeySetId();
 
     byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
@@ -117,7 +119,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testGetLicenseDurationRemainingSec() throws Exception {
+  public void getLicenseDurationRemainingSec() throws Exception {
     long licenseDuration = 1000;
     int playbackDuration = 200;
     setStubLicenseAndPlaybackDurationValues(licenseDuration, playbackDuration);
@@ -133,7 +135,7 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void testGetLicenseDurationRemainingSecExpiredLicense() throws Exception {
+  public void getLicenseDurationRemainingSecExpiredLicense() throws Exception {
     long licenseDuration = 0;
     int playbackDuration = 0;
     setStubLicenseAndPlaybackDurationValues(licenseDuration, playbackDuration);

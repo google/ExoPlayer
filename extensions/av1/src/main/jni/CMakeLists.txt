@@ -11,7 +11,13 @@ project(libgav1JNI C CXX)
 # armeabi-v7a build. This flag enables it.
 if(${ANDROID_ABI} MATCHES "armeabi-v7a")
     add_compile_options("-mfpu=neon")
+    add_compile_options("-marm")
     add_compile_options("-fPIC")
+endif()
+
+string(TOLOWER "${CMAKE_BUILD_TYPE}" build_type)
+if(build_type MATCHES "^rel")
+    add_compile_options("-O2")
 endif()
 
 set(libgav1_jni_root "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -38,7 +44,9 @@ add_subdirectory("${libgav1_root}"
 # Build libgav1JNI.
 add_library(gav1JNI
             SHARED
-            gav1_jni.cc)
+            gav1_jni.cc
+            cpu_info.cc
+            cpu_info.h)
 
 # Locate NDK log library.
 find_library(android_log_lib log)

@@ -73,6 +73,23 @@ public final class DecoderCounters {
    * dropped from the source to advance to the keyframe.
    */
   public int droppedToKeyframeCount;
+  /**
+   * The sum of video frame processing offset samples in microseconds.
+   *
+   * <p>Video frame processing offset measures how early a video frame was processed by a video
+   * renderer compared to the player's current position.
+   *
+   * <p>Note: Use {@link #addVideoFrameProcessingOffsetSample(long)} to update this field instead of
+   * updating it directly.
+   */
+  public long totalVideoFrameProcessingOffsetUs;
+  /**
+   * The number of video frame processing offset samples added.
+   *
+   * <p>Note: Use {@link #addVideoFrameProcessingOffsetSample(long)} to update this field instead of
+   * updating it directly.
+   */
+  public int videoFrameProcessingOffsetCount;
 
   /**
    * Should be called to ensure counter values are made visible across threads. The playback thread
@@ -100,6 +117,25 @@ public final class DecoderCounters {
     maxConsecutiveDroppedBufferCount = Math.max(maxConsecutiveDroppedBufferCount,
         other.maxConsecutiveDroppedBufferCount);
     droppedToKeyframeCount += other.droppedToKeyframeCount;
+
+    addVideoFrameProcessingOffsetSamples(
+        other.totalVideoFrameProcessingOffsetUs, other.videoFrameProcessingOffsetCount);
   }
 
+  /**
+   * Adds a video frame processing offset sample to {@link #totalVideoFrameProcessingOffsetUs} and
+   * increases {@link #videoFrameProcessingOffsetCount} by one.
+   *
+   * <p>Convenience method to ensure both fields are updated when adding a sample.
+   *
+   * @param sampleUs The sample in microseconds.
+   */
+  public void addVideoFrameProcessingOffsetSample(long sampleUs) {
+    addVideoFrameProcessingOffsetSamples(sampleUs, /* count= */ 1);
+  }
+
+  private void addVideoFrameProcessingOffsetSamples(long sampleUs, int count) {
+    totalVideoFrameProcessingOffsetUs += sampleUs;
+    videoFrameProcessingOffsetCount += count;
+  }
 }

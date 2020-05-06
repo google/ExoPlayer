@@ -24,22 +24,33 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
+import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
+import com.google.android.exoplayer2.text.SubtitleOutputBuffer;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * A {@link SubtitleDecoder} for CEA-608 (also known as "line 21 captions" and "EIA-608").
- */
+/** A {@link SubtitleDecoder} for CEA-608 (also known as "line 21 captions" and "EIA-608"). */
 public final class Cea608Decoder extends CeaDecoder {
+
+  /**
+   * The minimum value for the {@code validDataChannelTimeoutMs} constructor parameter permitted by
+   * ANSI/CTA-608-E R-2014 Annex C.9.
+   */
+  public static final long MIN_DATA_CHANNEL_TIMEOUT_MS = 16_000;
 
   private static final String TAG = "Cea608Decoder";
 
@@ -233,11 +244,12 @@ public final class Cea608Decoder extends CeaDecoder {
   private final int packetLength;
   private final int selectedField;
   private final int selectedChannel;
+  private final long validDataChannelTimeoutUs;
   private final ArrayList<CueBuilder> cueBuilders;
 
   private CueBuilder currentCueBuilder;
-  private List<Cue> cues;
-  private List<Cue> lastCues;
+  @Nullable private List<Cue> cues;
+  @Nullable private List<Cue> lastCues;
 
   private int captionMode;
   private int captionRowCount;
@@ -253,11 +265,26 @@ public final class Cea608Decoder extends CeaDecoder {
   // service bytes and drops the rest.
   private boolean isInCaptionService;
 
-  public Cea608Decoder(String mimeType, int accessibilityChannel) {
+  private long lastCueUpdateUs;
+
+  /**
+   * Constructs an instance.
+   *
+   * @param mimeType The MIME type of the CEA-608 data.
+   * @param accessibilityChannel The Accessibility channel, or {@link
+   *     com.google.android.exoplayer2.Format#NO_VALUE} if unknown.
+   * @param validDataChannelTimeoutMs The timeout (in milliseconds) permitted by ANSI/CTA-608-E
+   *     R-2014 Annex C.9 to clear "stuck" captions where no removal control code is received. The
+   *     timeout should be at least {@link #MIN_DATA_CHANNEL_TIMEOUT_MS} or {@link C#TIME_UNSET} for
+   *     no timeout.
+   */
+  public Cea608Decoder(String mimeType, int accessibilityChannel, long validDataChannelTimeoutMs) {
     ccData = new ParsableByteArray();
     cueBuilders = new ArrayList<>();
     currentCueBuilder = new CueBuilder(CC_MODE_UNKNOWN, DEFAULT_CAPTIONS_ROW_COUNT);
     currentChannel = NTSC_CC_CHANNEL_1;
+    this.validDataChannelTimeoutUs =
+        validDataChannelTimeoutMs > 0 ? validDataChannelTimeoutMs * 1000 : C.TIME_UNSET;
     packetLength = MimeTypes.APPLICATION_MP4CEA608.equals(mimeType) ? 2 : 3;
     switch (accessibilityChannel) {
       case 1:
@@ -285,6 +312,7 @@ public final class Cea608Decoder extends CeaDecoder {
     setCaptionMode(CC_MODE_UNKNOWN);
     resetCueBuilders();
     isInCaptionService = true;
+    lastCueUpdateUs = C.TIME_UNSET;
   }
 
   @Override
@@ -306,11 +334,32 @@ public final class Cea608Decoder extends CeaDecoder {
     repeatableControlCc2 = 0;
     currentChannel = NTSC_CC_CHANNEL_1;
     isInCaptionService = true;
+    lastCueUpdateUs = C.TIME_UNSET;
   }
 
   @Override
   public void release() {
     // Do nothing
+  }
+
+  @Nullable
+  @Override
+  public SubtitleOutputBuffer dequeueOutputBuffer() throws SubtitleDecoderException {
+    SubtitleOutputBuffer outputBuffer = super.dequeueOutputBuffer();
+    if (outputBuffer != null) {
+      return outputBuffer;
+    }
+    if (shouldClearStuckCaptions()) {
+      outputBuffer = getAvailableOutputBuffer();
+      if (outputBuffer != null) {
+        cues = Collections.emptyList();
+        lastCueUpdateUs = C.TIME_UNSET;
+        Subtitle subtitle = createSubtitle();
+        outputBuffer.setContent(getPositionUs(), subtitle, Format.OFFSET_SAMPLE_RELATIVE);
+        return outputBuffer;
+      }
+    }
+    return null;
   }
 
   @Override
@@ -321,13 +370,14 @@ public final class Cea608Decoder extends CeaDecoder {
   @Override
   protected Subtitle createSubtitle() {
     lastCues = cues;
-    return new CeaSubtitle(cues);
+    return new CeaSubtitle(Assertions.checkNotNull(cues));
   }
 
   @SuppressWarnings("ByteBufferBackingArray")
   @Override
   protected void decode(SubtitleInputBuffer inputBuffer) {
-    ccData.reset(inputBuffer.data.array(), inputBuffer.data.limit());
+    ByteBuffer subtitleData = Assertions.checkNotNull(inputBuffer.data);
+    ccData.reset(subtitleData.array(), subtitleData.limit());
     boolean captionDataProcessed = false;
     while (ccData.bytesLeft() >= packetLength) {
       byte ccHeader = packetLength == 2 ? CC_IMPLICIT_DATA_HEADER
@@ -418,6 +468,7 @@ public final class Cea608Decoder extends CeaDecoder {
     if (captionDataProcessed) {
       if (captionMode == CC_MODE_ROLL_UP || captionMode == CC_MODE_PAINT_ON) {
         cues = getDisplayCues();
+        lastCueUpdateUs = getPositionUs();
       }
     }
   }
@@ -572,9 +623,9 @@ public final class Cea608Decoder extends CeaDecoder {
     // preference, then middle alignment, then end alignment.
     @Cue.AnchorType int positionAnchor = Cue.ANCHOR_TYPE_END;
     int cueBuilderCount = cueBuilders.size();
-    List<Cue> cueBuilderCues = new ArrayList<>(cueBuilderCount);
+    List<@NullableType Cue> cueBuilderCues = new ArrayList<>(cueBuilderCount);
     for (int i = 0; i < cueBuilderCount; i++) {
-      Cue cue = cueBuilders.get(i).build(/* forcedPositionAnchor= */ Cue.TYPE_UNSET);
+      @Nullable Cue cue = cueBuilders.get(i).build(/* forcedPositionAnchor= */ Cue.TYPE_UNSET);
       cueBuilderCues.add(cue);
       if (cue != null) {
         positionAnchor = Math.min(positionAnchor, cue.positionAnchor);
@@ -584,10 +635,11 @@ public final class Cea608Decoder extends CeaDecoder {
     // Skip null cues and rebuild any that don't have the preferred alignment.
     List<Cue> displayCues = new ArrayList<>(cueBuilderCount);
     for (int i = 0; i < cueBuilderCount; i++) {
-      Cue cue = cueBuilderCues.get(i);
+      @Nullable Cue cue = cueBuilderCues.get(i);
       if (cue != null) {
         if (cue.positionAnchor != positionAnchor) {
-          cue = cueBuilders.get(i).build(positionAnchor);
+          // The last time we built this cue it was non-null, it will be non-null this time too.
+          cue = Assertions.checkNotNull(cueBuilders.get(i).build(positionAnchor));
         }
         displayCues.add(cue);
       }
@@ -745,7 +797,7 @@ public final class Cea608Decoder extends CeaDecoder {
     return (cc1 & 0xF7) == 0x14;
   }
 
-  private static class CueBuilder {
+  private static final class CueBuilder {
 
     // 608 captions define a 15 row by 32 column screen grid. These constants convert from 608
     // positions to normalized screen position.
@@ -767,7 +819,7 @@ public final class Cea608Decoder extends CeaDecoder {
       rolledUpCaptions = new ArrayList<>();
       captionStringBuilder = new StringBuilder();
       reset(captionMode);
-      setCaptionRowCount(captionRowCount);
+      this.captionRowCount = captionRowCount;
     }
 
     public void reset(int captionMode) {
@@ -829,6 +881,7 @@ public final class Cea608Decoder extends CeaDecoder {
       }
     }
 
+    @Nullable
     public Cue build(@Cue.AnchorType int forcedPositionAnchor) {
       SpannableStringBuilder cueString = new SpannableStringBuilder();
       // Add any rolled up captions, separated by new lines.
@@ -1011,4 +1064,12 @@ public final class Cea608Decoder extends CeaDecoder {
 
   }
 
+  /** See ANSI/CTA-608-E R-2014 Annex C.9 for Caption Erase Logic. */
+  private boolean shouldClearStuckCaptions() {
+    if (validDataChannelTimeoutUs == C.TIME_UNSET || lastCueUpdateUs == C.TIME_UNSET) {
+      return false;
+    }
+    long elapsedUs = getPositionUs() - lastCueUpdateUs;
+    return elapsedUs >= validDataChannelTimeoutUs;
+  }
 }

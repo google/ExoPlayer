@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.createTestFile;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -24,7 +25,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 import java.util.TreeSet;
@@ -36,13 +36,6 @@ import org.junit.runner.RunWith;
 /** Unit tests for {@link SimpleCacheSpan}. */
 @RunWith(AndroidJUnit4.class)
 public class SimpleCacheSpanTest {
-
-  public static File createCacheSpanFile(
-      File cacheDir, int id, long offset, long length, long lastTouchTimestamp) throws IOException {
-    File cacheFile = SimpleCacheSpan.getCacheFile(cacheDir, id, offset, lastTouchTimestamp);
-    createTestFile(cacheFile, length);
-    return cacheFile;
-  }
 
   private CachedContentIndex index;
   private File cacheDir;
@@ -60,7 +53,7 @@ public class SimpleCacheSpanTest {
   }
 
   @Test
-  public void testCacheFile() throws Exception {
+  public void cacheFile() throws Exception {
     assertCacheSpan("key1", 0, 0);
     assertCacheSpan("key2", 1, 2);
     assertCacheSpan("<>:\"/\\|?*%", 1, 2);
@@ -79,13 +72,13 @@ public class SimpleCacheSpanTest {
   }
 
   @Test
-  public void testUpgradeFileName() throws Exception {
+  public void upgradeFileName() throws Exception {
     String key = "abc%def";
     int id = index.assignIdForKey(key);
-    File v3file = createTestFile(id + ".0.1.v3.exo");
-    File v2file = createTestFile("abc%25def.1.2.v2.exo"); // %25 is '%' after escaping
-    File wrongEscapedV2file = createTestFile("abc%2Gdef.3.4.v2.exo"); // 2G is invalid hex
-    File v1File = createTestFile("abc%def.5.6.v1.exo"); // V1 did not escape
+    File v3file = createTestFile(cacheDir, id + ".0.1.v3.exo");
+    File v2file = createTestFile(cacheDir, "abc%25def.1.2.v2.exo"); // %25 is '%' after escaping
+    File wrongEscapedV2file = createTestFile(cacheDir, "abc%2Gdef.3.4.v2.exo"); // 2G is invalid hex
+    File v1File = createTestFile(cacheDir, "abc%def.5.6.v1.exo"); // V1 did not escape
 
     for (File file : cacheDir.listFiles()) {
       SimpleCacheSpan cacheEntry = SimpleCacheSpan.createCacheEntry(file, file.length(), index);
@@ -125,26 +118,12 @@ public class SimpleCacheSpanTest {
     assertThat(cachedPositions.get(5)).isEqualTo(6);
   }
 
-  private static void createTestFile(File file, long length) throws IOException {
-    FileOutputStream output = new FileOutputStream(file);
-    for (int i = 0; i < length; i++) {
-      output.write(i);
-    }
-    output.close();
-  }
-
-  private File createTestFile(String name) throws IOException {
-    File file = new File(cacheDir, name);
-    createTestFile(file, 1);
-    return file;
-  }
-
   private void assertCacheSpan(String key, long offset, long lastTouchTimestamp)
       throws IOException {
     int id = index.assignIdForKey(key);
-    long cacheFileLength = 1;
-    File cacheFile = createCacheSpanFile(cacheDir, id, offset, cacheFileLength, lastTouchTimestamp);
-    SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, cacheFileLength, index);
+    File cacheFile = SimpleCacheSpan.getCacheFile(cacheDir, id, offset, lastTouchTimestamp);
+    createTestFile(cacheFile, /* length= */ 1);
+    SimpleCacheSpan cacheSpan = SimpleCacheSpan.createCacheEntry(cacheFile, /* length= */ 1, index);
     String message = cacheFile.toString();
     assertWithMessage(message).that(cacheSpan).isNotNull();
     assertWithMessage(message).that(cacheFile.getParentFile()).isEqualTo(cacheDir);

@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.source;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -29,7 +31,6 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.IOException;
 
 /**
  * Provides one period that loads data from a {@link Uri} and extracted using an {@link Extractor}.
@@ -51,12 +52,11 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     private final DataSource.Factory dataSourceFactory;
 
     private ExtractorsFactory extractorsFactory;
-    @Nullable private String customCacheKey;
-    @Nullable private Object tag;
-    private DrmSessionManager<?> drmSessionManager;
+    private DrmSessionManager drmSessionManager;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private int continueLoadingCheckIntervalBytes;
-    private boolean isCreateCalled;
+    @Nullable private String customCacheKey;
+    @Nullable private Object tag;
 
     /**
      * Creates a new factory for {@link ProgressiveMediaSource}s, using the extractors provided by
@@ -83,66 +83,34 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     }
 
     /**
-     * Sets the factory for {@link Extractor}s to process the media stream. The default value is an
-     * instance of {@link DefaultExtractorsFactory}.
-     *
-     * @param extractorsFactory A factory for {@link Extractor}s to process the media stream. If the
-     *     possible formats are known, pass a factory that instantiates extractors for those
-     *     formats.
-     * @return This factory, for convenience.
-     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      * @deprecated Pass the {@link ExtractorsFactory} via {@link #Factory(DataSource.Factory,
      *     ExtractorsFactory)}. This is necessary so that proguard can treat the default extractors
      *     factory as unused.
      */
     @Deprecated
-    public Factory setExtractorsFactory(ExtractorsFactory extractorsFactory) {
-      Assertions.checkState(!isCreateCalled);
-      this.extractorsFactory = extractorsFactory;
+    public Factory setExtractorsFactory(@Nullable ExtractorsFactory extractorsFactory) {
+      this.extractorsFactory =
+          extractorsFactory != null ? extractorsFactory : new DefaultExtractorsFactory();
       return this;
     }
 
     /**
-     * Sets the custom key that uniquely identifies the original stream. Used for cache indexing.
-     * The default value is {@code null}.
-     *
-     * @param customCacheKey A custom key that uniquely identifies the original stream. Used for
-     *     cache indexing.
-     * @return This factory, for convenience.
-     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
+     * @deprecated Use {@link MediaItem.Builder#setCustomCacheKey(String)} and {@link
+     *     #createMediaSource(MediaItem)} instead.
      */
-    public Factory setCustomCacheKey(String customCacheKey) {
-      Assertions.checkState(!isCreateCalled);
+    @Deprecated
+    public Factory setCustomCacheKey(@Nullable String customCacheKey) {
       this.customCacheKey = customCacheKey;
       return this;
     }
 
     /**
-     * Sets a tag for the media source which will be published in the {@link
-     * com.google.android.exoplayer2.Timeline} of the source as {@link
-     * com.google.android.exoplayer2.Timeline.Window#tag}.
-     *
-     * @param tag A tag for the media source.
-     * @return This factory, for convenience.
-     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
+     * @deprecated Use {@link MediaItem.Builder#setTag(Object)} and {@link
+     *     #createMediaSource(MediaItem)} instead.
      */
-    public Factory setTag(Object tag) {
-      Assertions.checkState(!isCreateCalled);
+    @Deprecated
+    public Factory setTag(@Nullable Object tag) {
       this.tag = tag;
-      return this;
-    }
-
-    /**
-     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
-     * default value is {@link DrmSessionManager#DUMMY}.
-     *
-     * @param drmSessionManager The {@link DrmSessionManager}.
-     * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
-     */
-    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
-      Assertions.checkState(!isCreateCalled);
-      this.drmSessionManager = drmSessionManager;
       return this;
     }
 
@@ -152,11 +120,13 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      *
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      */
-    public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
-      Assertions.checkState(!isCreateCalled);
-      this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+    public Factory setLoadErrorHandlingPolicy(
+        @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
+      this.loadErrorHandlingPolicy =
+          loadErrorHandlingPolicy != null
+              ? loadErrorHandlingPolicy
+              : new DefaultLoadErrorHandlingPolicy();
       return this;
     }
 
@@ -169,32 +139,57 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      *     each invocation of {@link
      *     MediaPeriod.Callback#onContinueLoadingRequested(SequenceableLoader)}.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
      */
     public Factory setContinueLoadingCheckIntervalBytes(int continueLoadingCheckIntervalBytes) {
-      Assertions.checkState(!isCreateCalled);
       this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
       return this;
     }
 
     /**
-     * Returns a new {@link ProgressiveMediaSource} using the current parameters.
+     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
+     * default value is {@link DrmSessionManager#DUMMY}.
      *
-     * @param uri The {@link Uri}.
-     * @return The new {@link ProgressiveMediaSource}.
+     * @param drmSessionManager The {@link DrmSessionManager}.
+     * @return This factory, for convenience.
      */
     @Override
+    public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
+      this.drmSessionManager =
+          drmSessionManager != null
+              ? drmSessionManager
+              : DrmSessionManager.getDummyDrmSessionManager();
+      return this;
+    }
+
+    /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
+    @SuppressWarnings("deprecation")
+    @Deprecated
+    @Override
     public ProgressiveMediaSource createMediaSource(Uri uri) {
-      isCreateCalled = true;
+      return createMediaSource(new MediaItem.Builder().setUri(uri).build());
+    }
+
+    /**
+     * Returns a new {@link ProgressiveMediaSource} using the current parameters.
+     *
+     * @param mediaItem The {@link MediaItem}.
+     * @return The new {@link ProgressiveMediaSource}.
+     * @throws NullPointerException if {@link MediaItem#playbackProperties} is {@code null}.
+     */
+    @Override
+    public ProgressiveMediaSource createMediaSource(MediaItem mediaItem) {
+      Assertions.checkNotNull(mediaItem.playbackProperties);
       return new ProgressiveMediaSource(
-          uri,
+          mediaItem.playbackProperties.uri,
           dataSourceFactory,
           extractorsFactory,
           drmSessionManager,
           loadErrorHandlingPolicy,
-          customCacheKey,
+          mediaItem.playbackProperties.customCacheKey != null
+              ? mediaItem.playbackProperties.customCacheKey
+              : customCacheKey,
           continueLoadingCheckIntervalBytes,
-          tag);
+          mediaItem.playbackProperties.tag != null ? mediaItem.playbackProperties.tag : tag);
     }
 
     @Override
@@ -212,12 +207,13 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   private final Uri uri;
   private final DataSource.Factory dataSourceFactory;
   private final ExtractorsFactory extractorsFactory;
-  private final DrmSessionManager<?> drmSessionManager;
+  private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy;
   @Nullable private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
   @Nullable private final Object tag;
 
+  private boolean timelineIsPlaceholder;
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
   private boolean timelineIsLive;
@@ -228,7 +224,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       Uri uri,
       DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory,
-      DrmSessionManager<?> drmSessionManager,
+      DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy,
       @Nullable String customCacheKey,
       int continueLoadingCheckIntervalBytes,
@@ -240,6 +236,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     this.loadableLoadErrorHandlingPolicy = loadableLoadErrorHandlingPolicy;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
+    this.timelineIsPlaceholder = true;
     this.timelineDurationUs = C.TIME_UNSET;
     this.tag = tag;
   }
@@ -254,11 +251,11 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     transferListener = mediaTransferListener;
     drmSessionManager.prepare();
-    notifySourceInfoRefreshed(timelineDurationUs, timelineIsSeekable, timelineIsLive);
+    notifySourceInfoRefreshed();
   }
 
   @Override
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
+  public void maybeThrowSourceInfoRefreshError() {
     // Do nothing.
   }
 
@@ -297,30 +294,47 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   public void onSourceInfoRefreshed(long durationUs, boolean isSeekable, boolean isLive) {
     // If we already have the duration from a previous source info refresh, use it.
     durationUs = durationUs == C.TIME_UNSET ? timelineDurationUs : durationUs;
-    if (timelineDurationUs == durationUs
+    if (!timelineIsPlaceholder
+        && timelineDurationUs == durationUs
         && timelineIsSeekable == isSeekable
         && timelineIsLive == isLive) {
       // Suppress no-op source info changes.
       return;
     }
-    notifySourceInfoRefreshed(durationUs, isSeekable, isLive);
+    timelineDurationUs = durationUs;
+    timelineIsSeekable = isSeekable;
+    timelineIsLive = isLive;
+    timelineIsPlaceholder = false;
+    notifySourceInfoRefreshed();
   }
 
   // Internal methods.
 
-  private void notifySourceInfoRefreshed(long durationUs, boolean isSeekable, boolean isLive) {
-    timelineDurationUs = durationUs;
-    timelineIsSeekable = isSeekable;
-    timelineIsLive = isLive;
+  private void notifySourceInfoRefreshed() {
     // TODO: Split up isDynamic into multiple fields to indicate which values may change. Then
     // indicate that the duration may change until it's known. See [internal: b/69703223].
-    refreshSourceInfo(
+    Timeline timeline =
         new SinglePeriodTimeline(
             timelineDurationUs,
             timelineIsSeekable,
             /* isDynamic= */ false,
             /* isLive= */ timelineIsLive,
             /* manifest= */ null,
-            tag));
+            tag);
+    if (timelineIsPlaceholder) {
+      // TODO: Actually prepare the extractors during prepatation so that we don't need a
+      // placeholder. See https://github.com/google/ExoPlayer/issues/4727.
+      timeline =
+          new ForwardingTimeline(timeline) {
+            @Override
+            public Window getWindow(
+                int windowIndex, Window window, long defaultPositionProjectionUs) {
+              super.getWindow(windowIndex, window, defaultPositionProjectionUs);
+              window.isPlaceholder = true;
+              return window;
+            }
+          };
+    }
+    refreshSourceInfo(timeline);
   }
 }

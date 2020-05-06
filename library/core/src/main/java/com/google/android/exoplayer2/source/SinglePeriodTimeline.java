@@ -29,6 +29,7 @@ public final class SinglePeriodTimeline extends Timeline {
 
   private final long presentationStartTimeMs;
   private final long windowStartTimeMs;
+  private final long elapsedRealtimeEpochOffsetMs;
   private final long periodDurationUs;
   private final long windowDurationUs;
   private final long windowPositionInPeriodUs;
@@ -110,6 +111,7 @@ public final class SinglePeriodTimeline extends Timeline {
     this(
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
         periodDurationUs,
         windowDurationUs,
         windowPositionInPeriodUs,
@@ -126,8 +128,12 @@ public final class SinglePeriodTimeline extends Timeline {
    * position in the period.
    *
    * @param presentationStartTimeMs The start time of the presentation in milliseconds since the
-   *     epoch.
-   * @param windowStartTimeMs The window's start time in milliseconds since the epoch.
+   *     epoch, or {@link C#TIME_UNSET} if unknown or not applicable.
+   * @param windowStartTimeMs The window's start time in milliseconds since the epoch, or {@link
+   *     C#TIME_UNSET} if unknown or not applicable.
+   * @param elapsedRealtimeEpochOffsetMs The offset between {@link
+   *     android.os.SystemClock#elapsedRealtime()} and the time since the Unix epoch according to
+   *     the clock of the media origin server, or {@link C#TIME_UNSET} if unknown or not applicable.
    * @param periodDurationUs The duration of the period in microseconds.
    * @param windowDurationUs The duration of the window in microseconds.
    * @param windowPositionInPeriodUs The position of the start of the window in the period, in
@@ -143,6 +149,7 @@ public final class SinglePeriodTimeline extends Timeline {
   public SinglePeriodTimeline(
       long presentationStartTimeMs,
       long windowStartTimeMs,
+      long elapsedRealtimeEpochOffsetMs,
       long periodDurationUs,
       long windowDurationUs,
       long windowPositionInPeriodUs,
@@ -154,6 +161,7 @@ public final class SinglePeriodTimeline extends Timeline {
       @Nullable Object tag) {
     this.presentationStartTimeMs = presentationStartTimeMs;
     this.windowStartTimeMs = windowStartTimeMs;
+    this.elapsedRealtimeEpochOffsetMs = elapsedRealtimeEpochOffsetMs;
     this.periodDurationUs = periodDurationUs;
     this.windowDurationUs = windowDurationUs;
     this.windowPositionInPeriodUs = windowPositionInPeriodUs;
@@ -192,13 +200,14 @@ public final class SinglePeriodTimeline extends Timeline {
         manifest,
         presentationStartTimeMs,
         windowStartTimeMs,
+        elapsedRealtimeEpochOffsetMs,
         isSeekable,
         isDynamic,
         isLive,
         windowDefaultStartPositionUs,
         windowDurationUs,
-        0,
-        0,
+        /* firstPeriodIndex= */ 0,
+        /* lastPeriodIndex= */ 0,
         windowPositionInPeriodUs);
   }
 

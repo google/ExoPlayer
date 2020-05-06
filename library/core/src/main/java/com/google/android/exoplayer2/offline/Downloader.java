@@ -28,6 +28,10 @@ public interface Downloader {
     /**
      * Called when progress is made during a download operation.
      *
+     * <p>May be called directly from {@link #download}, or from any other thread used by the
+     * downloader. In all cases, {@link #download} is guaranteed not to return until after the last
+     * call to {@link #onProgress} has finished executing.
+     *
      * @param contentLength The length of the content in bytes, or {@link C#LENGTH_UNSET} if
      *     unknown.
      * @param bytesDownloaded The number of bytes that have been downloaded.
@@ -42,19 +46,13 @@ public interface Downloader {
    *
    * @param progressListener A listener to receive progress updates, or {@code null}.
    * @throws DownloadException Thrown if the content cannot be downloaded.
-   * @throws InterruptedException If the thread has been interrupted.
-   * @throws IOException Thrown when there is an io error while downloading.
+   * @throws IOException If the download did not complete successfully.
    */
-  void download(@Nullable ProgressListener progressListener)
-      throws InterruptedException, IOException;
+  void download(@Nullable ProgressListener progressListener) throws IOException;
 
   /** Cancels the download operation and prevents future download operations from running. */
   void cancel();
 
-  /**
-   * Removes the content.
-   *
-   * @throws InterruptedException Thrown if the thread was interrupted.
-   */
-  void remove() throws InterruptedException;
+  /** Removes the content. */
+  void remove();
 }

@@ -40,6 +40,8 @@ public final class VersionTable {
   public static final int FEATURE_CACHE_CONTENT_METADATA = 1;
   /** Version of tables used for cache file metadata. */
   public static final int FEATURE_CACHE_FILE_METADATA = 2;
+  /** Version of tables used from external features. */
+  public static final int FEATURE_EXTERNAL = 1000;
 
   private static final String TABLE_NAME = DatabaseProvider.TABLE_PREFIX + "Versions";
 
@@ -67,7 +69,12 @@ public final class VersionTable {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({FEATURE_OFFLINE, FEATURE_CACHE_CONTENT_METADATA, FEATURE_CACHE_FILE_METADATA})
+  @IntDef({
+    FEATURE_OFFLINE,
+    FEATURE_CACHE_CONTENT_METADATA,
+    FEATURE_CACHE_FILE_METADATA,
+    FEATURE_EXTERNAL
+  })
   private @interface Feature {}
 
   private VersionTable() {}

@@ -18,24 +18,22 @@ package com.google.android.exoplayer2.ext.ffmpeg;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
+import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
-import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
-import java.util.Collections;
+import com.google.android.exoplayer2.util.TraceUtil;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Decodes and renders audio using FFmpeg.
- */
-public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
+/** Decodes and renders audio using FFmpeg. */
+public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
+
+  private static final String TAG = "FfmpegAudioRenderer";
 
   /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
@@ -44,13 +42,15 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
 
   private final boolean enableFloatOutput;
 
-  private @MonotonicNonNull FfmpegDecoder decoder;
+  private @MonotonicNonNull FfmpegAudioDecoder decoder;
 
   public FfmpegAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
   }
 
   /**
+   * Creates a new instance.
+   *
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -68,6 +68,8 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   /**
+   * Creates a new instance.
+   *
    * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
@@ -85,22 +87,24 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
     super(
         eventHandler,
         eventListener,
-        /* drmSessionManager= */ null,
-        /* playClearSamplesWithoutKeys= */ false,
         audioSink);
     this.enableFloatOutput = enableFloatOutput;
   }
 
   @Override
-  protected int supportsFormatInternal(
-      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
-    Assertions.checkNotNull(format.sampleMimeType);
-    if (!FfmpegLibrary.isAvailable()) {
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
+  @FormatSupport
+  protected int supportsFormatInternal(Format format) {
+    String mimeType = Assertions.checkNotNull(format.sampleMimeType);
+    if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!FfmpegLibrary.supportsFormat(format.sampleMimeType, format.pcmEncoding)
-        || !isOutputSupported(format)) {
+    } else if (!FfmpegLibrary.supportsFormat(mimeType) || !isOutputSupported(format)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
-    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+    } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
       return FORMAT_UNSUPPORTED_DRM;
     } else {
       return FORMAT_HANDLED;
@@ -108,40 +112,33 @@ public final class FfmpegAudioRenderer extends SimpleDecoderAudioRenderer {
   }
 
   @Override
-  public final int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException {
+  @AdaptiveSupport
+  public final int supportsMixedMimeTypeAdaptation() {
     return ADAPTIVE_NOT_SEAMLESS;
   }
 
   @Override
-  protected FfmpegDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+  protected FfmpegAudioDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws FfmpegDecoderException {
+    TraceUtil.beginSection("createFfmpegAudioDecoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     decoder =
-        new FfmpegDecoder(
+        new FfmpegAudioDecoder(
             NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, format, shouldUseFloatOutput(format));
+    TraceUtil.endSection();
     return decoder;
   }
 
   @Override
   public Format getOutputFormat() {
     Assertions.checkNotNull(decoder);
-    int channelCount = decoder.getChannelCount();
-    int sampleRate = decoder.getSampleRate();
-    @C.PcmEncoding int encoding = decoder.getEncoding();
-    return Format.createAudioSampleFormat(
-        /* id= */ null,
-        MimeTypes.AUDIO_RAW,
-        /* codecs= */ null,
-        Format.NO_VALUE,
-        Format.NO_VALUE,
-        channelCount,
-        sampleRate,
-        encoding,
-        Collections.emptyList(),
-        /* drmInitData= */ null,
-        /* selectionFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(decoder.getChannelCount())
+        .setSampleRate(decoder.getSampleRate())
+        .setPcmEncoding(decoder.getEncoding())
+        .build();
   }
 
   private boolean isOutputSupported(Format inputFormat) {

@@ -23,10 +23,12 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
@@ -43,6 +45,8 @@ import java.util.List;
  * delegated to a {@link TextOutput}.
  */
 public final class TextRenderer extends BaseRenderer implements Callback {
+
+  private static final String TAG = "TextRenderer";
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -79,11 +83,11 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
   @ReplacementState private int decoderReplacementState;
-  private Format streamFormat;
-  private SubtitleDecoder decoder;
-  private SubtitleInputBuffer nextInputBuffer;
-  private SubtitleOutputBuffer subtitle;
-  private SubtitleOutputBuffer nextSubtitle;
+  @Nullable private Format streamFormat;
+  @Nullable private SubtitleDecoder decoder;
+  @Nullable private SubtitleInputBuffer nextInputBuffer;
+  @Nullable private SubtitleOutputBuffer subtitle;
+  @Nullable private SubtitleOutputBuffer nextSubtitle;
   private int nextSubtitleEventIndex;
 
   /**
@@ -118,18 +122,25 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   @Override
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
+  @Capabilities
   public int supportsFormat(Format format) {
     if (decoderFactory.supportsFormat(format)) {
-      return supportsFormatDrm(null, format.drmInitData) ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM;
+      return RendererCapabilities.create(
+          format.drmInitData == null ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM);
     } else if (MimeTypes.isText(format.sampleMimeType)) {
-      return FORMAT_UNSUPPORTED_SUBTYPE;
+      return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
     } else {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long offsetUs) {
     streamFormat = formats[0];
     if (decoder != null) {
       decoderReplacementState = REPLACEMENT_STATE_SIGNAL_END_OF_STREAM;
@@ -140,19 +151,13 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) {
-    clearOutput();
     inputStreamEnded = false;
     outputStreamEnded = false;
-    if (decoderReplacementState != REPLACEMENT_STATE_NONE) {
-      replaceDecoder();
-    } else {
-      releaseBuffers();
-      decoder.flush();
-    }
+    resetOutputAndDecoder();
   }
 
   @Override
-  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  public void render(long positionUs, long elapsedRealtimeUs) {
     if (outputStreamEnded) {
       return;
     }
@@ -162,7 +167,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       try {
         nextSubtitle = decoder.dequeueOutputBuffer();
       } catch (SubtitleDecoderException e) {
-        throw ExoPlaybackException.createForRenderer(e, getIndex());
+        handleDecoderError(e);
+        return;
       }
     }
 
@@ -229,7 +235,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
           return;
         }
         // Try and read the next subtitle from the source.
-        int result = readSource(formatHolder, nextInputBuffer, false);
+        @SampleStream.ReadDataResult int result = readSource(formatHolder, nextInputBuffer, false);
         if (result == C.RESULT_BUFFER_READ) {
           if (nextInputBuffer.isEndOfStream()) {
             inputStreamEnded = true;
@@ -244,7 +250,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
         }
       }
     } catch (SubtitleDecoderException e) {
-      throw ExoPlaybackException.createForRenderer(e, getIndex());
+      handleDecoderError(e);
+      return;
     }
   }
 
@@ -326,4 +333,24 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     output.onCues(cues);
   }
 
+  /**
+   * Called when {@link #decoder} throws an exception, so it can be logged and playback can
+   * continue.
+   *
+   * <p>Logs {@code e} and resets state to allow decoding the next sample.
+   */
+  private void handleDecoderError(SubtitleDecoderException e) {
+    Log.e(TAG, "Subtitle decoding failed. streamFormat=" + streamFormat, e);
+    resetOutputAndDecoder();
+  }
+
+  private void resetOutputAndDecoder() {
+    clearOutput();
+    if (decoderReplacementState != REPLACEMENT_STATE_NONE) {
+      replaceDecoder();
+    } else {
+      releaseBuffers();
+      decoder.flush();
+    }
+  }
 }

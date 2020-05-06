@@ -58,7 +58,9 @@ playback.
 
 ## Links ##
 
+* [ExoPlayer documentation on ad insertion][]
 * [Javadoc][]: Classes matching `com.google.android.exoplayer2.ext.ima.*`
   belong to this module.
 
+[ExoPlayer documentation on ad insertion]: https://exoplayer.dev/ad-insertion.html
 [Javadoc]: https://exoplayer.dev/doc/reference/index.html

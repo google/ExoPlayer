@@ -16,12 +16,12 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -29,8 +29,8 @@ import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -43,8 +43,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /** A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}. */
-@TargetApi(18)
-public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSessionManager<T> {
+@RequiresApi(18)
+public class DefaultDrmSessionManager implements DrmSessionManager {
 
   /**
    * Builder for {@link DefaultDrmSessionManager} instances.
@@ -55,7 +55,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
     private final HashMap<String, String> keyRequestParameters;
     private UUID uuid;
-    private ExoMediaDrm.Provider<ExoMediaCrypto> exoMediaDrmProvider;
+    private ExoMediaDrm.Provider exoMediaDrmProvider;
     private boolean multiSession;
     private int[] useDrmSessionsForClearContentTrackTypes;
     private boolean playClearSamplesWithoutKeys;
@@ -76,27 +76,29 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
      *       DefaultLoadErrorHandlingPolicy}.
      * </ul>
      */
-    @SuppressWarnings("unchecked")
     public Builder() {
       keyRequestParameters = new HashMap<>();
       uuid = C.WIDEVINE_UUID;
-      exoMediaDrmProvider = (ExoMediaDrm.Provider) FrameworkMediaDrm.DEFAULT_PROVIDER;
+      exoMediaDrmProvider = FrameworkMediaDrm.DEFAULT_PROVIDER;
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       useDrmSessionsForClearContentTrackTypes = new int[0];
     }
 
     /**
      * Sets the key request parameters to pass as the last argument to {@link
-     * ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}.
+     * ExoMediaDrm#getKeyRequest(byte[], List, int, HashMap)}. May be null if not parameters need to
+     * be passed.
      *
      * <p>Custom data for PlayReady should be set under {@link #PLAYREADY_CUSTOM_DATA_KEY}.
      *
      * @param keyRequestParameters A map with parameters.
      * @return This builder.
      */
-    public Builder setKeyRequestParameters(Map<String, String> keyRequestParameters) {
+    public Builder setKeyRequestParameters(@Nullable Map<String, String> keyRequestParameters) {
       this.keyRequestParameters.clear();
-      this.keyRequestParameters.putAll(Assertions.checkNotNull(keyRequestParameters));
+      if (keyRequestParameters != null) {
+        this.keyRequestParameters.putAll(keyRequestParameters);
+      }
       return this;
     }
 
@@ -107,7 +109,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
      * @param exoMediaDrmProvider The {@link ExoMediaDrm.Provider}.
      * @return This builder.
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public Builder setUuidAndExoMediaDrmProvider(
         UUID uuid, ExoMediaDrm.Provider exoMediaDrmProvider) {
       this.uuid = Assertions.checkNotNull(uuid);
@@ -180,8 +181,8 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     }
 
     /** Builds a {@link DefaultDrmSessionManager} instance. */
-    public DefaultDrmSessionManager<ExoMediaCrypto> build(MediaDrmCallback mediaDrmCallback) {
-      return new DefaultDrmSessionManager<>(
+    public DefaultDrmSessionManager build(MediaDrmCallback mediaDrmCallback) {
+      return new DefaultDrmSessionManager(
           uuid,
           exoMediaDrmProvider,
           mediaDrmCallback,
@@ -235,23 +236,22 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   private static final String TAG = "DefaultDrmSessionMgr";
 
   private final UUID uuid;
-  private final ExoMediaDrm.Provider<T> exoMediaDrmProvider;
+  private final ExoMediaDrm.Provider exoMediaDrmProvider;
   private final MediaDrmCallback callback;
   private final HashMap<String, String> keyRequestParameters;
-  private final EventDispatcher<DefaultDrmSessionEventListener> eventDispatcher;
   private final boolean multiSession;
   private final int[] useDrmSessionsForClearContentTrackTypes;
   private final boolean playClearSamplesWithoutKeys;
   private final ProvisioningManagerImpl provisioningManagerImpl;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
-  private final List<DefaultDrmSession<T>> sessions;
-  private final List<DefaultDrmSession<T>> provisioningSessions;
+  private final List<DefaultDrmSession> sessions;
+  private final List<DefaultDrmSession> provisioningSessions;
 
   private int prepareCallsCount;
-  @Nullable private ExoMediaDrm<T> exoMediaDrm;
-  @Nullable private DefaultDrmSession<T> placeholderDrmSession;
-  @Nullable private DefaultDrmSession<T> noMultiSessionDrmSession;
+  @Nullable private ExoMediaDrm exoMediaDrm;
+  @Nullable private DefaultDrmSession placeholderDrmSession;
+  @Nullable private DefaultDrmSession noMultiSessionDrmSession;
   @Nullable private Looper playbackLooper;
   private int mode;
   @Nullable private byte[] offlineLicenseKeySetId;
@@ -270,7 +270,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   @Deprecated
   public DefaultDrmSessionManager(
       UUID uuid,
-      ExoMediaDrm<T> exoMediaDrm,
+      ExoMediaDrm exoMediaDrm,
       MediaDrmCallback callback,
       @Nullable HashMap<String, String> keyRequestParameters) {
     this(
@@ -295,7 +295,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   @Deprecated
   public DefaultDrmSessionManager(
       UUID uuid,
-      ExoMediaDrm<T> exoMediaDrm,
+      ExoMediaDrm exoMediaDrm,
       MediaDrmCallback callback,
       @Nullable HashMap<String, String> keyRequestParameters,
       boolean multiSession) {
@@ -323,14 +323,14 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   @Deprecated
   public DefaultDrmSessionManager(
       UUID uuid,
-      ExoMediaDrm<T> exoMediaDrm,
+      ExoMediaDrm exoMediaDrm,
       MediaDrmCallback callback,
       @Nullable HashMap<String, String> keyRequestParameters,
       boolean multiSession,
       int initialDrmRequestRetryCount) {
     this(
         uuid,
-        new ExoMediaDrm.AppManagedProvider<>(exoMediaDrm),
+        new ExoMediaDrm.AppManagedProvider(exoMediaDrm),
         callback,
         keyRequestParameters == null ? new HashMap<>() : keyRequestParameters,
         multiSession,
@@ -339,11 +339,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         new DefaultLoadErrorHandlingPolicy(initialDrmRequestRetryCount));
   }
 
-  // the constructor does not initialize fields: offlineLicenseKeySetId
-  @SuppressWarnings("nullness:initialization.fields.uninitialized")
   private DefaultDrmSessionManager(
       UUID uuid,
-      ExoMediaDrm.Provider<T> exoMediaDrmProvider,
+      ExoMediaDrm.Provider exoMediaDrmProvider,
       MediaDrmCallback callback,
       HashMap<String, String> keyRequestParameters,
       boolean multiSession,
@@ -356,7 +354,6 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     this.exoMediaDrmProvider = exoMediaDrmProvider;
     this.callback = callback;
     this.keyRequestParameters = keyRequestParameters;
-    this.eventDispatcher = new EventDispatcher<>();
     this.multiSession = multiSession;
     this.useDrmSessionsForClearContentTrackTypes = useDrmSessionsForClearContentTrackTypes;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
@@ -368,28 +365,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
   }
 
   /**
-   * Adds a {@link DefaultDrmSessionEventListener} to listen to drm session events.
-   *
-   * @param handler A handler to use when delivering events to {@code eventListener}.
-   * @param eventListener A listener of events.
-   */
-  public final void addListener(Handler handler, DefaultDrmSessionEventListener eventListener) {
-    eventDispatcher.addListener(handler, eventListener);
-  }
-
-  /**
-   * Removes a {@link DefaultDrmSessionEventListener} from the list of drm session event listeners.
-   *
-   * @param eventListener The listener to remove.
-   */
-  public final void removeListener(DefaultDrmSessionEventListener eventListener) {
-    eventDispatcher.removeListener(eventListener);
-  }
-
-  /**
    * Sets the mode, which determines the role of sessions acquired from the instance. This must be
-   * called before {@link #acquireSession(Looper, DrmInitData)} or {@link
-   * #acquirePlaceholderSession} is called.
+   * called before {@link #acquireSession(Looper, MediaSourceEventDispatcher, DrmInitData)} or
+   * {@link #acquirePlaceholderSession} is called.
    *
    * <p>By default, the mode is {@link #MODE_PLAYBACK} and a streaming license is requested when
    * required.
@@ -472,9 +450,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
   @Override
   @Nullable
-  public DrmSession<T> acquirePlaceholderSession(Looper playbackLooper, int trackType) {
+  public DrmSession acquirePlaceholderSession(Looper playbackLooper, int trackType) {
     assertExpectedPlaybackLooper(playbackLooper);
-    ExoMediaDrm<T> exoMediaDrm = Assertions.checkNotNull(this.exoMediaDrm);
+    ExoMediaDrm exoMediaDrm = Assertions.checkNotNull(this.exoMediaDrm);
     boolean avoidPlaceholderDrmSessions =
         FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
             && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
@@ -486,18 +464,21 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     }
     maybeCreateMediaDrmHandler(playbackLooper);
     if (placeholderDrmSession == null) {
-      DefaultDrmSession<T> placeholderDrmSession =
+      DefaultDrmSession placeholderDrmSession =
           createNewDefaultSession(
               /* schemeDatas= */ Collections.emptyList(), /* isPlaceholderSession= */ true);
       sessions.add(placeholderDrmSession);
       this.placeholderDrmSession = placeholderDrmSession;
     }
-    placeholderDrmSession.acquire();
+    placeholderDrmSession.acquire(/* eventDispatcher= */ null);
     return placeholderDrmSession;
   }
 
   @Override
-  public DrmSession<T> acquireSession(Looper playbackLooper, DrmInitData drmInitData) {
+  public DrmSession acquireSession(
+      Looper playbackLooper,
+      @Nullable MediaSourceEventDispatcher eventDispatcher,
+      DrmInitData drmInitData) {
     assertExpectedPlaybackLooper(playbackLooper);
     maybeCreateMediaDrmHandler(playbackLooper);
 
@@ -506,18 +487,22 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       schemeDatas = getSchemeDatas(drmInitData, uuid, false);
       if (schemeDatas.isEmpty()) {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
-        eventDispatcher.dispatch(listener -> listener.onDrmSessionManagerError(error));
-        return new ErrorStateDrmSession<>(new DrmSessionException(error));
+        if (eventDispatcher != null) {
+          eventDispatcher.dispatch(
+              (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionManagerError(error),
+              DrmSessionEventListener.class);
+        }
+        return new ErrorStateDrmSession(new DrmSessionException(error));
       }
     }
 
-    @Nullable DefaultDrmSession<T> session;
+    @Nullable DefaultDrmSession session;
     if (!multiSession) {
       session = noMultiSessionDrmSession;
     } else {
       // Only use an existing session if it has matching init data.
       session = null;
-      for (DefaultDrmSession<T> existingSession : sessions) {
+      for (DefaultDrmSession existingSession : sessions) {
         if (Util.areEqual(existingSession.schemeDatas, schemeDatas)) {
           session = existingSession;
           break;
@@ -533,13 +518,13 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
       }
       sessions.add(session);
     }
-    session.acquire();
+    session.acquire(eventDispatcher);
     return session;
   }
 
   @Override
   @Nullable
-  public Class<T> getExoMediaCryptoType(DrmInitData drmInitData) {
+  public Class<? extends ExoMediaCrypto> getExoMediaCryptoType(DrmInitData drmInitData) {
     return canAcquireSession(drmInitData)
         ? Assertions.checkNotNull(exoMediaDrm).getExoMediaCryptoType()
         : null;
@@ -558,12 +543,12 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     }
   }
 
-  private DefaultDrmSession<T> createNewDefaultSession(
+  private DefaultDrmSession createNewDefaultSession(
       @Nullable List<SchemeData> schemeDatas, boolean isPlaceholderSession) {
     Assertions.checkNotNull(exoMediaDrm);
     // Placeholder sessions should always play clear samples without keys.
     boolean playClearSamplesWithoutKeys = this.playClearSamplesWithoutKeys | isPlaceholderSession;
-    return new DefaultDrmSession<>(
+    return new DefaultDrmSession(
         uuid,
         exoMediaDrm,
         /* provisioningManager= */ provisioningManagerImpl,
@@ -576,11 +561,10 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         keyRequestParameters,
         callback,
         Assertions.checkNotNull(playbackLooper),
-        eventDispatcher,
         loadErrorHandlingPolicy);
   }
 
-  private void onSessionReleased(DefaultDrmSession<T> drmSession) {
+  private void onSessionReleased(DefaultDrmSession drmSession) {
     sessions.remove(drmSession);
     if (placeholderDrmSession == drmSession) {
       placeholderDrmSession = null;
@@ -636,7 +620,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
         // The event is not associated with any particular session.
         return;
       }
-      for (DefaultDrmSession<T> session : sessions) {
+      for (DefaultDrmSession session : sessions) {
         if (session.hasSessionId(sessionId)) {
           session.onMediaDrmEvent(msg.what);
           return;
@@ -645,9 +629,9 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
     }
   }
 
-  private class ProvisioningManagerImpl implements DefaultDrmSession.ProvisioningManager<T> {
+  private class ProvisioningManagerImpl implements DefaultDrmSession.ProvisioningManager {
     @Override
-    public void provisionRequired(DefaultDrmSession<T> session) {
+    public void provisionRequired(DefaultDrmSession session) {
       if (provisioningSessions.contains(session)) {
         // The session has already requested provisioning.
         return;
@@ -661,7 +645,7 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
     @Override
     public void onProvisionCompleted() {
-      for (DefaultDrmSession<T> session : provisioningSessions) {
+      for (DefaultDrmSession session : provisioningSessions) {
         session.onProvisionCompleted();
       }
       provisioningSessions.clear();
@@ -669,22 +653,18 @@ public class DefaultDrmSessionManager<T extends ExoMediaCrypto> implements DrmSe
 
     @Override
     public void onProvisionError(Exception error) {
-      for (DefaultDrmSession<T> session : provisioningSessions) {
+      for (DefaultDrmSession session : provisioningSessions) {
         session.onProvisionError(error);
       }
       provisioningSessions.clear();
     }
   }
 
-  private class MediaDrmEventListener implements OnEventListener<T> {
+  private class MediaDrmEventListener implements OnEventListener {
 
     @Override
     public void onEvent(
-        ExoMediaDrm<? extends T> md,
-        @Nullable byte[] sessionId,
-        int event,
-        int extra,
-        @Nullable byte[] data) {
+        ExoMediaDrm md, @Nullable byte[] sessionId, int event, int extra, @Nullable byte[] data) {
       Assertions.checkNotNull(mediaDrmHandler).obtainMessage(event, sessionId).sendToTarget();
     }
   }

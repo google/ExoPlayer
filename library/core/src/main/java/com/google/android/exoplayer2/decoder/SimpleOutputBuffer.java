@@ -24,11 +24,11 @@ import java.nio.ByteOrder;
  */
 public class SimpleOutputBuffer extends OutputBuffer {
 
-  private final SimpleDecoder<?, SimpleOutputBuffer, ?> owner;
+  private final Owner<SimpleOutputBuffer> owner;
 
   @Nullable public ByteBuffer data;
 
-  public SimpleOutputBuffer(SimpleDecoder<?, SimpleOutputBuffer, ?> owner) {
+  public SimpleOutputBuffer(Owner<SimpleOutputBuffer> owner) {
     this.owner = owner;
   }
 

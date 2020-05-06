@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ClippingMediaPeriod;
 import com.google.android.exoplayer2.source.EmptySampleStream;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -52,11 +51,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   public boolean hasEnabledTracks;
   /** {@link MediaPeriodInfo} about this media period. */
   public MediaPeriodInfo info;
+  /**
+   * Whether all required renderers have been enabled with the {@link #sampleStreams} for this
+   * {@link #mediaPeriod}. This means either {@link Renderer#enable(RendererConfiguration, Format[],
+   * SampleStream, long, boolean, boolean, long)} or {@link Renderer#replaceStream(Format[],
+   * SampleStream, long)} has been called.
+   */
+  public boolean allRenderersEnabled;
 
   private final boolean[] mayRetainStreamFlags;
   private final RendererCapabilities[] rendererCapabilities;
   private final TrackSelector trackSelector;
-  private final MediaSource mediaSource;
+  private final MediaSourceList mediaSourceList;
 
   @Nullable private MediaPeriodHolder next;
   private TrackGroupArray trackGroups;
@@ -70,7 +76,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @param rendererPositionOffsetUs The renderer time of the start of the period, in microseconds.
    * @param trackSelector The track selector.
    * @param allocator The allocator.
-   * @param mediaSource The media source that produced the media period.
+   * @param mediaSourceList The playlist.
    * @param info Information used to identify this media period in its timeline period.
    * @param emptyTrackSelectorResult A {@link TrackSelectorResult} with empty selections for each
    *     renderer.
@@ -80,13 +86,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       long rendererPositionOffsetUs,
       TrackSelector trackSelector,
       Allocator allocator,
-      MediaSource mediaSource,
+      MediaSourceList mediaSourceList,
       MediaPeriodInfo info,
       TrackSelectorResult emptyTrackSelectorResult) {
     this.rendererCapabilities = rendererCapabilities;
     this.rendererPositionOffsetUs = rendererPositionOffsetUs;
     this.trackSelector = trackSelector;
-    this.mediaSource = mediaSource;
+    this.mediaSourceList = mediaSourceList;
     this.uid = info.id.periodUid;
     this.info = info;
     this.trackGroups = TrackGroupArray.EMPTY;
@@ -95,7 +101,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     mayRetainStreamFlags = new boolean[rendererCapabilities.length];
     mediaPeriod =
         createMediaPeriod(
-            info.id, mediaSource, allocator, info.startPositionUs, info.endPositionUs);
+            info.id, mediaSourceList, allocator, info.startPositionUs, info.endPositionUs);
   }
 
   /**
@@ -173,9 +179,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     prepared = true;
     trackGroups = mediaPeriod.getTrackGroups();
     TrackSelectorResult selectorResult = selectTracks(playbackSpeed, timeline);
+    long requestedStartPositionUs = info.startPositionUs;
+    if (info.durationUs != C.TIME_UNSET && requestedStartPositionUs >= info.durationUs) {
+      // Make sure start position doesn't exceed period duration.
+      requestedStartPositionUs = Math.max(0, info.durationUs - 1);
+    }
     long newStartPositionUs =
         applyTrackSelection(
-            selectorResult, info.startPositionUs, /* forceRecreateStreams= */ false);
+            selectorResult, requestedStartPositionUs, /* forceRecreateStreams= */ false);
     rendererPositionOffsetUs += info.startPositionUs - newStartPositionUs;
     info = info.copyWithStartPositionUs(newStartPositionUs);
   }
@@ -305,7 +316,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /** Releases the media period. No other method should be called after the release. */
   public void release() {
     disableTrackSelectionsInResult();
-    releaseMediaPeriod(info.endPositionUs, mediaSource, mediaPeriod);
+    releaseMediaPeriod(info.endPositionUs, mediaSourceList, mediaPeriod);
   }
 
   /**
@@ -402,11 +413,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /** Returns a media period corresponding to the given {@code id}. */
   private static MediaPeriod createMediaPeriod(
       MediaPeriodId id,
-      MediaSource mediaSource,
+      MediaSourceList mediaSourceList,
       Allocator allocator,
       long startPositionUs,
       long endPositionUs) {
-    MediaPeriod mediaPeriod = mediaSource.createPeriod(id, allocator, startPositionUs);
+    MediaPeriod mediaPeriod = mediaSourceList.createPeriod(id, allocator, startPositionUs);
     if (endPositionUs != C.TIME_UNSET && endPositionUs != C.TIME_END_OF_SOURCE) {
       mediaPeriod =
           new ClippingMediaPeriod(
@@ -417,12 +428,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Releases the given {@code mediaPeriod}, logging and suppressing any errors. */
   private static void releaseMediaPeriod(
-      long endPositionUs, MediaSource mediaSource, MediaPeriod mediaPeriod) {
+      long endPositionUs, MediaSourceList mediaSourceList, MediaPeriod mediaPeriod) {
     try {
       if (endPositionUs != C.TIME_UNSET && endPositionUs != C.TIME_END_OF_SOURCE) {
-        mediaSource.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
+        mediaSourceList.releasePeriod(((ClippingMediaPeriod) mediaPeriod).mediaPeriod);
       } else {
-        mediaSource.releasePeriod(mediaPeriod);
+        mediaSourceList.releasePeriod(mediaPeriod);
       }
     } catch (RuntimeException e) {
       // There's nothing we can do.

@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 
 /**
  * A {@link MediaClock} whose position advances with real time based on the playback parameters when
@@ -29,7 +29,8 @@ public final class StandaloneMediaClock implements MediaClock {
   private boolean started;
   private long baseUs;
   private long baseElapsedMs;
-  private PlaybackParameters playbackParameters;
+  private float playbackSpeed;
+  private int scaledUsPerMs;
 
   /**
    * Creates a new standalone media clock using the given {@link Clock} implementation.
@@ -38,7 +39,8 @@ public final class StandaloneMediaClock implements MediaClock {
    */
   public StandaloneMediaClock(Clock clock) {
     this.clock = clock;
-    this.playbackParameters = PlaybackParameters.DEFAULT;
+    playbackSpeed = Player.DEFAULT_PLAYBACK_SPEED;
+    scaledUsPerMs = getScaledUsPerMs(playbackSpeed);
   }
 
   /**
@@ -78,27 +80,33 @@ public final class StandaloneMediaClock implements MediaClock {
     long positionUs = baseUs;
     if (started) {
       long elapsedSinceBaseMs = clock.elapsedRealtime() - baseElapsedMs;
-      if (playbackParameters.speed == 1f) {
+      if (playbackSpeed == 1f) {
         positionUs += C.msToUs(elapsedSinceBaseMs);
       } else {
-        positionUs += playbackParameters.getMediaTimeUsForPlayoutTimeMs(elapsedSinceBaseMs);
+        // Add the media time in microseconds that will elapse in elapsedSinceBaseMs milliseconds of
+        // wallclock time
+        positionUs += elapsedSinceBaseMs * scaledUsPerMs;
       }
     }
     return positionUs;
   }
 
   @Override
-  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
+  public void setPlaybackSpeed(float playbackSpeed) {
     // Store the current position as the new base, in case the playback speed has changed.
     if (started) {
       resetPosition(getPositionUs());
     }
-    this.playbackParameters = playbackParameters;
+    this.playbackSpeed = playbackSpeed;
+    scaledUsPerMs = getScaledUsPerMs(playbackSpeed);
   }
 
   @Override
-  public PlaybackParameters getPlaybackParameters() {
-    return playbackParameters;
+  public float getPlaybackSpeed() {
+    return playbackSpeed;
   }
 
+  private static int getScaledUsPerMs(float playbackSpeed) {
+    return Math.round(playbackSpeed * 1000f);
+  }
 }

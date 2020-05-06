@@ -16,31 +16,40 @@
 package com.google.android.exoplayer2.source;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.util.List;
 
 /** Factory for creating {@link MediaSource}s from URIs. */
 public interface MediaSourceFactory {
 
-  /**
-   * Sets a list of {@link StreamKey StreamKeys} by which the manifest is filtered.
-   *
-   * @param streamKeys A list of {@link StreamKey StreamKeys}.
-   * @return This factory, for convenience.
-   * @throws IllegalStateException If {@link #createMediaSource(Uri)} has already been called.
-   */
-  default MediaSourceFactory setStreamKeys(List<StreamKey> streamKeys) {
+  /** @deprecated Use {@link MediaItem.PlaybackProperties#streamKeys} instead. */
+  @Deprecated
+  default MediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
     return this;
   }
 
   /**
-   * Creates a new {@link MediaSource} with the specified {@code uri}.
+   * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}.
    *
-   * @param uri The URI to play.
-   * @return The new {@link MediaSource media source}.
+   * @param drmSessionManager The {@link DrmSessionManager}.
+   * @return This factory, for convenience.
    */
-  MediaSource createMediaSource(Uri uri);
+  MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager);
+
+  /**
+   * Sets an optional {@link LoadErrorHandlingPolicy}.
+   *
+   * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
+   * @return This factory, for convenience.
+   */
+  MediaSourceFactory setLoadErrorHandlingPolicy(
+      @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy);
 
   /**
    * Returns the {@link C.ContentType content types} supported by media sources created by this
@@ -48,4 +57,18 @@ public interface MediaSourceFactory {
    */
   @C.ContentType
   int[] getSupportedTypes();
+
+  /**
+   * Creates a new {@link MediaSource} with the specified {@link MediaItem}.
+   *
+   * @param mediaItem The media item to play.
+   * @return The new {@link MediaSource media source}.
+   */
+  MediaSource createMediaSource(MediaItem mediaItem);
+
+  /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
+  @Deprecated
+  default MediaSource createMediaSource(Uri uri) {
+    return createMediaSource(MediaItem.fromUri(uri));
+  }
 }

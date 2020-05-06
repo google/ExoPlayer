@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -67,44 +70,56 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private static final long MAX_MERGED_SEGMENT_START_TIME_DIFF_US = 20 * C.MICROS_PER_SECOND;
 
   private final DataSpec manifestDataSpec;
-  private final Cache cache;
-  private final CacheDataSource dataSource;
-  private final CacheDataSource offlineDataSource;
-  private final CacheKeyFactory cacheKeyFactory;
-  private final PriorityTaskManager priorityTaskManager;
+  private final Parser<M> manifestParser;
   private final ArrayList<StreamKey> streamKeys;
+  private final CacheDataSource.Factory cacheDataSourceFactory;
+  private final Executor executor;
   private final AtomicBoolean isCanceled;
+
+  @Nullable private volatile Thread downloadThread;
 
   /**
    * @param manifestUri The {@link Uri} of the manifest to be downloaded.
+   * @param manifestParser A parser for the manifest.
    * @param streamKeys Keys defining which streams in the manifest should be selected for download.
    *     If empty, all streams are downloaded.
-   * @param constructorHelper A {@link DownloaderConstructorHelper} instance.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   * @param executor An {@link Executor} used to make requests for the media being downloaded.
+   *     Providing an {@link Executor} that uses multiple threads will speed up the download by
+   *     allowing parts of it to be executed in parallel.
    */
   public SegmentDownloader(
-      Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
+      Uri manifestUri,
+      Parser<M> manifestParser,
+      List<StreamKey> streamKeys,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
     this.manifestDataSpec = getCompressibleDataSpec(manifestUri);
+    this.manifestParser = manifestParser;
     this.streamKeys = new ArrayList<>(streamKeys);
-    this.cache = constructorHelper.getCache();
-    this.dataSource = constructorHelper.createCacheDataSource();
-    this.offlineDataSource = constructorHelper.createOfflineCacheDataSource();
-    this.cacheKeyFactory = constructorHelper.getCacheKeyFactory();
-    this.priorityTaskManager = constructorHelper.getPriorityTaskManager();
+    this.cacheDataSourceFactory = cacheDataSourceFactory;
+    this.executor = executor;
     isCanceled = new AtomicBoolean();
   }
 
-  /**
-   * Downloads the selected streams in the media. If multiple streams are selected, they are
-   * downloaded in sync with one another.
-   *
-   * @throws IOException Thrown when there is an error downloading.
-   * @throws InterruptedException If the thread has been interrupted.
-   */
   @Override
-  public final void download(@Nullable ProgressListener progressListener)
-      throws IOException, InterruptedException {
-    priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+  public final void download(@Nullable ProgressListener progressListener) throws IOException {
+    downloadThread = Thread.currentThread();
+    if (isCanceled.get()) {
+      return;
+    }
+    @Nullable
+    PriorityTaskManager priorityTaskManager =
+        cacheDataSourceFactory.getUpstreamPriorityTaskManager();
+    if (priorityTaskManager != null) {
+      priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
+    }
     try {
+      Cache cache = Assertions.checkNotNull(cacheDataSourceFactory.getCache());
+      CacheKeyFactory cacheKeyFactory = cacheDataSourceFactory.getCacheKeyFactory();
+      CacheDataSource dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
+
       // Get the manifest and all of the segments.
       M manifest = getManifest(dataSource, manifestDataSpec);
       if (!streamKeys.isEmpty()) {
@@ -141,70 +156,77 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       }
 
       // Download the segments.
-      @Nullable ProgressNotifier progressNotifier = null;
-      if (progressListener != null) {
-        progressNotifier =
-            new ProgressNotifier(
-                progressListener,
-                contentLength,
-                totalSegments,
-                bytesDownloaded,
-                segmentsDownloaded);
-      }
-      byte[] buffer = new byte[BUFFER_SIZE_BYTES];
+      @Nullable
+      ProgressNotifier progressNotifier =
+          progressListener != null
+              ? new ProgressNotifier(
+                  progressListener,
+                  contentLength,
+                  totalSegments,
+                  bytesDownloaded,
+                  segmentsDownloaded)
+              : null;
+      byte[] temporaryBuffer = new byte[BUFFER_SIZE_BYTES];
       for (int i = 0; i < segments.size(); i++) {
         CacheUtil.cache(
-            segments.get(i).dataSpec,
-            cache,
-            cacheKeyFactory,
             dataSource,
-            buffer,
-            priorityTaskManager,
-            C.PRIORITY_DOWNLOAD,
+            segments.get(i).dataSpec,
             progressNotifier,
             isCanceled,
-            true);
+            /* enableEOFException= */ true,
+            temporaryBuffer);
         if (progressNotifier != null) {
           progressNotifier.onSegmentDownloaded();
         }
       }
     } finally {
-      priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      if (priorityTaskManager != null) {
+        priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
+      }
     }
   }
 
   @Override
   public void cancel() {
     isCanceled.set(true);
+    @Nullable Thread downloadThread = this.downloadThread;
+    if (downloadThread != null) {
+      downloadThread.interrupt();
+    }
   }
 
   @Override
-  public final void remove() throws InterruptedException {
+  public final void remove() {
+    Cache cache = Assertions.checkNotNull(cacheDataSourceFactory.getCache());
+    CacheKeyFactory cacheKeyFactory = cacheDataSourceFactory.getCacheKeyFactory();
+    CacheDataSource dataSource = cacheDataSourceFactory.createDataSourceForRemovingDownload();
     try {
-      M manifest = getManifest(offlineDataSource, manifestDataSpec);
-      List<Segment> segments = getSegments(offlineDataSource, manifest, true);
+      M manifest = getManifest(dataSource, manifestDataSpec);
+      List<Segment> segments = getSegments(dataSource, manifest, true);
       for (int i = 0; i < segments.size(); i++) {
-        removeDataSpec(segments.get(i).dataSpec);
+        CacheUtil.remove(segments.get(i).dataSpec, cache, cacheKeyFactory);
       }
     } catch (IOException e) {
       // Ignore exceptions when removing.
     } finally {
       // Always attempt to remove the manifest.
-      removeDataSpec(manifestDataSpec);
+      CacheUtil.remove(manifestDataSpec, cache, cacheKeyFactory);
     }
   }
 
   // Internal methods.
 
   /**
-   * Loads and parses the manifest.
+   * Loads and parses a manifest.
    *
    * @param dataSource The {@link DataSource} through which to load.
    * @param dataSpec The manifest {@link DataSpec}.
    * @return The manifest.
    * @throws IOException If an error occurs reading data.
    */
-  protected abstract M getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException;
+  protected final M getManifest(DataSource dataSource, DataSpec dataSpec) throws IOException {
+    return ParsingLoadable.load(dataSource, manifestParser, dataSpec, C.DATA_TYPE_MANIFEST);
+  }
 
   /**
    * Returns a list of all downloadable {@link Segment}s for a given manifest.
@@ -215,25 +237,14 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
    *     segments from being listed. If true then a partial segment list will be returned. If false
    *     an {@link IOException} will be thrown.
    * @return The list of downloadable {@link Segment}s.
-   * @throws InterruptedException Thrown if the thread was interrupted.
    * @throws IOException Thrown if {@code allowPartialIndex} is false and a load error occurs, or if
    *     the media is not in a form that allows for its segments to be listed.
    */
   protected abstract List<Segment> getSegments(
-      DataSource dataSource, M manifest, boolean allowIncompleteList)
-      throws InterruptedException, IOException;
-
-  private void removeDataSpec(DataSpec dataSpec) {
-    CacheUtil.remove(dataSpec, cache, cacheKeyFactory);
-  }
+      DataSource dataSource, M manifest, boolean allowIncompleteList) throws IOException;
 
   protected static DataSpec getCompressibleDataSpec(Uri uri) {
-    return new DataSpec(
-        uri,
-        /* absoluteStreamPosition= */ 0,
-        /* length= */ C.LENGTH_UNSET,
-        /* key= */ null,
-        /* flags= */ DataSpec.FLAG_ALLOW_GZIP);
+    return new DataSpec.Builder().setUri(uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
   }
 
   private static void mergeSegments(List<Segment> segments, CacheKeyFactory keyFactory) {
@@ -267,7 +278,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   private static boolean canMergeSegments(DataSpec dataSpec1, DataSpec dataSpec2) {
     return dataSpec1.uri.equals(dataSpec2.uri)
         && dataSpec1.length != C.LENGTH_UNSET
-        && (dataSpec1.absoluteStreamPosition + dataSpec1.length == dataSpec2.absoluteStreamPosition)
+        && (dataSpec1.position + dataSpec1.length == dataSpec2.position)
         && Util.areEqual(dataSpec1.key, dataSpec2.key)
         && dataSpec1.flags == dataSpec2.flags
         && dataSpec1.httpMethod == dataSpec2.httpMethod

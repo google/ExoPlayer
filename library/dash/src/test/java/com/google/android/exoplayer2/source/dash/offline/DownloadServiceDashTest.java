@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloadService;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
@@ -42,6 +41,7 @@ import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -113,14 +113,15 @@ public class DownloadServiceDashTest {
         () -> {
           DefaultDownloadIndex downloadIndex =
               new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
+          DefaultDownloaderFactory downloaderFactory =
+              new DefaultDownloaderFactory(
+                  new CacheDataSource.Factory()
+                      .setCache(cache)
+                      .setUpstreamDataSourceFactory(fakeDataSourceFactory));
           final DownloadManager dashDownloadManager =
               new DownloadManager(
-                  ApplicationProvider.getApplicationContext(),
-                  downloadIndex,
-                  new DefaultDownloaderFactory(
-                      new DownloaderConstructorHelper(cache, fakeDataSourceFactory)));
-          downloadManagerListener =
-              new TestDownloadManagerListener(dashDownloadManager, dummyMainThread);
+                  ApplicationProvider.getApplicationContext(), downloadIndex, downloaderFactory);
+          downloadManagerListener = new TestDownloadManagerListener(dashDownloadManager);
           dashDownloadManager.resumeDownloads();
 
           dashDownloadService =
@@ -130,8 +131,8 @@ public class DownloadServiceDashTest {
                   return dashDownloadManager;
                 }
 
-                @Nullable
                 @Override
+                @Nullable
                 protected Scheduler getScheduler() {
                   return null;
                 }
@@ -154,38 +155,38 @@ public class DownloadServiceDashTest {
 
   @Ignore // b/78877092
   @Test
-  public void testMultipleDownloadRequest() throws Throwable {
+  public void multipleDownloadRequest() throws Throwable {
     downloadKeys(fakeStreamKey1);
     downloadKeys(fakeStreamKey2);
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
 
     assertCachedData(cache, fakeDataSet);
   }
 
   @Ignore // b/78877092
   @Test
-  public void testRemoveAction() throws Throwable {
+  public void removeAction() throws Throwable {
     downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
 
     removeAll();
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
 
     assertCacheEmpty(cache);
   }
 
   @Ignore // b/78877092
   @Test
-  public void testRemoveBeforeDownloadComplete() throws Throwable {
+  public void removeBeforeDownloadComplete() throws Throwable {
     pauseDownloadCondition = new ConditionVariable();
     downloadKeys(fakeStreamKey1, fakeStreamKey2);
 
     removeAll();
 
-    downloadManagerListener.blockUntilTasksCompleteAndThrowAnyDownloadError();
+    downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
 
     assertCacheEmpty(cache);
   }
@@ -219,5 +220,4 @@ public class DownloadServiceDashTest {
           dashDownloadService.onStartCommand(startIntent, 0, 0);
         });
   }
-
 }
