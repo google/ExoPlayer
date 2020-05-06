@@ -576,48 +576,49 @@ public class AnalyticsCollector
   // DefaultDrmSessionManager.EventListener implementation.
 
   @Override
-  public final void onDrmSessionAcquired() {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
+  public final void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
     for (AnalyticsListener listener : listeners) {
       listener.onDrmSessionAcquired(eventTime);
     }
   }
 
   @Override
-  public final void onDrmKeysLoaded() {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
+  public final void onDrmKeysLoaded(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
     for (AnalyticsListener listener : listeners) {
       listener.onDrmKeysLoaded(eventTime);
     }
   }
 
   @Override
-  public final void onDrmSessionManagerError(Exception error) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
+  public final void onDrmSessionManagerError(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId, Exception error) {
+    EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
     for (AnalyticsListener listener : listeners) {
       listener.onDrmSessionManagerError(eventTime, error);
     }
   }
 
   @Override
-  public final void onDrmKeysRestored() {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
+  public final void onDrmKeysRestored(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
     for (AnalyticsListener listener : listeners) {
       listener.onDrmKeysRestored(eventTime);
     }
   }
 
   @Override
-  public final void onDrmKeysRemoved() {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
+  public final void onDrmKeysRemoved(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
     for (AnalyticsListener listener : listeners) {
       listener.onDrmKeysRemoved(eventTime);
     }
   }
 
   @Override
-  public final void onDrmSessionReleased() {
-    EventTime eventTime = generatePlayingMediaPeriodEventTime();
+  public final void onDrmSessionReleased(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
     for (AnalyticsListener listener : listeners) {
       listener.onDrmSessionReleased(eventTime);
     }

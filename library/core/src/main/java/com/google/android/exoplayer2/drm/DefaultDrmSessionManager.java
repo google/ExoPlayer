@@ -489,7 +489,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
         if (eventDispatcher != null) {
           eventDispatcher.dispatch(
-              (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionManagerError(error),
+              (listener, windowIndex, mediaPeriodId) ->
+                  listener.onDrmSessionManagerError(windowIndex, mediaPeriodId, error),
               DrmSessionEventListener.class);
         }
         return new ErrorStateDrmSession(new DrmSessionException(error));

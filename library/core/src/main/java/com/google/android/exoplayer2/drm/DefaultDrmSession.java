@@ -275,8 +275,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // re-used or not.
       if (eventDispatcher != null) {
         eventDispatcher.dispatch(
-            (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionAcquired(),
-            DrmSessionEventListener.class);
+            DrmSessionEventListener::onDrmSessionAcquired, DrmSessionEventListener.class);
       }
     }
   }
@@ -301,7 +300,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
       releaseCallback.onSessionReleased(this);
     }
-    dispatchEvent((listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionReleased());
+    dispatchEvent(DrmSessionEventListener::onDrmSessionReleased);
     if (eventDispatcher != null) {
       eventDispatchers.remove(eventDispatcher);
     }
@@ -326,7 +325,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     try {
       sessionId = mediaDrm.openSession();
       mediaCrypto = mediaDrm.createMediaCrypto(sessionId);
-      dispatchEvent((listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionAcquired());
+      dispatchEvent(DrmSessionEventListener::onDrmSessionAcquired);
       state = STATE_OPENED;
       Assertions.checkNotNull(sessionId);
       return true;
@@ -390,7 +389,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             onError(new KeysExpiredException());
           } else {
             state = STATE_OPENED_WITH_KEYS;
-            dispatchEvent((listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRestored());
+            dispatchEvent(DrmSessionEventListener::onDrmKeysRestored);
           }
         }
         break;
@@ -460,7 +459,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       byte[] responseData = (byte[]) response;
       if (mode == DefaultDrmSessionManager.MODE_RELEASE) {
         mediaDrm.provideKeyResponse(Util.castNonNull(offlineLicenseKeySetId), responseData);
-        dispatchEvent((listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRestored());
+        dispatchEvent(DrmSessionEventListener::onDrmKeysRestored);
       } else {
         byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, responseData);
         if ((mode == DefaultDrmSessionManager.MODE_DOWNLOAD
@@ -471,7 +470,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           offlineLicenseKeySetId = keySetId;
         }
         state = STATE_OPENED_WITH_KEYS;
-        dispatchEvent((listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysLoaded());
+        dispatchEvent(DrmSessionEventListener::onDrmKeysLoaded);
       }
     } catch (Exception e) {
       onKeysError(e);
@@ -495,7 +494,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private void onError(final Exception e) {
     lastException = new DrmSessionException(e);
-    dispatchEvent((listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionManagerError(e));
+    dispatchEvent(
+        (listener, windowIndex, mediaPeriodId) ->
+            listener.onDrmSessionManagerError(windowIndex, mediaPeriodId, e));
     if (state != STATE_OPENED_WITH_KEYS) {
       state = STATE_ERROR;
     }

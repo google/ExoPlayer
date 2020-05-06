@@ -100,11 +100,10 @@ public class MediaSourceEventDispatcherTest {
     eventDispatcher.dispatch(
         MediaSourceEventListener::onMediaPeriodCreated, MediaSourceEventListener.class);
     eventDispatcher.dispatch(
-        (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysLoaded(),
-        DrmSessionEventListener.class);
+        DrmSessionEventListener::onDrmKeysLoaded, DrmSessionEventListener.class);
 
     verify(mediaAndDrmEventListener).onMediaPeriodCreated(WINDOW_INDEX, MEDIA_PERIOD_ID);
-    verify(mediaAndDrmEventListener).onDrmKeysLoaded();
+    verify(mediaAndDrmEventListener).onDrmKeysLoaded(WINDOW_INDEX, MEDIA_PERIOD_ID);
   }
 
   // If a listener is added that implements multiple types, it should only receive events for the
@@ -119,11 +118,10 @@ public class MediaSourceEventDispatcherTest {
     eventDispatcher.dispatch(
         MediaSourceEventListener::onMediaPeriodCreated, MediaSourceEventListener.class);
     eventDispatcher.dispatch(
-        (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysLoaded(),
-        DrmSessionEventListener.class);
+        DrmSessionEventListener::onDrmKeysLoaded, DrmSessionEventListener.class);
 
     verify(mediaAndDrmEventListener).onMediaPeriodCreated(WINDOW_INDEX, MEDIA_PERIOD_ID);
-    verify(mediaAndDrmEventListener, never()).onDrmKeysLoaded();
+    verify(mediaAndDrmEventListener, never()).onDrmKeysLoaded(WINDOW_INDEX, MEDIA_PERIOD_ID);
   }
 
   @Test

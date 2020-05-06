@@ -324,45 +324,54 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     // DrmSessionEventListener implementation
 
     @Override
-    public void onDrmSessionAcquired() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionAcquired(),
-          DrmSessionEventListener.class);
+    public void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.dispatch(
+            DrmSessionEventListener::onDrmSessionAcquired, DrmSessionEventListener.class);
+      }
     }
 
     @Override
-    public void onDrmKeysLoaded() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysLoaded(),
-          DrmSessionEventListener.class);
+    public void onDrmKeysLoaded(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.dispatch(
+            DrmSessionEventListener::onDrmKeysLoaded, DrmSessionEventListener.class);
+      }
     }
 
     @Override
-    public void onDrmSessionManagerError(Exception error) {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionManagerError(error),
-          DrmSessionEventListener.class);
+    public void onDrmSessionManagerError(
+        int windowIndex, @Nullable MediaPeriodId mediaPeriodId, Exception error) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.dispatch(
+            (listener, innerWindowIndex, innerMediaPeriodId) ->
+                listener.onDrmSessionManagerError(innerWindowIndex, innerMediaPeriodId, error),
+            DrmSessionEventListener.class);
+      }
     }
 
     @Override
-    public void onDrmKeysRestored() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRestored(),
-          DrmSessionEventListener.class);
+    public void onDrmKeysRestored(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.dispatch(
+            DrmSessionEventListener::onDrmKeysRestored, DrmSessionEventListener.class);
+      }
     }
 
     @Override
-    public void onDrmKeysRemoved() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRemoved(),
-          DrmSessionEventListener.class);
+    public void onDrmKeysRemoved(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.dispatch(
+            DrmSessionEventListener::onDrmKeysRemoved, DrmSessionEventListener.class);
+      }
     }
 
     @Override
-    public void onDrmSessionReleased() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionReleased(),
-          DrmSessionEventListener.class);
+    public void onDrmSessionReleased(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        eventDispatcher.dispatch(
+            DrmSessionEventListener::onDrmSessionReleased, DrmSessionEventListener.class);
+      }
     }
 
     /** Updates the event dispatcher and returns whether the event should be dispatched. */
