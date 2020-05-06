@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -132,5 +133,42 @@ public final class MimeTypesTest {
     assertThat(MimeTypes.getMimeTypeFromMp4ObjectType(0x600)).isNull();
     assertThat(MimeTypes.getMimeTypeFromMp4ObjectType(0x01)).isNull();
     assertThat(MimeTypes.getMimeTypeFromMp4ObjectType(-1)).isNull();
+  }
+
+  @Test
+  public void getObjectTypeFromMp4aRFC6381CodecString_onInvalidInput_returnsNull() {
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("abc")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.1")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.a")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.1g")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4v.20.9")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.100.1")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.10.")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.a.1")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.10,01")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.1f.f1")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.1a.a")).isNull();
+    assertThat(MimeTypes.getObjectTypeFromMp4aRFC6381CodecString("mp4a.01.110")).isNull();
+  }
+
+  @Test
+  public void getObjectTypeFromMp4aRFC6381CodecString_onValidInput_returnsCorrectObjectType() {
+    assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns("mp4a.00.0", 0x00, 0);
+    assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns("mp4a.01.01", 0x01, 1);
+    assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns("mp4a.10.10", 0x10, 10);
+    assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns("mp4a.a0.90", 0xa0, 90);
+    assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns("mp4a.Ff.99", 0xff, 99);
+    assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns("mp4a.D0.9", 0xd0, 9);
+  }
+
+  private static void assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns(
+      String codec, int expectedObjectTypeIndicator, int expectedAudioObjectTypeIndicator) {
+    @Nullable
+    MimeTypes.Mp4aObjectType objectType = MimeTypes.getObjectTypeFromMp4aRFC6381CodecString(codec);
+    assertThat(objectType).isNotNull();
+    assertThat(objectType.objectTypeIndication).isEqualTo(expectedObjectTypeIndicator);
+    assertThat(objectType.audioObjectTypeIndication).isEqualTo(expectedAudioObjectTypeIndicator);
   }
 }
