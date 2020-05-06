@@ -16,8 +16,10 @@
 package com.google.android.exoplayer2;
 
 import android.os.SystemClock;
+import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.RendererCapabilities.FormatSupport;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -69,10 +71,24 @@ public final class ExoPlaybackException extends Exception {
   /** The {@link Type} of the playback failure. */
   @Type public final int type;
 
-  /**
-   * If {@link #type} is {@link #TYPE_RENDERER}, this is the index of the renderer.
-   */
+  /** If {@link #type} is {@link #TYPE_RENDERER}, this is the name of the renderer. */
+  @Nullable public final String rendererName;
+
+  /** If {@link #type} is {@link #TYPE_RENDERER}, this is the index of the renderer. */
   public final int rendererIndex;
+
+  /**
+   * If {@link #type} is {@link #TYPE_RENDERER}, this is the {@link Format} the renderer was using
+   * at the time of the exception, or null if the renderer wasn't using a {@link Format}.
+   */
+  @Nullable public final Format rendererFormat;
+
+  /**
+   * If {@link #type} is {@link #TYPE_RENDERER}, this is the level of {@link FormatSupport} of the
+   * renderer for {@link #rendererFormat}. If {@link #rendererFormat} is null, this is {@link
+   * RendererCapabilities#FORMAT_HANDLED}.
+   */
+  @FormatSupport public final int rendererFormatSupport;
 
   /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
   public final long timestampMs;
@@ -86,7 +102,7 @@ public final class ExoPlaybackException extends Exception {
    * @return The created instance.
    */
   public static ExoPlaybackException createForSource(IOException cause) {
-    return new ExoPlaybackException(TYPE_SOURCE, cause, /* rendererIndex= */ C.INDEX_UNSET);
+    return new ExoPlaybackException(TYPE_SOURCE, cause);
   }
 
   /**
@@ -94,10 +110,26 @@ public final class ExoPlaybackException extends Exception {
    *
    * @param cause The cause of the failure.
    * @param rendererIndex The index of the renderer in which the failure occurred.
+   * @param rendererFormat The {@link Format} the renderer was using at the time of the exception,
+   *     or null if the renderer wasn't using a {@link Format}.
+   * @param rendererFormatSupport The {@link FormatSupport} of the renderer for {@code
+   *     rendererFormat}. Ignored if {@code rendererFormat} is null.
    * @return The created instance.
    */
-  public static ExoPlaybackException createForRenderer(Exception cause, int rendererIndex) {
-    return new ExoPlaybackException(TYPE_RENDERER, cause, rendererIndex);
+  public static ExoPlaybackException createForRenderer(
+      Exception cause,
+      String rendererName,
+      int rendererIndex,
+      @Nullable Format rendererFormat,
+      @FormatSupport int rendererFormatSupport) {
+    return new ExoPlaybackException(
+        TYPE_RENDERER,
+        cause,
+        /* customMessage= */ null,
+        rendererName,
+        rendererIndex,
+        rendererFormat,
+        rendererFormat == null ? RendererCapabilities.FORMAT_HANDLED : rendererFormatSupport);
   }
 
   /**
@@ -107,7 +139,7 @@ public final class ExoPlaybackException extends Exception {
    * @return The created instance.
    */
   public static ExoPlaybackException createForUnexpected(RuntimeException cause) {
-    return new ExoPlaybackException(TYPE_UNEXPECTED, cause, /* rendererIndex= */ C.INDEX_UNSET);
+    return new ExoPlaybackException(TYPE_UNEXPECTED, cause);
   }
 
   /**
@@ -127,22 +159,54 @@ public final class ExoPlaybackException extends Exception {
    * @return The created instance.
    */
   public static ExoPlaybackException createForOutOfMemoryError(OutOfMemoryError cause) {
-    return new ExoPlaybackException(TYPE_OUT_OF_MEMORY, cause, /* rendererIndex= */ C.INDEX_UNSET);
+    return new ExoPlaybackException(TYPE_OUT_OF_MEMORY, cause);
   }
 
-  private ExoPlaybackException(@Type int type, Throwable cause, int rendererIndex) {
-    super(cause);
-    this.type = type;
-    this.cause = cause;
-    this.rendererIndex = rendererIndex;
-    timestampMs = SystemClock.elapsedRealtime();
+  private ExoPlaybackException(@Type int type, Throwable cause) {
+    this(
+        type,
+        cause,
+        /* customMessage= */ null,
+        /* rendererName= */ null,
+        /* rendererIndex= */ C.INDEX_UNSET,
+        /* rendererFormat= */ null,
+        /* rendererFormatSupport= */ RendererCapabilities.FORMAT_HANDLED);
   }
 
   private ExoPlaybackException(@Type int type, String message) {
-    super(message);
+    this(
+        type,
+        /* cause= */ null,
+        /* customMessage= */ message,
+        /* rendererName= */ null,
+        /* rendererIndex= */ C.INDEX_UNSET,
+        /* rendererFormat= */ null,
+        /* rendererFormatSupport= */ RendererCapabilities.FORMAT_HANDLED);
+  }
+
+  private ExoPlaybackException(
+      @Type int type,
+      @Nullable Throwable cause,
+      @Nullable String customMessage,
+      @Nullable String rendererName,
+      int rendererIndex,
+      @Nullable Format rendererFormat,
+      @FormatSupport int rendererFormatSupport) {
+    super(
+        deriveMessage(
+            type,
+            customMessage,
+            rendererName,
+            rendererIndex,
+            rendererFormat,
+            rendererFormatSupport),
+        cause);
     this.type = type;
-    rendererIndex = C.INDEX_UNSET;
-    cause = null;
+    this.cause = cause;
+    this.rendererName = rendererName;
+    this.rendererIndex = rendererIndex;
+    this.rendererFormat = rendererFormat;
+    this.rendererFormatSupport = rendererFormatSupport;
     timestampMs = SystemClock.elapsedRealtime();
   }
 
@@ -184,5 +248,46 @@ public final class ExoPlaybackException extends Exception {
   public OutOfMemoryError getOutOfMemoryError() {
     Assertions.checkState(type == TYPE_OUT_OF_MEMORY);
     return (OutOfMemoryError) Assertions.checkNotNull(cause);
+  }
+
+  @Nullable
+  private static String deriveMessage(
+      @Type int type,
+      @Nullable String customMessage,
+      @Nullable String rendererName,
+      int rendererIndex,
+      @Nullable Format rendererFormat,
+      @FormatSupport int rendererFormatSupport) {
+    @Nullable String message;
+    switch (type) {
+      case TYPE_SOURCE:
+        message = "Source error";
+        break;
+      case TYPE_RENDERER:
+        message =
+            rendererName
+                + " error"
+                + ", index="
+                + rendererIndex
+                + ", format="
+                + rendererFormat
+                + ", format_supported="
+                + RendererCapabilities.getFormatSupportString(rendererFormatSupport);
+        break;
+      case TYPE_REMOTE:
+        message = "Remote error";
+        break;
+      case TYPE_OUT_OF_MEMORY:
+        message = "Out of memory error";
+        break;
+      case TYPE_UNEXPECTED:
+      default:
+        message = "Unexpected runtime error";
+        break;
+    }
+    if (!TextUtils.isEmpty(customMessage)) {
+      message += ": " + customMessage;
+    }
+    return message;
   }
 }

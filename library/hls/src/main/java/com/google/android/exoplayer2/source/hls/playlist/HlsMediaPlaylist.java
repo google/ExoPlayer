@@ -70,30 +70,28 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * encrypted.
      */
     @Nullable public final String encryptionIV;
-    /**
-     * The segment's byte range offset, as defined by #EXT-X-BYTERANGE.
-     */
-    public final long byterangeOffset;
+    /** The segment's byte range offset, as defined by #EXT-X-BYTERANGE. */
+    public final long byteRangeOffset;
     /**
      * The segment's byte range length, as defined by #EXT-X-BYTERANGE, or {@link C#LENGTH_UNSET} if
      * no byte range is specified.
      */
-    public final long byterangeLength;
+    public final long byteRangeLength;
 
     /** Whether the segment is tagged with #EXT-X-GAP. */
     public final boolean hasGapTag;
 
     /**
      * @param uri See {@link #url}.
-     * @param byterangeOffset See {@link #byterangeOffset}.
-     * @param byterangeLength See {@link #byterangeLength}.
+     * @param byteRangeOffset See {@link #byteRangeOffset}.
+     * @param byteRangeLength See {@link #byteRangeLength}.
      * @param fullSegmentEncryptionKeyUri See {@link #fullSegmentEncryptionKeyUri}.
      * @param encryptionIV See {@link #encryptionIV}.
      */
     public Segment(
         String uri,
-        long byterangeOffset,
-        long byterangeLength,
+        long byteRangeOffset,
+        long byteRangeLength,
         @Nullable String fullSegmentEncryptionKeyUri,
         @Nullable String encryptionIV) {
       this(
@@ -106,8 +104,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
           /* drmInitData= */ null,
           fullSegmentEncryptionKeyUri,
           encryptionIV,
-          byterangeOffset,
-          byterangeLength,
+          byteRangeOffset,
+          byteRangeLength,
           /* hasGapTag= */ false);
     }
 
@@ -121,8 +119,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param drmInitData See {@link #drmInitData}.
      * @param fullSegmentEncryptionKeyUri See {@link #fullSegmentEncryptionKeyUri}.
      * @param encryptionIV See {@link #encryptionIV}.
-     * @param byterangeOffset See {@link #byterangeOffset}.
-     * @param byterangeLength See {@link #byterangeLength}.
+     * @param byteRangeOffset See {@link #byteRangeOffset}.
+     * @param byteRangeLength See {@link #byteRangeLength}.
      * @param hasGapTag See {@link #hasGapTag}.
      */
     public Segment(
@@ -135,8 +133,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         @Nullable DrmInitData drmInitData,
         @Nullable String fullSegmentEncryptionKeyUri,
         @Nullable String encryptionIV,
-        long byterangeOffset,
-        long byterangeLength,
+        long byteRangeOffset,
+        long byteRangeLength,
         boolean hasGapTag) {
       this.url = url;
       this.initializationSegment = initializationSegment;
@@ -147,8 +145,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       this.drmInitData = drmInitData;
       this.fullSegmentEncryptionKeyUri = fullSegmentEncryptionKeyUri;
       this.encryptionIV = encryptionIV;
-      this.byterangeOffset = byterangeOffset;
-      this.byterangeLength = byterangeLength;
+      this.byteRangeOffset = byteRangeOffset;
+      this.byteRangeLength = byteRangeLength;
       this.hasGapTag = hasGapTag;
     }
 

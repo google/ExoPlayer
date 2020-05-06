@@ -223,7 +223,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       responseByteStream = responseBody.byteStream();
     } catch (IOException e) {
       throw new HttpDataSourceException(
-          "Unable to connect to " + dataSpec.uri, e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+          "Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
 
     int responseCode = response.code();

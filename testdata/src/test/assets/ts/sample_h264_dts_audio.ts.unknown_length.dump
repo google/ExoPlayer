@@ -1,0 +1,78 @@
+seekMap:
+  isSeekable = false
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=0]]
+numberOfTracks = 3
+track 256:
+  total output bytes = 13650
+  sample count = 2
+  format 0:
+    id = 1/256
+    sampleMimeType = video/avc
+    codecs = avc1.64001E
+    width = 640
+    height = 426
+    initializationData:
+      data = length 29, hash 4C2CAE9C
+      data = length 9, hash D971CD89
+  sample 0:
+    time = 66733
+    flags = 1
+    data = length 12394, hash A39F5311
+  sample 1:
+    time = 100100
+    flags = 0
+    data = length 813, hash 99F7B4FA
+track 257:
+  total output bytes = 18432
+  sample count = 9
+  format 0:
+    averageBitrate = 1411500
+    id = 1/257
+    sampleMimeType = audio/vnd.dts
+    channelCount = 1
+    sampleRate = 44100
+    language = und
+  sample 0:
+    time = 66733
+    flags = 1
+    data = length 2048, hash 88866F81
+  sample 1:
+    time = 78344
+    flags = 1
+    data = length 2048, hash 88866F81
+  sample 2:
+    time = 89955
+    flags = 1
+    data = length 2048, hash 88866F81
+  sample 3:
+    time = 101566
+    flags = 1
+    data = length 2048, hash 88866F81
+  sample 4:
+    time = 113177
+    flags = 1
+    data = length 2048, hash 88866F81
+  sample 5:
+    time = 124777
+    flags = 1
+    data = length 2048, hash 88866F81
+  sample 6:
+    time = 136388
+    flags = 1
+    data = length 2048, hash 88866F81
+  sample 7:
+    time = 148000
+    flags = 1
+    data = length 2048, hash 88866F81
+  sample 8:
+    time = 159611
+    flags = 1
+    data = length 2048, hash 88866F81
+track 8448:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    id = 1/8448
+    sampleMimeType = application/cea-608
+tracksEnded = true

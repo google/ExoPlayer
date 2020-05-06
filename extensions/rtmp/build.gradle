@@ -34,6 +34,7 @@ dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'net.butterflytv.utils:rtmp-client:3.1.0'
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }

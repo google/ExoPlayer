@@ -75,13 +75,13 @@ public final class CachedRegionTrackerTest {
   }
 
   @Test
-  public void testGetRegion_noSpansInCache() {
+  public void getRegion_noSpansInCache() {
     assertThat(tracker.getRegionEndTimeMs(100)).isEqualTo(CachedRegionTracker.NOT_CACHED);
     assertThat(tracker.getRegionEndTimeMs(150)).isEqualTo(CachedRegionTracker.NOT_CACHED);
   }
 
   @Test
-  public void testGetRegion_fullyCached() throws Exception {
+  public void getRegion_fullyCached() throws Exception {
     tracker.onSpanAdded(cache, newCacheSpan(100, 100));
 
     assertThat(tracker.getRegionEndTimeMs(101)).isEqualTo(CachedRegionTracker.CACHED_TO_END);
@@ -89,7 +89,7 @@ public final class CachedRegionTrackerTest {
   }
 
   @Test
-  public void testGetRegion_partiallyCached() throws Exception {
+  public void getRegion_partiallyCached() throws Exception {
     tracker.onSpanAdded(cache, newCacheSpan(100, 40));
 
     assertThat(tracker.getRegionEndTimeMs(101)).isEqualTo(200);
@@ -97,7 +97,7 @@ public final class CachedRegionTrackerTest {
   }
 
   @Test
-  public void testGetRegion_multipleSpanAddsJoinedCorrectly() throws Exception {
+  public void getRegion_multipleSpanAddsJoinedCorrectly() throws Exception {
     tracker.onSpanAdded(cache, newCacheSpan(100, 20));
     tracker.onSpanAdded(cache, newCacheSpan(120, 20));
 
@@ -106,7 +106,7 @@ public final class CachedRegionTrackerTest {
   }
 
   @Test
-  public void testGetRegion_fullyCachedThenPartiallyRemoved() throws Exception {
+  public void getRegion_fullyCachedThenPartiallyRemoved() throws Exception {
     // Start with the full stream in cache.
     tracker.onSpanAdded(cache, newCacheSpan(100, 100));
 
@@ -120,7 +120,7 @@ public final class CachedRegionTrackerTest {
   }
 
   @Test
-  public void testGetRegion_subchunkEstimation() throws Exception {
+  public void getRegion_subchunkEstimation() throws Exception {
     tracker.onSpanAdded(cache, newCacheSpan(100, 10));
 
     assertThat(tracker.getRegionEndTimeMs(101)).isEqualTo(50);

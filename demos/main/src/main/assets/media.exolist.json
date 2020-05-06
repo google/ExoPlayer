@@ -208,6 +208,13 @@
         "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs_uhd.mpd",
         "drm_scheme": "widevine",
         "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "WV: Secure and Clear SD & HD (cenc,MP4,H264)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/widevine/tears_enc_clear_enc.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test",
+        "drm_session_for_clear_types": ["audio", "video"]
       }
     ]
   },
@@ -607,6 +614,31 @@
         "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ssa/test-subs-position.ass",
         "subtitle_mime_type": "text/x-ssa",
         "subtitle_language": "en"
+      }
+    ]
+  },
+  {
+    "name": "60fps",
+    "samples": [
+      {
+        "name": "Big Buck Bunny (DASH,H264,1080p,Clear)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-1080/manifest.mpd"
+      },
+      {
+        "name": "Big Buck Bunny (DASH,H264,4K,Clear)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-2160/manifest.mpd"
+      },
+      {
+        "name": "Big Buck Bunny (DASH,H264,1080p,Widevine)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-1080/manifest.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "Big Buck Bunny (DASH,H264,4K,Widevine)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-2160/manifest.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       }
     ]
   }

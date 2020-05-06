@@ -1,0 +1,19 @@
+1
+00:00:00,000 --> 00:00:01,234
+This is the first subtitle.
+
+2
+This is the second subtitle.
+Second subtitle with second line.
+
+3
+02:00:04,567 --> 02:00:08,901
+This is the third subtitle.
+
+4
+             --> 02:00:10,901
+This is the fourth subtitle.
+
+5
+02:00:12,901 -->
+This is the fifth subtitle.

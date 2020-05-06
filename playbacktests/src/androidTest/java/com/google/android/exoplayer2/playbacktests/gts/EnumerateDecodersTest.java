@@ -47,7 +47,7 @@ public class EnumerateDecodersTest {
   }
 
   @Test
-  public void testEnumerateDecoders() throws Exception {
+  public void enumerateDecoders() throws Exception {
     enumerateDecoders(MimeTypes.VIDEO_H263);
     enumerateDecoders(MimeTypes.VIDEO_H264);
     enumerateDecoders(MimeTypes.VIDEO_H265);

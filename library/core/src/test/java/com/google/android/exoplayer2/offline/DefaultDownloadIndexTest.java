@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.database.DatabaseIOException;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.database.VersionTable;
+import com.google.android.exoplayer2.testutil.DownloadBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -246,6 +247,23 @@ public class DefaultDownloadIndexTest {
 
     Download readDownload = downloadIndex.getDownload(id);
     assertEqual(readDownload, download);
+  }
+
+  @Test
+  public void setStatesToRemoving_setsStateAndClearsFailureReason() throws Exception {
+    String id = "id";
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(id)
+            .setState(Download.STATE_FAILED)
+            .setFailureReason(Download.FAILURE_REASON_UNKNOWN);
+    Download download = downloadBuilder.build();
+    downloadIndex.putDownload(download);
+
+    downloadIndex.setStatesToRemoving();
+
+    download = downloadIndex.getDownload(id);
+    assertThat(download.state).isEqualTo(Download.STATE_REMOVING);
+    assertThat(download.failureReason).isEqualTo(Download.FAILURE_REASON_NONE);
   }
 
   @Test

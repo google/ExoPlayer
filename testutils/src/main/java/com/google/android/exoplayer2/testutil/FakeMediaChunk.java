@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
-import java.io.IOException;
 
 /** Fake {@link MediaChunk}. */
 public final class FakeMediaChunk extends MediaChunk {
@@ -51,7 +50,7 @@ public final class FakeMediaChunk extends MediaChunk {
   }
 
   @Override
-  public void load() throws IOException, InterruptedException {
+  public void load() {
     // Do nothing.
   }
 

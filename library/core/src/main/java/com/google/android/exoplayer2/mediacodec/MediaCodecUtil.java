@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecList;
@@ -25,6 +24,7 @@ import android.util.Pair;
 import android.util.SparseIntArray;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Log;
@@ -123,10 +123,7 @@ public final class MediaCodecUtil {
    */
   @Nullable
   public static MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
-    @Nullable
-    MediaCodecInfo decoderInfo =
-        getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false, /* tunneling= */ false);
-    return decoderInfo == null ? null : MediaCodecInfo.newPassthroughInstance(decoderInfo.name);
+    return getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false, /* tunneling= */ false);
   }
 
   /**
@@ -289,9 +286,16 @@ public final class MediaCodecUtil {
       // Note: MediaCodecList is sorted by the framework such that the best decoders come first.
       for (int i = 0; i < numberOfCodecs; i++) {
         android.media.MediaCodecInfo codecInfo = mediaCodecList.getCodecInfoAt(i);
+        if (isAlias(codecInfo)) {
+          // Skip aliases of other codecs, since they will also be listed under their canonical
+          // names.
+          continue;
+        }
         String name = codecInfo.getName();
-        @Nullable
-        String codecMimeType = getCodecMimeType(codecInfo, name, secureDecodersExplicit, mimeType);
+        if (!isCodecUsableDecoder(codecInfo, name, secureDecodersExplicit, mimeType)) {
+          continue;
+        }
+        @Nullable String codecMimeType = getCodecMimeType(codecInfo, name, mimeType);
         if (codecMimeType == null) {
           continue;
         }
@@ -373,7 +377,6 @@ public final class MediaCodecUtil {
    *
    * @param info The codec information.
    * @param name The name of the codec
-   * @param secureDecodersExplicit Whether secure decoders were explicitly listed, if present.
    * @param mimeType The MIME type.
    * @return The codec's supported MIME type for media of type {@code mimeType}, or {@code null} if
    *     the codec can't be used. If non-null, the returned type will be equal to {@code mimeType}
@@ -383,12 +386,7 @@ public final class MediaCodecUtil {
   private static String getCodecMimeType(
       android.media.MediaCodecInfo info,
       String name,
-      boolean secureDecodersExplicit,
       String mimeType) {
-    if (!isCodecUsableDecoder(info, name, secureDecodersExplicit, mimeType)) {
-      return null;
-    }
-
     String[] supportedTypes = info.getSupportedTypes();
     for (String supportedType : supportedTypes) {
       if (supportedType.equalsIgnoreCase(mimeType)) {
@@ -566,7 +564,9 @@ public final class MediaCodecUtil {
             }
             return 0;
           });
-    } else if (Util.SDK_INT < 21 && decoderInfos.size() > 1) {
+    }
+
+    if (Util.SDK_INT < 21 && decoderInfos.size() > 1) {
       String firstCodecName = decoderInfos.get(0).name;
       if ("OMX.SEC.mp3.dec".equals(firstCodecName)
           || "OMX.SEC.MP3.Decoder".equals(firstCodecName)
@@ -578,6 +578,24 @@ public final class MediaCodecUtil {
         sortByScore(decoderInfos, decoderInfo -> decoderInfo.name.startsWith("OMX.google") ? 1 : 0);
       }
     }
+
+    if (Util.SDK_INT < 30 && decoderInfos.size() > 1) {
+      String firstCodecName = decoderInfos.get(0).name;
+      // Prefer anything other than OMX.qti.audio.decoder.flac on older devices. See [Internal
+      // ref: b/147278539] and [Internal ref: b/147354613].
+      if ("OMX.qti.audio.decoder.flac".equals(firstCodecName)) {
+        decoderInfos.add(decoderInfos.remove(0));
+      }
+    }
+  }
+
+  private static boolean isAlias(android.media.MediaCodecInfo info) {
+    return Util.SDK_INT >= 29 && isAliasV29(info);
+  }
+
+  @RequiresApi(29)
+  private static boolean isAliasV29(android.media.MediaCodecInfo info) {
+    return info.isAlias();
   }
 
   /**
@@ -593,7 +611,7 @@ public final class MediaCodecUtil {
     return !isSoftwareOnly(codecInfo);
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static boolean isHardwareAcceleratedV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isHardwareAccelerated();
   }
@@ -619,7 +637,7 @@ public final class MediaCodecUtil {
         || (!codecName.startsWith("omx.") && !codecName.startsWith("c2."));
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static boolean isSoftwareOnlyV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isSoftwareOnly();
   }
@@ -638,7 +656,7 @@ public final class MediaCodecUtil {
         && !codecName.startsWith("c2.google.");
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static boolean isVendorV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isVendor();
   }
@@ -936,15 +954,13 @@ public final class MediaCodecUtil {
     boolean isFeatureRequired(String feature, String mimeType, CodecCapabilities capabilities);
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static final class MediaCodecListCompatV21 implements MediaCodecListCompat {
 
     private final int codecKind;
 
     @Nullable private android.media.MediaCodecInfo[] mediaCodecInfos;
 
-    // the constructor does not initialize fields: mediaCodecInfos
-    @SuppressWarnings("nullness:initialization.fields.uninitialized")
     public MediaCodecListCompatV21(boolean includeSecure, boolean includeTunneling) {
       codecKind =
           includeSecure || includeTunneling
@@ -958,8 +974,6 @@ public final class MediaCodecUtil {
       return mediaCodecInfos.length;
     }
 
-    // incompatible types in return.
-    @SuppressWarnings("nullness:return.type.incompatible")
     @Override
     public android.media.MediaCodecInfo getCodecInfoAt(int index) {
       ensureMediaCodecInfosInitialized();

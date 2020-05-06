@@ -35,10 +35,10 @@ public class DashManifestTest {
 
   private static final UtcTimingElement DUMMY_UTC_TIMING = new UtcTimingElement("", "");
   private static final SingleSegmentBase DUMMY_SEGMENT_BASE = new SingleSegmentBase();
-  private static final Format DUMMY_FORMAT = Format.createSampleFormat("", "", 0);
+  private static final Format DUMMY_FORMAT = new Format.Builder().build();
 
   @Test
-  public void testCopy() throws Exception {
+  public void copy() {
     Representation[][][] representations = newRepresentations(3, 2, 3);
     DashManifest sourceManifest =
         newDashManifest(
@@ -97,7 +97,7 @@ public class DashManifestTest {
   }
 
   @Test
-  public void testCopySameAdaptationIndexButDifferentPeriod() throws Exception {
+  public void copySameAdaptationIndexButDifferentPeriod() {
     Representation[][][] representations = newRepresentations(2, 1, 1);
     DashManifest sourceManifest =
         newDashManifest(
@@ -117,7 +117,7 @@ public class DashManifestTest {
   }
 
   @Test
-  public void testCopySkipPeriod() throws Exception {
+  public void copySkipPeriod() {
     Representation[][][] representations = newRepresentations(3, 2, 3);
     DashManifest sourceManifest =
         newDashManifest(
@@ -239,6 +239,12 @@ public class DashManifestTest {
   }
 
   private static AdaptationSet newAdaptationSet(int seed, Representation... representations) {
-    return new AdaptationSet(++seed, ++seed, Arrays.asList(representations), null, null);
+    return new AdaptationSet(
+        ++seed,
+        ++seed,
+        Arrays.asList(representations),
+        /* accessibilityDescriptors= */ Collections.emptyList(),
+        /* essentialProperties= */ Collections.emptyList(),
+        /* supplementalProperties= */ Collections.emptyList());
   }
 }

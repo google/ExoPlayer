@@ -29,9 +29,12 @@ android {
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
-    sourceSets.main {
-        jniLibs.srcDir 'src/main/libs'
-        jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
+    sourceSets {
+        main {
+            jniLibs.srcDir 'src/main/libs'
+            jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
+        }
+        androidTest.assets.srcDir '../../testdata/src/test/assets/'
     }
 
     testOptions.unitTests.includeAndroidResources = true
@@ -41,11 +44,13 @@ dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     androidTestImplementation project(modulePrefix + 'testutils')
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     testImplementation 'androidx.test:core:' + androidxTestCoreVersion
     testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     testImplementation project(modulePrefix + 'testutils')
+    testImplementation project(modulePrefix + 'testdata')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 

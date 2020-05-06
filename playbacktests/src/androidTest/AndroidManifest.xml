@@ -26,12 +26,9 @@
   <application
       android:allowBackup="false"
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
-    <uses-library android:name="android.test.runner"/>
-
     <activity android:name="com.google.android.exoplayer2.testutil.HostActivity"
         android:configChanges="keyboardHidden|orientation|screenSize"
         android:label="ExoPlayerTest"/>
-
   </application>
 
   <instrumentation

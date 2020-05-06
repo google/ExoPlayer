@@ -18,9 +18,10 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.os.ConditionVariable;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Surface;
+import android.widget.FrameLayout;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -31,7 +32,6 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -41,6 +41,8 @@ import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link HostedTest} for {@link ExoPlayer} playback tests. */
 public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
@@ -64,12 +66,12 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   private final DecoderCounters audioDecoderCounters;
   private final ConditionVariable testFinished;
 
-  private ActionSchedule pendingSchedule;
-  private HandlerWrapper actionHandler;
-  private DefaultTrackSelector trackSelector;
-  private SimpleExoPlayer player;
-  private Surface surface;
-  private ExoPlaybackException playerError;
+  @Nullable private ActionSchedule pendingSchedule;
+  private @MonotonicNonNull SimpleExoPlayer player;
+  private @MonotonicNonNull HandlerWrapper actionHandler;
+  private @MonotonicNonNull DefaultTrackSelector trackSelector;
+  private @MonotonicNonNull Surface surface;
+  private @MonotonicNonNull ExoPlaybackException playerError;
   private boolean playerWasPrepared;
 
   private boolean playing;
@@ -115,7 +117,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
    * @param schedule The schedule.
    */
   public final void setSchedule(ActionSchedule schedule) {
-    if (player == null) {
+    if (!isStarted()) {
       pendingSchedule = schedule;
     } else {
       schedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);
@@ -125,23 +127,26 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   // HostedTest implementation
 
   @Override
-  public final void onStart(HostActivity host, Surface surface) {
+  public final void onStart(HostActivity host, Surface surface, FrameLayout overlayFrameLayout) {
     this.surface = surface;
     // Build the player.
     trackSelector = buildTrackSelector(host);
     String userAgent = "ExoPlayerPlaybackTests";
     player = buildExoPlayer(host, surface, trackSelector);
-    player.setPlayWhenReady(true);
+    player.play();
     player.addAnalyticsListener(this);
     player.addAnalyticsListener(new EventLogger(trackSelector, tag));
     // Schedule any pending actions.
-    actionHandler = Clock.DEFAULT.createHandler(Looper.myLooper(), /* callback= */ null);
+    actionHandler = Clock.DEFAULT.createHandler(Util.getLooper(), /* callback= */ null);
     if (pendingSchedule != null) {
       pendingSchedule.start(player, trackSelector, surface, actionHandler, /* callback= */ null);
       pendingSchedule = null;
     }
-    DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager(userAgent);
-    player.prepare(buildSource(host, Util.getUserAgent(host, userAgent), drmSessionManager));
+    DrmSessionManager drmSessionManager = buildDrmSessionManager(userAgent);
+    player.setMediaSource(
+        buildSource(
+            host, Util.getUserAgent(host, userAgent), drmSessionManager, overlayFrameLayout));
+    player.prepare();
   }
 
   @Override
@@ -156,10 +161,10 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
 
   @Override
   public final void onFinished() {
-    onTestFinished(audioDecoderCounters, videoDecoderCounters);
     if (failOnPlayerError && playerError != null) {
       throw new Error(playerError);
     }
+    logMetrics(audioDecoderCounters, videoDecoderCounters);
     if (expectedPlayingTimeMs != EXPECTED_PLAYING_TIME_UNSET) {
       long playingTimeToAssertMs = expectedPlayingTimeMs == EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS
           ? sourceDurationMs : expectedPlayingTimeMs;
@@ -173,6 +178,8 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
                   && totalPlayingTimeMs <= maxAllowedActualPlayingTimeMs)
           .isTrue();
     }
+    // Make any additional assertions.
+    assertPassed(audioDecoderCounters, videoDecoderCounters);
   }
 
   // AnalyticsListener
@@ -215,20 +222,19 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   // Internal logic
 
   private boolean stopTest() {
-    if (player == null) {
+    if (!isStarted()) {
       return false;
     }
     actionHandler.removeCallbacksAndMessages(null);
     sourceDurationMs = player.getDuration();
     player.release();
-    player = null;
     // We post opening of the finished condition so that any events posted to the main thread as a
     // result of player.release() are guaranteed to be handled before the test returns.
     actionHandler.post(testFinished::open);
     return true;
   }
 
-  protected DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(String userAgent) {
+  protected DrmSessionManager buildDrmSessionManager(String userAgent) {
     // Do nothing. Interested subclasses may override.
     return DrmSessionManager.getDummyDrmSessionManager();
   }
@@ -251,13 +257,33 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   }
 
   protected abstract MediaSource buildSource(
-      HostActivity host, String userAgent, DrmSessionManager<?> drmSessionManager);
+      HostActivity host,
+      String userAgent,
+      DrmSessionManager drmSessionManager,
+      FrameLayout overlayFrameLayout);
 
   protected void onPlayerErrorInternal(ExoPlaybackException error) {
     // Do nothing. Interested subclasses may override.
   }
 
-  protected void onTestFinished(DecoderCounters audioCounters, DecoderCounters videoCounters) {
-    // Do nothing. Subclasses may override to add clean-up and assertions.
+  protected void logMetrics(DecoderCounters audioCounters, DecoderCounters videoCounters) {
+    // Do nothing. Subclasses may override to log metrics.
+  }
+
+  protected void assertPassed(DecoderCounters audioCounters, DecoderCounters videoCounters) {
+    // Do nothing. Subclasses may override to add additional assertions.
+  }
+
+  @EnsuresNonNullIf(
+      result = true,
+      expression = {"player", "actionHandler", "trackSelector", "surface"})
+  private boolean isStarted() {
+    if (player == null) {
+      return false;
+    }
+    Util.castNonNull(actionHandler);
+    Util.castNonNull(trackSelector);
+    Util.castNonNull(surface);
+    return true;
   }
 }

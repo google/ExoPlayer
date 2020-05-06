@@ -17,10 +17,11 @@ package com.google.android.exoplayer2.drm;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.util.Map;
 
 /** A {@link DrmSession} that's in a terminal error state. */
-public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements DrmSession<T> {
+public final class ErrorStateDrmSession implements DrmSession {
 
   private final DrmSessionException error;
 
@@ -46,7 +47,7 @@ public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements Drm
 
   @Override
   @Nullable
-  public T getMediaCrypto() {
+  public ExoMediaCrypto getMediaCrypto() {
     return null;
   }
 
@@ -63,12 +64,12 @@ public final class ErrorStateDrmSession<T extends ExoMediaCrypto> implements Drm
   }
 
   @Override
-  public void acquire() {
+  public void acquire(@Nullable MediaSourceEventDispatcher eventDispatcher) {
     // Do nothing.
   }
 
   @Override
-  public void release() {
+  public void release(@Nullable MediaSourceEventDispatcher eventDispatcher) {
     // Do nothing.
   }
 }

@@ -19,8 +19,10 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -106,7 +108,7 @@ public abstract class BaseMediaSource implements MediaSource {
    */
   protected final MediaSourceEventListener.EventDispatcher createEventDispatcher(
       MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
-    Assertions.checkArgument(mediaPeriodId != null);
+    Assertions.checkNotNull(mediaPeriodId);
     return eventDispatcher.withParameters(/* windowIndex= */ 0, mediaPeriodId, mediaTimeOffsetMs);
   }
 
@@ -132,12 +134,44 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
-    eventDispatcher.addEventListener(handler, eventListener);
+    addEventListenerInternal(handler, eventListener, MediaSourceEventListener.class);
   }
 
   @Override
   public final void removeEventListener(MediaSourceEventListener eventListener) {
-    eventDispatcher.removeEventListener(eventListener);
+    removeEventListenerInternal(eventListener, MediaSourceEventListener.class);
+  }
+
+  @Override
+  public final void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener) {
+    addEventListenerInternal(handler, eventListener, DrmSessionEventListener.class);
+  }
+
+  @Override
+  public final void removeDrmEventListener(DrmSessionEventListener eventListener) {
+    removeEventListenerInternal(eventListener, DrmSessionEventListener.class);
+  }
+
+  /**
+   * Adds a listener to the internal {@link MediaSourceEventDispatcher} with the provided type.
+   *
+   * <p>NOTE: Read the caveats on {@link MediaSourceEventDispatcher#addEventListener(Handler,
+   * Object, Class)} when deciding what value to pass for {@code listenerClass}.
+   *
+   * @see MediaSourceEventDispatcher#addEventListener(Handler, Object, Class)
+   */
+  protected final <T> void addEventListenerInternal(
+      Handler handler, T eventListener, Class<T> listenerClass) {
+    eventDispatcher.addEventListener(handler, eventListener, listenerClass);
+  }
+
+  /**
+   * Removes a listener from the internal {@link MediaSourceEventDispatcher}.
+   *
+   * @see MediaSourceEventDispatcher#removeEventListener(Object, Class)
+   */
+  protected final <T> void removeEventListenerInternal(T eventListener, Class<T> listenerClass) {
+    eventDispatcher.removeEventListener(eventListener, listenerClass);
   }
 
   @Override
@@ -145,7 +179,7 @@ public abstract class BaseMediaSource implements MediaSource {
       MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
     Looper looper = Looper.myLooper();
     Assertions.checkArgument(this.looper == null || this.looper == looper);
-    Timeline timeline = this.timeline;
+    @Nullable Timeline timeline = this.timeline;
     mediaSourceCallers.add(caller);
     if (this.looper == null) {
       this.looper = looper;

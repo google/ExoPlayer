@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -66,7 +68,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       DataSpec dataSpec,
       Format trackFormat,
       int trackSelectionReason,
-      Object trackSelectionData,
+      @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs,
       long clippedStartTimeUs,
@@ -110,23 +112,22 @@ public class ContainerMediaChunk extends BaseMediaChunk {
 
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
-  public final void load() throws IOException, InterruptedException {
-    DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
+  public final void load() throws IOException {
+    if (nextLoadPosition == 0) {
+      // Configure the output and set it as the target for the extractor wrapper.
+      BaseMediaChunkOutput output = getOutput();
+      output.setSampleOffsetUs(sampleOffsetUs);
+      extractorWrapper.init(
+          getTrackOutputProvider(output),
+          clippedStartTimeUs == C.TIME_UNSET ? C.TIME_UNSET : (clippedStartTimeUs - sampleOffsetUs),
+          clippedEndTimeUs == C.TIME_UNSET ? C.TIME_UNSET : (clippedEndTimeUs - sampleOffsetUs));
+    }
     try {
       // Create and open the input.
-      ExtractorInput input = new DefaultExtractorInput(dataSource,
-          loadDataSpec.absoluteStreamPosition, dataSource.open(loadDataSpec));
-      if (nextLoadPosition == 0) {
-        // Configure the output and set it as the target for the extractor wrapper.
-        BaseMediaChunkOutput output = getOutput();
-        output.setSampleOffsetUs(sampleOffsetUs);
-        extractorWrapper.init(
-            getTrackOutputProvider(output),
-            clippedStartTimeUs == C.TIME_UNSET
-                ? C.TIME_UNSET
-                : (clippedStartTimeUs - sampleOffsetUs),
-            clippedEndTimeUs == C.TIME_UNSET ? C.TIME_UNSET : (clippedEndTimeUs - sampleOffsetUs));
-      }
+      DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
+      ExtractorInput input =
+          new DefaultExtractorInput(
+              dataSource, loadDataSpec.position, dataSource.open(loadDataSpec));
       // Load and decode the sample data.
       try {
         Extractor extractor = extractorWrapper.extractor;
@@ -136,7 +137,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
         }
         Assertions.checkState(result != Extractor.RESULT_SEEK);
       } finally {
-        nextLoadPosition = input.getPosition() - dataSpec.absoluteStreamPosition;
+        nextLoadPosition = input.getPosition() - dataSpec.position;
       }
     } finally {
       Util.closeQuietly(dataSource);
@@ -145,16 +146,13 @@ public class ContainerMediaChunk extends BaseMediaChunk {
   }
 
   /**
-   * Returns the {@link ChunkExtractorWrapper.TrackOutputProvider} to be used by the wrapped
-   * extractor.
+   * Returns the {@link TrackOutputProvider} to be used by the wrapped extractor.
    *
    * @param baseMediaChunkOutput The {@link BaseMediaChunkOutput} most recently passed to {@link
    *     #init(BaseMediaChunkOutput)}.
-   * @return A {@link ChunkExtractorWrapper.TrackOutputProvider} to be used by the wrapped
-   *     extractor.
+   * @return A {@link TrackOutputProvider} to be used by the wrapped extractor.
    */
-  protected ChunkExtractorWrapper.TrackOutputProvider getTrackOutputProvider(
-      BaseMediaChunkOutput baseMediaChunkOutput) {
+  protected TrackOutputProvider getTrackOutputProvider(BaseMediaChunkOutput baseMediaChunkOutput) {
     return baseMediaChunkOutput;
   }
 }

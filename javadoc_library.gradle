@@ -26,9 +26,7 @@ android.libraryVariants.all { variant ->
         title = "ExoPlayer ${javadocTitle}"
         source = allSourceDirs
         options {
-            links "http://docs.oracle.com/javase/7/docs/api/"
-            linksOffline "https://developer.android.com/reference",
-                "${android.sdkDirectory}/docs/reference"
+            links "https://developer.android.com/reference"
             encoding = "UTF-8"
         }
         exclude "**/BuildConfig.java"

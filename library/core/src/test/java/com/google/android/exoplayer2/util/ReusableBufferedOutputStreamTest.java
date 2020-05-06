@@ -30,7 +30,7 @@ public final class ReusableBufferedOutputStreamTest {
   private static final byte[] TEST_DATA_2 = Util.getUtf8Bytes("2 test data");
 
   @Test
-  public void testReset() throws Exception {
+  public void reset() throws Exception {
     ByteArrayOutputStream byteArrayOutputStream1 = new ByteArrayOutputStream(1000);
     ReusableBufferedOutputStream outputStream = new ReusableBufferedOutputStream(
         byteArrayOutputStream1, 1000);

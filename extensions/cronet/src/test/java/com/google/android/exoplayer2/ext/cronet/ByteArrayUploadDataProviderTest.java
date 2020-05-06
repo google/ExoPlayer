@@ -48,18 +48,18 @@ public final class ByteArrayUploadDataProviderTest {
   }
 
   @Test
-  public void testGetLength() {
+  public void getLength() {
     assertThat(byteArrayUploadDataProvider.getLength()).isEqualTo(TEST_DATA.length);
   }
 
   @Test
-  public void testReadFullBuffer() throws IOException {
+  public void readFullBuffer() throws IOException {
     byteArrayUploadDataProvider.read(mockUploadDataSink, byteBuffer);
     assertThat(byteBuffer.array()).isEqualTo(TEST_DATA);
   }
 
   @Test
-  public void testReadPartialBuffer() throws IOException {
+  public void readPartialBuffer() throws IOException {
     byte[] firstHalf = Arrays.copyOf(TEST_DATA, TEST_DATA.length / 2);
     byte[] secondHalf = Arrays.copyOfRange(TEST_DATA, TEST_DATA.length / 2, TEST_DATA.length);
     byteBuffer = ByteBuffer.allocate(TEST_DATA.length / 2);
@@ -75,7 +75,7 @@ public final class ByteArrayUploadDataProviderTest {
   }
 
   @Test
-  public void testRewind() throws IOException {
+  public void rewind() throws IOException {
     // Read all the data.
     byteArrayUploadDataProvider.read(mockUploadDataSink, byteBuffer);
     assertThat(byteBuffer.array()).isEqualTo(TEST_DATA);

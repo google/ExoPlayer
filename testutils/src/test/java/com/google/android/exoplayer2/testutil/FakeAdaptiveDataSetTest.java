@@ -34,28 +34,18 @@ import org.junit.runner.RunWith;
 public final class FakeAdaptiveDataSetTest {
 
   private static final Format[] TEST_FORMATS = {
-    Format.createVideoSampleFormat(
-        null,
-        MimeTypes.VIDEO_H264,
-        null,
-        1000000,
-        Format.NO_VALUE,
-        1280,
-        720,
-        Format.NO_VALUE,
-        null,
-        null),
-    Format.createVideoSampleFormat(
-        null,
-        MimeTypes.VIDEO_H264,
-        null,
-        300000,
-        Format.NO_VALUE,
-        640,
-        360,
-        Format.NO_VALUE,
-        null,
-        null)
+    new Format.Builder()
+        .setSampleMimeType(MimeTypes.VIDEO_H264)
+        .setAverageBitrate(1_000_000)
+        .setWidth(1280)
+        .setHeight(720)
+        .build(),
+    new Format.Builder()
+        .setSampleMimeType(MimeTypes.VIDEO_H264)
+        .setAverageBitrate(300_000)
+        .setWidth(640)
+        .setHeight(360)
+        .build()
   };
   private static final TrackGroup TRACK_GROUP = new TrackGroup(TEST_FORMATS);
 

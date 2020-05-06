@@ -41,26 +41,30 @@ android {
         }
     }
 
+    sourceSets {
+        androidTest.assets.srcDir '../../testdata/src/test/assets/'
+        test.assets.srcDir '../../testdata/src/test/assets/'
+    }
+
     testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {
+    api project(modulePrefix + 'library-common')
+    api project(modulePrefix + 'library-extractor')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
-    androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
-    androidTestImplementation 'com.google.truth:truth:' + truthVersion
+    androidTestImplementation 'com.google.guava:guava:' + guavaVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestImplementation 'org.mockito:mockito-core:' + mockitoVersion
-    androidTestImplementation project(modulePrefix + 'testutils')
-    testImplementation 'androidx.test:core:' + androidxTestCoreVersion
-    testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
-    testImplementation 'com.google.truth:truth:' + truthVersion
-    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    androidTestImplementation(project(modulePrefix + 'testutils')) {
+        exclude module: modulePrefix.substring(1) + 'library-core'
+    }
+    testImplementation 'com.google.guava:guava:' + guavaVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'testutils')
 }

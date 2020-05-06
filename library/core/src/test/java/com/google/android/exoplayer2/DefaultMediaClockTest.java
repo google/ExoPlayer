@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.DefaultMediaClock.PlaybackParameterListener;
+import com.google.android.exoplayer2.DefaultMediaClock.PlaybackSpeedListener;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
 import org.junit.Before;
@@ -36,10 +36,9 @@ public class DefaultMediaClockTest {
 
   private static final long TEST_POSITION_US = 123456789012345678L;
   private static final long SLEEP_TIME_MS = 1_000;
-  private static final PlaybackParameters TEST_PLAYBACK_PARAMETERS =
-      new PlaybackParameters(/* speed= */ 2f);
+  private static final float TEST_PLAYBACK_SPEED = 2f;
 
-  @Mock private PlaybackParameterListener listener;
+  @Mock private PlaybackSpeedListener listener;
   private FakeClock fakeClock;
   private DefaultMediaClock mediaClock;
 
@@ -110,119 +109,117 @@ public class DefaultMediaClockTest {
   }
 
   @Test
-  public void standaloneGetPlaybackParameters_initializedWithDefaultPlaybackParameters() {
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
+  public void standaloneGetPlaybackSpeed_initializedWithDefaultPlaybackSpeed() {
+    assertThat(mediaClock.getPlaybackSpeed()).isEqualTo(Player.DEFAULT_PLAYBACK_SPEED);
   }
 
   @Test
-  public void standaloneSetPlaybackParameters_getPlaybackParametersShouldReturnSameValue() {
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(TEST_PLAYBACK_PARAMETERS);
+  public void standaloneSetPlaybackSpeed_getPlaybackSpeedShouldReturnSameValue() {
+    mediaClock.setPlaybackSpeed(TEST_PLAYBACK_SPEED);
+    assertThat(mediaClock.getPlaybackSpeed()).isEqualTo(TEST_PLAYBACK_SPEED);
   }
 
   @Test
-  public void standaloneSetPlaybackParameters_shouldNotTriggerCallback() {
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
+  public void standaloneSetPlaybackSpeed_shouldNotTriggerCallback() {
+    mediaClock.setPlaybackSpeed(TEST_PLAYBACK_SPEED);
     verifyNoMoreInteractions(listener);
   }
 
   @Test
-  public void standaloneSetPlaybackParameters_shouldApplyNewPlaybackSpeed() {
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
+  public void standaloneSetPlaybackSpeed_shouldApplyNewPlaybackSpeed() {
+    mediaClock.setPlaybackSpeed(TEST_PLAYBACK_SPEED);
     mediaClock.start();
-    // Asserts that clock is running with speed declared in getPlaybackParameters().
+    // Asserts that clock is running with speed declared in getPlaybackSpeed().
     assertClockIsRunning(/* isReadingAhead= */ false);
   }
 
   @Test
-  public void standaloneSetOtherPlaybackParameters_getPlaybackParametersShouldReturnSameValue() {
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    mediaClock.setPlaybackParameters(PlaybackParameters.DEFAULT);
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
+  public void standaloneSetOtherPlaybackSpeed_getPlaybackSpeedShouldReturnSameValue() {
+    mediaClock.setPlaybackSpeed(TEST_PLAYBACK_SPEED);
+    mediaClock.setPlaybackSpeed(Player.DEFAULT_PLAYBACK_SPEED);
+    assertThat(mediaClock.getPlaybackSpeed()).isEqualTo(Player.DEFAULT_PLAYBACK_SPEED);
   }
 
   @Test
-  public void enableRendererMediaClock_shouldOverwriteRendererPlaybackParametersIfPossible()
+  public void enableRendererMediaClock_shouldOverwriteRendererPlaybackSpeedIfPossible()
       throws ExoPlaybackException {
     FakeMediaClockRenderer mediaClockRenderer =
-        new MediaClockRenderer(TEST_PLAYBACK_PARAMETERS, /* playbackParametersAreMutable= */ true);
+        new MediaClockRenderer(TEST_PLAYBACK_SPEED, /* playbackSpeedIsMutable= */ true);
     mediaClock.onRendererEnabled(mediaClockRenderer);
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
+    assertThat(mediaClock.getPlaybackSpeed()).isEqualTo(Player.DEFAULT_PLAYBACK_SPEED);
     verifyNoMoreInteractions(listener);
   }
 
   @Test
-  public void enableRendererMediaClockWithFixedParameters_usesRendererPlaybackParameters()
+  public void enableRendererMediaClockWithFixedPlaybackSpeed_usesRendererPlaybackSpeed()
       throws ExoPlaybackException {
     FakeMediaClockRenderer mediaClockRenderer =
-        new MediaClockRenderer(TEST_PLAYBACK_PARAMETERS, /* playbackParametersAreMutable= */ false);
+        new MediaClockRenderer(TEST_PLAYBACK_SPEED, /* playbackSpeedIsMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(TEST_PLAYBACK_PARAMETERS);
+    assertThat(mediaClock.getPlaybackSpeed()).isEqualTo(TEST_PLAYBACK_SPEED);
   }
 
   @Test
-  public void enableRendererMediaClockWithFixedParameters_shouldTriggerCallback()
+  public void enableRendererMediaClockWithFixedPlaybackSpeed_shouldTriggerCallback()
       throws ExoPlaybackException {
     FakeMediaClockRenderer mediaClockRenderer =
-        new MediaClockRenderer(TEST_PLAYBACK_PARAMETERS, /* playbackParametersAreMutable= */ false);
+        new MediaClockRenderer(TEST_PLAYBACK_SPEED, /* playbackSpeedIsMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
-    verify(listener).onPlaybackParametersChanged(TEST_PLAYBACK_PARAMETERS);
+    verify(listener).onPlaybackSpeedChanged(TEST_PLAYBACK_SPEED);
   }
 
   @Test
-  public void enableRendererMediaClockWithFixedButSamePlaybackParameters_shouldNotTriggerCallback()
+  public void enableRendererMediaClockWithFixedButSamePlaybackSpeed_shouldNotTriggerCallback()
       throws ExoPlaybackException {
-    FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
-        /* playbackParametersAreMutable= */ false);
+    FakeMediaClockRenderer mediaClockRenderer =
+        new MediaClockRenderer(Player.DEFAULT_PLAYBACK_SPEED, /* playbackSpeedIsMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     verifyNoMoreInteractions(listener);
   }
 
   @Test
-  public void disableRendererMediaClock_shouldKeepPlaybackParameters()
-      throws ExoPlaybackException {
+  public void disableRendererMediaClock_shouldKeepPlaybackSpeed() throws ExoPlaybackException {
     FakeMediaClockRenderer mediaClockRenderer =
-        new MediaClockRenderer(TEST_PLAYBACK_PARAMETERS, /* playbackParametersAreMutable= */ false);
+        new MediaClockRenderer(TEST_PLAYBACK_SPEED, /* playbackSpeedIsMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
     mediaClock.onRendererDisabled(mediaClockRenderer);
     mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(TEST_PLAYBACK_PARAMETERS);
+    assertThat(mediaClock.getPlaybackSpeed()).isEqualTo(TEST_PLAYBACK_SPEED);
   }
 
   @Test
-  public void rendererClockSetPlaybackParameters_getPlaybackParametersShouldReturnSameValue()
+  public void rendererClockSetPlaybackSpeed_getPlaybackSpeedShouldReturnSameValue()
       throws ExoPlaybackException {
-    FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
-        /* playbackParametersAreMutable= */ true);
+    FakeMediaClockRenderer mediaClockRenderer =
+        new MediaClockRenderer(Player.DEFAULT_PLAYBACK_SPEED, /* playbackSpeedIsMutable= */ true);
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(TEST_PLAYBACK_PARAMETERS);
+    mediaClock.setPlaybackSpeed(TEST_PLAYBACK_SPEED);
+    assertThat(mediaClock.getPlaybackSpeed()).isEqualTo(TEST_PLAYBACK_SPEED);
   }
 
   @Test
-  public void rendererClockSetPlaybackParameters_shouldNotTriggerCallback()
-      throws ExoPlaybackException {
-    FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
-        /* playbackParametersAreMutable= */ true);
+  public void rendererClockSetPlaybackSpeed_shouldNotTriggerCallback() throws ExoPlaybackException {
+    FakeMediaClockRenderer mediaClockRenderer =
+        new MediaClockRenderer(Player.DEFAULT_PLAYBACK_SPEED, /* playbackSpeedIsMutable= */ true);
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
+    mediaClock.setPlaybackSpeed(TEST_PLAYBACK_SPEED);
     verifyNoMoreInteractions(listener);
   }
 
   @Test
-  public void rendererClockSetPlaybackParametersOverwrite_getParametersShouldReturnSameValue()
+  public void rendererClockSetPlaybackSpeedOverwrite_getPlaybackSpeedShouldReturnSameValue()
       throws ExoPlaybackException {
-    FakeMediaClockRenderer mediaClockRenderer = new MediaClockRenderer(PlaybackParameters.DEFAULT,
-        /* playbackParametersAreMutable= */ false);
+    FakeMediaClockRenderer mediaClockRenderer =
+        new MediaClockRenderer(Player.DEFAULT_PLAYBACK_SPEED, /* playbackSpeedIsMutable= */ false);
     mediaClock.onRendererEnabled(mediaClockRenderer);
     mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
-    mediaClock.setPlaybackParameters(TEST_PLAYBACK_PARAMETERS);
-    assertThat(mediaClock.getPlaybackParameters()).isEqualTo(PlaybackParameters.DEFAULT);
+    mediaClock.setPlaybackSpeed(TEST_PLAYBACK_SPEED);
+    assertThat(mediaClock.getPlaybackSpeed()).isEqualTo(Player.DEFAULT_PLAYBACK_SPEED);
   }
 
   @Test
@@ -266,16 +263,15 @@ public class DefaultMediaClockTest {
   }
 
   @Test
-  public void getPositionWithPlaybackParameterChange_shouldTriggerCallback()
+  public void getPositionWithPlaybackSpeedChange_shouldTriggerCallback()
       throws ExoPlaybackException {
     MediaClockRenderer mediaClockRenderer =
-        new MediaClockRenderer(
-            PlaybackParameters.DEFAULT, /* playbackParametersAreMutable= */ true);
+        new MediaClockRenderer(Player.DEFAULT_PLAYBACK_SPEED, /* playbackSpeedIsMutable= */ true);
     mediaClock.onRendererEnabled(mediaClockRenderer);
-    // Silently change playback parameters of renderer clock.
-    mediaClockRenderer.playbackParameters = TEST_PLAYBACK_PARAMETERS;
+    // Silently change playback speed of renderer clock.
+    mediaClockRenderer.playbackSpeed = TEST_PLAYBACK_SPEED;
     mediaClock.syncAndGetPositionUs(/* isReadingAhead= */ false);
-    verify(listener).onPlaybackParametersChanged(TEST_PLAYBACK_PARAMETERS);
+    verify(listener).onPlaybackSpeedChanged(TEST_PLAYBACK_SPEED);
   }
 
   @Test
@@ -360,10 +356,9 @@ public class DefaultMediaClockTest {
   private void assertClockIsRunning(boolean isReadingAhead) {
     long clockStartUs = mediaClock.syncAndGetPositionUs(isReadingAhead);
     fakeClock.advanceTime(SLEEP_TIME_MS);
+    int scaledUsPerMs = Math.round(mediaClock.getPlaybackSpeed() * 1000f);
     assertThat(mediaClock.syncAndGetPositionUs(isReadingAhead))
-        .isEqualTo(
-            clockStartUs
-                + mediaClock.getPlaybackParameters().getMediaTimeUsForPlayoutTimeMs(SLEEP_TIME_MS));
+        .isEqualTo(clockStartUs + (SLEEP_TIME_MS * scaledUsPerMs));
   }
 
   private void assertClockIsStopped() {
@@ -376,34 +371,37 @@ public class DefaultMediaClockTest {
   @SuppressWarnings("HidingField")
   private static class MediaClockRenderer extends FakeMediaClockRenderer {
 
-    private final boolean playbackParametersAreMutable;
+    private final boolean playbackSpeedIsMutable;
     private final boolean isReady;
     private final boolean isEnded;
 
-    public PlaybackParameters playbackParameters;
+    public float playbackSpeed;
     public long positionUs;
 
     public MediaClockRenderer() throws ExoPlaybackException {
-      this(PlaybackParameters.DEFAULT, false, true, false, false);
+      this(Player.DEFAULT_PLAYBACK_SPEED, false, true, false, false);
     }
 
-    public MediaClockRenderer(PlaybackParameters playbackParameters,
-        boolean playbackParametersAreMutable)
+    public MediaClockRenderer(float playbackSpeed, boolean playbackSpeedIsMutable)
         throws ExoPlaybackException {
-      this(playbackParameters, playbackParametersAreMutable, true, false, false);
+      this(playbackSpeed, playbackSpeedIsMutable, true, false, false);
     }
 
     public MediaClockRenderer(boolean isReady, boolean isEnded, boolean hasReadStreamToEnd)
         throws ExoPlaybackException {
-      this(PlaybackParameters.DEFAULT, false, isReady, isEnded, hasReadStreamToEnd);
+      this(Player.DEFAULT_PLAYBACK_SPEED, false, isReady, isEnded, hasReadStreamToEnd);
     }
 
-    private MediaClockRenderer(PlaybackParameters playbackParameters,
-        boolean playbackParametersAreMutable, boolean isReady, boolean isEnded,
+    private MediaClockRenderer(
+        float playbackSpeed,
+        boolean playbackSpeedIsMutable,
+        boolean isReady,
+        boolean isEnded,
         boolean hasReadStreamToEnd)
         throws ExoPlaybackException {
-      this.playbackParameters = playbackParameters;
-      this.playbackParametersAreMutable = playbackParametersAreMutable;
+      super(C.TRACK_TYPE_UNKNOWN);
+      this.playbackSpeed = playbackSpeed;
+      this.playbackSpeedIsMutable = playbackSpeedIsMutable;
       this.isReady = isReady;
       this.isEnded = isEnded;
       this.positionUs = TEST_POSITION_US;
@@ -418,15 +416,15 @@ public class DefaultMediaClockTest {
     }
 
     @Override
-    public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-      if (playbackParametersAreMutable) {
-        this.playbackParameters = playbackParameters;
+    public void setPlaybackSpeed(float playbackSpeed) {
+      if (playbackSpeedIsMutable) {
+        this.playbackSpeed = playbackSpeed;
       }
     }
 
     @Override
-    public PlaybackParameters getPlaybackParameters() {
-      return playbackParameters;
+    public float getPlaybackSpeed() {
+      return playbackSpeed;
     }
 
     @Override

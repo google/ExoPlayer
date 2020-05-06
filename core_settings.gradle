@@ -18,12 +18,15 @@ if (gradle.ext.has('exoplayerModulePrefix')) {
 }
 
 include modulePrefix + 'library'
+include modulePrefix + 'library-common'
 include modulePrefix + 'library-core'
 include modulePrefix + 'library-dash'
+include modulePrefix + 'library-extractor'
 include modulePrefix + 'library-hls'
 include modulePrefix + 'library-smoothstreaming'
 include modulePrefix + 'library-ui'
 include modulePrefix + 'testutils'
+include modulePrefix + 'testdata'
 include modulePrefix + 'extension-av1'
 include modulePrefix + 'extension-ffmpeg'
 include modulePrefix + 'extension-flac'
@@ -41,12 +44,15 @@ include modulePrefix + 'extension-jobdispatcher'
 include modulePrefix + 'extension-workmanager'
 
 project(modulePrefix + 'library').projectDir = new File(rootDir, 'library/all')
+project(modulePrefix + 'library-common').projectDir = new File(rootDir, 'library/common')
 project(modulePrefix + 'library-core').projectDir = new File(rootDir, 'library/core')
 project(modulePrefix + 'library-dash').projectDir = new File(rootDir, 'library/dash')
+project(modulePrefix + 'library-extractor').projectDir = new File(rootDir, 'library/extractor')
 project(modulePrefix + 'library-hls').projectDir = new File(rootDir, 'library/hls')
 project(modulePrefix + 'library-smoothstreaming').projectDir = new File(rootDir, 'library/smoothstreaming')
 project(modulePrefix + 'library-ui').projectDir = new File(rootDir, 'library/ui')
 project(modulePrefix + 'testutils').projectDir = new File(rootDir, 'testutils')
+project(modulePrefix + 'testdata').projectDir = new File(rootDir, 'testdata')
 project(modulePrefix + 'extension-av1').projectDir = new File(rootDir, 'extensions/av1')
 project(modulePrefix + 'extension-ffmpeg').projectDir = new File(rootDir, 'extensions/ffmpeg')
 project(modulePrefix + 'extension-flac').projectDir = new File(rootDir, 'extensions/flac')

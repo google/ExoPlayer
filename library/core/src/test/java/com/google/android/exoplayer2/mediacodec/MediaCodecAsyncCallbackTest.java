@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.assertBufferInfosEqual;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
@@ -100,9 +101,9 @@ public class MediaCodecAsyncCallbackTest {
     MediaCodec.BufferInfo outBufferInfo = new MediaCodec.BufferInfo();
 
     assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo)).isEqualTo(0);
-    assertThat(areEqual(outBufferInfo, bufferInfo1)).isTrue();
+    assertBufferInfosEqual(bufferInfo1, outBufferInfo);
     assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo)).isEqualTo(1);
-    assertThat(areEqual(outBufferInfo, bufferInfo2)).isTrue();
+    assertBufferInfosEqual(bufferInfo2, outBufferInfo);
     assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo))
         .isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
   }
@@ -203,18 +204,5 @@ public class MediaCodecAsyncCallbackTest {
     mediaCodecAsyncCallback.flush();
 
     mediaCodecAsyncCallback.maybeThrowMediaCodecException();
-  }
-
-  /**
-   * Compares if two {@link android.media.MediaCodec.BufferInfo} are equal by inspecting {@link
-   * android.media.MediaCodec.BufferInfo#flags}, {@link android.media.MediaCodec.BufferInfo#size},
-   * {@link android.media.MediaCodec.BufferInfo#presentationTimeUs} and {@link
-   * android.media.MediaCodec.BufferInfo#offset}.
-   */
-  private static boolean areEqual(MediaCodec.BufferInfo lhs, MediaCodec.BufferInfo rhs) {
-    return lhs.flags == rhs.flags
-        && lhs.offset == rhs.offset
-        && lhs.presentationTimeUs == rhs.presentationTimeUs
-        && lhs.size == rhs.size;
   }
 }

@@ -19,6 +19,7 @@ import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
@@ -227,6 +228,23 @@ public interface MediaSource {
    * @param eventListener The listener to be removed.
    */
   void removeEventListener(MediaSourceEventListener eventListener);
+
+  /**
+   * Adds a {@link DrmSessionEventListener} to the list of listeners which are notified of DRM
+   * events for this media source.
+   *
+   * @param handler A handler on the which listener events will be posted.
+   * @param eventListener The listener to be added.
+   */
+  void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener);
+
+  /**
+   * Removes a {@link DrmSessionEventListener} from the list of listeners which are notified of DRM
+   * events for this media source.
+   *
+   * @param eventListener The listener to be removed.
+   */
+  void removeDrmEventListener(DrmSessionEventListener eventListener);
 
   /**
    * Returns the initial dummy timeline that is returned immediately when the real timeline is not

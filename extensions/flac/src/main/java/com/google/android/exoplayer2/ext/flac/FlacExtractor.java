@@ -27,13 +27,13 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.FlacMetadataReader;
+import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -113,14 +113,13 @@ public final class FlacExtractor implements Extractor {
   }
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     id3Metadata = FlacMetadataReader.peekId3Metadata(input, /* parseData= */ !id3MetadataDisabled);
     return FlacMetadataReader.checkAndPeekStreamMarker(input);
   }
 
   @Override
-  public int read(final ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(final ExtractorInput input, PositionHolder seekPosition) throws IOException {
     if (input.getPosition() == 0 && !id3MetadataDisabled && id3Metadata == null) {
       id3Metadata = FlacMetadataReader.peekId3Metadata(input, /* parseData= */ true);
     }
@@ -185,7 +184,7 @@ public final class FlacExtractor implements Extractor {
   @RequiresNonNull({"decoderJni", "extractorOutput", "trackOutput"}) // Requires initialized.
   @EnsuresNonNull({"streamMetadata", "outputFrameHolder"}) // Ensures stream metadata decoded.
   @SuppressWarnings({"contracts.postcondition.not.satisfied"})
-  private void decodeStreamMetadata(ExtractorInput input) throws InterruptedException, IOException {
+  private void decodeStreamMetadata(ExtractorInput input) throws IOException {
     if (streamMetadataDecoded) {
       return;
     }
@@ -212,6 +211,7 @@ public final class FlacExtractor implements Extractor {
               input.getLength(),
               extractorOutput,
               outputFrameHolder);
+      @Nullable
       Metadata metadata = streamMetadata.getMetadataCopyWithAppendedEntriesFrom(id3Metadata);
       outputFormat(streamMetadata, metadata, trackOutput);
     }
@@ -224,7 +224,7 @@ public final class FlacExtractor implements Extractor {
       ParsableByteArray outputBuffer,
       OutputFrameHolder outputFrameHolder,
       TrackOutput trackOutput)
-      throws InterruptedException, IOException {
+      throws IOException {
     int seekResult = binarySearchSeeker.handlePendingSeek(input, seekPosition);
     ByteBuffer outputByteBuffer = outputFrameHolder.byteBuffer;
     if (seekResult == RESULT_CONTINUE && outputByteBuffer.limit() > 0) {
@@ -249,7 +249,7 @@ public final class FlacExtractor implements Extractor {
     SeekMap seekMap;
     if (haveSeekTable) {
       seekMap = new FlacSeekMap(streamMetadata.getDurationUs(), decoderJni);
-    } else if (streamLength != C.LENGTH_UNSET) {
+    } else if (streamLength != C.LENGTH_UNSET && streamMetadata.totalSamples > 0) {
       long firstFramePosition = decoderJni.getDecodePosition();
       binarySearchSeeker =
           new FlacBinarySearchSeeker(
@@ -265,22 +265,16 @@ public final class FlacExtractor implements Extractor {
   private static void outputFormat(
       FlacStreamMetadata streamMetadata, @Nullable Metadata metadata, TrackOutput output) {
     Format mediaFormat =
-        Format.createAudioSampleFormat(
-            /* id= */ null,
-            MimeTypes.AUDIO_RAW,
-            /* codecs= */ null,
-            streamMetadata.getBitRate(),
-            streamMetadata.getMaxDecodedFrameSize(),
-            streamMetadata.channels,
-            streamMetadata.sampleRate,
-            getPcmEncoding(streamMetadata.bitsPerSample),
-            /* encoderDelay= */ 0,
-            /* encoderPadding= */ 0,
-            /* initializationData= */ null,
-            /* drmInitData= */ null,
-            /* selectionFlags= */ 0,
-            /* language= */ null,
-            metadata);
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.AUDIO_RAW)
+            .setAverageBitrate(streamMetadata.getDecodedBitrate())
+            .setPeakBitrate(streamMetadata.getDecodedBitrate())
+            .setMaxInputSize(streamMetadata.getMaxDecodedFrameSize())
+            .setChannelCount(streamMetadata.channels)
+            .setSampleRate(streamMetadata.sampleRate)
+            .setPcmEncoding(getPcmEncoding(streamMetadata.bitsPerSample))
+            .setMetadata(metadata)
+            .build();
     output.format(mediaFormat);
   }
 

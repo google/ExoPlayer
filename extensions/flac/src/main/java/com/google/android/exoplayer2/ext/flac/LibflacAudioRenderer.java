@@ -21,17 +21,24 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.audio.AudioSink;
+import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Decodes and renders audio using the native Flac decoder.
- */
-public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
+/** Decodes and renders audio using the native Flac decoder. */
+public final class LibflacAudioRenderer extends DecoderAudioRenderer {
 
+  private static final String TAG = "LibflacAudioRenderer";
   private static final int NUM_BUFFERS = 16;
+
+  private @MonotonicNonNull FlacStreamMetadata streamMetadata;
 
   public LibflacAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -50,15 +57,52 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
     super(eventHandler, eventListener, audioProcessors);
   }
 
+  /**
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param audioSink The sink to which audio will be output.
+   */
+  public LibflacAudioRenderer(
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      AudioSink audioSink) {
+    super(
+        eventHandler,
+        eventListener,
+        audioSink);
+  }
+
   @Override
-  protected int supportsFormatInternal(
-      @Nullable DrmSessionManager<ExoMediaCrypto> drmSessionManager, Format format) {
+  public String getName() {
+    return TAG;
+  }
+
+  @Override
+  @FormatSupport
+  protected int supportsFormatInternal(Format format) {
     if (!FlacLibrary.isAvailable()
         || !MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!supportsOutput(format.channelCount, C.ENCODING_PCM_16BIT)) {
+    }
+    // Compute the PCM encoding that the FLAC decoder will output.
+    @C.PcmEncoding int pcmEncoding;
+    if (format.initializationData.isEmpty()) {
+      // The initialization data might not be set if the format was obtained from a manifest (e.g.
+      // for DASH playbacks) rather than directly from the media. In this case we assume
+      // ENCODING_PCM_16BIT. If the actual encoding is different then playback will still succeed as
+      // long as the AudioSink supports it, which will always be true when using DefaultAudioSink.
+      pcmEncoding = C.ENCODING_PCM_16BIT;
+    } else {
+      int streamMetadataOffset =
+          FlacConstants.STREAM_MARKER_SIZE + FlacConstants.METADATA_BLOCK_HEADER_SIZE;
+      FlacStreamMetadata streamMetadata =
+          new FlacStreamMetadata(format.initializationData.get(0), streamMetadataOffset);
+      pcmEncoding = Util.getPcmEncoding(streamMetadata.bitsPerSample);
+    }
+    if (!supportsOutput(format.channelCount, pcmEncoding)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
-    } else if (!supportsFormatDrm(drmSessionManager, format.drmInitData)) {
+    } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
       return FORMAT_UNSUPPORTED_DRM;
     } else {
       return FORMAT_HANDLED;
@@ -68,8 +112,22 @@ public class LibflacAudioRenderer extends SimpleDecoderAudioRenderer {
   @Override
   protected FlacDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws FlacDecoderException {
-    return new FlacDecoder(
-        NUM_BUFFERS, NUM_BUFFERS, format.maxInputSize, format.initializationData);
+    TraceUtil.beginSection("createFlacDecoder");
+    FlacDecoder decoder =
+        new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, format.maxInputSize, format.initializationData);
+    streamMetadata = decoder.getStreamMetadata();
+    TraceUtil.endSection();
+    return decoder;
   }
 
+  @Override
+  protected Format getOutputFormat() {
+    Assertions.checkNotNull(streamMetadata);
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(streamMetadata.channels)
+        .setSampleRate(streamMetadata.sampleRate)
+        .setPcmEncoding(Util.getPcmEncoding(streamMetadata.bitsPerSample))
+        .build();
+  }
 }

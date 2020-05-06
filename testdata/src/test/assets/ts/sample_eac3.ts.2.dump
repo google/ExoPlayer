@@ -1,0 +1,113 @@
+seekMap:
+  isSeekable = true
+  duration = 250077
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(125038) = [[timeUs=125038, position=109918]]
+  getPosition(250077) = [[timeUs=250077, position=220025]]
+numberOfTracks = 1
+track 1900:
+  total output bytes = 96000
+  sample count = 24
+  format 0:
+    id = 1/1900
+    sampleMimeType = audio/eac3
+    channelCount = 6
+    sampleRate = 48000
+  sample 0:
+    time = 160000
+    flags = 1
+    data = length 4000, hash 81AE828E
+  sample 1:
+    time = 165333
+    flags = 1
+    data = length 4000, hash 767D6C98
+  sample 2:
+    time = 170666
+    flags = 1
+    data = length 4000, hash A5F6D4E
+  sample 3:
+    time = 175999
+    flags = 1
+    data = length 4000, hash EABC6B0D
+  sample 4:
+    time = 181332
+    flags = 1
+    data = length 4000, hash F47EF742
+  sample 5:
+    time = 186665
+    flags = 1
+    data = length 4000, hash 9B2549DA
+  sample 6:
+    time = 192000
+    flags = 1
+    data = length 4000, hash A12733C9
+  sample 7:
+    time = 197333
+    flags = 1
+    data = length 4000, hash 95F62E99
+  sample 8:
+    time = 202666
+    flags = 1
+    data = length 4000, hash A4D858
+  sample 9:
+    time = 207999
+    flags = 1
+    data = length 4000, hash A4D858
+  sample 10:
+    time = 213332
+    flags = 1
+    data = length 4000, hash 22C1A129
+  sample 11:
+    time = 218665
+    flags = 1
+    data = length 4000, hash 2C51E4A1
+  sample 12:
+    time = 224000
+    flags = 1
+    data = length 4000, hash 3782E8BB
+  sample 13:
+    time = 229333
+    flags = 1
+    data = length 4000, hash 2C51E4A1
+  sample 14:
+    time = 234666
+    flags = 1
+    data = length 4000, hash BDB3D129
+  sample 15:
+    time = 239999
+    flags = 1
+    data = length 4000, hash F642A55
+  sample 16:
+    time = 245332
+    flags = 1
+    data = length 4000, hash 32F259F4
+  sample 17:
+    time = 250665
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 18:
+    time = 256000
+    flags = 1
+    data = length 4000, hash 57C98E1C
+  sample 19:
+    time = 261333
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 20:
+    time = 266666
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 21:
+    time = 271999
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 22:
+    time = 277332
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 23:
+    time = 282665
+    flags = 1
+    data = length 4000, hash 4C987B7C
+tracksEnded = true

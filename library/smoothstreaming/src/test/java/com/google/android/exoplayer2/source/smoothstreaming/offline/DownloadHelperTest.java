@@ -34,11 +34,11 @@ public final class DownloadHelperTest {
         ApplicationProvider.getApplicationContext(),
         Uri.parse("http://uri"),
         new FakeDataSource.Factory(),
-        (handler, videoListener, audioListener, text, metadata, drm) -> new Renderer[0]);
+        (handler, videoListener, audioListener, text, metadata) -> new Renderer[0]);
     DownloadHelper.forSmoothStreaming(
         Uri.parse("http://uri"),
         new FakeDataSource.Factory(),
-        (handler, videoListener, audioListener, text, metadata, drm) -> new Renderer[0],
+        (handler, videoListener, audioListener, text, metadata) -> new Renderer[0],
         /* drmSessionManager= */ null,
         DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT);
   }

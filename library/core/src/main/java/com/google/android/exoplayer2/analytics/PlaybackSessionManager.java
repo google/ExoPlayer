@@ -117,4 +117,12 @@ public interface PlaybackSessionManager {
    * @param reason The {@link DiscontinuityReason}.
    */
   void handlePositionDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason);
+
+  /**
+   * Finishes all existing sessions and calls their respective {@link
+   * Listener#onSessionFinished(EventTime, String, boolean)} callback.
+   *
+   * @param eventTime The event time at which sessions are finished.
+   */
+  void finishAllSessions(EventTime eventTime);
 }

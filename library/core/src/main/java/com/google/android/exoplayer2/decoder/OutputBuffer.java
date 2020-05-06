@@ -20,6 +20,17 @@ package com.google.android.exoplayer2.decoder;
  */
 public abstract class OutputBuffer extends Buffer {
 
+  /** Buffer owner. */
+  public interface Owner<S extends OutputBuffer> {
+
+    /**
+     * Releases the buffer.
+     *
+     * @param outputBuffer Output buffer.
+     */
+    void releaseOutputBuffer(S outputBuffer);
+  }
+
   /**
    * The presentation timestamp for the buffer, in microseconds.
    */
@@ -34,5 +45,4 @@ public abstract class OutputBuffer extends Buffer {
    * Releases the output buffer for reuse. Must be called when the buffer is no longer needed.
    */
   public abstract void release();
-
 }

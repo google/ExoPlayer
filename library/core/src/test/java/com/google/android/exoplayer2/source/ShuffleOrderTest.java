@@ -32,7 +32,7 @@ public final class ShuffleOrderTest {
   public static final long RANDOM_SEED = 1234567890L;
 
   @Test
-  public void testDefaultShuffleOrder() {
+  public void defaultShuffleOrder() {
     assertShuffleOrderCorrectness(new DefaultShuffleOrder(0, RANDOM_SEED), 0);
     assertShuffleOrderCorrectness(new DefaultShuffleOrder(1, RANDOM_SEED), 1);
     assertShuffleOrderCorrectness(new DefaultShuffleOrder(5, RANDOM_SEED), 5);
@@ -55,7 +55,7 @@ public final class ShuffleOrderTest {
   }
 
   @Test
-  public void testDefaultShuffleOrderSideloaded() {
+  public void defaultShuffleOrderSideloaded() {
     int[] shuffledIndices = new int[] {2, 1, 0, 4, 3};
     ShuffleOrder shuffleOrder = new DefaultShuffleOrder(shuffledIndices, RANDOM_SEED);
     assertThat(shuffleOrder.getFirstIndex()).isEqualTo(2);
@@ -72,7 +72,7 @@ public final class ShuffleOrderTest {
   }
 
   @Test
-  public void testUnshuffledShuffleOrder() {
+  public void unshuffledShuffleOrder() {
     assertShuffleOrderCorrectness(new UnshuffledShuffleOrder(0), 0);
     assertShuffleOrderCorrectness(new UnshuffledShuffleOrder(1), 1);
     assertShuffleOrderCorrectness(new UnshuffledShuffleOrder(5), 5);
@@ -95,7 +95,7 @@ public final class ShuffleOrderTest {
   }
 
   @Test
-  public void testUnshuffledShuffleOrderIsUnshuffled() {
+  public void unshuffledShuffleOrderIsUnshuffled() {
     ShuffleOrder shuffleOrder = new UnshuffledShuffleOrder(5);
     assertThat(shuffleOrder.getFirstIndex()).isEqualTo(0);
     assertThat(shuffleOrder.getLastIndex()).isEqualTo(4);

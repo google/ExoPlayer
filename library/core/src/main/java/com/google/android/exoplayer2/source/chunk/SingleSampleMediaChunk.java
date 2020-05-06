@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
@@ -54,7 +55,7 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
       DataSpec dataSpec,
       Format trackFormat,
       int trackSelectionReason,
-      Object trackSelectionData,
+      @Nullable Object trackSelectionData,
       long startTimeUs,
       long endTimeUs,
       long chunkIndex,
@@ -90,20 +91,20 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
 
   @SuppressWarnings("NonAtomicVolatileUpdate")
   @Override
-  public void load() throws IOException, InterruptedException {
-    DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
+  public void load() throws IOException {
+    BaseMediaChunkOutput output = getOutput();
+    output.setSampleOffsetUs(0);
+    TrackOutput trackOutput = output.track(0, trackType);
+    trackOutput.format(sampleFormat);
     try {
       // Create and open the input.
+      DataSpec loadDataSpec = dataSpec.subrange(nextLoadPosition);
       long length = dataSource.open(loadDataSpec);
       if (length != C.LENGTH_UNSET) {
         length += nextLoadPosition;
       }
       ExtractorInput extractorInput =
           new DefaultExtractorInput(dataSource, nextLoadPosition, length);
-      BaseMediaChunkOutput output = getOutput();
-      output.setSampleOffsetUs(0);
-      TrackOutput trackOutput = output.track(0, trackType);
-      trackOutput.format(sampleFormat);
       // Load the sample data.
       int result = 0;
       while (result != C.RESULT_END_OF_INPUT) {
@@ -117,5 +118,4 @@ public final class SingleSampleMediaChunk extends BaseMediaChunk {
     }
     loadCompleted = true;
   }
-
 }
