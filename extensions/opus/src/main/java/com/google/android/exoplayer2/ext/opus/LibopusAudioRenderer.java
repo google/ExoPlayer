@@ -69,7 +69,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!supportsOutput(format.channelCount, C.ENCODING_PCM_16BIT)) {
+    } else if (!supportsOutput(format.channelCount, format.sampleRate, C.ENCODING_PCM_16BIT)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (!drmIsSupported) {
       return FORMAT_UNSUPPORTED_DRM;

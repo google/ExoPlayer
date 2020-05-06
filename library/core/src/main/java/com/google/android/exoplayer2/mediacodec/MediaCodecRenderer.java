@@ -578,8 +578,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return;
     }
 
-    if (inputFormat.drmInitData == null
-        && usePassthrough(inputFormat.channelCount, inputFormat.sampleMimeType)) {
+    if (inputFormat.drmInitData == null && usePassthrough(inputFormat)) {
       initPassthrough(inputFormat);
       return;
     }
@@ -632,12 +631,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /**
    * Returns whether encoded passthrough should be used for playing back the input format.
    *
-   * @param channelCount The number of channels in the input media, or {@link Format#NO_VALUE} if
-   *     not known.
-   * @param mimeType The type of input media.
+   * @param format The input {@link Format}.
    * @return Whether passthrough playback is supported.
    */
-  protected boolean usePassthrough(int channelCount, String mimeType) {
+  protected boolean usePassthrough(Format format) {
     return false;
   }
 

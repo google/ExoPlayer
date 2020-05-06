@@ -200,14 +200,18 @@ public final class DefaultAudioSinkTest {
   @Config(minSdk = OLDEST_SDK, maxSdk = 20)
   @Test
   public void doesNotSupportFloatOutputBeforeApi21() {
-    assertThat(defaultAudioSink.supportsOutput(CHANNEL_COUNT_STEREO, C.ENCODING_PCM_FLOAT))
+    assertThat(
+            defaultAudioSink.supportsOutput(
+                CHANNEL_COUNT_STEREO, SAMPLE_RATE_44_1, C.ENCODING_PCM_FLOAT))
         .isFalse();
   }
 
   @Config(minSdk = 21, maxSdk = TARGET_SDK)
   @Test
   public void supportsFloatOutputFromApi21() {
-    assertThat(defaultAudioSink.supportsOutput(CHANNEL_COUNT_STEREO, C.ENCODING_PCM_FLOAT))
+    assertThat(
+            defaultAudioSink.supportsOutput(
+                CHANNEL_COUNT_STEREO, SAMPLE_RATE_44_1, C.ENCODING_PCM_FLOAT))
         .isTrue();
   }
 
