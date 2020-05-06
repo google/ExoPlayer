@@ -41,7 +41,7 @@ dependencies {
     // https://cashapp.github.io/2019-02-05/okhttp-3-13-requires-android-5
     // Since OkHttp is distributed as a jar rather than an aar, Gradle won't
     // stop us from making this mistake!
-    api 'com.squareup.okhttp3:okhttp:3.12.8'
+    api 'com.squareup.okhttp3:okhttp:3.12.11'
 }
 
 ext {
