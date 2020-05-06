@@ -177,10 +177,11 @@ public interface AudioSink {
    * Returns whether the sink supports the audio format.
    *
    * @param channelCount The number of channels, or {@link Format#NO_VALUE} if not known.
+   * @param sampleRate The sample rate, or {@link Format#NO_VALUE} if not known.
    * @param encoding The audio encoding, or {@link Format#NO_VALUE} if not known.
    * @return Whether the sink supports the audio format.
    */
-  boolean supportsOutput(int channelCount, @C.Encoding int encoding);
+  boolean supportsOutput(int channelCount, int sampleRate, @C.Encoding int encoding);
 
   /**
    * Returns the playback position in the stream starting at zero, in microseconds, or
