@@ -411,24 +411,44 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
     int channelCount = mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
     int sampleRate = mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-    int[] channelMap;
+    @Nullable int[] channelMap = null;
     if (codecNeedsDiscardChannelsWorkaround && channelCount == 6 && inputFormat.channelCount < 6) {
       channelMap = new int[inputFormat.channelCount];
       for (int i = 0; i < inputFormat.channelCount; i++) {
         channelMap[i] = i;
       }
-    } else {
-      channelMap = null;
     }
-    configureAudioSink(encoding, channelCount, sampleRate, channelMap);
+    try {
+      audioSink.configure(
+          encoding,
+          channelCount,
+          sampleRate,
+          /* specifiedBufferSize= */ 0,
+          channelMap,
+          inputFormat.encoderDelay,
+          inputFormat.encoderPadding);
+    } catch (AudioSink.ConfigurationException e) {
+      // TODO(internal: b/145658993) Use outputFormat instead.
+      throw createRendererException(e, inputFormat);
+    }
   }
 
   @Override
   protected void onOutputPassthroughFormatChanged(Format outputFormat) throws ExoPlaybackException {
     @C.Encoding
     int encoding = getPassthroughEncoding(outputFormat.channelCount, outputFormat.sampleMimeType);
-    configureAudioSink(
-        encoding, outputFormat.channelCount, outputFormat.sampleRate, /* channelMap= */ null);
+    try {
+      audioSink.configure(
+          encoding,
+          outputFormat.channelCount,
+          outputFormat.sampleRate,
+          /* specifiedBufferSize= */ 0,
+          /* outputChannels= */ null,
+          outputFormat.encoderDelay,
+          outputFormat.encoderPadding);
+    } catch (AudioSink.ConfigurationException e) {
+      throw createRendererException(e, outputFormat);
+    }
   }
 
   /**
@@ -764,24 +784,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       mediaFormat.setInteger("ac4-is-sync", 1);
     }
     return mediaFormat;
-  }
-
-  private void configureAudioSink(
-      int encoding, int channelCount, int sampleRate, @Nullable int[] channelMap)
-      throws ExoPlaybackException {
-    try {
-      audioSink.configure(
-          encoding,
-          channelCount,
-          sampleRate,
-          /* specifiedBufferSize= */ 0,
-          channelMap,
-          inputFormat.encoderDelay,
-          inputFormat.encoderPadding);
-    } catch (AudioSink.ConfigurationException e) {
-      // TODO(internal: b/145658993) Use outputFormat instead.
-      throw createRendererException(e, inputFormat);
-    }
   }
 
   private void updateCurrentPosition() {
