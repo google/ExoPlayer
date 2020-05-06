@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
@@ -156,22 +157,23 @@ public final class OfflineLicenseHelper {
     DrmSessionEventListener eventListener =
         new DrmSessionEventListener() {
           @Override
-          public void onDrmKeysLoaded() {
+          public void onDrmKeysLoaded(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
             conditionVariable.open();
           }
 
           @Override
-          public void onDrmSessionManagerError(Exception e) {
+          public void onDrmSessionManagerError(
+              int windowIndex, @Nullable MediaPeriodId mediaPeriodId, Exception e) {
             conditionVariable.open();
           }
 
           @Override
-          public void onDrmKeysRestored() {
+          public void onDrmKeysRestored(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
             conditionVariable.open();
           }
 
           @Override
-          public void onDrmKeysRemoved() {
+          public void onDrmKeysRemoved(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
             conditionVariable.open();
           }
         };

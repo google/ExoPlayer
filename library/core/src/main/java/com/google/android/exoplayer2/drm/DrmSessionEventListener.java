@@ -15,16 +15,28 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 
 /** Listener of {@link DrmSessionManager} events. */
 public interface DrmSessionEventListener {
 
-  /** Called each time a drm session is acquired. */
-  default void onDrmSessionAcquired() {}
+  /**
+   * Called each time a drm session is acquired.
+   *
+   * @param windowIndex The window index in the timeline this media period belongs to.
+   * @param mediaPeriodId The {@link MediaPeriodId} associated with the drm session.
+   */
+  default void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {}
 
-  /** Called each time keys are loaded. */
-  default void onDrmKeysLoaded() {}
+  /**
+   * Called each time keys are loaded.
+   *
+   * @param windowIndex The window index in the timeline this media period belongs to.
+   * @param mediaPeriodId The {@link MediaPeriodId} associated with the drm session.
+   */
+  default void onDrmKeysLoaded(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {}
 
   /**
    * Called when a drm error occurs.
@@ -36,16 +48,34 @@ public interface DrmSessionEventListener {
    * such behavior). This method is called to provide the application with an opportunity to log the
    * error if it wishes to do so.
    *
+   * @param windowIndex The window index in the timeline this media period belongs to.
+   * @param mediaPeriodId The {@link MediaPeriodId} associated with the drm session.
    * @param error The corresponding exception.
    */
-  default void onDrmSessionManagerError(Exception error) {}
+  default void onDrmSessionManagerError(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId, Exception error) {}
 
-  /** Called each time offline keys are restored. */
-  default void onDrmKeysRestored() {}
+  /**
+   * Called each time offline keys are restored.
+   *
+   * @param windowIndex The window index in the timeline this media period belongs to.
+   * @param mediaPeriodId The {@link MediaPeriodId} associated with the drm session.
+   */
+  default void onDrmKeysRestored(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {}
 
-  /** Called each time offline keys are removed. */
-  default void onDrmKeysRemoved() {}
+  /**
+   * Called each time offline keys are removed.
+   *
+   * @param windowIndex The window index in the timeline this media period belongs to.
+   * @param mediaPeriodId The {@link MediaPeriodId} associated with the drm session.
+   */
+  default void onDrmKeysRemoved(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {}
 
-  /** Called each time a drm session is released. */
-  default void onDrmSessionReleased() {}
+  /**
+   * Called each time a drm session is released.
+   *
+   * @param windowIndex The window index in the timeline this media period belongs to.
+   * @param mediaPeriodId The {@link MediaPeriodId} associated with the drm session.
+   */
+  default void onDrmSessionReleased(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {}
 }
