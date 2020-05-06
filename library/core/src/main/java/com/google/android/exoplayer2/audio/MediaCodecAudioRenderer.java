@@ -217,9 +217,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     boolean supportsFormatDrm = supportsFormatDrm(format);
+    // In passthrough mode, if DRM init data is present we need to use a passthrough decoder to
+    // decrypt the content. For passthrough of clear content we don't need a decoder at all.
     if (supportsFormatDrm
         && usePassthrough(format.channelCount, mimeType)
-        // A Passthrough decoder is only needed to decode the DRM encryption.
         && (format.drmInitData == null || MediaCodecUtil.getPassthroughDecoderInfo() != null)) {
       return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
     }
