@@ -87,7 +87,6 @@ static const int VIDEO_DECODER_SUCCESS = 0;
 static const int VIDEO_DECODER_ERROR_INVALID_DATA = -1;
 static const int VIDEO_DECODER_ERROR_OTHER = -2;
 static const int VIDEO_DECODER_ERROR_READ_FRAME = -3;
-static const int VIDEO_DECODER_ERROR_SEND_PACKET = -4;
 // LINT.ThenChange(../java/com/google/android/exoplayer2/ext/ffmpeg/FfmpegVideoDecoder.java)
 
 /**
@@ -451,11 +450,6 @@ constexpr int AlignTo16(int value) { return (value + 15) & (~15); }
 JniContext *createVideoContext(JNIEnv *env,
                                AVCodec *codec,
                                jbyteArray extraData,
-                               jint threads);
-
-JniContext *createVideoContext(JNIEnv *env,
-                               AVCodec *codec,
-                               jbyteArray extraData,
                                jint threads) {
   JniContext *jniContext = new(std::nothrow)JniContext();
 
@@ -651,9 +645,12 @@ VIDEO_DECODER_FUNC(jint, ffmpegRenderFrame, jlong jContext, jobject jSurface,
   }
 
   ANativeWindow_Buffer native_window_buffer;
-  if (ANativeWindow_lock(jniContext->native_window, &native_window_buffer,
-/*inOutDirtyBounds=*/nullptr) ||
-      native_window_buffer.bits == nullptr) {
+  int result = ANativeWindow_lock(jniContext->native_window, &native_window_buffer, nullptr);
+  if (result == -19) {
+    // Surface: dequeueBuffer failed (No such device)
+    jniContext->surface = nullptr;
+    return VIDEO_DECODER_SUCCESS;
+  } else if (result || native_window_buffer.bits == nullptr) {
     LOGE("kJniStatusANativeWindowError");
     return VIDEO_DECODER_ERROR_OTHER;
   }
@@ -683,12 +680,9 @@ VIDEO_DECODER_FUNC(jint, ffmpegRenderFrame, jlong jContext, jobject jSurface,
             displayedWidth,
             displayedHeight);
 
-  const int y_plane_size =
-      native_window_buffer.stride * native_window_buffer.height;
-  const int32_t native_window_buffer_uv_height =
-      (native_window_buffer.height + 1) / 2;
-  const int native_window_buffer_uv_stride =
-      AlignTo16(native_window_buffer.stride / 2);
+  const int y_plane_size = native_window_buffer.stride * native_window_buffer.height;
+  const int32_t native_window_buffer_uv_height = (native_window_buffer.height + 1) / 2;
+  const int native_window_buffer_uv_stride = AlignTo16(native_window_buffer.stride / 2);
 
   // TODO(b/140606738): Handle monochrome videos.
 

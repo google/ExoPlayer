@@ -36,5 +36,5 @@ LOCAL_MODULE := ffmpeg
 LOCAL_SRC_FILES := ffmpeg_jni.cc
 LOCAL_C_INCLUDES := ffmpeg
 LOCAL_SHARED_LIBRARIES := libavcodec libswresample libavutil
-LOCAL_LDLIBS := -Lffmpeg/android-libs/$(TARGET_ARCH_ABI) -llog
+LOCAL_LDLIBS := -Lffmpeg/android-libs/$(TARGET_ARCH_ABI) -llog -landroid
 include $(BUILD_SHARED_LIBRARY)

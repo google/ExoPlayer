@@ -36,12 +36,13 @@ import java.util.List;
     extends
     SimpleDecoder<VideoDecoderInputBuffer, VideoDecoderOutputBuffer, FfmpegDecoderException> {
 
+  private static final String TAG = "FfmpegVideoDecoder";
+
   // LINT.IfChange
   private static final int VIDEO_DECODER_SUCCESS = 0;
   private static final int VIDEO_DECODER_ERROR_INVALID_DATA = -1;
   private static final int VIDEO_DECODER_ERROR_OTHER = -2;
   private static final int VIDEO_DECODER_ERROR_READ_FRAME = -3;
-  private static final int VIDEO_DECODER_ERROR_SEND_PACKET = -4;
   // LINT.ThenChange(../../../../../../../jni/ffmpeg_jni.cc)
 
   private final String codecName;
@@ -141,7 +142,6 @@ import java.util.List;
     ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     int inputSize = inputData.limit();
     // enqueue origin data
-    boolean needSendAgain = false;
     int sendPacketResult = ffmpegSendPacket(nativeContext, inputData, inputSize,
         inputBuffer.timeUs);
     if (sendPacketResult == VIDEO_DECODER_ERROR_INVALID_DATA) {
@@ -149,7 +149,7 @@ import java.util.List;
       return null;
     } else if (sendPacketResult == VIDEO_DECODER_ERROR_READ_FRAME) {
       // need read frame
-      needSendAgain = true;
+      Log.d(TAG, "VIDEO_DECODER_ERROR_READ_FRAME: " + "timeUs=" + inputBuffer.timeUs);
     } else if (sendPacketResult == VIDEO_DECODER_ERROR_OTHER) {
       return new FfmpegDecoderException("ffmpegDecode error: (see logcat)");
     }
@@ -159,9 +159,7 @@ import java.util.List;
     // We need to dequeue the decoded frame from the decoder even when the input data is
     // decode-only.
     int getFrameResult = ffmpegReceiveFrame(nativeContext, outputMode, outputBuffer, decodeOnly);
-    if (getFrameResult == VIDEO_DECODER_ERROR_SEND_PACKET) {
-      return null;
-    } else if (getFrameResult == VIDEO_DECODER_ERROR_OTHER) {
+    if (getFrameResult == VIDEO_DECODER_ERROR_OTHER) {
       return new FfmpegDecoderException("ffmpegDecode error: (see logcat)");
     }
 
@@ -171,10 +169,6 @@ import java.util.List;
 
     if (!decodeOnly) {
       outputBuffer.colorInfo = inputBuffer.colorInfo;
-    }
-
-    if (needSendAgain) {
-      Log.e("ffmpeg_jni", "timeUs=" + inputBuffer.timeUs + ", " + "nendSendAagin");
     }
 
     return null;

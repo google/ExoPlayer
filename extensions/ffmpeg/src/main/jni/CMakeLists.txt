@@ -1,10 +1,10 @@
-# libgav1JNI requires modern CMake.
+# libffmpegJNI requires modern CMake.
 cmake_minimum_required(VERSION 3.7.1 FATAL_ERROR)
 
-# libgav1JNI requires C++11.
+# libffmpegJNI requires C++11.
 set(CMAKE_CXX_STANDARD 11)
 
-project(libffmpegJNI C CXX)
+project(libffmpeg C CXX)
 
 set(libgffmpeg_jni_root "${CMAKE_CURRENT_SOURCE_DIR}")
 set(libgffmpeg_jni_build "${CMAKE_BINARY_DIR}")
@@ -39,7 +39,7 @@ set_target_properties(
         ${libgffmpeg_jni_output_directory}/libavcodec.so)
 
 # Build libgffmpegJNI.
-add_library(ffmpegJNI
+add_library(ffmpeg
             SHARED
             ffmpeg_jni.cc)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -48,7 +48,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 find_library(android_log_lib log)
 
 # Link libgffmpegJNI against used libraries.
-target_link_libraries(ffmpegJNI
+target_link_libraries(ffmpeg
                       PRIVATE android
                       PRIVATE avutil
                       PRIVATE swresample
@@ -56,6 +56,6 @@ target_link_libraries(ffmpegJNI
                       PRIVATE ${android_log_lib})
 
 # Specify output directory for libgffmpegJNI.
-set_target_properties(ffmpegJNI PROPERTIES
+set_target_properties(ffmpeg PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY
                       ${libgffmpeg_jni_output_directory})

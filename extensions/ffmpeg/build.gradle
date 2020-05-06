@@ -32,7 +32,7 @@ android {
                 // Debug CMake build type causes video frames to drop,
                 // so native library should always use Release build type.
                 arguments "-DCMAKE_BUILD_TYPE=Release"
-                targets "ffmpegJNI"
+                targets "ffmpeg"
             }
         }
     }
@@ -52,13 +52,13 @@ android {
         }
     }
 
-    // This option resolves the problem of finding libffmpegJNI.so
+    // This option resolves the problem of finding libffmpeg.so
     // on multiple paths. The first one found is picked.
     packagingOptions {
-        pickFirst 'lib/arm64-v8a/libffmpegJNI.so'
-        pickFirst 'lib/armeabi-v7a/libffmpegJNI.so'
-        pickFirst 'lib/x86/libffmpegJNI.so'
-        pickFirst 'lib/x86_64/libffmpegJNI.so'
+        pickFirst 'lib/arm64-v8a/libffmpeg.so'
+        pickFirst 'lib/armeabi-v7a/libffmpeg.so'
+        pickFirst 'lib/x86/libffmpeg.so'
+        pickFirst 'lib/x86_64/libffmpeg.so'
     }
 
     sourceSets.main {
