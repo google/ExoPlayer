@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.device.DeviceInfo;
 import com.google.android.exoplayer2.device.DeviceListener;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
@@ -348,6 +349,9 @@ public interface Player {
      * @param listener The output to remove.
      */
     void removeTextOutput(TextOutput listener);
+
+    /** Returns the current {@link Cue Cues}. This list may be empty. */
+    List<Cue> getCurrentCues();
   }
 
   /** The metadata component of a {@link Player}. */

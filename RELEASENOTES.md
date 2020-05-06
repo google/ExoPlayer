@@ -3,6 +3,9 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
+    *   Added `TextComponent.getCurrentCues` because the current cues are no
+        longer forwarded to a new `TextOutput` in `SimpleExoPlayer`
+        automatically.
     *   Add opt-in to verify correct thread usage with
         `SimpleExoPlayer.setThrowsWhenUsingWrongThread(true)`
         ([#4463](https://github.com/google/ExoPlayer/issues/4463)).
