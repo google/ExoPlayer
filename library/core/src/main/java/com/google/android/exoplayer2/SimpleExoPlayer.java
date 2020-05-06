@@ -354,7 +354,6 @@ public class SimpleExoPlayer extends BasePlayer
   private final CopyOnWriteArraySet<AudioRendererEventListener> audioDebugListeners;
   private final BandwidthMeter bandwidthMeter;
   private final AnalyticsCollector analyticsCollector;
-
   private final AudioBecomingNoisyManager audioBecomingNoisyManager;
   private final AudioFocusManager audioFocusManager;
   private final StreamVolumeManager streamVolumeManager;
@@ -981,15 +980,18 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public void addTextOutput(TextOutput listener) {
-    if (!currentCues.isEmpty()) {
-      listener.onCues(currentCues);
-    }
     textOutputs.add(listener);
   }
 
   @Override
   public void removeTextOutput(TextOutput listener) {
     textOutputs.remove(listener);
+  }
+
+  @Override
+  public List<Cue> getCurrentCues() {
+    verifyApplicationThread();
+    return currentCues;
   }
 
   /**

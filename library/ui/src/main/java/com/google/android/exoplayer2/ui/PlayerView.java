@@ -580,12 +580,12 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
         oldTextComponent.removeTextOutput(componentListener);
       }
     }
+    if (subtitleView != null) {
+      subtitleView.setCues(null);
+    }
     this.player = player;
     if (useController()) {
       controller.setPlayer(player);
-    }
-    if (subtitleView != null) {
-      subtitleView.setCues(null);
     }
     updateBuffering();
     updateErrorMessage();
@@ -608,6 +608,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
       @Nullable Player.TextComponent newTextComponent = player.getTextComponent();
       if (newTextComponent != null) {
         newTextComponent.addTextOutput(componentListener);
+        if (subtitleView != null) {
+          subtitleView.setCues(newTextComponent.getCurrentCues());
+        }
       }
       player.addListener(componentListener);
       maybeShowController(false);
