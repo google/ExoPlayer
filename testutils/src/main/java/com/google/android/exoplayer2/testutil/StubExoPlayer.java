@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import java.util.List;
 
 /**
@@ -371,6 +372,12 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public int getRendererType(int index) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  @Nullable
+  public TrackSelector getTrackSelector() {
     throw new UnsupportedOperationException();
   }
 
