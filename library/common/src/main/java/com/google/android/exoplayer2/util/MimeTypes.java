@@ -18,12 +18,28 @@ package com.google.android.exoplayer2.util;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.audio.AacUtil;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Defines common MIME types and helper methods.
  */
 public final class MimeTypes {
+
+  /** An mp4a Object Type Indication (OTI) and its optional audio OTI is defined by RFC 6381. */
+  public static final class Mp4aObjectType {
+    /** The Object Type Indication of the mp4a codec. */
+    public final int objectTypeIndication;
+    /** The Audio Object Type Indication of the mp4a codec, or 0 if it is absent. */
+    @AacUtil.AacAudioObjectType public final int audioObjectTypeIndication;
+
+    private Mp4aObjectType(int objectTypeIndication, int audioObjectTypeIndication) {
+      this.objectTypeIndication = objectTypeIndication;
+      this.audioObjectTypeIndication = audioObjectTypeIndication;
+    }
+  }
 
   public static final String BASE_TYPE_VIDEO = "video";
   public static final String BASE_TYPE_AUDIO = "audio";
@@ -105,6 +121,9 @@ public final class MimeTypes {
   public static final String APPLICATION_AIT = BASE_TYPE_APPLICATION + "/vnd.dvb.ait";
 
   private static final ArrayList<CustomMimeType> customMimeTypes = new ArrayList<>();
+
+  private static final Pattern MP4A_RFC_6381_CODEC_PATTERN =
+      Pattern.compile("^mp4a\\.([a-zA-Z0-9]{2})(?:\\.([0-9]{1,2}))?$");
 
   /**
    * Registers a custom MIME type. Most applications do not need to call this method, as handling of
@@ -275,15 +294,9 @@ public final class MimeTypes {
     } else if (codec.startsWith("mp4a")) {
       @Nullable String mimeType = null;
       if (codec.startsWith("mp4a.")) {
-        String objectTypeString = codec.substring(5); // remove the 'mp4a.' prefix
-        if (objectTypeString.length() >= 2) {
-          try {
-            String objectTypeHexString = Util.toUpperInvariant(objectTypeString.substring(0, 2));
-            int objectTypeInt = Integer.parseInt(objectTypeHexString, 16);
-            mimeType = getMimeTypeFromMp4ObjectType(objectTypeInt);
-          } catch (NumberFormatException ignored) {
-            // Ignored.
-          }
+        @Nullable Mp4aObjectType objectType = getObjectTypeFromMp4aRFC6381CodecString(codec);
+        if (objectType != null) {
+          mimeType = getMimeTypeFromMp4ObjectType(objectType.objectTypeIndication);
         }
       }
       return mimeType == null ? MimeTypes.AUDIO_AAC : mimeType;
@@ -407,13 +420,25 @@ public final class MimeTypes {
    * it is an encoded (non-PCM) audio format, or {@link C#ENCODING_INVALID} otherwise.
    *
    * @param mimeType The MIME type.
-   * @return The {@link C}{@code .ENCODING_*} constant that corresponds to a specified MIME type, or
+   * @param codecs Codecs of the format as described in RFC 6381, or null if unknown or not
+   *     applicable.
+   * @return One of {@link C.Encoding} constants that corresponds to a specified MIME type, or
    *     {@link C#ENCODING_INVALID}.
    */
-  public static @C.Encoding int getEncoding(String mimeType) {
+  @C.Encoding
+  public static int getEncoding(String mimeType, @Nullable String codecs) {
     switch (mimeType) {
       case MimeTypes.AUDIO_MPEG:
         return C.ENCODING_MP3;
+      case MimeTypes.AUDIO_AAC:
+        if (codecs == null) {
+          return C.ENCODING_INVALID;
+        }
+        @Nullable Mp4aObjectType objectType = getObjectTypeFromMp4aRFC6381CodecString(codecs);
+        if (objectType == null) {
+          return C.ENCODING_INVALID;
+        }
+        return AacUtil.getEncodingForAudioObjectType(objectType.audioObjectTypeIndication);
       case MimeTypes.AUDIO_AC3:
         return C.ENCODING_AC3;
       case MimeTypes.AUDIO_E_AC3:
@@ -441,6 +466,40 @@ public final class MimeTypes {
    */
   public static int getTrackTypeOfCodec(String codec) {
     return getTrackType(getMediaMimeType(codec));
+  }
+
+  /**
+   * Retrieves the object type of an mp4 audio codec from its string as defined in RFC 6381.
+   *
+   * <p>Per https://mp4ra.org/#/object_types and https://tools.ietf.org/html/rfc6381#section-3.3, an
+   * mp4 codec string has the form: <code>
+   *         ~~~~~~~~~~~~~~ Object Type Indication (OTI) byte in hex
+   *    mp4a.[a-zA-Z0-9]{2}(.[0-9]{1,2})?
+   *                         ~~~~~~~~~~ audio OTI, decimal. Only for certain OTI.
+   * </code> For example: mp4a.40.2, has an OTI of 0x40 and an audio OTI of 2.
+   *
+   * @param codec The string as defined in RFC 6381 describing an mp4 audio codec.
+   * @return The {@link Mp4aObjectType} or {@code null} if the input is invalid.
+   */
+  @Nullable
+  public static Mp4aObjectType getObjectTypeFromMp4aRFC6381CodecString(String codec) {
+    Matcher matcher = MP4A_RFC_6381_CODEC_PATTERN.matcher(codec);
+    if (!matcher.matches()) {
+      return null;
+    }
+    String objectTypeIndicationHex = Assertions.checkNotNull(matcher.group(1));
+    @Nullable String audioObjectTypeIndicationDec = matcher.group(2);
+    int objectTypeIndication;
+    int audioObjectTypeIndication = 0;
+    try {
+      objectTypeIndication = Integer.parseInt(objectTypeIndicationHex, 16);
+      if (audioObjectTypeIndicationDec != null) {
+        audioObjectTypeIndication = Integer.parseInt(audioObjectTypeIndicationDec);
+      }
+    } catch (NumberFormatException e) {
+      return null;
+    }
+    return new Mp4aObjectType(objectTypeIndication, audioObjectTypeIndication);
   }
 
   /**
