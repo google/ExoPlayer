@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -57,7 +58,6 @@ import org.chromium.net.CronetEngine;
 import org.chromium.net.NetworkException;
 import org.chromium.net.UrlRequest;
 import org.chromium.net.UrlResponseInfo;
-import org.chromium.net.impl.UrlResponseInfoImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -140,15 +140,62 @@ public final class CronetDataSourceTest {
 
   private UrlResponseInfo createUrlResponseInfoWithUrl(String url, int statusCode) {
     ArrayList<Map.Entry<String, String>> responseHeaderList = new ArrayList<>();
-    responseHeaderList.addAll(testResponseHeader.entrySet());
-    return new UrlResponseInfoImpl(
-        Collections.singletonList(url),
-        statusCode,
-        null, // httpStatusText
-        responseHeaderList,
-        false, // wasCached
-        null, // negotiatedProtocol
-        null); // proxyServer
+    Map<String, List<String>> responseHeaderMap = new HashMap<>();
+    for (Map.Entry<String, String> entry : testResponseHeader.entrySet()) {
+      responseHeaderList.add(entry);
+      responseHeaderMap.put(entry.getKey(), Collections.singletonList(entry.getValue()));
+    }
+    return new UrlResponseInfo() {
+      @Override
+      public String getUrl() {
+        return url;
+      }
+
+      @Override
+      public List<String> getUrlChain() {
+        return Collections.singletonList(url);
+      }
+
+      @Override
+      public int getHttpStatusCode() {
+        return statusCode;
+      }
+
+      @Override
+      public String getHttpStatusText() {
+        return null;
+      }
+
+      @Override
+      public List<Map.Entry<String, String>> getAllHeadersAsList() {
+        return responseHeaderList;
+      }
+
+      @Override
+      public Map<String, List<String>> getAllHeaders() {
+        return responseHeaderMap;
+      }
+
+      @Override
+      public boolean wasCached() {
+        return false;
+      }
+
+      @Override
+      public String getNegotiatedProtocol() {
+        return null;
+      }
+
+      @Override
+      public String getProxyServer() {
+        return null;
+      }
+
+      @Override
+      public long getReceivedByteCount() {
+        return 0;
+      }
+    };
   }
 
   @Test

@@ -23,6 +23,10 @@
 *   AV1 extension: Add a heuristic to determine the default number of threads
     used for AV1 playback using the extension.
 *   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
+*   Cronet extension: Default to using the Cronet implementation in Google Play
+    Services rather than Cronet Embedded. This allows Cronet to be used with a
+    negligible increase in application size, compared to approximately 8MB when
+    embedding the library.
 *   DownloadService: Fix "Not allowed to start service" `IllegalStateException`.
 
 ### 2.11.4 (2020-04-08) ###
