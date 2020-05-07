@@ -26,7 +26,6 @@ import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -647,27 +646,10 @@ public final class WebvttCueParser {
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-    if (style.hasBackgroundColor()) {
-      addOrReplaceSpan(
-          spannedText,
-          new BackgroundColorSpan(style.getBackgroundColor()),
-          start,
-          end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
     if (style.getFontFamily() != null) {
       addOrReplaceSpan(
           spannedText,
           new TypefaceSpan(style.getFontFamily()),
-          start,
-          end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-    Layout.Alignment textAlign = style.getTextAlign();
-    if (textAlign != null) {
-      addOrReplaceSpan(
-          spannedText,
-          new AlignmentSpan.Standard(textAlign),
           start,
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
