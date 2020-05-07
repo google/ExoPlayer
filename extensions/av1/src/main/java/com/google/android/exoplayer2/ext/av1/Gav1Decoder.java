@@ -128,7 +128,7 @@ import java.nio.ByteBuffer;
       outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
     }
     if (!decodeOnly) {
-      outputBuffer.colorInfo = inputBuffer.colorInfo;
+      outputBuffer.format = inputBuffer.format;
     }
 
     return null;
