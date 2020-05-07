@@ -629,6 +629,7 @@ public final class DefaultAudioSink implements AudioSink {
 
     if (inputBuffer == null) {
       // We are seeing this buffer for the first time.
+      Assertions.checkArgument(buffer.order() == ByteOrder.LITTLE_ENDIAN);
       if (!buffer.hasRemaining()) {
         // The buffer is empty.
         return true;
