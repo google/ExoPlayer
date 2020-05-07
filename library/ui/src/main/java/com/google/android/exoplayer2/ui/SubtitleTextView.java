@@ -40,8 +40,6 @@ import java.util.List;
   private List<Cue> cues;
   @Cue.TextSizeType private int textSizeType;
   private float textSize;
-  private boolean applyEmbeddedStyles;
-  private boolean applyEmbeddedFontSizes;
   private CaptionStyleCompat style;
   private float bottomPaddingFraction;
 
@@ -55,71 +53,27 @@ import java.util.List;
     cues = Collections.emptyList();
     textSizeType = Cue.TEXT_SIZE_TYPE_FRACTIONAL;
     textSize = DEFAULT_TEXT_SIZE_FRACTION;
-    applyEmbeddedStyles = true;
-    applyEmbeddedFontSizes = true;
     style = CaptionStyleCompat.DEFAULT;
     bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
   }
 
   @Override
-  public void onCues(List<Cue> cues) {
-    if (this.cues == cues || this.cues.isEmpty() && cues.isEmpty()) {
-      return;
-    }
+  public void update(
+      List<Cue> cues,
+      CaptionStyleCompat style,
+      float textSize,
+      @Cue.TextSizeType int textSizeType,
+      float bottomPaddingFraction) {
     this.cues = cues;
+    this.style = style;
+    this.textSize = textSize;
+    this.textSizeType = textSizeType;
+    this.bottomPaddingFraction = bottomPaddingFraction;
     // Ensure we have sufficient painters.
     while (painters.size() < cues.size()) {
       painters.add(new SubtitlePainter(getContext()));
     }
     // Invalidate to trigger drawing.
-    invalidate();
-  }
-
-  @Override
-  public void setTextSize(@Cue.TextSizeType int textSizeType, float textSize) {
-    if (this.textSizeType == textSizeType && this.textSize == textSize) {
-      return;
-    }
-    this.textSizeType = textSizeType;
-    this.textSize = textSize;
-    invalidate();
-  }
-
-  @Override
-  public void setApplyEmbeddedStyles(boolean applyEmbeddedStyles) {
-    if (this.applyEmbeddedStyles == applyEmbeddedStyles
-        && this.applyEmbeddedFontSizes == applyEmbeddedStyles) {
-      return;
-    }
-    this.applyEmbeddedStyles = applyEmbeddedStyles;
-    this.applyEmbeddedFontSizes = applyEmbeddedStyles;
-    invalidate();
-  }
-
-  @Override
-  public void setApplyEmbeddedFontSizes(boolean applyEmbeddedFontSizes) {
-    if (this.applyEmbeddedFontSizes == applyEmbeddedFontSizes) {
-      return;
-    }
-    this.applyEmbeddedFontSizes = applyEmbeddedFontSizes;
-    invalidate();
-  }
-
-  @Override
-  public void setStyle(CaptionStyleCompat style) {
-    if (this.style == style) {
-      return;
-    }
-    this.style = style;
-    invalidate();
-  }
-
-  @Override
-  public void setBottomPaddingFraction(float bottomPaddingFraction) {
-    if (this.bottomPaddingFraction == bottomPaddingFraction) {
-      return;
-    }
-    this.bottomPaddingFraction = bottomPaddingFraction;
     invalidate();
   }
 
@@ -163,8 +117,6 @@ import java.util.List;
       SubtitlePainter painter = painters.get(i);
       painter.draw(
           cue,
-          applyEmbeddedStyles,
-          applyEmbeddedFontSizes,
           style,
           defaultViewTextSizePx,
           cueTextSizePx,

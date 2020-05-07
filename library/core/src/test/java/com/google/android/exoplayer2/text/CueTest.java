@@ -77,6 +77,14 @@ public class CueTest {
   }
 
   @Test
+  public void clearWindowColor() {
+    Cue cue =
+        new Cue.Builder().setText(SpannedString.valueOf("text")).setWindowColor(Color.CYAN).build();
+
+    assertThat(cue.buildUpon().clearWindowColor().build().windowColorSet).isFalse();
+  }
+
+  @Test
   public void buildWithNoTextOrBitmapFails() {
     assertThrows(RuntimeException.class, () -> new Cue.Builder().build());
   }
