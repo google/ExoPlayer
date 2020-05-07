@@ -23,6 +23,7 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
@@ -128,7 +129,9 @@ import java.util.regex.Pattern;
 
   @Nullable
   private static String getOpeningTag(Object span, float displayDensity) {
-    if (span instanceof ForegroundColorSpan) {
+    if (span instanceof StrikethroughSpan) {
+      return "<span style='text-decoration:line-through;'>";
+    } else if (span instanceof ForegroundColorSpan) {
       ForegroundColorSpan colorSpan = (ForegroundColorSpan) span;
       return Util.formatInvariant(
           "<span style='color:%s;'>", HtmlUtils.toCssRgba(colorSpan.getForegroundColor()));
@@ -186,7 +189,8 @@ import java.util.regex.Pattern;
 
   @Nullable
   private static String getClosingTag(Object span) {
-    if (span instanceof ForegroundColorSpan
+    if (span instanceof StrikethroughSpan
+        || span instanceof ForegroundColorSpan
         || span instanceof BackgroundColorSpan
         || span instanceof HorizontalTextInVerticalContextSpan
         || span instanceof AbsoluteSizeSpan
