@@ -517,7 +517,7 @@ public final class CastPlayer extends BasePlayer {
   @Override
   @Nullable
   public TrackSelector getTrackSelector() {
-    throw new UnsupportedOperationException();
+    return null;
   }
 
   @Override
