@@ -17,13 +17,11 @@ package com.google.android.exoplayer2.audio;
 
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 /**
  * An {@link AudioProcessor} that skips silence in the input stream. Input and output are 16-bit
@@ -317,7 +315,6 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
    * classified as a noisy frame, or the limit of the buffer if no such frame exists.
    */
   private int findNoisePosition(ByteBuffer buffer) {
-    Assertions.checkArgument(buffer.order() == ByteOrder.LITTLE_ENDIAN);
     // The input is in ByteOrder.nativeOrder(), which is little endian on Android.
     for (int i = buffer.position(); i < buffer.limit(); i += 2) {
       if (Math.abs(buffer.getShort(i)) > SILENCE_THRESHOLD_LEVEL) {
@@ -333,7 +330,6 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
    * from the byte position to the limit are classified as silent.
    */
   private int findNoiseLimit(ByteBuffer buffer) {
-    Assertions.checkArgument(buffer.order() == ByteOrder.LITTLE_ENDIAN);
     // The input is in ByteOrder.nativeOrder(), which is little endian on Android.
     for (int i = buffer.limit() - 2; i >= buffer.position(); i -= 2) {
       if (Math.abs(buffer.getShort(i)) > SILENCE_THRESHOLD_LEVEL) {
