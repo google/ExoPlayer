@@ -758,7 +758,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       waitingForFirstSampleInFormat = false;
     }
     inputBuffer.flip();
-    inputBuffer.colorInfo = inputFormat.colorInfo;
+    inputBuffer.format = inputFormat;
     onQueueInputBuffer(inputBuffer);
     decoder.queueInputBuffer(inputBuffer);
     buffersInCodecCount++;

@@ -16,12 +16,13 @@
 package com.google.android.exoplayer2.video;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
 /** Input buffer to a video decoder. */
 public class VideoDecoderInputBuffer extends DecoderInputBuffer {
 
-  @Nullable public ColorInfo colorInfo;
+  @Nullable public Format format;
 
   public VideoDecoderInputBuffer() {
     super(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);

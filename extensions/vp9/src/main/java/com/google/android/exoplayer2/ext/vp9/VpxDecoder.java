@@ -170,7 +170,7 @@ import java.nio.ByteBuffer;
       } else if (getFrameResult == -1) {
         return new VpxDecoderException("Buffer initialization failed.");
       }
-      outputBuffer.colorInfo = inputBuffer.colorInfo;
+      outputBuffer.format = inputBuffer.format;
     }
     return null;
   }
