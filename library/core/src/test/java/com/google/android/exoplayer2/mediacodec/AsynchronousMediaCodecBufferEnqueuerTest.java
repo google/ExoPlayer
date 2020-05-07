@@ -45,13 +45,14 @@ import org.robolectric.shadows.ShadowLooper;
 public class AsynchronousMediaCodecBufferEnqueuerTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
+  private MediaCodec codec;
   private AsynchronousMediaCodecBufferEnqueuer enqueuer;
   private TestHandlerThread handlerThread;
   @Mock private ConditionVariable mockConditionVariable;
 
   @Before
   public void setUp() throws IOException {
-    MediaCodec codec = MediaCodec.createByCodecName("h264");
+    codec = MediaCodec.createByCodecName("h264");
     handlerThread = new TestHandlerThread("TestHandlerThread");
     enqueuer =
         new AsynchronousMediaCodecBufferEnqueuer(codec, handlerThread, mockConditionVariable);
@@ -103,16 +104,18 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
     ShadowLooper shadowLooper = Shadows.shadowOf(looper);
 
     for (int cycle = 0; cycle < 100; cycle++) {
-      // Enqueue 10 messages to looper.
+      // This test assumes that the shadow MediaCodec implementation can dequeue at least
+      // 10 input buffers before queueing them back.
       for (int i = 0; i < 10; i++) {
+        int inputBufferIndex = codec.dequeueInputBuffer(0);
         enqueuer.queueInputBuffer(
-            /* index= */ i,
+            /* index= */ inputBufferIndex,
             /* offset= */ 0,
             /* size= */ 0,
             /* presentationTimeUs= */ i,
             /* flags= */ 0);
       }
-      // Execute all messages.
+      // Execute all messages, queues input buffers back to MediaCodec.
       shadowLooper.idle();
     }
 
@@ -162,16 +165,18 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
     ShadowLooper shadowLooper = Shadows.shadowOf(looper);
 
     for (int cycle = 0; cycle < 100; cycle++) {
-      // Enqueue 10 messages to looper.
+      // This test assumes that the shadow MediaCodec implementation can dequeue at least
+      // 10 input buffers before queueing them back.
+      int inputBufferIndex = codec.dequeueInputBuffer(0);
       for (int i = 0; i < 10; i++) {
         enqueuer.queueSecureInputBuffer(
-            /* index= */ i,
+            /* index= */ inputBufferIndex,
             /* offset= */ 0,
             /* info= */ info,
             /* presentationTimeUs= */ i,
             /* flags= */ 0);
       }
-      // Execute all messages.
+      // Execute all messages, queues input buffers back to MediaCodec.
       shadowLooper.idle();
     }
 
