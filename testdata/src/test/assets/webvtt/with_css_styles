@@ -2,7 +2,6 @@ WEBVTT
 
 STYLE
 ::cue {
-  background-color: green;
   color: papayawhip;
 }
 /* Style blocks cannot use blank lines nor "dash dash greater than" */
@@ -13,7 +12,7 @@ STYLE
 ::cue(#id2) {
   color: peachpuff;
 }
-::cue(v[voice="LaGord"]) { background-color: lime }
+::cue(v[voice="LaGord"]) { color: lime }
 
 STYLE
 ::cue(v[voice="The Frog"]) { font-weight: bold }

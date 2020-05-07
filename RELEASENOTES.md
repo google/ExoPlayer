@@ -116,6 +116,9 @@
         horizontally.
     *   Implement steps 4-10 of the
         [WebVTT line computation algorithm](https://www.w3.org/TR/webvtt1/#cue-computed-line).
+    *   Stop parsing unsupported WebVTT CSS properties. The spec provides an
+        [exhaustive list](https://www.w3.org/TR/webvtt1/#the-cue-pseudo-element)
+        of which are supported.
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.

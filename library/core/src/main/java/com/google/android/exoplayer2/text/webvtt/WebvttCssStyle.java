@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import android.graphics.Typeface;
-import android.text.Layout;
 import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -86,15 +85,12 @@ public final class WebvttCssStyle {
   @Nullable private String fontFamily;
   private int fontColor;
   private boolean hasFontColor;
-  private int backgroundColor;
-  private boolean hasBackgroundColor;
   @OptionalBoolean private int linethrough;
   @OptionalBoolean private int underline;
   @OptionalBoolean private int bold;
   @OptionalBoolean private int italic;
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
-  @Nullable private Layout.Alignment textAlign;
   private boolean combineUpright;
 
   // Calling reset() is forbidden because `this` isn't initialized. This can be safely suppressed
@@ -112,13 +108,11 @@ public final class WebvttCssStyle {
     targetVoice = "";
     fontFamily = null;
     hasFontColor = false;
-    hasBackgroundColor = false;
     linethrough = UNSPECIFIED;
     underline = UNSPECIFIED;
     bold = UNSPECIFIED;
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
-    textAlign = null;
     combineUpright = false;
   }
 
@@ -242,33 +236,6 @@ public final class WebvttCssStyle {
 
   public boolean hasFontColor() {
     return hasFontColor;
-  }
-
-  public int getBackgroundColor() {
-    if (!hasBackgroundColor) {
-      throw new IllegalStateException("Background color not defined.");
-    }
-    return backgroundColor;
-  }
-
-  public WebvttCssStyle setBackgroundColor(int backgroundColor) {
-    this.backgroundColor = backgroundColor;
-    hasBackgroundColor = true;
-    return this;
-  }
-
-  public boolean hasBackgroundColor() {
-    return hasBackgroundColor;
-  }
-
-  @Nullable
-  public Layout.Alignment getTextAlign() {
-    return textAlign;
-  }
-
-  public WebvttCssStyle setTextAlign(@Nullable Layout.Alignment textAlign) {
-    this.textAlign = textAlign;
-    return this;
   }
 
   public WebvttCssStyle setFontSize(float fontSize) {
