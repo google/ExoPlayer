@@ -16,9 +16,6 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import static com.google.android.exoplayer2.ui.SubtitleView.DEFAULT_BOTTOM_PADDING_FRACTION;
-import static com.google.android.exoplayer2.ui.SubtitleView.DEFAULT_TEXT_SIZE_FRACTION;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.text.Layout;
@@ -57,14 +54,6 @@ import java.util.List;
   private final SubtitleTextView subtitleTextView;
 
   private final WebView webView;
-  private final List<Cue> cues;
-
-  @Cue.TextSizeType private int defaultTextSizeType;
-  private float defaultTextSize;
-  private boolean applyEmbeddedStyles;
-  private boolean applyEmbeddedFontSizes;
-  private CaptionStyleCompat style;
-  private float bottomPaddingFraction;
 
   public SubtitleWebView(Context context) {
     this(context, null);
@@ -72,13 +61,6 @@ import java.util.List;
 
   public SubtitleWebView(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
-    cues = new ArrayList<>();
-    defaultTextSizeType = Cue.TEXT_SIZE_TYPE_FRACTIONAL;
-    defaultTextSize = DEFAULT_TEXT_SIZE_FRACTION;
-    applyEmbeddedStyles = true;
-    applyEmbeddedFontSizes = true;
-    style = CaptionStyleCompat.DEFAULT;
-    bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
 
     subtitleTextView = new SubtitleTextView(context, attrs);
     webView =
@@ -104,74 +86,26 @@ import java.util.List;
   }
 
   @Override
-  public void onCues(List<Cue> cues) {
+  public void update(
+      List<Cue> cues,
+      CaptionStyleCompat style,
+      float textSize,
+      @Cue.TextSizeType int textSizeType,
+      float bottomPaddingFraction) {
     List<Cue> bitmapCues = new ArrayList<>();
-    this.cues.clear();
+    List<Cue> textCues = new ArrayList<>();
     for (int i = 0; i < cues.size(); i++) {
       Cue cue = cues.get(i);
       if (cue.bitmap != null) {
         bitmapCues.add(cue);
       } else {
-        this.cues.add(cue);
+        textCues.add(cue);
       }
     }
-    subtitleTextView.onCues(bitmapCues);
+    subtitleTextView.update(bitmapCues, style, textSize, textSizeType, bottomPaddingFraction);
     // Invalidate to trigger subtitleTextView to draw.
     invalidate();
-    updateWebView();
-  }
-
-  @Override
-  public void setTextSize(@Cue.TextSizeType int textSizeType, float textSize) {
-    if (this.defaultTextSizeType == textSizeType && this.defaultTextSize == textSize) {
-      return;
-    }
-    this.defaultTextSizeType = textSizeType;
-    this.defaultTextSize = textSize;
-    invalidate();
-    updateWebView();
-  }
-
-  @Override
-  public void setApplyEmbeddedStyles(boolean applyEmbeddedStyles) {
-    if (this.applyEmbeddedStyles == applyEmbeddedStyles
-        && this.applyEmbeddedFontSizes == applyEmbeddedStyles) {
-      return;
-    }
-    this.applyEmbeddedStyles = applyEmbeddedStyles;
-    this.applyEmbeddedFontSizes = applyEmbeddedStyles;
-    invalidate();
-    updateWebView();
-  }
-
-  @Override
-  public void setApplyEmbeddedFontSizes(boolean applyEmbeddedFontSizes) {
-    if (this.applyEmbeddedFontSizes == applyEmbeddedFontSizes) {
-      return;
-    }
-    this.applyEmbeddedFontSizes = applyEmbeddedFontSizes;
-    invalidate();
-    updateWebView();
-  }
-
-  @Override
-  public void setStyle(CaptionStyleCompat style) {
-    if (this.style == style) {
-      return;
-    }
-    this.style = style;
-    invalidate();
-    updateWebView();
-  }
-
-  @Override
-  public void setBottomPaddingFraction(float bottomPaddingFraction) {
-    if (this.bottomPaddingFraction == bottomPaddingFraction) {
-      return;
-    }
-    this.bottomPaddingFraction = bottomPaddingFraction;
-    invalidate();
-    updateWebView();
+    updateWebView(textCues, style, textSize, textSizeType, bottomPaddingFraction);
   }
 
   /**
@@ -181,11 +115,15 @@ import java.util.List;
    * other methods may be called on this view after destroy.
    */
   public void destroy() {
-    cues.clear();
     webView.destroy();
   }
 
-  private void updateWebView() {
+  private void updateWebView(
+      List<Cue> cues,
+      CaptionStyleCompat style,
+      float defaultTextSize,
+      @Cue.TextSizeType int defaultTextSizeType,
+      float bottomPaddingFraction) {
     StringBuilder html = new StringBuilder();
     html.append(
         Util.formatInvariant(
@@ -250,8 +188,7 @@ import java.util.List;
       String writingMode = convertVerticalTypeToCss(cue.verticalType);
       String cueTextSizeCssPx = convertTextSizeToCss(cue.textSizeType, cue.textSize);
       String windowCssColor =
-          HtmlUtils.toCssRgba(
-              cue.windowColorSet && applyEmbeddedStyles ? cue.windowColor : style.windowColor);
+          HtmlUtils.toCssRgba(cue.windowColorSet ? cue.windowColor : style.windowColor);
 
       String positionProperty;
       String lineProperty;

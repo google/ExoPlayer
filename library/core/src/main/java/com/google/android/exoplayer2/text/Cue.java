@@ -807,6 +807,12 @@ public final class Cue {
       return this;
     }
 
+    /** Sets {@link Cue#windowColorSet} to false. */
+    public Builder clearWindowColor() {
+      this.windowColorSet = false;
+      return this;
+    }
+
     /**
      * Returns true if the fill color of the window is set.
      *
