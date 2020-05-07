@@ -26,6 +26,7 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
@@ -174,6 +175,22 @@ public class SpannedToHtmlConverterTest {
     String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
 
     assertThat(html).isEqualTo("String with unstyled section");
+  }
+
+  @Test
+  public void convert_supportsStrikethroughSpan() {
+    SpannableString spanned = new SpannableString("String with crossed-out section");
+    spanned.setSpan(
+        new StrikethroughSpan(),
+        "String with ".length(),
+        "String with crossed-out".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+
+    assertThat(html)
+        .isEqualTo(
+            "String with <span style='text-decoration:line-through;'>crossed-out</span> section");
   }
 
   @Test
