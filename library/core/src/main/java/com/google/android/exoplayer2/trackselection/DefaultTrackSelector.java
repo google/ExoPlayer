@@ -168,6 +168,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private int maxVideoHeight;
     private int maxVideoFrameRate;
     private int maxVideoBitrate;
+    private int minVideoWidth;
+    private int minVideoHeight;
+    private int minVideoFrameRate;
+    private int minVideoBitrate;
     private boolean exceedVideoConstraintsIfNecessary;
     private boolean allowVideoMixedMimeTypeAdaptiveness;
     private boolean allowVideoNonSeamlessAdaptiveness;
@@ -305,6 +309,41 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public ParametersBuilder setMaxVideoBitrate(int maxVideoBitrate) {
       this.maxVideoBitrate = maxVideoBitrate;
+      return this;
+    }
+
+    /**
+     * Sets the minimum allowed video width and height.
+     *
+     * @param minVideoWidth Minimum allowed video width in pixels.
+     * @param minVideoHeight Minimum allowed video height in pixels.
+     * @return This builder.
+     */
+    public ParametersBuilder setMinVideoSize(int minVideoWidth, int minVideoHeight) {
+      this.minVideoWidth = minVideoWidth;
+      this.minVideoHeight = minVideoHeight;
+      return this;
+    }
+
+    /**
+     * Sets the minimum allowed video frame rate.
+     *
+     * @param minVideoFrameRate Minimum allowed video frame rate in hertz.
+     * @return This builder.
+     */
+    public ParametersBuilder setMinVideoFrameRate(int minVideoFrameRate) {
+      this.minVideoFrameRate = minVideoFrameRate;
+      return this;
+    }
+
+    /**
+     * Sets the minimum allowed video bitrate.
+     *
+     * @param minVideoBitrate Minimum allowed video bitrate in bits per second.
+     * @return This builder.
+     */
+    public ParametersBuilder setMinVideoBitrate(int minVideoBitrate) {
+      this.minVideoBitrate = minVideoBitrate;
       return this;
     }
 
@@ -711,6 +750,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           maxVideoHeight,
           maxVideoFrameRate,
           maxVideoBitrate,
+          minVideoWidth,
+          minVideoHeight,
+          minVideoFrameRate,
+          minVideoBitrate,
           exceedVideoConstraintsIfNecessary,
           allowVideoMixedMimeTypeAdaptiveness,
           allowVideoNonSeamlessAdaptiveness,
@@ -745,6 +788,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       maxVideoHeight = Integer.MAX_VALUE;
       maxVideoFrameRate = Integer.MAX_VALUE;
       maxVideoBitrate = Integer.MAX_VALUE;
+      minVideoWidth = Integer.MIN_VALUE;
+      minVideoHeight = Integer.MIN_VALUE;
+      minVideoFrameRate = Integer.MIN_VALUE;
+      minVideoBitrate = Integer.MIN_VALUE;
       exceedVideoConstraintsIfNecessary = true;
       allowVideoMixedMimeTypeAdaptiveness = false;
       allowVideoNonSeamlessAdaptiveness = true;
@@ -836,6 +883,26 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * Integer#MAX_VALUE} (i.e. no constraint).
      */
     public final int maxVideoBitrate;
+    /**
+     * Minimum allowed video width in pixels. The default value is {@link Integer#MIN_VALUE} (i.e.
+     * no constraint).
+     */
+    public final int minVideoWidth;
+    /**
+     * Minimum allowed video height in pixels. The default value is {@link Integer#MIN_VALUE} (i.e.
+     * no constraint).
+     */
+    public final int minVideoHeight;
+    /**
+     * Minimum allowed video frame rate in hertz. The default value is {@link Integer#MIN_VALUE}
+     * (i.e. no constraint).
+     */
+    public final int minVideoFrameRate;
+    /**
+     * Minimum allowed video bitrate in bits per second. The default value is {@link
+     * Integer#MIN_VALUE} (i.e. no constraint).
+     */
+    public final int minVideoBitrate;
     /**
      * Whether to exceed the {@link #maxVideoWidth}, {@link #maxVideoHeight} and {@link
      * #maxVideoBitrate} constraints when no selection can be made otherwise. The default value is
@@ -944,6 +1011,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         int maxVideoHeight,
         int maxVideoFrameRate,
         int maxVideoBitrate,
+        int minVideoWidth,
+        int minVideoHeight,
+        int minVideoFrameRate,
+        int minVideoBitrate,
         boolean exceedVideoConstraintsIfNecessary,
         boolean allowVideoMixedMimeTypeAdaptiveness,
         boolean allowVideoNonSeamlessAdaptiveness,
@@ -982,6 +1053,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.maxVideoHeight = maxVideoHeight;
       this.maxVideoFrameRate = maxVideoFrameRate;
       this.maxVideoBitrate = maxVideoBitrate;
+      this.minVideoWidth = minVideoWidth;
+      this.minVideoHeight = minVideoHeight;
+      this.minVideoFrameRate = minVideoFrameRate;
+      this.minVideoBitrate = minVideoBitrate;
       this.exceedVideoConstraintsIfNecessary = exceedVideoConstraintsIfNecessary;
       this.allowVideoMixedMimeTypeAdaptiveness = allowVideoMixedMimeTypeAdaptiveness;
       this.allowVideoNonSeamlessAdaptiveness = allowVideoNonSeamlessAdaptiveness;
@@ -1013,6 +1088,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.maxVideoHeight = in.readInt();
       this.maxVideoFrameRate = in.readInt();
       this.maxVideoBitrate = in.readInt();
+      this.minVideoWidth = in.readInt();
+      this.minVideoHeight = in.readInt();
+      this.minVideoFrameRate = in.readInt();
+      this.minVideoBitrate = in.readInt();
       this.exceedVideoConstraintsIfNecessary = Util.readBoolean(in);
       this.allowVideoMixedMimeTypeAdaptiveness = Util.readBoolean(in);
       this.allowVideoNonSeamlessAdaptiveness = Util.readBoolean(in);
@@ -1094,6 +1173,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && maxVideoHeight == other.maxVideoHeight
           && maxVideoFrameRate == other.maxVideoFrameRate
           && maxVideoBitrate == other.maxVideoBitrate
+          && minVideoWidth == other.minVideoWidth
+          && minVideoHeight == other.minVideoHeight
+          && minVideoFrameRate == other.minVideoFrameRate
+          && minVideoBitrate == other.minVideoBitrate
           && exceedVideoConstraintsIfNecessary == other.exceedVideoConstraintsIfNecessary
           && allowVideoMixedMimeTypeAdaptiveness == other.allowVideoMixedMimeTypeAdaptiveness
           && allowVideoNonSeamlessAdaptiveness == other.allowVideoNonSeamlessAdaptiveness
@@ -1126,6 +1209,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + maxVideoHeight;
       result = 31 * result + maxVideoFrameRate;
       result = 31 * result + maxVideoBitrate;
+      result = 31 * result + minVideoWidth;
+      result = 31 * result + minVideoHeight;
+      result = 31 * result + minVideoFrameRate;
+      result = 31 * result + minVideoBitrate;
       result = 31 * result + (exceedVideoConstraintsIfNecessary ? 1 : 0);
       result = 31 * result + (allowVideoMixedMimeTypeAdaptiveness ? 1 : 0);
       result = 31 * result + (allowVideoNonSeamlessAdaptiveness ? 1 : 0);
@@ -1163,6 +1250,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       dest.writeInt(maxVideoHeight);
       dest.writeInt(maxVideoFrameRate);
       dest.writeInt(maxVideoBitrate);
+      dest.writeInt(minVideoWidth);
+      dest.writeInt(minVideoHeight);
+      dest.writeInt(minVideoFrameRate);
+      dest.writeInt(minVideoBitrate);
       Util.writeBoolean(dest, exceedVideoConstraintsIfNecessary);
       Util.writeBoolean(dest, allowVideoMixedMimeTypeAdaptiveness);
       Util.writeBoolean(dest, allowVideoNonSeamlessAdaptiveness);
@@ -1750,6 +1841,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               params.maxVideoHeight,
               params.maxVideoFrameRate,
               params.maxVideoBitrate,
+              params.minVideoWidth,
+              params.minVideoHeight,
+              params.minVideoFrameRate,
+              params.minVideoBitrate,
               params.viewportWidth,
               params.viewportHeight,
               params.viewportOrientationMayChange);
@@ -1769,6 +1864,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int maxVideoHeight,
       int maxVideoFrameRate,
       int maxVideoBitrate,
+      int minVideoWidth,
+      int minVideoHeight,
+      int minVideoFrameRate,
+      int minVideoBitrate,
       int viewportWidth,
       int viewportHeight,
       boolean viewportOrientationMayChange) {
@@ -1801,6 +1900,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
                   maxVideoHeight,
                   maxVideoFrameRate,
                   maxVideoBitrate,
+                  minVideoWidth,
+                  minVideoHeight,
+                  minVideoFrameRate,
+                  minVideoBitrate,
                   selectedTrackIndices);
           if (countForMimeType > selectedMimeTypeTrackCount) {
             selectedMimeType = sampleMimeType;
@@ -1820,6 +1923,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         maxVideoHeight,
         maxVideoFrameRate,
         maxVideoBitrate,
+        minVideoWidth,
+        minVideoHeight,
+        minVideoFrameRate,
+        minVideoBitrate,
         selectedTrackIndices);
 
     return selectedTrackIndices.size() < 2 ? NO_TRACKS : Util.toArray(selectedTrackIndices);
@@ -1834,6 +1941,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int maxVideoHeight,
       int maxVideoFrameRate,
       int maxVideoBitrate,
+      int minVideoWidth,
+      int minVideoHeight,
+      int minVideoFrameRate,
+      int minVideoBitrate,
       List<Integer> selectedTrackIndices) {
     int adaptiveTrackCount = 0;
     for (int i = 0; i < selectedTrackIndices.size(); i++) {
@@ -1846,7 +1957,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           maxVideoWidth,
           maxVideoHeight,
           maxVideoFrameRate,
-          maxVideoBitrate)) {
+          maxVideoBitrate,
+          minVideoWidth,
+          minVideoHeight,
+          minVideoFrameRate,
+          minVideoBitrate)) {
         adaptiveTrackCount++;
       }
     }
@@ -1862,6 +1977,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int maxVideoHeight,
       int maxVideoFrameRate,
       int maxVideoBitrate,
+      int minVideoWidth,
+      int minVideoHeight,
+      int minVideoFrameRate,
+      int minVideoBitrate,
       List<Integer> selectedTrackIndices) {
     for (int i = selectedTrackIndices.size() - 1; i >= 0; i--) {
       int trackIndex = selectedTrackIndices.get(i);
@@ -1873,7 +1992,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           maxVideoWidth,
           maxVideoHeight,
           maxVideoFrameRate,
-          maxVideoBitrate)) {
+          maxVideoBitrate,
+          minVideoWidth,
+          minVideoHeight,
+          minVideoFrameRate,
+          minVideoBitrate)) {
         selectedTrackIndices.remove(i);
       }
     }
@@ -1887,7 +2010,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       int maxVideoWidth,
       int maxVideoHeight,
       int maxVideoFrameRate,
-      int maxVideoBitrate) {
+      int maxVideoBitrate,
+      int minVideoWidth,
+      int minVideoHeight,
+      int minVideoFrameRate,
+      int minVideoBitrate) {
     if ((format.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
       // Ignore trick-play tracks for now.
       return false;
@@ -1898,7 +2025,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         && (format.width == Format.NO_VALUE || format.width <= maxVideoWidth)
         && (format.height == Format.NO_VALUE || format.height <= maxVideoHeight)
         && (format.frameRate == Format.NO_VALUE || format.frameRate <= maxVideoFrameRate)
-        && (format.bitrate == Format.NO_VALUE || format.bitrate <= maxVideoBitrate);
+        && (format.bitrate == Format.NO_VALUE || format.bitrate <= maxVideoBitrate
+        && (format.width == Format.NO_VALUE || format.width >= minVideoWidth)
+        && (format.height == Format.NO_VALUE || format.height >= minVideoHeight)
+        && (format.frameRate == Format.NO_VALUE || format.frameRate >= minVideoFrameRate)
+        && (format.bitrate == Format.NO_VALUE || format.bitrate >= minVideoBitrate));
   }
 
   @Nullable
@@ -1909,6 +2040,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     int selectedTrackScore = 0;
     int selectedBitrate = Format.NO_VALUE;
     int selectedPixelCount = Format.NO_VALUE;
+    boolean selectedSatisfiesMaxConstraints;
+    boolean selectedSatisfiesMinConstraints;
     for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
       TrackGroup trackGroup = groups.get(groupIndex);
       List<Integer> selectedTrackIndices = getViewportFilteredTrackIndices(trackGroup,
@@ -1922,7 +2055,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         }
         if (isSupported(trackFormatSupport[trackIndex],
             params.exceedRendererCapabilitiesIfNecessary)) {
-          boolean isWithinConstraints =
+          boolean satisfiesMaxConstraints =
               selectedTrackIndices.contains(trackIndex)
                   && (format.width == Format.NO_VALUE || format.width <= params.maxVideoWidth)
                   && (format.height == Format.NO_VALUE || format.height <= params.maxVideoHeight)
@@ -1930,17 +2063,32 @@ public class DefaultTrackSelector extends MappingTrackSelector {
                       || format.frameRate <= params.maxVideoFrameRate)
                   && (format.bitrate == Format.NO_VALUE
                       || format.bitrate <= params.maxVideoBitrate);
-          if (!isWithinConstraints && !params.exceedVideoConstraintsIfNecessary) {
+          boolean satisfiesMinConstraints =
+              selectedTrackIndices.contains(trackIndex)
+                  && (format.width == Format.NO_VALUE || format.width >= params.minVideoWidth)
+                  && (format.height == Format.NO_VALUE || format.height >= params.minVideoHeight)
+                  && (format.frameRate == Format.NO_VALUE
+                  || format.frameRate >= params.minVideoFrameRate)
+                  && (format.bitrate == Format.NO_VALUE
+                  || format.bitrate >= params.minVideoBitrate);
+          if (!satisfiesMaxConstraints && !params.exceedVideoConstraintsIfNecessary) {
             // Track should not be selected.
             continue;
           }
-          int trackScore = isWithinConstraints ? 2 : 1;
+          int trackScore = 1;
+          if (satisfiesMaxConstraints) {
+            trackScore += 1;
+          }
+          if (satisfiesMinConstraints) {
+            trackScore += 1;
+          }
           boolean isWithinCapabilities = isSupported(trackFormatSupport[trackIndex], false);
           if (isWithinCapabilities) {
             trackScore += WITHIN_RENDERER_CAPABILITIES_BONUS;
           }
           boolean selectTrack = trackScore > selectedTrackScore;
           if (trackScore == selectedTrackScore) {
+            // TODO handle tie breaker cases correctly.
             int bitrateComparison = compareFormatValues(format.bitrate, selectedBitrate);
             if (params.forceLowestBitrate && bitrateComparison != 0) {
               // Use bitrate as a tie breaker, preferring the lower bitrate.
@@ -1954,7 +2102,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               int comparisonResult = formatPixelCount != selectedPixelCount
                   ? compareFormatValues(formatPixelCount, selectedPixelCount)
                   : compareFormatValues(format.bitrate, selectedBitrate);
-              selectTrack = isWithinCapabilities && isWithinConstraints
+              selectTrack = isWithinCapabilities && satisfiesMaxConstraints
                   ? comparisonResult > 0 : comparisonResult < 0;
             }
           }
@@ -1964,6 +2112,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             selectedTrackScore = trackScore;
             selectedBitrate = format.bitrate;
             selectedPixelCount = format.getPixelCount();
+            selectedSatisfiesMaxConstraints = satisfiesMaxConstraints;
+            selectedSatisfiesMinConstraints = satisfiesMinConstraints;
           }
         }
       }
