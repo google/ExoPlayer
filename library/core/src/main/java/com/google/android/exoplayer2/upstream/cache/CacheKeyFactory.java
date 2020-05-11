@@ -20,6 +20,10 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 /** Factory for cache keys. */
 public interface CacheKeyFactory {
 
+  /** Default {@link CacheKeyFactory}. */
+  CacheKeyFactory DEFAULT =
+      (dataSpec) -> dataSpec.key != null ? dataSpec.key : dataSpec.uri.toString();
+
   /**
    * Returns a cache key for the given {@link DataSpec}.
    *

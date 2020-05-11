@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import android.net.Uri;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -55,18 +54,9 @@ public final class CacheUtil {
   /** Default buffer size to be used while caching. */
   public static final int DEFAULT_BUFFER_SIZE_BYTES = 128 * 1024;
 
-  /** Default {@link CacheKeyFactory}. */
-  public static final CacheKeyFactory DEFAULT_CACHE_KEY_FACTORY =
-      (dataSpec) -> dataSpec.key != null ? dataSpec.key : generateKey(dataSpec.uri);
-
-  /**
-   * Generates a cache key out of the given {@link Uri}.
-   *
-   * @param uri Uri of a content which the requested key is for.
-   */
-  public static String generateKey(Uri uri) {
-    return uri.toString();
-  }
+  /** @deprecated Use {@link CacheKeyFactory#DEFAULT}. */
+  @Deprecated
+  public static final CacheKeyFactory DEFAULT_CACHE_KEY_FACTORY = CacheKeyFactory.DEFAULT;
 
   /**
    * Queries the cache to obtain the request length and the number of bytes already cached for a
@@ -375,7 +365,7 @@ public final class CacheUtil {
 
   private static String buildCacheKey(
       DataSpec dataSpec, @Nullable CacheKeyFactory cacheKeyFactory) {
-    return (cacheKeyFactory != null ? cacheKeyFactory : DEFAULT_CACHE_KEY_FACTORY)
+    return (cacheKeyFactory != null ? cacheKeyFactory : CacheKeyFactory.DEFAULT)
         .buildCacheKey(dataSpec);
   }
 
