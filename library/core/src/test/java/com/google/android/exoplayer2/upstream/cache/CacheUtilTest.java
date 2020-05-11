@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import static com.google.android.exoplayer2.C.LENGTH_UNSET;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 import static com.google.common.truth.Truth.assertThat;
@@ -102,37 +101,6 @@ public final class CacheUtilTest {
   @After
   public void tearDown() {
     Util.recursiveDelete(tempFolder);
-  }
-
-  @Test
-  public void generateKey() {
-    assertThat(CacheUtil.generateKey(Uri.EMPTY)).isNotNull();
-
-    Uri testUri = Uri.parse("test");
-    String key = CacheUtil.generateKey(testUri);
-    assertThat(key).isNotNull();
-
-    // Should generate the same key for the same input.
-    assertThat(CacheUtil.generateKey(testUri)).isEqualTo(key);
-
-    // Should generate different key for different input.
-    assertThat(key.equals(CacheUtil.generateKey(Uri.parse("test2")))).isFalse();
-  }
-
-  @Test
-  public void defaultCacheKeyFactory_buildCacheKey() {
-    Uri testUri = Uri.parse("test");
-    String key = "key";
-    // If DataSpec.key is present, returns it.
-    assertThat(
-            CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(
-                new DataSpec.Builder().setUri(testUri).setKey(key).build()))
-        .isEqualTo(key);
-    // If not generates a new one using DataSpec.uri.
-    assertThat(
-            CacheUtil.DEFAULT_CACHE_KEY_FACTORY.buildCacheKey(
-                new DataSpec(testUri, /* position= */ 0, /* length= */ LENGTH_UNSET)))
-        .isEqualTo(testUri.toString());
   }
 
   @Test

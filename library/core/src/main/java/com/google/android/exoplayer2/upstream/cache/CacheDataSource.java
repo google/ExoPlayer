@@ -64,7 +64,7 @@ public final class CacheDataSource implements DataSource {
 
     public Factory() {
       cacheReadDataSourceFactory = new FileDataSource.Factory();
-      cacheKeyFactory = CacheUtil.DEFAULT_CACHE_KEY_FACTORY;
+      cacheKeyFactory = CacheKeyFactory.DEFAULT;
     }
 
     /**
@@ -123,7 +123,7 @@ public final class CacheDataSource implements DataSource {
     /**
      * Sets the {@link CacheKeyFactory}.
      *
-     * <p>The default is {@link CacheUtil#DEFAULT_CACHE_KEY_FACTORY}.
+     * <p>The default is {@link CacheKeyFactory#DEFAULT}.
      *
      * @param cacheKeyFactory The {@link CacheKeyFactory}.
      * @return This factory.
@@ -508,8 +508,7 @@ public final class CacheDataSource implements DataSource {
       @Nullable EventListener eventListener) {
     this.cache = cache;
     this.cacheReadDataSource = cacheReadDataSource;
-    this.cacheKeyFactory =
-        cacheKeyFactory != null ? cacheKeyFactory : CacheUtil.DEFAULT_CACHE_KEY_FACTORY;
+    this.cacheKeyFactory = cacheKeyFactory != null ? cacheKeyFactory : CacheKeyFactory.DEFAULT;
     this.blockOnCache = (flags & FLAG_BLOCK_ON_CACHE) != 0;
     this.ignoreCacheOnError = (flags & FLAG_IGNORE_CACHE_ON_ERROR) != 0;
     this.ignoreCacheForUnsetLengthRequests =
