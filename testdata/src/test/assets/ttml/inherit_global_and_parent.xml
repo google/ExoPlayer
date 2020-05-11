@@ -14,7 +14,7 @@
                 tts:color="yellow"/>
         </styling>
     </head>
-    <body tts:textAlign="center">
+    <body>
         <div tts:fontWeight="normal"
             tts:fontStyle="normal"
             tts:fontFamily="sansSerif"

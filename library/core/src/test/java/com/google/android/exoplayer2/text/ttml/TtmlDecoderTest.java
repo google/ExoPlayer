@@ -60,6 +60,7 @@ public final class TtmlDecoderTest {
   private static final String BITMAP_REGION_FILE = "ttml/bitmap_percentage_region.xml";
   private static final String BITMAP_PIXEL_REGION_FILE = "ttml/bitmap_pixel_region.xml";
   private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
+  private static final String TEXT_ALIGN_FILE = "ttml/text_align.xml";
   private static final String VERTICAL_TEXT_FILE = "ttml/vertical_text.xml";
   private static final String TEXT_COMBINE_FILE = "ttml/text_combine.xml";
   private static final String RUBIES_FILE = "ttml/rubies.xml";
@@ -194,9 +195,6 @@ public final class TtmlDecoderTest {
     assertThat(firstCueText)
         .hasForegroundColorSpanBetween(0, firstCueText.length())
         .withColor(ColorParser.parseTtmlColor("lime"));
-    assertThat(firstCueText)
-        .hasAlignmentSpanBetween(0, firstCueText.length())
-        .withAlignment(Layout.Alignment.ALIGN_CENTER);
 
     Spanned secondCueText = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
     assertThat(secondCueText.toString()).isEqualTo("text 2");
@@ -210,9 +208,6 @@ public final class TtmlDecoderTest {
     assertThat(secondCueText)
         .hasForegroundColorSpanBetween(0, secondCueText.length())
         .withColor(0xFFFFFF00);
-    assertThat(secondCueText)
-        .hasAlignmentSpanBetween(0, secondCueText.length())
-        .withAlignment(Layout.Alignment.ALIGN_CENTER);
   }
 
   @Test
@@ -573,6 +568,39 @@ public final class TtmlDecoderTest {
     assertThat(cue.line).isEqualTo(Cue.DIMEN_UNSET);
     assertThat(cue.size).isEqualTo(Cue.DIMEN_UNSET);
     assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
+  }
+
+  @Test
+  public void textAlign() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(TEXT_ALIGN_FILE);
+
+    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue.text.toString()).isEqualTo("Start alignment");
+    assertThat(firstCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue.text.toString()).isEqualTo("Left alignment");
+    assertThat(secondCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue.text.toString()).isEqualTo("Center alignment");
+    assertThat(thirdCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_CENTER);
+
+    Cue fourthCue = getOnlyCueAtTimeUs(subtitle, 40_000_000);
+    assertThat(fourthCue.text.toString()).isEqualTo("Right alignment");
+    assertThat(fourthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
+
+    Cue fifthCue = getOnlyCueAtTimeUs(subtitle, 50_000_000);
+    assertThat(fifthCue.text.toString()).isEqualTo("End alignment");
+    assertThat(fifthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
+
+    Cue sixthCue = getOnlyCueAtTimeUs(subtitle, 60_000_000);
+    assertThat(sixthCue.text.toString()).isEqualTo("Justify alignment (unsupported)");
+    assertThat(sixthCue.textAlignment).isNull();
+
+    Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
+    assertThat(seventhCue.text.toString()).isEqualTo("No textAlign property");
+    assertThat(seventhCue.textAlignment).isNull();
   }
 
   @Test
