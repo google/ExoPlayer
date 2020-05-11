@@ -63,8 +63,7 @@ public final class Metadata implements Parcelable {
    * @param entries The metadata entries.
    */
   public Metadata(List<? extends Entry> entries) {
-    this.entries = new Entry[entries.size()];
-    entries.toArray(this.entries);
+    this.entries = entries.toArray(new Entry[0]);
   }
 
   /* package */ Metadata(Parcel in) {
