@@ -630,7 +630,7 @@ public final class CacheDataSource implements DataSource {
       }
       return bytesRead;
     } catch (IOException e) {
-      if (currentDataSpecLengthUnset && CacheUtil.isCausedByPositionOutOfRange(e)) {
+      if (currentDataSpecLengthUnset && DataSourceException.isCausedByPositionOutOfRange(e)) {
         setNoBytesRemainingAndMaybeStoreLength();
         return C.RESULT_END_OF_INPUT;
       }
