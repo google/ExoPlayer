@@ -321,14 +321,16 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
       @Nullable Object tag) {
     progressiveMediaSource =
         new ProgressiveMediaSource(
-            uri,
+            new MediaItem.Builder()
+                .setUri(uri)
+                .setCustomCacheKey(customCacheKey)
+                .setTag(tag)
+                .build(),
             dataSourceFactory,
             extractorsFactory,
             DrmSessionManager.getDummyDrmSessionManager(),
             loadableLoadErrorHandlingPolicy,
-            customCacheKey,
-            continueLoadingCheckIntervalBytes,
-            tag);
+            continueLoadingCheckIntervalBytes);
   }
 
   @Override
