@@ -2,6 +2,8 @@
 
 ### Next release ###
 
+*   Enable the configuration of `SilenceSkippingAudioProcessor`
+    ([#6705](https://github.com/google/ExoPlayer/issues/6705)).
 *   Add `SilenceMediaSource.Factory` to support tags
     ([PR #7245](https://github.com/google/ExoPlayer/pull/7245)).
 *   Avoid throwing an exception while parsing fragmented MP4 default sample
