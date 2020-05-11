@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
-import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -1274,8 +1273,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       // We've already read an encrypted sample into buffer, and are waiting for keys.
       result = C.RESULT_BUFFER_READ;
     } else {
-      // For adaptive reconfiguration OMX decoders expect all reconfiguration data to be supplied
-      // at the start of the buffer that also contains the first frame in the new format.
+      // For adaptive reconfiguration, decoders expect all reconfiguration data to be supplied at
+      // the start of the buffer that also contains the first frame in the new format.
       if (codecReconfigurationState == RECONFIGURATION_STATE_WRITE_PENDING) {
         for (int i = 0; i < codecFormat.initializationData.size(); i++) {
           byte[] data = codecFormat.initializationData.get(i);
@@ -1325,7 +1324,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           // Do nothing.
         } else {
           codecReceivedEos = true;
-          codecAdapter.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+          codecAdapter.queueInputBuffer(
+              inputIndex,
+              /* offset= */ 0,
+              /* size= */ 0,
+              /* presentationTimeUs= */ 0,
+              MediaCodec.BUFFER_FLAG_END_OF_STREAM);
           resetInputBuffer();
         }
       } catch (CryptoException e) {
@@ -1333,6 +1337,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
       return false;
     }
+
+    // TODO: This code block may be unnecessary, because it's probably the case that the buffer will
+    // always be a keyframe if waitingForFirstSyncSample is true. Check this, and remove if so.
     if (waitingForFirstSyncSample && !buffer.isKeyFrame()) {
       buffer.clear();
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
@@ -1343,11 +1350,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return true;
     }
     waitingForFirstSyncSample = false;
+
     boolean bufferEncrypted = buffer.isEncrypted();
     waitingForKeys = shouldWaitForKeys(bufferEncrypted);
     if (waitingForKeys) {
       return false;
     }
+    if (bufferEncrypted) {
+      buffer.cryptoInfo.increaseClearDataFirstSubSampleBy(adaptiveReconfigurationBytes);
+    }
+
     if (codecNeedsDiscardToSpsWorkaround && !bufferEncrypted) {
       NalUnitUtil.discardToSps(buffer.data);
       if (buffer.data.position() == 0) {
@@ -1355,38 +1367,39 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
       codecNeedsDiscardToSpsWorkaround = false;
     }
+
+    long presentationTimeUs = buffer.timeUs;
+    if (buffer.isDecodeOnly()) {
+      decodeOnlyPresentationTimestamps.add(presentationTimeUs);
+    }
+    if (waitingForFirstSampleInFormat) {
+      formatQueue.add(presentationTimeUs, inputFormat);
+      waitingForFirstSampleInFormat = false;
+    }
+    largestQueuedPresentationTimeUs = Math.max(largestQueuedPresentationTimeUs, presentationTimeUs);
+
+    buffer.flip();
+    if (buffer.hasSupplementalData()) {
+      handleInputBufferSupplementalData(buffer);
+    }
+
+    onQueueInputBuffer(buffer);
     try {
-      long presentationTimeUs = buffer.timeUs;
-      if (buffer.isDecodeOnly()) {
-        decodeOnlyPresentationTimestamps.add(presentationTimeUs);
-      }
-      if (waitingForFirstSampleInFormat) {
-        formatQueue.add(presentationTimeUs, inputFormat);
-        waitingForFirstSampleInFormat = false;
-      }
-      largestQueuedPresentationTimeUs =
-          Math.max(largestQueuedPresentationTimeUs, presentationTimeUs);
-
-      buffer.flip();
-      if (buffer.hasSupplementalData()) {
-        handleInputBufferSupplementalData(buffer);
-      }
-      onQueueInputBuffer(buffer);
-
       if (bufferEncrypted) {
-        CryptoInfo cryptoInfo = buffer.cryptoInfo;
-        cryptoInfo.increaseClearDataFirstSubSampleBy(adaptiveReconfigurationBytes);
-        codecAdapter.queueSecureInputBuffer(inputIndex, 0, cryptoInfo, presentationTimeUs, 0);
+        codecAdapter.queueSecureInputBuffer(
+            inputIndex, /* offset= */ 0, buffer.cryptoInfo, presentationTimeUs, /* flags= */ 0);
       } else {
-        codecAdapter.queueInputBuffer(inputIndex, 0, buffer.data.limit(), presentationTimeUs, 0);
+        codecAdapter.queueInputBuffer(
+            inputIndex, /* offset= */ 0, buffer.data.limit(), presentationTimeUs, /* flags= */ 0);
       }
-      resetInputBuffer();
-      codecReceivedBuffers = true;
-      codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-      decoderCounters.inputBufferCount++;
     } catch (CryptoException e) {
       throw createRendererException(e, inputFormat);
     }
+
+    resetInputBuffer();
+    codecReceivedBuffers = true;
+    codecReconfigurationState = RECONFIGURATION_STATE_NONE;
+    decoderCounters.inputBufferCount++;
     return true;
   }
 
