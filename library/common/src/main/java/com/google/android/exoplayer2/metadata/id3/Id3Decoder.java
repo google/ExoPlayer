@@ -626,8 +626,7 @@ public final class Id3Decoder implements MetadataDecoder {
       }
     }
 
-    Id3Frame[] subFrameArray = new Id3Frame[subFrames.size()];
-    subFrames.toArray(subFrameArray);
+    Id3Frame[] subFrameArray = subFrames.toArray(new Id3Frame[0]);
     return new ChapterFrame(chapterId, startTime, endTime, startOffset, endOffset, subFrameArray);
   }
 
@@ -668,8 +667,7 @@ public final class Id3Decoder implements MetadataDecoder {
       }
     }
 
-    Id3Frame[] subFrameArray = new Id3Frame[subFrames.size()];
-    subFrames.toArray(subFrameArray);
+    Id3Frame[] subFrameArray = subFrames.toArray(new Id3Frame[0]);
     return new ChapterTocFrame(elementId, isRoot, isOrdered, children, subFrameArray);
   }
 
