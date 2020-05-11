@@ -20,6 +20,7 @@ import static java.lang.Runtime.getRuntime;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderInputBuffer;
@@ -94,7 +95,7 @@ import java.nio.ByteBuffer;
 
   @Override
   protected VideoDecoderInputBuffer createInputBuffer() {
-    return new VideoDecoderInputBuffer();
+    return new VideoDecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
   }
 
   @Override

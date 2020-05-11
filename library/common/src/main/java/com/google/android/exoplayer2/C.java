@@ -963,7 +963,7 @@ public final class C {
 
   /**
    * Mode specifying whether the player should hold a WakeLock and a WifiLock. One of {@link
-   * #WAKE_MODE_NONE}, {@link #WAKE_MODE_LOCAL} and {@link #WAKE_MODE_NETWORK}.
+   * #WAKE_MODE_NONE}, {@link #WAKE_MODE_LOCAL} or {@link #WAKE_MODE_NETWORK}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)

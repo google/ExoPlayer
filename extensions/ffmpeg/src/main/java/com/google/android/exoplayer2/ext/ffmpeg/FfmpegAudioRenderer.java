@@ -125,7 +125,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     decoder =
         new FfmpegAudioDecoder(
-            NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, format, shouldUseFloatOutput(format));
+            format, NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, shouldUseFloatOutput(format));
     TraceUtil.endSection();
     return decoder;
   }
