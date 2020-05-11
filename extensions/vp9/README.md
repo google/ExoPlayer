@@ -42,9 +42,8 @@ cd "${VP9_EXT_PATH}/jni" && \
 git clone https://chromium.googlesource.com/webm/libvpx libvpx
 ```
 
-* Checkout the appropriate branch of libvpx (the scripts and makefiles bundled
-  in this repo are known to work only at specific versions of the library - we
-  will update this periodically as newer versions of libvpx are released):
+* Checkout an appropriate branch of libvpx. We cannot guarantee compatibility
+  with all versions of libvpx. We currently recommend version 1.8.0:
 
 ```
 cd "${VP9_EXT_PATH}/jni/libvpx" && \
