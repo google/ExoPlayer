@@ -273,7 +273,7 @@ public final class CacheUtil {
                 dataSource.open(dataSpec.subrange(positionOffset, endOffset - positionOffset));
             isDataSourceOpen = true;
           } catch (IOException exception) {
-            if (!isLastBlock || !isCausedByPositionOutOfRange(exception)) {
+            if (!isLastBlock || !DataSourceException.isCausedByPositionOutOfRange(exception)) {
               throw exception;
             }
             Util.closeQuietly(dataSource);
@@ -347,20 +347,6 @@ public final class CacheUtil {
         // Do nothing.
       }
     }
-  }
-
-  /* package */ static boolean isCausedByPositionOutOfRange(IOException e) {
-    @Nullable Throwable cause = e;
-    while (cause != null) {
-      if (cause instanceof DataSourceException) {
-        int reason = ((DataSourceException) cause).reason;
-        if (reason == DataSourceException.POSITION_OUT_OF_RANGE) {
-          return true;
-        }
-      }
-      cause = cause.getCause();
-    }
-    return false;
   }
 
   private static String buildCacheKey(
