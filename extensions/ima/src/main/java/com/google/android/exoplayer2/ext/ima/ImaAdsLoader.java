@@ -41,7 +41,6 @@ import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
-import com.google.ads.interactivemedia.v3.api.CompanionAdSlot;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.UiElement;
@@ -69,7 +68,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -426,33 +424,6 @@ public final class ImaAdsLoader
         /* imaFactory= */ new DefaultImaFactory());
   }
 
-  /**
-   * Creates a new IMA ads loader.
-   *
-   * @param context The context.
-   * @param adTagUri The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
-   *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
-   *     more information.
-   * @param imaSdkSettings {@link ImaSdkSettings} used to configure the IMA SDK, or {@code null} to
-   *     use the default settings. If set, the player type and version fields may be overwritten.
-   * @deprecated Use {@link ImaAdsLoader.Builder}.
-   */
-  @Deprecated
-  public ImaAdsLoader(Context context, Uri adTagUri, @Nullable ImaSdkSettings imaSdkSettings) {
-    this(
-        context,
-        adTagUri,
-        imaSdkSettings,
-        /* adsResponse= */ null,
-        /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
-        /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
-        /* mediaBitrate= */ BITRATE_UNSET,
-        /* focusSkipButtonWhenAvailable= */ true,
-        /* adUiElements= */ null,
-        /* adEventListener= */ null,
-        /* imaFactory= */ new DefaultImaFactory());
-  }
-
   @SuppressWarnings({"nullness:argument.type.incompatible", "methodref.receiver.bound.invalid"})
   private ImaAdsLoader(
       Context context,
@@ -527,19 +498,6 @@ public final class ImaAdsLoader
    */
   public AdDisplayContainer getAdDisplayContainer() {
     return adDisplayContainer;
-  }
-
-  /**
-   * Sets the slots for displaying companion ads. Individual slots can be created using {@link
-   * ImaSdkFactory#createCompanionAdSlot()}.
-   *
-   * @param companionSlots Slots for displaying companion ads.
-   * @see AdDisplayContainer#setCompanionSlots(Collection)
-   * @deprecated Use {@code getAdDisplayContainer().setCompanionSlots(...)}.
-   */
-  @Deprecated
-  public void setCompanionSlots(Collection<CompanionAdSlot> companionSlots) {
-    adDisplayContainer.setCompanionSlots(companionSlots);
   }
 
   /**
