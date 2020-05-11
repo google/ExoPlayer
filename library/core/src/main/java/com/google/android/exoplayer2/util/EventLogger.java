@@ -553,7 +553,7 @@ public class EventLogger implements AnalyticsListener {
     return "eventTime="
         + getTimeString(eventTime.realtimeMs - startTimeMs)
         + ", mediaPos="
-        + getTimeString(eventTime.currentPlaybackPositionMs)
+        + getTimeString(eventTime.eventPlaybackPositionMs)
         + ", "
         + windowPeriodString;
   }
