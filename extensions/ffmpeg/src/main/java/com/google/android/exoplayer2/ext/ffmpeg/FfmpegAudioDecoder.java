@@ -52,10 +52,10 @@ import java.util.List;
   private volatile int sampleRate;
 
   public FfmpegAudioDecoder(
+      Format format,
       int numInputBuffers,
       int numOutputBuffers,
       int initialInputBufferSize,
-      Format format,
       boolean outputFloat)
       throws FfmpegDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
@@ -82,7 +82,9 @@ import java.util.List;
 
   @Override
   protected DecoderInputBuffer createInputBuffer() {
-    return new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
+    return new DecoderInputBuffer(
+        DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT,
+        FfmpegLibrary.getInputBufferPaddingSize());
   }
 
   @Override

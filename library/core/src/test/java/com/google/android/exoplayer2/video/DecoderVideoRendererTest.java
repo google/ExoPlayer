@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.decoder.DecoderException;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
@@ -141,7 +142,8 @@ public final class DecoderVideoRendererTest {
                 new VideoDecoderInputBuffer[10], new VideoDecoderOutputBuffer[10]) {
               @Override
               protected VideoDecoderInputBuffer createInputBuffer() {
-                return new VideoDecoderInputBuffer();
+                return new VideoDecoderInputBuffer(
+                    DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
               }
 
               @Override

@@ -113,6 +113,10 @@ LIBRARY_FUNC(jstring, ffmpegGetVersion) {
   return env->NewStringUTF(LIBAVCODEC_IDENT);
 }
 
+LIBRARY_FUNC(jint, ffmpegGetInputBufferPaddingSize) {
+  return (jint)AV_INPUT_BUFFER_PADDING_SIZE;
+}
+
 LIBRARY_FUNC(jboolean, ffmpegHasDecoder, jstring codecName) {
   return getCodecByName(env, codecName) != NULL;
 }
