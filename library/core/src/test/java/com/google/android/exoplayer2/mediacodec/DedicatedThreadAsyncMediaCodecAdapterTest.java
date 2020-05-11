@@ -222,6 +222,49 @@ public class DedicatedThreadAsyncMediaCodecAdapterTest {
   }
 
   @Test
+  public void dequeueOutputBufferIndex_withPendingOutputFormat_returnsPendingOutputFormat() {
+    adapter.start();
+    MediaCodec.BufferInfo outputBufferInfo = new MediaCodec.BufferInfo();
+    MediaFormat pendingMediaFormat = new MediaFormat();
+
+    adapter.onOutputFormatChanged(codec, new MediaFormat());
+    adapter.onOutputBufferAvailable(codec, /* index= */ 0, new MediaCodec.BufferInfo());
+    adapter.onOutputFormatChanged(codec, pendingMediaFormat);
+    adapter.onOutputBufferAvailable(codec, /* index= */ 1, new MediaCodec.BufferInfo());
+    // Flush should clear the output queue except from the last pending output format received.
+    adapter.flush();
+    shadowOf(handlerThread.getLooper()).idle();
+    adapter.onOutputBufferAvailable(codec, /* index= */ 2, new MediaCodec.BufferInfo());
+
+    assertThat(adapter.dequeueOutputBufferIndex(outputBufferInfo))
+        .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
+    assertThat(adapter.getOutputFormat()).isEqualTo(pendingMediaFormat);
+    assertThat(adapter.dequeueOutputBufferIndex(outputBufferInfo)).isEqualTo(2);
+  }
+
+  @Test
+  public void dequeueOutputBufferIndex_withPendingAndNewOutputFormat_returnsNewOutputFormat() {
+    adapter.start();
+    MediaCodec.BufferInfo outputBufferInfo = new MediaCodec.BufferInfo();
+    MediaFormat pendingMediaFormat = new MediaFormat();
+    MediaFormat latestOutputFormat = new MediaFormat();
+
+    adapter.onOutputFormatChanged(codec, new MediaFormat());
+    adapter.onOutputBufferAvailable(codec, /* index= */ 0, new MediaCodec.BufferInfo());
+    adapter.onOutputFormatChanged(codec, pendingMediaFormat);
+    adapter.onOutputBufferAvailable(codec, /* index= */ 1, new MediaCodec.BufferInfo());
+    // Flush should clear the output queue except from the last pending output format received.
+    adapter.flush();
+    shadowOf(handlerThread.getLooper()).idle();
+    // New output format should overwrite the pending format.
+    adapter.onOutputFormatChanged(codec, latestOutputFormat);
+
+    assertThat(adapter.dequeueOutputBufferIndex(outputBufferInfo))
+        .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
+    assertThat(adapter.getOutputFormat()).isEqualTo(latestOutputFormat);
+  }
+
+  @Test
   public void getOutputFormat_withoutFormatReceived_throwsException() {
     adapter.start();
 

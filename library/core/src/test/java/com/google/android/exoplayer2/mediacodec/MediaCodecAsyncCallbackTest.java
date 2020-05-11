@@ -136,6 +136,47 @@ public class MediaCodecAsyncCallbackTest {
   }
 
   @Test
+  public void dequeOutputBufferIndex_withPendingOutputFormat_returnsPendingOutputFormat() {
+    MediaCodec.BufferInfo outBufferInfo = new MediaCodec.BufferInfo();
+
+    mediaCodecAsyncCallback.onOutputFormatChanged(codec, new MediaFormat());
+    MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+    mediaCodecAsyncCallback.onOutputBufferAvailable(codec, /* index= */ 0, bufferInfo);
+    MediaFormat pendingMediaFormat = new MediaFormat();
+    mediaCodecAsyncCallback.onOutputFormatChanged(codec, pendingMediaFormat);
+    // Flush should not discard the last format.
+    mediaCodecAsyncCallback.flush();
+    // First callback after flush is an output buffer, pending output format should be pushed first.
+    mediaCodecAsyncCallback.onOutputBufferAvailable(codec, /* index= */ 1, bufferInfo);
+
+    assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo))
+        .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
+    assertThat(mediaCodecAsyncCallback.getOutputFormat()).isEqualTo(pendingMediaFormat);
+    assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo)).isEqualTo(1);
+  }
+
+  @Test
+  public void dequeOutputBufferIndex_withPendingOutputFormatAndNewFormat_returnsNewFormat() {
+    mediaCodecAsyncCallback.onOutputFormatChanged(codec, new MediaFormat());
+    MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+    mediaCodecAsyncCallback.onOutputBufferAvailable(codec, /* index= */ 0, bufferInfo);
+    MediaFormat pendingMediaFormat = new MediaFormat();
+    mediaCodecAsyncCallback.onOutputFormatChanged(codec, pendingMediaFormat);
+    // Flush should not discard the last format
+    mediaCodecAsyncCallback.flush();
+    // The first callback after flush is a new MediaFormat, it should overwrite the pending format.
+    MediaFormat newFormat = new MediaFormat();
+    mediaCodecAsyncCallback.onOutputFormatChanged(codec, newFormat);
+    mediaCodecAsyncCallback.onOutputBufferAvailable(codec, /* index= */ 1, bufferInfo);
+    MediaCodec.BufferInfo outBufferInfo = new MediaCodec.BufferInfo();
+
+    assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo))
+        .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
+    assertThat(mediaCodecAsyncCallback.getOutputFormat()).isEqualTo(newFormat);
+    assertThat(mediaCodecAsyncCallback.dequeueOutputBufferIndex(outBufferInfo)).isEqualTo(1);
+  }
+
+  @Test
   public void getOutputFormat_onNewInstance_raisesException() {
     try {
       mediaCodecAsyncCallback.getOutputFormat();
