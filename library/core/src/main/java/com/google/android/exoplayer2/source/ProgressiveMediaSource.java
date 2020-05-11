@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -30,7 +32,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.Assertions;
 
 /**
  * Provides one period that loads data from a {@link Uri} and extracted using an {@link Extractor}.
@@ -178,18 +179,21 @@ public final class ProgressiveMediaSource extends BaseMediaSource
      */
     @Override
     public ProgressiveMediaSource createMediaSource(MediaItem mediaItem) {
-      Assertions.checkNotNull(mediaItem.playbackProperties);
+      checkNotNull(mediaItem.playbackProperties);
+      MediaItem.Builder builder = mediaItem.buildUpon();
+      if (mediaItem.playbackProperties.tag == null) {
+        builder.setTag(tag);
+      }
+      if (mediaItem.playbackProperties.customCacheKey == null) {
+        builder.setCustomCacheKey(customCacheKey);
+      }
       return new ProgressiveMediaSource(
-          mediaItem.playbackProperties.uri,
+          builder.build(),
           dataSourceFactory,
           extractorsFactory,
           drmSessionManager,
           loadErrorHandlingPolicy,
-          mediaItem.playbackProperties.customCacheKey != null
-              ? mediaItem.playbackProperties.customCacheKey
-              : customCacheKey,
-          continueLoadingCheckIntervalBytes,
-          mediaItem.playbackProperties.tag != null ? mediaItem.playbackProperties.tag : tag);
+          continueLoadingCheckIntervalBytes);
     }
 
     @Override
@@ -204,14 +208,13 @@ public final class ProgressiveMediaSource extends BaseMediaSource
    */
   public static final int DEFAULT_LOADING_CHECK_INTERVAL_BYTES = 1024 * 1024;
 
-  private final Uri uri;
+  private final MediaItem mediaItem;
+  private final MediaItem.PlaybackProperties playbackProperties;
   private final DataSource.Factory dataSourceFactory;
   private final ExtractorsFactory extractorsFactory;
   private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy;
-  @Nullable private final String customCacheKey;
   private final int continueLoadingCheckIntervalBytes;
-  @Nullable private final Object tag;
 
   private boolean timelineIsPlaceholder;
   private long timelineDurationUs;
@@ -221,30 +224,32 @@ public final class ProgressiveMediaSource extends BaseMediaSource
 
   // TODO: Make private when ExtractorMediaSource is deleted.
   /* package */ ProgressiveMediaSource(
-      Uri uri,
+      MediaItem mediaItem,
       DataSource.Factory dataSourceFactory,
       ExtractorsFactory extractorsFactory,
       DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy,
-      @Nullable String customCacheKey,
-      int continueLoadingCheckIntervalBytes,
-      @Nullable Object tag) {
-    this.uri = uri;
+      int continueLoadingCheckIntervalBytes) {
+    this.playbackProperties = checkNotNull(mediaItem.playbackProperties);
+    this.mediaItem = mediaItem;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorsFactory = extractorsFactory;
     this.drmSessionManager = drmSessionManager;
     this.loadableLoadErrorHandlingPolicy = loadableLoadErrorHandlingPolicy;
-    this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     this.timelineIsPlaceholder = true;
     this.timelineDurationUs = C.TIME_UNSET;
-    this.tag = tag;
   }
 
   @Override
   @Nullable
   public Object getTag() {
-    return tag;
+    return playbackProperties.tag;
+  }
+
+  @Nullable
+  public Object getMediaItem() {
+    return mediaItem;
   }
 
   @Override
@@ -266,7 +271,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       dataSource.addTransferListener(transferListener);
     }
     return new ProgressiveMediaPeriod(
-        uri,
+        playbackProperties.uri,
         dataSource,
         extractorsFactory.createExtractors(),
         drmSessionManager,
@@ -274,7 +279,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
         createEventDispatcher(id),
         this,
         allocator,
-        customCacheKey,
+        playbackProperties.customCacheKey,
         continueLoadingCheckIntervalBytes);
   }
 
@@ -320,7 +325,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
             /* isDynamic= */ false,
             /* isLive= */ timelineIsLive,
             /* manifest= */ null,
-            tag);
+            mediaItem);
     if (timelineIsPlaceholder) {
       // TODO: Actually prepare the extractors during prepatation so that we don't need a
       // placeholder. See https://github.com/google/ExoPlayer/issues/4727.

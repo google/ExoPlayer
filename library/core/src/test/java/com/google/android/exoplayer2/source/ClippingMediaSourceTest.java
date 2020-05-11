@@ -235,7 +235,7 @@ public final class ClippingMediaSourceTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* tag= */ null);
+            /* mediaItem= */ null);
 
     Timeline clippedTimeline = getClippedTimeline(timeline, /* durationUs= */ TEST_CLIP_AMOUNT_US);
     assertThat(clippedTimeline.getWindow(0, window).getDurationUs()).isEqualTo(TEST_CLIP_AMOUNT_US);
@@ -258,7 +258,7 @@ public final class ClippingMediaSourceTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* tag= */ null);
+            /* mediaItem= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 3 * TEST_PERIOD_DURATION_US,
@@ -269,7 +269,7 @@ public final class ClippingMediaSourceTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* tag= */ null);
+            /* mediaItem= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -309,7 +309,7 @@ public final class ClippingMediaSourceTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* tag= */ null);
+            /* mediaItem= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 4 * TEST_PERIOD_DURATION_US,
@@ -320,7 +320,7 @@ public final class ClippingMediaSourceTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* tag= */ null);
+            /* mediaItem= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -360,7 +360,7 @@ public final class ClippingMediaSourceTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* tag= */ null);
+            /* mediaItem= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 3 * TEST_PERIOD_DURATION_US,
@@ -371,7 +371,7 @@ public final class ClippingMediaSourceTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* tag= */ null);
+            /* mediaItem= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
@@ -412,7 +412,7 @@ public final class ClippingMediaSourceTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* tag= */ null);
+            /* mediaItem= */ null);
     Timeline timeline2 =
         new SinglePeriodTimeline(
             /* periodDurationUs= */ 4 * TEST_PERIOD_DURATION_US,
@@ -423,7 +423,7 @@ public final class ClippingMediaSourceTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* tag= */ null);
+            /* mediaItem= */ null);
 
     Timeline[] clippedTimelines =
         getClippedTimelines(
