@@ -127,7 +127,7 @@ import java.util.List;
     StringBuilder html = new StringBuilder();
     html.append(
         Util.formatInvariant(
-            "<html><body><div style=\""
+            "<html><body><div style='"
                 + "-webkit-user-select:none;"
                 + "position:fixed;"
                 + "top:0;"
@@ -136,7 +136,7 @@ import java.util.List;
                 + "right:0;"
                 + "color:%s;"
                 + "font-size:%s;"
-                + "\">",
+                + "'>",
             HtmlUtils.toCssRgba(style.foregroundColor),
             convertTextSizeToCss(defaultTextSizeType, defaultTextSize)));
 
@@ -222,7 +222,7 @@ import java.util.List;
 
       html.append(
               Util.formatInvariant(
-                  "<div style=\""
+                  "<div style='"
                       + "position:absolute;"
                       + "%s:%.2f%%;"
                       + "%s:%.2f%%;"
@@ -232,7 +232,7 @@ import java.util.List;
                       + "font-size:%s;"
                       + "background-color:%s;"
                       + "transform:translate(%s%%,%s%%);"
-                      + "\">",
+                      + "'>",
                   positionProperty,
                   positionPercent,
                   lineProperty,
@@ -245,7 +245,7 @@ import java.util.List;
                   windowCssColor,
                   horizontalTranslatePercent,
                   verticalTranslatePercent))
-          .append(Util.formatInvariant("<span style=\"background-color:%s;\">", backgroundColorCss))
+          .append(Util.formatInvariant("<span style='background-color:%s;'>", backgroundColorCss))
           .append(
               SpannedToHtmlConverter.convert(
                   cue.text, getContext().getResources().getDisplayMetrics().density))
