@@ -181,7 +181,7 @@
     ([#7234](https://github.com/google/ExoPlayer/issues/7234)).
 *   AV1 extension: Add a heuristic to determine the default number of threads
     used for AV1 playback using the extension.
-*   IMA extension: Upgrade to IMA SDK version 3.18.1, and migrate to new
+*   IMA extension: Upgrade to IMA SDK version 3.18.2, and migrate to new
     preloading APIs ([#6429](https://github.com/google/ExoPlayer/issues/6429)).
 *   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
 *   Cronet extension: Default to using the Cronet implementation in Google Play
