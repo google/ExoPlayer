@@ -380,7 +380,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     if (resolvedStyle != null) {
       TtmlRenderUtil.applyStylesToSpan(text, start, end, resolvedStyle, parent);
-      regionOutput.setVerticalType(resolvedStyle.getVerticalType());
+      regionOutput
+          .setTextAlignment(resolvedStyle.getTextAlign())
+          .setVerticalType(resolvedStyle.getVerticalType());
     }
   }
 

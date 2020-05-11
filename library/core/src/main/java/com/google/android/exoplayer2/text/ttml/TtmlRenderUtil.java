@@ -15,12 +15,10 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
-import android.text.Layout.Alignment;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -161,16 +159,6 @@ import java.util.Map;
       default:
         // Do nothing
         break;
-    }
-
-    @Nullable Alignment textAlign = style.getTextAlign();
-    if (textAlign != null) {
-      SpanUtil.addOrReplaceSpan(
-          builder,
-          new AlignmentSpan.Standard(textAlign),
-          start,
-          end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.getTextCombine()) {
       SpanUtil.addOrReplaceSpan(
