@@ -175,7 +175,7 @@ public final class BatchBufferTest {
 
   @Test
   public void batchWasConsumed_whenNotEmpty_isEmpty() {
-    fillBatchBuffer(batchBuffer);
+    batchBuffer.commitNextAccessUnit();
 
     batchBuffer.batchWasConsumed();
 
