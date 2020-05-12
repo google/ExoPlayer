@@ -185,6 +185,12 @@
     used for AV1 playback using the extension.
 *   IMA extension: Upgrade to IMA SDK version 3.18.2, and migrate to new
     preloading APIs ([#6429](https://github.com/google/ExoPlayer/issues/6429)).
+*   IMA extension:
+    *    Upgrade to IMA SDK version 3.19.0, and migrate to new
+         preloading APIs
+         ([#6429](https://github.com/google/ExoPlayer/issues/6429)).
+    *    Add support for timing out ad preloading, to avoid playback getting
+         stuck if an ad group unexpectedly fails to load.
 *   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
 *   Cronet extension: Default to using the Cronet implementation in Google Play
     Services rather than Cronet Embedded. This allows Cronet to be used with a
