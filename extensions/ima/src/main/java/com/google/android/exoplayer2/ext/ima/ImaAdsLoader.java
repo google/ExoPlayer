@@ -237,7 +237,7 @@ public final class ImaAdsLoader
           context,
           adTagUri,
           imaSdkSettings,
-          null,
+          /* adsResponse= */ null,
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
           mediaBitrate,
@@ -257,7 +257,7 @@ public final class ImaAdsLoader
     public ImaAdsLoader buildForAdsResponse(String adsResponse) {
       return new ImaAdsLoader(
           context,
-          null,
+          /* adTagUri= */ null,
           imaSdkSettings,
           adsResponse,
           vastLoadTimeoutMs,
@@ -1359,17 +1359,6 @@ public final class ImaAdsLoader
     }
   }
 
-  private static DataSpec getAdsDataSpec(@Nullable Uri adTagUri) {
-    return new DataSpec(adTagUri != null ? adTagUri : Uri.EMPTY);
-  }
-
-  private static long getContentPeriodPositionMs(
-      Player player, Timeline timeline, Timeline.Period period) {
-    long contentWindowPositionMs = player.getContentPosition();
-    return contentWindowPositionMs
-        - timeline.getPeriod(/* periodIndex= */ 0, period).getPositionInWindowMs();
-  }
-
   private int getAdGroupIndex(AdPodInfo adPodInfo) {
     if (adPodInfo.getPodIndex() == -1) {
       // This is a postroll ad.
@@ -1384,6 +1373,22 @@ public final class ImaAdsLoader
       }
     }
     throw new IllegalStateException("Failed to find cue point");
+  }
+
+  private String getAdMediaInfoString(AdMediaInfo adMediaInfo) {
+    @Nullable AdInfo adInfo = adInfoByAdMediaInfo.get(adMediaInfo);
+    return "AdMediaInfo[" + adMediaInfo.getUrl() + (adInfo != null ? ", " + adInfo : "") + "]";
+  }
+
+  private static DataSpec getAdsDataSpec(@Nullable Uri adTagUri) {
+    return new DataSpec(adTagUri != null ? adTagUri : Uri.EMPTY);
+  }
+
+  private static long getContentPeriodPositionMs(
+      Player player, Timeline timeline, Timeline.Period period) {
+    long contentWindowPositionMs = player.getContentPosition();
+    return contentWindowPositionMs
+        - timeline.getPeriod(/* periodIndex= */ 0, period).getPositionInWindowMs();
   }
 
   private static long[] getAdGroupTimesUs(List<Float> cuePoints) {
@@ -1447,11 +1452,6 @@ public final class ImaAdsLoader
     /** @see ImaSdkFactory#createAdsLoader(Context, ImaSdkSettings, AdDisplayContainer) */
     com.google.ads.interactivemedia.v3.api.AdsLoader createAdsLoader(
         Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer);
-  }
-
-  private String getAdMediaInfoString(AdMediaInfo adMediaInfo) {
-    @Nullable AdInfo adInfo = adInfoByAdMediaInfo.get(adMediaInfo);
-    return "AdMediaInfo[" + adMediaInfo.getUrl() + (adInfo != null ? ", " + adInfo : "") + "]";
   }
 
   // TODO: Consider moving this into AdPlaybackState.
