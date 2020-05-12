@@ -84,6 +84,7 @@ public class IntentUtil {
   public static final String DRM_KEY_REQUEST_PROPERTIES_EXTRA = "drm_key_request_properties";
   public static final String DRM_SESSION_FOR_CLEAR_TYPES_EXTRA = "drm_session_for_clear_types";
   public static final String DRM_MULTI_SESSION_EXTRA = "drm_multi_session";
+  public static final String DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA = "drm_force_default_license_uri";
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
   public static final String SUBTITLE_URI_EXTRA = "subtitle_uri";
   public static final String SUBTITLE_MIME_TYPE_EXTRA = "subtitle_mime_type";
@@ -214,6 +215,8 @@ public class IntentUtil {
         .setDrmSessionForClearTypes(toTrackTypeList(drmSessionForClearTypesExtra))
         .setDrmMultiSession(
             intent.getBooleanExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, false))
+        .setDrmForceDefaultLicenseUri(
+            intent.getBooleanExtra(DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix, false))
         .setDrmLicenseRequestHeaders(headers);
     return builder;
   }
@@ -273,6 +276,9 @@ public class IntentUtil {
         DRM_LICENSE_URL_EXTRA + extrasKeySuffix,
         checkNotNull(drmConfiguration.licenseUri).toString());
     intent.putExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, drmConfiguration.multiSession);
+    intent.putExtra(
+        DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix,
+        drmConfiguration.forceDefaultLicenseUri);
 
     String[] drmKeyRequestProperties = new String[drmConfiguration.requestHeaders.size() * 2];
     int index = 0;
