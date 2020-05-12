@@ -688,7 +688,7 @@ public final class ImaAdsLoader
   @Override
   public void onAdEvent(AdEvent adEvent) {
     AdEventType adEventType = adEvent.getType();
-    if (DEBUG) {
+    if (DEBUG && adEventType != AdEventType.AD_PROGRESS) {
       Log.d(TAG, "onAdEvent: " + adEventType);
     }
     if (adsManager == null) {
@@ -733,24 +733,11 @@ public final class ImaAdsLoader
 
   @Override
   public VideoProgressUpdate getContentProgress() {
-    if (player == null) {
-      return lastContentProgress;
+    VideoProgressUpdate videoProgressUpdate = getContentVideoProgressUpdate();
+    if (DEBUG) {
+      Log.d(TAG, "Content progress: " + videoProgressUpdate);
     }
-    boolean hasContentDuration = contentDurationMs != C.TIME_UNSET;
-    long contentPositionMs;
-    if (pendingContentPositionMs != C.TIME_UNSET) {
-      sentPendingContentPositionMs = true;
-      contentPositionMs = pendingContentPositionMs;
-    } else if (fakeContentProgressElapsedRealtimeMs != C.TIME_UNSET) {
-      long elapsedSinceEndMs = SystemClock.elapsedRealtime() - fakeContentProgressElapsedRealtimeMs;
-      contentPositionMs = fakeContentProgressOffsetMs + elapsedSinceEndMs;
-    } else if (imaAdState == IMA_AD_STATE_NONE && !playingAd && hasContentDuration) {
-      contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
-    } else {
-      return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
-    }
-    long contentDurationMs = hasContentDuration ? this.contentDurationMs : IMA_DURATION_UNSET;
-    return new VideoProgressUpdate(contentPositionMs, contentDurationMs);
+    return videoProgressUpdate;
   }
 
   // VideoAdPlayer implementation.
@@ -1080,6 +1067,27 @@ public final class ImaAdsLoader
       default:
         break;
     }
+  }
+
+  private VideoProgressUpdate getContentVideoProgressUpdate() {
+    if (player == null) {
+      return lastContentProgress;
+    }
+    boolean hasContentDuration = contentDurationMs != C.TIME_UNSET;
+    long contentPositionMs;
+    if (pendingContentPositionMs != C.TIME_UNSET) {
+      sentPendingContentPositionMs = true;
+      contentPositionMs = pendingContentPositionMs;
+    } else if (fakeContentProgressElapsedRealtimeMs != C.TIME_UNSET) {
+      long elapsedSinceEndMs = SystemClock.elapsedRealtime() - fakeContentProgressElapsedRealtimeMs;
+      contentPositionMs = fakeContentProgressOffsetMs + elapsedSinceEndMs;
+    } else if (imaAdState == IMA_AD_STATE_NONE && !playingAd && hasContentDuration) {
+      contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
+    } else {
+      return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
+    }
+    long contentDurationMs = hasContentDuration ? this.contentDurationMs : IMA_DURATION_UNSET;
+    return new VideoProgressUpdate(contentPositionMs, contentDurationMs);
   }
 
   private VideoProgressUpdate getAdVideoProgressUpdate() {
