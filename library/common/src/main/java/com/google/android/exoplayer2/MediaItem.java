@@ -32,10 +32,10 @@ import java.util.UUID;
 public final class MediaItem {
 
   /**
-   * Creates a {@link MediaItem} for the given uri.
+   * Creates a {@link MediaItem} for the given URI.
    *
-   * @param uri The uri.
-   * @return An {@link MediaItem} for the given uri.
+   * @param uri The URI.
+   * @return An {@link MediaItem} for the given URI.
    */
   public static MediaItem fromUri(String uri) {
     return new MediaItem.Builder().setUri(uri).build();
@@ -67,6 +67,7 @@ public final class MediaItem {
     @Nullable private UUID drmUuid;
     private boolean drmMultiSession;
     private boolean drmPlayClearContentWithoutKey;
+    private boolean drmForceDefaultLicenseUri;
     private List<Integer> drmSessionForClearTypes;
     @Nullable private byte[] drmKeySetId;
     private List<StreamKey> streamKeys;
@@ -108,6 +109,7 @@ public final class MediaItem {
           drmLicenseUri = drmConfiguration.licenseUri;
           drmLicenseRequestHeaders = drmConfiguration.requestHeaders;
           drmMultiSession = drmConfiguration.multiSession;
+          drmForceDefaultLicenseUri = drmConfiguration.forceDefaultLicenseUri;
           drmPlayClearContentWithoutKey = drmConfiguration.playClearContentWithoutKey;
           drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
           drmUuid = drmConfiguration.uuid;
@@ -263,6 +265,18 @@ public final class MediaItem {
      */
     public Builder setDrmMultiSession(boolean multiSession) {
       drmMultiSession = multiSession;
+      return this;
+    }
+
+    /**
+     * Sets whether to use the license URI of the media item for key requests that include their own
+     * license URI.
+     *
+     * <p>If a {@link PlaybackProperties#uri} is set, the drm force default license flag is used to
+     * create a {@link PlaybackProperties} object. Otherwise it will be ignored.
+     */
+    public Builder setDrmForceDefaultLicenseUri(boolean forceDefaultLicenseUri) {
+      this.drmForceDefaultLicenseUri = forceDefaultLicenseUri;
       return this;
     }
 
@@ -426,6 +440,7 @@ public final class MediaItem {
                         drmLicenseUri,
                         drmLicenseRequestHeaders,
                         drmMultiSession,
+                        drmForceDefaultLicenseUri,
                         drmPlayClearContentWithoutKey,
                         drmSessionForClearTypes,
                         drmKeySetId)
@@ -462,7 +477,7 @@ public final class MediaItem {
      */
     @Nullable public final Uri licenseUri;
 
-    /** The headers to attach to the request for the license uri. */
+    /** The headers to attach to the request for the license URI. */
     public final Map<String, String> requestHeaders;
 
     /** Whether the drm configuration is multi session enabled. */
@@ -474,6 +489,12 @@ public final class MediaItem {
      */
     public final boolean playClearContentWithoutKey;
 
+    /**
+     * Sets whether to use the license URI of the media item for key requests that include their own
+     * license URI.
+     */
+    public final boolean forceDefaultLicenseUri;
+
     /** The types of clear tracks for which to use a drm session. */
     public final List<Integer> sessionForClearTypes;
 
@@ -484,6 +505,7 @@ public final class MediaItem {
         @Nullable Uri licenseUri,
         Map<String, String> requestHeaders,
         boolean multiSession,
+        boolean forceDefaultLicenseUri,
         boolean playClearContentWithoutKey,
         List<Integer> drmSessionForClearTypes,
         @Nullable byte[] keySetId) {
@@ -491,6 +513,7 @@ public final class MediaItem {
       this.licenseUri = licenseUri;
       this.requestHeaders = requestHeaders;
       this.multiSession = multiSession;
+      this.forceDefaultLicenseUri = forceDefaultLicenseUri;
       this.playClearContentWithoutKey = playClearContentWithoutKey;
       this.sessionForClearTypes = drmSessionForClearTypes;
       this.keySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
@@ -516,6 +539,7 @@ public final class MediaItem {
           && Util.areEqual(licenseUri, other.licenseUri)
           && Util.areEqual(requestHeaders, other.requestHeaders)
           && multiSession == other.multiSession
+          && forceDefaultLicenseUri == other.forceDefaultLicenseUri
           && playClearContentWithoutKey == other.playClearContentWithoutKey
           && sessionForClearTypes.equals(other.sessionForClearTypes)
           && Arrays.equals(keySetId, other.keySetId);
@@ -527,6 +551,7 @@ public final class MediaItem {
       result = 31 * result + (licenseUri != null ? licenseUri.hashCode() : 0);
       result = 31 * result + requestHeaders.hashCode();
       result = 31 * result + (multiSession ? 1 : 0);
+      result = 31 * result + (forceDefaultLicenseUri ? 1 : 0);
       result = 31 * result + (playClearContentWithoutKey ? 1 : 0);
       result = 31 * result + sessionForClearTypes.hashCode();
       result = 31 * result + Arrays.hashCode(keySetId);
@@ -638,7 +663,7 @@ public final class MediaItem {
     /**
      * Creates an instance.
      *
-     * @param uri The {@link Uri uri} to the subtitle file.
+     * @param uri The {@link Uri URI} to the subtitle file.
      * @param mimeType The mime type.
      * @param language The optional language.
      */
@@ -649,7 +674,7 @@ public final class MediaItem {
     /**
      * Creates an instance with the given selection flags.
      *
-     * @param uri The {@link Uri uri} to the subtitle file.
+     * @param uri The {@link Uri URI} to the subtitle file.
      * @param mimeType The mime type.
      * @param language The optional language.
      * @param selectionFlags The selection flags.

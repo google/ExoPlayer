@@ -95,7 +95,8 @@ public class MediaItemTest {
             .setDrmUuid(C.WIDEVINE_UUID)
             .setDrmLicenseUri(licenseUri)
             .setDrmLicenseRequestHeaders(requestHeaders)
-            .setDrmMultiSession(/* multiSession= */ true)
+            .setDrmMultiSession(true)
+            .setDrmForceDefaultLicenseUri(true)
             .setDrmPlayClearContentWithoutKey(true)
             .setDrmSessionForClearTypes(Collections.singletonList(C.TRACK_TYPE_AUDIO))
             .setDrmKeySetId(keySetId)
@@ -107,6 +108,7 @@ public class MediaItemTest {
     assertThat(mediaItem.playbackProperties.drmConfiguration.requestHeaders)
         .isEqualTo(requestHeaders);
     assertThat(mediaItem.playbackProperties.drmConfiguration.multiSession).isTrue();
+    assertThat(mediaItem.playbackProperties.drmConfiguration.forceDefaultLicenseUri).isTrue();
     assertThat(mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey).isTrue();
     assertThat(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes)
         .containsExactly(C.TRACK_TYPE_AUDIO);
@@ -301,6 +303,7 @@ public class MediaItemTest {
             .setDrmLicenseRequestHeaders(
                 Collections.singletonMap("Referer", "http://www.google.com"))
             .setDrmMultiSession(true)
+            .setDrmForceDefaultLicenseUri(true)
             .setDrmPlayClearContentWithoutKey(true)
             .setDrmSessionForClearTypes(Collections.singletonList(C.TRACK_TYPE_AUDIO))
             .setDrmKeySetId(new byte[] {1, 2, 3})

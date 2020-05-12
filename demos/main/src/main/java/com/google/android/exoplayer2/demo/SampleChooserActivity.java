@@ -417,6 +417,9 @@ public class SampleChooserActivity extends AppCompatActivity
           case "drm_multi_session":
             mediaItem.setDrmMultiSession(reader.nextBoolean());
             break;
+          case "drm_force_default_license_uri":
+            mediaItem.setDrmForceDefaultLicenseUri(reader.nextBoolean());
+            break;
           case "playlist":
             Assertions.checkState(!insidePlaylist, "Invalid nesting of playlists");
             children = new ArrayList<>();
