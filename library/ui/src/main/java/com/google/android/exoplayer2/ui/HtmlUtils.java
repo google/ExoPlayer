@@ -20,7 +20,7 @@ import androidx.annotation.ColorInt;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * Utility methods for generating HTML and CSS for use with {@link SubtitleWebView} and {@link
+ * Utility methods for generating HTML and CSS for use with {@link WebViewSubtitleOutput} and {@link
  * SpannedToHtmlConverter}.
  */
 /* package */ final class HtmlUtils {

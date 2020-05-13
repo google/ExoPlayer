@@ -30,10 +30,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A {@link SubtitleView.Output} that uses Android's native text tooling via {@link
+ * A {@link SubtitleView.Output} that uses Android's native layout framework via {@link
  * SubtitlePainter}.
  */
-/* package */ final class SubtitleTextView extends View implements SubtitleView.Output {
+/* package */ final class CanvasSubtitleOutput extends View implements SubtitleView.Output {
 
   private final List<SubtitlePainter> painters;
 
@@ -43,11 +43,11 @@ import java.util.List;
   private CaptionStyleCompat style;
   private float bottomPaddingFraction;
 
-  public SubtitleTextView(Context context) {
+  public CanvasSubtitleOutput(Context context) {
     this(context, /* attrs= */ null);
   }
 
-  public SubtitleTextView(Context context, @Nullable AttributeSet attrs) {
+  public CanvasSubtitleOutput(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
     painters = new ArrayList<>();
     cues = Collections.emptyList();
