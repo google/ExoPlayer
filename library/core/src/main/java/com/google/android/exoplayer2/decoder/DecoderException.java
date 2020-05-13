@@ -15,20 +15,36 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import androidx.annotation.Nullable;
+
 /** Thrown when a {@link Decoder} error occurs. */
 public class DecoderException extends Exception {
 
-  /** @param message The detail message for this exception. */
+  /**
+   * Creates an instance.
+   *
+   * @param message The detail message for this exception.
+   */
   public DecoderException(String message) {
     super(message);
   }
 
   /**
-   * @param message The detail message for this exception.
-   * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method).
-   *     A <tt>null</tt> value is permitted, and indicates that the cause is nonexistent or unknown.
+   * Creates an instance.
+   *
+   * @param cause The cause of this exception, or {@code null}.
    */
-  public DecoderException(String message, Throwable cause) {
+  public DecoderException(@Nullable Throwable cause) {
+    super(cause);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param message The detail message for this exception.
+   * @param cause The cause of this exception, or {@code null}.
+   */
+  public DecoderException(String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 }

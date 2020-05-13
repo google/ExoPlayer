@@ -27,7 +27,7 @@ import java.util.ArrayDeque;
  */
 @SuppressWarnings("UngroupedOverloads")
 public abstract class SimpleDecoder<
-        I extends DecoderInputBuffer, O extends OutputBuffer, E extends Exception>
+        I extends DecoderInputBuffer, O extends OutputBuffer, E extends DecoderException>
     implements Decoder<I, O, E> {
 
   private final Thread decodeThread;
