@@ -24,9 +24,9 @@ import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
+import com.google.android.exoplayer2.upstream.StatsDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -104,14 +104,19 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   }
 
   @Override
-  public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
+  public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request)
+      throws MediaDrmCallbackException {
     String url =
         request.getDefaultUrl() + "&signedRequest=" + Util.fromUtf8Bytes(request.getData());
-    return executePost(dataSourceFactory, url, /* httpBody= */ null, /* requestProperties= */ null);
+    return executePost(
+        dataSourceFactory,
+        url,
+        /* httpBody= */ null,
+        /* requestProperties= */ Collections.emptyMap());
   }
 
   @Override
-  public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception {
+  public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws MediaDrmCallbackException {
     String url = request.getLicenseServerUrl();
     if (forceDefaultLicenseUrl || TextUtils.isEmpty(url)) {
       url = defaultLicenseUrl;
@@ -136,41 +141,56 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
       HttpDataSource.Factory dataSourceFactory,
       String url,
       @Nullable byte[] httpBody,
-      @Nullable Map<String, String> requestProperties)
-      throws IOException {
-    HttpDataSource dataSource = dataSourceFactory.createDataSource();
+      Map<String, String> requestProperties)
+      throws MediaDrmCallbackException {
+    StatsDataSource dataSource = new StatsDataSource(dataSourceFactory.createDataSource());
     int manualRedirectCount = 0;
-    while (true) {
-      DataSpec dataSpec =
-          new DataSpec.Builder()
-              .setUri(url)
-              .setHttpRequestHeaders(
-                  requestProperties != null ? requestProperties : Collections.emptyMap())
-              .setHttpMethod(DataSpec.HTTP_METHOD_POST)
-              .setHttpBody(httpBody)
-              .setFlags(DataSpec.FLAG_ALLOW_GZIP)
-              .build();
-      DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
-      try {
-        return Util.toByteArray(inputStream);
-      } catch (InvalidResponseCodeException e) {
-        // For POST requests, the underlying network stack will not normally follow 307 or 308
-        // redirects automatically. Do so manually here.
-        boolean manuallyRedirect =
-            (e.responseCode == 307 || e.responseCode == 308)
-                && manualRedirectCount++ < MAX_MANUAL_REDIRECTS;
-        @Nullable String redirectUrl = manuallyRedirect ? getRedirectUrl(e) : null;
-        if (redirectUrl == null) {
-          throw e;
+    DataSpec dataSpec =
+        new DataSpec.Builder()
+            .setUri(url)
+            .setHttpRequestHeaders(requestProperties)
+            .setHttpMethod(DataSpec.HTTP_METHOD_POST)
+            .setHttpBody(httpBody)
+            .setFlags(DataSpec.FLAG_ALLOW_GZIP)
+            .build();
+    DataSpec originalDataSpec = dataSpec;
+    try {
+      while (true) {
+        DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
+        try {
+          return Util.toByteArray(inputStream);
+        } catch (InvalidResponseCodeException e) {
+          @Nullable String redirectUrl = getRedirectUrl(e, manualRedirectCount);
+          if (redirectUrl == null) {
+            throw e;
+          }
+          manualRedirectCount++;
+          dataSpec = dataSpec.buildUpon().setUri(redirectUrl).build();
+        } finally {
+          Util.closeQuietly(inputStream);
         }
-        url = redirectUrl;
-      } finally {
-        Util.closeQuietly(inputStream);
       }
+    } catch (Exception e) {
+      throw new MediaDrmCallbackException(
+          originalDataSpec,
+          Assertions.checkNotNull(dataSource.getLastOpenedUri()),
+          dataSource.getResponseHeaders(),
+          dataSource.getBytesRead(),
+          /* cause= */ e);
     }
   }
 
-  private static @Nullable String getRedirectUrl(InvalidResponseCodeException exception) {
+  @Nullable
+  private static String getRedirectUrl(
+      InvalidResponseCodeException exception, int manualRedirectCount) {
+    // For POST requests, the underlying network stack will not normally follow 307 or 308
+    // redirects automatically. Do so manually here.
+    boolean manuallyRedirect =
+        (exception.responseCode == 307 || exception.responseCode == 308)
+            && manualRedirectCount < MAX_MANUAL_REDIRECTS;
+    if (!manuallyRedirect) {
+      return null;
+    }
     Map<String, List<String>> headerFields = exception.headerFields;
     if (headerFields != null) {
       @Nullable List<String> locationHeaders = headerFields.get("Location");
