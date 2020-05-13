@@ -45,7 +45,12 @@ public final class SinglePeriodTimelineTest {
   public void getPeriodPositionDynamicWindowUnknownDuration() {
     SinglePeriodTimeline timeline =
         new SinglePeriodTimeline(
-            C.TIME_UNSET, /* isSeekable= */ false, /* isDynamic= */ true, /* isLive= */ true);
+            C.TIME_UNSET,
+            /* isSeekable= */ false,
+            /* isDynamic= */ true,
+            /* isLive= */ true,
+            /* manifest= */ null,
+            /* mediaItem= */ null);
     // Should return null with any positive position projection.
     Pair<Object, Long> position = timeline.getPeriodPosition(window, period, 0, C.TIME_UNSET, 1);
     assertThat(position).isNull();

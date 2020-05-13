@@ -52,7 +52,12 @@ public final class MediaPeriodQueueTest {
 
   private static final Timeline CONTENT_TIMELINE =
       new SinglePeriodTimeline(
-          CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false);
+          CONTENT_DURATION_US,
+          /* isSeekable= */ true,
+          /* isDynamic= */ false,
+          /* isLive= */ false,
+          /* manifest= */ null,
+          /* mediaItem= */ null);
   private static final Uri AD_URI = Uri.EMPTY;
 
   private MediaPeriodQueue mediaPeriodQueue;

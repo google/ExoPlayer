@@ -43,19 +43,6 @@ public final class SinglePeriodTimeline extends Timeline {
   @Nullable private final MediaItem mediaItem;
 
   /**
-   * Creates a timeline containing a single period and a window that spans it.
-   *
-   * @param durationUs The duration of the period, in microseconds.
-   * @param isSeekable Whether seeking is supported within the period.
-   * @param isDynamic Whether the window may change when the timeline is updated.
-   * @param isLive Whether the window is live.
-   */
-  public SinglePeriodTimeline(
-      long durationUs, boolean isSeekable, boolean isDynamic, boolean isLive) {
-    this(durationUs, isSeekable, isDynamic, isLive, /* manifest= */ null, /* mediaItem= */ null);
-  }
-
-  /**
    * @deprecated Use {@link #SinglePeriodTimeline(long, boolean, boolean, boolean, Object,
    *     MediaItem)} instead.
    */
