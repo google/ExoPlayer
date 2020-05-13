@@ -39,9 +39,6 @@ import java.util.List;
  *
  * <p>This is useful for subtitle styling not supported by Android's native text libraries such as
  * vertical text.
- *
- * <p>NOTE: This is currently extremely experimental and doesn't support most {@link Cue} styling
- * properties.
  */
 /* package */ final class WebViewSubtitleOutput extends FrameLayout implements SubtitleView.Output {
 
@@ -136,9 +133,11 @@ import java.util.List;
                 + "right:0;"
                 + "color:%s;"
                 + "font-size:%s;"
+                + "text-shadow:%s;"
                 + "'>",
             HtmlUtils.toCssRgba(style.foregroundColor),
-            convertTextSizeToCss(defaultTextSizeType, defaultTextSize)));
+            convertTextSizeToCss(defaultTextSizeType, defaultTextSize),
+            convertCaptionStyleToCssTextShadow(style)));
 
     String backgroundColorCss = HtmlUtils.toCssRgba(style.backgroundColor);
 
@@ -280,6 +279,28 @@ import java.util.List;
     }
     float sizeDp = sizePx / getContext().getResources().getDisplayMetrics().density;
     return Util.formatInvariant("%.2fpx", sizeDp);
+  }
+
+  private static String convertCaptionStyleToCssTextShadow(CaptionStyleCompat style) {
+    switch (style.edgeType) {
+      case CaptionStyleCompat.EDGE_TYPE_DEPRESSED:
+        return Util.formatInvariant(
+            "-0.05em -0.05em 0.15em %s", HtmlUtils.toCssRgba(style.edgeColor));
+      case CaptionStyleCompat.EDGE_TYPE_DROP_SHADOW:
+        return Util.formatInvariant("0.1em 0.12em 0.15em %s", HtmlUtils.toCssRgba(style.edgeColor));
+      case CaptionStyleCompat.EDGE_TYPE_OUTLINE:
+        // -webkit-text-stroke makes the underlying text appear too narrow, so we 'fake' an edge
+        // outline using 4 text-shadows each offset by 1px in different directions.
+        return Util.formatInvariant(
+            "1px 1px 0 %1$s, 1px -1px 0 %1$s, -1px 1px 0 %1$s, -1px -1px 0 %1$s",
+            HtmlUtils.toCssRgba(style.edgeColor));
+      case CaptionStyleCompat.EDGE_TYPE_RAISED:
+        return Util.formatInvariant(
+            "0.06em 0.08em 0.15em %s", HtmlUtils.toCssRgba(style.edgeColor));
+      case CaptionStyleCompat.EDGE_TYPE_NONE:
+      default:
+        return "unset";
+    }
   }
 
   private static String convertVerticalTypeToCss(@Cue.VerticalType int verticalType) {
