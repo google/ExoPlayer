@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -94,8 +95,8 @@ import java.util.Map;
  *
  * <h3>Ad support for media items with ad tag uri</h3>
  *
- * <p>For a media item with an ad tag uri an {@link AdSupportProvider} needs to be passed to the
- * constructor {@link #DefaultMediaSourceFactory(Context, DataSource.Factory, AdSupportProvider)}.
+ * <p>For a media item with an ad tag uri, an {@link AdSupportProvider} needs to be passed to {@link
+ * #newInstance(Context, DataSource.Factory, AdSupportProvider)}.
  */
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
@@ -128,6 +129,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * DefaultDataSourceFactory)}.
    *
    * @param context The {@link Context}.
+   * @return A new instance of {@link DefaultMediaSourceFactory}.
    */
   public static DefaultMediaSourceFactory newInstance(Context context) {
     return newInstance(
@@ -141,41 +143,60 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *
    * @param context The {@link Context}.
    * @param dataSourceFactory A {@link DataSource.Factory} to be used to create media sources.
+   * @return A new instance of {@link DefaultMediaSourceFactory}.
    */
   public static DefaultMediaSourceFactory newInstance(
       Context context, DataSource.Factory dataSourceFactory) {
-    return new DefaultMediaSourceFactory(context, dataSourceFactory, /* adSupportProvider= */ null);
+    return new DefaultMediaSourceFactory(dataSourceFactory, /* adSupportProvider= */ null)
+        .setDrmUserAgent(Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY));
   }
-
-  private static final String TAG = "DefaultMediaSourceFactory";
-
-  private final DataSource.Factory dataSourceFactory;
-  @Nullable private final AdSupportProvider adSupportProvider;
-  private final SparseArray<MediaSourceFactory> mediaSourceFactories;
-  @C.ContentType private final int[] supportedTypes;
-  private final String userAgent;
-
-  private DrmSessionManager drmSessionManager;
-  private HttpDataSource.Factory drmHttpDataSourceFactory;
-  @Nullable private List<StreamKey> streamKeys;
 
   /**
    * Creates a new instance with the given {@link Context} and {@link DataSource.Factory}.
    *
    * @param context The {@link Context}.
    * @param dataSourceFactory A {@link DataSource.Factory} to be used to create media sources.
+   * @param adSupportProvider A {@link AdSupportProvider} to be used to create ad media sources.
+   * @return A new instance of {@link DefaultMediaSourceFactory}.
+   */
+  public static DefaultMediaSourceFactory newInstance(
+      Context context, DataSource.Factory dataSourceFactory, AdSupportProvider adSupportProvider) {
+    return new DefaultMediaSourceFactory(dataSourceFactory, adSupportProvider)
+        .setDrmUserAgent(Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY));
+  }
+
+  private static final String TAG = "DefaultMediaSourceFactory";
+  private static final String DEFAULT_USER_AGENT =
+      ExoPlayerLibraryInfo.VERSION_SLASHY
+          + " (Linux;Android "
+          + Build.VERSION.RELEASE
+          + ") "
+          + ExoPlayerLibraryInfo.VERSION_SLASHY;
+
+  private final DataSource.Factory dataSourceFactory;
+  @Nullable private final AdSupportProvider adSupportProvider;
+  private final SparseArray<MediaSourceFactory> mediaSourceFactories;
+  @C.ContentType private final int[] supportedTypes;
+
+  private DrmSessionManager drmSessionManager;
+  @Nullable private HttpDataSource.Factory drmHttpDataSourceFactory;
+  private String userAgent;
+  @Nullable private List<StreamKey> streamKeys;
+
+  /**
+   * Creates a new instance with the {@link DataSource.Factory} for downloading media and an {@link
+   * AdSupportProvider} to create {@link AdsMediaSource AdsMediaSources}.
+   *
+   * @param dataSourceFactory A {@link DataSource.Factory} to be used to create media sources.
    * @param adSupportProvider An {@link AdSupportProvider} to get ads loaders and ad view providers
    *     to be used to create {@link AdsMediaSource AdsMediaSources}.
    */
   public DefaultMediaSourceFactory(
-      Context context,
-      DataSource.Factory dataSourceFactory,
-      @Nullable AdSupportProvider adSupportProvider) {
+      DataSource.Factory dataSourceFactory, @Nullable AdSupportProvider adSupportProvider) {
     this.dataSourceFactory = dataSourceFactory;
     this.adSupportProvider = adSupportProvider;
     drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
-    userAgent = Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY);
-    drmHttpDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent);
+    userAgent = DEFAULT_USER_AGENT;
     mediaSourceFactories = loadDelegates(dataSourceFactory);
     supportedTypes = new int[mediaSourceFactories.size()];
     for (int i = 0; i < mediaSourceFactories.size(); i++) {
@@ -194,10 +215,21 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-    this.drmHttpDataSourceFactory =
-        drmHttpDataSourceFactory != null
-            ? drmHttpDataSourceFactory
-            : new DefaultHttpDataSourceFactory(userAgent);
+    this.drmHttpDataSourceFactory = drmHttpDataSourceFactory;
+    return this;
+  }
+
+  /**
+   * Sets the optional user agent to be used for DRM requests.
+   *
+   * <p>In case a factory has been set by {@link
+   * #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}, this user agent is ignored.
+   *
+   * @param userAgent The user agent to be used for DRM requests.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
+    this.userAgent = userAgent != null ? userAgent : DEFAULT_USER_AGENT;
     return this;
   }
 
@@ -309,7 +341,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         new HttpMediaDrmCallback(
             drmConfiguration.licenseUri.toString(),
             drmConfiguration.forceDefaultLicenseUri,
-            drmHttpDataSourceFactory);
+            drmHttpDataSourceFactory != null
+                ? drmHttpDataSourceFactory
+                : new DefaultHttpDataSourceFactory(userAgent));
     for (Map.Entry<String, String> entry : drmConfiguration.requestHeaders.entrySet()) {
       drmCallback.setKeyRequestProperty(entry.getKey(), entry.getValue());
     }
