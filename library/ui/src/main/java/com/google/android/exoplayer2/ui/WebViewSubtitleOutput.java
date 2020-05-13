@@ -43,26 +43,26 @@ import java.util.List;
  * <p>NOTE: This is currently extremely experimental and doesn't support most {@link Cue} styling
  * properties.
  */
-/* package */ final class SubtitleWebView extends FrameLayout implements SubtitleView.Output {
+/* package */ final class WebViewSubtitleOutput extends FrameLayout implements SubtitleView.Output {
 
   /**
-   * A {@link SubtitleTextView} used for displaying bitmap cues.
+   * A {@link CanvasSubtitleOutput} used for displaying bitmap cues.
    *
    * <p>There's no advantage to displaying bitmap cues in a {@link WebView}, so we re-use the
    * existing logic.
    */
-  private final SubtitleTextView subtitleTextView;
+  private final CanvasSubtitleOutput canvasSubtitleOutput;
 
   private final WebView webView;
 
-  public SubtitleWebView(Context context) {
+  public WebViewSubtitleOutput(Context context) {
     this(context, null);
   }
 
-  public SubtitleWebView(Context context, @Nullable AttributeSet attrs) {
+  public WebViewSubtitleOutput(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
 
-    subtitleTextView = new SubtitleTextView(context, attrs);
+    canvasSubtitleOutput = new CanvasSubtitleOutput(context, attrs);
     webView =
         new WebView(context, attrs) {
           @Override
@@ -81,7 +81,7 @@ import java.util.List;
         };
     webView.setBackgroundColor(Color.TRANSPARENT);
 
-    addView(subtitleTextView);
+    addView(canvasSubtitleOutput);
     addView(webView);
   }
 
@@ -102,8 +102,8 @@ import java.util.List;
         textCues.add(cue);
       }
     }
-    subtitleTextView.update(bitmapCues, style, textSize, textSizeType, bottomPaddingFraction);
-    // Invalidate to trigger subtitleTextView to draw.
+    canvasSubtitleOutput.update(bitmapCues, style, textSize, textSizeType, bottomPaddingFraction);
+    // Invalidate to trigger canvasSubtitleOutput to draw.
     invalidate();
     updateWebView(textCues, style, textSize, textSizeType, bottomPaddingFraction);
   }

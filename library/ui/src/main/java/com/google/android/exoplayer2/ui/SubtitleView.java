@@ -20,6 +20,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Canvas;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
@@ -28,6 +29,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.accessibility.CaptioningManager;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
@@ -47,6 +49,37 @@ import java.util.List;
 public final class SubtitleView extends FrameLayout implements TextOutput {
 
   /**
+   * An output for displaying subtitles.
+   *
+   * <p>Implementations of this also need to extend {@link View} in order to be attached to the
+   * Android view hierarchy.
+   */
+  /* package */ interface Output {
+
+    /**
+     * Updates the list of cues displayed.
+     *
+     * @param cues The cues to display.
+     * @param style A {@link CaptionStyleCompat} to use for styling unset properties of cues.
+     * @param defaultTextSize The default font size to apply when {@link Cue#textSize} is {@link
+     *     Cue#DIMEN_UNSET}.
+     * @param defaultTextSizeType The type of {@code defaultTextSize}.
+     * @param bottomPaddingFraction The bottom padding to apply when {@link Cue#line} is {@link
+     *     Cue#DIMEN_UNSET}, as a fraction of the view's remaining height after its top and bottom
+     *     padding have been subtracted.
+     * @see #setStyle(CaptionStyleCompat)
+     * @see #setTextSize(int, float)
+     * @see #setBottomPaddingFraction(float)
+     */
+    void update(
+        List<Cue> cues,
+        CaptionStyleCompat style,
+        float defaultTextSize,
+        @Cue.TextSizeType int defaultTextSizeType,
+        float bottomPaddingFraction);
+  }
+
+  /**
    * The default fractional text size.
    *
    * @see SubtitleView#setFractionalTextSize(float, boolean)
@@ -61,17 +94,14 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
    */
   public static final float DEFAULT_BOTTOM_PADDING_FRACTION = 0.08f;
 
-  /**
-   * Indicates a {@link SubtitleTextView} should be used to display subtitles. This is the default.
-   */
-  public static final int VIEW_TYPE_TEXT = 1;
+  /** Indicates subtitles should be displayed using a {@link Canvas}. This is the default. */
+  public static final int VIEW_TYPE_CANVAS = 1;
 
   /**
-   * Indicates a {@link SubtitleWebView} should be used to display subtitles.
+   * Indicates subtitles should be displayed using a {@link WebView}.
    *
-   * <p>This will instantiate a {@link android.webkit.WebView} and use CSS and HTML styling to
-   * render the subtitles. This supports some additional styling features beyond those supported by
-   * {@link SubtitleTextView} such as vertical text.
+   * <p>This will use CSS and HTML styling to render the subtitles. This supports some additional
+   * styling features beyond those supported by {@link #VIEW_TYPE_CANVAS} such as vertical text.
    */
   public static final int VIEW_TYPE_WEB = 2;
 
@@ -81,13 +111,13 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
    * <p>One of:
    *
    * <ul>
-   *   <li>{@link #VIEW_TYPE_TEXT}
+   *   <li>{@link #VIEW_TYPE_CANVAS}
    *   <li>{@link #VIEW_TYPE_WEB}
    * </ul>
    */
   @Documented
   @Retention(SOURCE)
-  @IntDef({VIEW_TYPE_TEXT, VIEW_TYPE_WEB})
+  @IntDef({VIEW_TYPE_CANVAS, VIEW_TYPE_WEB})
   public @interface ViewType {}
 
   private List<Cue> cues;
@@ -116,11 +146,11 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
     applyEmbeddedStyles = true;
     applyEmbeddedFontSizes = true;
 
-    SubtitleTextView subtitleTextView = new SubtitleTextView(context, attrs);
-    output = subtitleTextView;
-    innerSubtitleView = subtitleTextView;
+    CanvasSubtitleOutput canvasSubtitleOutput = new CanvasSubtitleOutput(context, attrs);
+    output = canvasSubtitleOutput;
+    innerSubtitleView = canvasSubtitleOutput;
     addView(innerSubtitleView);
-    viewType = VIEW_TYPE_TEXT;
+    viewType = VIEW_TYPE_CANVAS;
   }
 
   @Override
@@ -151,11 +181,11 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
       return;
     }
     switch (viewType) {
-      case VIEW_TYPE_TEXT:
-        setView(new SubtitleTextView(getContext()));
+      case VIEW_TYPE_CANVAS:
+        setView(new CanvasSubtitleOutput(getContext()));
         break;
       case VIEW_TYPE_WEB:
-        setView(new SubtitleWebView(getContext()));
+        setView(new WebViewSubtitleOutput(getContext()));
         break;
       default:
         throw new IllegalArgumentException();
@@ -165,8 +195,8 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
 
   private <T extends View & Output> void setView(T view) {
     removeView(innerSubtitleView);
-    if (innerSubtitleView instanceof SubtitleWebView) {
-      ((SubtitleWebView) innerSubtitleView).destroy();
+    if (innerSubtitleView instanceof WebViewSubtitleOutput) {
+      ((WebViewSubtitleOutput) innerSubtitleView).destroy();
     }
     innerSubtitleView = view;
     output = view;
@@ -383,28 +413,5 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
     return cue;
   }
 
-  /* package */ interface Output {
 
-    /**
-     * Updates the list of cues displayed.
-     *
-     * @param cues The cues to display.
-     * @param style A {@link CaptionStyleCompat} to use for styling unset properties of cues.
-     * @param defaultTextSize The default font size to apply when {@link Cue#textSize} is {@link
-     *     Cue#DIMEN_UNSET}.
-     * @param defaultTextSizeType The type of {@code defaultTextSize}.
-     * @param bottomPaddingFraction The bottom padding to apply when {@link Cue#line} is {@link
-     *     Cue#DIMEN_UNSET}, as a fraction of the view's remaining height after its top and bottom
-     *     padding have been subtracted.
-     * @see #setStyle(CaptionStyleCompat)
-     * @see #setTextSize(int, float)
-     * @see #setBottomPaddingFraction(float)
-     */
-    void update(
-        List<Cue> cues,
-        CaptionStyleCompat style,
-        float defaultTextSize,
-        @Cue.TextSizeType int defaultTextSizeType,
-        float bottomPaddingFraction);
-  }
 }
