@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -40,7 +42,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
     @Nullable private Object tag;
 
     /**
-     * Sets the duration of the silent audio.
+     * Sets the duration of the silent audio. The value needs to be a positive value.
      *
      * @param durationUs The duration of silent audio to output, in microseconds.
      * @return This factory, for convenience.
@@ -63,11 +65,19 @@ public final class SilenceMediaSource extends BaseMediaSource {
       return this;
     }
 
-    /** Creates a new {@link SilenceMediaSource}. */
+    /**
+     * Creates a new {@link SilenceMediaSource}.
+     *
+     * @throws IllegalStateException if the duration is a non-positive value.
+     */
     public SilenceMediaSource createMediaSource() {
-      return new SilenceMediaSource(durationUs, tag);
+      Assertions.checkState(durationUs > 0);
+      return new SilenceMediaSource(durationUs, MEDIA_ITEM.buildUpon().setTag(tag).build());
     }
   }
+
+  /** The media id used by any media item of silence media sources. */
+  public static final String MEDIA_ID = "com.google.android.exoplayer2.source.SilenceMediaSource";
 
   private static final int SAMPLE_RATE_HZ = 44100;
   @C.PcmEncoding private static final int PCM_ENCODING = C.ENCODING_PCM_16BIT;
@@ -79,11 +89,17 @@ public final class SilenceMediaSource extends BaseMediaSource {
           .setSampleRate(SAMPLE_RATE_HZ)
           .setPcmEncoding(PCM_ENCODING)
           .build();
+  private static final MediaItem MEDIA_ITEM =
+      new MediaItem.Builder()
+          .setMediaId(MEDIA_ID)
+          .setUri(Uri.EMPTY)
+          .setMimeType(FORMAT.sampleMimeType)
+          .build();
   private static final byte[] SILENCE_SAMPLE =
       new byte[Util.getPcmFrameSize(PCM_ENCODING, CHANNEL_COUNT) * 1024];
 
   private final long durationUs;
-  @Nullable private final Object tag;
+  private final MediaItem mediaItem;
 
   /**
    * Creates a new media source providing silent audio of the given duration.
@@ -91,13 +107,19 @@ public final class SilenceMediaSource extends BaseMediaSource {
    * @param durationUs The duration of silent audio to output, in microseconds.
    */
   public SilenceMediaSource(long durationUs) {
-    this(durationUs, /* tag= */ null);
+    this(durationUs, MEDIA_ITEM);
   }
 
-  private SilenceMediaSource(long durationUs, @Nullable Object tag) {
+  /**
+   * Creates a new media source providing silent audio of the given duration.
+   *
+   * @param durationUs The duration of silent audio to output, in microseconds.
+   * @param mediaItem The media item associated with this media source.
+   */
+  private SilenceMediaSource(long durationUs, MediaItem mediaItem) {
     Assertions.checkArgument(durationUs >= 0);
     this.durationUs = durationUs;
-    this.tag = tag;
+    this.mediaItem = mediaItem;
   }
 
   @Override
@@ -109,7 +131,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
             /* isDynamic= */ false,
             /* isLive= */ false,
             /* manifest= */ null,
-            tag));
+            mediaItem));
   }
 
   @Override
@@ -122,6 +144,12 @@ public final class SilenceMediaSource extends BaseMediaSource {
 
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {}
+
+  /** Returns the {@link MediaItem} of this media source. */
+  // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
+  public MediaItem getMediaItem() {
+    return mediaItem;
+  }
 
   @Override
   protected void releaseSourceInternal() {}
