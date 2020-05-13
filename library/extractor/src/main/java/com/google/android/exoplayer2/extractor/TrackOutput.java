@@ -130,7 +130,20 @@ public interface TrackOutput {
    * </ul>
    */
   int SAMPLE_DATA_PART_ENCRYPTION = 1;
-  /** Sample supplemental data. */
+  /**
+   * Sample supplemental data.
+   *
+   * <p>If a sample contains supplemental data, the format of the entire sample data will be:
+   *
+   * <ul>
+   *   <li>If the sample has the {@link C#BUFFER_FLAG_ENCRYPTED} flag set, all encryption
+   *       information.
+   *   <li>(4 bytes) {@code sample_data_size}: The size of the actual sample data, not including
+   *       supplemental data or encryption information.
+   *   <li>({@code sample_data_size} bytes): The media sample data.
+   *   <li>(remaining bytes) The supplemental data.
+   * </ul>
+   */
   int SAMPLE_DATA_PART_SUPPLEMENTAL = 2;
 
   /**
