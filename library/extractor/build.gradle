@@ -40,10 +40,10 @@ android {
 
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation project(modulePrefix + 'library-common')
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
-    implementation project(modulePrefix + 'library-common')
     testImplementation project(modulePrefix + 'library-core')
     testImplementation project(modulePrefix + 'testutils')
     testImplementation project(modulePrefix + 'testdata')
