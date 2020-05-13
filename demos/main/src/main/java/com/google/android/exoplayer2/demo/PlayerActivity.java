@@ -325,7 +325,7 @@ public class PlayerActivity extends AppCompatActivity
       player =
           new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
               .setMediaSourceFactory(
-                  new DefaultMediaSourceFactory(
+                  DefaultMediaSourceFactory.newInstance(
                       /* context= */ this, dataSourceFactory, new AdSupportProvider()))
               .setTrackSelector(trackSelector)
               .build();

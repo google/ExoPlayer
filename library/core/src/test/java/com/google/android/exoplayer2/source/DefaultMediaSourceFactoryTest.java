@@ -193,9 +193,9 @@ public final class DefaultMediaSourceFactoryTest {
     Uri adTagUri = Uri.parse(URI_MEDIA);
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA).setAdTagUri(adTagUri).build();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        new DefaultMediaSourceFactory(
+        DefaultMediaSourceFactory.newInstance(
             applicationContext,
-            new DefaultDataSourceFactory(applicationContext, "userAgent"),
+            new DefaultDataSourceFactory(applicationContext, /* userAgent= */ "ua"),
             createAdSupportProvider(mock(AdsLoader.class), mock(AdsLoader.AdViewProvider.class)));
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
@@ -209,9 +209,9 @@ public final class DefaultMediaSourceFactoryTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_MEDIA).setAdTagUri(Uri.parse(URI_MEDIA)).build();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        new DefaultMediaSourceFactory(
+        DefaultMediaSourceFactory.newInstance(
             applicationContext,
-            new DefaultDataSourceFactory(applicationContext, "userAgent"),
+            new DefaultDataSourceFactory(applicationContext, /* userAgent= */ "ua"),
             createAdSupportProvider(/* adsLoader= */ null, mock(AdsLoader.AdViewProvider.class)));
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
