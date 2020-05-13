@@ -59,14 +59,21 @@ public final class AdsMediaSourceTest {
           PREROLL_AD_DURATION_US,
           /* isSeekable= */ true,
           /* isDynamic= */ false,
-          /* isLive= */ false);
+          /* isLive= */ false,
+          /* manifest= */ null,
+          /* mediaItem= */ null);
   private static final Object PREROLL_AD_PERIOD_UID =
       PREROLL_AD_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
   private static final long CONTENT_DURATION_US = 30 * C.MICROS_PER_SECOND;
   private static final Timeline CONTENT_TIMELINE =
       new SinglePeriodTimeline(
-          CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false);
+          CONTENT_DURATION_US,
+          /* isSeekable= */ true,
+          /* isDynamic= */ false,
+          /* isLive= */ false,
+          /* manifest= */ null,
+          /* mediaItem= */ null);
   private static final Object CONTENT_PERIOD_UID =
       CONTENT_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
