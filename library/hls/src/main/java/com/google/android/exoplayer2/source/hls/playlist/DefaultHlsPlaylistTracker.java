@@ -238,12 +238,6 @@ public final class DefaultHlsPlaylistTracker
     primaryMediaPlaylistUrl = masterPlaylist.variants.get(0).url;
     createBundles(masterPlaylist.mediaPlaylistUrls);
     MediaPlaylistBundle primaryBundle = playlistBundles.get(primaryMediaPlaylistUrl);
-    if (isMediaPlaylist) {
-      // We don't need to load the playlist again. We can use the same result.
-      primaryBundle.processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
-    } else {
-      primaryBundle.loadPlaylist();
-    }
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -253,6 +247,12 @@ public final class DefaultHlsPlaylistTracker
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
+    if (isMediaPlaylist) {
+      // We don't need to load the playlist again. We can use the same result.
+      primaryBundle.processLoadedPlaylist((HlsMediaPlaylist) result, loadEventInfo);
+    } else {
+      primaryBundle.loadPlaylist();
+    }
     loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
   }
@@ -540,15 +540,15 @@ public final class DefaultHlsPlaylistTracker
               elapsedRealtimeMs,
               loadDurationMs,
               loadable.bytesLoaded());
-      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
       if (result instanceof HlsMediaPlaylist) {
-        processLoadedPlaylist((HlsMediaPlaylist) result, loadDurationMs);
+        processLoadedPlaylist((HlsMediaPlaylist) result, loadEventInfo);
         eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
       } else {
         playlistError = new ParserException("Loaded playlist has unexpected type.");
         eventDispatcher.loadError(
             loadEventInfo, C.DATA_TYPE_MANIFEST, playlistError, /* wasCanceled= */ true);
       }
+      loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     }
 
     @Override
@@ -639,7 +639,8 @@ public final class DefaultHlsPlaylistTracker
           mediaPlaylistLoadable.type);
     }
 
-    private void processLoadedPlaylist(HlsMediaPlaylist loadedPlaylist, long loadDurationMs) {
+    private void processLoadedPlaylist(
+        HlsMediaPlaylist loadedPlaylist, LoadEventInfo loadEventInfo) {
       HlsMediaPlaylist oldPlaylist = playlistSnapshot;
       long currentTimeMs = SystemClock.elapsedRealtime();
       lastSnapshotLoadMs = currentTimeMs;
@@ -661,9 +662,14 @@ public final class DefaultHlsPlaylistTracker
                 * playlistStuckTargetDurationCoefficient) {
           // TODO: Allow customization of stuck playlists handling.
           playlistError = new PlaylistStuckException(playlistUrl);
+          LoadErrorInfo loadErrorInfo =
+              new LoadErrorInfo(
+                  loadEventInfo,
+                  new MediaLoadData(C.DATA_TYPE_MANIFEST),
+                  playlistError,
+                  /* errorCount= */ 1);
           long blacklistDurationMs =
-              loadErrorHandlingPolicy.getBlacklistDurationMsFor(
-                  C.DATA_TYPE_MANIFEST, loadDurationMs, playlistError, /* errorCount= */ 1);
+              loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
           notifyPlaylistError(playlistUrl, blacklistDurationMs);
           if (blacklistDurationMs != C.TIME_UNSET) {
             blacklistPlaylist(blacklistDurationMs);
