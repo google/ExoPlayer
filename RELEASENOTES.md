@@ -123,6 +123,8 @@
     *   Stop parsing unsupported WebVTT CSS properties. The spec provides an
         [exhaustive list](https://www.w3.org/TR/webvtt1/#the-cue-pseudo-element)
         of which are supported.
+    *   Ignore excess characters in CEA-608 lines (max length is 32)
+        ([#7341](https://github.com/google/ExoPlayer/issues/7341)).
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.
@@ -188,11 +190,10 @@
 *   IMA extension: Upgrade to IMA SDK version 3.18.2, and migrate to new
     preloading APIs ([#6429](https://github.com/google/ExoPlayer/issues/6429)).
 *   IMA extension:
-    *    Upgrade to IMA SDK version 3.19.0, and migrate to new
-         preloading APIs
-         ([#6429](https://github.com/google/ExoPlayer/issues/6429)).
-    *    Add support for timing out ad preloading, to avoid playback getting
-         stuck if an ad group unexpectedly fails to load.
+    *   Upgrade to IMA SDK version 3.19.0, and migrate to new preloading APIs
+        ([#6429](https://github.com/google/ExoPlayer/issues/6429)).
+    *   Add support for timing out ad preloading, to avoid playback getting
+        stuck if an ad group unexpectedly fails to load.
 *   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
 *   Cronet extension: Default to using the Cronet implementation in Google Play
     Services rather than Cronet Embedded. This allows Cronet to be used with a
