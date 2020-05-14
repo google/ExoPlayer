@@ -7,6 +7,8 @@
     *   Added `TextComponent.getCurrentCues` because the current cues are no
         longer forwarded to a new `TextOutput` in `SimpleExoPlayer`
         automatically.
+    *   Add additional options to `SimpleExoPlayer.Builder` that were previously
+        only accessible via setters.
     *   Add opt-in to verify correct thread usage with
         `SimpleExoPlayer.setThrowsWhenUsingWrongThread(true)`
         ([#4463](https://github.com/google/ExoPlayer/issues/4463)).

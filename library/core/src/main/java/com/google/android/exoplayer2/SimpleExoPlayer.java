@@ -99,7 +99,16 @@ public class SimpleExoPlayer extends BasePlayer
     private BandwidthMeter bandwidthMeter;
     private AnalyticsCollector analyticsCollector;
     private Looper looper;
+    @Nullable private PriorityTaskManager priorityTaskManager;
+    private AudioAttributes audioAttributes;
+    private boolean handleAudioFocus;
+    @C.WakeMode private int wakeMode;
+    private boolean handleAudioBecomingNoisy;
+    private boolean skipSilenceEnabled;
+    @Renderer.VideoScalingMode private int videoScalingMode;
     private boolean useLazyPreparation;
+    private SeekParameters seekParameters;
+    private boolean pauseAtEndOfMediaItems;
     private boolean throwWhenStuckBuffering;
     private boolean buildCalled;
 
@@ -122,7 +131,15 @@ public class SimpleExoPlayer extends BasePlayer
      *       Looper} of the application's main thread if the current thread doesn't have a {@link
      *       Looper}
      *   <li>{@link AnalyticsCollector}: {@link AnalyticsCollector} with {@link Clock#DEFAULT}
+     *   <li>{@link PriorityTaskManager}: {@code null} (not used)
+     *   <li>{@link AudioAttributes}: {@link AudioAttributes#DEFAULT}, not handling audio focus
+     *   <li>{@link C.WakeMode}: {@link C#WAKE_MODE_NONE}
+     *   <li>{@code handleAudioBecomingNoisy}: {@code true}
+     *   <li>{@code skipSilenceEnabled}: {@code false}
+     *   <li>{@link Renderer.VideoScalingMode}: {@link Renderer#VIDEO_SCALING_MODE_DEFAULT}
      *   <li>{@code useLazyPreparation}: {@code true}
+     *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
+     *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
      *
@@ -149,18 +166,14 @@ public class SimpleExoPlayer extends BasePlayer
           DefaultMediaSourceFactory.newInstance(context),
           new DefaultLoadControl(),
           DefaultBandwidthMeter.getSingletonInstance(context),
-          Util.getLooper(),
-          new AnalyticsCollector(Clock.DEFAULT),
-          /* useLazyPreparation= */ true,
-          Clock.DEFAULT);
+          new AnalyticsCollector(Clock.DEFAULT));
     }
 
     /**
      * Creates a builder with the specified custom components.
      *
-     * <p>Note that this constructor is only useful if you try to ensure that ExoPlayer's default
-     * components can be removed by ProGuard or R8. For most components except renderers, there is
-     * only a marginal benefit of doing that.
+     * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's default
+     * components can be removed by ProGuard or R8.
      *
      * @param context A {@link Context}.
      * @param renderersFactory A factory for creating {@link Renderer Renderers} to be used by the
@@ -169,12 +182,7 @@ public class SimpleExoPlayer extends BasePlayer
      * @param mediaSourceFactory A {@link MediaSourceFactory}.
      * @param loadControl A {@link LoadControl}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
-     * @param looper A {@link Looper} that must be used for all calls to the player.
      * @param analyticsCollector An {@link AnalyticsCollector}.
-     * @param useLazyPreparation Whether playlist items should be prepared lazily. If false, all
-     *     initial preparation steps (e.g., manifest loads) happen immediately. If true, these
-     *     initial preparations are triggered only when the player starts buffering the media.
-     * @param clock A {@link Clock}. Should always be {@link Clock#DEFAULT}.
      */
     public Builder(
         Context context,
@@ -183,20 +191,21 @@ public class SimpleExoPlayer extends BasePlayer
         MediaSourceFactory mediaSourceFactory,
         LoadControl loadControl,
         BandwidthMeter bandwidthMeter,
-        Looper looper,
-        AnalyticsCollector analyticsCollector,
-        boolean useLazyPreparation,
-        Clock clock) {
+        AnalyticsCollector analyticsCollector) {
       this.context = context;
       this.renderersFactory = renderersFactory;
       this.trackSelector = trackSelector;
       this.mediaSourceFactory = mediaSourceFactory;
       this.loadControl = loadControl;
       this.bandwidthMeter = bandwidthMeter;
-      this.looper = looper;
       this.analyticsCollector = analyticsCollector;
-      this.useLazyPreparation = useLazyPreparation;
-      this.clock = clock;
+      looper = Util.getLooper();
+      audioAttributes = AudioAttributes.DEFAULT;
+      wakeMode = C.WAKE_MODE_NONE;
+      videoScalingMode = Renderer.VIDEO_SCALING_MODE_DEFAULT;
+      useLazyPreparation = true;
+      seekParameters = SeekParameters.DEFAULT;
+      clock = Clock.DEFAULT;
     }
 
     /**
@@ -279,6 +288,111 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
+     * Sets an {@link PriorityTaskManager} that will be used by the player.
+     *
+     * <p>The priority {@link C#PRIORITY_PLAYBACK} will be set while the player is loading.
+     *
+     * @param priorityTaskManager A {@link PriorityTaskManager}, or null to not use one.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager) {
+      Assertions.checkState(!buildCalled);
+      this.priorityTaskManager = priorityTaskManager;
+      return this;
+    }
+
+    /**
+     * Sets {@link AudioAttributes} that will be used by the player and whether to handle audio
+     * focus.
+     *
+     * <p>If audio focus should be handled, the {@link AudioAttributes#usage} must be {@link
+     * C#USAGE_MEDIA} or {@link C#USAGE_GAME}. Other usages will throw an {@link
+     * IllegalArgumentException}.
+     *
+     * @param audioAttributes {@link AudioAttributes}.
+     * @param handleAudioFocus Whether the player should hanlde audio focus.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+      Assertions.checkState(!buildCalled);
+      this.audioAttributes = audioAttributes;
+      this.handleAudioFocus = handleAudioFocus;
+      return this;
+    }
+
+    /**
+     * Sets the {@link C.WakeMode} that will be used by the player.
+     *
+     * <p>Enabling this feature requires the {@link android.Manifest.permission#WAKE_LOCK}
+     * permission. It should be used together with a foreground {@link android.app.Service} for use
+     * cases where playback occurs and the screen is off (e.g. background audio playback). It is not
+     * useful when the screen will be kept on during playback (e.g. foreground video playback).
+     *
+     * <p>When enabled, the locks ({@link android.os.PowerManager.WakeLock} / {@link
+     * android.net.wifi.WifiManager.WifiLock}) will be held whenever the player is in the {@link
+     * #STATE_READY} or {@link #STATE_BUFFERING} states with {@code playWhenReady = true}. The locks
+     * held depend on the specified {@link C.WakeMode}.
+     *
+     * @param wakeMode A {@link C.WakeMode}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setWakeMode(@C.WakeMode int wakeMode) {
+      Assertions.checkState(!buildCalled);
+      this.wakeMode = wakeMode;
+      return this;
+    }
+
+    /**
+     * Sets whether the player should pause automatically when audio is rerouted from a headset to
+     * device speakers. See the <a
+     * href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">audio
+     * becoming noisy</a> documentation for more information.
+     *
+     * @param handleAudioBecomingNoisy Whether the player should pause automatically when audio is
+     *     rerouted from a headset to device speakers.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
+      Assertions.checkState(!buildCalled);
+      this.handleAudioBecomingNoisy = handleAudioBecomingNoisy;
+      return this;
+    }
+
+    /**
+     * Sets whether silences silences in the audio stream is enabled.
+     *
+     * @param skipSilenceEnabled Whether skipping silences is enabled.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSkipSilenceEnabled(boolean skipSilenceEnabled) {
+      Assertions.checkState(!buildCalled);
+      this.skipSilenceEnabled = skipSilenceEnabled;
+      return this;
+    }
+
+    /**
+     * Sets the {@link Renderer.VideoScalingMode} that will be used by the player.
+     *
+     * <p>Note that the scaling mode only applies if a {@link MediaCodec}-based video {@link
+     * Renderer} is enabled and if the output surface is owned by a {@link
+     * android.view.SurfaceView}.
+     *
+     * @param videoScalingMode A {@link Renderer.VideoScalingMode}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setVideoScalingMode(@Renderer.VideoScalingMode int videoScalingMode) {
+      Assertions.checkState(!buildCalled);
+      this.videoScalingMode = videoScalingMode;
+      return this;
+    }
+
+    /**
      * Sets whether media sources should be initialized lazily.
      *
      * <p>If false, all initial preparation steps (e.g., manifest loads) happen immediately. If
@@ -292,6 +406,37 @@ public class SimpleExoPlayer extends BasePlayer
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
       Assertions.checkState(!buildCalled);
       this.useLazyPreparation = useLazyPreparation;
+      return this;
+    }
+
+    /**
+     * Sets the parameters that control how seek operations are performed.
+     *
+     * @param seekParameters The {@link SeekParameters}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSeekParameters(SeekParameters seekParameters) {
+      Assertions.checkState(!buildCalled);
+      this.seekParameters = seekParameters;
+      return this;
+    }
+
+    /**
+     * Sets whether to pause playback at the end of each media item.
+     *
+     * <p>This means the player will pause at the end of each window in the current {@link
+     * #getCurrentTimeline() timeline}. Listeners will be informed by a call to {@link
+     * Player.EventListener#onPlayWhenReadyChanged(boolean, int)} with the reason {@link
+     * Player#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM} when this happens.
+     *
+     * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
+      Assertions.checkState(!buildCalled);
+      this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
       return this;
     }
 
@@ -326,7 +471,7 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * Builds a {@link SimpleExoPlayer} instance.
      *
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If this method has already been called.
      */
     public SimpleExoPlayer build() {
       Assertions.checkState(!buildCalled);
@@ -416,6 +561,10 @@ public class SimpleExoPlayer extends BasePlayer
   protected SimpleExoPlayer(Builder builder) {
     bandwidthMeter = builder.bandwidthMeter;
     analyticsCollector = builder.analyticsCollector;
+    priorityTaskManager = builder.priorityTaskManager;
+    audioAttributes = builder.audioAttributes;
+    videoScalingMode = builder.videoScalingMode;
+    skipSilenceEnabled = builder.skipSilenceEnabled;
     componentListener = new ComponentListener();
     videoListeners = new CopyOnWriteArraySet<>();
     audioListeners = new CopyOnWriteArraySet<>();
@@ -436,8 +585,6 @@ public class SimpleExoPlayer extends BasePlayer
     // Set initial values.
     audioVolume = 1;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
-    audioAttributes = AudioAttributes.DEFAULT;
-    videoScalingMode = Renderer.VIDEO_SCALING_MODE_DEFAULT;
     currentCues = Collections.emptyList();
 
     // Build the player and associated objects.
@@ -450,6 +597,8 @@ public class SimpleExoPlayer extends BasePlayer
             bandwidthMeter,
             analyticsCollector,
             builder.useLazyPreparation,
+            builder.seekParameters,
+            builder.pauseAtEndOfMediaItems,
             builder.clock,
             builder.looper);
     analyticsCollector.setPlayer(player);
@@ -461,16 +610,27 @@ public class SimpleExoPlayer extends BasePlayer
     audioListeners.add(analyticsCollector);
     addMetadataOutput(analyticsCollector);
     bandwidthMeter.addEventListener(eventHandler, analyticsCollector);
+
     audioBecomingNoisyManager =
         new AudioBecomingNoisyManager(builder.context, eventHandler, componentListener);
+    audioBecomingNoisyManager.setEnabled(builder.handleAudioBecomingNoisy);
     audioFocusManager = new AudioFocusManager(builder.context, eventHandler, componentListener);
+    audioFocusManager.setAudioAttributes(builder.handleAudioFocus ? audioAttributes : null);
     streamVolumeManager = new StreamVolumeManager(builder.context, eventHandler, componentListener);
+    streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
     wakeLockManager = new WakeLockManager(builder.context);
+    wakeLockManager.setEnabled(builder.wakeMode != C.WAKE_MODE_NONE);
     wifiLockManager = new WifiLockManager(builder.context);
+    wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
     deviceInfo = createDeviceInfo(streamVolumeManager);
     if (builder.throwWhenStuckBuffering) {
       player.experimental_throwWhenStuckBuffering();
     }
+
+    sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
+    sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_SCALING_MODE, videoScalingMode);
+    sendRendererMessage(
+        C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
   }
 
   @Override
@@ -1686,6 +1846,7 @@ public class SimpleExoPlayer extends BasePlayer
    * @param wakeMode The {@link C.WakeMode} option to keep the device awake during playback.
    */
   public void setWakeMode(@C.WakeMode int wakeMode) {
+    verifyApplicationThread();
     switch (wakeMode) {
       case C.WAKE_MODE_NONE:
         wakeLockManager.setEnabled(false);

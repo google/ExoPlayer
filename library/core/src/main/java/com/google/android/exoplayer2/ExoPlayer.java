@@ -146,6 +146,8 @@ public interface ExoPlayer extends Player {
     private Looper looper;
     @Nullable private AnalyticsCollector analyticsCollector;
     private boolean useLazyPreparation;
+    private SeekParameters seekParameters;
+    private boolean pauseAtEndOfMediaItems;
     private boolean buildCalled;
 
     private long releaseTimeoutMs;
@@ -166,6 +168,8 @@ public interface ExoPlayer extends Player {
      *       Looper}
      *   <li>{@link AnalyticsCollector}: {@link AnalyticsCollector} with {@link Clock#DEFAULT}
      *   <li>{@code useLazyPreparation}: {@code true}
+     *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
+     *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
      *
@@ -178,50 +182,37 @@ public interface ExoPlayer extends Player {
           new DefaultTrackSelector(context),
           DefaultMediaSourceFactory.newInstance(context),
           new DefaultLoadControl(),
-          DefaultBandwidthMeter.getSingletonInstance(context),
-          Util.getLooper(),
-          /* analyticsCollector= */ null,
-          /* useLazyPreparation= */ true,
-          Clock.DEFAULT);
+          DefaultBandwidthMeter.getSingletonInstance(context));
     }
 
     /**
      * Creates a builder with the specified custom components.
      *
-     * <p>Note that this constructor is only useful if you try to ensure that ExoPlayer's default
-     * components can be removed by ProGuard or R8. For most components except renderers, there is
-     * only a marginal benefit of doing that.
+     * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's default
+     * components can be removed by ProGuard or R8.
      *
      * @param renderers The {@link Renderer Renderers} to be used by the player.
      * @param trackSelector A {@link TrackSelector}.
      * @param mediaSourceFactory A {@link MediaSourceFactory}.
      * @param loadControl A {@link LoadControl}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
-     * @param looper A {@link Looper} that must be used for all calls to the player.
-     * @param analyticsCollector An {@link AnalyticsCollector}.
-     * @param useLazyPreparation Whether media sources should be initialized lazily.
-     * @param clock A {@link Clock}. Should always be {@link Clock#DEFAULT}.
      */
     public Builder(
         Renderer[] renderers,
         TrackSelector trackSelector,
         MediaSourceFactory mediaSourceFactory,
         LoadControl loadControl,
-        BandwidthMeter bandwidthMeter,
-        Looper looper,
-        @Nullable AnalyticsCollector analyticsCollector,
-        boolean useLazyPreparation,
-        Clock clock) {
+        BandwidthMeter bandwidthMeter) {
       Assertions.checkArgument(renderers.length > 0);
       this.renderers = renderers;
       this.trackSelector = trackSelector;
       this.mediaSourceFactory = mediaSourceFactory;
       this.loadControl = loadControl;
       this.bandwidthMeter = bandwidthMeter;
-      this.looper = looper;
-      this.analyticsCollector = analyticsCollector;
-      this.useLazyPreparation = useLazyPreparation;
-      this.clock = clock;
+      looper = Util.getLooper();
+      useLazyPreparation = true;
+      seekParameters = SeekParameters.DEFAULT;
+      clock = Clock.DEFAULT;
     }
 
     /**
@@ -348,6 +339,37 @@ public interface ExoPlayer extends Player {
     }
 
     /**
+     * Sets the parameters that control how seek operations are performed.
+     *
+     * @param seekParameters The {@link SeekParameters}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSeekParameters(SeekParameters seekParameters) {
+      Assertions.checkState(!buildCalled);
+      this.seekParameters = seekParameters;
+      return this;
+    }
+
+    /**
+     * Sets whether to pause playback at the end of each media item.
+     *
+     * <p>This means the player will pause at the end of each window in the current {@link
+     * #getCurrentTimeline() timeline}. Listeners will be informed by a call to {@link
+     * Player.EventListener#onPlayWhenReadyChanged(boolean, int)} with the reason {@link
+     * Player#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM} when this happens.
+     *
+     * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
+      Assertions.checkState(!buildCalled);
+      this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
+      return this;
+    }
+
+    /**
      * Sets the {@link Clock} that will be used by the player. Should only be set for testing
      * purposes.
      *
@@ -379,6 +401,8 @@ public interface ExoPlayer extends Player {
               bandwidthMeter,
               analyticsCollector,
               useLazyPreparation,
+              seekParameters,
+              pauseAtEndOfMediaItems,
               clock,
               looper);
 

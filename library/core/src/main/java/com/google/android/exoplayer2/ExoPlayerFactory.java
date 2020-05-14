@@ -258,6 +258,8 @@ public final class ExoPlayerFactory {
         bandwidthMeter,
         /* analyticsCollector= */ null,
         /* useLazyPreparation= */ true,
+        SeekParameters.DEFAULT,
+        /* pauseAtEndOfMediaItems= */ false,
         Clock.DEFAULT,
         applicationLooper);
   }
