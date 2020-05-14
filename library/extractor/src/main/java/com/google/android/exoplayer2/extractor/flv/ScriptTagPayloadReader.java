@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +33,9 @@ import java.util.Map;
 
   private static final String NAME_METADATA = "onMetaData";
   private static final String KEY_DURATION = "duration";
+  private static final String KEY_KEY_FRAMES = "keyframes";
+  private static final String KEY_FILE_POSITIONS = "filepositions";
+  private static final String KEY_TIMES = "times";
 
   // AMF object types
   private static final int AMF_TYPE_NUMBER = 0;
@@ -44,6 +48,9 @@ import java.util.Map;
   private static final int AMF_TYPE_DATE = 11;
 
   private long durationUs;
+
+  private List<Double> seekMapFilePositions;
+  private List<Double> seekMapTimes;
 
   public ScriptTagPayloadReader() {
     super(new DummyTrackOutput());
@@ -87,6 +94,16 @@ import java.util.Map;
       double durationSeconds = (double) metadata.get(KEY_DURATION);
       if (durationSeconds > 0.0) {
         durationUs = (long) (durationSeconds * C.MICROS_PER_SECOND);
+      }
+    }
+    if (metadata.containsKey(KEY_KEY_FRAMES)) {
+      Object frames = metadata.get(KEY_KEY_FRAMES);
+      if (frames instanceof Map) {
+        Map framesMap = (Map) metadata.get(KEY_KEY_FRAMES);
+        if (framesMap.size() > 0) {
+          seekMapFilePositions = (List<Double>) framesMap.get(KEY_FILE_POSITIONS);
+          seekMapTimes = (List<Double>) framesMap.get(KEY_TIMES);
+        }
       }
     }
     return false;
@@ -223,5 +240,13 @@ import java.util.Map;
         // We don't log a warning because there are types that we knowingly don't support.
         return null;
     }
+  }
+
+  public List<Double> getSeekMapFilePositions() {
+    return seekMapFilePositions;
+  }
+
+  public List<Double> getSeekMapTimes() {
+    return seekMapTimes;
   }
 }
