@@ -16,6 +16,9 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.ui.SubtitleView.DEFAULT_BOTTOM_PADDING_FRACTION;
+import static com.google.android.exoplayer2.ui.SubtitleView.DEFAULT_TEXT_SIZE_FRACTION;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.text.Layout;
@@ -32,6 +35,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -52,12 +56,24 @@ import java.util.List;
 
   private final WebView webView;
 
+  private List<Cue> textCues;
+  private CaptionStyleCompat style;
+  private float defaultTextSize;
+  @Cue.TextSizeType private int defaultTextSizeType;
+  private float bottomPaddingFraction;
+
   public WebViewSubtitleOutput(Context context) {
     this(context, null);
   }
 
   public WebViewSubtitleOutput(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
+
+    textCues = Collections.emptyList();
+    style = CaptionStyleCompat.DEFAULT;
+    defaultTextSize = DEFAULT_TEXT_SIZE_FRACTION;
+    defaultTextSizeType = Cue.TEXT_SIZE_TYPE_FRACTIONAL;
+    bottomPaddingFraction = DEFAULT_BOTTOM_PADDING_FRACTION;
 
     canvasSubtitleOutput = new CanvasSubtitleOutput(context, attrs);
     webView =
@@ -89,6 +105,11 @@ import java.util.List;
       float textSize,
       @Cue.TextSizeType int textSizeType,
       float bottomPaddingFraction) {
+    this.style = style;
+    this.defaultTextSize = textSize;
+    this.defaultTextSizeType = textSizeType;
+    this.bottomPaddingFraction = bottomPaddingFraction;
+
     List<Cue> bitmapCues = new ArrayList<>();
     List<Cue> textCues = new ArrayList<>();
     for (int i = 0; i < cues.size(); i++) {
@@ -99,10 +120,27 @@ import java.util.List;
         textCues.add(cue);
       }
     }
+
+    if (!this.textCues.isEmpty() || !textCues.isEmpty()) {
+      this.textCues = textCues;
+      // Skip updating if this is a transition from empty-cues to empty-cues (i.e. only positioning
+      // info has changed) since a positional-only change with no cues is a visual no-op. The new
+      // position info will be used when we get non-empty cue data in a future update() call.
+      updateWebView();
+    }
     canvasSubtitleOutput.update(bitmapCues, style, textSize, textSizeType, bottomPaddingFraction);
     // Invalidate to trigger canvasSubtitleOutput to draw.
     invalidate();
-    updateWebView(textCues, style, textSize, textSizeType, bottomPaddingFraction);
+  }
+
+  @Override
+  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    super.onLayout(changed, left, top, right, bottom);
+    if (changed && !textCues.isEmpty()) {
+      // A positional change with no cues is a visual no-op. The new layout info will be used
+      // automatically next time update() is called.
+      updateWebView();
+    }
   }
 
   /**
@@ -115,12 +153,7 @@ import java.util.List;
     webView.destroy();
   }
 
-  private void updateWebView(
-      List<Cue> cues,
-      CaptionStyleCompat style,
-      float defaultTextSize,
-      @Cue.TextSizeType int defaultTextSizeType,
-      float bottomPaddingFraction) {
+  private void updateWebView() {
     StringBuilder html = new StringBuilder();
     html.append(
         Util.formatInvariant(
@@ -141,8 +174,8 @@ import java.util.List;
 
     String backgroundColorCss = HtmlUtils.toCssRgba(style.backgroundColor);
 
-    for (int i = 0; i < cues.size(); i++) {
-      Cue cue = cues.get(i);
+    for (int i = 0; i < textCues.size(); i++) {
+      Cue cue = textCues.get(i);
       float positionPercent = (cue.position != Cue.DIMEN_UNSET) ? (cue.position * 100) : 50;
       int positionAnchorTranslatePercent = anchorTypeToTranslatePercent(cue.positionAnchor);
 

@@ -201,7 +201,6 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
     innerSubtitleView = view;
     output = view;
     addView(view);
-    updateOutput();
   }
 
   /**
