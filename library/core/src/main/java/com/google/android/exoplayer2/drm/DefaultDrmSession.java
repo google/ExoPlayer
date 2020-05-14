@@ -29,7 +29,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
+import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CopyOnWriteMultiset;
 import com.google.android.exoplayer2.util.Log;
@@ -53,8 +56,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /** Thrown when an unexpected exception or error is thrown during provisioning or key requests. */
   public static final class UnexpectedDrmSessionException extends IOException {
 
-    public UnexpectedDrmSessionException(Throwable cause) {
-      super("Unexpected " + cause.getClass().getSimpleName() + ": " + cause.getMessage(), cause);
+    public UnexpectedDrmSessionException(@Nullable Throwable cause) {
+      super(cause);
     }
   }
 
@@ -552,7 +555,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     void post(int what, Object request, boolean allowRetry) {
       RequestTask requestTask =
-          new RequestTask(allowRetry, /* startTimeMs= */ SystemClock.elapsedRealtime(), request);
+          new RequestTask(
+              LoadEventInfo.getNewId(),
+              allowRetry,
+              /* startTimeMs= */ SystemClock.elapsedRealtime(),
+              request);
       obtainMessage(what, requestTask).sendToTarget();
     }
 
@@ -572,18 +579,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           default:
             throw new RuntimeException();
         }
-      } catch (Exception e) {
+      } catch (MediaDrmCallbackException e) {
         if (maybeRetryRequest(msg, e)) {
           return;
         }
         response = e;
+      } catch (Exception e) {
+        Log.w(TAG, "Key/provisioning request produced an unexpected exception. Not retrying.", e);
+        response = e;
       }
+      loadErrorHandlingPolicy.onLoadTaskConcluded(requestTask.taskId);
       responseHandler
           .obtainMessage(msg.what, Pair.create(requestTask.request, response))
           .sendToTarget();
     }
 
-    private boolean maybeRetryRequest(Message originalMsg, Exception e) {
+    private boolean maybeRetryRequest(Message originalMsg, MediaDrmCallbackException exception) {
       RequestTask requestTask = (RequestTask) originalMsg.obj;
       if (!requestTask.allowRetry) {
         return false;
@@ -593,14 +604,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           > loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_DRM)) {
         return false;
       }
-      IOException ioException =
-          e instanceof IOException ? (IOException) e : new UnexpectedDrmSessionException(e);
+      LoadEventInfo loadEventInfo =
+          new LoadEventInfo(
+              requestTask.taskId,
+              exception.dataSpec,
+              exception.uriAfterRedirects,
+              exception.responseHeaders,
+              SystemClock.elapsedRealtime(),
+              /* loadDurationMs= */ SystemClock.elapsedRealtime() - requestTask.startTimeMs,
+              exception.bytesLoaded);
+      MediaLoadData mediaLoadData = new MediaLoadData(C.DATA_TYPE_DRM);
+      IOException loadErrorCause =
+          exception.getCause() instanceof IOException
+              ? (IOException) exception.getCause()
+              : new UnexpectedDrmSessionException(exception.getCause());
       long retryDelayMs =
           loadErrorHandlingPolicy.getRetryDelayMsFor(
-              C.DATA_TYPE_DRM,
-              /* loadDurationMs= */ SystemClock.elapsedRealtime() - requestTask.startTimeMs,
-              ioException,
-              requestTask.errorCount);
+              new LoadErrorInfo(
+                  loadEventInfo, mediaLoadData, loadErrorCause, requestTask.errorCount));
       if (retryDelayMs == C.TIME_UNSET) {
         // The error is fatal.
         return false;
@@ -612,12 +633,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final class RequestTask {
 
+    public final long taskId;
     public final boolean allowRetry;
     public final long startTimeMs;
     public final Object request;
     public int errorCount;
 
-    public RequestTask(boolean allowRetry, long startTimeMs, Object request) {
+    public RequestTask(long taskId, boolean allowRetry, long startTimeMs, Object request) {
+      this.taskId = taskId;
       this.allowRetry = allowRetry;
       this.startTimeMs = startTimeMs;
       this.request = request;
