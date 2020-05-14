@@ -37,6 +37,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.Downloader;
@@ -219,7 +220,9 @@ public class HlsDownloaderTest {
         new CacheDataSource.Factory()
             .setCache(cache)
             .setUpstreamDataSourceFactory(new FakeDataSource.Factory().setFakeDataSet(fakeDataSet));
-    return new HlsDownloader(Uri.parse(mediaPlaylistUri), keys, cacheDataSourceFactory);
+    return new HlsDownloader(
+        new MediaItem.Builder().setUri(mediaPlaylistUri).setStreamKeys(keys).build(),
+        cacheDataSourceFactory);
   }
 
   private static ArrayList<StreamKey> getKeys(int... variantIndices) {

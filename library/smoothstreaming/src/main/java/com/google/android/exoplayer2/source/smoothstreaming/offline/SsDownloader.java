@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.source.smoothstreaming.offline;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.net.Uri;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
@@ -43,8 +46,10 @@ import java.util.concurrent.Executor;
  * // Create a downloader for the first track of the first stream element.
  * SsDownloader ssDownloader =
  *     new SsDownloader(
- *         manifestUrl,
- *         Collections.singletonList(new StreamKey(0, 0)),
+ *         new MediaItem.Builder()
+ *             .setUri(manifestUri)
+ *             .setStreamKeys(Collections.singletonList(new StreamKey(0, 0)))
+ *             .build(),
  *         cacheDataSourceFactory);
  * // Perform the download.
  * ssDownloader.download(progressListener);
@@ -56,21 +61,45 @@ import java.util.concurrent.Executor;
 public final class SsDownloader extends SegmentDownloader<SsManifest> {
 
   /**
-   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
-   * @param streamKeys Keys defining which streams in the manifest should be selected for download.
-   *     If empty, all streams are downloaded.
-   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
-   *     download will be written.
+   * @deprecated Use {@link #SsDownloader(MediaItem, CacheDataSource.Factory, Executor)} instead.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public SsDownloader(
       Uri manifestUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
     this(manifestUri, streamKeys, cacheDataSourceFactory, Runnable::run);
   }
 
   /**
-   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
-   * @param streamKeys Keys defining which streams in the manifest should be selected for download.
-   *     If empty, all streams are downloaded.
+   * Creates an instance.
+   *
+   * @param mediaItem The {@link MediaItem} to be downloaded.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   */
+  public SsDownloader(MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory) {
+    this(mediaItem, cacheDataSourceFactory, Runnable::run);
+  }
+
+  /**
+   * @deprecated Use {@link #SsDownloader(MediaItem, CacheDataSource.Factory, Executor)} instead.
+   */
+  @Deprecated
+  public SsDownloader(
+      Uri manifestUri,
+      List<StreamKey> streamKeys,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
+    this(
+        new MediaItem.Builder().setUri(manifestUri).setStreamKeys(streamKeys).build(),
+        cacheDataSourceFactory,
+        executor);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param mediaItem The {@link MediaItem} to be downloaded.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
    *     download will be written.
    * @param executor An {@link Executor} used to make requests for the media being downloaded.
@@ -78,14 +107,13 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
    *     allowing parts of it to be executed in parallel.
    */
   public SsDownloader(
-      Uri manifestUri,
-      List<StreamKey> streamKeys,
-      CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
+      MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {
     super(
-        SsUtil.fixManifestUri(manifestUri),
+        mediaItem
+            .buildUpon()
+            .setUri(SsUtil.fixManifestUri(checkNotNull(mediaItem.playbackProperties).uri))
+            .build(),
         new SsManifestParser(),
-        streamKeys,
         cacheDataSourceFactory,
         executor);
   }
