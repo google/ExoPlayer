@@ -24,9 +24,14 @@ import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StrikethroughSpan;
+import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.testutil.truth.SpannedSubject;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -711,6 +716,40 @@ public class UtilTest {
   @Test
   public void toLong_withBigNegativeValue_returnsValue() {
     assertThat(Util.toLong(0xFEDCBA, 0x87654321)).isEqualTo(0xFEDCBA_87654321L);
+  }
+
+  @Test
+  public void truncateAscii_shortInput_returnsInput() {
+    String input = "a short string";
+
+    assertThat(Util.truncateAscii(input, 100)).isSameInstanceAs(input);
+    assertThat(Util.truncateAscii((CharSequence) input, 100)).isSameInstanceAs(input);
+  }
+
+  @Test
+  public void truncateAscii_longInput_truncated() {
+    String input = "a much longer string";
+
+    assertThat(Util.truncateAscii(input, 5)).isEqualTo("a muc");
+    assertThat(Util.truncateAscii((CharSequence) input, 5).toString()).isEqualTo("a muc");
+  }
+
+  @Test
+  public void truncateAscii_preservesStylingSpans() {
+    SpannableString input = new SpannableString("a short string");
+    input.setSpan(new UnderlineSpan(), 0, 10, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    input.setSpan(new StrikethroughSpan(), 4, 10, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    CharSequence result = Util.truncateAscii(input, 7);
+
+    assertThat(result).isInstanceOf(SpannableString.class);
+    assertThat(result.toString()).isEqualTo("a short");
+    SpannedSubject.assertThat((Spanned) result)
+        .hasUnderlineSpanBetween(0, 7)
+        .withFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    SpannedSubject.assertThat((Spanned) result)
+        .hasStrikethroughSpanBetween(4, 7)
+        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test

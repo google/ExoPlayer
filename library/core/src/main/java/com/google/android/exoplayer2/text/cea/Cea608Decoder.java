@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -868,7 +869,11 @@ public final class Cea608Decoder extends CeaDecoder {
     }
 
     public void append(char text) {
-      captionStringBuilder.append(text);
+      // Don't accept more than 32 chars. We'll trim further, considering indent & tabOffset, in
+      // build().
+      if (captionStringBuilder.length() < SCREEN_CHARWIDTH) {
+        captionStringBuilder.append(text);
+      }
     }
 
     public void rollUp() {
@@ -883,14 +888,17 @@ public final class Cea608Decoder extends CeaDecoder {
 
     @Nullable
     public Cue build(@Cue.AnchorType int forcedPositionAnchor) {
+      // The number of empty columns before the start of the text, in the range [0-31].
+      int startPadding = indent + tabOffset;
+      int maxTextLength = SCREEN_CHARWIDTH - startPadding;
       SpannableStringBuilder cueString = new SpannableStringBuilder();
       // Add any rolled up captions, separated by new lines.
       for (int i = 0; i < rolledUpCaptions.size(); i++) {
-        cueString.append(rolledUpCaptions.get(i));
+        cueString.append(Util.truncateAscii(rolledUpCaptions.get(i), maxTextLength));
         cueString.append('\n');
       }
       // Add the current line.
-      cueString.append(buildCurrentLine());
+      cueString.append(Util.truncateAscii(buildCurrentLine(), maxTextLength));
 
       if (cueString.length() == 0) {
         // The cue is empty.
@@ -898,8 +906,7 @@ public final class Cea608Decoder extends CeaDecoder {
       }
 
       int positionAnchor;
-      // The number of empty columns before the start of the text, in the range [0-31].
-      int startPadding = indent + tabOffset;
+
       // The number of empty columns after the end of the text, in the same range.
       int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
       int startEndPaddingDelta = startPadding - endPadding;
