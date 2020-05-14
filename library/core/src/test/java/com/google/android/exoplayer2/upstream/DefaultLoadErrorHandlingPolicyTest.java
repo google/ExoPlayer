@@ -21,7 +21,10 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
+import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Test;
@@ -30,6 +33,18 @@ import org.junit.runner.RunWith;
 /** Unit tests for {@link DefaultLoadErrorHandlingPolicy}. */
 @RunWith(AndroidJUnit4.class)
 public final class DefaultLoadErrorHandlingPolicyTest {
+
+  private static final LoadEventInfo PLACEHOLDER_LOAD_EVENT_INFO =
+      new LoadEventInfo(
+          LoadEventInfo.getNewId(),
+          new DataSpec(Uri.EMPTY),
+          Uri.EMPTY,
+          /* responseHeaders= */ Collections.emptyMap(),
+          /* elapsedRealtimeMs= */ 5000,
+          /* loadDurationMs= */ 1000,
+          /* bytesLoaded= */ 0);
+  private static final MediaLoadData PLACEHOLDER_MEDIA_LOAD_DATA =
+      new MediaLoadData(/* dataType= */ C.DATA_TYPE_UNKNOWN);
 
   @Test
   public void getBlacklistDurationMsFor_blacklist404() {
@@ -77,13 +92,19 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   }
 
   private static long getDefaultPolicyBlacklistOutputFor(IOException exception) {
-    return new DefaultLoadErrorHandlingPolicy()
-        .getBlacklistDurationMsFor(
-            C.DATA_TYPE_MEDIA, /* loadDurationMs= */ 1000, exception, /* errorCount= */ 1);
+    LoadErrorInfo loadErrorInfo =
+        new LoadErrorInfo(
+            PLACEHOLDER_LOAD_EVENT_INFO,
+            PLACEHOLDER_MEDIA_LOAD_DATA,
+            exception,
+            /* errorCount= */ 1);
+    return new DefaultLoadErrorHandlingPolicy().getBlacklistDurationMsFor(loadErrorInfo);
   }
 
   private static long getDefaultPolicyRetryDelayOutputFor(IOException exception, int errorCount) {
-    return new DefaultLoadErrorHandlingPolicy()
-        .getRetryDelayMsFor(C.DATA_TYPE_MEDIA, /* loadDurationMs= */ 1000, exception, errorCount);
+    LoadErrorInfo loadErrorInfo =
+        new LoadErrorInfo(
+            PLACEHOLDER_LOAD_EVENT_INFO, PLACEHOLDER_MEDIA_LOAD_DATA, exception, errorCount);
+    return new DefaultLoadErrorHandlingPolicy().getRetryDelayMsFor(loadErrorInfo);
   }
 }
