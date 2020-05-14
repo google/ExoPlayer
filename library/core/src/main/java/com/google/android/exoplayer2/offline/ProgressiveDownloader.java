@@ -18,9 +18,11 @@ package com.google.android.exoplayer2.offline;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -37,22 +39,46 @@ public final class ProgressiveDownloader implements Downloader {
 
   @Nullable private volatile Thread downloadThread;
 
-  /**
-   * @param uri Uri of the data to be downloaded.
-   * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
-   *     indexing. May be null.
-   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
-   *     download will be written.
-   */
+  /** @deprecated Use {@link #ProgressiveDownloader(MediaItem, CacheDataSource.Factory)} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public ProgressiveDownloader(
       Uri uri, @Nullable String customCacheKey, CacheDataSource.Factory cacheDataSourceFactory) {
     this(uri, customCacheKey, cacheDataSourceFactory, Runnable::run);
   }
 
   /**
-   * @param uri Uri of the data to be downloaded.
-   * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
-   *     indexing. May be null.
+   * Creates a new instance.
+   *
+   * @param mediaItem The media item with a uri to the stream to be downloaded.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   */
+  public ProgressiveDownloader(
+      MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory) {
+    this(mediaItem, cacheDataSourceFactory, Runnable::run);
+  }
+
+  /**
+   * @deprecated Use {@link #ProgressiveDownloader(MediaItem, CacheDataSource.Factory, Executor)}
+   *     instead.
+   */
+  @Deprecated
+  public ProgressiveDownloader(
+      Uri uri,
+      @Nullable String customCacheKey,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
+    this(
+        new MediaItem.Builder().setUri(uri).setCustomCacheKey(customCacheKey).build(),
+        cacheDataSourceFactory,
+        executor);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param mediaItem The media item with a uri to the stream to be downloaded.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
    *     download will be written.
    * @param executor An {@link Executor} used to make requests for the media being downloaded. In
@@ -60,14 +86,12 @@ public final class ProgressiveDownloader implements Downloader {
    *     download by allowing parts of it to be executed in parallel.
    */
   public ProgressiveDownloader(
-      Uri uri,
-      @Nullable String customCacheKey,
-      CacheDataSource.Factory cacheDataSourceFactory,
-      Executor executor) {
+      MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {
+    Assertions.checkNotNull(mediaItem.playbackProperties);
     dataSpec =
         new DataSpec.Builder()
-            .setUri(uri)
-            .setKey(customCacheKey)
+            .setUri(mediaItem.playbackProperties.uri)
+            .setKey(mediaItem.playbackProperties.customCacheKey)
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
     dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
@@ -115,10 +139,10 @@ public final class ProgressiveDownloader implements Downloader {
 
   private static final class ProgressForwarder implements CacheUtil.ProgressListener {
 
-    private final ProgressListener progessListener;
+    private final ProgressListener progressListener;
 
     public ProgressForwarder(ProgressListener progressListener) {
-      this.progessListener = progressListener;
+      this.progressListener = progressListener;
     }
 
     @Override
@@ -127,7 +151,7 @@ public final class ProgressiveDownloader implements Downloader {
           contentLength == C.LENGTH_UNSET || contentLength == 0
               ? C.PERCENTAGE_UNSET
               : ((bytesCached * 100f) / contentLength);
-      progessListener.onProgress(contentLength, bytesCached, percentDownloaded);
+      progressListener.onProgress(contentLength, bytesCached, percentDownloaded);
     }
   }
 }
