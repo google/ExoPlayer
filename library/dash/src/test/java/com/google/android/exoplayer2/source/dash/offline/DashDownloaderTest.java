@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadException;
 import com.google.android.exoplayer2.offline.DownloadRequest;
@@ -337,7 +338,9 @@ public class DashDownloaderTest {
         new CacheDataSource.Factory()
             .setCache(cache)
             .setUpstreamDataSourceFactory(upstreamDataSourceFactory);
-    return new DashDownloader(TEST_MPD_URI, keysList(keys), cacheDataSourceFactory);
+    return new DashDownloader(
+        new MediaItem.Builder().setUri(TEST_MPD_URI).setStreamKeys(keysList(keys)).build(),
+        cacheDataSourceFactory);
   }
 
   private static ArrayList<StreamKey> keysList(StreamKey... keys) {

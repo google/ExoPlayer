@@ -15,10 +15,13 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.net.Uri;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
@@ -79,10 +82,8 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
   @Nullable private volatile Thread downloadThread;
 
   /**
-   * @param manifestUri The {@link Uri} of the manifest to be downloaded.
+   * @param mediaItem The {@link MediaItem} to be downloaded.
    * @param manifestParser A parser for the manifest.
-   * @param streamKeys Keys defining which streams in the manifest should be selected for download.
-   *     If empty, all streams are downloaded.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
    *     download will be written.
    * @param executor An {@link Executor} used to make requests for the media being downloaded.
@@ -90,14 +91,14 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
    *     allowing parts of it to be executed in parallel.
    */
   public SegmentDownloader(
-      Uri manifestUri,
+      MediaItem mediaItem,
       Parser<M> manifestParser,
-      List<StreamKey> streamKeys,
       CacheDataSource.Factory cacheDataSourceFactory,
       Executor executor) {
-    this.manifestDataSpec = getCompressibleDataSpec(manifestUri);
+    checkNotNull(mediaItem.playbackProperties);
+    this.manifestDataSpec = getCompressibleDataSpec(mediaItem.playbackProperties.uri);
     this.manifestParser = manifestParser;
-    this.streamKeys = new ArrayList<>(streamKeys);
+    this.streamKeys = new ArrayList<>(mediaItem.playbackProperties.streamKeys);
     this.cacheDataSourceFactory = cacheDataSourceFactory;
     this.executor = executor;
     isCanceled = new AtomicBoolean();
