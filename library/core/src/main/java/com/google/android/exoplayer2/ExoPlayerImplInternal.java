@@ -146,6 +146,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled,
       @Nullable AnalyticsCollector analyticsCollector,
+      SeekParameters seekParameters,
+      boolean pauseAtEndOfWindow,
       Handler eventHandler,
       Clock clock) {
     this.renderers = renderers;
@@ -155,6 +157,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.bandwidthMeter = bandwidthMeter;
     this.repeatMode = repeatMode;
     this.shuffleModeEnabled = shuffleModeEnabled;
+    this.seekParameters = seekParameters;
+    this.pauseAtEndOfWindow = pauseAtEndOfWindow;
     this.eventHandler = eventHandler;
     this.clock = clock;
     this.queue = new MediaPeriodQueue();
@@ -162,7 +166,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     backBufferDurationUs = loadControl.getBackBufferDurationUs();
     retainBackBufferFromKeyframe = loadControl.retainBackBufferFromKeyframe();
 
-    seekParameters = SeekParameters.DEFAULT;
     playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
     playbackInfoUpdate = new PlaybackInfoUpdate(playbackInfo);
     rendererCapabilities = new RendererCapabilities[renderers.length];

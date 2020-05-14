@@ -109,6 +109,8 @@ import java.util.concurrent.TimeoutException;
    * @param useLazyPreparation Whether playlist items are prepared lazily. If false, all manifest
    *     loads and other initial preparation steps happen immediately. If true, these initial
    *     preparations are triggered only when the player starts buffering the media.
+   * @param seekParameters The {@link SeekParameters}.
+   * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
    * @param clock The {@link Clock}.
    * @param applicationLooper The {@link Looper} that must be used for all calls to the player and
    *     which is used to call listeners on.
@@ -122,6 +124,8 @@ import java.util.concurrent.TimeoutException;
       BandwidthMeter bandwidthMeter,
       @Nullable AnalyticsCollector analyticsCollector,
       boolean useLazyPreparation,
+      SeekParameters seekParameters,
+      boolean pauseAtEndOfMediaItems,
       Clock clock,
       Looper applicationLooper) {
     Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
@@ -131,6 +135,8 @@ import java.util.concurrent.TimeoutException;
     this.trackSelector = checkNotNull(trackSelector);
     this.mediaSourceFactory = mediaSourceFactory;
     this.useLazyPreparation = useLazyPreparation;
+    this.seekParameters = seekParameters;
+    this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     repeatMode = Player.REPEAT_MODE_OFF;
     listeners = new CopyOnWriteArrayList<>();
     mediaSourceHolders = new ArrayList<>();
@@ -142,7 +148,6 @@ import java.util.concurrent.TimeoutException;
             null);
     period = new Timeline.Period();
     playbackSpeed = Player.DEFAULT_PLAYBACK_SPEED;
-    seekParameters = SeekParameters.DEFAULT;
     maskingWindowIndex = C.INDEX_UNSET;
     applicationHandler =
         new Handler(applicationLooper) {
@@ -166,6 +171,8 @@ import java.util.concurrent.TimeoutException;
             repeatMode,
             shuffleModeEnabled,
             analyticsCollector,
+            seekParameters,
+            pauseAtEndOfMediaItems,
             applicationHandler,
             clock);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
