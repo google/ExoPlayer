@@ -730,6 +730,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           trackFormat = trackFormat.copyWithBitrate(icyHeaders.bitrate);
         }
       }
+      if (trackFormat.drmInitData != null) {
+        trackFormat =
+            trackFormat.copyWithExoMediaCryptoType(
+                drmSessionManager.getExoMediaCryptoType(trackFormat.drmInitData));
+      }
       trackArray[i] = new TrackGroup(trackFormat);
     }
     isLive = length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET;
