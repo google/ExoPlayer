@@ -659,12 +659,16 @@ public class AnalyticsCollector
       eventPositionMs =
           timeline.isEmpty() ? 0 : timeline.getWindow(windowIndex, window).getDefaultPositionMs();
     }
+    @Nullable MediaPeriodInfo currentInfo = mediaPeriodQueueTracker.getCurrentPlayerMediaPeriod();
     return new EventTime(
         realtimeMs,
         timeline,
         windowIndex,
         mediaPeriodId,
         eventPositionMs,
+        player.getCurrentTimeline(),
+        player.getCurrentWindowIndex(),
+        currentInfo == null ? null : currentInfo.mediaPeriodId,
         player.getCurrentPosition(),
         player.getTotalBufferedDuration());
   }

@@ -88,6 +88,9 @@
         `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
     *   Enable the configuration of `SilenceSkippingAudioProcessor`
         ([#6705](https://github.com/google/ExoPlayer/issues/6705)).
+    *   Extend `EventTime` with more details about the current player state for
+        easier access
+        ([#7332](https://github.com/google/ExoPlayer/issues/7332)).
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
