@@ -7,13 +7,13 @@ Running a demo
 
 ## From Android Studio ##
 
-- File -> New -> Import Project -> Specify the root ExoPlayer folder
-- Choose the demo from the run configuration dropdown list
-- Click Run
+- File -> New -> Import Project -> Specify the root ExoPlayer folder.
+- Choose the demo from the run configuration dropdown list.
+- Click Run.
 
 ## Using gradle from the command line ##
 
-- Open a Terminal window at the root ExoPlayer folder
+- Open a Terminal window at the root ExoPlayer folder.
 - Run `./gradlew projects` to show all projects. Demo projects start with `demo`.
 - Run `./gradlew :<demo name>:tasks` to view the list of available tasks for
 the demo project. Choose an install option from the `Install tasks` section.
