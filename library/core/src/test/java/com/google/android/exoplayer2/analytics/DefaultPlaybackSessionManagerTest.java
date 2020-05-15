@@ -1092,6 +1092,9 @@ public final class DefaultPlaybackSessionManagerTest {
         windowIndex,
         mediaPeriodId,
         /* eventPlaybackPositionMs= */ 0,
+        timeline,
+        windowIndex,
+        mediaPeriodId,
         /* currentPlaybackPositionMs= */ 0,
         /* totalBufferedDurationMs= */ 0);
   }

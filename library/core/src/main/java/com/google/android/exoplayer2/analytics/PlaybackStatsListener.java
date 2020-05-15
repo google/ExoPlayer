@@ -157,6 +157,9 @@ public final class PlaybackStatsListener
             /* windowIndex= */ 0,
             /* mediaPeriodId= */ null,
             /* eventPlaybackPositionMs= */ 0,
+            Timeline.EMPTY,
+            /* currentWindowIndex= */ 0,
+            /* currentMediaPeriodId= */ null,
             /* currentPlaybackPositionMs= */ 0,
             /* totalBufferedDurationMs= */ 0);
     sessionManager.finishAllSessions(dummyEventTime);
@@ -210,6 +213,9 @@ public final class PlaybackStatsListener
                 eventTime.mediaPeriodId.windowSequenceNumber,
                 eventTime.mediaPeriodId.adGroupIndex),
             /* eventPlaybackPositionMs= */ C.usToMs(contentWindowPositionUs),
+            eventTime.timeline,
+            eventTime.currentWindowIndex,
+            eventTime.currentMediaPeriodId,
             eventTime.currentPlaybackPositionMs,
             eventTime.totalBufferedDurationMs);
     Assertions.checkNotNull(playbackStatsTrackers.get(contentSession))

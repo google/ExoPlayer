@@ -56,7 +56,7 @@ public interface AnalyticsListener {
      */
     public final long realtimeMs;
 
-    /** Timeline at the time of the event. */
+    /** Most recent {@link Timeline} that contains the event position. */
     public final Timeline timeline;
 
     /**
@@ -66,8 +66,8 @@ public interface AnalyticsListener {
     public final int windowIndex;
 
     /**
-     * Media period identifier for the media period this event belongs to, or {@code null} if the
-     * event is not associated with a specific media period.
+     * {@link MediaPeriodId Media period identifier} for the media period this event belongs to, or
+     * {@code null} if the event is not associated with a specific media period.
      */
     @Nullable public final MediaPeriodId mediaPeriodId;
 
@@ -77,8 +77,27 @@ public interface AnalyticsListener {
     public final long eventPlaybackPositionMs;
 
     /**
-     * Position in the current timeline window ({@link Player#getCurrentWindowIndex()}) or the
-     * currently playing ad at the time of the event, in milliseconds.
+     * The current {@link Timeline} at the time of the event (equivalent to {@link
+     * Player#getCurrentTimeline()}).
+     */
+    public final Timeline currentTimeline;
+
+    /**
+     * The current window index in {@link #currentTimeline} at the time of the event, or the
+     * prospective window index if the timeline is not yet known and empty (equivalent to {@link
+     * Player#getCurrentWindowIndex()}).
+     */
+    public final int currentWindowIndex;
+
+    /**
+     * {@link MediaPeriodId Media period identifier} for the currently playing media period at the
+     * time of the event, or {@code null} if no current media period identifier is available.
+     */
+    @Nullable public final MediaPeriodId currentMediaPeriodId;
+
+    /**
+     * Position in the {@link #currentWindowIndex current timeline window} or the currently playing
+     * ad at the time of the event, in milliseconds.
      */
     public final long currentPlaybackPositionMs;
 
@@ -91,19 +110,27 @@ public interface AnalyticsListener {
     /**
      * @param realtimeMs Elapsed real-time as returned by {@code SystemClock.elapsedRealtime()} at
      *     the time of the event, in milliseconds.
-     * @param timeline Timeline at the time of the event.
-     * @param windowIndex Window index in the {@link #timeline} this event belongs to, or the
+     * @param timeline Most recent {@link Timeline} that contains the event position.
+     * @param windowIndex Window index in the {@code timeline} this event belongs to, or the
      *     prospective window index if the timeline is not yet known and empty.
-     * @param mediaPeriodId Media period identifier for the media period this event belongs to, or
-     *     {@code null} if the event is not associated with a specific media period.
+     * @param mediaPeriodId {@link MediaPeriodId Media period identifier} for the media period this
+     *     event belongs to, or {@code null} if the event is not associated with a specific media
+     *     period.
      * @param eventPlaybackPositionMs Position in the window or ad this event belongs to at the time
      *     of the event, in milliseconds.
-     * @param currentPlaybackPositionMs Position in the current timeline window ({@link
-     *     Player#getCurrentWindowIndex()}) or the currently playing ad at the time of the event, in
-     *     milliseconds.
-     * @param totalBufferedDurationMs Total buffered duration from {@link
-     *     #currentPlaybackPositionMs} at the time of the event, in milliseconds. This includes
-     *     pre-buffered data for subsequent ads and windows.
+     * @param currentTimeline The current {@link Timeline} at the time of the event (equivalent to
+     *     {@link Player#getCurrentTimeline()}).
+     * @param currentWindowIndex The current window index in {@code currentTimeline} at the time of
+     *     the event, or the prospective window index if the timeline is not yet known and empty
+     *     (equivalent to {@link Player#getCurrentWindowIndex()}).
+     * @param currentMediaPeriodId {@link MediaPeriodId Media period identifier} for the currently
+     *     playing media period at the time of the event, or {@code null} if no current media period
+     *     identifier is available.
+     * @param currentPlaybackPositionMs Position in the current timeline window or the currently
+     *     playing ad at the time of the event, in milliseconds.
+     * @param totalBufferedDurationMs Total buffered duration from {@code currentPlaybackPositionMs}
+     *     at the time of the event, in milliseconds. This includes pre-buffered data for subsequent
+     *     ads and windows.
      */
     public EventTime(
         long realtimeMs,
@@ -111,6 +138,9 @@ public interface AnalyticsListener {
         int windowIndex,
         @Nullable MediaPeriodId mediaPeriodId,
         long eventPlaybackPositionMs,
+        Timeline currentTimeline,
+        int currentWindowIndex,
+        @Nullable MediaPeriodId currentMediaPeriodId,
         long currentPlaybackPositionMs,
         long totalBufferedDurationMs) {
       this.realtimeMs = realtimeMs;
@@ -118,6 +148,9 @@ public interface AnalyticsListener {
       this.windowIndex = windowIndex;
       this.mediaPeriodId = mediaPeriodId;
       this.eventPlaybackPositionMs = eventPlaybackPositionMs;
+      this.currentTimeline = currentTimeline;
+      this.currentWindowIndex = currentWindowIndex;
+      this.currentMediaPeriodId = currentMediaPeriodId;
       this.currentPlaybackPositionMs = currentPlaybackPositionMs;
       this.totalBufferedDurationMs = totalBufferedDurationMs;
     }
