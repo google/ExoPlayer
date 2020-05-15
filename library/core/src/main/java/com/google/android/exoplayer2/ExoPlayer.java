@@ -149,8 +149,6 @@ public interface ExoPlayer extends Player {
     private SeekParameters seekParameters;
     private boolean pauseAtEndOfMediaItems;
     private boolean buildCalled;
-
-    private long releaseTimeoutMs;
     private boolean throwWhenStuckBuffering;
 
     /**
@@ -213,20 +211,6 @@ public interface ExoPlayer extends Player {
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
       clock = Clock.DEFAULT;
-    }
-
-    /**
-     * Set a limit on the time a call to {@link ExoPlayer#release()} can spend. If a call to {@link
-     * ExoPlayer#release()} takes more than {@code timeoutMs} milliseconds to complete, the player
-     * will raise an error via {@link Player.EventListener#onPlayerError}.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
-     *
-     * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
-     */
-    public Builder experimental_setReleaseTimeoutMs(long timeoutMs) {
-      releaseTimeoutMs = timeoutMs;
-      return this;
     }
 
     /**
@@ -405,10 +389,6 @@ public interface ExoPlayer extends Player {
               pauseAtEndOfMediaItems,
               clock,
               looper);
-
-      if (releaseTimeoutMs > 0) {
-        player.experimental_setReleaseTimeoutMs(releaseTimeoutMs);
-      }
       if (throwWhenStuckBuffering) {
         player.experimental_throwWhenStuckBuffering();
       }

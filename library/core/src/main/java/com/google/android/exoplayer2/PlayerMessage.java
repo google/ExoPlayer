@@ -17,10 +17,7 @@ package com.google.android.exoplayer2;
 
 import android.os.Handler;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Clock;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Defines a player message which can be sent with a {@link Sender} and received by a {@link
@@ -293,28 +290,6 @@ public final class PlayerMessage {
   }
 
   /**
-   * Blocks until after the message has been delivered or the player is no longer able to deliver
-   * the message or the specified waiting time elapses.
-   *
-   * <p>Note that this method can't be called if the current thread is the same thread used by the
-   * message handler set with {@link #setHandler(Handler)} as it would cause a deadlock.
-   *
-   * @param timeoutMs the maximum time to wait in milliseconds.
-   * @return Whether the message was delivered successfully.
-   * @throws IllegalStateException If this method is called before {@link #send()}.
-   * @throws IllegalStateException If this method is called on the same thread used by the message
-   *     handler set with {@link #setHandler(Handler)}.
-   * @throws TimeoutException If the waiting time elapsed and this message has not been delivered
-   *     and the player is still able to deliver the message.
-   * @throws InterruptedException If the current thread is interrupted while waiting for the message
-   *     to be delivered.
-   */
-  public synchronized boolean experimental_blockUntilDelivered(long timeoutMs)
-      throws InterruptedException, TimeoutException {
-    return experimental_blockUntilDelivered(timeoutMs, Clock.DEFAULT);
-  }
-
-  /**
    * Marks the message as processed. Should only be called by a {@link Sender} and may be called
    * multiple times.
    *
@@ -326,25 +301,5 @@ public final class PlayerMessage {
     this.isDelivered |= isDelivered;
     isProcessed = true;
     notifyAll();
-  }
-
-  @VisibleForTesting()
-  /* package */ synchronized boolean experimental_blockUntilDelivered(long timeoutMs, Clock clock)
-      throws InterruptedException, TimeoutException {
-    Assertions.checkState(isSent);
-    Assertions.checkState(handler.getLooper().getThread() != Thread.currentThread());
-
-    long deadlineMs = clock.elapsedRealtime() + timeoutMs;
-    long remainingMs = timeoutMs;
-    while (!isProcessed && remainingMs > 0) {
-      wait(remainingMs);
-      remainingMs = deadlineMs - clock.elapsedRealtime();
-    }
-
-    if (!isProcessed) {
-      throw new TimeoutException("Message delivery timed out.");
-    }
-
-    return isDelivered;
   }
 }

@@ -133,8 +133,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private long rendererPositionUs;
   private int nextPendingMessageIndexHint;
   private boolean deliverPendingMessageAtStartPositionRequired;
-
-  private long releaseTimeoutMs;
   private boolean throwWhenStuckBuffering;
 
   public ExoPlayerImplInternal(
@@ -189,10 +187,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (analyticsCollector != null) {
       mediaSourceList.setAnalyticsCollector(eventHandler, analyticsCollector);
     }
-  }
-
-  public void experimental_setReleaseTimeoutMs(long releaseTimeoutMs) {
-    this.releaseTimeoutMs = releaseTimeoutMs;
   }
 
   public void experimental_throwWhenStuckBuffering() {
@@ -322,23 +316,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
-  public synchronized boolean release() {
+  public synchronized void release() {
     if (released || !internalPlaybackThread.isAlive()) {
-      return true;
+      return;
     }
-
     handler.sendEmptyMessage(MSG_RELEASE);
-    try {
-      if (releaseTimeoutMs > 0) {
-        waitUntilReleased(releaseTimeoutMs);
-      } else {
-        waitUntilReleased();
+    boolean wasInterrupted = false;
+    while (!released) {
+      try {
+        wait();
+      } catch (InterruptedException e) {
+        wasInterrupted = true;
       }
-    } catch (InterruptedException e) {
+    }
+    if (wasInterrupted) {
+      // Restore the interrupted status.
       Thread.currentThread().interrupt();
     }
-
-    return released;
   }
 
   public Looper getPlaybackLooper() {
@@ -503,63 +497,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   // Private methods.
-
-  /**
-   * Blocks the current thread until {@link #releaseInternal()} is executed on the playback Thread.
-   *
-   * <p>If the current thread is interrupted while waiting for {@link #releaseInternal()} to
-   * complete, this method will delay throwing the {@link InterruptedException} to ensure that the
-   * underlying resources have been released, and will an {@link InterruptedException} <b>after</b>
-   * {@link #releaseInternal()} is complete.
-   *
-   * @throws {@link InterruptedException} if the current Thread was interrupted while waiting for
-   *     {@link #releaseInternal()} to complete.
-   */
-  private synchronized void waitUntilReleased() throws InterruptedException {
-    InterruptedException interruptedException = null;
-    while (!released) {
-      try {
-        wait();
-      } catch (InterruptedException e) {
-        interruptedException = e;
-      }
-    }
-
-    if (interruptedException != null) {
-      throw interruptedException;
-    }
-  }
-
-  /**
-   * Blocks the current thread until {@link #releaseInternal()} is performed on the playback Thread
-   * or the specified amount of time has elapsed.
-   *
-   * <p>If the current thread is interrupted while waiting for {@link #releaseInternal()} to
-   * complete, this method will delay throwing the {@link InterruptedException} to ensure that the
-   * underlying resources have been released or the operation timed out, and will throw an {@link
-   * InterruptedException} afterwards.
-   *
-   * @param timeoutMs the time in milliseconds to wait for {@link #releaseInternal()} to complete.
-   * @throws {@link InterruptedException} if the current Thread was interrupted while waiting for
-   *     {@link #releaseInternal()} to complete.
-   */
-  private synchronized void waitUntilReleased(long timeoutMs) throws InterruptedException {
-    long deadlineMs = clock.elapsedRealtime() + timeoutMs;
-    long remainingMs = timeoutMs;
-    InterruptedException interruptedException = null;
-    while (!released && remainingMs > 0) {
-      try {
-        wait(remainingMs);
-      } catch (InterruptedException e) {
-        interruptedException = e;
-      }
-      remainingMs = deadlineMs - clock.elapsedRealtime();
-    }
-
-    if (interruptedException != null) {
-      throw interruptedException;
-    }
-  }
 
   private void setState(int state) {
     if (playbackInfo.playbackState != state) {
