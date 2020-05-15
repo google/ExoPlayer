@@ -102,11 +102,23 @@ public final class ImaAdsLoader
   /** Builder for {@link ImaAdsLoader}. */
   public static final class Builder {
 
+    /**
+     * The default duration in milliseconds for which the player must buffer while preloading an ad
+     * group before that ad group is skipped and marked as having failed to load.
+     *
+     * <p>This value should be large enough not to trigger discarding the ad when it actually might
+     * load soon, but small enough so that user is not waiting for too long.
+     *
+     * @see #setAdPreloadTimeoutMs(long)
+     */
+    public static final long DEFAULT_AD_PRELOAD_TIMEOUT_MS = 10 * C.MILLIS_PER_SECOND;
+
     private final Context context;
 
     @Nullable private ImaSdkSettings imaSdkSettings;
     @Nullable private AdEventListener adEventListener;
     @Nullable private Set<UiElement> adUiElements;
+    private long adPreloadTimeoutMs;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
     private int mediaBitrate;
@@ -120,6 +132,7 @@ public final class ImaAdsLoader
      */
     public Builder(Context context) {
       this.context = Assertions.checkNotNull(context);
+      adPreloadTimeoutMs = DEFAULT_AD_PRELOAD_TIMEOUT_MS;
       vastLoadTimeoutMs = TIMEOUT_UNSET;
       mediaLoadTimeoutMs = TIMEOUT_UNSET;
       mediaBitrate = BITRATE_UNSET;
@@ -162,6 +175,25 @@ public final class ImaAdsLoader
      */
     public Builder setAdUiElements(Set<UiElement> adUiElements) {
       this.adUiElements = new HashSet<>(Assertions.checkNotNull(adUiElements));
+      return this;
+    }
+
+    /**
+     * Sets the duration in milliseconds for which the player must buffer while preloading an ad
+     * group before that ad group is skipped and marked as having failed to load. Pass {@link
+     * C#TIME_UNSET} if there should be no such timeout. The default value is {@value
+     * DEFAULT_AD_PRELOAD_TIMEOUT_MS} ms.
+     *
+     * <p>The purpose of this timeout is to avoid playback getting stuck in the unexpected case that
+     * the IMA SDK does not load an ad break based on the player's reported content position.
+     *
+     * @param adPreloadTimeoutMs The timeout buffering duration in milliseconds, or {@link
+     *     C#TIME_UNSET} for no timeout.
+     * @return This builder, for convenience.
+     */
+    public Builder setAdPreloadTimeoutMs(long adPreloadTimeoutMs) {
+      Assertions.checkArgument(adPreloadTimeoutMs == C.TIME_UNSET || adPreloadTimeoutMs > 0);
+      this.adPreloadTimeoutMs = adPreloadTimeoutMs;
       return this;
     }
 
@@ -238,6 +270,7 @@ public final class ImaAdsLoader
           adTagUri,
           imaSdkSettings,
           /* adsResponse= */ null,
+          adPreloadTimeoutMs,
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
           mediaBitrate,
@@ -260,6 +293,7 @@ public final class ImaAdsLoader
           /* adTagUri= */ null,
           imaSdkSettings,
           adsResponse,
+          adPreloadTimeoutMs,
           vastLoadTimeoutMs,
           mediaLoadTimeoutMs,
           mediaBitrate,
@@ -291,7 +325,12 @@ public final class ImaAdsLoader
    * Threshold before the end of content at which IMA is notified that content is complete if the
    * player buffers, in milliseconds.
    */
-  private static final long END_OF_CONTENT_THRESHOLD_MS = 5000;
+  private static final long THRESHOLD_END_OF_CONTENT_MS = 5000;
+  /**
+   * Threshold before the start of an ad at which IMA is expected to be able to preload the ad, in
+   * milliseconds.
+   */
+  private static final long THRESHOLD_AD_PRELOAD_MS = 4000;
 
   private static final int TIMEOUT_UNSET = -1;
   private static final int BITRATE_UNSET = -1;
@@ -317,6 +356,7 @@ public final class ImaAdsLoader
 
   @Nullable private final Uri adTagUri;
   @Nullable private final String adsResponse;
+  private final long adPreloadTimeoutMs;
   private final int vastLoadTimeoutMs;
   private final int mediaLoadTimeoutMs;
   private final boolean focusSkipButtonWhenAvailable;
@@ -398,6 +438,11 @@ public final class ImaAdsLoader
   private long pendingContentPositionMs;
   /** Whether {@link #getContentProgress()} has sent {@link #pendingContentPositionMs} to IMA. */
   private boolean sentPendingContentPositionMs;
+  /**
+   * Stores the real time in milliseconds at which the player started buffering, possibly due to not
+   * having preloaded an ad, or {@link C#TIME_UNSET} if not applicable.
+   */
+  private long waitingForPreloadElapsedRealtimeMs;
 
   /**
    * Creates a new IMA ads loader.
@@ -415,6 +460,7 @@ public final class ImaAdsLoader
         adTagUri,
         /* imaSdkSettings= */ null,
         /* adsResponse= */ null,
+        /* adPreloadTimeoutMs= */ Builder.DEFAULT_AD_PRELOAD_TIMEOUT_MS,
         /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
         /* mediaBitrate= */ BITRATE_UNSET,
@@ -430,6 +476,7 @@ public final class ImaAdsLoader
       @Nullable Uri adTagUri,
       @Nullable ImaSdkSettings imaSdkSettings,
       @Nullable String adsResponse,
+      long adPreloadTimeoutMs,
       int vastLoadTimeoutMs,
       int mediaLoadTimeoutMs,
       int mediaBitrate,
@@ -440,6 +487,7 @@ public final class ImaAdsLoader
     Assertions.checkArgument(adTagUri != null || adsResponse != null);
     this.adTagUri = adTagUri;
     this.adsResponse = adsResponse;
+    this.adPreloadTimeoutMs = adPreloadTimeoutMs;
     this.vastLoadTimeoutMs = vastLoadTimeoutMs;
     this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
     this.mediaBitrate = mediaBitrate;
@@ -473,6 +521,7 @@ public final class ImaAdsLoader
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
     fakeContentProgressOffsetMs = C.TIME_UNSET;
     pendingContentPositionMs = C.TIME_UNSET;
+    waitingForPreloadElapsedRealtimeMs = C.TIME_UNSET;
     contentDurationMs = C.TIME_UNSET;
     timeline = Timeline.EMPTY;
     adPlaybackState = AdPlaybackState.NONE;
@@ -636,6 +685,7 @@ public final class ImaAdsLoader
     imaPausedContent = false;
     imaAdState = IMA_AD_STATE_NONE;
     imaAdMediaInfo = null;
+    stopUpdatingAdProgress();
     imaAdInfo = null;
     pendingAdLoadError = null;
     adPlaybackState = AdPlaybackState.NONE;
@@ -737,6 +787,19 @@ public final class ImaAdsLoader
     if (DEBUG) {
       Log.d(TAG, "Content progress: " + videoProgressUpdate);
     }
+
+    if (waitingForPreloadElapsedRealtimeMs != C.TIME_UNSET) {
+      // IMA is polling the player position but we are buffering for an ad to preload, so playback
+      // may be stuck. Detect this case and signal an error if applicable.
+      long stuckElapsedRealtimeMs =
+          SystemClock.elapsedRealtime() - waitingForPreloadElapsedRealtimeMs;
+      if (stuckElapsedRealtimeMs >= THRESHOLD_AD_PRELOAD_MS) {
+        waitingForPreloadElapsedRealtimeMs = C.TIME_UNSET;
+        handleAdGroupLoadError(new IOException("Ad preloading timed out"));
+        maybeNotifyPendingAdLoadError();
+      }
+    }
+
     return videoProgressUpdate;
   }
 
@@ -779,10 +842,15 @@ public final class ImaAdsLoader
         // Drop events after release.
         return;
       }
-      int adGroupIndex = getAdGroupIndex(adPodInfo);
+      int adGroupIndex = getAdGroupIndexForAdPod(adPodInfo);
       int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
       AdInfo adInfo = new AdInfo(adGroupIndex, adIndexInAdGroup);
       adInfoByAdMediaInfo.put(adMediaInfo, adInfo);
+      if (adPlaybackState.isAdInErrorState(adGroupIndex, adIndexInAdGroup)) {
+        // We have already marked this ad as having failed to load, so ignore the request. IMA will
+        // timeout after its media load timeout.
+        return;
+      }
       AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adInfo.adGroupIndex];
       if (adGroup.count == C.LENGTH_UNSET) {
         adPlaybackState =
@@ -926,9 +994,34 @@ public final class ImaAdsLoader
 
   @Override
   public void onPlaybackStateChanged(@Player.State int playbackState) {
+    @Nullable Player player = this.player;
     if (adsManager == null || player == null) {
       return;
     }
+
+    if (playbackState == Player.STATE_BUFFERING && !player.isPlayingAd()) {
+      // Check whether we are waiting for an ad to preload.
+      int adGroupIndex = getLoadingAdGroupIndex();
+      if (adGroupIndex == C.INDEX_UNSET) {
+        return;
+      }
+      AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+      if (adGroup.count != C.LENGTH_UNSET
+          && adGroup.count != 0
+          && adGroup.states[0] != AdPlaybackState.AD_STATE_UNAVAILABLE) {
+        // An ad is available already so we must be buffering for some other reason.
+        return;
+      }
+      long adGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+      long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
+      long timeUntilAdMs = adGroupTimeMs - contentPositionMs;
+      if (timeUntilAdMs < adPreloadTimeoutMs) {
+        waitingForPreloadElapsedRealtimeMs = SystemClock.elapsedRealtime();
+      }
+    } else if (playbackState == Player.STATE_READY) {
+      waitingForPreloadElapsedRealtimeMs = C.TIME_UNSET;
+    }
+
     handlePlayerStateChanged(player.getPlayWhenReady(), playbackState);
   }
 
@@ -1228,6 +1321,10 @@ public final class ImaAdsLoader
     Assertions.checkNotNull(imaAdInfo);
     int adGroupIndex = imaAdInfo.adGroupIndex;
     int adIndexInAdGroup = imaAdInfo.adIndexInAdGroup;
+    if (adPlaybackState.isAdInErrorState(adGroupIndex, adIndexInAdGroup)) {
+      // We have already marked this ad as having failed to load, so ignore the request.
+      return;
+    }
     adPlaybackState =
         adPlaybackState.withPlayedAd(adGroupIndex, adIndexInAdGroup).withAdResumePositionUs(0);
     updateAdPlaybackState();
@@ -1242,19 +1339,11 @@ public final class ImaAdsLoader
       return;
     }
 
-    // TODO: Once IMA signals which ad group failed to load, clean up this code.
-    long playerPositionMs = player.getContentPosition();
-    int adGroupIndex =
-        adPlaybackState.getAdGroupIndexForPositionUs(
-            C.msToUs(playerPositionMs), C.msToUs(contentDurationMs));
+    // TODO: Once IMA signals which ad group failed to load, remove this call.
+    int adGroupIndex = getLoadingAdGroupIndex();
     if (adGroupIndex == C.INDEX_UNSET) {
-      adGroupIndex =
-          adPlaybackState.getAdGroupIndexAfterPositionUs(
-              C.msToUs(playerPositionMs), C.msToUs(contentDurationMs));
-      if (adGroupIndex == C.INDEX_UNSET) {
-        // The error doesn't seem to relate to any ad group so give up handling it.
-        return;
-      }
+      Log.w(TAG, "Unable to determine ad group index for ad group load error", error);
+      return;
     }
 
     AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
@@ -1321,7 +1410,7 @@ public final class ImaAdsLoader
     if (!sentContentComplete
         && contentDurationMs != C.TIME_UNSET
         && pendingContentPositionMs == C.TIME_UNSET
-        && positionMs + END_OF_CONTENT_THRESHOLD_MS >= contentDurationMs) {
+        && positionMs + THRESHOLD_END_OF_CONTENT_MS >= contentDurationMs) {
       adsLoader.contentComplete();
       if (DEBUG) {
         Log.d(TAG, "adsLoader.contentComplete");
@@ -1359,7 +1448,7 @@ public final class ImaAdsLoader
     }
   }
 
-  private int getAdGroupIndex(AdPodInfo adPodInfo) {
+  private int getAdGroupIndexForAdPod(AdPodInfo adPodInfo) {
     if (adPodInfo.getPodIndex() == -1) {
       // This is a postroll ad.
       return adPlaybackState.adGroupCount - 1;
@@ -1375,6 +1464,23 @@ public final class ImaAdsLoader
     throw new IllegalStateException("Failed to find cue point");
   }
 
+  /**
+   * Returns the index of the ad group that will preload next, or {@link C#INDEX_UNSET} if there is
+   * no such ad group.
+   */
+  private int getLoadingAdGroupIndex() {
+    long playerPositionUs =
+        C.msToUs(getContentPeriodPositionMs(Assertions.checkNotNull(player), timeline, period));
+    int adGroupIndex =
+        adPlaybackState.getAdGroupIndexForPositionUs(playerPositionUs, C.msToUs(contentDurationMs));
+    if (adGroupIndex == C.INDEX_UNSET) {
+      adGroupIndex =
+          adPlaybackState.getAdGroupIndexAfterPositionUs(
+              playerPositionUs, C.msToUs(contentDurationMs));
+    }
+    return adGroupIndex;
+  }
+
   private String getAdMediaInfoString(AdMediaInfo adMediaInfo) {
     @Nullable AdInfo adInfo = adInfoByAdMediaInfo.get(adMediaInfo);
     return "AdMediaInfo[" + adMediaInfo.getUrl() + (adInfo != null ? ", " + adInfo : "") + "]";
@@ -1388,7 +1494,9 @@ public final class ImaAdsLoader
       Player player, Timeline timeline, Timeline.Period period) {
     long contentWindowPositionMs = player.getContentPosition();
     return contentWindowPositionMs
-        - timeline.getPeriod(/* periodIndex= */ 0, period).getPositionInWindowMs();
+        - (timeline.isEmpty()
+            ? 0
+            : timeline.getPeriod(/* periodIndex= */ 0, period).getPositionInWindowMs());
   }
 
   private static long[] getAdGroupTimesUs(List<Float> cuePoints) {

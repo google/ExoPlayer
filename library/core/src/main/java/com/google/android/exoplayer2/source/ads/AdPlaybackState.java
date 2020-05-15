@@ -360,6 +360,18 @@ public final class AdPlaybackState {
     return index < adGroupTimesUs.length ? index : C.INDEX_UNSET;
   }
 
+  /** Returns whether the specified ad has been marked as in {@link #AD_STATE_ERROR}. */
+  public boolean isAdInErrorState(int adGroupIndex, int adIndexInAdGroup) {
+    if (adGroupIndex >= adGroups.length) {
+      return false;
+    }
+    AdGroup adGroup = adGroups[adGroupIndex];
+    if (adGroup.count == C.LENGTH_UNSET || adIndexInAdGroup >= adGroup.count) {
+      return false;
+    }
+    return adGroup.states[adIndexInAdGroup] == AdPlaybackState.AD_STATE_ERROR;
+  }
+
   /**
    * Returns an instance with the number of ads in {@code adGroupIndex} resolved to {@code adCount}.
    * The ad count must be greater than zero.
