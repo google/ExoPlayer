@@ -69,9 +69,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>>,
         ChunkSampleStream.ReleaseCallback<DashChunkSource> {
 
-  private enum CC_TYPE {
-    CEA608, CEA708
-  }
   private static final Pattern CEA608_SERVICE_DESCRIPTOR_REGEX = Pattern.compile("CC([1-4])=(.+)");
   private static final Pattern CEA708_SERVICE_DESCRIPTOR_REGEX = Pattern.compile("([1-4])=lang:(\\w+)(,.+)?");
 
@@ -836,89 +833,56 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     for (int i : adaptationSetIndices) {
       AdaptationSet adaptationSet = adaptationSets.get(i);
       List<Descriptor> descriptors = adaptationSets.get(i).accessibilityDescriptors;
-      for (Descriptor descriptor : descriptors) {
-        return parseClosedCaptionsDescriptor(adaptationSet.id, descriptor);
+      for (int j = 0; j < descriptors.size(); j++) {
+        Descriptor descriptor = descriptors.get(j);
+        if ("urn:scte:dash:cc:cea-608:2015".equals(descriptor.schemeIdUri)) {
+          Format cea608Format =
+              new Format.Builder()
+                  .setSampleMimeType(MimeTypes.APPLICATION_CEA608)
+                  .setId(adaptationSet.id + ":cea608")
+                  .build();
+          return parseClosedCaptionsDescriptor(
+              descriptor, CEA608_SERVICE_DESCRIPTOR_REGEX, cea608Format);
+        } else if ("urn:scte:dash:cc:cea-708:2015".equals(descriptor.schemeIdUri)) {
+          Format cea708Format =
+              new Format.Builder()
+                  .setSampleMimeType(MimeTypes.APPLICATION_CEA708)
+                  .setId(adaptationSet.id + ":cea708")
+                  .build();
+          return parseClosedCaptionsDescriptor(
+              descriptor, CEA708_SERVICE_DESCRIPTOR_REGEX, cea708Format);
+        }
       }
     }
     return new Format[0];
   }
 
-  private static Format[] parseClosedCaptionsDescriptor(int adaptationSetId, Descriptor descriptor) {
-    if ("urn:scte:dash:cc:cea-708:2015".equals(descriptor.schemeIdUri)) {
-      return parseClosedCaptionsDescriptor(adaptationSetId, CC_TYPE.CEA708, descriptor);
-    } else if ("urn:scte:dash:cc:cea-608:2015".equals(descriptor.schemeIdUri)) {
-      return parseClosedCaptionsDescriptor(adaptationSetId, CC_TYPE.CEA608, descriptor);
-    }
-    return null;
-  }
-
+  @SuppressWarnings("ConstantConditions")
   private static Format[] parseClosedCaptionsDescriptor(
-      int adaptationSetId, CC_TYPE type, Descriptor descriptor) {
-    String value = descriptor.value;
+      Descriptor descriptor, Pattern serviceDescriptorRegex, Format baseFormat) {
+    @Nullable String value = descriptor.value;
     if (value == null) {
-      // There are embedded closed captions tracks, but service information is not declared.
-      return new Format[] {buildClosedCaptionsTrackFormat(adaptationSetId, type)};
+      // There are embedded closed caption tracks, but service information is not declared.
+      return new Format[] {baseFormat};
     }
     String[] services = Util.split(value, ";");
     Format[] formats = new Format[services.length];
-    for (int k = 0; k < services.length; k++) {
-      Pattern pattern = getClosedCaptionsDescriptorRegex(type);
-      if (pattern == null) {
-        // If we can't parse service information for all services, assume a single track.
-        return new Format[] {buildClosedCaptionsTrackFormat(adaptationSetId, type)};
-      }
-      Matcher matcher = pattern.matcher(services[k]);
+    for (int i = 0; i < services.length; i++) {
+      Matcher matcher = serviceDescriptorRegex.matcher(services[i]);
       if (!matcher.matches()) {
         // If we can't parse service information for all services, assume a single track.
-        return new Format[] {buildClosedCaptionsTrackFormat(adaptationSetId, type)};
+        return new Format[] {baseFormat};
       }
-      formats[k] =
-          buildClosedCaptionsTrackFormat(
-              adaptationSetId,
-              type,
-              /* language= */ matcher.group(2),
-              /* accessibilityChannel= */ Integer.parseInt(matcher.group(1)));
+      int accessibilityChannel = Integer.parseInt(matcher.group(1));
+      formats[i] =
+          baseFormat
+              .buildUpon()
+              .setId(baseFormat.id + ":" + accessibilityChannel)
+              .setAccessibilityChannel(accessibilityChannel)
+              .setLanguage(matcher.group(2))
+              .build();
     }
     return formats;
-  }
-
-  private static Format buildClosedCaptionsTrackFormat(int adaptationSetId, CC_TYPE type) {
-    return buildClosedCaptionsTrackFormat(
-        adaptationSetId, type, /* language= */ null, /* accessibilityChannel= */ Format.NO_VALUE);
-  }
-
-  private static Format buildClosedCaptionsTrackFormat(
-      int adaptationSetId, CC_TYPE type, @Nullable String language, int accessibilityChannel) {
-    String id =
-        adaptationSetId
-            + ":" + type.toString().toLowerCase()
-            + (accessibilityChannel != Format.NO_VALUE ? ":" + accessibilityChannel : "");
-    return new Format.Builder()
-        .setId(id)
-        .setSampleMimeType(getClosedCaptionsMimeType(type))
-        .setLanguage(language)
-        .setAccessibilityChannel(accessibilityChannel)
-        .build();
-  }
-
-  private static String getClosedCaptionsMimeType(CC_TYPE type) {
-    switch (type) {
-      case CEA608:
-        return MimeTypes.APPLICATION_CEA608;
-      case CEA708:
-        return MimeTypes.APPLICATION_CEA708;
-    }
-    return null;
-  }
-
-  private static Pattern getClosedCaptionsDescriptorRegex(CC_TYPE type) {
-    switch (type) {
-      case CEA608:
-        return CEA608_SERVICE_DESCRIPTOR_REGEX;
-      case CEA708:
-        return CEA708_SERVICE_DESCRIPTOR_REGEX;
-    }
-    return null;
   }
 
   // We won't assign the array to a variable that erases the generic type, and then write into it.
