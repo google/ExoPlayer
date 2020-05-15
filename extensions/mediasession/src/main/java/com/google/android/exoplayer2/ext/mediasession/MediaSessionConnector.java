@@ -987,7 +987,9 @@ public final class MediaSessionConnector {
       @Player.State int exoPlayerPlaybackState, boolean playWhenReady) {
     switch (exoPlayerPlaybackState) {
       case Player.STATE_BUFFERING:
-        return PlaybackStateCompat.STATE_BUFFERING;
+        return playWhenReady
+            ? PlaybackStateCompat.STATE_BUFFERING
+            : PlaybackStateCompat.STATE_PAUSED;
       case Player.STATE_READY:
         return playWhenReady ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
       case Player.STATE_ENDED:

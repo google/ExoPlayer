@@ -29,6 +29,9 @@
     Services rather than Cronet Embedded. This allows Cronet to be used with a
     negligible increase in application size, compared to approximately 8MB when
     embedding the library.
+*   MediaSession extension: Set session playback state to BUFFERING only when
+    actually playing ([#7367](https://github.com/google/ExoPlayer/pull/7367),
+    [#7206](https://github.com/google/ExoPlayer/issues/7206)).
 *   DownloadService: Fix "Not allowed to start service" `IllegalStateException`.
 
 ### 2.11.4 (2020-04-08) ###
