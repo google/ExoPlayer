@@ -1255,15 +1255,21 @@ public final class AnalyticsCollectorTest {
     @Override
     public String toString() {
       return mediaPeriodId != null
-          ? "Event{"
+          ? "{"
               + "window="
               + windowIndex
-              + ", period="
-              + mediaPeriodId.periodUid
               + ", sequence="
               + mediaPeriodId.windowSequenceNumber
+              + (mediaPeriodId.adGroupIndex != C.INDEX_UNSET
+                  ? ", adGroup="
+                      + mediaPeriodId.adGroupIndex
+                      + ", adIndexInGroup="
+                      + mediaPeriodId.adIndexInAdGroup
+                  : "")
+              + ", period.hashCode="
+              + mediaPeriodId.periodUid.hashCode()
               + '}'
-          : "Event{" + "window=" + windowIndex + ", period = null}";
+          : "{" + "window=" + windowIndex + ", period = null}";
     }
 
     @Override
@@ -1534,12 +1540,7 @@ public final class AnalyticsCollectorTest {
 
       @Override
       public String toString() {
-        return "ReportedEvent{"
-            + "type="
-            + eventType
-            + ", windowAndPeriodId="
-            + eventWindowAndPeriodId
-            + '}';
+        return "{" + "type=" + eventType + ", windowAndPeriodId=" + eventWindowAndPeriodId + '}';
       }
     }
   }
