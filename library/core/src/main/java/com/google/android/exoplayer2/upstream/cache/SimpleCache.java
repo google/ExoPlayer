@@ -471,7 +471,7 @@ public final class SimpleCache implements Cache {
   }
 
   @Override
-  public synchronized void removeSpans(String key) {
+  public synchronized void removeResource(String key) {
     Assertions.checkState(!released);
     for (CacheSpan span : getCachedSpans(key)) {
       removeSpanInternal(span);

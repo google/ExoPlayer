@@ -205,13 +205,13 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       M manifest = getManifest(dataSource, manifestDataSpec);
       List<Segment> segments = getSegments(dataSource, manifest, true);
       for (int i = 0; i < segments.size(); i++) {
-        cache.removeSpans(cacheKeyFactory.buildCacheKey(segments.get(i).dataSpec));
+        cache.removeResource(cacheKeyFactory.buildCacheKey(segments.get(i).dataSpec));
       }
     } catch (IOException e) {
       // Ignore exceptions when removing.
     } finally {
       // Always attempt to remove the manifest.
-      cache.removeSpans(cacheKeyFactory.buildCacheKey(manifestDataSpec));
+      cache.removeResource(cacheKeyFactory.buildCacheKey(manifestDataSpec));
     }
   }
 

@@ -24,7 +24,20 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 /**
- * An interface for cache.
+ * A cache that supports partial caching of resources.
+ *
+ * <h3>Terminology</h3>
+ *
+ * <ul>
+ *   <li>A <em>resource</em> is a complete piece of logical data, for example a complete media file.
+ *   <li>A <em>cache key</em> uniquely identifies a resource. URIs are often suitable for use as
+ *       cache keys, however this is not always the case. URIs are not suitable when caching
+ *       resources obtained from a service that generates multiple URIs for the same underlying
+ *       resource, for example because the service uses expiring URIs as a form of access control.
+ *   <li>A <em>cache span</em> is a byte range within a resource, which may or may not be cached. A
+ *       cache span that's not cached is called a <em>hole span</em>. A cache span that is cached
+ *       corresponds to a single underlying file in the cache.
+ * </ul>
  */
 public interface Cache {
 
@@ -108,51 +121,45 @@ public interface Cache {
   void release();
 
   /**
-   * Registers a listener to listen for changes to a given key.
+   * Registers a listener to listen for changes to a given resource.
    *
    * <p>No guarantees are made about the thread or threads on which the listener is called, but it
    * is guaranteed that listener methods will be called in a serial fashion (i.e. one at a time) and
    * in the same order as events occurred.
    *
-   * @param key The key to listen to.
+   * @param key The cache key of the resource.
    * @param listener The listener to add.
-   * @return The current spans for the key.
+   * @return The current spans for the resource.
    */
   NavigableSet<CacheSpan> addListener(String key, Listener listener);
 
   /**
    * Unregisters a listener.
    *
-   * @param key The key to stop listening to.
+   * @param key The cache key of the resource.
    * @param listener The listener to remove.
    */
   void removeListener(String key, Listener listener);
 
   /**
-   * Returns the cached spans for a given cache key.
+   * Returns the cached spans for a given resource.
    *
-   * @param key The key for which spans should be returned.
+   * @param key The cache key of the resource.
    * @return The spans for the key.
    */
   NavigableSet<CacheSpan> getCachedSpans(String key);
 
-  /**
-   * Returns all keys in the cache.
-   *
-   * @return All the keys in the cache.
-   */
+  /** Returns the cache keys of all of the resources that are at least partially cached. */
   Set<String> getKeys();
 
   /**
    * Returns the total disk space in bytes used by the cache.
-   *
-   * @return The total disk space in bytes.
    */
   long getCacheSpace();
 
   /**
-   * A caller should invoke this method when they require data from a given position for a given
-   * key.
+   * A caller should invoke this method when they require data starting from a given position in a
+   * given resource.
    *
    * <p>If there is a cache entry that overlaps the position, then the returned {@link CacheSpan}
    * defines the file in which the data is stored. {@link CacheSpan#isCached} is true. The caller
@@ -168,8 +175,8 @@ public interface Cache {
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
-   * @param key The key of the data being requested.
-   * @param position The position of the data being requested.
+   * @param key The cache key of the resource.
+   * @param position The starting position in the resource from which data is required.
    * @return The {@link CacheSpan}.
    * @throws InterruptedException If the thread was interrupted.
    * @throws CacheException If an error is encountered.
@@ -183,8 +190,8 @@ public interface Cache {
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
-   * @param key The key of the data being requested.
-   * @param position The position of the data being requested.
+   * @param key The cache key of the resource.
+   * @param position The starting position in the resource from which data is required.
    * @return The {@link CacheSpan}. Or null if the cache entry is locked.
    * @throws CacheException If an error is encountered.
    */
@@ -198,8 +205,8 @@ public interface Cache {
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
-   * @param key The cache key for the data.
-   * @param position The starting position of the data.
+   * @param key The cache key of the resource being written.
+   * @param position The starting position in the resource from which data will be written.
    * @param length The length of the data being written, or {@link C#LENGTH_UNSET} if unknown. Used
    *     only to ensure that there is enough space in the cache.
    * @return The file into which data should be written.
@@ -230,12 +237,12 @@ public interface Cache {
   void releaseHoleSpan(CacheSpan holeSpan);
 
   /**
-   * Removes all {@link CacheSpan CacheSpans} with the given key, deleting the underlying files.
+   * Removes all {@link CacheSpan CacheSpans} for a resource, deleting the underlying files.
    *
-   * @param key The cache key for the data.
+   * @param key The cache key of the resource being removed.
    */
   @WorkerThread
-  void removeSpans(String key);
+  void removeResource(String key);
 
   /**
    * Removes a cached {@link CacheSpan} from the cache, deleting the underlying file.
@@ -248,34 +255,36 @@ public interface Cache {
   void removeSpan(CacheSpan span);
 
   /**
-   * Queries if a range is entirely available in the cache.
+   * Returns whether the specified range of data in a resource is fully cached.
    *
-   * @param key The cache key for the data.
-   * @param position The starting position of the data.
+   * @param key The cache key of the resource.
+   * @param position The starting position of the data in the resource.
    * @param length The length of the data.
    * @return true if the data is available in the Cache otherwise false;
    */
   boolean isCached(String key, long position, long length);
 
   /**
-   * Returns the length of the cached data block starting from the {@code position} to the block end
-   * up to {@code length} bytes. If the {@code position} isn't cached then -(the length of the gap
-   * to the next cached data up to {@code length} bytes) is returned.
+   * Returns the length of continuously cached data starting from {@code position}, up to a maximum
+   * of {@code maxLength}, of a resource. If {@code position} isn't cached then {@code -holeLength}
+   * is returned, where {@code holeLength} is the length of continuously uncached data starting from
+   * {@code position}, up to a maximum of {@code maxLength}.
    *
-   * @param key The cache key for the data.
-   * @param position The starting position of the data.
-   * @param length The maximum length of the data to be returned.
-   * @return The length of the cached or not cached data block length.
+   * @param key The cache key of the resource.
+   * @param position The starting position of the data in the resource.
+   * @param length The maximum length of the data or hole to be returned.
+   * @return The length of the continuously cached data, or {@code -holeLength} if {@code position}
+   *     isn't cached.
    */
   long getCachedLength(String key, long position, long length);
 
   /**
-   * Applies {@code mutations} to the {@link ContentMetadata} for the given key. A new {@link
-   * CachedContent} is added if there isn't one already with the given key.
+   * Applies {@code mutations} to the {@link ContentMetadata} for the given resource. A new {@link
+   * CachedContent} is added if there isn't one already for the resource.
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
-   * @param key The cache key for the data.
+   * @param key The cache key of the resource.
    * @param mutations Contains mutations to be applied to the metadata.
    * @throws CacheException If an error is encountered.
    */
@@ -284,10 +293,10 @@ public interface Cache {
       throws CacheException;
 
   /**
-   * Returns a {@link ContentMetadata} for the given key.
+   * Returns a {@link ContentMetadata} for the given resource.
    *
-   * @param key The cache key for the data.
-   * @return A {@link ContentMetadata} for the given key.
+   * @param key The cache key of the resource.
+   * @return The {@link ContentMetadata} for the resource.
    */
   ContentMetadata getContentMetadata(String key);
 }

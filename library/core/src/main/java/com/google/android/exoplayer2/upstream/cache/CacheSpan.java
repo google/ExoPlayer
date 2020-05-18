@@ -24,13 +24,9 @@ import java.io.File;
  */
 public class CacheSpan implements Comparable<CacheSpan> {
 
-  /**
-   * The cache key that uniquely identifies the original stream.
-   */
+  /** The cache key that uniquely identifies the resource. */
   public final String key;
-  /**
-   * The position of the {@link CacheSpan} in the original stream.
-   */
+  /** The position of the {@link CacheSpan} in the resource. */
   public final long position;
   /**
    * The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an open-ended hole.
@@ -49,8 +45,8 @@ public class CacheSpan implements Comparable<CacheSpan> {
    * Creates a hole CacheSpan which isn't cached, has no last touch timestamp and no file
    * associated.
    *
-   * @param key The cache key that uniquely identifies the original stream.
-   * @param position The position of the {@link CacheSpan} in the original stream.
+   * @param key The cache key that uniquely identifies the resource.
+   * @param position The position of the {@link CacheSpan} in the resource.
    * @param length The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an
    *     open-ended hole.
    */
@@ -61,8 +57,8 @@ public class CacheSpan implements Comparable<CacheSpan> {
   /**
    * Creates a CacheSpan.
    *
-   * @param key The cache key that uniquely identifies the original stream.
-   * @param position The position of the {@link CacheSpan} in the original stream.
+   * @param key The cache key that uniquely identifies the resource.
+   * @param position The position of the {@link CacheSpan} in the resource.
    * @param length The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an
    *     open-ended hole.
    * @param lastTouchTimestamp The last touch timestamp, or {@link C#TIME_UNSET} if {@link
