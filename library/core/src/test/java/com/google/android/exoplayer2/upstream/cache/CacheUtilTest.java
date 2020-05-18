@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
@@ -29,7 +28,6 @@ import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.File;
@@ -285,35 +283,6 @@ public final class CacheUtilTest {
 
     counters.assertValues(0, 300, 300);
     assertCachedData(cache, fakeDataSet);
-  }
-
-  @Test
-  public void remove() throws Exception {
-    FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
-    FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
-
-    DataSpec dataSpec =
-        new DataSpec.Builder()
-            .setUri("test_data")
-            .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
-            .build();
-    CacheUtil.cache(
-        // Set fragmentSize to 10 to make sure there are multiple spans.
-        new CacheDataSource(
-            cache,
-            dataSource,
-            new FileDataSource(),
-            new CacheDataSink(cache, /* fragmentSize= */ 10),
-            /* flags= */ 0,
-            /* eventListener= */ null),
-        dataSpec,
-        /* progressListener= */ null,
-        /* isCanceled= */ null,
-        /* enableEOFException= */ true,
-        /* temporaryBuffer= */ new byte[CacheUtil.DEFAULT_BUFFER_SIZE_BYTES]);
-    CacheUtil.remove(dataSpec, cache, /* cacheKeyFactory= */ null);
-
-    assertCacheEmpty(cache);
   }
 
   private static final class CachingCounters implements CacheUtil.ProgressListener {
