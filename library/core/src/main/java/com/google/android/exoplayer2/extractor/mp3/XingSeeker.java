@@ -60,7 +60,7 @@ import com.google.android.exoplayer2.util.Util;
       return new XingSeeker(position, mpegAudioHeader.frameSize, durationUs);
     }
 
-    long dataSize = frame.readUnsignedIntToInt();
+    long dataSize = frame.readUnsignedInt();
     long[] tableOfContents = new long[100];
     for (int i = 0; i < 100; i++) {
       tableOfContents[i] = frame.readUnsignedByte();

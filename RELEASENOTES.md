@@ -17,6 +17,8 @@
         marked with the `C.ROLE_FLAG_TRICK_PLAY` flag.
     *   Fix assertion failure in `SampleQueue` when playing DASH streams with
         EMSG tracks ([#7273](https://github.com/google/ExoPlayer/issues/7273)).
+*   MP3: Allow MP3 files with XING headers that are larger than 2GB to be played
+    ([#7337](https://github.com/google/ExoPlayer/issues/7337)).
 *   MPEG-TS: Fix issue where SEI NAL units were incorrectly dropped from H.265
     samples ([#7113](https://github.com/google/ExoPlayer/issues/7113)).
 *   Text
