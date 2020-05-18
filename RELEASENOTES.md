@@ -26,6 +26,11 @@
         average video frame processing offset.
     *   Add playlist API
         ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
+    *   Attach an identifier and extra information to load error events passed
+        to `LoadErrorHandlingPolicy`. `LoadErrorHandlingPolicy` implementations
+        must migrate to overriding the non-deprecated methods of the interface
+        in preparation for deprecated methods' removal in a future ExoPlayer
+        version ([#7309](https://github.com/google/ExoPlayer/issues/7309)).
     *   Add `play` and `pause` methods to `Player`.
     *   Add `Player.getCurrentLiveOffset` to conveniently return the live
         offset.
