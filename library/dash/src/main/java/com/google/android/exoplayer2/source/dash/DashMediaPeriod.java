@@ -69,7 +69,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         SequenceableLoader.Callback<ChunkSampleStream<DashChunkSource>>,
         ChunkSampleStream.ReleaseCallback<DashChunkSource> {
 
+  // Defined by ANSI/SCTE 214-1 2016 7.2.3.
   private static final Pattern CEA608_SERVICE_DESCRIPTOR_REGEX = Pattern.compile("CC([1-4])=(.+)");
+  // Defined by ANSI/SCTE 214-1 2016 7.2.2.
+  private static final Pattern CEA708_SERVICE_DESCRIPTOR_REGEX =
+      Pattern.compile("([1-4])=lang:(\\w+)(,.+)?");
 
   /* package */ final int id;
   private final DashChunkSource.Factory chunkSourceFactory;
@@ -835,49 +839,52 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       for (int j = 0; j < descriptors.size(); j++) {
         Descriptor descriptor = descriptors.get(j);
         if ("urn:scte:dash:cc:cea-608:2015".equals(descriptor.schemeIdUri)) {
-          @Nullable String value = descriptor.value;
-          if (value == null) {
-            // There are embedded CEA-608 tracks, but service information is not declared.
-            return new Format[] {buildCea608TrackFormat(adaptationSet.id)};
-          }
-          String[] services = Util.split(value, ";");
-          Format[] formats = new Format[services.length];
-          for (int k = 0; k < services.length; k++) {
-            Matcher matcher = CEA608_SERVICE_DESCRIPTOR_REGEX.matcher(services[k]);
-            if (!matcher.matches()) {
-              // If we can't parse service information for all services, assume a single track.
-              return new Format[] {buildCea608TrackFormat(adaptationSet.id)};
-            }
-            formats[k] =
-                buildCea608TrackFormat(
-                    adaptationSet.id,
-                    /* language= */ matcher.group(2),
-                    /* accessibilityChannel= */ Integer.parseInt(matcher.group(1)));
-          }
-          return formats;
+          Format cea608Format =
+              new Format.Builder()
+                  .setSampleMimeType(MimeTypes.APPLICATION_CEA608)
+                  .setId(adaptationSet.id + ":cea608")
+                  .build();
+          return parseClosedCaptionDescriptor(
+              descriptor, CEA608_SERVICE_DESCRIPTOR_REGEX, cea608Format);
+        } else if ("urn:scte:dash:cc:cea-708:2015".equals(descriptor.schemeIdUri)) {
+          Format cea708Format =
+              new Format.Builder()
+                  .setSampleMimeType(MimeTypes.APPLICATION_CEA708)
+                  .setId(adaptationSet.id + ":cea708")
+                  .build();
+          return parseClosedCaptionDescriptor(
+              descriptor, CEA708_SERVICE_DESCRIPTOR_REGEX, cea708Format);
         }
       }
     }
     return new Format[0];
   }
 
-  private static Format buildCea608TrackFormat(int adaptationSetId) {
-    return buildCea608TrackFormat(
-        adaptationSetId, /* language= */ null, /* accessibilityChannel= */ Format.NO_VALUE);
-  }
-
-  private static Format buildCea608TrackFormat(
-      int adaptationSetId, @Nullable String language, int accessibilityChannel) {
-    String id =
-        adaptationSetId
-            + ":cea608"
-            + (accessibilityChannel != Format.NO_VALUE ? ":" + accessibilityChannel : "");
-    return new Format.Builder()
-        .setId(id)
-        .setSampleMimeType(MimeTypes.APPLICATION_CEA608)
-        .setLanguage(language)
-        .setAccessibilityChannel(accessibilityChannel)
-        .build();
+  private static Format[] parseClosedCaptionDescriptor(
+      Descriptor descriptor, Pattern serviceDescriptorRegex, Format baseFormat) {
+    @Nullable String value = descriptor.value;
+    if (value == null) {
+      // There are embedded closed caption tracks, but service information is not declared.
+      return new Format[] {baseFormat};
+    }
+    String[] services = Util.split(value, ";");
+    Format[] formats = new Format[services.length];
+    for (int i = 0; i < services.length; i++) {
+      Matcher matcher = serviceDescriptorRegex.matcher(services[i]);
+      if (!matcher.matches()) {
+        // If we can't parse service information for all services, assume a single track.
+        return new Format[] {baseFormat};
+      }
+      int accessibilityChannel = Integer.parseInt(matcher.group(1));
+      formats[i] =
+          baseFormat
+              .buildUpon()
+              .setId(baseFormat.id + ":" + accessibilityChannel)
+              .setAccessibilityChannel(accessibilityChannel)
+              .setLanguage(matcher.group(2))
+              .build();
+    }
+    return formats;
   }
 
   // We won't assign the array to a variable that erases the generic type, and then write into it.
