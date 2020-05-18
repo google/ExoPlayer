@@ -37,6 +37,7 @@ dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'com.google.guava:guava:' + guavaVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 

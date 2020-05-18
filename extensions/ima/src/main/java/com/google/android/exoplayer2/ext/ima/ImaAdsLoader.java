@@ -1105,8 +1105,10 @@ public final class ImaAdsLoader
         }
         int adGroupTimeSeconds = Integer.parseInt(adGroupTimeSecondsString);
         int adGroupIndex =
-            Arrays.binarySearch(
-                adPlaybackState.adGroupTimesUs, C.MICROS_PER_SECOND * adGroupTimeSeconds);
+            adGroupTimeSeconds == -1
+                ? adPlaybackState.adGroupCount - 1
+                : Util.linearSearch(
+                    adPlaybackState.adGroupTimesUs, C.MICROS_PER_SECOND * adGroupTimeSeconds);
         AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
         if (adGroup.count == C.LENGTH_UNSET) {
           adPlaybackState =

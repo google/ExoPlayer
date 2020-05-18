@@ -56,6 +56,7 @@ import com.google.android.exoplayer2.source.ads.SinglePeriodAdTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -105,6 +106,7 @@ public final class ImaAdsLoaderTest {
   @Mock private ImaFactory mockImaFactory;
   @Mock private AdPodInfo mockAdPodInfo;
   @Mock private Ad mockPrerollSingleAd;
+  @Mock private AdEvent mockPostrollFetchErrorAdEvent;
 
   private ViewGroup adViewGroup;
   private View adOverlayView;
@@ -253,6 +255,23 @@ public final class ImaAdsLoaderTest {
   }
 
   @Test
+  public void playback_withPostrollFetchError_marksAdAsInErrorState() {
+    setupPlayback(CONTENT_TIMELINE, ADS_DURATIONS_US, new Float[] {-1f});
+
+    // Simulate loading an empty postroll ad.
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
+    imaAdsLoader.onAdEvent(mockPostrollFetchErrorAdEvent);
+
+    assertThat(adsLoaderListener.adPlaybackState)
+        .isEqualTo(
+            new AdPlaybackState(/* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE)
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
+                .withAdDurationsUs(ADS_DURATIONS_US)
+                .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+                .withAdLoadError(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0));
+  }
+
+  @Test
   public void playback_withAdNotPreloadingBeforeTimeout_hasNoError() {
     // Simulate an ad at 2 seconds.
     long adGroupPositionInWindowUs = 2 * C.MICROS_PER_SECOND;
@@ -372,6 +391,10 @@ public final class ImaAdsLoaderTest {
     when(mockAdPodInfo.getAdPosition()).thenReturn(1);
 
     when(mockPrerollSingleAd.getAdPodInfo()).thenReturn(mockAdPodInfo);
+
+    when(mockPostrollFetchErrorAdEvent.getType()).thenReturn(AdEventType.AD_BREAK_FETCH_ERROR);
+    when(mockPostrollFetchErrorAdEvent.getAdData())
+        .thenReturn(ImmutableMap.of("adBreakTime", "-1"));
   }
 
   private static AdEvent getAdEvent(AdEventType adEventType, @Nullable Ad ad) {
