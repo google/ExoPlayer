@@ -273,13 +273,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (openInternal(true)) {
         doLicense(true);
       }
-    } else {
+    } else if (eventDispatcher != null && isOpen()) {
+      // If the session is already open then send the acquire event only to the provided dispatcher.
       // TODO: Add a parameter to onDrmSessionAcquired to indicate whether the session is being
       // re-used or not.
-      if (eventDispatcher != null) {
-        eventDispatcher.dispatch(
-            DrmSessionEventListener::onDrmSessionAcquired, DrmSessionEventListener.class);
-      }
+      eventDispatcher.dispatch(
+          DrmSessionEventListener::onDrmSessionAcquired, DrmSessionEventListener.class);
     }
   }
 
@@ -302,9 +301,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         sessionId = null;
       }
       releaseCallback.onSessionReleased(this);
+      dispatchEvent(DrmSessionEventListener::onDrmSessionReleased);
     }
-    dispatchEvent(DrmSessionEventListener::onDrmSessionReleased);
     if (eventDispatcher != null) {
+      if (isOpen()) {
+        // If the session is still open then send the release event only to the provided dispatcher
+        // before removing it.
+        eventDispatcher.dispatch(
+            DrmSessionEventListener::onDrmSessionReleased, DrmSessionEventListener.class);
+      }
       eventDispatchers.remove(eventDispatcher);
     }
   }
