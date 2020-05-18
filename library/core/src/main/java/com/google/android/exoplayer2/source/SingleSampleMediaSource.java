@@ -15,10 +15,15 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -26,8 +31,8 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
+import java.util.Collections;
 
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
@@ -60,6 +65,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean treatLoadErrorsAsEndOfStream;
     @Nullable private Object tag;
+    @Nullable private String trackId;
 
     /**
      * Creates a factory for {@link SingleSampleMediaSource}s.
@@ -68,7 +74,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      *     be obtained.
      */
     public Factory(DataSource.Factory dataSourceFactory) {
-      this.dataSourceFactory = Assertions.checkNotNull(dataSourceFactory);
+      this.dataSourceFactory = checkNotNull(dataSourceFactory);
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
     }
 
@@ -78,10 +84,20 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      *
      * @param tag A tag for the media source.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
     public Factory setTag(@Nullable Object tag) {
       this.tag = tag;
+      return this;
+    }
+
+    /**
+     * Sets an optional track id to be used.
+     *
+     * @param trackId An optional track id.
+     * @return This factory, for convenience.
+     */
+    public Factory setTrackId(@Nullable String trackId) {
+      this.trackId = trackId;
       return this;
     }
 
@@ -95,7 +111,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      *
      * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      * @deprecated Use {@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)} instead.
      */
     @Deprecated
@@ -111,7 +126,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      *
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
     public Factory setLoadErrorHandlingPolicy(
         @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
@@ -130,7 +144,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
      *     streams, treating them as ended instead. If false, load errors will be propagated
      *     normally by {@link SampleStream#maybeThrowError()}.
      * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
      */
     public Factory setTreatLoadErrorsAsEndOfStream(boolean treatLoadErrorsAsEndOfStream) {
       this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
@@ -140,40 +153,34 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     /**
      * Returns a new {@link SingleSampleMediaSource} using the current parameters.
      *
-     * @param uri The {@link Uri}.
-     * @param format The {@link Format} of the media stream.
+     * @param subtitle The {@link MediaItem.Subtitle}.
      * @param durationUs The duration of the media stream in microseconds.
      * @return The new {@link SingleSampleMediaSource}.
      */
-    public SingleSampleMediaSource createMediaSource(Uri uri, Format format, long durationUs) {
+    public SingleSampleMediaSource createMediaSource(MediaItem.Subtitle subtitle, long durationUs) {
       return new SingleSampleMediaSource(
-          uri,
+          trackId,
+          subtitle,
           dataSourceFactory,
-          format,
           durationUs,
           loadErrorHandlingPolicy,
           treatLoadErrorsAsEndOfStream,
           tag);
     }
 
-    /**
-     * @deprecated Use {@link #createMediaSource(Uri, Format, long)} and {@link
-     *     #addEventListener(Handler, MediaSourceEventListener)} instead.
-     */
+    /** @deprecated Use {@link #createMediaSource(MediaItem.Subtitle, long)} instead. */
     @Deprecated
-    public SingleSampleMediaSource createMediaSource(
-        Uri uri,
-        Format format,
-        long durationUs,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
-      SingleSampleMediaSource mediaSource = createMediaSource(uri, format, durationUs);
-      if (eventHandler != null && eventListener != null) {
-        mediaSource.addEventListener(eventHandler, eventListener);
-      }
-      return mediaSource;
+    public SingleSampleMediaSource createMediaSource(Uri uri, Format format, long durationUs) {
+      return new SingleSampleMediaSource(
+          format.id == null ? trackId : format.id,
+          new MediaItem.Subtitle(
+              uri, checkNotNull(format.sampleMimeType), format.language, format.selectionFlags),
+          dataSourceFactory,
+          durationUs,
+          loadErrorHandlingPolicy,
+          treatLoadErrorsAsEndOfStream,
+          tag);
     }
-
   }
 
   private final DataSpec dataSpec;
@@ -183,18 +190,11 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final boolean treatLoadErrorsAsEndOfStream;
   private final Timeline timeline;
-  @Nullable private final Object tag;
+  private final MediaItem mediaItem;
 
   @Nullable private TransferListener transferListener;
 
-  /**
-   * @param uri The {@link Uri} of the media stream.
-   * @param dataSourceFactory The factory from which the {@link DataSource} to read the media will
-   *     be obtained.
-   * @param format The {@link Format} associated with the output track.
-   * @param durationUs The duration of the media stream in microseconds.
-   * @deprecated Use {@link Factory} instead.
-   */
+  /** @deprecated Use {@link Factory} instead. */
   @Deprecated
   @SuppressWarnings("deprecation")
   public SingleSampleMediaSource(
@@ -207,15 +207,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
         DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT);
   }
 
-  /**
-   * @param uri The {@link Uri} of the media stream.
-   * @param dataSourceFactory The factory from which the {@link DataSource} to read the media will
-   *     be obtained.
-   * @param format The {@link Format} associated with the output track.
-   * @param durationUs The duration of the media stream in microseconds.
-   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-   * @deprecated Use {@link Factory} instead.
-   */
+  /** @deprecated Use {@link Factory} instead. */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public SingleSampleMediaSource(
       Uri uri,
@@ -228,28 +221,15 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
         dataSourceFactory,
         format,
         durationUs,
-        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-        /* treatLoadErrorsAsEndOfStream= */ false,
-        /* tag= */ null);
+        minLoadableRetryCount,
+        /* eventHandler= */ null,
+        /* eventListener= */ null,
+        /* ignored */ C.INDEX_UNSET,
+        /* treatLoadErrorsAsEndOfStream= */ false);
   }
 
-  /**
-   * @param uri The {@link Uri} of the media stream.
-   * @param dataSourceFactory The factory from which the {@link DataSource} to read the media will
-   *     be obtained.
-   * @param format The {@link Format} associated with the output track.
-   * @param durationUs The duration of the media stream in microseconds.
-   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @param eventSourceId An identifier that gets passed to {@code eventListener} methods.
-   * @param treatLoadErrorsAsEndOfStream If true, load errors will not be propagated by sample
-   *     streams, treating them as ended instead. If false, load errors will be propagated normally
-   *     by {@link SampleStream#maybeThrowError()}.
-   * @deprecated Use {@link Factory} instead.
-   */
+  /** @deprecated Use {@link Factory} instead. */
   @Deprecated
-  @SuppressWarnings("deprecation")
   public SingleSampleMediaSource(
       Uri uri,
       DataSource.Factory dataSourceFactory,
@@ -261,9 +241,10 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
       int eventSourceId,
       boolean treatLoadErrorsAsEndOfStream) {
     this(
-        uri,
+        /* trackId= */ null,
+        new MediaItem.Subtitle(
+            uri, checkNotNull(format.sampleMimeType), format.language, format.selectionFlags),
         dataSourceFactory,
-        format,
         durationUs,
         new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
         treatLoadErrorsAsEndOfStream,
@@ -274,20 +255,33 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   }
 
   private SingleSampleMediaSource(
-      Uri uri,
+      @Nullable String trackId,
+      MediaItem.Subtitle subtitle,
       DataSource.Factory dataSourceFactory,
-      Format format,
       long durationUs,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       boolean treatLoadErrorsAsEndOfStream,
       @Nullable Object tag) {
     this.dataSourceFactory = dataSourceFactory;
-    this.format = format;
     this.durationUs = durationUs;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
-    this.tag = tag;
-    dataSpec = new DataSpec.Builder().setUri(uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
+    mediaItem =
+        new MediaItem.Builder()
+            .setUri(Uri.EMPTY)
+            .setMediaId(subtitle.uri.toString())
+            .setSubtitles(Collections.singletonList(subtitle))
+            .setTag(tag)
+            .build();
+    format =
+        new Format.Builder()
+            .setId(trackId)
+            .setSampleMimeType(subtitle.mimeType)
+            .setLanguage(subtitle.language)
+            .setSelectionFlags(subtitle.selectionFlags)
+            .build();
+    dataSpec =
+        new DataSpec.Builder().setUri(subtitle.uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
     timeline =
         new SinglePeriodTimeline(
             durationUs,
@@ -295,7 +289,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
             /* isDynamic= */ false,
             /* isLive= */ false,
             /* manifest= */ null,
-            tag);
+            mediaItem);
   }
 
   // MediaSource implementation.
@@ -303,7 +297,12 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   @Override
   @Nullable
   public Object getTag() {
-    return tag;
+    return castNonNull(mediaItem.playbackProperties).tag;
+  }
+
+  // TODO(bachinger) Add @Override annotation once the method is defined by MediaSource.
+  public MediaItem getMediaItem() {
+    return mediaItem;
   }
 
   @Override
@@ -352,7 +351,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     private final int eventSourceId;
 
     public EventListenerWrapper(EventListener eventListener, int eventSourceId) {
-      this.eventListener = Assertions.checkNotNull(eventListener);
+      this.eventListener = checkNotNull(eventListener);
       this.eventSourceId = eventSourceId;
     }
 
