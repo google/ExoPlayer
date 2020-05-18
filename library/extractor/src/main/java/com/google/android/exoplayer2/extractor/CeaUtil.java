@@ -33,8 +33,8 @@ public final class CeaUtil {
   private static final int PROVIDER_CODE_DIRECTV = 0x2F;
 
   /**
-   * Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608 messages
-   * as samples to all of the provided outputs.
+   * Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608/708
+   * messages as samples to all of the provided outputs.
    *
    * @param presentationTimeUs The presentation time in microseconds for any samples.
    * @param seiBuffer The unescaped SEI NAL unit data, excluding the NAL unit start code and type.
