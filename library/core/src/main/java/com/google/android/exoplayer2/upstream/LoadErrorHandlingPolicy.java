@@ -65,21 +65,12 @@ public interface LoadErrorHandlingPolicy {
     }
   }
 
-  /**
-   * Returns the number of milliseconds for which a resource associated to a provided load error
-   * should be blacklisted, or {@link C#TIME_UNSET} if the resource should not be blacklisted.
-   *
-   * @param dataType One of the {@link C C.DATA_TYPE_*} constants indicating the type of data to
-   *     load.
-   * @param loadDurationMs The duration in milliseconds of the load from the start of the first load
-   *     attempt up to the point at which the error occurred.
-   * @param exception The load error.
-   * @param errorCount The number of errors this load has encountered, including this one.
-   * @return The blacklist duration in milliseconds, or {@link C#TIME_UNSET} if the resource should
-   *     not be blacklisted.
-   */
-  long getBlacklistDurationMsFor(
-      int dataType, long loadDurationMs, IOException exception, int errorCount);
+  /** @deprecated Implement {@link #getBlacklistDurationMsFor(LoadErrorInfo)} instead. */
+  @Deprecated
+  default long getBlacklistDurationMsFor(
+      int dataType, long loadDurationMs, IOException exception, int errorCount) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Returns the number of milliseconds for which a resource associated to a provided load error
@@ -89,12 +80,20 @@ public interface LoadErrorHandlingPolicy {
    * @return The blacklist duration in milliseconds, or {@link C#TIME_UNSET} if the resource should
    *     not be blacklisted.
    */
+  @SuppressWarnings("deprecation")
   default long getBlacklistDurationMsFor(LoadErrorInfo loadErrorInfo) {
     return getBlacklistDurationMsFor(
         loadErrorInfo.mediaLoadData.dataType,
         loadErrorInfo.loadEventInfo.loadDurationMs,
         loadErrorInfo.exception,
         loadErrorInfo.errorCount);
+  }
+
+  /** @deprecated Implement {@link #getRetryDelayMsFor(LoadErrorInfo)} instead. */
+  @Deprecated
+  default long getRetryDelayMsFor(
+      int dataType, long loadDurationMs, IOException exception, int errorCount) {
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -105,29 +104,11 @@ public interface LoadErrorHandlingPolicy {
    * for a specific event before retrying. However, the load is retried if and only if this method
    * does not return {@link C#TIME_UNSET}.
    *
-   * @param dataType One of the {@link C C.DATA_TYPE_*} constants indicating the type of data to
-   *     load.
-   * @param loadDurationMs The duration in milliseconds of the load from the start of the first load
-   *     attempt up to the point at which the error occurred.
-   * @param exception The load error.
-   * @param errorCount The number of errors this load has encountered, including this one.
-   * @return The number of milliseconds to wait before attempting the load again, or {@link
-   *     C#TIME_UNSET} if the error is fatal and should not be retried.
-   */
-  long getRetryDelayMsFor(int dataType, long loadDurationMs, IOException exception, int errorCount);
-
-  /**
-   * Returns the number of milliseconds to wait before attempting the load again, or {@link
-   * C#TIME_UNSET} if the error is fatal and should not be retried.
-   *
-   * <p>{@link Loader} clients may ignore the retry delay returned by this method in order to wait
-   * for a specific event before retrying. However, the load is retried if and only if this method
-   * does not return {@link C#TIME_UNSET}.
-   *
    * @param loadErrorInfo A {@link LoadErrorInfo} holding information about the load error.
    * @return The number of milliseconds to wait before attempting the load again, or {@link
    *     C#TIME_UNSET} if the error is fatal and should not be retried.
    */
+  @SuppressWarnings("deprecation")
   default long getRetryDelayMsFor(LoadErrorInfo loadErrorInfo) {
     return getRetryDelayMsFor(
         loadErrorInfo.mediaLoadData.dataType,
