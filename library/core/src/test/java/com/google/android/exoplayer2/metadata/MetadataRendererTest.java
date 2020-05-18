@@ -22,6 +22,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.metadata.emsg.EventMessageEncoder;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
@@ -144,6 +145,7 @@ public class MetadataRendererTest {
         new Format[] {EMSG_FORMAT},
         new FakeSampleStream(
             EMSG_FORMAT,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 0,

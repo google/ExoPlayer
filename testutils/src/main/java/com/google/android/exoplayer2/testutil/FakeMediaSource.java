@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.ForwardingTimeline;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -73,6 +74,7 @@ public class FakeMediaSource extends BaseMediaSource {
   private final TrackGroupArray trackGroupArray;
   private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
   private final ArrayList<MediaPeriodId> createdMediaPeriods;
+  private final DrmSessionManager drmSessionManager;
 
   private @MonotonicNonNull Timeline timeline;
   private boolean preparedSource;
@@ -87,7 +89,19 @@ public class FakeMediaSource extends BaseMediaSource {
    * can be manually set later using {@link #setNewSourceInfo(Timeline)}.
    */
   public FakeMediaSource(@Nullable Timeline timeline, Format... formats) {
-    this(timeline, buildTrackGroupArray(formats));
+    this(timeline, DrmSessionManager.DUMMY, formats);
+  }
+
+  /**
+   * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
+   * {@link TrackGroupArray} using the given {@link Format}s. It passes {@code drmSessionManager}
+   * into the created periods. The provided {@link Timeline} may be null to prevent an immediate
+   * source info refresh message when preparing the media source. It can be manually set later using
+   * {@link #setNewSourceInfo(Timeline)}.
+   */
+  public FakeMediaSource(
+      @Nullable Timeline timeline, DrmSessionManager drmSessionManager, Format... formats) {
+    this(timeline, drmSessionManager, buildTrackGroupArray(formats));
   }
 
   /**
@@ -96,13 +110,17 @@ public class FakeMediaSource extends BaseMediaSource {
    * immediate source info refresh message when preparing the media source. It can be manually set
    * later using {@link #setNewSourceInfo(Timeline)}.
    */
-  public FakeMediaSource(@Nullable Timeline timeline, TrackGroupArray trackGroupArray) {
+  public FakeMediaSource(
+      @Nullable Timeline timeline,
+      DrmSessionManager drmSessionManager,
+      TrackGroupArray trackGroupArray) {
     if (timeline != null) {
       this.timeline = timeline;
     }
     this.trackGroupArray = trackGroupArray;
     this.activeMediaPeriods = new ArrayList<>();
     this.createdMediaPeriods = new ArrayList<>();
+    this.drmSessionManager = drmSessionManager;
   }
 
   @Nullable
@@ -136,6 +154,7 @@ public class FakeMediaSource extends BaseMediaSource {
   public synchronized void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     assertThat(preparedSource).isFalse();
     transferListener = mediaTransferListener;
+    drmSessionManager.prepare();
     preparedSource = true;
     releasedSource = false;
     sourceInfoRefreshHandler = Util.createHandler();
@@ -159,7 +178,8 @@ public class FakeMediaSource extends BaseMediaSource {
     EventDispatcher eventDispatcher =
         createEventDispatcher(period.windowIndex, id, period.getPositionInWindowMs());
     FakeMediaPeriod mediaPeriod =
-        createFakeMediaPeriod(id, trackGroupArray, allocator, eventDispatcher, transferListener);
+        createFakeMediaPeriod(
+            id, trackGroupArray, allocator, drmSessionManager, eventDispatcher, transferListener);
     activeMediaPeriods.add(mediaPeriod);
     createdMediaPeriods.add(id);
     return mediaPeriod;
@@ -179,6 +199,7 @@ public class FakeMediaSource extends BaseMediaSource {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
     assertThat(activeMediaPeriods.isEmpty()).isTrue();
+    drmSessionManager.release();
     releasedSource = true;
     preparedSource = false;
     Util.castNonNull(sourceInfoRefreshHandler).removeCallbacksAndMessages(null);
@@ -242,9 +263,11 @@ public class FakeMediaSource extends BaseMediaSource {
       MediaPeriodId id,
       TrackGroupArray trackGroupArray,
       Allocator allocator,
+      DrmSessionManager drmSessionManager,
       EventDispatcher eventDispatcher,
       @Nullable TransferListener transferListener) {
-    return new FakeMediaPeriod(trackGroupArray, eventDispatcher);
+    return new FakeMediaPeriod(
+        trackGroupArray, drmSessionManager, eventDispatcher, /* deferOnPrepared= */ false);
   }
 
   private void finishSourcePreparation() {

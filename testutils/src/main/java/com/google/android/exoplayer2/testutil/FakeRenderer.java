@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -48,6 +49,8 @@ public class FakeRenderer extends BaseRenderer {
   private static final long SOURCE_READAHEAD_US = 250000;
 
   private final DecoderInputBuffer buffer;
+
+  @Nullable private DrmSession currentDrmSession;
 
   private long playbackPositionUs;
   private long lastSamplePositionUs;
@@ -91,7 +94,10 @@ public class FakeRenderer extends BaseRenderer {
         buffer.clear();
         @SampleStream.ReadDataResult
         int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
+
         if (result == C.RESULT_FORMAT_READ) {
+          DrmSession.replaceSession(currentDrmSession, formatHolder.drmSession);
+          currentDrmSession = formatHolder.drmSession;
           Format format = Assertions.checkNotNull(formatHolder.format);
           if (MimeTypes.getTrackType(format.sampleMimeType) != getTrackType()) {
             throw ExoPlaybackException.createForRenderer(
@@ -145,6 +151,14 @@ public class FakeRenderer extends BaseRenderer {
     return trackType != C.TRACK_TYPE_UNKNOWN && trackType == getTrackType()
         ? RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
         : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+  }
+
+  @Override
+  protected void onReset() {
+    if (currentDrmSession != null) {
+      currentDrmSession.release(/* eventDispatcher= */ null);
+      currentDrmSession = null;
+    }
   }
 
   /** Called when the renderer reads a new format. */

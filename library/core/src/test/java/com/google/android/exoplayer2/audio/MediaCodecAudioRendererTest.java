@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -111,6 +112,7 @@ public class MediaCodecAudioRendererTest {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
             /* format= */ AUDIO_AAC,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
