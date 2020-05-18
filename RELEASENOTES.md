@@ -128,6 +128,7 @@
         of which are supported.
     *   Ignore excess characters in CEA-608 lines (max length is 32)
         ([#7341](https://github.com/google/ExoPlayer/issues/7341)).
+    *   Add support for WebVTT's `ruby-position` CSS property.
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.

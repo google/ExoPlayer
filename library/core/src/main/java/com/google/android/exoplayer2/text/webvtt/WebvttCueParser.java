@@ -538,8 +538,6 @@ public final class WebvttCueParser {
       List<StyleMatch> scratchStyleMatches) {
     int start = startTag.position;
     int end = text.length();
-    scratchStyleMatches.clear();
-    getApplicableStyles(styles, cueId, startTag, scratchStyleMatches);
 
     switch(startTag.name) {
       case TAG_BOLD:
@@ -551,7 +549,7 @@ public final class WebvttCueParser {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TAG_RUBY:
-        applyRubySpans(text, start, nestedElements, scratchStyleMatches);
+        applyRubySpans(text, cueId, startTag, nestedElements, styles);
         break;
       case TAG_UNDERLINE:
         text.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -567,6 +565,8 @@ public final class WebvttCueParser {
         return;
     }
 
+    scratchStyleMatches.clear();
+    getApplicableStyles(styles, cueId, startTag, scratchStyleMatches);
     for (int i = 0; i < scratchStyleMatches.size(); i++) {
       applyStyleToText(text, scratchStyleMatches.get(i).style, start, end);
     }
@@ -574,27 +574,29 @@ public final class WebvttCueParser {
 
   private static void applyRubySpans(
       SpannableStringBuilder text,
-      int startTagPosition,
+      @Nullable String cueId,
+      StartTag startTag,
       List<Element> nestedElements,
-      List<StyleMatch> styleMatches) {
-    @RubySpan.Position int rubyPosition = RubySpan.POSITION_OVER;
-    for (int i = 0; i < styleMatches.size(); i++) {
-      WebvttCssStyle style = styleMatches.get(i).style;
-      if (style.getRubyPosition() != RubySpan.POSITION_UNKNOWN) {
-        rubyPosition = style.getRubyPosition();
-        break;
-      }
-    }
+      List<WebvttCssStyle> styles) {
+    @RubySpan.Position int rubyTagPosition = getRubyPosition(styles, cueId, startTag);
     List<Element> sortedNestedElements = new ArrayList<>(nestedElements.size());
     sortedNestedElements.addAll(nestedElements);
     Collections.sort(sortedNestedElements, Element.BY_START_POSITION_ASC);
     int deletedCharCount = 0;
-    int lastRubyTextEnd = startTagPosition;
+    int lastRubyTextEnd = startTag.position;
     for (int i = 0; i < sortedNestedElements.size(); i++) {
       if (!TAG_RUBY_TEXT.equals(sortedNestedElements.get(i).startTag.name)) {
         continue;
       }
       Element rubyTextElement = sortedNestedElements.get(i);
+      // Use the <rt> element's ruby-position if set, otherwise the <ruby> element's and otherwise
+      // default to OVER.
+      @RubySpan.Position
+      int rubyPosition =
+          firstKnownRubyPosition(
+              getRubyPosition(styles, cueId, rubyTextElement.startTag),
+              rubyTagPosition,
+              RubySpan.POSITION_OVER);
       // Move the rubyText from spannedText into the RubySpan.
       int adjustedRubyTextStart = rubyTextElement.startTag.position - deletedCharCount;
       int adjustedRubyTextEnd = rubyTextElement.endPosition - deletedCharCount;
@@ -609,6 +611,37 @@ public final class WebvttCueParser {
       // The ruby text has been deleted, so new-start == old-end.
       lastRubyTextEnd = adjustedRubyTextStart;
     }
+  }
+
+  @RubySpan.Position
+  private static int getRubyPosition(
+      List<WebvttCssStyle> styles, @Nullable String cueId, StartTag startTag) {
+    List<StyleMatch> styleMatches = new ArrayList<>();
+    getApplicableStyles(styles, cueId, startTag, styleMatches);
+    for (int i = 0; i < styleMatches.size(); i++) {
+      WebvttCssStyle style = styleMatches.get(i).style;
+      if (style.getRubyPosition() != RubySpan.POSITION_UNKNOWN) {
+        return style.getRubyPosition();
+      }
+    }
+    return RubySpan.POSITION_UNKNOWN;
+  }
+
+  @RubySpan.Position
+  private static int firstKnownRubyPosition(
+      @RubySpan.Position int position1,
+      @RubySpan.Position int position2,
+      @RubySpan.Position int position3) {
+    if (position1 != RubySpan.POSITION_UNKNOWN) {
+      return position1;
+    }
+    if (position2 != RubySpan.POSITION_UNKNOWN) {
+      return position2;
+    }
+    if (position3 != RubySpan.POSITION_UNKNOWN) {
+      return position3;
+    }
+    throw new IllegalArgumentException();
   }
 
   /**

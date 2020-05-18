@@ -373,18 +373,18 @@ public class WebvttDecoderTest {
             "Some text with under-ruby and over-ruby (default)".length())
         .withTextAndPosition("over", RubySpan.POSITION_OVER);
 
-    // Check many <rt> tags nested in a single <ruby> span.
+    // Check many <rt> tags with different positions nested in a single <ruby> span.
     Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
     assertThat(thirdCue.text.toString()).isEqualTo("base1base2base3.");
     assertThat((Spanned) thirdCue.text)
         .hasRubySpanBetween(/* start= */ 0, "base1".length())
-        .withTextAndPosition("text1", RubySpan.POSITION_OVER);
+        .withTextAndPosition("over1", RubySpan.POSITION_OVER);
     assertThat((Spanned) thirdCue.text)
         .hasRubySpanBetween("base1".length(), "base1base2".length())
-        .withTextAndPosition("text2", RubySpan.POSITION_OVER);
+        .withTextAndPosition("under2", RubySpan.POSITION_UNDER);
     assertThat((Spanned) thirdCue.text)
         .hasRubySpanBetween("base1base2".length(), "base1base2base3".length())
-        .withTextAndPosition("text3", RubySpan.POSITION_OVER);
+        .withTextAndPosition("under3", RubySpan.POSITION_UNDER);
 
     // Check a <ruby> span with no <rt> tags.
     Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
