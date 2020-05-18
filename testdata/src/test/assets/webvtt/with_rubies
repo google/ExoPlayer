@@ -19,7 +19,7 @@ Some <ruby.under>text with under-ruby<rt>under</rt></ruby> and <ruby>over-ruby (
 NOTE Many individual rubies in a single <ruby> tag
 
 00:00:05.000 --> 00:00:06.000
-<ruby>base1<rt>text1</rt>base2<rt>text2</rt>base3<rt>text3</rt></ruby>.
+<ruby.under>base1<rt.over>over1</rt>base2<rt>under2</rt>base3<rt.under>under3</rt></ruby>.
 
 00:00:07.000 --> 00:00:08.000
 Some <ruby>text with no ruby text</ruby>.
