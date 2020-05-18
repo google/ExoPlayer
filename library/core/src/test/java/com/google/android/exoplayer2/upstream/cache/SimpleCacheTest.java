@@ -226,6 +226,22 @@ public class SimpleCacheTest {
   }
 
   @Test
+  public void removeSpans_removesSpansWithSameKey() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0);
+    addCache(simpleCache, KEY_1, 0, 10);
+    addCache(simpleCache, KEY_1, 20, 10);
+    simpleCache.releaseHoleSpan(holeSpan);
+    holeSpan = simpleCache.startReadWrite(KEY_2, 20);
+    addCache(simpleCache, KEY_2, 20, 10);
+    simpleCache.releaseHoleSpan(holeSpan);
+
+    simpleCache.removeSpans(KEY_1);
+    assertThat(simpleCache.getCachedSpans(KEY_1)).isEmpty();
+    assertThat(simpleCache.getCachedSpans(KEY_2)).hasSize(1);
+  }
+
+  @Test
   public void encryptedIndex() throws Exception {
     byte[] key = Util.getUtf8Bytes("Bar12345Bar12345"); // 128 bit key
     SimpleCache simpleCache = getEncryptedSimpleCache(key);

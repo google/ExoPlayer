@@ -230,15 +230,22 @@ public interface Cache {
   void releaseHoleSpan(CacheSpan holeSpan);
 
   /**
+   * Removes all {@link CacheSpan CacheSpans} with the given key, deleting the underlying files.
+   *
+   * @param key The cache key for the data.
+   */
+  @WorkerThread
+  void removeSpans(String key);
+
+  /**
    * Removes a cached {@link CacheSpan} from the cache, deleting the underlying file.
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
    * @param span The {@link CacheSpan} to remove.
-   * @throws CacheException If an error is encountered.
    */
   @WorkerThread
-  void removeSpan(CacheSpan span) throws CacheException;
+  void removeSpan(CacheSpan span);
 
   /**
    * Queries if a range is entirely available in the cache.
