@@ -488,14 +488,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     int primaryGroupCount = groupedAdaptationSetIndices.length;
     boolean[] primaryGroupHasEventMessageTrackFlags = new boolean[primaryGroupCount];
-    Format[][] primaryGroupCea608TrackFormats = new Format[primaryGroupCount][];
+    Format[][] primaryGroupClosedCaptionTrackFormats = new Format[primaryGroupCount][];
     int totalEmbeddedTrackGroupCount =
         identifyEmbeddedTracks(
             primaryGroupCount,
             adaptationSets,
             groupedAdaptationSetIndices,
             primaryGroupHasEventMessageTrackFlags,
-            primaryGroupCea608TrackFormats);
+            primaryGroupClosedCaptionTrackFormats);
 
     int totalGroupCount = primaryGroupCount + totalEmbeddedTrackGroupCount + eventStreams.size();
     TrackGroup[] trackGroups = new TrackGroup[totalGroupCount];
@@ -508,7 +508,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             groupedAdaptationSetIndices,
             primaryGroupCount,
             primaryGroupHasEventMessageTrackFlags,
-            primaryGroupCea608TrackFormats,
+            primaryGroupClosedCaptionTrackFormats,
             trackGroups,
             trackGroupInfos);
 
@@ -616,8 +616,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    *     same primary group, grouped in primary track groups order.
    * @param primaryGroupHasEventMessageTrackFlags An output array to be filled with flags indicating
    *     whether each of the primary track groups contains an embedded event message track.
-   * @param primaryGroupCea608TrackFormats An output array to be filled with track formats for
-   *     CEA-608 tracks embedded in each of the primary track groups.
+   * @param primaryGroupClosedCaptionTrackFormats An output array to be filled with track formats
+   *     for closed caption tracks embedded in each of the primary track groups.
    * @return Total number of embedded track groups.
    */
   private static int identifyEmbeddedTracks(
@@ -625,16 +625,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       List<AdaptationSet> adaptationSets,
       int[][] groupedAdaptationSetIndices,
       boolean[] primaryGroupHasEventMessageTrackFlags,
-      Format[][] primaryGroupCea608TrackFormats) {
+      Format[][] primaryGroupClosedCaptionTrackFormats) {
     int numEmbeddedTrackGroups = 0;
     for (int i = 0; i < primaryGroupCount; i++) {
       if (hasEventMessageTrack(adaptationSets, groupedAdaptationSetIndices[i])) {
         primaryGroupHasEventMessageTrackFlags[i] = true;
         numEmbeddedTrackGroups++;
       }
-      primaryGroupCea608TrackFormats[i] =
-          getCea608TrackFormats(adaptationSets, groupedAdaptationSetIndices[i]);
-      if (primaryGroupCea608TrackFormats[i].length != 0) {
+      primaryGroupClosedCaptionTrackFormats[i] =
+          getClosedCaptionTrackFormats(adaptationSets, groupedAdaptationSetIndices[i]);
+      if (primaryGroupClosedCaptionTrackFormats[i].length != 0) {
         numEmbeddedTrackGroups++;
       }
     }
@@ -647,7 +647,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int[][] groupedAdaptationSetIndices,
       int primaryGroupCount,
       boolean[] primaryGroupHasEventMessageTrackFlags,
-      Format[][] primaryGroupCea608TrackFormats,
+      Format[][] primaryGroupClosedCaptionTrackFormats,
       TrackGroup[] trackGroups,
       TrackGroupInfo[] trackGroupInfos) {
     int trackGroupCount = 0;
@@ -673,8 +673,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int primaryTrackGroupIndex = trackGroupCount++;
       int eventMessageTrackGroupIndex =
           primaryGroupHasEventMessageTrackFlags[i] ? trackGroupCount++ : C.INDEX_UNSET;
-      int cea608TrackGroupIndex =
-          primaryGroupCea608TrackFormats[i].length != 0 ? trackGroupCount++ : C.INDEX_UNSET;
+      int closedCaptionTrackGroupIndex =
+          primaryGroupClosedCaptionTrackFormats[i].length != 0 ? trackGroupCount++ : C.INDEX_UNSET;
 
       trackGroups[primaryTrackGroupIndex] = new TrackGroup(formats);
       trackGroupInfos[primaryTrackGroupIndex] =
@@ -683,7 +683,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               adaptationSetIndices,
               primaryTrackGroupIndex,
               eventMessageTrackGroupIndex,
-              cea608TrackGroupIndex);
+              closedCaptionTrackGroupIndex);
       if (eventMessageTrackGroupIndex != C.INDEX_UNSET) {
         Format format =
             new Format.Builder()
@@ -694,10 +694,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         trackGroupInfos[eventMessageTrackGroupIndex] =
             TrackGroupInfo.embeddedEmsgTrack(adaptationSetIndices, primaryTrackGroupIndex);
       }
-      if (cea608TrackGroupIndex != C.INDEX_UNSET) {
-        trackGroups[cea608TrackGroupIndex] = new TrackGroup(primaryGroupCea608TrackFormats[i]);
-        trackGroupInfos[cea608TrackGroupIndex] =
-            TrackGroupInfo.embeddedCea608Track(adaptationSetIndices, primaryTrackGroupIndex);
+      if (closedCaptionTrackGroupIndex != C.INDEX_UNSET) {
+        trackGroups[closedCaptionTrackGroupIndex] =
+            new TrackGroup(primaryGroupClosedCaptionTrackFormats[i]);
+        trackGroupInfos[closedCaptionTrackGroupIndex] =
+            TrackGroupInfo.embeddedClosedCaptionTrack(adaptationSetIndices, primaryTrackGroupIndex);
       }
     }
     return trackGroupCount;
@@ -728,11 +729,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           trackGroups.get(trackGroupInfo.embeddedEventMessageTrackGroupIndex);
       embeddedTrackCount++;
     }
-    boolean enableCea608Tracks = trackGroupInfo.embeddedCea608TrackGroupIndex != C.INDEX_UNSET;
-    TrackGroup embeddedCea608TrackGroup = null;
-    if (enableCea608Tracks) {
-      embeddedCea608TrackGroup = trackGroups.get(trackGroupInfo.embeddedCea608TrackGroupIndex);
-      embeddedTrackCount += embeddedCea608TrackGroup.length;
+    boolean enableClosedCaptionTrack =
+        trackGroupInfo.embeddedClosedCaptionTrackGroupIndex != C.INDEX_UNSET;
+    TrackGroup embeddedClosedCaptionTrackGroup = null;
+    if (enableClosedCaptionTrack) {
+      embeddedClosedCaptionTrackGroup =
+          trackGroups.get(trackGroupInfo.embeddedClosedCaptionTrackGroupIndex);
+      embeddedTrackCount += embeddedClosedCaptionTrackGroup.length;
     }
 
     Format[] embeddedTrackFormats = new Format[embeddedTrackCount];
@@ -743,12 +746,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       embeddedTrackTypes[embeddedTrackCount] = C.TRACK_TYPE_METADATA;
       embeddedTrackCount++;
     }
-    List<Format> embeddedCea608TrackFormats = new ArrayList<>();
-    if (enableCea608Tracks) {
-      for (int i = 0; i < embeddedCea608TrackGroup.length; i++) {
-        embeddedTrackFormats[embeddedTrackCount] = embeddedCea608TrackGroup.getFormat(i);
+    List<Format> embeddedClosedCaptionTrackFormats = new ArrayList<>();
+    if (enableClosedCaptionTrack) {
+      for (int i = 0; i < embeddedClosedCaptionTrackGroup.length; i++) {
+        embeddedTrackFormats[embeddedTrackCount] = embeddedClosedCaptionTrackGroup.getFormat(i);
         embeddedTrackTypes[embeddedTrackCount] = C.TRACK_TYPE_TEXT;
-        embeddedCea608TrackFormats.add(embeddedTrackFormats[embeddedTrackCount]);
+        embeddedClosedCaptionTrackFormats.add(embeddedTrackFormats[embeddedTrackCount]);
         embeddedTrackCount++;
       }
     }
@@ -767,7 +770,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             trackGroupInfo.trackType,
             elapsedRealtimeOffsetMs,
             enableEventMessageTrack,
-            embeddedCea608TrackFormats,
+            embeddedClosedCaptionTrackFormats,
             trackPlayerEmsgHandler,
             transferListener);
     ChunkSampleStream<DashChunkSource> stream =
@@ -824,7 +827,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return false;
   }
 
-  private static Format[] getCea608TrackFormats(
+  private static Format[] getClosedCaptionTrackFormats(
       List<AdaptationSet> adaptationSets, int[] adaptationSetIndices) {
     for (int i : adaptationSetIndices) {
       AdaptationSet adaptationSet = adaptationSets.get(i);
@@ -916,21 +919,21 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public final int eventStreamGroupIndex;
     public final int primaryTrackGroupIndex;
     public final int embeddedEventMessageTrackGroupIndex;
-    public final int embeddedCea608TrackGroupIndex;
+    public final int embeddedClosedCaptionTrackGroupIndex;
 
     public static TrackGroupInfo primaryTrack(
         int trackType,
         int[] adaptationSetIndices,
         int primaryTrackGroupIndex,
         int embeddedEventMessageTrackGroupIndex,
-        int embeddedCea608TrackGroupIndex) {
+        int embeddedClosedCaptionTrackGroupIndex) {
       return new TrackGroupInfo(
           trackType,
           CATEGORY_PRIMARY,
           adaptationSetIndices,
           primaryTrackGroupIndex,
           embeddedEventMessageTrackGroupIndex,
-          embeddedCea608TrackGroupIndex,
+          embeddedClosedCaptionTrackGroupIndex,
           /* eventStreamGroupIndex= */ -1);
     }
 
@@ -946,8 +949,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           /* eventStreamGroupIndex= */ -1);
     }
 
-    public static TrackGroupInfo embeddedCea608Track(int[] adaptationSetIndices,
-        int primaryTrackGroupIndex) {
+    public static TrackGroupInfo embeddedClosedCaptionTrack(
+        int[] adaptationSetIndices, int primaryTrackGroupIndex) {
       return new TrackGroupInfo(
           C.TRACK_TYPE_TEXT,
           CATEGORY_EMBEDDED,
@@ -975,14 +978,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         int[] adaptationSetIndices,
         int primaryTrackGroupIndex,
         int embeddedEventMessageTrackGroupIndex,
-        int embeddedCea608TrackGroupIndex,
+        int embeddedClosedCaptionTrackGroupIndex,
         int eventStreamGroupIndex) {
       this.trackType = trackType;
       this.adaptationSetIndices = adaptationSetIndices;
       this.trackGroupCategory = trackGroupCategory;
       this.primaryTrackGroupIndex = primaryTrackGroupIndex;
       this.embeddedEventMessageTrackGroupIndex = embeddedEventMessageTrackGroupIndex;
-      this.embeddedCea608TrackGroupIndex = embeddedCea608TrackGroupIndex;
+      this.embeddedClosedCaptionTrackGroupIndex = embeddedClosedCaptionTrackGroupIndex;
       this.eventStreamGroupIndex = eventStreamGroupIndex;
     }
   }
