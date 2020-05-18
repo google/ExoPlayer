@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
 import com.google.android.exoplayer2.source.MaskingMediaSource.DummyTimeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -566,6 +567,7 @@ public final class ClippingMediaSourceTest {
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
+              DrmSessionManager drmSessionManager,
               EventDispatcher eventDispatcher,
               @Nullable TransferListener transferListener) {
             eventDispatcher.downstreamFormatChanged(
@@ -578,7 +580,12 @@ public final class ClippingMediaSourceTest {
                     C.usToMs(eventStartUs),
                     C.usToMs(eventEndUs)));
             return super.createFakeMediaPeriod(
-                id, trackGroupArray, allocator, eventDispatcher, transferListener);
+                id,
+                trackGroupArray,
+                allocator,
+                drmSessionManager,
+                eventDispatcher,
+                transferListener);
           }
         };
     final ClippingMediaSource clippingMediaSource =

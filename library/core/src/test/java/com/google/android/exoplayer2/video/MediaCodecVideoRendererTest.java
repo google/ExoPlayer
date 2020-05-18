@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -126,6 +127,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50_000,
@@ -162,6 +164,7 @@ public class MediaCodecVideoRendererTest {
         new Format[] {VIDEO_H264},
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 0,
@@ -199,6 +202,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
             /* format= */ pAsp1,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 5000,
@@ -248,6 +252,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -282,6 +287,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -308,6 +314,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -333,6 +340,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -359,6 +367,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream1 =
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -367,6 +376,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream2 =
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -401,6 +411,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream1 =
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -409,6 +420,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream2 =
         new FakeSampleStream(
             /* format= */ VIDEO_H264,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,
@@ -450,6 +462,7 @@ public class MediaCodecVideoRendererTest {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
             /* format= */ mp4Uhd,
+            DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* firstSampleTimeUs= */ 0,
             /* timeUsIncrement= */ 50,

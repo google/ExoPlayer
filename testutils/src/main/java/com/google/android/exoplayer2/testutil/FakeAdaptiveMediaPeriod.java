@@ -68,14 +68,6 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
-  public void release() {
-    for (ChunkSampleStream<FakeChunkSource> sampleStream : sampleStreams) {
-      sampleStream.release();
-    }
-    super.release();
-  }
-
-  @Override
   public synchronized void prepare(Callback callback, long positionUs) {
     super.prepare(callback, positionUs);
     this.callback = callback;
@@ -141,8 +133,11 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
-  protected SampleStream createSampleStream(
-      long positionUs, TrackSelection trackSelection, EventDispatcher eventDispatcher) {
+  protected final SampleStream createSampleStream(
+      long positionUs,
+      TrackSelection trackSelection,
+      DrmSessionManager drmSessionManager,
+      EventDispatcher eventDispatcher) {
     FakeChunkSource chunkSource =
         chunkSourceFactory.createChunkSource(trackSelection, durationUs, transferListener);
     return new ChunkSampleStream<>(
@@ -159,9 +154,17 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   @Override
+  // sampleStream is created by createSampleStream() above.
   @SuppressWarnings("unchecked")
   protected void seekSampleStream(SampleStream sampleStream, long positionUs) {
     ((ChunkSampleStream<FakeChunkSource>) sampleStream).seekToUs(positionUs);
+  }
+
+  @Override
+  // sampleStream is created by createSampleStream() above.
+  @SuppressWarnings("unchecked")
+  protected void releaseSampleStream(SampleStream sampleStream) {
+    ((ChunkSampleStream<FakeChunkSource>) sampleStream).release();
   }
 
   @Override

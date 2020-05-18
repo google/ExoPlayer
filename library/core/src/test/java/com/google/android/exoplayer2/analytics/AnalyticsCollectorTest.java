@@ -31,6 +31,12 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaDrm;
+import com.google.android.exoplayer2.drm.MediaDrmCallback;
+import com.google.android.exoplayer2.drm.MediaDrmCallbackException;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -43,16 +49,19 @@ import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.FakeAudioRenderer;
+import com.google.android.exoplayer2.testutil.FakeExoMediaDrm;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
@@ -107,12 +116,36 @@ public final class AnalyticsCollectorTest {
   private static final int EVENT_DRM_SESSION_RELEASED = 38;
   private static final int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 39;
 
+  private static final UUID DRM_SCHEME_UUID =
+      UUID.nameUUIDFromBytes(TestUtil.createByteArray(7, 8, 9));
+
+  public static final DrmInitData DRM_DATA_1 =
+      new DrmInitData(
+          new DrmInitData.SchemeData(
+              DRM_SCHEME_UUID,
+              ExoPlayerTestRunner.VIDEO_FORMAT.sampleMimeType,
+              /* data= */ TestUtil.createByteArray(1, 2, 3)));
+  public static final DrmInitData DRM_DATA_2 =
+      new DrmInitData(
+          new DrmInitData.SchemeData(
+              DRM_SCHEME_UUID,
+              ExoPlayerTestRunner.VIDEO_FORMAT.sampleMimeType,
+              /* data= */ TestUtil.createByteArray(4, 5, 6)));
+  private static final Format VIDEO_FORMAT_DRM_1 =
+      ExoPlayerTestRunner.VIDEO_FORMAT.buildUpon().setDrmInitData(DRM_DATA_1).build();
+
   private static final int TIMEOUT_MS = 10000;
   private static final Timeline SINGLE_PERIOD_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
   private static final EventWindowAndPeriodId WINDOW_0 =
       new EventWindowAndPeriodId(/* windowIndex= */ 0, /* mediaPeriodId= */ null);
   private static final EventWindowAndPeriodId WINDOW_1 =
       new EventWindowAndPeriodId(/* windowIndex= */ 1, /* mediaPeriodId= */ null);
+
+  private final DrmSessionManager drmSessionManager =
+      new DefaultDrmSessionManager.Builder()
+          .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+          .setMultiSession(true)
+          .build(new EmptyDrmCallback());
 
   private EventWindowAndPeriodId period0;
   private EventWindowAndPeriodId period1;
@@ -1158,6 +1191,71 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period0);
   }
 
+  @Test
+  public void drmEvents_singlePeriod() throws Exception {
+    MediaSource mediaSource =
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, drmSessionManager, VIDEO_FORMAT_DRM_1);
+    TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
+
+    populateEventIds(listener.lastReportedTimeline);
+    assertThat(listener.getEvents(EVENT_DRM_ERROR)).isEmpty();
+    assertThat(listener.getEvents(EVENT_DRM_SESSION_ACQUIRED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0);
+    // The release event is lost because it's posted to "ExoPlayerTest thread" after that thread
+    // has been quit during clean-up.
+    assertThat(listener.getEvents(EVENT_DRM_SESSION_RELEASED)).isEmpty();
+  }
+
+  @Test
+  public void drmEvents_periodWithSameDrmData_keysReused() throws Exception {
+    MediaSource mediaSource =
+        new ConcatenatingMediaSource(
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, drmSessionManager, VIDEO_FORMAT_DRM_1),
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, drmSessionManager, VIDEO_FORMAT_DRM_1));
+    TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
+
+    populateEventIds(listener.lastReportedTimeline);
+    assertThat(listener.getEvents(EVENT_DRM_ERROR)).isEmpty();
+    assertThat(listener.getEvents(EVENT_DRM_SESSION_ACQUIRED)).containsExactly(period0, period1);
+    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0);
+    // The period1 release event is lost because it's posted to "ExoPlayerTest thread" after that
+    // thread has been quit during clean-up.
+    assertThat(listener.getEvents(EVENT_DRM_SESSION_RELEASED)).containsExactly(period0);
+  }
+
+  @Test
+  public void drmEvents_periodWithDifferentDrmData_keysLoadedAgain() throws Exception {
+    MediaSource mediaSource =
+        new ConcatenatingMediaSource(
+            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, drmSessionManager, VIDEO_FORMAT_DRM_1),
+            new FakeMediaSource(
+                SINGLE_PERIOD_TIMELINE,
+                drmSessionManager,
+                VIDEO_FORMAT_DRM_1.buildUpon().setDrmInitData(DRM_DATA_2).build()));
+    TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
+
+    populateEventIds(listener.lastReportedTimeline);
+    assertThat(listener.getEvents(EVENT_DRM_ERROR)).isEmpty();
+    assertThat(listener.getEvents(EVENT_DRM_SESSION_ACQUIRED)).containsExactly(period0, period1);
+    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0, period1);
+    // The period1 release event is lost because it's posted to "ExoPlayerTest thread" after that
+    // thread has been quit during clean-up.
+    assertThat(listener.getEvents(EVENT_DRM_SESSION_RELEASED)).containsExactly(period0);
+  }
+
+  @Test
+  public void drmEvents_errorHandling() throws Exception {
+    DrmSessionManager failingDrmSessionManager =
+        new DefaultDrmSessionManager.Builder().build(new FailingDrmCallback());
+    MediaSource mediaSource =
+        new FakeMediaSource(SINGLE_PERIOD_TIMELINE, failingDrmSessionManager, VIDEO_FORMAT_DRM_1);
+    TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
+
+    populateEventIds(listener.lastReportedTimeline);
+    assertThat(listener.getEvents(EVENT_DRM_ERROR)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period0);
+  }
+
   private void populateEventIds(Timeline timeline) {
     period0 =
         new EventWindowAndPeriodId(
@@ -1542,6 +1640,44 @@ public final class AnalyticsCollectorTest {
       public String toString() {
         return "{" + "type=" + eventType + ", windowAndPeriodId=" + eventWindowAndPeriodId + '}';
       }
+    }
+  }
+
+  /**
+   * A {@link MediaDrmCallback} that returns empty byte arrays for both {@link
+   * #executeProvisionRequest(UUID, ExoMediaDrm.ProvisionRequest)} and {@link
+   * #executeKeyRequest(UUID, ExoMediaDrm.KeyRequest)}.
+   */
+  private static final class EmptyDrmCallback implements MediaDrmCallback {
+    @Override
+    public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request)
+        throws MediaDrmCallbackException {
+      return new byte[0];
+    }
+
+    @Override
+    public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request)
+        throws MediaDrmCallbackException {
+      return new byte[0];
+    }
+  }
+
+  /**
+   * A {@link MediaDrmCallback} that throws exceptions for both {@link
+   * #executeProvisionRequest(UUID, ExoMediaDrm.ProvisionRequest)} and {@link
+   * #executeKeyRequest(UUID, ExoMediaDrm.KeyRequest)}.
+   */
+  private static final class FailingDrmCallback implements MediaDrmCallback {
+    @Override
+    public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request)
+        throws MediaDrmCallbackException {
+      throw new RuntimeException("executeProvision failed");
+    }
+
+    @Override
+    public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request)
+        throws MediaDrmCallbackException {
+      throw new RuntimeException("executeKey failed");
     }
   }
 }
