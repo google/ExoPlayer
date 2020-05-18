@@ -50,6 +50,7 @@ dependencies {
     androidTestImplementation 'com.android.support:multidex:1.0.3'
     androidTestCompileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'com.google.guava:guava:' + guavaVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
