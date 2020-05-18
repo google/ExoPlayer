@@ -256,6 +256,93 @@ public final class DashMediaPeriodTest {
     MediaPeriodAsserts.assertTrackGroups(dashMediaPeriod, expectedTrackGroups);
   }
 
+  @Test
+  public void cea608AccessibilityDescriptor_createsCea608TrackGroup() {
+    Descriptor descriptor =
+        new Descriptor("urn:scte:dash:cc:cea-608:2015", "CC1=eng;CC3=deu", /* id= */ null);
+    DashManifest manifest =
+        createDashManifest(
+            createPeriod(
+                new AdaptationSet(
+                    /* id= */ 123,
+                    C.TRACK_TYPE_VIDEO,
+                    Arrays.asList(
+                        createVideoRepresentation(/* bitrate= */ 0),
+                        createVideoRepresentation(/* bitrate= */ 1)),
+                    /* accessibilityDescriptors= */ Collections.singletonList(descriptor),
+                    /* essentialProperties= */ Collections.emptyList(),
+                    /* supplementalProperties= */ Collections.emptyList())));
+    DashMediaPeriod dashMediaPeriod = createDashMediaPeriod(manifest, 0);
+    List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
+
+    // We expect two adaptation sets. The first containing the video representations, and the second
+    // containing the embedded CEA-608 tracks.
+    Format.Builder cea608FormatBuilder =
+        new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA608);
+    TrackGroupArray expectedTrackGroups =
+        new TrackGroupArray(
+            new TrackGroup(
+                adaptationSets.get(0).representations.get(0).format,
+                adaptationSets.get(0).representations.get(1).format),
+            new TrackGroup(
+                cea608FormatBuilder
+                    .setId("123:cea608:1")
+                    .setLanguage("eng")
+                    .setAccessibilityChannel(1)
+                    .build(),
+                cea608FormatBuilder
+                    .setId("123:cea608:3")
+                    .setLanguage("deu")
+                    .setAccessibilityChannel(3)
+                    .build()));
+
+    MediaPeriodAsserts.assertTrackGroups(dashMediaPeriod, expectedTrackGroups);
+  }
+
+  @Test
+  public void cea708AccessibilityDescriptor_createsCea708TrackGroup() {
+    Descriptor descriptor =
+        new Descriptor(
+            "urn:scte:dash:cc:cea-708:2015", "1=lang:eng;2=lang:deu,war:1,er:1", /* id= */ null);
+    DashManifest manifest =
+        createDashManifest(
+            createPeriod(
+                new AdaptationSet(
+                    /* id= */ 123,
+                    C.TRACK_TYPE_VIDEO,
+                    Arrays.asList(
+                        createVideoRepresentation(/* bitrate= */ 0),
+                        createVideoRepresentation(/* bitrate= */ 1)),
+                    /* accessibilityDescriptors= */ Collections.singletonList(descriptor),
+                    /* essentialProperties= */ Collections.emptyList(),
+                    /* supplementalProperties= */ Collections.emptyList())));
+    DashMediaPeriod dashMediaPeriod = createDashMediaPeriod(manifest, 0);
+    List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
+
+    // We expect two adaptation sets. The first containing the video representations, and the second
+    // containing the embedded CEA-708 tracks.
+    Format.Builder cea608FormatBuilder =
+        new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA708);
+    TrackGroupArray expectedTrackGroups =
+        new TrackGroupArray(
+            new TrackGroup(
+                adaptationSets.get(0).representations.get(0).format,
+                adaptationSets.get(0).representations.get(1).format),
+            new TrackGroup(
+                cea608FormatBuilder
+                    .setId("123:cea708:1")
+                    .setLanguage("eng")
+                    .setAccessibilityChannel(1)
+                    .build(),
+                cea608FormatBuilder
+                    .setId("123:cea708:2")
+                    .setLanguage("deu")
+                    .setAccessibilityChannel(2)
+                    .build()));
+
+    MediaPeriodAsserts.assertTrackGroups(dashMediaPeriod, expectedTrackGroups);
+  }
+
   private static DashMediaPeriod createDashMediaPeriod(DashManifest manifest, int periodIndex) {
     return new DashMediaPeriod(
         /* id= */ periodIndex,
