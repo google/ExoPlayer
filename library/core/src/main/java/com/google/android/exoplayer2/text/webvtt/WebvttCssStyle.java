@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import android.graphics.Typeface;
 import android.text.TextUtils;
+import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -83,7 +85,7 @@ public final class WebvttCssStyle {
 
   // Style properties.
   @Nullable private String fontFamily;
-  private int fontColor;
+  @ColorInt private int fontColor;
   private boolean hasFontColor;
   @OptionalBoolean private int linethrough;
   @OptionalBoolean private int underline;
@@ -91,6 +93,7 @@ public final class WebvttCssStyle {
   @OptionalBoolean private int italic;
   @FontSizeUnit private int fontSizeUnit;
   private float fontSize;
+  @RubySpan.Position private int rubyPosition;
   private boolean combineUpright;
 
   // Calling reset() is forbidden because `this` isn't initialized. This can be safely suppressed
@@ -113,6 +116,7 @@ public final class WebvttCssStyle {
     bold = UNSPECIFIED;
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
+    rubyPosition = RubySpan.POSITION_UNKNOWN;
     combineUpright = false;
   }
 
@@ -256,8 +260,19 @@ public final class WebvttCssStyle {
     return fontSize;
   }
 
-  public void setCombineUpright(boolean enabled) {
+  public WebvttCssStyle setRubyPosition(@RubySpan.Position int rubyPosition) {
+    this.rubyPosition = rubyPosition;
+    return this;
+  }
+
+  @RubySpan.Position
+  public int getRubyPosition() {
+    return rubyPosition;
+  }
+
+  public WebvttCssStyle setCombineUpright(boolean enabled) {
     this.combineUpright = enabled;
+    return this;
   }
 
   public boolean getCombineUpright() {

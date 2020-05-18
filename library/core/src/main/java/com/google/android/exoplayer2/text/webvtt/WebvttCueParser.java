@@ -538,6 +538,9 @@ public final class WebvttCueParser {
       List<StyleMatch> scratchStyleMatches) {
     int start = startTag.position;
     int end = text.length();
+    scratchStyleMatches.clear();
+    getApplicableStyles(styles, cueId, startTag, scratchStyleMatches);
+
     switch(startTag.name) {
       case TAG_BOLD:
         text.setSpan(new StyleSpan(STYLE_BOLD), start, end,
@@ -548,7 +551,7 @@ public final class WebvttCueParser {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TAG_RUBY:
-        applyRubySpans(nestedElements, text, start);
+        applyRubySpans(text, start, nestedElements, scratchStyleMatches);
         break;
       case TAG_UNDERLINE:
         text.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -563,16 +566,25 @@ public final class WebvttCueParser {
       default:
         return;
     }
-    scratchStyleMatches.clear();
-    getApplicableStyles(styles, cueId, startTag, scratchStyleMatches);
-    int styleMatchesCount = scratchStyleMatches.size();
-    for (int i = 0; i < styleMatchesCount; i++) {
+
+    for (int i = 0; i < scratchStyleMatches.size(); i++) {
       applyStyleToText(text, scratchStyleMatches.get(i).style, start, end);
     }
   }
 
   private static void applyRubySpans(
-      List<Element> nestedElements, SpannableStringBuilder text, int startTagPosition) {
+      SpannableStringBuilder text,
+      int startTagPosition,
+      List<Element> nestedElements,
+      List<StyleMatch> styleMatches) {
+    @RubySpan.Position int rubyPosition = RubySpan.POSITION_OVER;
+    for (int i = 0; i < styleMatches.size(); i++) {
+      WebvttCssStyle style = styleMatches.get(i).style;
+      if (style.getRubyPosition() != RubySpan.POSITION_UNKNOWN) {
+        rubyPosition = style.getRubyPosition();
+        break;
+      }
+    }
     List<Element> sortedNestedElements = new ArrayList<>(nestedElements.size());
     sortedNestedElements.addAll(nestedElements);
     Collections.sort(sortedNestedElements, Element.BY_START_POSITION_ASC);
@@ -589,7 +601,7 @@ public final class WebvttCueParser {
       CharSequence rubyText = text.subSequence(adjustedRubyTextStart, adjustedRubyTextEnd);
       text.delete(adjustedRubyTextStart, adjustedRubyTextEnd);
       text.setSpan(
-          new RubySpan(rubyText.toString(), RubySpan.POSITION_OVER),
+          new RubySpan(rubyText.toString(), rubyPosition),
           lastRubyTextEnd,
           adjustedRubyTextStart,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -877,7 +889,7 @@ public final class WebvttCueParser {
 
     @Override
     public int compareTo(StyleMatch another) {
-      return this.score - another.score;
+      return Integer.compare(this.score, another.score);
     }
 
   }

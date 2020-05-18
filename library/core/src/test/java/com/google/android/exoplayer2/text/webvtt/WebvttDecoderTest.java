@@ -26,6 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.common.collect.Iterables;
@@ -48,6 +49,7 @@ public class WebvttDecoderTest {
   private static final String WITH_OVERLAPPING_TIMESTAMPS_FILE =
       "webvtt/with_overlapping_timestamps";
   private static final String WITH_VERTICAL_FILE = "webvtt/with_vertical";
+  private static final String WITH_RUBIES_FILE = "webvtt/with_rubies";
   private static final String WITH_BAD_CUE_HEADER_FILE = "webvtt/with_bad_cue_header";
   private static final String WITH_TAGS_FILE = "webvtt/with_tags";
   private static final String WITH_CSS_STYLES = "webvtt/with_css_styles";
@@ -343,6 +345,51 @@ public class WebvttDecoderTest {
     Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
     assertThat(thirdCue.text.toString()).isEqualTo("No vertical setting (i.e. horizontal)");
     assertThat(thirdCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
+  }
+
+  @Test
+  public void decodeWithRubies() throws Exception {
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_RUBIES_FILE);
+
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(8);
+
+    // Check that an explicit `over` position is read from CSS.
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("Some text with over-ruby.");
+    assertThat((Spanned) firstCue.text)
+        .hasRubySpanBetween("Some ".length(), "Some text with over-ruby".length())
+        .withTextAndPosition("over", RubySpan.POSITION_OVER);
+
+    // Check that `under` is read from CSS and unspecified defaults to `over`.
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString())
+        .isEqualTo("Some text with under-ruby and over-ruby (default).");
+    assertThat((Spanned) secondCue.text)
+        .hasRubySpanBetween("Some ".length(), "Some text with under-ruby".length())
+        .withTextAndPosition("under", RubySpan.POSITION_UNDER);
+    assertThat((Spanned) secondCue.text)
+        .hasRubySpanBetween(
+            "Some text with under-ruby and ".length(),
+            "Some text with under-ruby and over-ruby (default)".length())
+        .withTextAndPosition("over", RubySpan.POSITION_OVER);
+
+    // Check many <rt> tags nested in a single <ruby> span.
+    Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
+    assertThat(thirdCue.text.toString()).isEqualTo("base1base2base3.");
+    assertThat((Spanned) thirdCue.text)
+        .hasRubySpanBetween(/* start= */ 0, "base1".length())
+        .withTextAndPosition("text1", RubySpan.POSITION_OVER);
+    assertThat((Spanned) thirdCue.text)
+        .hasRubySpanBetween("base1".length(), "base1base2".length())
+        .withTextAndPosition("text2", RubySpan.POSITION_OVER);
+    assertThat((Spanned) thirdCue.text)
+        .hasRubySpanBetween("base1base2".length(), "base1base2base3".length())
+        .withTextAndPosition("text3", RubySpan.POSITION_OVER);
+
+    // Check a <ruby> span with no <rt> tags.
+    Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
+    assertThat(fourthCue.text.toString()).isEqualTo("Some text with no ruby text.");
+    assertThat((Spanned) fourthCue.text).hasNoSpans();
   }
 
   @Test
