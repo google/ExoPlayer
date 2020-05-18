@@ -55,9 +55,23 @@
 *   IMA extension:
     *   Upgrade to IMA SDK version 3.19.0, and migrate to new
         preloading APIs
-        ([#6429](https://github.com/google/ExoPlayer/issues/6429)).
+        ([#6429](https://github.com/google/ExoPlayer/issues/6429)). This fixes
+        several issues involving preloading and handling of ad loading error
+        cases: ([#4140](https://github.com/google/ExoPlayer/issues/4140),
+        [#5006](https://github.com/google/ExoPlayer/issues/5006),
+        [#6030](https://github.com/google/ExoPlayer/issues/6030),
+        [#6097](https://github.com/google/ExoPlayer/issues/6097),
+        [#6425](https://github.com/google/ExoPlayer/issues/6425),
+        [#6967](https://github.com/google/ExoPlayer/issues/6967),
+        [#7041](https://github.com/google/ExoPlayer/issues/7041),
+        [#7161](https://github.com/google/ExoPlayer/issues/7161),
+        [#7212](https://github.com/google/ExoPlayer/issues/7212),
+        [#7340](https://github.com/google/ExoPlayer/issues/7340)).
     *   Add support for timing out ad preloading, to avoid playback getting
-        stuck if an ad group unexpectedly fails to load.
+        stuck if an ad group unexpectedly fails to load
+        ([#5444](https://github.com/google/ExoPlayer/issues/5444),
+        [#5966](https://github.com/google/ExoPlayer/issues/5966)
+        [#7002](https://github.com/google/ExoPlayer/issues/7002)).
 
 ### 2.11.4 (2020-04-08) ###
 
