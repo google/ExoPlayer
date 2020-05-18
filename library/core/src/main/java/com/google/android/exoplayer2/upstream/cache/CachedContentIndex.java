@@ -48,6 +48,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -223,31 +224,35 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Adds the given key to the index if it isn't there already.
+   * Adds a resource to the index, if it's not there already.
    *
-   * @param key The cache key that uniquely identifies the original stream.
-   * @return A new or existing CachedContent instance with the given key.
+   * @param key The cache key of the resource.
+   * @return The new or existing {@link CachedContent} corresponding to the resource.
    */
   public CachedContent getOrAdd(String key) {
     @Nullable CachedContent cachedContent = keyToContent.get(key);
     return cachedContent == null ? addNew(key) : cachedContent;
   }
 
-  /** Returns a CachedContent instance with the given key or null if there isn't one. */
+  /**
+   * Returns the {@link CachedContent} for a resource, or {@code null} if the resource is not
+   * present in the index.
+   *
+   * @param key The cache key of the resource.
+   */
   @Nullable
   public CachedContent get(String key) {
     return keyToContent.get(key);
   }
 
   /**
-   * Returns a Collection of all CachedContent instances in the index. The collection is backed by
-   * the {@code keyToContent} map, so changes to the map are reflected in the collection, and
-   * vice-versa. If the map is modified while an iteration over the collection is in progress
-   * (except through the iterator's own remove operation), the results of the iteration are
-   * undefined.
+   * Returns a read only collection of all {@link CachedContent CachedContents} in the index.
+   *
+   * <p>Subsequent changes to the index are reflected in the returned collection. If the index is
+   * modified whilst iterating over the collection, the result of the iteration is undefined.
    */
   public Collection<CachedContent> getAll() {
-    return keyToContent.values();
+    return Collections.unmodifiableCollection(keyToContent.values());
   }
 
   /** Returns an existing or new id assigned to the given key. */
@@ -261,7 +266,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return idToKey.get(id);
   }
 
-  /** Removes {@link CachedContent} with the given key from index if it's empty and not locked. */
+  /**
+   * Removes a resource if its {@link CachedContent} is both empty and unlocked.
+   *
+   * @param key The cache key of the resource.
+   */
   public void maybeRemove(String key) {
     @Nullable CachedContent cachedContent = keyToContent.get(key);
     if (cachedContent != null && cachedContent.isEmpty() && !cachedContent.isLocked()) {
@@ -282,7 +291,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  /** Removes empty and not locked {@link CachedContent} instances from index. */
+  /** Removes all resources whose {@link CachedContent CachedContents} are empty and unlocked. */
   public void removeEmpty() {
     String[] keys = new String[keyToContent.size()];
     keyToContent.keySet().toArray(keys);

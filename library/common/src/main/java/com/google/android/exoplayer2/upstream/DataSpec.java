@@ -27,9 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Defines a region of data.
- */
+/** Defines a region of data in a resource. */
 public final class DataSpec {
 
   /**
@@ -298,22 +296,21 @@ public final class DataSpec {
     }
   }
 
-  /** The {@link Uri} from which data should be read. */
+  /** A {@link Uri} from which data belonging to the resource can be read. */
   public final Uri uri;
 
   /**
-   * The offset of the data located at {@link #uri} within an original resource.
+   * The offset of the data located at {@link #uri} within the resource.
    *
-   * <p>Equal to 0 unless {@link #uri} provides access to a subset of an original resource. As an
-   * example, consider a resource that can be requested over the network and is 1000 bytes long. If
-   * {@link #uri} points to a local file that contains just bytes [200-300], then this field will be
-   * set to {@code 200}.
+   * <p>Equal to 0 unless {@link #uri} provides access to a subset of the resource. As an example,
+   * consider a resource that can be requested over the network and is 1000 bytes long. If {@link
+   * #uri} points to a local file that contains just bytes [200-300], then this field will be set to
+   * {@code 200}.
    *
    * <p>This field can be ignored except for in specific circumstances where the absolute position
-   * in the original resource is required in a {@link DataSource} chain. One example is when a
-   * {@link DataSource} needs to decrypt the content as it's read. In this case the absolute
-   * position in the original resource is typically needed to correctly initialize the decryption
-   * algorithm.
+   * in the resource is required in a {@link DataSource} chain. One example is when a {@link
+   * DataSource} needs to decrypt the content as it's read. In this case the absolute position in
+   * the resource is typically needed to correctly initialize the decryption algorithm.
    */
   public final long uriPositionOffset;
 
@@ -353,11 +350,11 @@ public final class DataSpec {
   public final Map<String, String> httpRequestHeaders;
 
   /**
-   * The absolute position of the data in the full stream.
+   * The absolute position of the data in the resource.
    *
    * @deprecated Use {@link #position} except for specific use cases where the absolute position
-   *     within the original resource is required within a {@link DataSource} chain. Where the
-   *     absolute position is required, use {@code uriPositionOffset + position}.
+   *     within the resource is required within a {@link DataSource} chain. Where the absolute
+   *     position is required, use {@code uriPositionOffset + position}.
    */
   @Deprecated public final long absoluteStreamPosition;
 
@@ -370,8 +367,8 @@ public final class DataSpec {
   public final long length;
 
   /**
-   * A key that uniquely identifies the original stream. Used for cache indexing. May be null if the
-   * data spec is not intended to be used in conjunction with a cache.
+   * A key that uniquely identifies the resource. Used for cache indexing. May be null if the data
+   * spec is not intended to be used in conjunction with a cache.
    */
   @Nullable public final String key;
 

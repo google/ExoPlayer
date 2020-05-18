@@ -134,7 +134,7 @@ public final class ProgressiveDownloader implements Downloader {
 
   @Override
   public void remove() {
-    dataSource.getCache().removeSpans(dataSource.getCacheKeyFactory().buildCacheKey(dataSpec));
+    dataSource.getCache().removeResource(dataSource.getCacheKeyFactory().buildCacheKey(dataSpec));
   }
 
   private static final class ProgressForwarder implements CacheUtil.ProgressListener {

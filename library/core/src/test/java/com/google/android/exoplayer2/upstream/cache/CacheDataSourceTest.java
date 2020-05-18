@@ -432,7 +432,7 @@ public final class CacheDataSourceTest {
     TestUtil.readExactly(cacheDataSource, 100);
 
     // Delete cached data.
-    cache.removeSpans(cacheDataSource.getCacheKeyFactory().buildCacheKey(unboundedDataSpec));
+    cache.removeResource(cacheDataSource.getCacheKeyFactory().buildCacheKey(unboundedDataSpec));
     assertCacheEmpty(cache);
 
     // Read the rest of the data.

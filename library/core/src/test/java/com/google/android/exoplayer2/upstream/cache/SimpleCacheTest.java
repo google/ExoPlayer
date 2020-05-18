@@ -236,7 +236,7 @@ public class SimpleCacheTest {
     addCache(simpleCache, KEY_2, 20, 10);
     simpleCache.releaseHoleSpan(holeSpan);
 
-    simpleCache.removeSpans(KEY_1);
+    simpleCache.removeResource(KEY_1);
     assertThat(simpleCache.getCachedSpans(KEY_1)).isEmpty();
     assertThat(simpleCache.getCachedSpans(KEY_2)).hasSize(1);
   }

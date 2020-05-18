@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** This class stores span metadata in filename. */
+/** A {@link CacheSpan} that encodes metadata into the names of the underlying cache files. */
 /* package */ final class SimpleCacheSpan extends CacheSpan {
 
   /* package */ static final String COMMON_SUFFIX = ".exo";
@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
    *
    * @param cacheDir The parent abstract pathname.
    * @param id The cache file id.
-   * @param position The position of the stored data in the original stream.
+   * @param position The position of the stored data in the resource.
    * @param timestamp The file timestamp.
    * @return The cache file.
    */
@@ -53,8 +53,8 @@ import java.util.regex.Pattern;
   /**
    * Creates a lookup span.
    *
-   * @param key The cache key.
-   * @param position The position of the {@link CacheSpan} in the original stream.
+   * @param key The cache key of the resource.
+   * @param position The position of the {@link CacheSpan} in the resource.
    * @return The span.
    */
   public static SimpleCacheSpan createLookup(String key, long position) {
@@ -64,8 +64,8 @@ import java.util.regex.Pattern;
   /**
    * Creates an open hole span.
    *
-   * @param key The cache key.
-   * @param position The position of the {@link CacheSpan} in the original stream.
+   * @param key The cache key of the resource.
+   * @param position The position of the {@link CacheSpan} in the resource.
    * @return The span.
    */
   public static SimpleCacheSpan createOpenHole(String key, long position) {
@@ -75,8 +75,8 @@ import java.util.regex.Pattern;
   /**
    * Creates a closed hole span.
    *
-   * @param key The cache key.
-   * @param position The position of the {@link CacheSpan} in the original stream.
+   * @param key The cache key of the resource.
+   * @param position The position of the {@link CacheSpan} in the resource.
    * @param length The length of the {@link CacheSpan}.
    * @return The span.
    */
@@ -190,8 +190,8 @@ import java.util.regex.Pattern;
   }
 
   /**
-   * @param key The cache key.
-   * @param position The position of the {@link CacheSpan} in the original stream.
+   * @param key The cache key of the resource.
+   * @param position The position of the {@link CacheSpan} in the resource.
    * @param length The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an
    *     open-ended hole.
    * @param lastTouchTimestamp The last touch timestamp, or {@link C#TIME_UNSET} if {@link

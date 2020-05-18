@@ -21,14 +21,14 @@ import com.google.android.exoplayer2.util.Log;
 import java.io.File;
 import java.util.TreeSet;
 
-/** Defines the cached content for a single stream. */
+/** Defines the cached content for a single resource. */
 /* package */ final class CachedContent {
 
   private static final String TAG = "CachedContent";
 
-  /** The cache file id that uniquely identifies the original stream. */
+  /** The cache id that uniquely identifies the resource. */
   public final int id;
-  /** The cache key that uniquely identifies the original stream. */
+  /** The cache key that uniquely identifies the resource. */
   public final String key;
   /** The cached spans of this content. */
   private final TreeSet<SimpleCacheSpan> cachedSpans;
@@ -40,8 +40,8 @@ import java.util.TreeSet;
   /**
    * Creates a CachedContent.
    *
-   * @param id The cache file id.
-   * @param key The cache stream key.
+   * @param id The cache id of the resource.
+   * @param key The cache key of the resource.
    */
   public CachedContent(int id, String key) {
     this(id, key, DefaultContentMetadata.EMPTY);
@@ -106,13 +106,15 @@ import java.util.TreeSet;
   }
 
   /**
-   * Returns the length of the cached data block starting from the {@code position} to the block end
-   * up to {@code length} bytes. If the {@code position} isn't cached then -(the length of the gap
-   * to the next cached data up to {@code length} bytes) is returned.
+   * Returns the length of continuously cached data starting from {@code position}, up to a maximum
+   * of {@code maxLength}. If {@code position} isn't cached, then {@code -holeLength} is returned,
+   * where {@code holeLength} is the length of continuously un-cached data starting from {@code
+   * position}, up to a maximum of {@code maxLength}.
    *
    * @param position The starting position of the data.
-   * @param length The maximum length of the data to be returned.
-   * @return the length of the cached or not cached data block length.
+   * @param length The maximum length of the data or hole to be returned.
+   * @return The length of continuously cached data, or {@code -holeLength} if {@code position}
+   *     isn't cached.
    */
   public long getCachedBytesLength(long position, long length) {
     SimpleCacheSpan span = getSpan(position);
