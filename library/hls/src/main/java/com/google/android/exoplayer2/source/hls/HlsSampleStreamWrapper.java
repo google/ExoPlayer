@@ -68,7 +68,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -147,6 +146,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MonotonicNonNull Format upstreamTrackFormat;
   @Nullable private Format downstreamTrackFormat;
   private boolean released;
+  private boolean interrupted;
+  private int preferredQueueSize;
 
   // Tracks are complicated in HLS. See documentation of buildTracksFromSampleStreams for details.
   // Indexed by track (as exposed by this source).
@@ -697,12 +698,25 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void reevaluateBuffer(long positionUs) {
-    if (loader.isLoading() || isPendingReset()) {
+    if (loader.hasFatalError() || isPendingReset()) {
       return;
     }
 
     int currentQueueSize = mediaChunks.size();
-    int preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
+    preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
+    if (loader.isLoading()) {
+      if (currentQueueSize > preferredQueueSize) {
+        interrupted = true;
+        loader.cancelLoading();
+      }
+      return;
+    }
+
+    upstreamDiscard();
+  }
+
+  private void upstreamDiscard() {
+    int currentQueueSize = mediaChunks.size();
     if (currentQueueSize <= preferredQueueSize) {
       return;
     }
@@ -722,8 +736,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         + " chunk count: " + currentQueueSize
         + " target chunk count: " + newQueueSize);
 
-    dumpCurrentChunkList();
-
     long endTimeUs = getLastMediaChunk().endTimeUs;
     HlsMediaChunk firstRemovedChunk = discardUpstreamMediaChunksFromIndex(newQueueSize);
     if (mediaChunks.isEmpty()) {
@@ -731,8 +743,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     loadingFinished = false;
 
-    dumpCurrentChunkList();
-    eventDispatcher.upstreamDiscarded(primarySampleQueueType, firstRemovedChunk.startTimeUs, endTimeUs);
+    eventDispatcher
+        .upstreamDiscarded(primarySampleQueueType, firstRemovedChunk.startTimeUs, endTimeUs);
   }
 
   /**
@@ -746,40 +758,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     HlsMediaChunk firstRemovedChunk = mediaChunks.get(chunkIndex);
     Util.removeRange(mediaChunks, /* fromIndex= */ chunkIndex, /* toIndex= */ mediaChunks.size());
 
+    int[] firstSamples = firstRemovedChunk.getFirstSampleIndexes();
+    if (firstSamples.length != 0) {
+      for (int i = 0; i < sampleQueues.length; i++) {
+        Log.d(TAG, "discardUpstreamSamples() -  stream:  from index: " + firstSamples[i]);
 
-    int [] firstSamples = firstRemovedChunk.getFirstSampleIndexes();
-    for (int i=0; i < sampleQueues.length; i++) {
-      Log.d(TAG, "discardUpstreamSamples() -  stream: " + " from index: " + firstSamples[i]);
-
-      sampleQueues[i].discardUpstreamSamples(firstSamples[i]);
+        sampleQueues[i].discardUpstreamSamples(firstSamples[i]);
+      }
     }
-
-    dumpCurrentChunkList();
 
     return firstRemovedChunk;
   }
-
-
-  public void dumpCurrentChunkList() {
-    Log.d(TAG, "Dump MediaChunks - trackType: " + trackType + " chunk count: " + mediaChunks.size()
-        + " primary sample write: "+sampleQueues[primarySampleQueueIndex].getWriteIndex()
-        + " primary sample read: "+sampleQueues[primarySampleQueueIndex].getReadIndex()
-    );
-    for (int i=0; i<mediaChunks.size(); i++) {
-      HlsMediaChunk chunk = mediaChunks.get(i);
-      Log.d(TAG, "chunk " + chunk.uid + " reading: " + haveReadFromMediaChunk(i)
-          + " start/end: " + chunk.startTimeUs + "/" + chunk.endTimeUs + " primary sample index: "
-          + chunk.getFirstSampleIndexes()[primarySampleQueueIndex] + " format: "+chunk.trackFormat);
-    }
-  }
-
 
   /** Returns whether samples have been read from primary sample queue of the indicated chunk */
   private boolean haveReadFromMediaChunk(int mediaChunkIndex) {
     HlsMediaChunk mediaChunk = mediaChunks.get(mediaChunkIndex);
     boolean haveRead = false;
-    int [] firstSamples = mediaChunk.getFirstSampleIndexes();
-    for (int i=0; i < firstSamples.length; i++) {
+    int[] firstSamples = mediaChunk.getFirstSampleIndexes();
+    for (int i = 0; i < firstSamples.length; i++) {
       haveRead = haveRead || sampleQueues[i].getReadIndex() > firstSamples[i];
     }
     return haveRead;
@@ -838,11 +834,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         loadable.startTimeUs,
         loadable.endTimeUs);
     if (!released) {
-      resetSampleQueues();
+      if (interrupted) {
+        discardAfterInterrupt();
+      }
+      else {
+        resetSampleQueues();
+      }
       if (enabledTrackGroupCount > 0) {
         callback.onContinueLoadingRequested(this);
       }
     }
+  }
+
+  private void discardAfterInterrupt() {
+    interrupted = false;
+    upstreamDiscard();
   }
 
   @Override
@@ -938,11 +944,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     mediaChunks.add(chunk);
 
     chunk.init(this);
-    HlsMediaChunk loadingChunk = findChunkMatching(chunk.uid);
-    for (int i=0; i < sampleQueues.length; i++) {
-      SampleQueue sampleQueue = sampleQueues[i];
+    for (int i = 0; i < sampleQueues.length; i++) {
+      HlsSampleQueue sampleQueue = sampleQueues[i];
       sampleQueue.setSourceChunk(chunk);
-      loadingChunk.setFirstSampleIndex(i, sampleQueue.getWriteIndex());
+      chunk.setFirstSampleIndex(i, sampleQueue.getWriteIndex());
     }
     if (chunk.shouldSpliceIn) {
       for (SampleQueue sampleQueue : sampleQueues) {
@@ -1039,8 +1044,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleQueueTrackIds = Arrays.copyOf(sampleQueueTrackIds, trackCount + 1);
     sampleQueueTrackIds[trackCount] = id;
     sampleQueues = Util.nullSafeArrayAppend(sampleQueues, sampleQueue);
-    HlsMediaChunk mediaChunk = findChunkMatching(sourceChunk.uid);
-    mediaChunk.setFirstSampleIndex(trackCount, 0);
+    sourceChunk.setFirstSampleIndex(trackCount, sampleQueue.getWriteIndex());
     sampleQueueIsAudioVideoFlags = Arrays.copyOf(sampleQueueIsAudioVideoFlags, trackCount + 1);
     sampleQueueIsAudioVideoFlags[trackCount] = isAudioVideo;
     haveAudioVideoSampleQueues |= sampleQueueIsAudioVideoFlags[trackCount];
@@ -1131,17 +1135,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   // Internal methods.
 
-  private HlsMediaChunk findChunkMatching(int chunkUid) {
-    ListIterator iter = mediaChunks.listIterator(mediaChunks.size());
-    while (iter.hasPrevious()) {
-      HlsMediaChunk chunk = (HlsMediaChunk) iter.previous();
-      if (chunk.uid == chunkUid) {
-        return chunk;
-      }
-    }
-    return null;
-  }
-
   private void updateSampleStreams(@NullableType SampleStream[] streams) {
     hlsSampleStreams.clear();
     for (@Nullable SampleStream stream : streams) {
@@ -1192,20 +1185,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       buildTracksFromSampleStreams();
       setIsPrepared();
 
-      Log.d(TAG, "Wrapper prepared - trackType: " + trackType + " tracks: " + trackGroups.length + " sample queues: " + sampleQueues.length + " sample streams: " + hlsSampleStreams.size());
-
-      for (int i = 0; i < trackGroups.length; i++) {
-        TrackGroup group = trackGroups.get(i);
-        int sampleQueueIndex = this.trackGroupToSampleQueueIndex[i];
-        if (sampleQueueIndex == C.INDEX_UNSET) {
-          Log.d(TAG, " track group " + i + " is unmapped, tracks: " + group.length);
-        } else {
-          Log.d(TAG, " track group " + i + " is maped to sample queue: " + sampleQueueIndex + "  ,tracks: " + group.length);
-          for (int j=0; j<group.length; j++) {
-            Log.d(TAG, "   track " + j + " format: " + group.getFormat(j));
-          }
-        }
-      }
       callback.onPrepared();
     }
   }
