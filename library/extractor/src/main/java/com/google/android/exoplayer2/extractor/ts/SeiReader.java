@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.List;
 
-/** Consumes SEI buffers, outputting contained CEA-608 messages to a {@link TrackOutput}. */
+/** Consumes SEI buffers, outputting contained CEA-608/708 messages to a {@link TrackOutput}. */
 public final class SeiReader {
 
   private final List<Format> closedCaptionFormats;
