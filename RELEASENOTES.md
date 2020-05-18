@@ -210,7 +210,7 @@
     *   Add support for timing out ad preloading, to avoid playback getting
         stuck if an ad group unexpectedly fails to load
         ([#5444](https://github.com/google/ExoPlayer/issues/5444),
-        [#5966](https://github.com/google/ExoPlayer/issues/5966)
+        [#5966](https://github.com/google/ExoPlayer/issues/5966),
         [#7002](https://github.com/google/ExoPlayer/issues/7002)).
 *   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
 *   Cronet extension: Default to using the Cronet implementation in Google Play
