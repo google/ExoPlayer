@@ -45,7 +45,7 @@ public final class Requirements implements Parcelable {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {NETWORK, NETWORK_UNMETERED, DEVICE_IDLE, DEVICE_CHARGING})
+      value = {NETWORK, NETWORK_UNMETERED, DEVICE_IDLE, DEVICE_CHARGING, DEVICE_STORAGE_NOT_LOW})
   public @interface RequirementFlags {}
 
   /** Requirement that the device has network connectivity. */
@@ -56,6 +56,8 @@ public final class Requirements implements Parcelable {
   public static final int DEVICE_IDLE = 1 << 2;
   /** Requirement that the device is charging. */
   public static final int DEVICE_CHARGING = 1 << 3;
+  /** Requirement that the storage is not low. */
+  public static final int DEVICE_STORAGE_NOT_LOW = 1 << 4;
 
   @RequirementFlags private final int requirements;
 
@@ -94,6 +96,10 @@ public final class Requirements implements Parcelable {
     return (requirements & DEVICE_IDLE) != 0;
   }
 
+  public boolean isStorageNotLowRequired() {
+    return (requirements & DEVICE_STORAGE_NOT_LOW) != 0;
+  }
+
   /**
    * Returns whether the requirements are met.
    *
@@ -118,6 +124,9 @@ public final class Requirements implements Parcelable {
     }
     if (isIdleRequired() && !isDeviceIdle(context)) {
       notMetRequirements |= DEVICE_IDLE;
+    }
+    if (isStorageNotLowRequired() && !isStorageNotLow(context)) {
+      notMetRequirements |= DEVICE_STORAGE_NOT_LOW;
     }
     return notMetRequirements;
   }
@@ -160,6 +169,34 @@ public final class Requirements implements Parcelable {
     return Util.SDK_INT >= 23
         ? powerManager.isDeviceIdleMode()
         : Util.SDK_INT >= 20 ? !powerManager.isInteractive() : !powerManager.isScreenOn();
+  }
+
+  /**
+   * Implementation taken from the the WorkManager source.
+   * @see <a href="https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/work/workmanager/src/main/java/androidx/work/impl/constraints/trackers/StorageNotLowTracker.java">StorageNotLowTracker</a>
+   */
+  private boolean isStorageNotLow(Context context) {
+    IntentFilter intentFilter = new IntentFilter();
+    intentFilter.addAction(Intent.ACTION_DEVICE_STORAGE_OK);
+    intentFilter.addAction(Intent.ACTION_DEVICE_STORAGE_LOW);
+    Intent intent = context.registerReceiver(null, intentFilter);
+    if (intent == null || intent.getAction() == null) {
+      // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient
+      // storage is available again.  ACTION_DEVICE_STORAGE_OK is not sticky.  So if we
+      // don't receive anything here, we can assume that the storage state is okay.
+      return true;
+    } else {
+      switch (intent.getAction()) {
+        case Intent.ACTION_DEVICE_STORAGE_OK:
+          return true;
+        case Intent.ACTION_DEVICE_STORAGE_LOW:
+          return false;
+        default:
+          // This should never happen because the intent filter is configured
+          // correctly.
+          return true;
+      }
+    }
   }
 
   private static boolean isInternetConnectivityValidated(ConnectivityManager connectivityManager) {
