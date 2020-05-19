@@ -63,6 +63,9 @@ public final class CacheUtilTest {
 
     @Override
     public long getCachedLength(String key, long position, long length) {
+      if (length == C.LENGTH_UNSET) {
+        length = Long.MAX_VALUE;
+      }
       for (int i = 0; i < spansAndGaps.length; i++) {
         int spanOrGap = spansAndGaps[i];
         if (position < spanOrGap) {
