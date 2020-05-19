@@ -49,8 +49,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -239,7 +241,6 @@ public final class WebvttCueParser {
       @Nullable String id, String markup, List<WebvttCssStyle> styles) {
     SpannableStringBuilder spannedText = new SpannableStringBuilder();
     ArrayDeque<StartTag> startTagStack = new ArrayDeque<>();
-    List<StyleMatch> scratchStyleMatches = new ArrayList<>();
     int pos = 0;
     List<Element> nestedElements = new ArrayList<>();
     while (pos < markup.length()) {
@@ -270,8 +271,7 @@ public final class WebvttCueParser {
                 break;
               }
               startTag = startTagStack.pop();
-              applySpansForTag(
-                  id, startTag, nestedElements, spannedText, styles, scratchStyleMatches);
+              applySpansForTag(id, startTag, nestedElements, spannedText, styles);
               if (!startTagStack.isEmpty()) {
                 nestedElements.add(new Element(startTag, spannedText.length()));
               } else {
@@ -307,16 +307,14 @@ public final class WebvttCueParser {
     }
     // apply unclosed tags
     while (!startTagStack.isEmpty()) {
-      applySpansForTag(
-          id, startTagStack.pop(), nestedElements, spannedText, styles, scratchStyleMatches);
+      applySpansForTag(id, startTagStack.pop(), nestedElements, spannedText, styles);
     }
     applySpansForTag(
         id,
         StartTag.buildWholeCueVirtualTag(),
         /* nestedElements= */ Collections.emptyList(),
         spannedText,
-        styles,
-        scratchStyleMatches);
+        styles);
     return SpannedString.valueOf(spannedText);
   }
 
@@ -534,8 +532,7 @@ public final class WebvttCueParser {
       StartTag startTag,
       List<Element> nestedElements,
       SpannableStringBuilder text,
-      List<WebvttCssStyle> styles,
-      List<StyleMatch> scratchStyleMatches) {
+      List<WebvttCssStyle> styles) {
     int start = startTag.position;
     int end = text.length();
 
@@ -565,10 +562,9 @@ public final class WebvttCueParser {
         return;
     }
 
-    scratchStyleMatches.clear();
-    getApplicableStyles(styles, cueId, startTag, scratchStyleMatches);
-    for (int i = 0; i < scratchStyleMatches.size(); i++) {
-      applyStyleToText(text, scratchStyleMatches.get(i).style, start, end);
+    List<StyleMatch> applicableStyles = getApplicableStyles(styles, cueId, startTag);
+    for (int i = 0; i < applicableStyles.size(); i++) {
+      applyStyleToText(text, applicableStyles.get(i).style, start, end);
     }
   }
 
@@ -616,8 +612,7 @@ public final class WebvttCueParser {
   @RubySpan.Position
   private static int getRubyPosition(
       List<WebvttCssStyle> styles, @Nullable String cueId, StartTag startTag) {
-    List<StyleMatch> styleMatches = new ArrayList<>();
-    getApplicableStyles(styles, cueId, startTag, styleMatches);
+    List<StyleMatch> styleMatches = getApplicableStyles(styles, cueId, startTag);
     for (int i = 0; i < styleMatches.size(); i++) {
       WebvttCssStyle style = styleMatches.get(i).style;
       if (style.getRubyPosition() != RubySpan.POSITION_UNKNOWN) {
@@ -652,7 +647,7 @@ public final class WebvttCueParser {
    * colors</a>.
    */
   private static void applyDefaultColors(
-      SpannableStringBuilder text, String[] classes, int start, int end) {
+      SpannableStringBuilder text, Set<String> classes, int start, int end) {
     for (String className : classes) {
       if (DEFAULT_TEXT_COLORS.containsKey(className)) {
         int color = DEFAULT_TEXT_COLORS.get(className);
@@ -746,20 +741,18 @@ public final class WebvttCueParser {
     return Util.splitAtFirst(tagExpression, "[ \\.]")[0];
   }
 
-  private static void getApplicableStyles(
-      List<WebvttCssStyle> declaredStyles,
-      @Nullable String id,
-      StartTag tag,
-      List<StyleMatch> output) {
-    int styleCount = declaredStyles.size();
-    for (int i = 0; i < styleCount; i++) {
+  private static List<StyleMatch> getApplicableStyles(
+      List<WebvttCssStyle> declaredStyles, @Nullable String id, StartTag tag) {
+    List<StyleMatch> applicableStyles = new ArrayList<>();
+    for (int i = 0; i < declaredStyles.size(); i++) {
       WebvttCssStyle style = declaredStyles.get(i);
       int score = style.getSpecificityScore(id, tag.name, tag.classes, tag.voice);
       if (score > 0) {
-        output.add(new StyleMatch(score, style));
+        applicableStyles.add(new StyleMatch(score, style));
       }
     }
-    Collections.sort(output);
+    Collections.sort(applicableStyles);
+    return applicableStyles;
   }
 
   private static final class WebvttCueInfoBuilder {
@@ -929,14 +922,12 @@ public final class WebvttCueParser {
 
   private static final class StartTag {
 
-    private static final String[] NO_CLASSES = new String[0];
-
     public final String name;
     public final int position;
     public final String voice;
-    public final String[] classes;
+    public final Set<String> classes;
 
-    private StartTag(String name, int position, String voice, String[] classes) {
+    private StartTag(String name, int position, String voice, Set<String> classes) {
       this.position = position;
       this.name = name;
       this.voice = voice;
@@ -956,17 +947,19 @@ public final class WebvttCueParser {
       }
       String[] nameAndClasses = Util.split(fullTagExpression, "\\.");
       String name = nameAndClasses[0];
-      String[] classes;
-      if (nameAndClasses.length > 1) {
-        classes = Util.nullSafeArrayCopyOfRange(nameAndClasses, 1, nameAndClasses.length);
-      } else {
-        classes = NO_CLASSES;
+      Set<String> classes = new HashSet<>();
+      for (int i = 1; i < nameAndClasses.length; i++) {
+        classes.add(nameAndClasses[i]);
       }
       return new StartTag(name, position, voice, classes);
     }
 
     public static StartTag buildWholeCueVirtualTag() {
-      return new StartTag("", 0, "", new String[0]);
+      return new StartTag(
+          /* name= */ "",
+          /* position= */ 0,
+          /* voice= */ "",
+          /* classes= */ Collections.emptySet());
     }
 
   }
