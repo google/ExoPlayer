@@ -494,6 +494,9 @@ public final class SimpleCache implements Cache {
   @Override
   public synchronized long getCachedLength(String key, long position, long length) {
     Assertions.checkState(!released);
+    if (length == C.LENGTH_UNSET) {
+      length = Long.MAX_VALUE;
+    }
     @Nullable CachedContent cachedContent = contentIndex.get(key);
     return cachedContent != null ? cachedContent.getCachedBytesLength(position, length) : -length;
   }

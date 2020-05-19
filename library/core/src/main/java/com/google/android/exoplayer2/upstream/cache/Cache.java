@@ -272,7 +272,8 @@ public interface Cache {
    *
    * @param key The cache key of the resource.
    * @param position The starting position of the data in the resource.
-   * @param length The maximum length of the data or hole to be returned.
+   * @param length The maximum length of the data or hole to be returned. {@link C#LENGTH_UNSET} is
+   *     permitted, and is equivalent to passing {@link Long#MAX_VALUE}.
    * @return The length of the continuously cached data, or {@code -holeLength} if {@code position}
    *     isn't cached.
    */

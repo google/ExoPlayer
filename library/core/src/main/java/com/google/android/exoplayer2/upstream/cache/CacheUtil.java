@@ -74,9 +74,7 @@ public final class CacheUtil {
     long bytesAlreadyCached = 0;
     long bytesLeft = requestLength;
     while (bytesLeft != 0) {
-      long blockLength =
-          cache.getCachedLength(
-              key, position, bytesLeft != C.LENGTH_UNSET ? bytesLeft : Long.MAX_VALUE);
+      long blockLength = cache.getCachedLength(key, position, bytesLeft);
       if (blockLength > 0) {
         bytesAlreadyCached += blockLength;
       } else {
@@ -173,11 +171,9 @@ public final class CacheUtil {
     }
 
     long position = dataSpec.position;
-    boolean lengthUnset = bytesLeft == C.LENGTH_UNSET;
     while (bytesLeft != 0) {
       throwExceptionIfCanceled(isCanceled);
-      long blockLength =
-          cache.getCachedLength(key, position, lengthUnset ? Long.MAX_VALUE : bytesLeft);
+      long blockLength = cache.getCachedLength(key, position, bytesLeft);
       if (blockLength > 0) {
         // Skip already cached data.
       } else {
@@ -197,14 +193,14 @@ public final class CacheUtil {
                 temporaryBuffer);
         if (read < blockLength) {
           // Reached to the end of the data.
-          if (enableEOFException && !lengthUnset) {
+          if (enableEOFException && bytesLeft != C.LENGTH_UNSET) {
             throw new EOFException();
           }
           break;
         }
       }
       position += blockLength;
-      if (!lengthUnset) {
+      if (bytesLeft != C.LENGTH_UNSET) {
         bytesLeft -= blockLength;
       }
     }

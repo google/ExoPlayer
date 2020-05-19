@@ -307,9 +307,13 @@ public class SimpleCacheTest {
         .isEqualTo(-100);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ Long.MAX_VALUE))
         .isEqualTo(-Long.MAX_VALUE);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ LENGTH_UNSET))
+        .isEqualTo(-Long.MAX_VALUE);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ 100))
         .isEqualTo(-100);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(-Long.MAX_VALUE);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ LENGTH_UNSET))
         .isEqualTo(-Long.MAX_VALUE);
   }
 
@@ -324,9 +328,13 @@ public class SimpleCacheTest {
         .isEqualTo(-50);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ Long.MAX_VALUE))
         .isEqualTo(-50);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ LENGTH_UNSET))
+        .isEqualTo(-50);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ 100))
         .isEqualTo(-30);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(-30);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ LENGTH_UNSET))
         .isEqualTo(-30);
   }
 
@@ -341,9 +349,13 @@ public class SimpleCacheTest {
         .isEqualTo(50);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ Long.MAX_VALUE))
         .isEqualTo(50);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ LENGTH_UNSET))
+        .isEqualTo(50);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ 100))
         .isEqualTo(30);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(30);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ LENGTH_UNSET))
         .isEqualTo(30);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ 15))
         .isEqualTo(15);
@@ -361,9 +373,13 @@ public class SimpleCacheTest {
         .isEqualTo(50);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ Long.MAX_VALUE))
         .isEqualTo(50);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ LENGTH_UNSET))
+        .isEqualTo(50);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ 100))
         .isEqualTo(30);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(30);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ LENGTH_UNSET))
         .isEqualTo(30);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ 15))
         .isEqualTo(15);
@@ -381,9 +397,13 @@ public class SimpleCacheTest {
         .isEqualTo(10);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ Long.MAX_VALUE))
         .isEqualTo(10);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 0, /* length= */ LENGTH_UNSET))
+        .isEqualTo(10);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ 100))
         .isEqualTo(30);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(30);
+    assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ LENGTH_UNSET))
         .isEqualTo(30);
     assertThat(simpleCache.getCachedLength(KEY_1, /* position= */ 20, /* length= */ 15))
         .isEqualTo(15);
