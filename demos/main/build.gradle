@@ -70,6 +70,7 @@ dependencies {
     implementation project(modulePrefix + 'library-hls')
     implementation project(modulePrefix + 'library-smoothstreaming')
     implementation project(modulePrefix + 'library-ui')
+    withExtensionsImplementation project(path: modulePrefix + 'extension-workmanager')
     withExtensionsImplementation project(path: modulePrefix + 'extension-av1')
     withExtensionsImplementation project(path: modulePrefix + 'extension-ffmpeg')
     withExtensionsImplementation project(path: modulePrefix + 'extension-flac')

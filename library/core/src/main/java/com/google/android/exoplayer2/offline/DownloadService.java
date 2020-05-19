@@ -658,6 +658,10 @@ public abstract class DownloadService extends Service {
         if (requirements == null) {
           Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
+          @Nullable Scheduler scheduler = getScheduler();
+          if (scheduler != null) {
+            requirements = scheduler.getSupportedRequirements(requirements);
+          }
           downloadManager.setRequirements(requirements);
         }
         break;

@@ -96,6 +96,19 @@ public final class JobDispatcherScheduler implements Scheduler {
     return result == FirebaseJobDispatcher.CANCEL_RESULT_SUCCESS;
   }
 
+  @Override
+  public Requirements getSupportedRequirements(Requirements requirements) {
+    Requirements supportedRequirements = requirements;
+    if (requirements.isStorageNotLowRequired()) {
+      Log.w(TAG, "Storage not low requirement not supported on the JobDispatcherScheduler "
+          + "Requirement removed.");
+      int newRequirements =
+          supportedRequirements.getRequirements() ^ Requirements.DEVICE_STORAGE_NOT_LOW;
+      supportedRequirements = new Requirements(newRequirements);
+    }
+    return supportedRequirements;
+  }
+
   private static Job buildJob(
       FirebaseJobDispatcher dispatcher,
       Requirements requirements,
