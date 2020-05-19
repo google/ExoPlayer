@@ -280,6 +280,18 @@ public interface Cache {
   long getCachedLength(String key, long position, long length);
 
   /**
+   * Returns the total number of cached bytes between {@code position} (inclusive) and {@code
+   * (position + length)} (exclusive) of a resource.
+   *
+   * @param key The cache key of the resource.
+   * @param position The starting position of the data in the resource.
+   * @param length The length of the data to check. {@link C#LENGTH_UNSET} is permitted, and is
+   *     equivalent to passing {@link Long#MAX_VALUE}.
+   * @return The total number of cached bytes.
+   */
+  long getCachedBytes(String key, long position, long length);
+
+  /**
    * Applies {@code mutations} to the {@link ContentMetadata} for the given resource. A new {@link
    * CachedContent} is added if there isn't one already for the resource.
    *

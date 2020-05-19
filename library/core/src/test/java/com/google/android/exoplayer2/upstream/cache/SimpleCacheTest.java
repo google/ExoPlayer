@@ -409,6 +409,72 @@ public class SimpleCacheTest {
         .isEqualTo(15);
   }
 
+  @Test
+  public void getCachedBytes_noCachedContent_returnsZero() {
+    SimpleCache simpleCache = getSimpleCache();
+
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 0, /* length= */ 100))
+        .isEqualTo(0);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 0, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(0);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 0, /* length= */ LENGTH_UNSET))
+        .isEqualTo(0);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ 100))
+        .isEqualTo(0);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(0);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ LENGTH_UNSET))
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void getCachedBytes_withMultipleAdjacentSpans_returnsCachedBytes() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+    CacheSpan cacheSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0);
+    addCache(simpleCache, KEY_1, /* position= */ 0, /* length= */ 25);
+    addCache(simpleCache, KEY_1, /* position= */ 25, /* length= */ 25);
+    simpleCache.releaseHoleSpan(cacheSpan);
+
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 0, /* length= */ 100))
+        .isEqualTo(50);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 0, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(50);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 0, /* length= */ LENGTH_UNSET))
+        .isEqualTo(50);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ 100))
+        .isEqualTo(30);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(30);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ LENGTH_UNSET))
+        .isEqualTo(30);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ 15))
+        .isEqualTo(15);
+  }
+
+  @Test
+  public void getCachedBytes_withMultipleNonAdjacentSpans_returnsCachedBytes() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+    CacheSpan cacheSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0);
+    addCache(simpleCache, KEY_1, /* position= */ 0, /* length= */ 10);
+    addCache(simpleCache, KEY_1, /* position= */ 15, /* length= */ 35);
+    simpleCache.releaseHoleSpan(cacheSpan);
+
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 0, /* length= */ 100))
+        .isEqualTo(45);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 0, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(45);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 0, /* length= */ LENGTH_UNSET))
+        .isEqualTo(45);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ 100))
+        .isEqualTo(30);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ Long.MAX_VALUE))
+        .isEqualTo(30);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ LENGTH_UNSET))
+        .isEqualTo(30);
+    assertThat(simpleCache.getCachedBytes(KEY_1, /* position= */ 20, /* length= */ 10))
+        .isEqualTo(10);
+  }
+
   /* Tests https://github.com/google/ExoPlayer/issues/3260 case. */
   @Test
   public void exceptionDuringEvictionByLeastRecentlyUsedCacheEvictorNotHang() throws Exception {
