@@ -71,8 +71,8 @@ public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
   private static final String TAG = "SampleChooserActivity";
-  private static final String GROUP_POSITION_PREFERENCE_KEY = "SAMPLE_CHOOSER_GROUP_POSITION";
-  private static final String CHILD_POSITION_PREFERENCE_KEY = "SAMPLE_CHOOSER_CHILD_POSITION";
+  private static final String GROUP_POSITION_PREFERENCE_KEY = "sample_chooser_group_position";
+  private static final String CHILD_POSITION_PREFERENCE_KEY = "sample_chooser_child_position";
 
   private String[] uris;
   private boolean useExtensionRenderers;
@@ -209,16 +209,13 @@ public class SampleChooserActivity extends AppCompatActivity
     sampleAdapter.setPlaylistGroups(groups);
 
     SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-
-    int groupPosition = -1;
-    int childPosition = -1;
-    try {
-      groupPosition = preferences.getInt(GROUP_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
-      childPosition = preferences.getInt(CHILD_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
-    } catch (ClassCastException e) {
-      Log.w(TAG, "Saved position is not an int. Will not restore position.", e);
-    }
-    if (groupPosition != -1 && childPosition != -1) {
+    int groupPosition = preferences.getInt(GROUP_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
+    int childPosition = preferences.getInt(CHILD_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
+    // Clear the group and child position if either are unset or if either are out of bounds.
+    if (groupPosition != -1
+        && childPosition != -1
+        && groupPosition < groups.size()
+        && childPosition < groups.get(groupPosition).playlists.size()) {
       sampleListView.expandGroup(groupPosition); // shouldExpandGroup does not work without this.
       sampleListView.setSelectedChild(groupPosition, childPosition, /* shouldExpandGroup= */ true);
     }
