@@ -168,26 +168,6 @@ public class TestUtil {
     return byteArray;
   }
 
-  /**
-   * Concatenates the provided byte arrays.
-   *
-   * @param byteArrays The byte arrays to concatenate.
-   * @return The concatenated result.
-   */
-  public static byte[] joinByteArrays(byte[]... byteArrays) {
-    int length = 0;
-    for (byte[] byteArray : byteArrays) {
-      length += byteArray.length;
-    }
-    byte[] joined = new byte[length];
-    length = 0;
-    for (byte[] byteArray : byteArrays) {
-      System.arraycopy(byteArray, 0, joined, length, byteArray.length);
-      length += byteArray.length;
-    }
-    return joined;
-  }
-
   /** Writes one byte long dummy test data to the file and returns it. */
   public static File createTestFile(File directory, String name) throws IOException {
     return createTestFile(directory, name, /* length= */ 1);

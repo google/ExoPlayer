@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Function;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Bytes;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -105,7 +106,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
       throw new EOFException();
     }
     newData = Arrays.copyOf(newData, bytesAppended);
-    sampleData = TestUtil.joinByteArrays(sampleData, newData);
+    sampleData = Bytes.concat(sampleData, newData);
     return bytesAppended;
   }
 
@@ -113,7 +114,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
   public void sampleData(ParsableByteArray data, int length, @SampleDataPart int sampleDataPart) {
     byte[] newData = new byte[length];
     data.readBytes(newData, 0, length);
-    sampleData = TestUtil.joinByteArrays(sampleData, newData);
+    sampleData = Bytes.concat(sampleData, newData);
   }
 
   @Override

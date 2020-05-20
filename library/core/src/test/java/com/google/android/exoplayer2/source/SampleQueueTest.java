@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.primitives.Bytes;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
@@ -483,7 +484,7 @@ public final class SampleQueueTest {
     byte[] sampleData = new byte[] {0, 1, 2};
     byte[] initializationVector = new byte[] {7, 6, 5, 4, 3, 2, 1, 0};
     byte[] encryptedSampleData =
-        TestUtil.joinByteArrays(
+        Bytes.concat(
             new byte[] {
               0x08, // subsampleEncryption = false (1 bit), ivSize = 8 (7 bits).
             },

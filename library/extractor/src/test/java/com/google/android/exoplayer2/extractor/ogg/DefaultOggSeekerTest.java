@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.primitives.Bytes;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.Random;
@@ -125,7 +126,7 @@ public final class DefaultOggSeekerTest {
   public void skipToNextPage_success() throws Exception {
     FakeExtractorInput extractorInput =
         createInput(
-            TestUtil.joinByteArrays(
+            Bytes.concat(
                 TestUtil.buildTestData(4000, random),
                 new byte[] {'O', 'g', 'g', 'S'},
                 TestUtil.buildTestData(4000, random)),
@@ -138,7 +139,7 @@ public final class DefaultOggSeekerTest {
   public void skipToNextPage_withOverlappingInput_success() throws Exception {
     FakeExtractorInput extractorInput =
         createInput(
-            TestUtil.joinByteArrays(
+            Bytes.concat(
                 TestUtil.buildTestData(2046, random),
                 new byte[] {'O', 'g', 'g', 'S'},
                 TestUtil.buildTestData(4000, random)),
@@ -151,8 +152,7 @@ public final class DefaultOggSeekerTest {
   public void skipToNextPage_withInputShorterThanPeekLength_success() throws Exception {
     FakeExtractorInput extractorInput =
         createInput(
-            TestUtil.joinByteArrays(new byte[] {'x', 'O', 'g', 'g', 'S'}),
-            /* simulateUnknownLength= */ false);
+            Bytes.concat(new byte[] {'x', 'O', 'g', 'g', 'S'}), /* simulateUnknownLength= */ false);
     skipToNextPage(extractorInput);
     assertThat(extractorInput.getPosition()).isEqualTo(1);
   }

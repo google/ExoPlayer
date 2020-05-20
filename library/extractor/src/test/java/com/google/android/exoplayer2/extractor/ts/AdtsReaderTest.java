@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.primitives.Bytes;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class AdtsReaderTest {
       TestUtil.createByteArray(0x20, 0x00, 0x20, 0x00, 0x00, 0x80, 0x0e);
 
   private static final byte[] TEST_DATA =
-      TestUtil.joinByteArrays(ID3_DATA_1, ID3_DATA_2, ADTS_HEADER, ADTS_CONTENT);
+      Bytes.concat(ID3_DATA_1, ID3_DATA_2, ADTS_HEADER, ADTS_CONTENT);
 
   private static final long ADTS_SAMPLE_DURATION = 23219L;
 
@@ -94,7 +95,7 @@ public class AdtsReaderTest {
   public void skipToNextSampleResetsState() throws Exception {
     data =
         new ParsableByteArray(
-            TestUtil.joinByteArrays(
+            Bytes.concat(
                 ADTS_HEADER,
                 ADTS_CONTENT,
                 ADTS_HEADER,
