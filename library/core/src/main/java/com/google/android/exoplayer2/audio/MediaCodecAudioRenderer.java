@@ -839,7 +839,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
             || Util.DEVICE.startsWith("ms01"));
   }
 
-  @C.Encoding
+  @C.PcmEncoding
   private static int getPcmEncoding(Format format) {
     // If the format is anything other than PCM then we assume that the audio decoder will output
     // 16-bit PCM.
