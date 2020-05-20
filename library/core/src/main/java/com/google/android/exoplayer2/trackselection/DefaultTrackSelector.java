@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Ints;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -1822,7 +1823,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         maxVideoBitrate,
         selectedTrackIndices);
 
-    return selectedTrackIndices.size() < 2 ? NO_TRACKS : Util.toArray(selectedTrackIndices);
+    return selectedTrackIndices.size() < 2 ? NO_TRACKS : Ints.toArray(selectedTrackIndices);
   }
 
   private static int getAdaptiveVideoTrackCountForMimeType(

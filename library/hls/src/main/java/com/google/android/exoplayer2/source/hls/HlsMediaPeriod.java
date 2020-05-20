@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Ints;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -719,7 +720,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
               /* muxedCaptionFormats= */ Collections.emptyList(),
               overridingDrmInitData,
               positionUs);
-      manifestUrlsIndicesPerWrapper.add(Util.toArray(scratchIndicesList));
+      manifestUrlsIndicesPerWrapper.add(Ints.toArray(scratchIndicesList));
       sampleStreamWrappers.add(sampleStreamWrapper);
 
       if (allowChunklessPreparation && renditionsHaveCodecs) {

@@ -227,6 +227,7 @@
 *   MediaSession extension: Set session playback state to BUFFERING only when
     actually playing ([#7367](https://github.com/google/ExoPlayer/pull/7367),
     [#7206](https://github.com/google/ExoPlayer/issues/7206)).
+*   Add Guava dependency.
 
 ### 2.11.4 (2020-04-08)
 

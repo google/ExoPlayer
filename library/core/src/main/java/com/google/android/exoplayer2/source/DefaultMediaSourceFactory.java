@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Ints;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -323,7 +324,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         .setPlayClearSamplesWithoutKeys(
             mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey)
         .setUseDrmSessionsForClearContent(
-            Util.toArray(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes))
+            Ints.toArray(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes))
         .build(createHttpMediaDrmCallback(mediaItem.playbackProperties.drmConfiguration));
   }
 

@@ -723,15 +723,13 @@ public class UtilTest {
     String input = "a short string";
 
     assertThat(Util.truncateAscii(input, 100)).isSameInstanceAs(input);
-    assertThat(Util.truncateAscii((CharSequence) input, 100)).isSameInstanceAs(input);
   }
 
   @Test
   public void truncateAscii_longInput_truncated() {
     String input = "a much longer string";
 
-    assertThat(Util.truncateAscii(input, 5)).isEqualTo("a muc");
-    assertThat(Util.truncateAscii((CharSequence) input, 5).toString()).isEqualTo("a muc");
+    assertThat(Util.truncateAscii(input, 5).toString()).isEqualTo("a muc");
   }
 
   @Test
@@ -997,21 +995,6 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("hak")).isEqualTo("zh-hak");
     assertThat(Util.normalizeLanguageCode("nan")).isEqualTo("zh-nan");
     assertThat(Util.normalizeLanguageCode("hsn")).isEqualTo("zh-hsn");
-  }
-
-  @Test
-  public void toList() {
-    assertThat(Util.toList(0, 3, 4)).containsExactly(0, 3, 4).inOrder();
-  }
-
-  @Test
-  public void toList_nullPassed_returnsEmptyList() {
-    assertThat(Util.toList(null)).isEmpty();
-  }
-
-  @Test
-  public void toList_emptyArrayPassed_returnsEmptyList() {
-    assertThat(Util.toList(new int[0])).isEmpty();
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {
