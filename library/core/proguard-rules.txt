@@ -62,7 +62,7 @@
   <init>(android.net.Uri, java.util.List, com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory, java.util.concurrent.Executor);
 }
 
-# Constructors accessed via reflection in DefaultMediaSourceFactory and DownloadHelper
+# Constructors accessed via reflection in DefaultMediaSourceFactory
 -dontnote com.google.android.exoplayer2.source.dash.DashMediaSource$Factory
 -keepclasseswithmembers class com.google.android.exoplayer2.source.dash.DashMediaSource$Factory {
   <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
