@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Ints;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -604,7 +605,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     int[][] groupedAdaptationSetIndices = new int[adaptationSetGroupedIndices.size()][];
     for (int i = 0; i < groupedAdaptationSetIndices.length; i++) {
-      groupedAdaptationSetIndices[i] = Util.toArray(adaptationSetGroupedIndices.get(i));
+      groupedAdaptationSetIndices[i] = Ints.toArray(adaptationSetGroupedIndices.get(i));
       // Restore the original adaptation set order within each group.
       Arrays.sort(groupedAdaptationSetIndices[i]);
     }

@@ -21,7 +21,7 @@ project.ext {
     compileSdkVersion = 29
     dexmakerVersion = '2.21.0'
     junitVersion = '4.13-rc-2'
-    guavaVersion = '28.2-android'
+    guavaVersion = '27.1-android'
     mockitoVersion = '2.25.0'
     robolectricVersion = '4.4-SNAPSHOT'
     checkerframeworkVersion = '2.5.0'

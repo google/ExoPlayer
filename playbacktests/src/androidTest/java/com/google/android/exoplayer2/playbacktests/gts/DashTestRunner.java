@@ -56,6 +56,7 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Ints;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -444,7 +445,7 @@ import java.util.List;
         }
       }
 
-      int[] trackIndicesArray = Util.toArray(trackIndices);
+      int[] trackIndicesArray = Ints.toArray(trackIndices);
       Arrays.sort(trackIndicesArray);
       return trackIndicesArray;
     }
