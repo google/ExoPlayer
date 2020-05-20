@@ -17,12 +17,12 @@ package com.google.android.exoplayer2.metadata.emsg;
 
 import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
 import static com.google.android.exoplayer2.testutil.TestUtil.createMetadataInputBuffer;
-import static com.google.android.exoplayer2.testutil.TestUtil.joinByteArrays;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import com.google.common.primitives.Bytes;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +35,7 @@ public final class EventMessageEncoderTest {
       new EventMessage("urn:test", "123", 3000, 1000403, new byte[] {0, 1, 2, 3, 4});
 
   private static final byte[] ENCODED_MESSAGE =
-      joinByteArrays(
+      Bytes.concat(
           createByteArray(117, 114, 110, 58, 116, 101, 115, 116, 0), // scheme_id_uri = "urn:test"
           createByteArray(49, 50, 51, 0), // value = "123"
           createByteArray(0, 0, 11, 184), // event_duration_ms = 3000
@@ -64,7 +64,7 @@ public final class EventMessageEncoderTest {
     EventMessage eventMessage1 =
         new EventMessage("urn:test", "123", 3000, 1000402, new byte[] {4, 3, 2, 1, 0});
     byte[] expectedEmsgBody1 =
-        joinByteArrays(
+        Bytes.concat(
             createByteArray(117, 114, 110, 58, 116, 101, 115, 116, 0), // scheme_id_uri = "urn:test"
             createByteArray(49, 50, 51, 0), // value = "123"
             createByteArray(0, 0, 11, 184), // event_duration_ms = 3000

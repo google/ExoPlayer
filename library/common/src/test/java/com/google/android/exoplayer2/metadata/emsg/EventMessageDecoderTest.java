@@ -17,13 +17,13 @@ package com.google.android.exoplayer2.metadata.emsg;
 
 import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
 import static com.google.android.exoplayer2.testutil.TestUtil.createMetadataInputBuffer;
-import static com.google.android.exoplayer2.testutil.TestUtil.joinByteArrays;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import com.google.common.primitives.Bytes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,7 +34,7 @@ public final class EventMessageDecoderTest {
   @Test
   public void decodeEventMessage() {
     byte[] rawEmsgBody =
-        joinByteArrays(
+        Bytes.concat(
             createByteArray(117, 114, 110, 58, 116, 101, 115, 116, 0), // scheme_id_uri = "urn:test"
             createByteArray(49, 50, 51, 0), // value = "123"
             createByteArray(0, 0, 11, 184), // event_duration_ms = 3000

@@ -23,6 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.common.primitives.Bytes;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -153,7 +154,7 @@ public final class BatchBufferTest {
     batchBuffer.commitNextAccessUnit();
     batchBuffer.flip();
 
-    byte[] expected = TestUtil.joinByteArrays(TEST_ACCESS_UNIT, TEST_ACCESS_UNIT);
+    byte[] expected = Bytes.concat(TEST_ACCESS_UNIT, TEST_ACCESS_UNIT);
     assertThat(batchBuffer.data).isEqualTo(ByteBuffer.wrap(expected));
   }
 

@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamI
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.primitives.Bytes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +44,7 @@ import org.junit.runner.RunWith;
 public class MetadataRendererTest {
 
   private static final byte[] SCTE35_TIME_SIGNAL_BYTES =
-      TestUtil.joinByteArrays(
+      Bytes.concat(
           TestUtil.createByteArray(
               0, // table_id.
               0x80, // section_syntax_indicator, private_indicator, reserved, section_length(4).
@@ -170,7 +171,7 @@ public class MetadataRendererTest {
    */
   private static byte[] encodeTxxxId3Frame(String description, String value) {
     byte[] id3FrameData =
-        TestUtil.joinByteArrays(
+        Bytes.concat(
             "TXXX".getBytes(ISO_8859_1), // ID for a 'user defined text information frame'
             TestUtil.createByteArray(0, 0, 0, 0), // Frame size (set later)
             TestUtil.createByteArray(0, 0), // Frame flags
@@ -186,7 +187,7 @@ public class MetadataRendererTest {
     id3FrameData[frameSizeIndex] = (byte) frameSize;
 
     byte[] id3Bytes =
-        TestUtil.joinByteArrays(
+        Bytes.concat(
             "ID3".getBytes(ISO_8859_1), // identifier
             TestUtil.createByteArray(0x04, 0x00), // version
             TestUtil.createByteArray(0), // Tag flags
