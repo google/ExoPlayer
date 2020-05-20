@@ -24,7 +24,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.Download;
@@ -106,7 +105,9 @@ public class DownloadTracker {
       }
       startDownloadDialogHelper =
           new StartDownloadDialogHelper(
-              fragmentManager, getDownloadHelper(mediaItem, renderersFactory), mediaItem);
+              fragmentManager,
+              DownloadHelper.forMediaItem(context, mediaItem, renderersFactory, dataSourceFactory),
+              mediaItem);
     }
   }
 
@@ -118,28 +119,6 @@ public class DownloadTracker {
       }
     } catch (IOException e) {
       Log.w(TAG, "Failed to query downloads", e);
-    }
-  }
-
-  private DownloadHelper getDownloadHelper(MediaItem mediaItem, RenderersFactory renderersFactory) {
-    MediaItem.PlaybackProperties playbackProperties = checkNotNull(mediaItem.playbackProperties);
-    @C.ContentType
-    int type =
-        Util.inferContentTypeWithMimeType(playbackProperties.uri, playbackProperties.mimeType);
-    switch (type) {
-      case C.TYPE_DASH:
-        return DownloadHelper.forDash(
-            context, playbackProperties.uri, dataSourceFactory, renderersFactory);
-      case C.TYPE_SS:
-        return DownloadHelper.forSmoothStreaming(
-            context, playbackProperties.uri, dataSourceFactory, renderersFactory);
-      case C.TYPE_HLS:
-        return DownloadHelper.forHls(
-            context, playbackProperties.uri, dataSourceFactory, renderersFactory);
-      case C.TYPE_OTHER:
-        return DownloadHelper.forProgressive(context, playbackProperties.uri);
-      default:
-        throw new IllegalStateException("Unsupported type: " + type);
     }
   }
 
