@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeoutException;
 
 /**
  * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayer.Builder}.
@@ -175,6 +176,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
             applicationHandler,
             clock);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
+  }
+
+  /**
+   * Set a limit on the time a call to {@link #release()} can spend. If a call to {@link #release()}
+   * takes more than {@code timeoutMs} milliseconds to complete, the player will raise an error via
+   * {@link Player.EventListener#onPlayerError}.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release. It should
+   * only be called before the player is used.
+   *
+   * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
+   */
+  public void experimental_setReleaseTimeoutMs(long timeoutMs) {
+    internalPlayer.experimental_setReleaseTimeoutMs(timeoutMs);
   }
 
   /**
@@ -675,7 +690,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
     Log.i(TAG, "Release " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "] ["
         + ExoPlayerLibraryInfo.registeredModules() + "]");
-    internalPlayer.release();
+    if (!internalPlayer.release()) {
+      notifyListeners(
+          listener ->
+              listener.onPlayerError(
+                  ExoPlaybackException.createForUnexpected(
+                      new RuntimeException(new TimeoutException("Player release timed out.")))));
+    }
     applicationHandler.removeCallbacksAndMessages(null);
     playbackInfo =
         getResetPlaybackInfo(
