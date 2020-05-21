@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
-import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
@@ -56,38 +55,6 @@ public final class CacheUtil {
   /** @deprecated Use {@link CacheKeyFactory#DEFAULT}. */
   @Deprecated
   public static final CacheKeyFactory DEFAULT_CACHE_KEY_FACTORY = CacheKeyFactory.DEFAULT;
-
-  /**
-   * Queries the cache to obtain the request length and the number of bytes already cached for a
-   * given {@link DataSpec}.
-   *
-   * @param dataSpec Defines the data to be checked.
-   * @param cache A {@link Cache} which has the data.
-   * @param cacheKeyFactory An optional factory for cache keys.
-   * @return A pair containing the request length and the number of bytes that are already cached.
-   */
-  public static Pair<Long, Long> getCached(
-      DataSpec dataSpec, Cache cache, @Nullable CacheKeyFactory cacheKeyFactory) {
-    String key = buildCacheKey(dataSpec, cacheKeyFactory);
-    long position = dataSpec.position;
-    long requestLength = getRequestLength(dataSpec, cache, key);
-    long bytesAlreadyCached = 0;
-    long bytesLeft = requestLength;
-    while (bytesLeft != 0) {
-      long blockLength = cache.getCachedLength(key, position, bytesLeft);
-      if (blockLength > 0) {
-        bytesAlreadyCached += blockLength;
-      } else {
-        blockLength = -blockLength;
-        if (blockLength == Long.MAX_VALUE) {
-          break;
-        }
-      }
-      position += blockLength;
-      bytesLeft -= bytesLeft == C.LENGTH_UNSET ? 0 : blockLength;
-    }
-    return Pair.create(requestLength, bytesAlreadyCached);
-  }
 
   /**
    * Caches the data defined by {@code dataSpec}, skipping already cached data. Caching stops early
@@ -157,23 +124,26 @@ public final class CacheUtil {
     Assertions.checkNotNull(temporaryBuffer);
 
     Cache cache = dataSource.getCache();
-    CacheKeyFactory cacheKeyFactory = dataSource.getCacheKeyFactory();
-    String key = buildCacheKey(dataSpec, cacheKeyFactory);
-    long bytesLeft;
+    String cacheKey = dataSource.getCacheKeyFactory().buildCacheKey(dataSpec);
+    long requestLength = dataSpec.length;
+    if (requestLength == C.LENGTH_UNSET) {
+      long resourceLength = ContentMetadata.getContentLength(cache.getContentMetadata(cacheKey));
+      if (resourceLength != C.LENGTH_UNSET) {
+        requestLength = resourceLength - dataSpec.position;
+      }
+    }
+    long bytesCached = cache.getCachedBytes(cacheKey, dataSpec.position, requestLength);
     @Nullable ProgressNotifier progressNotifier = null;
     if (progressListener != null) {
       progressNotifier = new ProgressNotifier(progressListener);
-      Pair<Long, Long> lengthAndBytesAlreadyCached = getCached(dataSpec, cache, cacheKeyFactory);
-      progressNotifier.init(lengthAndBytesAlreadyCached.first, lengthAndBytesAlreadyCached.second);
-      bytesLeft = lengthAndBytesAlreadyCached.first;
-    } else {
-      bytesLeft = getRequestLength(dataSpec, cache, key);
+      progressNotifier.init(requestLength, bytesCached);
     }
 
     long position = dataSpec.position;
+    long bytesLeft = requestLength;
     while (bytesLeft != 0) {
       throwExceptionIfCanceled(isCanceled);
-      long blockLength = cache.getCachedLength(key, position, bytesLeft);
+      long blockLength = cache.getCachedLength(cacheKey, position, bytesLeft);
       if (blockLength > 0) {
         // Skip already cached data.
       } else {
@@ -203,15 +173,6 @@ public final class CacheUtil {
       if (bytesLeft != C.LENGTH_UNSET) {
         bytesLeft -= blockLength;
       }
-    }
-  }
-
-  private static long getRequestLength(DataSpec dataSpec, Cache cache, String key) {
-    if (dataSpec.length != C.LENGTH_UNSET) {
-      return dataSpec.length;
-    } else {
-      long contentLength = ContentMetadata.getContentLength(cache.getContentMetadata(key));
-      return contentLength == C.LENGTH_UNSET ? C.LENGTH_UNSET : contentLength - dataSpec.position;
     }
   }
 
@@ -307,12 +268,6 @@ public final class CacheUtil {
         Util.closeQuietly(dataSource);
       }
     }
-  }
-
-  private static String buildCacheKey(
-      DataSpec dataSpec, @Nullable CacheKeyFactory cacheKeyFactory) {
-    return (cacheKeyFactory != null ? cacheKeyFactory : CacheKeyFactory.DEFAULT)
-        .buildCacheKey(dataSpec);
   }
 
   private static void throwExceptionIfCanceled(@Nullable AtomicBoolean isCanceled)

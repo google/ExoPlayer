@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
-import android.util.Pair;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -102,65 +101,6 @@ public final class CacheUtilTest {
   @After
   public void tearDown() {
     Util.recursiveDelete(tempFolder);
-  }
-
-  @Test
-  public void getCachedNoData() {
-    Pair<Long, Long> contentLengthAndBytesCached =
-        CacheUtil.getCached(
-            new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null);
-
-    assertThat(contentLengthAndBytesCached.first).isEqualTo(C.LENGTH_UNSET);
-    assertThat(contentLengthAndBytesCached.second).isEqualTo(0);
-  }
-
-  @Test
-  public void getCachedDataUnknownLength() {
-    // Mock there is 100 bytes cached at the beginning
-    mockCache.spansAndGaps = new int[] {100};
-    Pair<Long, Long> contentLengthAndBytesCached =
-        CacheUtil.getCached(
-            new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null);
-
-    assertThat(contentLengthAndBytesCached.first).isEqualTo(C.LENGTH_UNSET);
-    assertThat(contentLengthAndBytesCached.second).isEqualTo(100);
-  }
-
-  @Test
-  public void getCachedNoDataKnownLength() {
-    mockCache.contentLength = 1000;
-    Pair<Long, Long> contentLengthAndBytesCached =
-        CacheUtil.getCached(
-            new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null);
-
-    assertThat(contentLengthAndBytesCached.first).isEqualTo(1000);
-    assertThat(contentLengthAndBytesCached.second).isEqualTo(0);
-  }
-
-  @Test
-  public void getCached() {
-    mockCache.contentLength = 1000;
-    mockCache.spansAndGaps = new int[] {100, 100, 200};
-    Pair<Long, Long> contentLengthAndBytesCached =
-        CacheUtil.getCached(
-            new DataSpec(Uri.parse("test")), mockCache, /* cacheKeyFactory= */ null);
-
-    assertThat(contentLengthAndBytesCached.first).isEqualTo(1000);
-    assertThat(contentLengthAndBytesCached.second).isEqualTo(300);
-  }
-
-  @Test
-  public void getCachedFromNonZeroPosition() {
-    mockCache.contentLength = 1000;
-    mockCache.spansAndGaps = new int[] {100, 100, 200};
-    Pair<Long, Long> contentLengthAndBytesCached =
-        CacheUtil.getCached(
-            new DataSpec(Uri.parse("test"), /* position= */ 100, /* length= */ C.LENGTH_UNSET),
-            mockCache,
-            /* cacheKeyFactory= */ null);
-
-    assertThat(contentLengthAndBytesCached.first).isEqualTo(900);
-    assertThat(contentLengthAndBytesCached.second).isEqualTo(200);
   }
 
   @Test
