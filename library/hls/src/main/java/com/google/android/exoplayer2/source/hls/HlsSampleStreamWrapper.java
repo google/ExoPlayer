@@ -1388,22 +1388,25 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   private static final class HlsSampleQueue extends SampleQueue {
 
-    /**
-     * The fraction of the chunk duration from which timestamps of samples loaded from within a
-     * chunk are allowed to deviate from the expected range.
-     */
-    private static final double MAX_TIMESTAMP_DEVIATION_FRACTION = 0.5;
-
-    /**
-     * A minimum tolerance for sample timestamps in microseconds. Timestamps of samples loaded from
-     * within a chunk are always allowed to deviate up to this amount from the expected range.
-     */
-    private static final long MIN_TIMESTAMP_DEVIATION_TOLERANCE_US = 4_000_000;
-
-    @Nullable private HlsMediaChunk sourceChunk;
-    private long sourceChunkLastSampleTimeUs;
-    private long minAllowedSampleTimeUs;
-    private long maxAllowedSampleTimeUs;
+    // TODO: Uncomment this to reject samples with unexpected timestamps. See
+    // https://github.com/google/ExoPlayer/issues/7030.
+    // /**
+    //  * The fraction of the chunk duration from which timestamps of samples loaded from within a
+    //  * chunk are allowed to deviate from the expected range.
+    //  */
+    // private static final double MAX_TIMESTAMP_DEVIATION_FRACTION = 0.5;
+    //
+    // /**
+    //  * A minimum tolerance for sample timestamps in microseconds. Timestamps of samples loaded
+    //  * from within a chunk are always allowed to deviate up to this amount from the expected
+    //  * range.
+    //  */
+    // private static final long MIN_TIMESTAMP_DEVIATION_TOLERANCE_US = 4_000_000;
+    //
+    // @Nullable private HlsMediaChunk sourceChunk;
+    // private long sourceChunkLastSampleTimeUs;
+    // private long minAllowedSampleTimeUs;
+    // private long maxAllowedSampleTimeUs;
 
     private final Map<String, DrmInitData> overridingDrmInitData;
     @Nullable private DrmInitData drmInitData;
@@ -1419,16 +1422,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     public void setSourceChunk(HlsMediaChunk chunk) {
-      sourceChunk = chunk;
-      sourceChunkLastSampleTimeUs = C.TIME_UNSET;
       sourceId(chunk.uid);
 
-      long allowedDeviationUs =
-          Math.max(
-              (long) ((chunk.endTimeUs - chunk.startTimeUs) * MAX_TIMESTAMP_DEVIATION_FRACTION),
-              MIN_TIMESTAMP_DEVIATION_TOLERANCE_US);
-      minAllowedSampleTimeUs = chunk.startTimeUs - allowedDeviationUs;
-      maxAllowedSampleTimeUs = chunk.endTimeUs + allowedDeviationUs;
+      // TODO: Uncomment this to reject samples with unexpected timestamps. See
+      // https://github.com/google/ExoPlayer/issues/7030.
+      // sourceChunk = chunk;
+      // sourceChunkLastSampleTimeUs = C.TIME_UNSET;
+      // long allowedDeviationUs =
+      //     Math.max(
+      //         (long) ((chunk.endTimeUs - chunk.startTimeUs) * MAX_TIMESTAMP_DEVIATION_FRACTION),
+      //         MIN_TIMESTAMP_DEVIATION_TOLERANCE_US);
+      // minAllowedSampleTimeUs = chunk.startTimeUs - allowedDeviationUs;
+      // maxAllowedSampleTimeUs = chunk.endTimeUs + allowedDeviationUs;
     }
 
     public void setDrmInitData(@Nullable DrmInitData drmInitData) {
@@ -1506,7 +1511,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       //       new UnexpectedSampleTimestampException(
       //           sourceChunk, sourceChunkLastSampleTimeUs, timeUs));
       // }
-      sourceChunkLastSampleTimeUs = timeUs;
+      // sourceChunkLastSampleTimeUs = timeUs;
       super.sampleMetadata(timeUs, flags, size, offset, cryptoData);
     }
   }
