@@ -146,6 +146,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MonotonicNonNull Format upstreamTrackFormat;
   @Nullable private Format downstreamTrackFormat;
   private boolean released;
+  private int pendingDiscardUpstreamQueueSize;
 
   // Tracks are complicated in HLS. See documentation of buildTracksFromSampleStreams for details.
   // Indexed by track (as exposed by this source).
@@ -229,6 +230,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     handler = Util.createHandler();
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
+    pendingDiscardUpstreamQueueSize = C.LENGTH_UNSET;
   }
 
   public void continuePreparing() {
@@ -696,7 +698,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void reevaluateBuffer(long positionUs) {
-    // Do nothing.
+    if (loader.hasFatalError() || isPendingReset()) {
+      return;
+    }
+
+    int currentQueueSize = mediaChunks.size();
+    int preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
+    if (currentQueueSize <= preferredQueueSize) {
+      return;
+    }
+    if (loader.isLoading()) {
+      pendingDiscardUpstreamQueueSize = preferredQueueSize;
+      loader.cancelLoading();
+    } else {
+      discardUpstream(preferredQueueSize);
+    }
   }
 
   // Loader.Callback implementation.
@@ -753,7 +769,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         loadable.startTimeUs,
         loadable.endTimeUs);
     if (!released) {
-      resetSampleQueues();
+      if (pendingDiscardUpstreamQueueSize != C.LENGTH_UNSET) {
+        discardUpstream(pendingDiscardUpstreamQueueSize);
+        pendingDiscardUpstreamQueueSize = C.LENGTH_UNSET;
+      } else {
+        resetSampleQueues();
+      }
       if (enabledTrackGroupCount > 0) {
         callback.onContinueLoadingRequested(this);
       }
@@ -851,16 +872,36 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     upstreamTrackFormat = chunk.trackFormat;
     pendingResetPositionUs = C.TIME_UNSET;
     mediaChunks.add(chunk);
-
-    chunk.init(this);
+    chunk.init(/* output= */ this, sampleQueues);
     for (HlsSampleQueue sampleQueue : sampleQueues) {
       sampleQueue.setSourceChunk(chunk);
     }
-    if (chunk.shouldSpliceIn) {
-      for (SampleQueue sampleQueue : sampleQueues) {
-        sampleQueue.splice();
+  }
+
+  private void discardUpstream(int preferredQueueSize) {
+    Assertions.checkState(!loader.isLoading());
+
+    int currentQueueSize = mediaChunks.size();
+    int newQueueSize = Integer.MAX_VALUE;
+    for (int i = preferredQueueSize; i < currentQueueSize; i++) {
+      if (!haveReadFromMediaChunkDiscardRange(i)) {
+        newQueueSize = i;
+        break;
       }
     }
+    if (newQueueSize >= currentQueueSize) {
+      return;
+    }
+
+    long endTimeUs = getLastMediaChunk().endTimeUs;
+    HlsMediaChunk firstRemovedChunk = discardUpstreamMediaChunksFromIndex(newQueueSize);
+    if (mediaChunks.isEmpty()) {
+      pendingResetPositionUs = lastSeekPositionUs;
+    }
+    loadingFinished = false;
+
+    eventDispatcher.upstreamDiscarded(
+        primarySampleQueueType, firstRemovedChunk.startTimeUs, endTimeUs);
   }
 
   // ExtractorOutput implementation. Called by the loading thread.
@@ -1059,6 +1100,27 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
     return true;
+  }
+
+  private boolean haveReadFromMediaChunkDiscardRange(int mediaChunkIndex) {
+    HlsMediaChunk mediaChunk = mediaChunks.get(mediaChunkIndex);
+    for (SampleQueue sampleQueue : sampleQueues) {
+      int discardFromIndex = mediaChunk.getSampleQueueDiscardFromIndex(sampleQueue);
+      if (sampleQueue.getReadIndex() > discardFromIndex) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private HlsMediaChunk discardUpstreamMediaChunksFromIndex(int chunkIndex) {
+    HlsMediaChunk firstRemovedChunk = mediaChunks.get(chunkIndex);
+    Util.removeRange(mediaChunks, /* fromIndex= */ chunkIndex, /* toIndex= */ mediaChunks.size());
+    for (SampleQueue sampleQueue : sampleQueues) {
+      int discardFromIndex = firstRemovedChunk.getSampleQueueDiscardFromIndex(sampleQueue);
+      sampleQueue.discardUpstreamSamples(discardFromIndex);
+    }
+    return firstRemovedChunk;
   }
 
   private void resetSampleQueues() {
