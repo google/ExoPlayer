@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.offline;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.net.Uri;
-import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
@@ -30,6 +29,7 @@ import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheUtil;
+import com.google.android.exoplayer2.upstream.cache.ContentMetadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
@@ -136,11 +136,18 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
       long contentLength = 0;
       long bytesDownloaded = 0;
       for (int i = segments.size() - 1; i >= 0; i--) {
-        Segment segment = segments.get(i);
-        Pair<Long, Long> segmentLengthAndBytesDownloaded =
-            CacheUtil.getCached(segment.dataSpec, cache, cacheKeyFactory);
-        long segmentLength = segmentLengthAndBytesDownloaded.first;
-        long segmentBytesDownloaded = segmentLengthAndBytesDownloaded.second;
+        DataSpec dataSpec = segments.get(i).dataSpec;
+        String cacheKey = cacheKeyFactory.buildCacheKey(dataSpec);
+        long segmentLength = dataSpec.length;
+        if (segmentLength == C.LENGTH_UNSET) {
+          long resourceLength =
+              ContentMetadata.getContentLength(cache.getContentMetadata(cacheKey));
+          if (resourceLength != C.LENGTH_UNSET) {
+            segmentLength = resourceLength - dataSpec.position;
+          }
+        }
+        long segmentBytesDownloaded =
+            cache.getCachedBytes(cacheKey, dataSpec.position, segmentLength);
         bytesDownloaded += segmentBytesDownloaded;
         if (segmentLength != C.LENGTH_UNSET) {
           if (segmentLength == segmentBytesDownloaded) {
