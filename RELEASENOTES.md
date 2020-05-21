@@ -157,6 +157,9 @@
         and `AudioSink.handleBuffer` to allow batching multiple encoded frames
         in one buffer.
     *   No longer use a `MediaCodec` in audio passthrough mode.
+    *   Check `DefaultAudioSink` supports passthrough, in addition to checking
+        the `AudioCapabilities`
+        ([#7404](https://github.com/google/ExoPlayer/issues/7404)).
 *   DASH:
     *   Merge trick play adaptation sets (i.e., adaptation sets marked with
         `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as

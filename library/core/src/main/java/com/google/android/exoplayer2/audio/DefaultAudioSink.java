@@ -417,10 +417,7 @@ public final class DefaultAudioSink implements AudioSink {
       // channels to the output device's required number of channels.
       return encoding != C.ENCODING_PCM_FLOAT || Util.SDK_INT >= 21;
     } else {
-      return audioCapabilities != null
-          && audioCapabilities.supportsEncoding(encoding)
-          && (channelCount == Format.NO_VALUE
-              || channelCount <= audioCapabilities.getMaxChannelCount());
+      return isPassthroughPlaybackSupported(encoding, channelCount);
     }
   }
 
@@ -1181,6 +1178,23 @@ public final class DefaultAudioSink implements AudioSink {
     return configuration.isInputPcm
         ? (writtenPcmBytes / configuration.outputPcmFrameSize)
         : writtenEncodedFrames;
+  }
+
+  private boolean isPassthroughPlaybackSupported(@C.Encoding int encoding, int channelCount) {
+    // Check for encodings that are known to work for passthrough with the implementation in this
+    // class. This avoids trying to use passthrough with an encoding where the device/app reports
+    // it's capable but it is untested or known to be broken (for example AAC-LC).
+    return audioCapabilities != null
+        && audioCapabilities.supportsEncoding(encoding)
+        && (encoding == C.ENCODING_AC3
+            || encoding == C.ENCODING_E_AC3
+            || encoding == C.ENCODING_E_AC3_JOC
+            || encoding == C.ENCODING_AC4
+            || encoding == C.ENCODING_DTS
+            || encoding == C.ENCODING_DTS_HD
+            || encoding == C.ENCODING_DOLBY_TRUEHD)
+        && (channelCount == Format.NO_VALUE
+            || channelCount <= audioCapabilities.getMaxChannelCount());
   }
 
   private static AudioTrack initializeKeepSessionIdAudioTrack(int audioSessionId) {

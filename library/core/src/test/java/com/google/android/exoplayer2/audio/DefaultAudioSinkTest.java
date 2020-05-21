@@ -215,6 +215,17 @@ public final class DefaultAudioSinkTest {
         .isTrue();
   }
 
+  @Test
+  public void audioSinkWithAacAudioCapabilitiesWithoutOffload_doesNotSupportAacOutput() {
+    DefaultAudioSink defaultAudioSink =
+        new DefaultAudioSink(
+            new AudioCapabilities(new int[] {C.ENCODING_AAC_LC}, 2), new AudioProcessor[0]);
+    assertThat(
+            defaultAudioSink.supportsOutput(
+                CHANNEL_COUNT_STEREO, SAMPLE_RATE_44_1, C.ENCODING_AAC_LC))
+        .isFalse();
+  }
+
   private void configureDefaultAudioSink(int channelCount) throws AudioSink.ConfigurationException {
     configureDefaultAudioSink(channelCount, /* trimStartFrames= */ 0, /* trimEndFrames= */ 0);
   }
