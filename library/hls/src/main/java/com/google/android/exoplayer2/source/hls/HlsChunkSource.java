@@ -451,6 +451,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return chunkIterators;
   }
 
+  /**
+   * Evaluates whether {@link MediaChunk MediaChunks} should be removed from the back of the queue.
+   *
+   * <p>Removing {@link MediaChunk MediaChunks} from the back of the queue can be useful if they
+   * could be replaced with chunks of a significantly higher quality (e.g. because the available
+   * bandwidth has substantially increased).
+   *
+   * @param playbackPositionUs The current playback position, in microseconds.
+   * @param queue The queue of buffered {@link MediaChunk MediaChunks}.
+   * @return The preferred queue size.
+   */
+  public int getPreferredQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
+    if (fatalError != null || trackSelection.length() < 2) {
+      return queue.size();
+    }
+    return trackSelection.evaluateQueueSize(playbackPositionUs, queue);
+  }
+
   // Private methods.
 
   /**

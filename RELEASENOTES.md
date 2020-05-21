@@ -168,6 +168,9 @@
     *   Enable support for embedded CEA-708.
     *   Fix assertion failure in `SampleQueue` when playing DASH streams with
         EMSG tracks ([#7273](https://github.com/google/ExoPlayer/issues/7273)).
+*   HLS:
+    *   Add support for upstream discard including cancelation of ongoing load
+        ([#6322](https://github.com/google/ExoPlayer/issues/6322)).
 *   MP3:
     *   Add `IndexSeeker` for accurate seeks in VBR streams
         ([#6787](https://github.com/google/ExoPlayer/issues/6787)). This seeker
