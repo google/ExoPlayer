@@ -264,18 +264,47 @@ public final class DashMediaSource extends BaseMediaSource {
      * @throws IllegalArgumentException If {@link DashManifest#dynamic} is true.
      */
     public DashMediaSource createMediaSource(DashManifest manifest) {
-      Assertions.checkArgument(!manifest.dynamic);
-      if (!streamKeys.isEmpty()) {
-        manifest = manifest.copy(streamKeys);
-      }
-      return new DashMediaSource(
+      return createMediaSource(
+          manifest,
           new MediaItem.Builder()
               .setUri(Uri.EMPTY)
               .setMediaId(DUMMY_MEDIA_ID)
               .setMimeType(MimeTypes.APPLICATION_MPD)
               .setStreamKeys(streamKeys)
               .setTag(tag)
-              .build(),
+              .build());
+    }
+
+    /**
+     * Returns a new {@link DashMediaSource} using the current parameters and the specified
+     * sideloaded manifest.
+     *
+     * @param manifest The manifest. {@link DashManifest#dynamic} must be false.
+     * @param mediaItem The {@link MediaItem} to be included in the timeline.
+     * @return The new {@link DashMediaSource}.
+     * @throws IllegalArgumentException If {@link DashManifest#dynamic} is true.
+     */
+    public DashMediaSource createMediaSource(DashManifest manifest, MediaItem mediaItem) {
+      Assertions.checkArgument(!manifest.dynamic);
+      List<StreamKey> streamKeys =
+          mediaItem.playbackProperties != null && !mediaItem.playbackProperties.streamKeys.isEmpty()
+              ? mediaItem.playbackProperties.streamKeys
+              : this.streamKeys;
+      if (!streamKeys.isEmpty()) {
+        manifest = manifest.copy(streamKeys);
+      }
+      boolean hasUri = mediaItem.playbackProperties != null;
+      boolean hasTag = hasUri && mediaItem.playbackProperties.tag != null;
+      mediaItem =
+          mediaItem
+              .buildUpon()
+              .setMimeType(MimeTypes.APPLICATION_MPD)
+              .setUri(hasUri ? mediaItem.playbackProperties.uri : Uri.EMPTY)
+              .setTag(hasTag ? mediaItem.playbackProperties.tag : tag)
+              .setStreamKeys(streamKeys)
+              .build();
+      return new DashMediaSource(
+          mediaItem,
           manifest,
           /* manifestDataSourceFactory= */ null,
           /* manifestParser= */ null,
