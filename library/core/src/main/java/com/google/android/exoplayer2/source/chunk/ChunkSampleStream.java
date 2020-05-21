@@ -635,7 +635,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         break;
       }
     }
-    if (newQueueSize == currentQueueSize) {
+    if (newQueueSize >= currentQueueSize) {
       return;
     }
 
