@@ -27,6 +27,7 @@ android {
         versionCode project.ext.releaseVersionCode
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.appTargetSdkVersion
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -57,6 +58,7 @@ dependencies {
     implementation project(modulePrefix + 'library-ui')
     implementation project(modulePrefix + 'extension-cast')
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
+    implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.google.android.material:material:1.1.0'
 }
