@@ -21,17 +21,17 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil;
+import com.google.android.exoplayer2.upstream.cache.CacheWriter;
+import com.google.android.exoplayer2.upstream.cache.CacheWriter.ProgressListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
+import com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** A downloader for progressive media streams. */
 public final class ProgressiveDownloader implements Downloader {
-
-  private static final int BUFFER_SIZE_BYTES = 128 * 1024;
 
   private final DataSpec dataSpec;
   private final CacheDataSource dataSource;
@@ -104,18 +104,35 @@ public final class ProgressiveDownloader implements Downloader {
     if (isCanceled.get()) {
       return;
     }
+
+    CacheWriter cacheWriter =
+        new CacheWriter(
+            dataSource,
+            dataSpec,
+            /* allowShortContent= */ false,
+            isCanceled,
+            /* temporaryBuffer= */ null,
+            progressListener == null ? null : new ProgressForwarder(progressListener));
+
     @Nullable PriorityTaskManager priorityTaskManager = dataSource.getUpstreamPriorityTaskManager();
     if (priorityTaskManager != null) {
       priorityTaskManager.add(C.PRIORITY_DOWNLOAD);
     }
     try {
-      CacheUtil.cache(
-          dataSource,
-          dataSpec,
-          progressListener == null ? null : new ProgressForwarder(progressListener),
-          isCanceled,
-          /* enableEOFException= */ true,
-          /* temporaryBuffer= */ new byte[BUFFER_SIZE_BYTES]);
+      boolean finished = false;
+      while (!finished && !isCanceled.get()) {
+        if (priorityTaskManager != null) {
+          priorityTaskManager.proceed(dataSource.getUpstreamPriority());
+        }
+        try {
+          cacheWriter.cache();
+          finished = true;
+        } catch (PriorityTooLowException e) {
+          // The next loop iteration will block until the task is able to proceed.
+        }
+      }
+    } catch (InterruptedException e) {
+      // The download was canceled.
     } finally {
       if (priorityTaskManager != null) {
         priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
@@ -137,7 +154,7 @@ public final class ProgressiveDownloader implements Downloader {
     dataSource.getCache().removeResource(dataSource.getCacheKeyFactory().buildCacheKey(dataSpec));
   }
 
-  private static final class ProgressForwarder implements CacheUtil.ProgressListener {
+  private static final class ProgressForwarder implements CacheWriter.ProgressListener {
 
     private final ProgressListener progressListener;
 
