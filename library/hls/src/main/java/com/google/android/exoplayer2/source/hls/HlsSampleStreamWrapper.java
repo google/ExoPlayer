@@ -881,15 +881,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private void discardUpstream(int preferredQueueSize) {
     Assertions.checkState(!loader.isLoading());
 
-    int currentQueueSize = mediaChunks.size();
-    int newQueueSize = Integer.MAX_VALUE;
-    for (int i = preferredQueueSize; i < currentQueueSize; i++) {
+    int newQueueSize = C.LENGTH_UNSET;
+    for (int i = preferredQueueSize; i < mediaChunks.size(); i++) {
       if (!haveReadFromMediaChunkDiscardRange(i)) {
         newQueueSize = i;
         break;
       }
     }
-    if (newQueueSize >= currentQueueSize) {
+    if (newQueueSize == C.LENGTH_UNSET) {
       return;
     }
 

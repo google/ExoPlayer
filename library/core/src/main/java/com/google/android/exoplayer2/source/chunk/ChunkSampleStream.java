@@ -628,14 +628,14 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       return;
     }
 
-    int newQueueSize = Integer.MAX_VALUE;
+    int newQueueSize = C.LENGTH_UNSET;
     for (int i = preferredQueueSize; i < currentQueueSize; i++) {
       if (!haveReadFromMediaChunk(i)) {
         newQueueSize = i;
         break;
       }
     }
-    if (newQueueSize >= currentQueueSize) {
+    if (newQueueSize == C.LENGTH_UNSET) {
       return;
     }
 
