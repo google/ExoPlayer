@@ -28,10 +28,11 @@ import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
-import com.google.android.exoplayer2.upstream.cache.CacheUtil;
+import com.google.android.exoplayer2.upstream.cache.CacheWriter;
 import com.google.android.exoplayer2.upstream.cache.ContentMetadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
+import com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -175,18 +176,32 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
                   segmentsDownloaded)
               : null;
       byte[] temporaryBuffer = new byte[BUFFER_SIZE_BYTES];
-      for (int i = 0; i < segments.size(); i++) {
-        CacheUtil.cache(
-            dataSource,
-            segments.get(i).dataSpec,
-            progressNotifier,
-            isCanceled,
-            /* enableEOFException= */ true,
-            temporaryBuffer);
-        if (progressNotifier != null) {
-          progressNotifier.onSegmentDownloaded();
+      int segmentIndex = 0;
+      while (!isCanceled.get() && segmentIndex < segments.size()) {
+        if (priorityTaskManager != null) {
+          priorityTaskManager.proceed(dataSource.getUpstreamPriority());
+        }
+        CacheWriter cacheWriter =
+            new CacheWriter(
+                dataSource,
+                segments.get(segmentIndex).dataSpec,
+                /* allowShortContent= */ false,
+                isCanceled,
+                temporaryBuffer,
+                progressNotifier);
+        try {
+          cacheWriter.cache();
+          segmentIndex++;
+          if (progressNotifier != null) {
+            progressNotifier.onSegmentDownloaded();
+          }
+        } catch (PriorityTooLowException e) {
+          // The next loop iteration will block until the task is able to proceed, then try and
+          // download the same segment again.
         }
       }
+    } catch (InterruptedException e) {
+      // The download was canceled.
     } finally {
       if (priorityTaskManager != null) {
         priorityTaskManager.remove(C.PRIORITY_DOWNLOAD);
@@ -293,7 +308,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
         && dataSpec1.httpRequestHeaders.equals(dataSpec2.httpRequestHeaders);
   }
 
-  private static final class ProgressNotifier implements CacheUtil.ProgressListener {
+  private static final class ProgressNotifier implements CacheWriter.ProgressListener {
 
     private final ProgressListener progressListener;
 

@@ -357,8 +357,15 @@ public final class CacheDataSourceTest {
                 .newDefaultData()
                 .appendReadData(1024 * 1024)
                 .endData());
-    CacheUtil.cache(
-        cache, unboundedDataSpec, upstream2, /* progressListener= */ null, /* isCanceled= */ null);
+    CacheWriter cacheWriter =
+        new CacheWriter(
+            new CacheDataSource(cache, upstream2),
+            unboundedDataSpec,
+            /* allowShortContent= */ false,
+            /* isCanceled= */ null,
+            /* temporaryBuffer= */ null,
+            /* progressListener= */ null);
+    cacheWriter.cache();
 
     // Read the rest of the data.
     TestUtil.readToEnd(cacheDataSource);
@@ -401,8 +408,15 @@ public final class CacheDataSourceTest {
                 .newDefaultData()
                 .appendReadData(1024 * 1024)
                 .endData());
-    CacheUtil.cache(
-        cache, unboundedDataSpec, upstream2, /* progressListener= */ null, /* isCanceled= */ null);
+    CacheWriter cacheWriter =
+        new CacheWriter(
+            new CacheDataSource(cache, upstream2),
+            unboundedDataSpec,
+            /* allowShortContent= */ false,
+            /* isCanceled= */ null,
+            /* temporaryBuffer= */ null,
+            /* progressListener= */ null);
+    cacheWriter.cache();
 
     // Read the rest of the data.
     TestUtil.readToEnd(cacheDataSource);
@@ -420,8 +434,15 @@ public final class CacheDataSourceTest {
     // Cache the latter half of the data.
     int halfDataLength = 512;
     DataSpec dataSpec = buildDataSpec(halfDataLength, C.LENGTH_UNSET);
-    CacheUtil.cache(
-        cache, dataSpec, upstream, /* progressListener= */ null, /* isCanceled= */ null);
+    CacheWriter cacheWriter =
+        new CacheWriter(
+            new CacheDataSource(cache, upstream),
+            dataSpec,
+            /* allowShortContent= */ false,
+            /* isCanceled= */ null,
+            /* temporaryBuffer= */ null,
+            /* progressListener= */ null);
+    cacheWriter.cache();
 
     // Create cache read-only CacheDataSource.
     CacheDataSource cacheDataSource =
@@ -451,8 +472,15 @@ public final class CacheDataSourceTest {
     // Cache the latter half of the data.
     int halfDataLength = 512;
     DataSpec dataSpec = buildDataSpec(/* position= */ 0, halfDataLength);
-    CacheUtil.cache(
-        cache, dataSpec, upstream, /* progressListener= */ null, /* isCanceled= */ null);
+    CacheWriter cacheWriter =
+        new CacheWriter(
+            new CacheDataSource(cache, upstream),
+            dataSpec,
+            /* allowShortContent= */ false,
+            /* isCanceled= */ null,
+            /* temporaryBuffer= */ null,
+            /* progressListener= */ null);
+    cacheWriter.cache();
 
     // Create blocking CacheDataSource.
     CacheDataSource cacheDataSource =
