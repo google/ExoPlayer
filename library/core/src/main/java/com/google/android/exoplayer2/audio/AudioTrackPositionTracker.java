@@ -127,8 +127,8 @@ import java.lang.reflect.Method;
   private static final long FORCE_RESET_WORKAROUND_TIMEOUT_MS = 200;
 
   private static final int MAX_PLAYHEAD_OFFSET_COUNT = 10;
-  private static final int MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US = 30000;
-  private static final int MIN_LATENCY_SAMPLE_INTERVAL_US = 500000;
+  private static final int MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US = 30_000;
+  private static final int MIN_LATENCY_SAMPLE_INTERVAL_US = 50_0000;
 
   private final Listener listener;
   private final long[] playheadOffsets;

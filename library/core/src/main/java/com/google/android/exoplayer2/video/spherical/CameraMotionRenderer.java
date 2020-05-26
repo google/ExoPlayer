@@ -35,7 +35,7 @@ public class CameraMotionRenderer extends BaseRenderer {
 
   private static final String TAG = "CameraMotionRenderer";
   // The amount of time to read samples ahead of the current time.
-  private static final int SAMPLE_WINDOW_DURATION_US = 100000;
+  private static final int SAMPLE_WINDOW_DURATION_US = 100_000;
 
   private final DecoderInputBuffer buffer;
   private final ParsableByteArray scratch;

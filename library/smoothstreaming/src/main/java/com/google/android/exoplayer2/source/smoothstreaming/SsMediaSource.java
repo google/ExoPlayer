@@ -330,7 +330,7 @@ public final class SsMediaSource extends BaseMediaSource
    * The default presentation delay for live streams. The presentation delay is the duration by
    * which the default start position precedes the end of the live window.
    */
-  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_MS = 30000;
+  public static final long DEFAULT_LIVE_PRESENTATION_DELAY_MS = 30_000;
 
   /**
    * The minimum period between manifest refreshes.
@@ -339,7 +339,7 @@ public final class SsMediaSource extends BaseMediaSource
   /**
    * The minimum default start position for live streams, relative to the start of the live window.
    */
-  private static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5000000;
+  private static final long MIN_LIVE_DEFAULT_START_POSITION_US = 5_000_000;
 
   private final boolean sideloadedManifest;
   private final Uri manifestUri;

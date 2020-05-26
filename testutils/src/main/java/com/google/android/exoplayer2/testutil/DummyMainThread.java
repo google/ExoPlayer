@@ -34,7 +34,7 @@ public final class DummyMainThread {
   }
 
   /** Default timeout value used for {@link #runOnMainThread(Runnable)}. */
-  public static final int TIMEOUT_MS = 10000;
+  public static final int TIMEOUT_MS = 10_000;
 
   private final HandlerThread thread;
   private final Handler handler;

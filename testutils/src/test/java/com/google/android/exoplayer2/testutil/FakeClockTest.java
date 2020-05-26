@@ -33,7 +33,7 @@ import org.robolectric.annotation.LooperMode;
 @LooperMode(LooperMode.Mode.PAUSED)
 public final class FakeClockTest {
 
-  private static final long TIMEOUT_MS = 10000;
+  private static final long TIMEOUT_MS = 10_000;
 
   @Test
   public void currentTimeMillis_withoutBootTime() {

@@ -35,7 +35,7 @@ import java.io.IOException;
 
   private static final long SEEK_TOLERANCE_US = 100_000;
   private static final int MINIMUM_SEARCH_RANGE_BYTES = 1000;
-  private static final int TIMESTAMP_SEARCH_BYTES = 20000;
+  private static final int TIMESTAMP_SEARCH_BYTES = 20_000;
 
   public PsBinarySearchSeeker(
       TimestampAdjuster scrTimestampAdjuster, long streamDurationUs, long inputLength) {

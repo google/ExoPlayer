@@ -19,7 +19,7 @@ package com.google.android.exoplayer2;
 public class DefaultControlDispatcher implements ControlDispatcher {
 
   /** The default fast forward increment, in milliseconds. */
-  public static final int DEFAULT_FAST_FORWARD_MS = 15000;
+  public static final int DEFAULT_FAST_FORWARD_MS = 15_000;
   /** The default rewind increment, in milliseconds. */
   public static final int DEFAULT_REWIND_MS = 5000;
 

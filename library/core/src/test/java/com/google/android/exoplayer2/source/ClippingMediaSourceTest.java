@@ -51,8 +51,8 @@ import org.robolectric.annotation.LooperMode.Mode;
 @LooperMode(Mode.PAUSED)
 public final class ClippingMediaSourceTest {
 
-  private static final long TEST_PERIOD_DURATION_US = 1000000;
-  private static final long TEST_CLIP_AMOUNT_US = 300000;
+  private static final long TEST_PERIOD_DURATION_US = 1_000_000;
+  private static final long TEST_CLIP_AMOUNT_US = 300_000;
 
   private Window window;
   private Period period;

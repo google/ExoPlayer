@@ -134,7 +134,7 @@ public final class AnalyticsCollectorTest {
   private static final Format VIDEO_FORMAT_DRM_1 =
       ExoPlayerTestRunner.VIDEO_FORMAT.buildUpon().setDrmInitData(DRM_DATA_1).build();
 
-  private static final int TIMEOUT_MS = 10000;
+  private static final int TIMEOUT_MS = 10_000;
   private static final Timeline SINGLE_PERIOD_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
   private static final EventWindowAndPeriodId WINDOW_0 =
       new EventWindowAndPeriodId(/* windowIndex= */ 0, /* mediaPeriodId= */ null);

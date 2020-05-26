@@ -32,10 +32,8 @@ import java.util.List;
 
   private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
 
-  /**
-   * Opus streams are always decoded at 48000 Hz.
-   */
-  private static final int SAMPLE_RATE = 48000;
+  /** Opus streams are always decoded at 48000 Hz. */
+  private static final int SAMPLE_RATE = 48_000;
 
   private static final int OPUS_CODE = 0x4f707573;
   private static final byte[] OPUS_SIGNATURE = {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};

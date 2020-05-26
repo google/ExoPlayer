@@ -299,7 +299,7 @@ public class MatroskaExtractor implements Extractor {
    * The value by which to divide a time in microseconds to convert it to the unit of the last value
    * in an SSA timecode (1/100ths of a second).
    */
-  private static final long SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR = 10000;
+  private static final long SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR = 10_000;
   /**
    * The format of an SSA timecode.
    */
@@ -1861,7 +1861,7 @@ public class MatroskaExtractor implements Extractor {
   private static final class Track {
 
     private static final int DISPLAY_UNIT_PIXELS = 0;
-    private static final int MAX_CHROMATICITY = 50000;  // Defined in CTA-861.3.
+    private static final int MAX_CHROMATICITY = 50_000; // Defined in CTA-861.3.
     /**
      * Default max content light level (CLL) that should be encoded into hdrStaticInfo.
      */

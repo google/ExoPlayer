@@ -37,7 +37,7 @@ public final class SilenceSkippingAudioProcessorTest {
           /* sampleRate= */ 1000, /* channelCount= */ 2, /* encoding= */ C.ENCODING_PCM_16BIT);
   private static final int TEST_SIGNAL_SILENCE_DURATION_MS = 1000;
   private static final int TEST_SIGNAL_NOISE_DURATION_MS = 1000;
-  private static final int TEST_SIGNAL_FRAME_COUNT = 100000;
+  private static final int TEST_SIGNAL_FRAME_COUNT = 100_000;
 
   private static final int INPUT_BUFFER_SIZE = 100;
 

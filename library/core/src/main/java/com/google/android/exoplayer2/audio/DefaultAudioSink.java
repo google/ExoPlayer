@@ -198,18 +198,12 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
-  /**
-   * A minimum length for the {@link AudioTrack} buffer, in microseconds.
-   */
-  private static final long MIN_BUFFER_DURATION_US = 250000;
-  /**
-   * A maximum length for the {@link AudioTrack} buffer, in microseconds.
-   */
-  private static final long MAX_BUFFER_DURATION_US = 750000;
-  /**
-   * The length for passthrough {@link AudioTrack} buffers, in microseconds.
-   */
-  private static final long PASSTHROUGH_BUFFER_DURATION_US = 250000;
+  /** A minimum length for the {@link AudioTrack} buffer, in microseconds. */
+  private static final long MIN_BUFFER_DURATION_US = 250_000;
+  /** A maximum length for the {@link AudioTrack} buffer, in microseconds. */
+  private static final long MAX_BUFFER_DURATION_US = 750_000;
+  /** The length for passthrough {@link AudioTrack} buffers, in microseconds. */
+  private static final long PASSTHROUGH_BUFFER_DURATION_US = 250_000;
   /**
    * A multiplication factor to apply to the minimum buffer size requested by the underlying
    * {@link AudioTrack}.
