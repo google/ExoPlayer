@@ -21,7 +21,10 @@
     ([#7337](https://github.com/google/ExoPlayer/issues/7337)).
 *   MPEG-TS: Fix issue where SEI NAL units were incorrectly dropped from H.265
     samples ([#7113](https://github.com/google/ExoPlayer/issues/7113)).
-*   Text
+*   UI:
+    *   Update `TrackSelectionDialogBuilder` to use androidx compat Dialog
+        ([#7357](https://github.com/google/ExoPlayer/issues/7357)).
+*   Text:
     *   Use anti-aliasing and bitmap filtering when displaying bitmap subtitles
         ([#6950](https://github.com/google/ExoPlayer/pull/6950)).
 *   AV1 extension: Add a heuristic to determine the default number of threads
