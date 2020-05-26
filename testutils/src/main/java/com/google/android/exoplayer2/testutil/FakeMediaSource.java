@@ -40,9 +40,9 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -159,7 +159,7 @@ public class FakeMediaSource extends BaseMediaSource {
     releasedSource = false;
     sourceInfoRefreshHandler = Util.createHandler();
     if (timeline != null) {
-      finishSourcePreparation();
+      finishSourcePreparation(/* sendManifestLoadEvents= */ true);
     }
   }
 
@@ -209,15 +209,29 @@ public class FakeMediaSource extends BaseMediaSource {
   /**
    * Sets a new timeline. If the source is already prepared, this triggers a source info refresh
    * message being sent to the listener.
+   *
+   * @param newTimeline The new {@link Timeline}.
    */
-  public synchronized void setNewSourceInfo(final Timeline newTimeline) {
+  public void setNewSourceInfo(Timeline newTimeline) {
+    setNewSourceInfo(newTimeline, /* sendManifestLoadEvents= */ true);
+  }
+
+  /**
+   * Sets a new timeline. If the source is already prepared, this triggers a source info refresh
+   * message being sent to the listener.
+   *
+   * @param newTimeline The new {@link Timeline}.
+   * @param sendManifestLoadEvents Whether to treat this as a manifest refresh and send manifest
+   *     load events to listeners.
+   */
+  public synchronized void setNewSourceInfo(Timeline newTimeline, boolean sendManifestLoadEvents) {
     if (sourceInfoRefreshHandler != null) {
       sourceInfoRefreshHandler.post(
           () -> {
             assertThat(releasedSource).isFalse();
             assertThat(preparedSource).isTrue();
             timeline = newTimeline;
-            finishSourcePreparation();
+            finishSourcePreparation(sendManifestLoadEvents);
           });
     } else {
       timeline = newTimeline;
@@ -270,9 +284,9 @@ public class FakeMediaSource extends BaseMediaSource {
         trackGroupArray, drmSessionManager, eventDispatcher, /* deferOnPrepared= */ false);
   }
 
-  private void finishSourcePreparation() {
+  private void finishSourcePreparation(boolean sendManifestLoadEvents) {
     refreshSourceInfo(Assertions.checkStateNotNull(timeline));
-    if (!timeline.isEmpty()) {
+    if (!timeline.isEmpty() && sendManifestLoadEvents) {
       MediaLoadData mediaLoadData =
           new MediaLoadData(
               C.DATA_TYPE_MANIFEST,
@@ -290,7 +304,7 @@ public class FakeMediaSource extends BaseMediaSource {
               loadTaskId,
               FAKE_DATA_SPEC,
               FAKE_DATA_SPEC.uri,
-              /* responseHeaders= */ Collections.emptyMap(),
+              /* responseHeaders= */ ImmutableMap.of(),
               elapsedRealTimeMs,
               /* loadDurationMs= */ 0,
               /* bytesLoaded= */ 0),
@@ -300,7 +314,7 @@ public class FakeMediaSource extends BaseMediaSource {
               loadTaskId,
               FAKE_DATA_SPEC,
               FAKE_DATA_SPEC.uri,
-              /* responseHeaders= */ Collections.emptyMap(),
+              /* responseHeaders= */ ImmutableMap.of(),
               elapsedRealTimeMs,
               /* loadDurationMs= */ 0,
               /* bytesLoaded= */ MANIFEST_LOAD_BYTES),

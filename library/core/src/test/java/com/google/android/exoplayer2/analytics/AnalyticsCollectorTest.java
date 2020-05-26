@@ -849,7 +849,8 @@ public final class AnalyticsCollectorTest {
                                           /* isSeekable= */ true,
                                           /* isDynamic= */ false,
                                           /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
-                                          adPlaybackState.get())));
+                                          adPlaybackState.get())),
+                                  /* sendManifestLoadEvents= */ false);
                             }
                           }
                         });
@@ -956,25 +957,19 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(
             WINDOW_0 /* content manifest */,
-            WINDOW_0 /* preroll manifest */,
             prerollAd,
             contentAfterPreroll,
-            WINDOW_0 /* midroll manifest */,
             midrollAd,
             contentAfterMidroll,
-            WINDOW_0 /* postroll manifest */,
             postrollAd,
             contentAfterPostroll);
     assertThat(listener.getEvents(EVENT_LOAD_COMPLETED))
         .containsExactly(
             WINDOW_0 /* content manifest */,
-            WINDOW_0 /* preroll manifest */,
             prerollAd,
             contentAfterPreroll,
-            WINDOW_0 /* midroll manifest */,
             midrollAd,
             contentAfterMidroll,
-            WINDOW_0 /* postroll manifest */,
             postrollAd,
             contentAfterPostroll);
     assertThat(listener.getEvents(EVENT_DOWNSTREAM_FORMAT_CHANGED))
