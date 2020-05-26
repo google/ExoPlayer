@@ -118,7 +118,7 @@ public final class ExoPlayerTest {
    * milliseconds after starting the player before the test will time out. This is to catch cases
    * where the player under test is not making progress, in which case the test should fail.
    */
-  private static final int TIMEOUT_MS = 10000;
+  private static final int TIMEOUT_MS = 10_000;
 
   private Context context;
   private Timeline dummyTimeline;

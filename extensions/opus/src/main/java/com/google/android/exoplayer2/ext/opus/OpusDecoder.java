@@ -36,10 +36,8 @@ import java.util.List;
 
   private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
 
-  /**
-   * Opus streams are always decoded at 48000 Hz.
-   */
-  private static final int SAMPLE_RATE = 48000;
+  /** Opus streams are always decoded at 48000 Hz. */
+  private static final int SAMPLE_RATE = 48_000;
 
   private static final int NO_ERROR = 0;
   private static final int DECODE_ERROR = -1;

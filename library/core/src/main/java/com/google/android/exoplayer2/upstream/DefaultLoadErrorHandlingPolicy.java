@@ -33,7 +33,7 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_PROGRESSIVE_LIVE = 6;
   /** The default duration for which a track is blacklisted in milliseconds. */
-  public static final long DEFAULT_TRACK_BLACKLIST_MS = 60000;
+  public static final long DEFAULT_TRACK_BLACKLIST_MS = 60_000;
 
   private static final int DEFAULT_BEHAVIOR_MIN_LOADABLE_RETRY_COUNT = -1;
 

@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /** A runner for {@link MediaSource} tests. */
 public class MediaSourceTestRunner {
 
-  public static final int TIMEOUT_MS = 10000;
+  public static final int TIMEOUT_MS = 10_000;
 
   private final MediaSource mediaSource;
   private final MediaSourceListener mediaSourceListener;

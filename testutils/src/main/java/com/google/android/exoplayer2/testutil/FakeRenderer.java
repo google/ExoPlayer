@@ -46,7 +46,7 @@ public class FakeRenderer extends BaseRenderer {
    * source. A real renderer will typically read ahead by a small amount due to pipelining through
    * decoders and the media output path.
    */
-  private static final long SOURCE_READAHEAD_US = 250000;
+  private static final long SOURCE_READAHEAD_US = 250_000;
 
   private final DecoderInputBuffer buffer;
 

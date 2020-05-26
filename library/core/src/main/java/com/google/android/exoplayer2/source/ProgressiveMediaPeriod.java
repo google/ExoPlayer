@@ -89,7 +89,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * When the source's duration is unknown, it is calculated by adding this value to the largest
    * sample timestamp seen when buffering completes.
    */
-  private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10000;
+  private static final long DEFAULT_LAST_SAMPLE_DURATION_US = 10_000;
 
   private static final Map<String, String> ICY_METADATA_HEADERS = createIcyMetadataHeaders();
 

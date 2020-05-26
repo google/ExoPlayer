@@ -30,9 +30,9 @@ import java.io.IOException;
 /** Seeks in an Ogg stream. */
 /* package */ final class DefaultOggSeeker implements OggSeeker {
 
-  private static final int MATCH_RANGE = 72000;
-  private static final int MATCH_BYTE_RANGE = 100000;
-  private static final int DEFAULT_OFFSET = 30000;
+  private static final int MATCH_RANGE = 72_000;
+  private static final int MATCH_BYTE_RANGE = 100_000;
+  private static final int DEFAULT_OFFSET = 30_000;
 
   private static final int STATE_SEEK_TO_END = 0;
   private static final int STATE_READ_LAST_PAGE = 1;

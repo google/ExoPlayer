@@ -45,7 +45,7 @@ public final class ProjectionDecoder {
 
   // Sanity limits to prevent a bad file from creating an OOM situation. We don't expect a mesh to
   // exceed these limits.
-  private static final int MAX_COORDINATE_COUNT = 10000;
+  private static final int MAX_COORDINATE_COUNT = 10_000;
   private static final int MAX_VERTEX_COUNT = 32 * 1000;
   private static final int MAX_TRIANGLE_INDICES = 128 * 1000;
 

@@ -39,7 +39,7 @@ import java.io.IOException;
  */
 /* package */ final class PsDurationReader {
 
-  private static final int TIMESTAMP_SEARCH_BYTES = 20000;
+  private static final int TIMESTAMP_SEARCH_BYTES = 20_000;
 
   private final TimestampAdjuster scrTimestampAdjuster;
   private final ParsableByteArray packetBuffer;

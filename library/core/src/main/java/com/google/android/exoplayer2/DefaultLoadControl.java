@@ -32,12 +32,12 @@ public class DefaultLoadControl implements LoadControl {
    * The default minimum duration of media that the player will attempt to ensure is buffered at all
    * times, in milliseconds.
    */
-  public static final int DEFAULT_MIN_BUFFER_MS = 50000;
+  public static final int DEFAULT_MIN_BUFFER_MS = 50_000;
 
   /**
    * The default maximum duration of media that the player will attempt to buffer, in milliseconds.
    */
-  public static final int DEFAULT_MAX_BUFFER_MS = 50000;
+  public static final int DEFAULT_MAX_BUFFER_MS = 50_000;
 
   /**
    * The default duration of media that must be buffered for playback to start or resume following a
