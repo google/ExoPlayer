@@ -874,7 +874,9 @@ public final class AnalyticsCollectorTest {
             // Wait in each content part to ensure previously triggered events get a chance to be
             // delivered. This prevents flakiness caused by playback progressing too fast.
             .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 3_000)
+            .waitForPendingPlayerCommands()
             .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 8_000)
+            .waitForPendingPlayerCommands()
             .play()
             .waitForPlaybackState(Player.STATE_ENDED)
             // Wait for final timeline change that marks post-roll played.
@@ -1361,6 +1363,9 @@ public final class AnalyticsCollectorTest {
                   : "")
               + ", period.hashCode="
               + mediaPeriodId.periodUid.hashCode()
+              + (mediaPeriodId.nextAdGroupIndex != C.INDEX_UNSET
+                  ? ", nextAdGroup=" + mediaPeriodId.nextAdGroupIndex
+                  : "")
               + '}'
           : "{" + "window=" + windowIndex + ", period = null}";
     }
