@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import android.app.Application;
+import androidx.multidex.MultiDexApplication;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
@@ -40,7 +40,7 @@ import java.io.IOException;
 /**
  * Placeholder application to facilitate overriding Application methods for debugging and testing.
  */
-public class DemoApplication extends Application {
+public class DemoApplication extends MultiDexApplication {
 
   public static final String DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel";
 
