@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
