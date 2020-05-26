@@ -111,6 +111,26 @@ public class ConditionVariable {
     return isOpen;
   }
 
+  /**
+   * Blocks until the condition is open. Unlike {@link #block}, this method will continue to block
+   * if the calling thread is interrupted. If the calling thread was interrupted then its {@link
+   * Thread#isInterrupted() interrupted status} will be set when the method returns.
+   */
+  public synchronized void blockUninterruptible() {
+    boolean wasInterrupted = false;
+    while (!isOpen) {
+      try {
+        wait();
+      } catch (InterruptedException e) {
+        wasInterrupted = true;
+      }
+    }
+    if (wasInterrupted) {
+      // Restore the interrupted status.
+      Thread.currentThread().interrupt();
+    }
+  }
+
   /** Returns whether the condition is opened. */
   public synchronized boolean isOpen() {
     return isOpen;
