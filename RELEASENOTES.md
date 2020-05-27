@@ -1,15 +1,14 @@
 # Release notes #
 
-### Next release ###
+### 2.11.5 (not yet released) ###
 
+*   Add `SilenceMediaSource.Factory` to support tags.
 *   Enable the configuration of `SilenceSkippingAudioProcessor`
     ([#6705](https://github.com/google/ExoPlayer/issues/6705)).
-*   Add `SilenceMediaSource.Factory` to support tags
-    ([PR #7245](https://github.com/google/ExoPlayer/pull/7245)).
-*   Avoid throwing an exception while parsing fragmented MP4 default sample
-    values where the most-significant bit is set
-    ([#7207](https://github.com/google/ExoPlayer/issues/7207)).
-*   Fix `AdsMediaSource` child `MediaSource`s not being released.
+*   DownloadService: Fix "Not allowed to start service" `IllegalStateException`
+    ([#7306](https://github.com/google/ExoPlayer/issues/7306)).
+*   Ads:
+    *   Fix `AdsMediaSource` child `MediaSource`s not being released.
 *   DASH:
     *   Merge trick play adaptation sets (i.e., adaptation sets marked with
         `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as
@@ -17,27 +16,29 @@
         marked with the `C.ROLE_FLAG_TRICK_PLAY` flag.
     *   Fix assertion failure in `SampleQueue` when playing DASH streams with
         EMSG tracks ([#7273](https://github.com/google/ExoPlayer/issues/7273)).
-*   MP3: Allow MP3 files with XING headers that are larger than 2GB to be played
+*   FMP4: Avoid throwing an exception while parsing default sample values whose
+    most significant bits are set
+    ([#7207](https://github.com/google/ExoPlayer/issues/7207)).
+*   MP3: Fix issue parsing the XING headers belonging to files larger than 2GB
     ([#7337](https://github.com/google/ExoPlayer/issues/7337)).
 *   MPEG-TS: Fix issue where SEI NAL units were incorrectly dropped from H.265
     samples ([#7113](https://github.com/google/ExoPlayer/issues/7113)).
 *   UI:
-    *   Update `TrackSelectionDialogBuilder` to use androidx compat Dialog
+    *   Fix `DefaultTimeBar` to respect touch transformations
+        ([#7303](https://github.com/google/ExoPlayer/issues/7303)).
+    *   Update `TrackSelectionDialogBuilder` to use AndroidX Compat Dialog
         ([#7357](https://github.com/google/ExoPlayer/issues/7357)).
-*   Text:
-    *   Use anti-aliasing and bitmap filtering when displaying bitmap subtitles
-        ([#6950](https://github.com/google/ExoPlayer/pull/6950)).
-*   AV1 extension: Add a heuristic to determine the default number of threads
-    used for AV1 playback using the extension.
-*   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
+*   Text: Use anti-aliasing and bitmap filtering when displaying bitmap
+    subtitles.
 *   Cronet extension: Default to using the Cronet implementation in Google Play
     Services rather than Cronet Embedded. This allows Cronet to be used with a
     negligible increase in application size, compared to approximately 8MB when
     embedding the library.
-*   MediaSession extension: Set session playback state to BUFFERING only when
-    actually playing ([#7367](https://github.com/google/ExoPlayer/pull/7367),
-    [#7206](https://github.com/google/ExoPlayer/issues/7206)).
-*   DownloadService: Fix "Not allowed to start service" `IllegalStateException`.
+*   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
+*   MediaSession extension: Set session playback state to `BUFFERING` only when
+    actually playing ([#7206](https://github.com/google/ExoPlayer/issues/7206)).
+*   AV1 extension: Add a heuristic to determine the default number of threads
+    used for AV1 playback using the extension.
 
 ### 2.11.4 (2020-04-08) ###
 
