@@ -1244,7 +1244,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @RequiresApi(23)
-  private static void setOutputSurfaceV23(MediaCodec codec, Surface surface) {
+  protected void setOutputSurfaceV23(MediaCodec codec, Surface surface) {
     codec.setOutputSurface(surface);
   }
 
