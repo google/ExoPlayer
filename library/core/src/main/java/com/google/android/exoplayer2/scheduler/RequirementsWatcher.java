@@ -104,6 +104,13 @@ public final class RequirementsWatcher {
         filter.addAction(Intent.ACTION_SCREEN_OFF);
       }
     }
+    if (requirements.isStorageNotLowRequired()) {
+      filter.addAction(Intent.ACTION_DEVICE_STORAGE_LOW);
+      filter.addAction(Intent.ACTION_DEVICE_STORAGE_OK);
+    }
+    if (requirements.isBatteryNotLowRequired()) {
+      filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+    }
     receiver = new DeviceStatusChangeReceiver();
     context.registerReceiver(receiver, filter, null, handler);
     return notMetRequirements;

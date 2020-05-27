@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import com.google.android.exoplayer2.scheduler.PlatformScheduler;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.scheduler.Scheduler;
 import com.google.android.exoplayer2.util.Assertions;
@@ -658,6 +659,10 @@ public abstract class DownloadService extends Service {
         if (requirements == null) {
           Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
+          @Nullable Scheduler scheduler = getScheduler();
+          if (scheduler != null) {
+            requirements = scheduler.getSupportedRequirements(requirements);
+          }
           downloadManager.setRequirements(requirements);
         }
         break;

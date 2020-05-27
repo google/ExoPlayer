@@ -87,6 +87,16 @@ public final class WorkManagerScheduler implements Scheduler {
 
     if (requirements.isIdleRequired() && Util.SDK_INT >= 23) {
       setRequiresDeviceIdle(builder);
+    } else if (requirements.isIdleRequired()) {
+        Log.w(TAG, "Is idle requirements is only available on API 23 and up.");
+    }
+
+    if (requirements.isBatteryNotLowRequired()) {
+      builder.setRequiresBatteryNotLow(true);
+    }
+
+    if (requirements.isStorageNotLowRequired()) {
+      builder.setRequiresStorageNotLow(true);
     }
 
     return builder.build();
@@ -106,6 +116,19 @@ public final class WorkManagerScheduler implements Scheduler {
     builder.putString(KEY_SERVICE_ACTION, serviceAction);
 
     return builder.build();
+  }
+
+  @Override
+  public Requirements getSupportedRequirements(Requirements requirements) {
+    Requirements supportedRequirements = requirements;
+    if (requirements.isIdleRequired() && Util.SDK_INT < 23) {
+      Log.w(TAG, "Is idle requirement not supported on the WorkManagerScheduler on API below 23. "
+          + "Requirement removed.");
+      int newRequirements =
+          supportedRequirements.getRequirements() ^ Requirements.DEVICE_IDLE;
+      supportedRequirements = new Requirements(newRequirements);
+    }
+    return supportedRequirements;
   }
 
   private static OneTimeWorkRequest buildWorkRequest(Constraints constraints, Data inputData) {
