@@ -323,7 +323,10 @@ public final class HlsMediaSource extends BaseMediaSource
     @Override
     public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
       Assertions.checkState(!isCreateCalled);
-      this.drmSessionManager = drmSessionManager;
+      this.drmSessionManager =
+          drmSessionManager != null
+              ? drmSessionManager
+              : DrmSessionManager.getDummyDrmSessionManager();
       return this;
     }
 
