@@ -17,14 +17,14 @@ package com.google.android.exoplayer2.source.dash;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -81,7 +81,7 @@ public final class DashMediaSourceTest {
     Object tag = new Object();
     MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
     DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(mock(DataSource.Factory.class)).setTag(tag);
+        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(tag);
 
     MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
@@ -99,7 +99,7 @@ public final class DashMediaSourceTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri("http://www.google.com").setTag(mediaItemTag).build();
     DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(mock(DataSource.Factory.class)).setTag(factoryTag);
+        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(factoryTag);
 
     MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
@@ -115,7 +115,7 @@ public final class DashMediaSourceTest {
     Object tag = new Object();
     MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
     DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(mock(DataSource.Factory.class)).setTag(tag);
+        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(tag);
 
     @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
 
@@ -130,7 +130,7 @@ public final class DashMediaSourceTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri("http://www.google.com").setTag(tag).build();
     DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(mock(DataSource.Factory.class)).setTag(new Object());
+        new DashMediaSource.Factory(new FileDataSource.Factory()).setTag(new Object());
 
     @Nullable Object mediaSourceTag = factory.createMediaSource(mediaItem).getTag();
 
@@ -144,7 +144,7 @@ public final class DashMediaSourceTest {
     MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
     StreamKey streamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
     DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(mock(DataSource.Factory.class))
+        new DashMediaSource.Factory(new FileDataSource.Factory())
             .setStreamKeys(ImmutableList.of(streamKey));
 
     MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
@@ -165,7 +165,7 @@ public final class DashMediaSourceTest {
             .setStreamKeys(ImmutableList.of(mediaItemStreamKey))
             .build();
     DashMediaSource.Factory factory =
-        new DashMediaSource.Factory(mock(DataSource.Factory.class))
+        new DashMediaSource.Factory(new FileDataSource.Factory())
             .setStreamKeys(
                 ImmutableList.of(new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 0)));
 
@@ -174,6 +174,17 @@ public final class DashMediaSourceTest {
     assertThat(dashMediaItem.playbackProperties).isNotNull();
     assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
     assertThat(dashMediaItem.playbackProperties.streamKeys).containsExactly(mediaItemStreamKey);
+  }
+
+  @Test
+  public void replaceManifestUri_doesNotChangeMediaItem() {
+    DashMediaSource.Factory factory = new DashMediaSource.Factory(new FileDataSource.Factory());
+    MediaItem mediaItem = MediaItem.fromUri("http://www.google.com");
+    DashMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    mediaSource.replaceManifestUri(Uri.EMPTY);
+
+    assertThat(mediaSource.getMediaItem()).isEqualTo(mediaItem);
   }
 
   private static void assertParseStringToLong(
