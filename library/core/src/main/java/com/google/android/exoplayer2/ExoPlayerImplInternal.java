@@ -954,7 +954,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
             startPositionUs);
     if (releaseMediaSource) {
       if (mediaSource != null) {
-        mediaSource.releaseSource(/* caller= */ this);
+        try {
+          mediaSource.releaseSource(/* caller= */ this);
+        } catch (RuntimeException e) {
+          // There's nothing we can do.
+          Log.e(TAG, "Failed to release child source.", e);
+        }
         mediaSource = null;
       }
     }
