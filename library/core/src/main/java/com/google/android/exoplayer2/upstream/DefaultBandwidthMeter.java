@@ -203,10 +203,11 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       result.append(C.NETWORK_TYPE_2G, DEFAULT_INITIAL_BITRATE_ESTIMATES_2G[groupIndices[1]]);
       result.append(C.NETWORK_TYPE_3G, DEFAULT_INITIAL_BITRATE_ESTIMATES_3G[groupIndices[2]]);
       result.append(C.NETWORK_TYPE_4G, DEFAULT_INITIAL_BITRATE_ESTIMATES_4G[groupIndices[3]]);
-      // Assume default Wifi bitrate for Ethernet and 5G to prevent using the slower fallback.
+      // Assume default Wifi and 4G bitrate for Ethernet and 5G, respectively, to prevent using the
+      // slower fallback.
       result.append(
           C.NETWORK_TYPE_ETHERNET, DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI[groupIndices[0]]);
-      result.append(C.NETWORK_TYPE_5G, DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI[groupIndices[0]]);
+      result.append(C.NETWORK_TYPE_5G, DEFAULT_INITIAL_BITRATE_ESTIMATES_4G[groupIndices[3]]);
       return result;
     }
 
