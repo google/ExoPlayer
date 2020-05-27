@@ -21,8 +21,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractor.TrackOutputProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
@@ -35,9 +34,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public final class InitializationChunk extends Chunk {
 
-  private static final PositionHolder DUMMY_POSITION_HOLDER = new PositionHolder();
-
-  private final ChunkExtractorWrapper extractorWrapper;
+  private final ChunkExtractor chunkExtractor;
 
   private @MonotonicNonNull TrackOutputProvider trackOutputProvider;
   private long nextLoadPosition;
@@ -49,7 +46,7 @@ public final class InitializationChunk extends Chunk {
    * @param trackFormat See {@link #trackFormat}.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
    * @param trackSelectionData See {@link #trackSelectionData}.
-   * @param extractorWrapper A wrapped extractor to use for parsing the initialization data.
+   * @param chunkExtractor A wrapped extractor to use for parsing the initialization data.
    */
   public InitializationChunk(
       DataSource dataSource,
@@ -57,10 +54,10 @@ public final class InitializationChunk extends Chunk {
       Format trackFormat,
       int trackSelectionReason,
       @Nullable Object trackSelectionData,
-      ChunkExtractorWrapper extractorWrapper) {
+      ChunkExtractor chunkExtractor) {
     super(dataSource, dataSpec, C.DATA_TYPE_MEDIA_INITIALIZATION, trackFormat, trackSelectionReason,
         trackSelectionData, C.TIME_UNSET, C.TIME_UNSET);
-    this.extractorWrapper = extractorWrapper;
+    this.chunkExtractor = chunkExtractor;
   }
 
   /**
@@ -85,7 +82,7 @@ public final class InitializationChunk extends Chunk {
   @Override
   public void load() throws IOException {
     if (nextLoadPosition == 0) {
-      extractorWrapper.init(
+      chunkExtractor.init(
           trackOutputProvider, /* startTimeUs= */ C.TIME_UNSET, /* endTimeUs= */ C.TIME_UNSET);
     }
     try {
@@ -96,10 +93,9 @@ public final class InitializationChunk extends Chunk {
               dataSource, loadDataSpec.position, dataSource.open(loadDataSpec));
       // Load and decode the initialization data.
       try {
-        Extractor extractor = extractorWrapper.extractor;
         int result = Extractor.RESULT_CONTINUE;
         while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractor.read(input, DUMMY_POSITION_HOLDER);
+          result = chunkExtractor.read(input);
         }
         Assertions.checkState(result != Extractor.RESULT_SEEK);
       } finally {
