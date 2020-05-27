@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source.dash;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -453,6 +452,8 @@ public final class DashMediaSource extends BaseMediaSource {
   private final Runnable simulateManifestRefreshRunnable;
   private final PlayerEmsgCallback playerEmsgCallback;
   private final LoaderErrorThrower manifestLoadErrorThrower;
+  private final MediaItem mediaItem;
+  private final MediaItem.PlaybackProperties playbackProperties;
 
   private DataSource dataSource;
   private Loader loader;
@@ -461,9 +462,8 @@ public final class DashMediaSource extends BaseMediaSource {
   private IOException manifestFatalError;
   private Handler handler;
 
-  private MediaItem mediaItem;
-  private MediaItem.PlaybackProperties playbackProperties;
   private Uri manifestUri;
+  private Uri initialManifestUri;
   private DashManifest manifest;
   private boolean manifestLoadPending;
   private long manifestLoadStartTimestampMs;
@@ -604,6 +604,7 @@ public final class DashMediaSource extends BaseMediaSource {
     this.mediaItem = mediaItem;
     this.playbackProperties = checkNotNull(mediaItem.playbackProperties);
     this.manifestUri = playbackProperties.uri;
+    this.initialManifestUri = playbackProperties.uri;
     this.manifest = manifest;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
@@ -642,8 +643,7 @@ public final class DashMediaSource extends BaseMediaSource {
   public void replaceManifestUri(Uri manifestUri) {
     synchronized (manifestUriLock) {
       this.manifestUri = manifestUri;
-      this.mediaItem = mediaItem.buildUpon().setUri(manifestUri).build();
-      this.playbackProperties = castNonNull(mediaItem.playbackProperties);
+      this.initialManifestUri = manifestUri;
     }
   }
 
@@ -722,7 +722,7 @@ public final class DashMediaSource extends BaseMediaSource {
     manifestLoadStartTimestampMs = 0;
     manifestLoadEndTimestampMs = 0;
     manifest = sideloadedManifest ? manifest : null;
-    manifestUri = playbackProperties.uri;
+    manifestUri = initialManifestUri;
     manifestFatalError = null;
     if (handler != null) {
       handler.removeCallbacksAndMessages(null);
