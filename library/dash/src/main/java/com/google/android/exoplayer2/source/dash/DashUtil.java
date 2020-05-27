@@ -24,7 +24,8 @@ import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper;
+import com.google.android.exoplayer2.source.chunk.BundledChunkExtractor;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractor;
 import com.google.android.exoplayer2.source.chunk.InitializationChunk;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
@@ -113,11 +114,11 @@ public final class DashUtil {
   @Nullable
   public static Format loadSampleFormat(
       DataSource dataSource, int trackType, Representation representation) throws IOException {
-    ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, trackType,
-        representation, false);
-    return extractorWrapper == null
+    ChunkExtractor chunkExtractor =
+        loadInitializationData(dataSource, trackType, representation, false);
+    return chunkExtractor == null
         ? null
-        : Assertions.checkStateNotNull(extractorWrapper.getSampleFormats())[0];
+        : Assertions.checkStateNotNull(chunkExtractor.getSampleFormats())[0];
   }
 
   /**
@@ -135,33 +136,33 @@ public final class DashUtil {
   @Nullable
   public static ChunkIndex loadChunkIndex(
       DataSource dataSource, int trackType, Representation representation) throws IOException {
-    ChunkExtractorWrapper extractorWrapper = loadInitializationData(dataSource, trackType,
-        representation, true);
-    return extractorWrapper == null ? null : (ChunkIndex) extractorWrapper.getSeekMap();
+    ChunkExtractor chunkExtractor =
+        loadInitializationData(dataSource, trackType, representation, true);
+    return chunkExtractor == null ? null : (ChunkIndex) chunkExtractor.getSeekMap();
   }
 
   /**
    * Loads initialization data for the {@code representation} and optionally index data then returns
-   * a {@link ChunkExtractorWrapper} which contains the output.
+   * a {@link BundledChunkExtractor} which contains the output.
    *
    * @param dataSource The source from which the data should be loaded.
    * @param trackType The type of the representation. Typically one of the {@link
    *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
    * @param loadIndex Whether to load index data too.
-   * @return A {@link ChunkExtractorWrapper} for the {@code representation}, or null if no
+   * @return A {@link BundledChunkExtractor} for the {@code representation}, or null if no
    *     initialization or (if requested) index data exists.
    * @throws IOException Thrown when there is an error while loading.
    */
   @Nullable
-  private static ChunkExtractorWrapper loadInitializationData(
+  private static ChunkExtractor loadInitializationData(
       DataSource dataSource, int trackType, Representation representation, boolean loadIndex)
       throws IOException {
     RangedUri initializationUri = representation.getInitializationUri();
     if (initializationUri == null) {
       return null;
     }
-    ChunkExtractorWrapper extractorWrapper = newWrappedExtractor(trackType, representation.format);
+    ChunkExtractor chunkExtractor = newChunkExtractor(trackType, representation.format);
     RangedUri requestUri;
     if (loadIndex) {
       RangedUri indexUri = representation.getIndexUri();
@@ -172,37 +173,42 @@ public final class DashUtil {
       // the two requests together to request both at once.
       requestUri = initializationUri.attemptMerge(indexUri, representation.baseUrl);
       if (requestUri == null) {
-        loadInitializationData(dataSource, representation, extractorWrapper, initializationUri);
+        loadInitializationData(dataSource, representation, chunkExtractor, initializationUri);
         requestUri = indexUri;
       }
     } else {
       requestUri = initializationUri;
     }
-    loadInitializationData(dataSource, representation, extractorWrapper, requestUri);
-    return extractorWrapper;
+    loadInitializationData(dataSource, representation, chunkExtractor, requestUri);
+    return chunkExtractor;
   }
 
   private static void loadInitializationData(
       DataSource dataSource,
       Representation representation,
-      ChunkExtractorWrapper extractorWrapper,
+      ChunkExtractor chunkExtractor,
       RangedUri requestUri)
       throws IOException {
     DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri);
-    InitializationChunk initializationChunk = new InitializationChunk(dataSource, dataSpec,
-        representation.format, C.SELECTION_REASON_UNKNOWN, null /* trackSelectionData */,
-        extractorWrapper);
+    InitializationChunk initializationChunk =
+        new InitializationChunk(
+            dataSource,
+            dataSpec,
+            representation.format,
+            C.SELECTION_REASON_UNKNOWN,
+            null /* trackSelectionData */,
+            chunkExtractor);
     initializationChunk.load();
   }
 
-  private static ChunkExtractorWrapper newWrappedExtractor(int trackType, Format format) {
+  private static ChunkExtractor newChunkExtractor(int trackType, Format format) {
     String mimeType = format.containerMimeType;
     boolean isWebm =
         mimeType != null
             && (mimeType.startsWith(MimeTypes.VIDEO_WEBM)
                 || mimeType.startsWith(MimeTypes.AUDIO_WEBM));
     Extractor extractor = isWebm ? new MatroskaExtractor() : new FragmentedMp4Extractor();
-    return new ChunkExtractorWrapper(extractor, trackType, format);
+    return new BundledChunkExtractor(extractor, trackType, format);
   }
 
   @Nullable
