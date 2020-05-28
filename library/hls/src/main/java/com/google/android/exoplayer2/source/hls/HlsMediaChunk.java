@@ -62,6 +62,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param format The chunk format.
    * @param startOfPlaylistInPeriodUs The position of the playlist in the period in microseconds.
    * @param mediaPlaylist The media playlist from which this chunk was obtained.
+   * @param segmentIndexInPlaylist The index of the segment in the media playlist.
    * @param playlistUrl The url of the playlist from which this chunk was obtained.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the master playlist.
@@ -137,8 +138,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (previousChunk != null) {
       id3Decoder = previousChunk.id3Decoder;
       scratchId3Data = previousChunk.scratchId3Data;
-      shouldSpliceIn =
-          !playlistUrl.equals(previousChunk.playlistUrl) || !previousChunk.loadCompleted;
+      boolean canContinueWithoutSplice =
+          (playlistUrl.equals(previousChunk.playlistUrl) && previousChunk.loadCompleted)
+              || (mediaPlaylist.hasIndependentSegments
+                  && segmentStartTimeInPeriodUs >= previousChunk.endTimeUs);
+      shouldSpliceIn = !canContinueWithoutSplice;
       if (shouldSpliceIn) {
         sampleQueueDiscardFromIndices = previousChunk.sampleQueueDiscardFromIndices;
       }
