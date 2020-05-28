@@ -39,7 +39,11 @@ public final class Requirements implements Parcelable {
 
   /**
    * Requirement flags. Possible flag values are {@link #NETWORK}, {@link #NETWORK_UNMETERED},
-   * {@link #DEVICE_IDLE} and {@link #DEVICE_CHARGING}.
+   * {@link #DEVICE_IDLE}, {@link #DEVICE_CHARGING} and {@link #DEVICE_STORAGE_NOT_LOW}.
+   *
+   * Note that {@link #DEVICE_STORAGE_NOT_LOW} only works when downloading to internal storage.
+   * Setting this requirement when downloading to external storage will actually monitor internal
+   * storage and can lead to unexpected results.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -56,7 +60,7 @@ public final class Requirements implements Parcelable {
   public static final int DEVICE_IDLE = 1 << 2;
   /** Requirement that the device is charging. */
   public static final int DEVICE_CHARGING = 1 << 3;
-  /** Requirement that the storage is not low. */
+  /** Requirement that the device internal storage is not low. */
   public static final int DEVICE_STORAGE_NOT_LOW = 1 << 4;
 
   @RequirementFlags private final int requirements;
