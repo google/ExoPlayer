@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
@@ -254,20 +254,19 @@ public final class CacheWriterTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, /* position= */ 0, /* length= */ 1000);
 
-    try {
-      CacheWriter cacheWriter =
-          new CacheWriter(
-              new CacheDataSource(cache, dataSource),
-              dataSpec,
-              /* allowShortContent= */ false,
-              /* isCanceled= */ null,
-              /* temporaryBuffer= */ null,
-              /* progressListener= */ null);
-      cacheWriter.cache();
-      fail();
-    } catch (IOException e) {
-      assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
-    }
+    IOException exception =
+        assertThrows(
+            IOException.class,
+            () ->
+                new CacheWriter(
+                        new CacheDataSource(cache, dataSource),
+                        dataSpec,
+                        /* allowShortContent= */ false,
+                        /* isCanceled= */ null,
+                        /* temporaryBuffer= */ null,
+                        /* progressListener= */ null)
+                    .cache());
+    assertThat(DataSourceException.isCausedByPositionOutOfRange(exception)).isTrue();
   }
 
   @Test
