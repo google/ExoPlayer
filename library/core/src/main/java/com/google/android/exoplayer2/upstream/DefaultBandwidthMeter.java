@@ -79,6 +79,15 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   /** Default maximum weight for the sliding window. */
   public static final int DEFAULT_SLIDING_WINDOW_MAX_WEIGHT = 2000;
 
+  /** Index for the Wifi group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  private static final int COUNTRY_GROUP_INDEX_WIFI = 0;
+  /** Index for the 2G group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  private static final int COUNTRY_GROUP_INDEX_2G = 1;
+  /** Index for the 3G group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  private static final int COUNTRY_GROUP_INDEX_3G = 2;
+  /** Index for the 4G group index in {@link #DEFAULT_INITIAL_BITRATE_COUNTRY_GROUPS}. */
+  private static final int COUNTRY_GROUP_INDEX_4G = 3;
+
   @Nullable private static DefaultBandwidthMeter singletonInstance;
 
   /** Builder for a bandwidth meter. */
@@ -199,15 +208,26 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       int[] groupIndices = getCountryGroupIndices(countryCode);
       SparseArray<Long> result = new SparseArray<>(/* initialCapacity= */ 6);
       result.append(C.NETWORK_TYPE_UNKNOWN, DEFAULT_INITIAL_BITRATE_ESTIMATE);
-      result.append(C.NETWORK_TYPE_WIFI, DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI[groupIndices[0]]);
-      result.append(C.NETWORK_TYPE_2G, DEFAULT_INITIAL_BITRATE_ESTIMATES_2G[groupIndices[1]]);
-      result.append(C.NETWORK_TYPE_3G, DEFAULT_INITIAL_BITRATE_ESTIMATES_3G[groupIndices[2]]);
-      result.append(C.NETWORK_TYPE_4G, DEFAULT_INITIAL_BITRATE_ESTIMATES_4G[groupIndices[3]]);
+      result.append(
+          C.NETWORK_TYPE_WIFI,
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI[groupIndices[COUNTRY_GROUP_INDEX_WIFI]]);
+      result.append(
+          C.NETWORK_TYPE_2G,
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_2G[groupIndices[COUNTRY_GROUP_INDEX_2G]]);
+      result.append(
+          C.NETWORK_TYPE_3G,
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_3G[groupIndices[COUNTRY_GROUP_INDEX_3G]]);
+      result.append(
+          C.NETWORK_TYPE_4G,
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_4G[groupIndices[COUNTRY_GROUP_INDEX_4G]]);
       // Assume default Wifi and 4G bitrate for Ethernet and 5G, respectively, to prevent using the
       // slower fallback.
       result.append(
-          C.NETWORK_TYPE_ETHERNET, DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI[groupIndices[0]]);
-      result.append(C.NETWORK_TYPE_5G, DEFAULT_INITIAL_BITRATE_ESTIMATES_4G[groupIndices[3]]);
+          C.NETWORK_TYPE_ETHERNET,
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI[groupIndices[COUNTRY_GROUP_INDEX_WIFI]]);
+      result.append(
+          C.NETWORK_TYPE_5G,
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_4G[groupIndices[COUNTRY_GROUP_INDEX_4G]]);
       return result;
     }
 
