@@ -19,8 +19,10 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Log;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.TreeSet;
 
 /** Defines the cached content for a single resource. */
@@ -34,10 +36,11 @@ import java.util.TreeSet;
   public final String key;
   /** The cached spans of this content. */
   private final TreeSet<SimpleCacheSpan> cachedSpans;
+  /** Currently locked ranges. */
+  private final ArrayList<Range> lockedRanges;
+
   /** Metadata values. */
   private DefaultContentMetadata metadata;
-  /** Whether the content is locked. */
-  private boolean locked;
 
   /**
    * Creates a CachedContent.
@@ -53,7 +56,8 @@ import java.util.TreeSet;
     this.id = id;
     this.key = key;
     this.metadata = metadata;
-    this.cachedSpans = new TreeSet<>();
+    cachedSpans = new TreeSet<>();
+    lockedRanges = new ArrayList<>();
   }
 
   /** Returns the metadata. */
@@ -72,14 +76,58 @@ import java.util.TreeSet;
     return !metadata.equals(oldMetadata);
   }
 
-  /** Returns whether the content is locked. */
-  public boolean isLocked() {
-    return locked;
+  /** Returns whether the entire resource is fully unlocked. */
+  public boolean isFullyUnlocked() {
+    return lockedRanges.isEmpty();
   }
 
-  /** Sets the locked state of the content. */
-  public void setLocked(boolean locked) {
-    this.locked = locked;
+  /**
+   * Returns whether the specified range of the resource is fully locked by a single lock.
+   *
+   * @param position The position of the range.
+   * @param length The length of the range, or {@link C#LENGTH_UNSET} if unbounded.
+   * @return Whether the range is fully locked by a single lock.
+   */
+  public boolean isFullyLocked(long position, long length) {
+    for (int i = 0; i < lockedRanges.size(); i++) {
+      if (lockedRanges.get(i).contains(position, length)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Attempts to lock the specified range of the resource.
+   *
+   * @param position The position of the range.
+   * @param length The length of the range, or {@link C#LENGTH_UNSET} if unbounded.
+   * @return Whether the range was successfully locked.
+   */
+  public boolean lockRange(long position, long length) {
+    for (int i = 0; i < lockedRanges.size(); i++) {
+      if (lockedRanges.get(i).intersects(position, length)) {
+        return false;
+      }
+    }
+    lockedRanges.add(new Range(position, length));
+    return true;
+  }
+
+  /**
+   * Unlocks the currently locked range starting at the specified position.
+   *
+   * @param position The starting position of the locked range.
+   * @throws IllegalStateException If there was no locked range starting at the specified position.
+   */
+  public void unlockRange(long position) {
+    for (int i = 0; i < lockedRanges.size(); i++) {
+      if (lockedRanges.get(i).position == position) {
+        lockedRanges.remove(i);
+        return;
+      }
+    }
+    throw new IllegalStateException();
   }
 
   /** Adds the given {@link SimpleCacheSpan} which contains a part of the content. */
@@ -93,18 +141,25 @@ import java.util.TreeSet;
   }
 
   /**
-   * Returns the span containing the position. If there isn't one, it returns a hole span
-   * which defines the maximum extents of the hole in the cache.
+   * Returns the cache span corresponding to the provided range. See {@link
+   * Cache#startReadWrite(String, long, long)} for detailed descriptions of the returned spans.
+   *
+   * @param position The position of the span being requested.
+   * @param length The length of the span, or {@link C#LENGTH_UNSET} if unbounded.
+   * @return The corresponding cache {@link SimpleCacheSpan}.
    */
-  public SimpleCacheSpan getSpan(long position) {
+  public SimpleCacheSpan getSpan(long position, long length) {
     SimpleCacheSpan lookupSpan = SimpleCacheSpan.createLookup(key, position);
     SimpleCacheSpan floorSpan = cachedSpans.floor(lookupSpan);
     if (floorSpan != null && floorSpan.position + floorSpan.length > position) {
       return floorSpan;
     }
     SimpleCacheSpan ceilSpan = cachedSpans.ceiling(lookupSpan);
-    return ceilSpan == null ? SimpleCacheSpan.createOpenHole(key, position)
-        : SimpleCacheSpan.createClosedHole(key, position, ceilSpan.position - position);
+    if (ceilSpan != null) {
+      long holeLength = ceilSpan.position - position;
+      length = length == C.LENGTH_UNSET ? holeLength : Math.min(holeLength, length);
+    }
+    return SimpleCacheSpan.createHole(key, position, length);
   }
 
   /**
@@ -121,7 +176,7 @@ import java.util.TreeSet;
   public long getCachedBytesLength(long position, long length) {
     checkArgument(position >= 0);
     checkArgument(length >= 0);
-    SimpleCacheSpan span = getSpan(position);
+    SimpleCacheSpan span = getSpan(position, length);
     if (span.isHoleSpan()) {
       // We don't have a span covering the start of the queried region.
       return -Math.min(span.isOpenEnded() ? Long.MAX_VALUE : span.length, length);
@@ -214,5 +269,52 @@ import java.util.TreeSet;
         && key.equals(that.key)
         && cachedSpans.equals(that.cachedSpans)
         && metadata.equals(that.metadata);
+  }
+
+  private static final class Range {
+
+    /** The starting position of the range. */
+    public final long position;
+    /** The length of the range, or {@link C#LENGTH_UNSET} if unbounded. */
+    public final long length;
+
+    public Range(long position, long length) {
+      this.position = position;
+      this.length = length;
+    }
+
+    /**
+     * Returns whether this range fully contains the range specified by {@code otherPosition} and
+     * {@code otherLength}.
+     *
+     * @param otherPosition The position of the range to check.
+     * @param otherLength The length of the range to check, or {@link C#LENGTH_UNSET} if unbounded.
+     * @return Whether this range fully contains the specified range.
+     */
+    public boolean contains(long otherPosition, long otherLength) {
+      if (length == C.LENGTH_UNSET) {
+        return otherPosition >= position;
+      } else if (otherLength == C.LENGTH_UNSET) {
+        return false;
+      } else {
+        return position <= otherPosition && (otherPosition + otherLength) <= (position + length);
+      }
+    }
+
+    /**
+     * Returns whether this range intersects with the range specified by {@code otherPosition} and
+     * {@code otherLength}.
+     *
+     * @param otherPosition The position of the range to check.
+     * @param otherLength The length of the range to check, or {@link C#LENGTH_UNSET} if unbounded.
+     * @return Whether this range intersects with the specified range.
+     */
+    public boolean intersects(long otherPosition, long otherLength) {
+      if (position <= otherPosition) {
+        return length == C.LENGTH_UNSET || position + length > otherPosition;
+      } else {
+        return otherLength == C.LENGTH_UNSET || otherPosition + otherLength > position;
+      }
+    }
   }
 }

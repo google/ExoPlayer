@@ -100,7 +100,7 @@ public class SimpleCacheTest {
     SimpleCache simpleCache = getSimpleCache();
 
     // Write some data and metadata to the cache.
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, 0, 15);
     simpleCache.releaseHoleSpan(holeSpan);
     ContentMetadataMutations mutations = new ContentMetadataMutations();
@@ -112,7 +112,7 @@ public class SimpleCacheTest {
     simpleCache = getSimpleCache();
 
     // Read the cached data and metadata back.
-    CacheSpan fileSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan fileSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     assertCachedDataReadCorrect(fileSpan);
     assertThat(ContentMetadata.getRedirectedUri(simpleCache.getContentMetadata(KEY_1)))
         .isEqualTo(Uri.parse("https://redirect.google.com"));
@@ -130,7 +130,7 @@ public class SimpleCacheTest {
   public void newInstance_withExistingCacheDirectory_resolvesInconsistentState() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, 0, 15);
     simpleCache.releaseHoleSpan(holeSpan);
     simpleCache.removeSpan(simpleCache.getCachedSpans(KEY_1).first());
@@ -151,7 +151,7 @@ public class SimpleCacheTest {
   @Test
   public void newInstance_withEncryptedIndex() throws Exception {
     SimpleCache simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, 0, 15);
     simpleCache.releaseHoleSpan(holeSpan);
     simpleCache.release();
@@ -160,7 +160,7 @@ public class SimpleCacheTest {
     simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
 
     // Read the cached data back.
-    CacheSpan fileSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan fileSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     assertCachedDataReadCorrect(fileSpan);
   }
 
@@ -169,7 +169,7 @@ public class SimpleCacheTest {
     SimpleCache simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
 
     // Write data.
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, 0, 15);
     simpleCache.releaseHoleSpan(holeSpan);
     simpleCache.release();
@@ -187,7 +187,7 @@ public class SimpleCacheTest {
     SimpleCache simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
 
     // Write data.
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, 0, 15);
     simpleCache.releaseHoleSpan(holeSpan);
     simpleCache.release();
@@ -204,59 +204,179 @@ public class SimpleCacheTest {
   public void write_oneLock_oneFile_thenRead() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
-    CacheSpan holeSpan1 = simpleCache.startReadWrite(KEY_1, 0);
-    assertThat(holeSpan1.isCached).isFalse();
-    assertThat(holeSpan1.isOpenEnded()).isTrue();
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
+    assertThat(holeSpan.isCached).isFalse();
+    assertThat(holeSpan.isOpenEnded()).isTrue();
     addCache(simpleCache, KEY_1, 0, 15);
 
-    CacheSpan readSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan readSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     assertThat(readSpan.position).isEqualTo(0);
     assertThat(readSpan.length).isEqualTo(15);
     assertCachedDataReadCorrect(readSpan);
     assertThat(simpleCache.getCacheSpace()).isEqualTo(15);
+
+    simpleCache.releaseHoleSpan(holeSpan);
   }
 
   @Test
   public void write_oneLock_twoFiles_thenRead() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, 0, 7);
     addCache(simpleCache, KEY_1, 7, 8);
 
-    CacheSpan readSpan1 = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan readSpan1 = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     assertThat(readSpan1.position).isEqualTo(0);
     assertThat(readSpan1.length).isEqualTo(7);
     assertCachedDataReadCorrect(readSpan1);
-    CacheSpan readSpan2 = simpleCache.startReadWrite(KEY_1, 7);
+    CacheSpan readSpan2 = simpleCache.startReadWrite(KEY_1, 7, LENGTH_UNSET);
     assertThat(readSpan2.position).isEqualTo(7);
     assertThat(readSpan2.length).isEqualTo(8);
     assertCachedDataReadCorrect(readSpan2);
     assertThat(simpleCache.getCacheSpace()).isEqualTo(15);
+
+    simpleCache.releaseHoleSpan(holeSpan);
+  }
+
+  @Test
+  public void write_twoLocks_twoFiles_thenRead() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+
+    CacheSpan holeSpan1 = simpleCache.startReadWrite(KEY_1, 0, 7);
+    CacheSpan holeSpan2 = simpleCache.startReadWrite(KEY_1, 7, 8);
+
+    addCache(simpleCache, KEY_1, 0, 7);
+    addCache(simpleCache, KEY_1, 7, 8);
+
+    CacheSpan readSpan1 = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
+    assertThat(readSpan1.position).isEqualTo(0);
+    assertThat(readSpan1.length).isEqualTo(7);
+    assertCachedDataReadCorrect(readSpan1);
+    CacheSpan readSpan2 = simpleCache.startReadWrite(KEY_1, 7, LENGTH_UNSET);
+    assertThat(readSpan2.position).isEqualTo(7);
+    assertThat(readSpan2.length).isEqualTo(8);
+    assertCachedDataReadCorrect(readSpan2);
+    assertThat(simpleCache.getCacheSpace()).isEqualTo(15);
+
+    simpleCache.releaseHoleSpan(holeSpan1);
+    simpleCache.releaseHoleSpan(holeSpan2);
   }
 
   @Test
   public void write_differentKeyLocked_thenRead() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
-    CacheSpan holeSpan1 = simpleCache.startReadWrite(KEY_1, 50);
+    CacheSpan holeSpan1 = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
 
-    CacheSpan holeSpan2 = simpleCache.startReadWrite(KEY_2, 50);
-    assertThat(holeSpan1.isCached).isFalse();
-    assertThat(holeSpan1.isOpenEnded()).isTrue();
+    CacheSpan holeSpan2 = simpleCache.startReadWrite(KEY_2, 0, LENGTH_UNSET);
+    assertThat(holeSpan2.isCached).isFalse();
+    assertThat(holeSpan2.isOpenEnded()).isTrue();
     addCache(simpleCache, KEY_2, 0, 15);
 
-    CacheSpan readSpan = simpleCache.startReadWrite(KEY_2, 0);
+    CacheSpan readSpan = simpleCache.startReadWrite(KEY_2, 0, LENGTH_UNSET);
     assertThat(readSpan.length).isEqualTo(15);
     assertCachedDataReadCorrect(readSpan);
     assertThat(simpleCache.getCacheSpace()).isEqualTo(15);
+
+    simpleCache.releaseHoleSpan(holeSpan1);
+    simpleCache.releaseHoleSpan(holeSpan2);
   }
 
   @Test
-  public void write_sameKeyLocked_fails() throws Exception {
+  public void write_oneLock_fileExceedsLock_fails() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
-    CacheSpan cacheSpan1 = simpleCache.startReadWrite(KEY_1, 50);
 
-    assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 25)).isNull();
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, 10);
+
+    assertThrows(IllegalStateException.class, () -> addCache(simpleCache, KEY_1, 0, 11));
+
+    simpleCache.releaseHoleSpan(holeSpan);
+  }
+
+  @Test
+  public void write_twoLocks_oneFileSpanningBothLocks_fails() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+
+    CacheSpan holeSpan1 = simpleCache.startReadWrite(KEY_1, 0, 7);
+    CacheSpan holeSpan2 = simpleCache.startReadWrite(KEY_1, 7, 8);
+
+    assertThrows(IllegalStateException.class, () -> addCache(simpleCache, KEY_1, 0, 15));
+
+    simpleCache.releaseHoleSpan(holeSpan1);
+    simpleCache.releaseHoleSpan(holeSpan2);
+  }
+
+  @Test
+  public void write_unboundedRangeLocked_lockingOverlappingRange_fails() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 50, LENGTH_UNSET);
+
+    // Overlapping cannot be locked.
+    assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 49, 2)).isNull();
+    assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 99, 2)).isNull();
+    assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 0, LENGTH_UNSET)).isNull();
+    assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 9, LENGTH_UNSET)).isNull();
+
+    simpleCache.releaseHoleSpan(holeSpan);
+  }
+
+  @Test
+  public void write_unboundedRangeLocked_lockingNonOverlappingRange_succeeds() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+    CacheSpan holeSpan1 = simpleCache.startReadWrite(KEY_1, 50, LENGTH_UNSET);
+
+    // Non-overlapping range can be locked.
+    CacheSpan holeSpan2 = simpleCache.startReadWrite(KEY_1, 0, 50);
+    assertThat(holeSpan2.isCached).isFalse();
+    assertThat(holeSpan2.position).isEqualTo(0);
+    assertThat(holeSpan2.length).isEqualTo(50);
+
+    simpleCache.releaseHoleSpan(holeSpan1);
+    simpleCache.releaseHoleSpan(holeSpan2);
+  }
+
+  @Test
+  public void write_boundedRangeLocked_lockingOverlappingRange_fails() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 50, 50);
+
+    // Overlapping cannot be locked.
+    assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 49, 2)).isNull();
+    assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 99, 2)).isNull();
+    assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 0, LENGTH_UNSET)).isNull();
+    assertThat(simpleCache.startReadWriteNonBlocking(KEY_1, 99, LENGTH_UNSET)).isNull();
+
+    simpleCache.releaseHoleSpan(holeSpan);
+  }
+
+  @Test
+  public void write_boundedRangeLocked_lockingNonOverlappingRange_succeeds() throws Exception {
+    SimpleCache simpleCache = getSimpleCache();
+
+    CacheSpan holeSpan1 = simpleCache.startReadWrite(KEY_1, 50, 50);
+    assertThat(holeSpan1.isCached).isFalse();
+    assertThat(holeSpan1.length).isEqualTo(50);
+
+    // Non-overlapping range can be locked.
+    CacheSpan holeSpan2 = simpleCache.startReadWriteNonBlocking(KEY_1, 49, 1);
+    assertThat(holeSpan2.isCached).isFalse();
+    assertThat(holeSpan2.position).isEqualTo(49);
+    assertThat(holeSpan2.length).isEqualTo(1);
+    simpleCache.releaseHoleSpan(holeSpan2);
+
+    CacheSpan holeSpan3 = simpleCache.startReadWriteNonBlocking(KEY_1, 100, 1);
+    assertThat(holeSpan3.isCached).isFalse();
+    assertThat(holeSpan3.position).isEqualTo(100);
+    assertThat(holeSpan3.length).isEqualTo(1);
+    simpleCache.releaseHoleSpan(holeSpan3);
+
+    CacheSpan holeSpan4 = simpleCache.startReadWriteNonBlocking(KEY_1, 100, LENGTH_UNSET);
+    assertThat(holeSpan4.isCached).isFalse();
+    assertThat(holeSpan4.position).isEqualTo(100);
+    assertThat(holeSpan4.isOpenEnded()).isTrue();
+    simpleCache.releaseHoleSpan(holeSpan4);
+
+    simpleCache.releaseHoleSpan(holeSpan1);
   }
 
   @Test
@@ -275,11 +395,11 @@ public class SimpleCacheTest {
   @Test
   public void removeSpans_removesSpansWithSameKey() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, 0, 10);
     addCache(simpleCache, KEY_1, 20, 10);
     simpleCache.releaseHoleSpan(holeSpan);
-    holeSpan = simpleCache.startReadWrite(KEY_2, 20);
+    holeSpan = simpleCache.startReadWrite(KEY_2, 20, LENGTH_UNSET);
     addCache(simpleCache, KEY_2, 20, 10);
     simpleCache.releaseHoleSpan(holeSpan);
 
@@ -309,7 +429,7 @@ public class SimpleCacheTest {
   @Test
   public void getCachedLength_returnsNegativeHoleLength() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, /* position= */ 50, /* length= */ 50);
     simpleCache.releaseHoleSpan(holeSpan);
 
@@ -330,7 +450,7 @@ public class SimpleCacheTest {
   @Test
   public void getCachedLength_returnsCachedLength() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, /* position= */ 0, /* length= */ 50);
     simpleCache.releaseHoleSpan(holeSpan);
 
@@ -353,7 +473,7 @@ public class SimpleCacheTest {
   @Test
   public void getCachedLength_withMultipleAdjacentSpans_returnsCachedLength() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, /* position= */ 0, /* length= */ 25);
     addCache(simpleCache, KEY_1, /* position= */ 25, /* length= */ 25);
     simpleCache.releaseHoleSpan(holeSpan);
@@ -377,7 +497,7 @@ public class SimpleCacheTest {
   @Test
   public void getCachedLength_withMultipleNonAdjacentSpans_returnsCachedLength() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, /* position= */ 0, /* length= */ 10);
     addCache(simpleCache, KEY_1, /* position= */ 15, /* length= */ 35);
     simpleCache.releaseHoleSpan(holeSpan);
@@ -419,7 +539,7 @@ public class SimpleCacheTest {
   @Test
   public void getCachedBytes_withMultipleAdjacentSpans_returnsCachedBytes() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, /* position= */ 0, /* length= */ 25);
     addCache(simpleCache, KEY_1, /* position= */ 25, /* length= */ 25);
     simpleCache.releaseHoleSpan(holeSpan);
@@ -443,7 +563,7 @@ public class SimpleCacheTest {
   @Test
   public void getCachedBytes_withMultipleNonAdjacentSpans_returnsCachedBytes() throws Exception {
     SimpleCache simpleCache = getSimpleCache();
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, /* position= */ 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, /* position= */ 0, /* length= */ 10);
     addCache(simpleCache, KEY_1, /* position= */ 15, /* length= */ 35);
     simpleCache.releaseHoleSpan(holeSpan);
@@ -474,7 +594,7 @@ public class SimpleCacheTest {
             cacheDir, new LeastRecentlyUsedCacheEvictor(20), contentIndex, /* fileIndex= */ null);
 
     // Add some content.
-    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0);
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, 0, 15);
 
     // Make index.store() throw exception from now on.
@@ -502,7 +622,8 @@ public class SimpleCacheTest {
     SimpleCache simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
     simpleCache.release();
     assertThrows(
-        IllegalStateException.class, () -> simpleCache.startReadWriteNonBlocking(KEY_1, 0));
+        IllegalStateException.class,
+        () -> simpleCache.startReadWriteNonBlocking(KEY_1, 0, LENGTH_UNSET));
   }
 
   private SimpleCache getSimpleCache() {

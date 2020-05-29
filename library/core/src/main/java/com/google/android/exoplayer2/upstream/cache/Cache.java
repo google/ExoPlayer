@@ -165,7 +165,7 @@ public interface Cache {
    * defines the file in which the data is stored. {@link CacheSpan#isCached} is true. The caller
    * may read from the cache file, but does not acquire any locks.
    *
-   * <p>If there is no cache entry overlapping {@code offset}, then the returned {@link CacheSpan}
+   * <p>If there is no cache entry overlapping {@code position}, then the returned {@link CacheSpan}
    * defines a hole in the cache starting at {@code position} into which the caller may write as it
    * obtains the data from some other source. The returned {@link CacheSpan} serves as a lock.
    * Whilst the caller holds the lock it may write data into the hole. It may split data into
@@ -177,31 +177,40 @@ public interface Cache {
    *
    * @param key The cache key of the resource.
    * @param position The starting position in the resource from which data is required.
+   * @param length The length of the data being requested, or {@link C#LENGTH_UNSET} if unbounded.
+   *     The length is ignored in the case of a cache hit. In the case of a cache miss, it defines
+   *     the maximum length of the hole {@link CacheSpan} that's returned. Cache implementations may
+   *     support parallel writes into non-overlapping holes, and so passing the actual required
+   *     length should be preferred to passing {@link C#LENGTH_UNSET} when possible.
    * @return The {@link CacheSpan}.
    * @throws InterruptedException If the thread was interrupted.
    * @throws CacheException If an error is encountered.
    */
   @WorkerThread
-  CacheSpan startReadWrite(String key, long position) throws InterruptedException, CacheException;
+  CacheSpan startReadWrite(String key, long position, long length)
+      throws InterruptedException, CacheException;
 
   /**
-   * Same as {@link #startReadWrite(String, long)}. However, if the cache entry is locked, then
-   * instead of blocking, this method will return null as the {@link CacheSpan}.
+   * Same as {@link #startReadWrite(String, long, long)}. However, if the cache entry is locked,
+   * then instead of blocking, this method will return null as the {@link CacheSpan}.
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
    * @param key The cache key of the resource.
    * @param position The starting position in the resource from which data is required.
+   * @param length The length of the data being requested, or {@link C#LENGTH_UNSET} if unbounded.
+   *     The length is ignored in the case of a cache hit. In the case of a cache miss, it defines
+   *     the range of data locked by the returned {@link CacheSpan}.
    * @return The {@link CacheSpan}. Or null if the cache entry is locked.
    * @throws CacheException If an error is encountered.
    */
   @WorkerThread
   @Nullable
-  CacheSpan startReadWriteNonBlocking(String key, long position) throws CacheException;
+  CacheSpan startReadWriteNonBlocking(String key, long position, long length) throws CacheException;
 
   /**
    * Obtains a cache file into which data can be written. Must only be called when holding a
-   * corresponding hole {@link CacheSpan} obtained from {@link #startReadWrite(String, long)}.
+   * corresponding hole {@link CacheSpan} obtained from {@link #startReadWrite(String, long, long)}.
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
@@ -217,7 +226,7 @@ public interface Cache {
 
   /**
    * Commits a file into the cache. Must only be called when holding a corresponding hole {@link
-   * CacheSpan} obtained from {@link #startReadWrite(String, long)}.
+   * CacheSpan} obtained from {@link #startReadWrite(String, long, long)}.
    *
    * <p>This method may be slow and shouldn't normally be called on the main thread.
    *
@@ -229,7 +238,7 @@ public interface Cache {
   void commitFile(File file, long length) throws CacheException;
 
   /**
-   * Releases a {@link CacheSpan} obtained from {@link #startReadWrite(String, long)} which
+   * Releases a {@link CacheSpan} obtained from {@link #startReadWrite(String, long, long)} which
    * corresponded to a hole in the cache.
    *
    * @param holeSpan The {@link CacheSpan} being released.

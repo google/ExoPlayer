@@ -98,4 +98,8 @@ public class CacheSpan implements Comparable<CacheSpan> {
     return startOffsetDiff == 0 ? 0 : ((startOffsetDiff < 0) ? -1 : 1);
   }
 
+  @Override
+  public String toString() {
+    return "[" + position + ", " + length + "]";
+  }
 }

@@ -273,7 +273,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    */
   public void maybeRemove(String key) {
     @Nullable CachedContent cachedContent = keyToContent.get(key);
-    if (cachedContent != null && cachedContent.isEmpty() && !cachedContent.isLocked()) {
+    if (cachedContent != null && cachedContent.isEmpty() && cachedContent.isFullyUnlocked()) {
       keyToContent.remove(key);
       int id = cachedContent.id;
       boolean neverStored = newIds.get(id);
