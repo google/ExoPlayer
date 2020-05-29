@@ -134,6 +134,8 @@
 *   Downloads and caching:
     *   Merge downloads in `SegmentDownloader` to improve overall download speed
         ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+    *   Support multiple non-overlapping write locks for the same key in
+        `SimpleCache`.
     *   Replace `CacheDataSinkFactory` and `CacheDataSourceFactory` with
         `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
     *   Remove `DownloadConstructorHelper` and use `CacheDataSource.Factory`

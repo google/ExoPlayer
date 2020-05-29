@@ -691,13 +691,13 @@ public final class CacheDataSource implements DataSource {
       nextSpan = null;
     } else if (blockOnCache) {
       try {
-        nextSpan = cache.startReadWrite(key, readPosition);
+        nextSpan = cache.startReadWrite(key, readPosition, bytesRemaining);
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
         throw new InterruptedIOException();
       }
     } else {
-      nextSpan = cache.startReadWriteNonBlocking(key, readPosition);
+      nextSpan = cache.startReadWriteNonBlocking(key, readPosition, bytesRemaining);
     }
 
     DataSpec nextDataSpec;

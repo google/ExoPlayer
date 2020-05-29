@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
    * Creates a lookup span.
    *
    * @param key The cache key of the resource.
-   * @param position The position of the {@link CacheSpan} in the resource.
+   * @param position The position of the span in the resource.
    * @return The span.
    */
   public static SimpleCacheSpan createLookup(String key, long position) {
@@ -62,25 +62,14 @@ import java.util.regex.Pattern;
   }
 
   /**
-   * Creates an open hole span.
+   * Creates a hole span.
    *
    * @param key The cache key of the resource.
-   * @param position The position of the {@link CacheSpan} in the resource.
-   * @return The span.
+   * @param position The position of the span in the resource.
+   * @param length The length of the span, or {@link C#LENGTH_UNSET} if unbounded.
+   * @return The hole span.
    */
-  public static SimpleCacheSpan createOpenHole(String key, long position) {
-    return new SimpleCacheSpan(key, position, C.LENGTH_UNSET, C.TIME_UNSET, null);
-  }
-
-  /**
-   * Creates a closed hole span.
-   *
-   * @param key The cache key of the resource.
-   * @param position The position of the {@link CacheSpan} in the resource.
-   * @param length The length of the {@link CacheSpan}.
-   * @return The span.
-   */
-  public static SimpleCacheSpan createClosedHole(String key, long position, long length) {
+  public static SimpleCacheSpan createHole(String key, long position, long length) {
     return new SimpleCacheSpan(key, position, length, C.TIME_UNSET, null);
   }
 
@@ -191,12 +180,11 @@ import java.util.regex.Pattern;
 
   /**
    * @param key The cache key of the resource.
-   * @param position The position of the {@link CacheSpan} in the resource.
-   * @param length The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an
-   *     open-ended hole.
+   * @param position The position of the span in the resource.
+   * @param length The length of the span, or {@link C#LENGTH_UNSET} if this is an open-ended hole.
    * @param lastTouchTimestamp The last touch timestamp, or {@link C#TIME_UNSET} if {@link
    *     #isCached} is false.
-   * @param file The file corresponding to this {@link CacheSpan}, or null if it's a hole.
+   * @param file The file corresponding to this span, or null if it's a hole.
    */
   private SimpleCacheSpan(
       String key, long position, long length, long lastTouchTimestamp, @Nullable File file) {
