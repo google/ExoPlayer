@@ -31,10 +31,8 @@ import com.google.android.exoplayer2.upstream.cache.CacheKeyFactory;
 import com.google.android.exoplayer2.upstream.cache.CacheWriter;
 import com.google.android.exoplayer2.upstream.cache.ContentMetadata;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException;
-import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -220,23 +218,17 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
     }
   }
 
-  long timer = 0;
-
   @Override
   public final void remove() {
     Cache cache = Assertions.checkNotNull(cacheDataSourceFactory.getCache());
     CacheKeyFactory cacheKeyFactory = cacheDataSourceFactory.getCacheKeyFactory();
     CacheDataSource dataSource = cacheDataSourceFactory.createDataSourceForRemovingDownload();
     try {
-      timer = SystemClock.DEFAULT.elapsedRealtime();
       M manifest = getManifest(dataSource, manifestDataSpec);
-      Log.e("XXX", "E1\t" + (SystemClock.DEFAULT.elapsedRealtime() - timer));
-      timer = SystemClock.DEFAULT.elapsedRealtime();
       List<Segment> segments = getSegments(dataSource, manifest, true);
       for (int i = 0; i < segments.size(); i++) {
         cache.removeResource(cacheKeyFactory.buildCacheKey(segments.get(i).dataSpec));
       }
-      Log.e("XXX", "E2\t" + (SystemClock.DEFAULT.elapsedRealtime() - timer));
     } catch (IOException e) {
       // Ignore exceptions when removing.
     } finally {
