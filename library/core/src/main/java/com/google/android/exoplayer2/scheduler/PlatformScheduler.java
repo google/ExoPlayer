@@ -116,6 +116,14 @@ public final class PlatformScheduler implements Scheduler {
     } else if (requirements.isNetworkRequired()) {
       builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
     }
+    if (requirements.isStorageNotLowRequired()) {
+      if (Util.SDK_INT < 26) {
+        Log.w(TAG, "Storage not low requirement not supported on the PlatformScheduler"
+            + "on API below 26. Requirement not set.");
+      } else {
+        builder.setRequiresStorageNotLow(true);
+      }
+    }
     builder.setRequiresDeviceIdle(requirements.isIdleRequired());
     builder.setRequiresCharging(requirements.isChargingRequired());
     builder.setPersisted(true);
