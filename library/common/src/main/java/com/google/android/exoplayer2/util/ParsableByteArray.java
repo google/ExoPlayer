@@ -29,6 +29,8 @@ public final class ParsableByteArray {
   public byte[] data;
 
   private int position;
+
+  // TODO(internal b/147657250): Enforce this limit on all read methods.
   private int limit;
 
   /** Creates a new instance that initially has no backing data. */
