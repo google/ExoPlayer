@@ -181,26 +181,10 @@ public final class Requirements implements Parcelable {
    */
   private boolean isStorageNotLow(Context context) {
     IntentFilter intentFilter = new IntentFilter();
-    intentFilter.addAction(Intent.ACTION_DEVICE_STORAGE_OK);
     intentFilter.addAction(Intent.ACTION_DEVICE_STORAGE_LOW);
-    Intent intent = context.registerReceiver(null, intentFilter);
-    if (intent == null || intent.getAction() == null) {
-      // ACTION_DEVICE_STORAGE_LOW is a sticky broadcast that is removed when sufficient
-      // storage is available again.  ACTION_DEVICE_STORAGE_OK is not sticky.  So if we
-      // don't receive anything here, we can assume that the storage state is okay.
-      return true;
-    } else {
-      switch (intent.getAction()) {
-        case Intent.ACTION_DEVICE_STORAGE_OK:
-          return true;
-        case Intent.ACTION_DEVICE_STORAGE_LOW:
-          return false;
-        default:
-          // This should never happen because the intent filter is configured
-          // correctly.
-          return true;
-      }
-    }
+    @Nullable Intent intent =
+        context.registerReceiver(null, new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW));
+    return intent == null;
   }
 
   private static boolean isInternetConnectivityValidated(ConnectivityManager connectivityManager) {
