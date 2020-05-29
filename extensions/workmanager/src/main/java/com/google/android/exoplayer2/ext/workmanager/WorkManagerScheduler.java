@@ -40,6 +40,12 @@ public final class WorkManagerScheduler implements Scheduler {
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
   private static final String KEY_REQUIREMENTS = "requirements";
+  private static final int SUPPORTED_REQUIREMENTS =
+      Requirements.NETWORK
+          | Requirements.NETWORK_UNMETERED
+          | (Util.SDK_INT >= 23 ? Requirements.DEVICE_IDLE : 0)
+          | Requirements.DEVICE_CHARGING
+          | Requirements.DEVICE_STORAGE_NOT_LOW;
 
   private final String workName;
 
@@ -70,9 +76,21 @@ public final class WorkManagerScheduler implements Scheduler {
     return true;
   }
 
-  private static Constraints buildConstraints(Requirements requirements) {
-    Constraints.Builder builder = new Constraints.Builder();
+  @Override
+  public Requirements getSupportedRequirements(Requirements requirements) {
+    return requirements.filterRequirements(SUPPORTED_REQUIREMENTS);
+  }
 
+  private static Constraints buildConstraints(Requirements requirements) {
+    Requirements filteredRequirements = requirements.filterRequirements(SUPPORTED_REQUIREMENTS);
+    if (!filteredRequirements.equals(requirements)) {
+      Log.w(
+          TAG,
+          "Ignoring unsupported requirements: "
+              + (filteredRequirements.getRequirements() ^ requirements.getRequirements()));
+    }
+
+    Constraints.Builder builder = new Constraints.Builder();
     if (requirements.isUnmeteredNetworkRequired()) {
       builder.setRequiredNetworkType(NetworkType.UNMETERED);
     } else if (requirements.isNetworkRequired()) {
@@ -80,13 +98,14 @@ public final class WorkManagerScheduler implements Scheduler {
     } else {
       builder.setRequiredNetworkType(NetworkType.NOT_REQUIRED);
     }
-
+    if (Util.SDK_INT >= 23 && requirements.isIdleRequired()) {
+      setRequiresDeviceIdle(builder);
+    }
     if (requirements.isChargingRequired()) {
       builder.setRequiresCharging(true);
     }
-
-    if (requirements.isIdleRequired() && Util.SDK_INT >= 23) {
-      setRequiresDeviceIdle(builder);
+    if (requirements.isStorageNotLowRequired()) {
+      builder.setRequiresStorageNotLow(true);
     }
 
     return builder.build();

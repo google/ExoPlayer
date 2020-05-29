@@ -142,6 +142,8 @@
         directly instead.
     *   Update `CachedContentIndex` to use `SecureRandom` for generating the
         initialization vector used to encrypt the cache contents.
+    *   Add `Requirements.DEVICE_STORAGE_NOT_LOW`, which can be specified as a
+        requirement to a `DownloadManager` for it to proceed with downloading.
 *   Audio:
     *   Add a sample count parameter to `MediaCodecRenderer.processOutputBuffer`
         and `AudioSink.handleBuffer` to allow batching multiple encoded frames

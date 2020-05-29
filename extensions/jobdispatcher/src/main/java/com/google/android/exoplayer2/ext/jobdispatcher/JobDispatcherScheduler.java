@@ -65,6 +65,11 @@ public final class JobDispatcherScheduler implements Scheduler {
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
   private static final String KEY_REQUIREMENTS = "requirements";
+  private static final int SUPPORTED_REQUIREMENTS =
+      Requirements.NETWORK
+          | Requirements.NETWORK_UNMETERED
+          | Requirements.DEVICE_IDLE
+          | Requirements.DEVICE_CHARGING;
 
   private final String jobTag;
   private final FirebaseJobDispatcher jobDispatcher;
@@ -96,24 +101,35 @@ public final class JobDispatcherScheduler implements Scheduler {
     return result == FirebaseJobDispatcher.CANCEL_RESULT_SUCCESS;
   }
 
+  @Override
+  public Requirements getSupportedRequirements(Requirements requirements) {
+    return requirements.filterRequirements(SUPPORTED_REQUIREMENTS);
+  }
+
   private static Job buildJob(
       FirebaseJobDispatcher dispatcher,
       Requirements requirements,
       String tag,
       String servicePackage,
       String serviceAction) {
+    Requirements filteredRequirements = requirements.filterRequirements(SUPPORTED_REQUIREMENTS);
+    if (!filteredRequirements.equals(requirements)) {
+      Log.w(
+          TAG,
+          "Ignoring unsupported requirements: "
+              + (filteredRequirements.getRequirements() ^ requirements.getRequirements()));
+    }
+
     Job.Builder builder =
         dispatcher
             .newJobBuilder()
             .setService(JobDispatcherSchedulerService.class) // the JobService that will be called
             .setTag(tag);
-
     if (requirements.isUnmeteredNetworkRequired()) {
       builder.addConstraint(Constraint.ON_UNMETERED_NETWORK);
     } else if (requirements.isNetworkRequired()) {
       builder.addConstraint(Constraint.ON_ANY_NETWORK);
     }
-
     if (requirements.isIdleRequired()) {
       builder.addConstraint(Constraint.DEVICE_IDLE);
     }
