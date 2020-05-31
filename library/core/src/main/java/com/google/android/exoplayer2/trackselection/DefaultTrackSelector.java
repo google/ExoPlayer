@@ -1498,6 +1498,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private static final float FRACTION_TO_CONSIDER_FULLSCREEN = 0.98f;
   private static final int[] NO_TRACKS = new int[0];
   private static final int WITHIN_RENDERER_CAPABILITIES_BONUS = 1000;
+  /**
+   * In case when both min and max constraints are set, give the track higher score which satisfies
+   * the max constraints, as it is more important to not violate the max constraints than min
+   * constraints, because it's more likely to play successfully when max constraints are satisfied.
+   */
+  private static final int SATISFIES_MIN_CONSTRAINTS_BONUS = 1;
+  private static final int SATISFIES_MAX_CONSTRAINTS_BONUS = 2;
+
 
   private final TrackSelection.Factory trackSelectionFactory;
   private final AtomicReference<Parameters> parametersReference;
@@ -2040,8 +2048,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     int selectedTrackScore = 0;
     int selectedBitrate = Format.NO_VALUE;
     int selectedPixelCount = Format.NO_VALUE;
-    boolean selectedSatisfiesMaxConstraints;
-    boolean selectedSatisfiesMinConstraints;
     for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
       TrackGroup trackGroup = groups.get(groupIndex);
       List<Integer> selectedTrackIndices = getViewportFilteredTrackIndices(trackGroup,
@@ -2060,50 +2066,68 @@ public class DefaultTrackSelector extends MappingTrackSelector {
                   && (format.width == Format.NO_VALUE || format.width <= params.maxVideoWidth)
                   && (format.height == Format.NO_VALUE || format.height <= params.maxVideoHeight)
                   && (format.frameRate == Format.NO_VALUE
-                      || format.frameRate <= params.maxVideoFrameRate)
+                    || format.frameRate <= params.maxVideoFrameRate)
                   && (format.bitrate == Format.NO_VALUE
-                      || format.bitrate <= params.maxVideoBitrate);
+                    || format.bitrate <= params.maxVideoBitrate);
           boolean satisfiesMinConstraints =
               selectedTrackIndices.contains(trackIndex)
                   && (format.width == Format.NO_VALUE || format.width >= params.minVideoWidth)
                   && (format.height == Format.NO_VALUE || format.height >= params.minVideoHeight)
                   && (format.frameRate == Format.NO_VALUE
-                  || format.frameRate >= params.minVideoFrameRate)
+                    || format.frameRate >= params.minVideoFrameRate)
                   && (format.bitrate == Format.NO_VALUE
-                  || format.bitrate >= params.minVideoBitrate);
+                    || format.bitrate >= params.minVideoBitrate);
           if (!satisfiesMaxConstraints && !params.exceedVideoConstraintsIfNecessary) {
             // Track should not be selected.
             continue;
           }
           int trackScore = 1;
-          if (satisfiesMaxConstraints) {
-            trackScore += 1;
-          }
-          if (satisfiesMinConstraints) {
-            trackScore += 1;
-          }
           boolean isWithinCapabilities = isSupported(trackFormatSupport[trackIndex], false);
           if (isWithinCapabilities) {
             trackScore += WITHIN_RENDERER_CAPABILITIES_BONUS;
           }
+          if (satisfiesMaxConstraints) {
+            trackScore += SATISFIES_MAX_CONSTRAINTS_BONUS;
+          }
+          if (satisfiesMinConstraints) {
+            trackScore += SATISFIES_MIN_CONSTRAINTS_BONUS;
+          }
           boolean selectTrack = trackScore > selectedTrackScore;
+          // Handling tie-breaking scenarios.
           if (trackScore == selectedTrackScore) {
-            // TODO handle tie breaker cases correctly.
             int bitrateComparison = compareFormatValues(format.bitrate, selectedBitrate);
             if (params.forceLowestBitrate && bitrateComparison != 0) {
               // Use bitrate as a tie breaker, preferring the lower bitrate.
               selectTrack = bitrateComparison < 0;
             } else {
-              // Use the pixel count as a tie breaker (or bitrate if pixel counts are tied). If
-              // we're within constraints prefer a higher pixel count (or bitrate), else prefer a
-              // lower count (or bitrate). If still tied then prefer the first track (i.e. the one
-              // that's already selected).
+              // Use the pixel count as a tie breaker (or bitrate if pixel counts are tied).
               int formatPixelCount = format.getPixelCount();
               int comparisonResult = formatPixelCount != selectedPixelCount
                   ? compareFormatValues(formatPixelCount, selectedPixelCount)
                   : compareFormatValues(format.bitrate, selectedBitrate);
-              selectTrack = isWithinCapabilities && satisfiesMaxConstraints
-                  ? comparisonResult > 0 : comparisonResult < 0;
+              // If it's not within the capabilities, always pick lower quality because it's more
+              // likely to play successfully.
+              if (!isWithinCapabilities) {
+                selectTrack = comparisonResult < 0;
+              } else {
+                if (satisfiesMinConstraints && satisfiesMaxConstraints) {
+                  // Both constraints are satisfied, pick higher quality.
+                  selectTrack = comparisonResult > 0;
+                } else if (!satisfiesMinConstraints && satisfiesMaxConstraints) {
+                  // Min constraints are not satisfied but the max constraints are, pick higher
+                  // quality, because that's what gets us closest to satisfying the violated min
+                  // constraints.
+                  selectTrack = comparisonResult > 0;
+                } else if (satisfiesMinConstraints) {
+                  // Min constraints are satisfied but not the max constraints, pick lower quality
+                  // because that's what gets us closest to satisfying the violated max constraints.
+                  selectTrack = comparisonResult > 0;
+                } else {
+                  // Neither min or max constraints are not satisfied, pick lower quality because
+                  // it's more likely to play successfully.
+                  selectTrack = comparisonResult < 0;
+                }
+              }
             }
           }
           if (selectTrack) {
@@ -2112,8 +2136,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             selectedTrackScore = trackScore;
             selectedBitrate = format.bitrate;
             selectedPixelCount = format.getPixelCount();
-            selectedSatisfiesMaxConstraints = satisfiesMaxConstraints;
-            selectedSatisfiesMinConstraints = satisfiesMinConstraints;
           }
         }
       }
