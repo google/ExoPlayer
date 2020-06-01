@@ -296,9 +296,20 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     // Check for a valid response code.
     if (responseCode < 200 || responseCode > 299) {
       Map<String, List<String>> headers = connection.getHeaderFields();
+      @Nullable InputStream errorStream = connection.getErrorStream();
+      byte[] errorResponseBody;
+      try {
+        errorResponseBody =
+            errorStream != null ? Util.toByteArray(errorStream) : Util.EMPTY_BYTE_ARRAY;
+      } catch (IOException e) {
+        throw new HttpDataSourceException(
+            "Error reading non-2xx response body", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+      }
       closeConnectionQuietly();
       InvalidResponseCodeException exception =
-          new InvalidResponseCodeException(responseCode, responseMessage, headers, dataSpec);
+          new InvalidResponseCodeException(
+              responseCode, responseMessage, headers, dataSpec, errorResponseBody);
+
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }
@@ -540,7 +551,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(httpBody != null);
     connection.setRequestMethod(DataSpec.getStringForHttpMethod(httpMethod));
-    
+
     if (httpBody != null) {
       connection.setFixedLengthStreamingMode(httpBody.length);
       connection.connect();

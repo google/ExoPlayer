@@ -378,15 +378,18 @@ public final class CronetDataSourceTest {
   }
 
   @Test
-  public void requestOpenValidatesStatusCode() {
+  public void requestOpenPropagatesFailureResponseBody() throws Exception {
     mockResponseStartSuccess();
-    testUrlResponseInfo = createUrlResponseInfo(500); // statusCode
+    // Use a size larger than CronetDataSource.READ_BUFFER_SIZE_BYTES
+    int responseLength = 40 * 1024;
+    mockReadSuccess(/* position= */ 0, /* length= */ responseLength);
+    testUrlResponseInfo = createUrlResponseInfo(/* statusCode= */ 500);
 
     try {
       dataSourceUnderTest.open(testDataSpec);
-      fail("HttpDataSource.HttpDataSourceException expected");
-    } catch (HttpDataSourceException e) {
-      assertThat(e).isInstanceOf(HttpDataSource.InvalidResponseCodeException.class);
+      fail("HttpDataSource.InvalidResponseCodeException expected");
+    } catch (HttpDataSource.InvalidResponseCodeException e) {
+      assertThat(e.responseBody).isEqualTo(buildTestDataArray(0, responseLength));
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never())

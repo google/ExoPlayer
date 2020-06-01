@@ -31,11 +31,13 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Predicate;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -440,12 +442,28 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     UrlResponseInfo responseInfo = Assertions.checkNotNull(this.responseInfo);
     int responseCode = responseInfo.getHttpStatusCode();
     if (responseCode < 200 || responseCode > 299) {
+      byte[] responseBody = Util.EMPTY_BYTE_ARRAY;
+      ByteBuffer readBuffer = getOrCreateReadBuffer();
+      while (!readBuffer.hasRemaining()) {
+        operation.close();
+        readBuffer.clear();
+        readInternal(readBuffer);
+        if (finished) {
+          break;
+        }
+        readBuffer.flip();
+        int existingResponseBodyEnd = responseBody.length;
+        responseBody = Arrays.copyOf(responseBody, responseBody.length + readBuffer.remaining());
+        readBuffer.get(responseBody, existingResponseBodyEnd, readBuffer.remaining());
+      }
+
       InvalidResponseCodeException exception =
           new InvalidResponseCodeException(
               responseCode,
               responseInfo.getHttpStatusText(),
               responseInfo.getAllHeaders(),
-              dataSpec);
+              dataSpec,
+              responseBody);
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }
@@ -496,17 +514,12 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       return C.RESULT_END_OF_INPUT;
     }
 
-    ByteBuffer readBuffer = this.readBuffer;
-    if (readBuffer == null) {
-      readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
-      readBuffer.limit(0);
-      this.readBuffer = readBuffer;
-    }
+    ByteBuffer readBuffer = getOrCreateReadBuffer();
     while (!readBuffer.hasRemaining()) {
       // Fill readBuffer with more data from Cronet.
       operation.close();
       readBuffer.clear();
-      readInternal(castNonNull(readBuffer));
+      readInternal(readBuffer);
 
       if (finished) {
         bytesRemaining = 0;
@@ -603,11 +616,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       operation.close();
 
       if (!useCallerBuffer) {
-        if (readBuffer == null) {
-          readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
-        } else {
-          readBuffer.clear();
-        }
+        ByteBuffer readBuffer = getOrCreateReadBuffer();
+        readBuffer.clear();
         if (bytesToSkip < READ_BUFFER_SIZE_BYTES) {
           readBuffer.limit((int) bytesToSkip);
         }
@@ -781,6 +791,14 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
   }
 
+  private ByteBuffer getOrCreateReadBuffer() {
+    if (readBuffer == null) {
+      readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE_BYTES);
+      readBuffer.limit(0);
+    }
+    return readBuffer;
+  }
+
   private static boolean isCompressed(UrlResponseInfo info) {
     for (Map.Entry<String, String> entry : info.getAllHeadersAsList()) {
       if (entry.getKey().equalsIgnoreCase("Content-Encoding")) {
@@ -893,7 +911,11 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         if (responseCode == 307 || responseCode == 308) {
           exception =
               new InvalidResponseCodeException(
-                  responseCode, info.getHttpStatusText(), info.getAllHeaders(), dataSpec);
+                  responseCode,
+                  info.getHttpStatusText(),
+                  info.getAllHeaders(),
+                  dataSpec,
+                  /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
           operation.open();
           return;
         }

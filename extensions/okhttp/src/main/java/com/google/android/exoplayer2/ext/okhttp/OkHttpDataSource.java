@@ -230,10 +230,18 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
 
     // Check for a valid response code.
     if (!response.isSuccessful()) {
+      byte[] errorResponseBody;
+      try {
+        errorResponseBody = Util.toByteArray(Assertions.checkNotNull(responseByteStream));
+      } catch (IOException e) {
+        throw new HttpDataSourceException(
+            "Error reading non-2xx response body", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+      }
       Map<String, List<String>> headers = response.headers().toMultimap();
       closeConnectionQuietly();
       InvalidResponseCodeException exception =
-          new InvalidResponseCodeException(responseCode, response.message(), headers, dataSpec);
+          new InvalidResponseCodeException(
+              responseCode, response.message(), headers, dataSpec, errorResponseBody);
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }

@@ -17,10 +17,16 @@
 package com.google.android.exoplayer2.ext.okhttp;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import okhttp3.Call;
@@ -38,24 +44,25 @@ import org.mockito.Mockito;
 @RunWith(AndroidJUnit4.class)
 public class OkHttpDataSourceTest {
 
+  /**
+   * This test will set HTTP default request parameters (1) in the OkHttpDataSource, (2) via
+   * OkHttpDataSource.setRequestProperty() and (3) in the DataSpec instance according to the table
+   * below. Values wrapped in '*' are the ones that should be set in the connection request.
+   *
+   * <pre>{@code
+   * +-----------------------+---+-----+-----+-----+-----+-----+
+   * |                       |            Header Key           |
+   * +-----------------------+---+-----+-----+-----+-----+-----+
+   * |       Location        | 0 |  1  |  2  |  3  |  4  |  5  |
+   * +-----------------------+---+-----+-----+-----+-----+-----+
+   * | Default               |*Y*|  Y  |  Y  |     |     |     |
+   * | OkHttpDataSource      |   | *Y* |  Y  |  Y  | *Y* |     |
+   * | DataSpec              |   |     | *Y* | *Y* |     | *Y* |
+   * +-----------------------+---+-----+-----+-----+-----+-----+
+   * }</pre>
+   */
   @Test
   public void open_setsCorrectHeaders() throws HttpDataSource.HttpDataSourceException {
-    /*
-     * This test will set HTTP default request parameters (1) in the OkHttpDataSource, (2) via
-     * OkHttpDataSource.setRequestProperty() and (3) in the DataSpec instance according to the table
-     * below. Values wrapped in '*' are the ones that should be set in the connection request.
-     *
-     * +-----------------------+---+-----+-----+-----+-----+-----+
-     * |                       |            Header Key           |
-     * +-----------------------+---+-----+-----+-----+-----+-----+
-     * |       Location        | 0 |  1  |  2  |  3  |  4  |  5  |
-     * +-----------------------+---+-----+-----+-----+-----+-----+
-     * | Default               |*Y*|  Y  |  Y  |     |     |     |
-     * | OkHttpDataSource      |   | *Y* |  Y  |  Y  | *Y* |     |
-     * | DataSpec              |   |     | *Y* | *Y* |     | *Y* |
-     * +-----------------------+---+-----+-----+-----+-----+-----+
-     */
-
     String defaultValue = "Default";
     String okHttpDataSourceValue = "OkHttpDataSource";
     String dataSpecValue = "DataSpec";
@@ -67,7 +74,7 @@ public class OkHttpDataSourceTest {
     defaultRequestProperties.set("1", defaultValue);
     defaultRequestProperties.set("2", defaultValue);
 
-    Call.Factory mockCallFactory = Mockito.mock(Call.Factory.class);
+    Call.Factory mockCallFactory = mock(Call.Factory.class);
     OkHttpDataSource okHttpDataSource =
         new OkHttpDataSource(
             mockCallFactory, "testAgent", /* cacheControl= */ null, defaultRequestProperties);
@@ -103,8 +110,8 @@ public class OkHttpDataSourceTest {
               assertThat(request.header("5")).isEqualTo(dataSpecValue);
 
               // return a Call whose .execute() will return a mock Response
-              Call returnValue = Mockito.mock(Call.class);
-              Mockito.doReturn(
+              Call returnValue = mock(Call.class);
+              doReturn(
                       new Response.Builder()
                           .request(request)
                           .protocol(Protocol.HTTP_1_1)
@@ -119,5 +126,45 @@ public class OkHttpDataSourceTest {
         .when(mockCallFactory)
         .newCall(ArgumentMatchers.any());
     okHttpDataSource.open(dataSpec);
+  }
+
+  @Test
+  public void open_invalidResponseCode() throws Exception {
+    Call.Factory callFactory =
+        request -> {
+          Call mockCall = mock(Call.class);
+
+          try {
+            when(mockCall.execute())
+                .thenReturn(
+                    new Response.Builder()
+                        .request(request)
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(404)
+                        .message("NOT FOUND")
+                        .body(ResponseBody.create(MediaType.parse("text/plain"), "failure msg"))
+                        .build());
+          } catch (IOException e) {
+            throw new AssertionError(e);
+          }
+          return mockCall;
+        };
+
+    OkHttpDataSource okHttpDataSource =
+        new OkHttpDataSource(
+            callFactory,
+            "testAgent",
+            /* cacheControl= */ null,
+            /* defaultRequestProperties= */ null);
+
+    DataSpec dataSpec = new DataSpec.Builder().setUri("http://www.google.com").build();
+
+    HttpDataSource.InvalidResponseCodeException exception =
+        assertThrows(
+            HttpDataSource.InvalidResponseCodeException.class,
+            () -> okHttpDataSource.open(dataSpec));
+
+    assertThat(exception.responseCode).isEqualTo(404);
+    assertThat(exception.responseBody).isEqualTo("failure msg".getBytes(C.UTF8_NAME));
   }
 }
