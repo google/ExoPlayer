@@ -50,7 +50,10 @@ public interface Downloader {
    */
   void download(@Nullable ProgressListener progressListener) throws IOException;
 
-  /** Cancels the download operation and prevents future download operations from running. */
+  /**
+   * Cancels the download operation and prevents future download operations from running. The caller
+   * should also interrupt the downloading thread immediately after calling this method.
+   */
   void cancel();
 
   /** Removes the content. */

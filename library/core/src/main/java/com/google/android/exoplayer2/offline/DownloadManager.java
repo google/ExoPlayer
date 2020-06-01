@@ -1284,6 +1284,7 @@ public final class DownloadManager {
       if (!isCanceled) {
         isCanceled = true;
         downloader.cancel();
+        interrupt();
       }
     }
 
