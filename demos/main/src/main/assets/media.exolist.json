@@ -337,6 +337,10 @@
       {
         "name": "Big Buck Bunny 480p video (MP4,AV1)",
         "uri": "https://storage.googleapis.com/downloads.webmproject.org/av1/exoplayer/bbb-av1-480p.mp4"
+      },
+      {
+        "name": "One hour frame counter (MP4)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4"
       }
     ]
   },
