@@ -38,18 +38,6 @@
         subtitles.
     *   Fix `SubtitlePainter` to render `EDGE_TYPE_OUTLINE` using the correct
         color.
-*   Cronet extension: Default to using the Cronet implementation in Google Play
-    Services rather than Cronet Embedded. This allows Cronet to be used with a
-    negligible increase in application size, compared to approximately 8MB when
-    embedding the library.
-*   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
-*   MediaSession extension:
-    *   Only set the playback state to `BUFFERING` if `playWhenReady` is true
-        ([#7206](https://github.com/google/ExoPlayer/issues/7206)).
-    *   Add missing `@Nullable` annotations to `MediaSessionConnector`
-        ([#7234](https://github.com/google/ExoPlayer/issues/7234)).
-*   AV1 extension: Add a heuristic to determine the default number of threads
-    used for AV1 playback using the extension.
 *   IMA extension:
     *   Upgrade to IMA SDK version 3.19.0, and migrate to new
         preloading APIs
@@ -70,6 +58,18 @@
         ([#5444](https://github.com/google/ExoPlayer/issues/5444),
         [#5966](https://github.com/google/ExoPlayer/issues/5966),
         [#7002](https://github.com/google/ExoPlayer/issues/7002)).
+*   Cronet extension: Default to using the Cronet implementation in Google Play
+    Services rather than Cronet Embedded. This allows Cronet to be used with a
+    negligible increase in application size, compared to approximately 8MB when
+    embedding the library.
+*   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
+*   MediaSession extension:
+    *   Only set the playback state to `BUFFERING` if `playWhenReady` is true
+        ([#7206](https://github.com/google/ExoPlayer/issues/7206)).
+    *   Add missing `@Nullable` annotations to `MediaSessionConnector`
+        ([#7234](https://github.com/google/ExoPlayer/issues/7234)).
+*   AV1 extension: Add a heuristic to determine the default number of threads
+    used for AV1 playback using the extension.
 
 ### 2.11.4 (2020-04-08) ###
 
