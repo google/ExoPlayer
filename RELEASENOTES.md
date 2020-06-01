@@ -1,6 +1,6 @@
 # Release notes #
 
-### 2.11.5 (not yet released) ###
+### 2.11.5 (2020-06-03) ###
 
 *   Add `SilenceMediaSource.Factory` to support tags.
 *   Enable the configuration of `SilenceSkippingAudioProcessor`
