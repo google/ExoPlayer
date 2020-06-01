@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheWriter;
-import com.google.android.exoplayer2.upstream.cache.CacheWriter.ProgressListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException;
@@ -36,8 +35,6 @@ public final class ProgressiveDownloader implements Downloader {
   private final DataSpec dataSpec;
   private final CacheDataSource dataSource;
   private final AtomicBoolean isCanceled;
-
-  @Nullable private volatile Thread downloadThread;
 
   /** @deprecated Use {@link #ProgressiveDownloader(MediaItem, CacheDataSource.Factory)} instead. */
   @SuppressWarnings("deprecation")
@@ -100,11 +97,6 @@ public final class ProgressiveDownloader implements Downloader {
 
   @Override
   public void download(@Nullable ProgressListener progressListener) throws IOException {
-    downloadThread = Thread.currentThread();
-    if (isCanceled.get()) {
-      return;
-    }
-
     CacheWriter cacheWriter =
         new CacheWriter(
             dataSource,
@@ -143,10 +135,6 @@ public final class ProgressiveDownloader implements Downloader {
   @Override
   public void cancel() {
     isCanceled.set(true);
-    @Nullable Thread downloadThread = this.downloadThread;
-    if (downloadThread != null) {
-      downloadThread.interrupt();
-    }
   }
 
   @Override
