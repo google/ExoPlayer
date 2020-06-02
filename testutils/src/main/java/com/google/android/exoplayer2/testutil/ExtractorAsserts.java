@@ -155,9 +155,13 @@ public final class ExtractorAsserts {
    */
   public static void assertSniff(
       Extractor extractor, FakeExtractorInput input, boolean expectedResult) throws IOException {
+    long originalPosition = input.getPosition();
     while (true) {
       try {
         assertThat(extractor.sniff(input)).isEqualTo(expectedResult);
+        if (!expectedResult) {
+          assertThat(input.getPosition()).isEqualTo(originalPosition);
+        }
         return;
       } catch (SimulatedIOException e) {
         // Ignore.
