@@ -146,7 +146,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MonotonicNonNull Format upstreamTrackFormat;
   @Nullable private Format downstreamTrackFormat;
   private boolean released;
-  private int pendingDiscardUpstreamQueueSize;
 
   // Tracks are complicated in HLS. See documentation of buildTracksFromSampleStreams for details.
   // Indexed by track (as exposed by this source).
@@ -230,7 +229,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     handler = Util.createHandler();
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
-    pendingDiscardUpstreamQueueSize = C.LENGTH_UNSET;
   }
 
   public void continuePreparing() {
@@ -708,7 +706,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return;
     }
     if (loader.isLoading()) {
-      pendingDiscardUpstreamQueueSize = preferredQueueSize;
       loader.cancelLoading();
     } else {
       discardUpstream(preferredQueueSize);
@@ -769,10 +766,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         loadable.startTimeUs,
         loadable.endTimeUs);
     if (!released) {
-      if (pendingDiscardUpstreamQueueSize != C.LENGTH_UNSET) {
-        discardUpstream(pendingDiscardUpstreamQueueSize);
-        pendingDiscardUpstreamQueueSize = C.LENGTH_UNSET;
-      } else {
+      if (isPendingReset() || enabledTrackGroupCount == 0) {
         resetSampleQueues();
       }
       if (enabledTrackGroupCount > 0) {
@@ -891,7 +885,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (newQueueSize == C.LENGTH_UNSET) {
       return;
     }
-
+    
     long endTimeUs = getLastMediaChunk().endTimeUs;
     HlsMediaChunk firstRemovedChunk = discardUpstreamMediaChunksFromIndex(newQueueSize);
     if (mediaChunks.isEmpty()) {
