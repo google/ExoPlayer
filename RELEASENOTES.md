@@ -186,6 +186,9 @@
 
 ### 2.11.5 (2020-06-03) ###
 
+*   Improve the smoothness of video playback immediately after starting, seeking
+    or resuming a playback
+    ([#6901](https://github.com/google/ExoPlayer/issues/6901)).
 *   Add `SilenceMediaSource.Factory` to support tags.
 *   Enable the configuration of `SilenceSkippingAudioProcessor`
     ([#6705](https://github.com/google/ExoPlayer/issues/6705)).
