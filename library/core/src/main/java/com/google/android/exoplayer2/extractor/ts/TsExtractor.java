@@ -460,10 +460,15 @@ public final class TsExtractor implements Extractor {
         // See ISO/IEC 13818-1, section 2.4.4.4 for more information on table id assignment.
         return;
       }
-      // section_syntax_indicator(1), '0'(1), reserved(2), section_length(12),
-      // transport_stream_id (16), reserved (2), version_number (5), current_next_indicator (1),
-      // section_number (8), last_section_number (8)
-      sectionData.skipBytes(7);
+      // section_syntax_indicator(1), '0'(1), reserved(2), section_length(4)
+      int secondHeaderByte = sectionData.readUnsignedByte();
+      if ((secondHeaderByte & 0x80) == 0) {
+        // section_syntax_indicator must be 1. See ISO/IEC 13818-1, section 2.4.4.5.
+        return;
+      }
+      // section_length(8), transport_stream_id (16), reserved (2), version_number (5),
+      // current_next_indicator (1), section_number (8), last_section_number (8)
+      sectionData.skipBytes(6);
 
       int programCount = sectionData.bytesLeft() / 4;
       for (int i = 0; i < programCount; i++) {
@@ -535,8 +540,14 @@ public final class TsExtractor implements Extractor {
         timestampAdjusters.add(timestampAdjuster);
       }
 
-      // section_syntax_indicator(1), '0'(1), reserved(2), section_length(12)
-      sectionData.skipBytes(2);
+      // section_syntax_indicator(1), '0'(1), reserved(2), section_length(4)
+      int secondHeaderByte = sectionData.readUnsignedByte();
+      if ((secondHeaderByte & 0x80) == 0) {
+        // section_syntax_indicator must be 1. See ISO/IEC 13818-1, section 2.4.4.9.
+        return;
+      }
+      // section_length(8)
+      sectionData.skipBytes(1);
       int programNumber = sectionData.readUnsignedShort();
 
       // Skip 3 bytes (24 bits), including:
