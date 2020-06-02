@@ -54,7 +54,8 @@ import java.io.IOException;
   public void init(
       DataReader dataReader, Uri uri, long position, long length, ExtractorOutput output)
       throws IOException {
-    extractorInput = new DefaultExtractorInput(dataReader, position, length);
+    ExtractorInput extractorInput = new DefaultExtractorInput(dataReader, position, length);
+    this.extractorInput = extractorInput;
     if (extractor != null) {
       return;
     }
@@ -70,6 +71,7 @@ import java.io.IOException;
         } catch (EOFException e) {
           // Do nothing.
         } finally {
+          Assertions.checkState(this.extractor != null || extractorInput.getPosition() == position);
           extractorInput.resetPeekPosition();
         }
       }
