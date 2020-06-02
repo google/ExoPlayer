@@ -15,6 +15,15 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_AC3;
+import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_AC4;
+import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_ADTS;
+import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MP3;
+import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MP4;
+import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_TS;
+import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_WEBVTT;
+import static com.google.android.exoplayer2.util.FilenameUtil.getFormatFromExtension;
+
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
@@ -30,6 +39,7 @@ import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.FilenameUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.EOFException;
@@ -42,20 +52,6 @@ import java.util.Map;
  * Default {@link HlsExtractorFactory} implementation.
  */
 public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
-
-  public static final String AAC_FILE_EXTENSION = ".aac";
-  public static final String AC3_FILE_EXTENSION = ".ac3";
-  public static final String EC3_FILE_EXTENSION = ".ec3";
-  public static final String AC4_FILE_EXTENSION = ".ac4";
-  public static final String MP3_FILE_EXTENSION = ".mp3";
-  public static final String MP4_FILE_EXTENSION = ".mp4";
-  public static final String M4_FILE_EXTENSION_PREFIX = ".m4";
-  public static final String MP4_FILE_EXTENSION_PREFIX = ".mp4";
-  public static final String CMF_FILE_EXTENSION_PREFIX = ".cmf";
-  public static final String TS_FILE_EXTENSION = ".ts";
-  public static final String TS_FILE_EXTENSION_PREFIX = ".ts";
-  public static final String VTT_FILE_EXTENSION = ".vtt";
-  public static final String WEBVTT_FILE_EXTENSION = ".webvtt";
 
   @DefaultTsPayloadReaderFactory.Flags private final int payloadReaderFactoryFlags;
   private final boolean exposeCea608WhenMissingDeclarations;
@@ -196,38 +192,36 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       Format format,
       @Nullable List<Format> muxedCaptionFormats,
       TimestampAdjuster timestampAdjuster) {
-    String lastPathSegment = uri.getLastPathSegment();
-    if (lastPathSegment == null) {
-      lastPathSegment = "";
-    }
-    if (MimeTypes.TEXT_VTT.equals(format.sampleMimeType)
-        || lastPathSegment.endsWith(WEBVTT_FILE_EXTENSION)
-        || lastPathSegment.endsWith(VTT_FILE_EXTENSION)) {
+    if (MimeTypes.TEXT_VTT.equals(format.sampleMimeType)) {
       return new WebvttExtractor(format.language, timestampAdjuster);
-    } else if (lastPathSegment.endsWith(AAC_FILE_EXTENSION)) {
-      return new AdtsExtractor();
-    } else if (lastPathSegment.endsWith(AC3_FILE_EXTENSION)
-        || lastPathSegment.endsWith(EC3_FILE_EXTENSION)) {
-      return new Ac3Extractor();
-    } else if (lastPathSegment.endsWith(AC4_FILE_EXTENSION)) {
-      return new Ac4Extractor();
-    } else if (lastPathSegment.endsWith(MP3_FILE_EXTENSION)) {
-      return new Mp3Extractor(/* flags= */ 0, /* forcedFirstSampleTimestampUs= */ 0);
-    } else if (lastPathSegment.endsWith(MP4_FILE_EXTENSION)
-        || lastPathSegment.startsWith(M4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)
-        || lastPathSegment.startsWith(MP4_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)
-        || lastPathSegment.startsWith(CMF_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 5)) {
-      return createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
-    } else if (lastPathSegment.endsWith(TS_FILE_EXTENSION)
-        || lastPathSegment.startsWith(TS_FILE_EXTENSION_PREFIX, lastPathSegment.length() - 4)) {
-      return createTsExtractor(
-          payloadReaderFactoryFlags,
-          exposeCea608WhenMissingDeclarations,
-          format,
-          muxedCaptionFormats,
-          timestampAdjuster);
-    } else {
+    }
+    String filename = uri.getLastPathSegment();
+    if (filename == null) {
       return null;
+    }
+    @FilenameUtil.FileFormat int fileFormat = getFormatFromExtension(filename);
+    switch (fileFormat) {
+      case FILE_FORMAT_WEBVTT:
+        return new WebvttExtractor(format.language, timestampAdjuster);
+      case FILE_FORMAT_ADTS:
+        return new AdtsExtractor();
+      case FILE_FORMAT_AC3:
+        return new Ac3Extractor();
+      case FILE_FORMAT_AC4:
+        return new Ac4Extractor();
+      case FILE_FORMAT_MP3:
+        return new Mp3Extractor(/* flags= */ 0, /* forcedFirstSampleTimestampUs= */ 0);
+      case FILE_FORMAT_MP4:
+        return createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
+      case FILE_FORMAT_TS:
+        return createTsExtractor(
+            payloadReaderFactoryFlags,
+            exposeCea608WhenMissingDeclarations,
+            format,
+            muxedCaptionFormats,
+            timestampAdjuster);
+      default:
+        return null;
     }
   }
 
