@@ -195,8 +195,9 @@
 *   Fix "Not allowed to start service" `IllegalStateException` in
     `DownloadService`
     ([#7306](https://github.com/google/ExoPlayer/issues/7306)).
-*   Ads:
-    *   Fix `AdsMediaSource` child `MediaSource`s not being released.
+*   Fix issue in `AudioTrackPositionTracker` that could cause negative positions
+    to be reported at the start of playback and immediately after seeking
+    ([#7456](https://github.com/google/ExoPlayer/issues/7456).
 *   DASH:
     *   Merge trick play adaptation sets (i.e., adaptation sets marked with
         `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as
@@ -242,6 +243,7 @@
         ([#5444](https://github.com/google/ExoPlayer/issues/5444),
         [#5966](https://github.com/google/ExoPlayer/issues/5966),
         [#7002](https://github.com/google/ExoPlayer/issues/7002)).
+    *   Fix `AdsMediaSource` child `MediaSource`s not being released.
 *   Cronet extension: Default to using the Cronet implementation in Google Play
     Services rather than Cronet Embedded. This allows Cronet to be used with a
     negligible increase in application size, compared to approximately 8MB when
