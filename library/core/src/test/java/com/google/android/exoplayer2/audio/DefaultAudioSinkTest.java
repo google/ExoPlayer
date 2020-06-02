@@ -63,7 +63,8 @@ public final class DefaultAudioSinkTest {
         new DefaultAudioSink(
             AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES,
             new DefaultAudioSink.DefaultAudioProcessorChain(teeAudioProcessor),
-            /* enableConvertHighResIntPcmToFloat= */ false);
+            /* enableFloatOutput= */ false,
+            /* enableOffload= */ false);
   }
 
   @Test
