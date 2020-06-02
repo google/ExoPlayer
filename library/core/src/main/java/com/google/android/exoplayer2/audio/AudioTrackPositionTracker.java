@@ -206,6 +206,7 @@ import java.lang.reflect.Method;
     hasData = false;
     stopTimestampUs = C.TIME_UNSET;
     forceResetWorkaroundTimeMs = C.TIME_UNSET;
+    lastLatencySampleTimeUs = 0;
     latencyUs = 0;
   }
 
@@ -239,7 +240,7 @@ import java.lang.reflect.Method;
         positionUs = systemTimeUs + smoothedPlayheadOffsetUs;
       }
       if (!sourceEnded) {
-        positionUs -= latencyUs;
+        positionUs = Math.max(0, positionUs - latencyUs);
       }
       return positionUs;
     }
@@ -353,7 +354,7 @@ import java.lang.reflect.Method;
   }
 
   /**
-   * Resets the position tracker. Should be called when the audio track previous passed to {@link
+   * Resets the position tracker. Should be called when the audio track previously passed to {@link
    * #setAudioTrack(AudioTrack, int, int, int)} is no longer in use.
    */
   public void reset() {
