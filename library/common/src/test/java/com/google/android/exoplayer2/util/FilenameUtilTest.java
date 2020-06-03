@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_UNKNOW
 import static com.google.android.exoplayer2.util.FilenameUtil.getFormatFromExtension;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,16 +32,30 @@ public class FilenameUtilTest {
 
   @Test
   public void getFormatFromExtension_withExtension_returnsExpectedFormat() {
-    assertThat(getFormatFromExtension("filename.mp3")).isEqualTo(FILE_FORMAT_MP3);
+    assertThat(getFormatFromExtension(Uri.parse("filename.mp3"))).isEqualTo(FILE_FORMAT_MP3);
   }
 
   @Test
   public void getFormatFromExtension_withExtensionPrefix_returnsExpectedFormat() {
-    assertThat(getFormatFromExtension("filename.mka")).isEqualTo(FILE_FORMAT_MATROSKA);
+    assertThat(getFormatFromExtension(Uri.parse("filename.mka"))).isEqualTo(FILE_FORMAT_MATROSKA);
   }
 
   @Test
-  public void getFormatFromExtension_unknownExtension_returnsUnknownFormat() {
-    assertThat(getFormatFromExtension("filename.unknown")).isEqualTo(FILE_FORMAT_UNKNOWN);
+  public void getFormatFromExtension_withUnknownExtension_returnsUnknownFormat() {
+    assertThat(getFormatFromExtension(Uri.parse("filename.unknown")))
+        .isEqualTo(FILE_FORMAT_UNKNOWN);
+  }
+
+  @Test
+  public void getFormatFromExtension_withUriNotEndingWithFilename_returnsExpectedFormat() {
+    assertThat(
+            getFormatFromExtension(
+                Uri.parse("http://www.example.com/filename.mp3?query=myquery#fragment")))
+        .isEqualTo(FILE_FORMAT_MP3);
+  }
+
+  @Test
+  public void getFormatFromExtension_withNullFilename_returnsUnknownFormat() {
+    assertThat(getFormatFromExtension(Uri.EMPTY)).isEqualTo(FILE_FORMAT_UNKNOWN);
   }
 }

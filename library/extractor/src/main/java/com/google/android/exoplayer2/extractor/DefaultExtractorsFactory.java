@@ -27,7 +27,6 @@ import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MP4;
 import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_OGG;
 import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_PS;
 import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_TS;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_UNKNOWN;
 import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_WAV;
 import static com.google.android.exoplayer2.util.FilenameUtil.getFormatFromExtension;
 
@@ -286,9 +285,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   public synchronized Extractor[] createExtractors(Uri uri) {
     List<Extractor> extractors = new ArrayList<>(/* initialCapacity= */ 14);
 
-    String filename = uri.getLastPathSegment();
-    @FilenameUtil.FileFormat
-    int extensionFormat = filename == null ? FILE_FORMAT_UNKNOWN : getFormatFromExtension(filename);
+    @FilenameUtil.FileFormat int extensionFormat = getFormatFromExtension(uri);
     addExtractorsForFormat(extensionFormat, extractors);
 
     for (int format : DEFAULT_EXTRACTOR_ORDER) {

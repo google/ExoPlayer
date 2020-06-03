@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import android.net.Uri;
 import androidx.annotation.IntDef;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -112,11 +113,15 @@ public final class FilenameUtil {
   private FilenameUtil() {}
 
   /**
-   * Returns the {@link FileFormat} corresponding to the extension of the provided {@code filename}.
+   * Returns the {@link FileFormat} corresponding to the filename extension of the provided {@link
+   * Uri}. The filename is considered to be the last segment of the {@link Uri} path.
    */
   @FileFormat
-  public static int getFormatFromExtension(String filename) {
-    if (filename.endsWith(FILE_EXTENSION_AC3) || filename.endsWith(FILE_EXTENSION_EC3)) {
+  public static int getFormatFromExtension(Uri uri) {
+    String filename = uri.getLastPathSegment();
+    if (filename == null) {
+      return FILE_FORMAT_UNKNOWN;
+    } else if (filename.endsWith(FILE_EXTENSION_AC3) || filename.endsWith(FILE_EXTENSION_EC3)) {
       return FILE_FORMAT_AC3;
     } else if (filename.endsWith(FILE_EXTENSION_AC4)) {
       return FILE_FORMAT_AC4;
