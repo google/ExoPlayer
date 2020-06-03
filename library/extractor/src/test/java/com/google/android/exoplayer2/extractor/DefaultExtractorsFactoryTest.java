@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
@@ -42,34 +43,71 @@ import org.junit.runner.RunWith;
 public final class DefaultExtractorsFactoryTest {
 
   @Test
-  public void createExtractors_returnExpectedClasses() {
+  public void createExtractors_withoutUri_optimizesSniffingOrder() {
     DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
 
     Extractor[] extractors = defaultExtractorsFactory.createExtractors();
-    List<Class<?>> listCreatedExtractorClasses = new ArrayList<>();
+
+    List<Class<? extends Extractor>> extractorClasses = getExtractorClasses(extractors);
+    assertThat(extractorClasses.subList(0, 3))
+        .containsExactly(FlvExtractor.class, FlacExtractor.class, WavExtractor.class)
+        .inOrder();
+    assertThat(extractorClasses.subList(3, 5))
+        .containsExactly(Mp4Extractor.class, FragmentedMp4Extractor.class);
+    assertThat(extractorClasses.subList(5, extractors.length))
+        .containsExactly(
+            AmrExtractor.class,
+            PsExtractor.class,
+            OggExtractor.class,
+            TsExtractor.class,
+            MatroskaExtractor.class,
+            AdtsExtractor.class,
+            Ac3Extractor.class,
+            Ac4Extractor.class,
+            Mp3Extractor.class)
+        .inOrder();
+  }
+
+  @Test
+  public void createExtractors_withUri_startsWithExtractorsMatchingExtension() {
+    DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
+
+    Extractor[] extractors = defaultExtractorsFactory.createExtractors(Uri.parse("test.mp4"));
+
+    List<Class<? extends Extractor>> extractorClasses = getExtractorClasses(extractors);
+    assertThat(extractorClasses.subList(0, 2))
+        .containsExactly(Mp4Extractor.class, FragmentedMp4Extractor.class);
+  }
+
+  @Test
+  public void createExtractors_withUri_optimizesSniffingOrder() {
+    DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
+
+    Extractor[] extractors = defaultExtractorsFactory.createExtractors(Uri.parse("test.mp4"));
+
+    List<Class<? extends Extractor>> extractorClasses = getExtractorClasses(extractors);
+    assertThat(extractorClasses.subList(2, extractors.length))
+        .containsExactly(
+            FlvExtractor.class,
+            FlacExtractor.class,
+            WavExtractor.class,
+            AmrExtractor.class,
+            PsExtractor.class,
+            OggExtractor.class,
+            TsExtractor.class,
+            MatroskaExtractor.class,
+            AdtsExtractor.class,
+            Ac3Extractor.class,
+            Ac4Extractor.class,
+            Mp3Extractor.class)
+        .inOrder();
+  }
+
+  private static List<Class<? extends Extractor>> getExtractorClasses(Extractor[] extractors) {
+    List<Class<? extends Extractor>> extractorClasses = new ArrayList<>();
     for (Extractor extractor : extractors) {
-      listCreatedExtractorClasses.add(extractor.getClass());
+      extractorClasses.add(extractor.getClass());
     }
-
-    Class<?>[] expectedExtractorClassses =
-        new Class<?>[] {
-          MatroskaExtractor.class,
-          FragmentedMp4Extractor.class,
-          Mp4Extractor.class,
-          Mp3Extractor.class,
-          AdtsExtractor.class,
-          Ac3Extractor.class,
-          TsExtractor.class,
-          FlvExtractor.class,
-          OggExtractor.class,
-          PsExtractor.class,
-          WavExtractor.class,
-          AmrExtractor.class,
-          Ac4Extractor.class,
-          FlacExtractor.class
-        };
-
-    assertThat(listCreatedExtractorClasses).containsNoDuplicates();
-    assertThat(listCreatedExtractorClasses).containsExactlyElementsIn(expectedExtractorClassses);
+    return extractorClasses;
   }
 }
