@@ -108,7 +108,7 @@ public final class SinglePeriodTimelineTest {
   }
 
   @Test
-  public void setNullMediaItem_returnsNullMediaItem_butUsesDefaultUid() {
+  public void setNullMediaItem_returnsFallbackMediaItem_butUsesDefaultUid() {
     SinglePeriodTimeline timeline =
         new SinglePeriodTimeline(
             /* durationUs= */ C.TIME_UNSET,
@@ -118,7 +118,8 @@ public final class SinglePeriodTimelineTest {
             /* manifest= */ null,
             /* mediaItem= */ null);
 
-    assertThat(timeline.getWindow(/* windowIndex= */ 0, window).mediaItem).isNull();
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, window).mediaItem.mediaId)
+        .isEqualTo("com.google.android.exoplayer2.Timeline");
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).id).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).id).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).uid).isNull();

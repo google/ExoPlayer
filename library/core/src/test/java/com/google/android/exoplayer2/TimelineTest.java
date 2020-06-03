@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
@@ -62,7 +63,6 @@ public class TimelineTest {
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 0);
   }
 
-  @SuppressWarnings("deprecation") // Tests the deprecated window.tag property.
   @Test
   public void windowEquals() {
     MediaItem mediaItem = new MediaItem.Builder().setUri("uri").setTag(new Object()).build();
@@ -71,10 +71,6 @@ public class TimelineTest {
 
     Timeline.Window otherWindow = new Timeline.Window();
     otherWindow.mediaItem = mediaItem;
-    assertThat(window).isNotEqualTo(otherWindow);
-
-    otherWindow = new Timeline.Window();
-    otherWindow.tag = mediaItem.playbackProperties.tag;
     assertThat(window).isNotEqualTo(otherWindow);
 
     otherWindow = new Timeline.Window();
@@ -148,7 +144,15 @@ public class TimelineTest {
   @SuppressWarnings("deprecation")
   @Test
   public void windowSet_withTag() {
-    Timeline.Window window = populateWindow(/* mediaItem= */ null, new Object());
+    Object tag = new Object();
+    Timeline.Window window =
+        populateWindow(
+            new MediaItem.Builder()
+                .setMediaId("com.google.android.exoplayer2.Timeline")
+                .setUri(Uri.EMPTY)
+                .setTag(tag)
+                .build(),
+            tag);
     Timeline.Window otherWindow = new Timeline.Window();
     otherWindow =
         otherWindow.set(

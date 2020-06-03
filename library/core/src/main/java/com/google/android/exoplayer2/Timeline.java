@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.net.Uri;
 import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.Nullable;
@@ -123,6 +124,12 @@ public abstract class Timeline {
      */
     public static final Object SINGLE_WINDOW_UID = new Object();
 
+    private static final MediaItem DUMMY_MEDIA_ITEM =
+        new MediaItem.Builder()
+            .setMediaId("com.google.android.exoplayer2.Timeline")
+            .setUri(Uri.EMPTY)
+            .build();
+
     /**
      * A unique identifier for the window. Single-window {@link Timeline Timelines} must use {@link
      * #SINGLE_WINDOW_UID}.
@@ -133,7 +140,7 @@ public abstract class Timeline {
     @Deprecated @Nullable public Object tag;
 
     /** The {@link MediaItem} associated to the window. Not necessarily unique. */
-    @Nullable public MediaItem mediaItem;
+    public MediaItem mediaItem;
 
     /** The manifest of the window. May be {@code null}. */
     @Nullable public Object manifest;
@@ -215,13 +222,13 @@ public abstract class Timeline {
     /** Creates window. */
     public Window() {
       uid = SINGLE_WINDOW_UID;
+      mediaItem = DUMMY_MEDIA_ITEM;
     }
 
     /**
      * @deprecated Use {@link #set(Object, MediaItem, Object, long, long, long, boolean, boolean,
      *     boolean, long, long, int, int, long)} instead.
      */
-    @SuppressWarnings("deprecation")
     @Deprecated
     public Window set(
         Object uid,
@@ -240,7 +247,7 @@ public abstract class Timeline {
         long positionInFirstPeriodUs) {
       set(
           uid,
-          /* mediaItem= */ null,
+          DUMMY_MEDIA_ITEM.buildUpon().setTag(tag).build(),
           manifest,
           presentationStartTimeMs,
           windowStartTimeMs,
@@ -253,7 +260,6 @@ public abstract class Timeline {
           firstPeriodIndex,
           lastPeriodIndex,
           positionInFirstPeriodUs);
-      this.tag = tag;
       return this;
     }
 
@@ -275,7 +281,7 @@ public abstract class Timeline {
         int lastPeriodIndex,
         long positionInFirstPeriodUs) {
       this.uid = uid;
-      this.mediaItem = mediaItem;
+      this.mediaItem = mediaItem != null ? mediaItem : DUMMY_MEDIA_ITEM;
       this.tag =
           mediaItem != null && mediaItem.playbackProperties != null
               ? mediaItem.playbackProperties.tag
@@ -356,6 +362,7 @@ public abstract class Timeline {
       return Util.getNowUnixTimeMs(elapsedRealtimeEpochOffsetMs);
     }
 
+    // Provide backward compatibility for tag.
     @Override
     public boolean equals(@Nullable Object obj) {
       if (this == obj) {
@@ -366,7 +373,6 @@ public abstract class Timeline {
       }
       Window that = (Window) obj;
       return Util.areEqual(uid, that.uid)
-          && Util.areEqual(tag, that.tag)
           && Util.areEqual(mediaItem, that.mediaItem)
           && Util.areEqual(manifest, that.manifest)
           && presentationStartTimeMs == that.presentationStartTimeMs
@@ -383,12 +389,12 @@ public abstract class Timeline {
           && positionInFirstPeriodUs == that.positionInFirstPeriodUs;
     }
 
+    // Provide backward compatibility for tag.
     @Override
     public int hashCode() {
       int result = 7;
       result = 31 * result + uid.hashCode();
-      result = 31 * result + (tag == null ? 0 : tag.hashCode());
-      result = 31 * result + (mediaItem == null ? 0 : mediaItem.hashCode());
+      result = 31 * result + mediaItem.hashCode();
       result = 31 * result + (manifest == null ? 0 : manifest.hashCode());
       result = 31 * result + (int) (presentationStartTimeMs ^ (presentationStartTimeMs >>> 32));
       result = 31 * result + (int) (windowStartTimeMs ^ (windowStartTimeMs >>> 32));
@@ -688,7 +694,7 @@ public abstract class Timeline {
       result = 31 * result + windowIndex;
       result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));
       result = 31 * result + (int) (positionInWindowUs ^ (positionInWindowUs >>> 32));
-      result = 31 * result + (adPlaybackState == null ? 0 : adPlaybackState.hashCode());
+      result = 31 * result + adPlaybackState.hashCode();
       return result;
     }
   }
