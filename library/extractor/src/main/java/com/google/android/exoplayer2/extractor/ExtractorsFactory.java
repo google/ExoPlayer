@@ -15,9 +15,19 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import android.net.Uri;
+
 /** Factory for arrays of {@link Extractor} instances. */
 public interface ExtractorsFactory {
 
   /** Returns an array of new {@link Extractor} instances. */
   Extractor[] createExtractors();
+
+  /**
+   * Returns an array of new {@link Extractor} instances to extract the stream corresponding to the
+   * provided {@link Uri}.
+   */
+  default Extractor[] createExtractors(Uri uri) {
+    return createExtractors();
+  }
 }

@@ -156,12 +156,17 @@
 *   HLS:
     *   Add support for upstream discard including cancelation of ongoing load
         ([#6322](https://github.com/google/ExoPlayer/issues/6322)).
-*   MP3:
-    *   Add `IndexSeeker` for accurate seeks in VBR streams
+*   Extractors:
+    *   Add `IndexSeeker` for accurate seeks in VBR MP3 streams
         ([#6787](https://github.com/google/ExoPlayer/issues/6787)). This seeker
         is enabled by passing `FLAG_ENABLE_INDEX_SEEKING` to the `Mp3Extractor`.
         It may require to scan a significant portion of the file for seeking,
         which may be costly on large files.
+    *   Change the order of extractors for sniffing to reduce start-up latency
+        in `DefaultExtractorsFactory` and `DefaultHlsExtractorsFactory`
+        ([#6410](https://github.com/google/ExoPlayer/issues/6410)).
+    *   Select first extractors based on the filename extension in
+        `DefaultExtractorsFactory`.
 *   Testing
     *   Add `TestExoPlayer`, a utility class with APIs to create
         `SimpleExoPlayer` instances with fake components for testing.
@@ -179,9 +184,6 @@
 *   Cast extension: Implement playlist API and deprecate the old queue
     manipulation API.
 *   Demo app: Retain previous position in list of samples.
-*   Change the order of extractors for sniffing to reduce start-up latency in
-    `DefaultExtractorsFactory` and `DefaultHlsExtractorsFactory`
-    ([#6410](https://github.com/google/ExoPlayer/issues/6410)).
 *   Add Guava dependency.
 
 ### 2.11.5 (2020-06-03) ###
