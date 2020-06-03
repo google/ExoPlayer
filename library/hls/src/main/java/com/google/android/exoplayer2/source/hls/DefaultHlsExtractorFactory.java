@@ -195,11 +195,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     if (MimeTypes.TEXT_VTT.equals(format.sampleMimeType)) {
       return new WebvttExtractor(format.language, timestampAdjuster);
     }
-    String filename = uri.getLastPathSegment();
-    if (filename == null) {
-      return null;
-    }
-    @FilenameUtil.FileFormat int fileFormat = getFormatFromExtension(filename);
+    @FilenameUtil.FileFormat int fileFormat = getFormatFromExtension(uri);
     switch (fileFormat) {
       case FILE_FORMAT_WEBVTT:
         return new WebvttExtractor(format.language, timestampAdjuster);
