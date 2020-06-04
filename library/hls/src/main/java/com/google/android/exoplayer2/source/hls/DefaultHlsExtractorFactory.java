@@ -15,14 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_AC3;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_AC4;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_ADTS;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MP3;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MP4;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_TS;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_WEBVTT;
-import static com.google.android.exoplayer2.util.FilenameUtil.getFormatFromExtension;
+import static com.google.android.exoplayer2.util.FileTypes.getFormatFromExtension;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -39,7 +32,7 @@ import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.FilenameUtil;
+import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.EOFException;
@@ -195,21 +188,21 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     if (MimeTypes.TEXT_VTT.equals(format.sampleMimeType)) {
       return new WebvttExtractor(format.language, timestampAdjuster);
     }
-    @FilenameUtil.FileFormat int fileFormat = getFormatFromExtension(uri);
+    @FileTypes.Type int fileFormat = getFormatFromExtension(uri);
     switch (fileFormat) {
-      case FILE_FORMAT_WEBVTT:
+      case FileTypes.WEBVTT:
         return new WebvttExtractor(format.language, timestampAdjuster);
-      case FILE_FORMAT_ADTS:
+      case FileTypes.ADTS:
         return new AdtsExtractor();
-      case FILE_FORMAT_AC3:
+      case FileTypes.AC3:
         return new Ac3Extractor();
-      case FILE_FORMAT_AC4:
+      case FileTypes.AC4:
         return new Ac4Extractor();
-      case FILE_FORMAT_MP3:
+      case FileTypes.MP3:
         return new Mp3Extractor(/* flags= */ 0, /* forcedFirstSampleTimestampUs= */ 0);
-      case FILE_FORMAT_MP4:
+      case FileTypes.MP4:
         return createFragmentedMp4Extractor(timestampAdjuster, format, muxedCaptionFormats);
-      case FILE_FORMAT_TS:
+      case FileTypes.TS:
         return createTsExtractor(
             payloadReaderFactoryFlags,
             exposeCea608WhenMissingDeclarations,
