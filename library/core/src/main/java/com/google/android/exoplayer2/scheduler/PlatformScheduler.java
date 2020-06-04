@@ -45,7 +45,6 @@ import com.google.android.exoplayer2.util.Util;
 @RequiresApi(21)
 public final class PlatformScheduler implements Scheduler {
 
-  private static final boolean DEBUG = false;
   private static final String TAG = "PlatformScheduler";
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
@@ -81,13 +80,11 @@ public final class PlatformScheduler implements Scheduler {
     JobInfo jobInfo =
         buildJobInfo(jobId, jobServiceComponentName, requirements, serviceAction, servicePackage);
     int result = jobScheduler.schedule(jobInfo);
-    logd("Scheduling job: " + jobId + " result: " + result);
     return result == JobScheduler.RESULT_SUCCESS;
   }
 
   @Override
   public boolean cancel() {
-    logd("Canceling job: " + jobId);
     jobScheduler.cancel(jobId);
     return true;
   }
@@ -135,30 +132,21 @@ public final class PlatformScheduler implements Scheduler {
     return builder.build();
   }
 
-  private static void logd(String message) {
-    if (DEBUG) {
-      Log.d(TAG, message);
-    }
-  }
-
   /** A {@link JobService} that starts the target service if the requirements are met. */
   public static final class PlatformSchedulerService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
-      logd("PlatformSchedulerService started");
       PersistableBundle extras = params.getExtras();
       Requirements requirements = new Requirements(extras.getInt(KEY_REQUIREMENTS));
-      if (requirements.checkRequirements(this)) {
-        logd("Requirements are met");
-        String serviceAction = extras.getString(KEY_SERVICE_ACTION);
-        String servicePackage = extras.getString(KEY_SERVICE_PACKAGE);
-        Intent intent =
-            new Intent(Assertions.checkNotNull(serviceAction)).setPackage(servicePackage);
-        logd("Starting service action: " + serviceAction + " package: " + servicePackage);
+      int notMetRequirements = requirements.getNotMetRequirements(this);
+      if (notMetRequirements == 0) {
+        String serviceAction = Assertions.checkNotNull(extras.getString(KEY_SERVICE_ACTION));
+        String servicePackage = Assertions.checkNotNull(extras.getString(KEY_SERVICE_PACKAGE));
+        Intent intent = new Intent(serviceAction).setPackage(servicePackage);
         Util.startForegroundService(this, intent);
       } else {
-        logd("Requirements are not met");
-        jobFinished(params, /* needsReschedule */ true);
+        Log.w(TAG, "Requirements not met: " + notMetRequirements);
+        jobFinished(params, /* wantsReschedule= */ true);
       }
       return false;
     }

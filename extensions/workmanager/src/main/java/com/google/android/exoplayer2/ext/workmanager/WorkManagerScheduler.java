@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.util.Util;
 /** A {@link Scheduler} that uses {@link WorkManager}. */
 public final class WorkManagerScheduler implements Scheduler {
 
-  private static final boolean DEBUG = false;
   private static final String TAG = "WorkManagerScheduler";
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
@@ -64,14 +63,12 @@ public final class WorkManagerScheduler implements Scheduler {
     Constraints constraints = buildConstraints(requirements);
     Data inputData = buildInputData(requirements, servicePackage, serviceAction);
     OneTimeWorkRequest workRequest = buildWorkRequest(constraints, inputData);
-    logd("Scheduling work: " + workName);
     WorkManager.getInstance().enqueueUniqueWork(workName, ExistingWorkPolicy.REPLACE, workRequest);
     return true;
   }
 
   @Override
   public boolean cancel() {
-    logd("Canceling work: " + workName);
     WorkManager.getInstance().cancelUniqueWork(workName);
     return true;
   }
@@ -136,12 +133,6 @@ public final class WorkManagerScheduler implements Scheduler {
     return builder.build();
   }
 
-  private static void logd(String message) {
-    if (DEBUG) {
-      Log.d(TAG, message);
-    }
-  }
-
   /** A {@link Worker} that starts the target service if the requirements are met. */
   // This class needs to be public so that WorkManager can instantiate it.
   public static final class SchedulerWorker extends Worker {
@@ -157,22 +148,17 @@ public final class WorkManagerScheduler implements Scheduler {
 
     @Override
     public Result doWork() {
-      logd("SchedulerWorker is started");
-      Data inputData = workerParams.getInputData();
-      Assertions.checkNotNull(inputData, "Work started without input data.");
+      Data inputData = Assertions.checkNotNull(workerParams.getInputData());
       Requirements requirements = new Requirements(inputData.getInt(KEY_REQUIREMENTS, 0));
-      if (requirements.checkRequirements(context)) {
-        logd("Requirements are met");
-        String serviceAction = inputData.getString(KEY_SERVICE_ACTION);
-        String servicePackage = inputData.getString(KEY_SERVICE_PACKAGE);
-        Assertions.checkNotNull(serviceAction, "Service action missing.");
-        Assertions.checkNotNull(servicePackage, "Service package missing.");
+      int notMetRequirements = requirements.getNotMetRequirements(context);
+      if (notMetRequirements == 0) {
+        String serviceAction = Assertions.checkNotNull(inputData.getString(KEY_SERVICE_ACTION));
+        String servicePackage = Assertions.checkNotNull(inputData.getString(KEY_SERVICE_PACKAGE));
         Intent intent = new Intent(serviceAction).setPackage(servicePackage);
-        logd("Starting service action: " + serviceAction + " package: " + servicePackage);
         Util.startForegroundService(context, intent);
         return Result.success();
       } else {
-        logd("Requirements are not met");
+        Log.w(TAG, "Requirements not met: " + notMetRequirements);
         return Result.retry();
       }
     }
