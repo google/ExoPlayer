@@ -15,20 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_AC3;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_AC4;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_ADTS;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_AMR;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_FLAC;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_FLV;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MATROSKA;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MP3;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MP4;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_OGG;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_PS;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_TS;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_WAV;
-import static com.google.android.exoplayer2.util.FilenameUtil.getFormatFromExtension;
+import static com.google.android.exoplayer2.util.FileTypes.getFormatFromExtension;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -48,7 +35,7 @@ import com.google.android.exoplayer2.extractor.ts.PsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader;
 import com.google.android.exoplayer2.extractor.wav.WavExtractor;
-import com.google.android.exoplayer2.util.FilenameUtil;
+import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -86,19 +73,19 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   // https://docs.google.com/document/d/1w2mKaWMxfz2Ei8-LdxqbPs1VLe_oudB-eryXXw9OvQQ.
   private static final int[] DEFAULT_EXTRACTOR_ORDER =
       new int[] {
-        FILE_FORMAT_FLV,
-        FILE_FORMAT_FLAC,
-        FILE_FORMAT_WAV,
-        FILE_FORMAT_MP4,
-        FILE_FORMAT_AMR,
-        FILE_FORMAT_PS,
-        FILE_FORMAT_OGG,
-        FILE_FORMAT_TS,
-        FILE_FORMAT_MATROSKA,
-        FILE_FORMAT_ADTS,
-        FILE_FORMAT_AC3,
-        FILE_FORMAT_AC4,
-        FILE_FORMAT_MP3,
+        FileTypes.FLV,
+        FileTypes.FLAC,
+        FileTypes.WAV,
+        FileTypes.MP4,
+        FileTypes.AMR,
+        FileTypes.PS,
+        FileTypes.OGG,
+        FileTypes.TS,
+        FileTypes.MATROSKA,
+        FileTypes.ADTS,
+        FileTypes.AC3,
+        FileTypes.AC4,
+        FileTypes.MP3,
       };
 
   @Nullable
@@ -285,7 +272,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   public synchronized Extractor[] createExtractors(Uri uri) {
     List<Extractor> extractors = new ArrayList<>(/* initialCapacity= */ 14);
 
-    @FilenameUtil.FileFormat int extensionFormat = getFormatFromExtension(uri);
+    @FileTypes.Type int extensionFormat = getFormatFromExtension(uri);
     addExtractorsForFormat(extensionFormat, extractors);
 
     for (int format : DEFAULT_EXTRACTOR_ORDER) {
@@ -297,16 +284,15 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     return extractors.toArray(new Extractor[extractors.size()]);
   }
 
-  private void addExtractorsForFormat(
-      @FilenameUtil.FileFormat int fileFormat, List<Extractor> extractors) {
+  private void addExtractorsForFormat(@FileTypes.Type int fileFormat, List<Extractor> extractors) {
     switch (fileFormat) {
-      case FILE_FORMAT_AC3:
+      case FileTypes.AC3:
         extractors.add(new Ac3Extractor());
         break;
-      case FILE_FORMAT_AC4:
+      case FileTypes.AC4:
         extractors.add(new Ac4Extractor());
         break;
-      case FILE_FORMAT_ADTS:
+      case FileTypes.ADTS:
         extractors.add(
             new AdtsExtractor(
                 adtsFlags
@@ -314,7 +300,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                         ? AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
                         : 0)));
         break;
-      case FILE_FORMAT_AMR:
+      case FileTypes.AMR:
         extractors.add(
             new AmrExtractor(
                 amrFlags
@@ -322,7 +308,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                         ? AmrExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
                         : 0)));
         break;
-      case FILE_FORMAT_FLAC:
+      case FileTypes.FLAC:
         if (FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR != null) {
           try {
             extractors.add(FLAC_EXTENSION_EXTRACTOR_CONSTRUCTOR.newInstance());
@@ -334,13 +320,13 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
           extractors.add(new FlacExtractor(coreFlacFlags));
         }
         break;
-      case FILE_FORMAT_FLV:
+      case FileTypes.FLV:
         extractors.add(new FlvExtractor());
         break;
-      case FILE_FORMAT_MATROSKA:
+      case FileTypes.MATROSKA:
         extractors.add(new MatroskaExtractor(matroskaFlags));
         break;
-      case FILE_FORMAT_MP3:
+      case FileTypes.MP3:
         extractors.add(
             new Mp3Extractor(
                 mp3Flags
@@ -348,20 +334,20 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
                         ? Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING
                         : 0)));
         break;
-      case FILE_FORMAT_MP4:
+      case FileTypes.MP4:
         extractors.add(new FragmentedMp4Extractor(fragmentedMp4Flags));
         extractors.add(new Mp4Extractor(mp4Flags));
         break;
-      case FILE_FORMAT_OGG:
+      case FileTypes.OGG:
         extractors.add(new OggExtractor());
         break;
-      case FILE_FORMAT_PS:
+      case FileTypes.PS:
         extractors.add(new PsExtractor());
         break;
-      case FILE_FORMAT_TS:
+      case FileTypes.TS:
         extractors.add(new TsExtractor(tsMode, tsFlags));
         break;
-      case FILE_FORMAT_WAV:
+      case FileTypes.WAV:
         extractors.add(new WavExtractor());
         break;
       default:

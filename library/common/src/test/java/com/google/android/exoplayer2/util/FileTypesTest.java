@@ -15,10 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MATROSKA;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_MP3;
-import static com.google.android.exoplayer2.util.FilenameUtil.FILE_FORMAT_UNKNOWN;
-import static com.google.android.exoplayer2.util.FilenameUtil.getFormatFromExtension;
+import static com.google.android.exoplayer2.util.FileTypes.getFormatFromExtension;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -26,24 +23,23 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Tests for {@link FilenameUtilTest}. */
+/** Tests for {@link FileTypesTest}. */
 @RunWith(AndroidJUnit4.class)
-public class FilenameUtilTest {
+public class FileTypesTest {
 
   @Test
   public void getFormatFromExtension_withExtension_returnsExpectedFormat() {
-    assertThat(getFormatFromExtension(Uri.parse("filename.mp3"))).isEqualTo(FILE_FORMAT_MP3);
+    assertThat(getFormatFromExtension(Uri.parse("filename.mp3"))).isEqualTo(FileTypes.MP3);
   }
 
   @Test
   public void getFormatFromExtension_withExtensionPrefix_returnsExpectedFormat() {
-    assertThat(getFormatFromExtension(Uri.parse("filename.mka"))).isEqualTo(FILE_FORMAT_MATROSKA);
+    assertThat(getFormatFromExtension(Uri.parse("filename.mka"))).isEqualTo(FileTypes.MATROSKA);
   }
 
   @Test
   public void getFormatFromExtension_withUnknownExtension_returnsUnknownFormat() {
-    assertThat(getFormatFromExtension(Uri.parse("filename.unknown")))
-        .isEqualTo(FILE_FORMAT_UNKNOWN);
+    assertThat(getFormatFromExtension(Uri.parse("filename.unknown"))).isEqualTo(FileTypes.UNKNOWN);
   }
 
   @Test
@@ -51,11 +47,11 @@ public class FilenameUtilTest {
     assertThat(
             getFormatFromExtension(
                 Uri.parse("http://www.example.com/filename.mp3?query=myquery#fragment")))
-        .isEqualTo(FILE_FORMAT_MP3);
+        .isEqualTo(FileTypes.MP3);
   }
 
   @Test
   public void getFormatFromExtension_withNullFilename_returnsUnknownFormat() {
-    assertThat(getFormatFromExtension(Uri.EMPTY)).isEqualTo(FILE_FORMAT_UNKNOWN);
+    assertThat(getFormatFromExtension(Uri.EMPTY)).isEqualTo(FileTypes.UNKNOWN);
   }
 }
