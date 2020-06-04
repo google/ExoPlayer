@@ -186,7 +186,7 @@
 *   Demo app: Retain previous position in list of samples.
 *   Add Guava dependency.
 
-### 2.11.5 (2020-06-03) ###
+### 2.11.5 (2020-06-04) ###
 
 *   Improve the smoothness of video playback immediately after starting, seeking
     or resuming a playback
@@ -203,6 +203,9 @@
 *   Fix issue in `AudioTrackPositionTracker` that could cause negative positions
     to be reported at the start of playback and immediately after seeking
     ([#7456](https://github.com/google/ExoPlayer/issues/7456).
+*   Fix further cases where downloads would sometimes not resume after their
+    network requirements are met
+    ([#7453](https://github.com/google/ExoPlayer/issues/7453).
 *   DASH:
     *   Merge trick play adaptation sets (i.e., adaptation sets marked with
         `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as
