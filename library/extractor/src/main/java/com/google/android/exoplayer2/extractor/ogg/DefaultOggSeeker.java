@@ -155,7 +155,7 @@ import java.io.IOException;
     }
 
     long currentPosition = input.getPosition();
-    if (!skipToNextPage(input, end)) {
+    if (!pageHeader.skipToNextPage(input, end)) {
       if (start == currentPosition) {
         throw new IOException("No ogg page can be found.");
       }
@@ -200,66 +200,19 @@ import java.io.IOException;
    * @throws IOException If reading from the input fails.
    */
   private void skipToPageOfTargetGranule(ExtractorInput input) throws IOException {
-    pageHeader.populate(input, /* quiet= */ false);
-    while (pageHeader.granulePosition <= targetGranule) {
+    while (true) {
+      // If pageHeader.skipToNextPage fails to find a page it will advance input.position to the
+      // end of the file, so pageHeader.populate will throw EOFException (because quiet=false).
+      pageHeader.skipToNextPage(input);
+      pageHeader.populate(input, /* quiet= */ false);
+      if (pageHeader.granulePosition > targetGranule) {
+        break;
+      }
       input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
       start = input.getPosition();
       startGranule = pageHeader.granulePosition;
-      pageHeader.populate(input, /* quiet= */ false);
     }
     input.resetPeekPosition();
-  }
-
-  /**
-   * Skips to the next page.
-   *
-   * @param input The {@code ExtractorInput} to skip to the next page.
-   * @throws IOException If peeking/reading from the input fails.
-   * @throws EOFException If the next page can't be found before the end of the input.
-   */
-  @VisibleForTesting
-  void skipToNextPage(ExtractorInput input) throws IOException {
-    if (!skipToNextPage(input, payloadEndPosition)) {
-      // Not found until eof.
-      throw new EOFException();
-    }
-  }
-
-  /**
-   * Skips to the next page. Searches for the next page header.
-   *
-   * @param input The {@code ExtractorInput} to skip to the next page.
-   * @param limit The limit up to which the search should take place.
-   * @return Whether the next page was found.
-   * @throws IOException If peeking/reading from the input fails.
-   */
-  private boolean skipToNextPage(ExtractorInput input, long limit) throws IOException {
-    limit = Math.min(limit + 3, payloadEndPosition);
-    byte[] buffer = new byte[2048];
-    int peekLength = buffer.length;
-    while (true) {
-      if (input.getPosition() + peekLength > limit) {
-        // Make sure to not peek beyond the end of the input.
-        peekLength = (int) (limit - input.getPosition());
-        if (peekLength < 4) {
-          // Not found until end.
-          return false;
-        }
-      }
-      input.peekFully(buffer, 0, peekLength, false);
-      for (int i = 0; i < peekLength - 3; i++) {
-        if (buffer[i] == 'O'
-            && buffer[i + 1] == 'g'
-            && buffer[i + 2] == 'g'
-            && buffer[i + 3] == 'S') {
-          // Match! Skip to the start of the pattern.
-          input.skipFully(i);
-          return true;
-        }
-      }
-      // Overlap by not skipping the entire peekLength.
-      input.skipFully(peekLength - 3);
-    }
   }
 
   /**
@@ -272,12 +225,16 @@ import java.io.IOException;
    */
   @VisibleForTesting
   long readGranuleOfLastPage(ExtractorInput input) throws IOException {
-    skipToNextPage(input);
     pageHeader.reset();
-    while ((pageHeader.type & 0x04) != 0x04 && input.getPosition() < payloadEndPosition) {
+    if (!pageHeader.skipToNextPage(input)) {
+      throw new EOFException();
+    }
+    do {
       pageHeader.populate(input, /* quiet= */ false);
       input.skipFully(pageHeader.headerSize + pageHeader.bodySize);
-    }
+    } while ((pageHeader.type & 0x04) != 0x04
+        && pageHeader.skipToNextPage(input)
+        && input.getPosition() < payloadEndPosition);
     return pageHeader.granulePosition;
   }
 

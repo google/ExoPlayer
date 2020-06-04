@@ -23,6 +23,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.common.primitives.Bytes;
+import java.io.IOException;
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -30,14 +33,69 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class OggPageHeaderTest {
 
+  private final Random random;
+
+  public OggPageHeaderTest() {
+    this.random = new Random(/* seed= */ 0);
+  }
+
+  @Test
+  public void skipToNextPage_success() throws Exception {
+    FakeExtractorInput input =
+        createInput(
+            Bytes.concat(
+                TestUtil.buildTestData(20, random),
+                new byte[] {'O', 'g', 'g', 'S'},
+                TestUtil.buildTestData(20, random)),
+            /* simulateUnknownLength= */ false);
+    OggPageHeader oggHeader = new OggPageHeader();
+
+    boolean result = retrySimulatedIOException(() -> oggHeader.skipToNextPage(input));
+
+    assertThat(result).isTrue();
+    assertThat(input.getPosition()).isEqualTo(20);
+  }
+
+  @Test
+  public void skipToNextPage_noPage_returnsFalse() throws Exception {
+    FakeExtractorInput input =
+        createInput(
+            Bytes.concat(TestUtil.buildTestData(20, random)), /* simulateUnknownLength= */ false);
+    OggPageHeader oggHeader = new OggPageHeader();
+
+    boolean result = retrySimulatedIOException(() -> oggHeader.skipToNextPage(input));
+
+    assertThat(result).isFalse();
+    assertThat(input.getPosition()).isEqualTo(20);
+  }
+
+  @Test
+  public void skipToNextPage_respectsLimit() throws Exception {
+    FakeExtractorInput input =
+        createInput(
+            Bytes.concat(
+                TestUtil.buildTestData(20, random),
+                new byte[] {'O', 'g', 'g', 'S'},
+                TestUtil.buildTestData(20, random)),
+            /* simulateUnknownLength= */ false);
+    OggPageHeader oggHeader = new OggPageHeader();
+
+    boolean result = retrySimulatedIOException(() -> oggHeader.skipToNextPage(input, 10));
+
+    assertThat(result).isFalse();
+    assertThat(input.getPosition()).isEqualTo(10);
+  }
+
   @Test
   public void populatePageHeader_success() throws Exception {
     byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/page_header");
 
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ true);
     OggPageHeader header = new OggPageHeader();
-    populatePageHeader(input, header, /* quiet= */ false);
 
+    boolean result = retrySimulatedIOException(() -> header.populate(input, /* quiet= */ false));
+
+    assertThat(result).isTrue();
     assertThat(header.type).isEqualTo(0x01);
     assertThat(header.headerSize).isEqualTo(27 + 2);
     assertThat(header.bodySize).isEqualTo(4);
@@ -55,7 +113,10 @@ public final class OggPageHeaderTest {
     FakeExtractorInput input =
         createInput(TestUtil.createByteArray(2, 2), /* simulateUnknownLength= */ false);
     OggPageHeader header = new OggPageHeader();
-    assertThat(populatePageHeader(input, header, /* quiet= */ true)).isFalse();
+
+    boolean result = retrySimulatedIOException(() -> header.populate(input, /* quiet= */ true));
+
+    assertThat(result).isFalse();
   }
 
   @Test
@@ -65,7 +126,10 @@ public final class OggPageHeaderTest {
     data[0] = 'o';
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);
     OggPageHeader header = new OggPageHeader();
-    assertThat(populatePageHeader(input, header, /* quiet= */ true)).isFalse();
+
+    boolean result = retrySimulatedIOException(() -> header.populate(input, /* quiet= */ true));
+
+    assertThat(result).isFalse();
   }
 
   @Test
@@ -75,18 +139,10 @@ public final class OggPageHeaderTest {
     data[4] = 0x01;
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);
     OggPageHeader header = new OggPageHeader();
-    assertThat(populatePageHeader(input, header, /* quiet= */ true)).isFalse();
-  }
 
-  private static boolean populatePageHeader(
-      FakeExtractorInput input, OggPageHeader header, boolean quiet) throws Exception {
-    while (true) {
-      try {
-        return header.populate(input, quiet);
-      } catch (SimulatedIOException e) {
-        // ignored
-      }
-    }
+    boolean result = retrySimulatedIOException(() -> header.populate(input, /* quiet= */ true));
+
+    assertThat(result).isFalse();
   }
 
   private static FakeExtractorInput createInput(byte[] data, boolean simulateUnknownLength) {
@@ -96,6 +152,21 @@ public final class OggPageHeaderTest {
         .setSimulateUnknownLength(simulateUnknownLength)
         .setSimulatePartialReads(true)
         .build();
+  }
+
+  private static <T> T retrySimulatedIOException(ThrowingSupplier<T, IOException> supplier)
+      throws IOException {
+    while (true) {
+      try {
+        return supplier.get();
+      } catch (SimulatedIOException e) {
+        // ignored
+      }
+    }
+  }
+
+  private interface ThrowingSupplier<S, E extends Throwable> {
+    S get() throws E;
   }
 }
 

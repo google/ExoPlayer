@@ -67,7 +67,7 @@ import java.util.Arrays;
     while (!populated) {
       if (currentSegmentIndex < 0) {
         // We're at the start of a page.
-        if (!pageHeader.populate(input, true)) {
+        if (!pageHeader.skipToNextPage(input) || !pageHeader.populate(input, /* quiet= */ true)) {
           return false;
         }
         int segmentIndex = 0;
