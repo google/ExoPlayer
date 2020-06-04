@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ogg;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
@@ -33,7 +34,8 @@ import java.io.IOException;
   public static final int MAX_PAGE_SIZE = EMPTY_PAGE_HEADER_SIZE + MAX_SEGMENT_COUNT
       + MAX_PAGE_PAYLOAD;
 
-  private static final int TYPE_OGGS = 0x4f676753;
+  private static final int CAPTURE_PATTERN = 0x4f676753; // OggS
+  private static final int CAPTURE_PATTERN_SIZE = 4;
 
   public int revision;
   public int type;
@@ -74,6 +76,51 @@ import java.io.IOException;
   }
 
   /**
+   * Advances through {@code input} looking for the start of the next Ogg page.
+   *
+   * <p>Equivalent to {@link #skipToNextPage(ExtractorInput, long) skipToNextPage(input, /* limit=
+   * *\/ C.POSITION_UNSET)}.
+   */
+  public boolean skipToNextPage(ExtractorInput input) throws IOException {
+    return skipToNextPage(input, /* limit= */ C.POSITION_UNSET);
+  }
+
+  /**
+   * Advances through {@code input} looking for the start of the next Ogg page.
+   *
+   * <p>The start of a page is identified by the 4-byte capture_pattern 'OggS'.
+   *
+   * <p>Returns {@code true} if a capture pattern was found, with the read and peek positions of
+   * {@code input} at the start of the page, just before the capture_pattern. Otherwise returns
+   * {@code false}, with the read and peek positions of {@code input} at either {@code limit} (if
+   * set) or end-of-input.
+   *
+   * @param input The {@link ExtractorInput} to read from (must have {@code readPosition ==
+   *     peekPosition}).
+   * @param limit The max position in {@code input} to peek to, or {@link C#POSITION_UNSET} to allow
+   *     peeking to the end.
+   * @return True if a capture_pattern was found.
+   * @throws IOException If reading data fails.
+   */
+  public boolean skipToNextPage(ExtractorInput input, long limit) throws IOException {
+    Assertions.checkArgument(input.getPosition() == input.getPeekPosition());
+    while ((limit == C.POSITION_UNSET || input.getPosition() + CAPTURE_PATTERN_SIZE < limit)
+        && peekSafely(input, scratch.data, 0, CAPTURE_PATTERN_SIZE, /* quiet= */ true)) {
+      scratch.reset();
+      if (scratch.readUnsignedInt() == CAPTURE_PATTERN) {
+        input.resetPeekPosition();
+        return true;
+      }
+      // Advance one byte before looking for the capture pattern again.
+      input.skipFully(1);
+    }
+    // Move the read & peek positions to limit or end-of-input, whichever is closer.
+    while ((limit == C.POSITION_UNSET || input.getPosition() < limit)
+        && input.skip(1) != C.RESULT_END_OF_INPUT) {}
+    return false;
+  }
+
+  /**
    * Peeks an Ogg page header and updates this {@link OggPageHeader}.
    *
    * @param input The {@link ExtractorInput} to read from.
@@ -84,23 +131,11 @@ import java.io.IOException;
    * @throws IOException If reading data fails or the stream is invalid.
    */
   public boolean populate(ExtractorInput input, boolean quiet) throws IOException {
-    scratch.reset();
     reset();
-    boolean hasEnoughBytes = input.getLength() == C.LENGTH_UNSET
-        || input.getLength() - input.getPeekPosition() >= EMPTY_PAGE_HEADER_SIZE;
-    if (!hasEnoughBytes || !input.peekFully(scratch.data, 0, EMPTY_PAGE_HEADER_SIZE, true)) {
-      if (quiet) {
-        return false;
-      } else {
-        throw new EOFException();
-      }
-    }
-    if (scratch.readUnsignedInt() != TYPE_OGGS) {
-      if (quiet) {
-        return false;
-      } else {
-        throw new ParserException("expected OggS capture pattern at begin of page");
-      }
+    scratch.reset();
+    if (!peekSafely(input, scratch.data, 0, EMPTY_PAGE_HEADER_SIZE, quiet)
+        || scratch.readUnsignedInt() != CAPTURE_PATTERN) {
+      return false;
     }
 
     revision = scratch.readUnsignedByte();
@@ -129,5 +164,32 @@ import java.io.IOException;
     }
 
     return true;
+  }
+
+  /**
+   * Peek data from {@code input}, respecting {@code quiet}. Return true if the peek is successful.
+   *
+   * <p>If {@code quiet=false} then encountering the end of the input (whether before or after
+   * reading some data) will throw {@link EOFException}.
+   *
+   * <p>If {@code quiet=true} then encountering the end of the input (even after reading some data)
+   * will return {@code false}.
+   *
+   * <p>This is slightly different to the behaviour of {@link ExtractorInput#peekFully(byte[], int,
+   * int, boolean)}, where {@code allowEndOfInput=true} only returns false (and suppresses the
+   * exception) if the end of the input is reached before reading any data.
+   */
+  private static boolean peekSafely(
+      ExtractorInput input, byte[] output, int offset, int length, boolean quiet)
+      throws IOException {
+    try {
+      return input.peekFully(output, offset, length, /* allowEndOfInput= */ quiet);
+    } catch (EOFException e) {
+      if (quiet) {
+        return false;
+      } else {
+        throw e;
+      }
+    }
   }
 }

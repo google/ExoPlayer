@@ -59,4 +59,11 @@ public final class OggExtractorParameterizedTest {
   public void vorbis() throws Exception {
     ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_vorbis.ogg", simulationConfig);
   }
+
+  // Ensure the extractor can handle non-contiguous pages by using a file with 10 bytes of garbage
+  // data before the start of the second page.
+  @Test
+  public void vorbisWithGapBeforeSecondPage() throws Exception {
+    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_vorbis_gap.ogg", simulationConfig);
+  }
 }
