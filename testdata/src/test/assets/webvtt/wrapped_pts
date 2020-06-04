@@ -1,0 +1,23 @@
+WEBVTT	X-TIMESTAMP-MAP=LOCAL:01:32:02.778,MPEGTS:497050076
+
+NOTE
+PTS Wrap occurs after 1 day, 2:30:43.717677.  These timestamps are
+over 11 days so they have wrapped many times.  The cue time values do not overlap
+once un-wrapped the timestamp values are offset a reasonalbe distance from LOCAL time
+which is required to be non-monotonic to PTS
+
+NOTE start un-wrapped 1:32:02.778 end is 1:32:04.062
+
+266:39:19.955 --> 266:39:21.239
+  - ¿Podría sentarme, por favor?
+  - Claro.
+
+NOTE start un-wrapped is 1:32:04.822 end is 1:32:06.941
+
+266:39:21.999 --> 266:39:24.118
+  Lo siento, no me he presentado.
+
+NOTE lastly, one that did not wrap
+
+1:32:07.0 --> 1:32:07.5
+  Yo.

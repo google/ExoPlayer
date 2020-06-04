@@ -25,6 +25,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
@@ -56,6 +57,7 @@ public class WebvttDecoderTest {
   private static final String WITH_CSS_COMPLEX_SELECTORS = "webvtt/with_css_complex_selectors";
   private static final String WITH_CSS_TEXT_COMBINE_UPRIGHT =
       "webvtt/with_css_text_combine_upright";
+  private static final String WITH_WRAPPED_TIMESTAMPS = "webvtt/wrapped_pts";
   private static final String WITH_BOM = "webvtt/with_bom";
   private static final String EMPTY_FILE = "webvtt/empty";
 
@@ -88,6 +90,24 @@ public class WebvttDecoderTest {
     assertThat(subtitle.getEventTime(3)).isEqualTo(3_456_000L);
     Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
+  }
+
+  @Test
+  public void decodeWithPtsWrap() throws Exception {
+    WebvttDecoder decoder = new WebvttDecoder();
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), WITH_WRAPPED_TIMESTAMPS);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, /* reset= */ false);
+    assertThat(subtitle).isInstanceOf(WebvttSubtitle.class);
+
+    assertThat(subtitle.getEventTime(0)).isEqualTo(5_522_778_222L);
+    assertThat(subtitle.getEventTime(1)).isEqualTo(5_524_062_222L);
+
+    assertThat(subtitle.getEventTime(2)).isEqualTo(5_524_822_222L);
+    assertThat(subtitle.getEventTime(3)).isEqualTo(5_526_941_222L);
+
+    assertThat(subtitle.getEventTime(4)).isEqualTo(5_527_000_000L);
+    assertThat(subtitle.getEventTime(5)).isEqualTo(5_527_005_000L);
+
   }
 
   @Test
