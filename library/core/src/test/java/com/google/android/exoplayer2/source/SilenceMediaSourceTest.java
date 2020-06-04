@@ -53,6 +53,16 @@ public class SilenceMediaSourceTest {
   }
 
   @Test
+  public void builderSetTag_setsTagOfMediaSource() {
+    Object tag = new Object();
+
+    SilenceMediaSource mediaSource =
+        new SilenceMediaSource.Factory().setTag(tag).setDurationUs(1_000_000).createMediaSource();
+
+    assertThat(mediaSource.getMediaItem().playbackProperties.tag).isEqualTo(tag);
+  }
+
+  @Test
   public void builder_setDurationUsNotCalled_throwsIllegalStateException() {
     assertThrows(IllegalStateException.class, new SilenceMediaSource.Factory()::createMediaSource);
   }

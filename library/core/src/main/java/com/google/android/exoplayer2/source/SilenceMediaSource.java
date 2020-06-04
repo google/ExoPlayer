@@ -151,6 +151,12 @@ public final class SilenceMediaSource extends BaseMediaSource {
     return mediaItem;
   }
 
+  @Nullable
+  @Override
+  public Object getTag() {
+    return Assertions.checkNotNull(mediaItem.playbackProperties).tag;
+  }
+
   @Override
   protected void releaseSourceInternal() {}
 
