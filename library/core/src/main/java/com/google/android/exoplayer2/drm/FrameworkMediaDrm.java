@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
@@ -45,7 +44,6 @@ import java.util.Map;
 import java.util.UUID;
 
 /** An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}. */
-@TargetApi(23)
 @RequiresApi(18)
 public final class FrameworkMediaDrm implements ExoMediaDrm {
 
@@ -254,7 +252,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
 
   @Override
   @Nullable
-  @TargetApi(28)
   public PersistableBundle getMetrics() {
     if (Util.SDK_INT < 28) {
       return null;
