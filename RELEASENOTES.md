@@ -189,7 +189,7 @@
 *   Demo app: Retain previous position in list of samples.
 *   Add Guava dependency.
 
-### 2.11.5 (2020-06-04) ###
+### 2.11.5 (2020-06-05) ###
 
 *   Improve the smoothness of video playback immediately after starting, seeking
     or resuming a playback
