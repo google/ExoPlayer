@@ -152,6 +152,8 @@
     *   Check `DefaultAudioSink` supports passthrough, in addition to checking
         the `AudioCapabilities`
         ([#7404](https://github.com/google/ExoPlayer/issues/7404)).
+    *   Adjust input timestamps in `MediaCodecRenderer` to account for the
+        Codec2 MP3 decoder having lower timestamps on the output side.
 *   DASH:
     *   Enable support for embedded CEA-708.
 *   HLS:
