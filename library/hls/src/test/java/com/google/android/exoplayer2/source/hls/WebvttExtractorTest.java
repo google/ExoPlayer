@@ -17,9 +17,13 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
+import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
+import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.EOFException;
 import java.io.IOException;
@@ -29,6 +33,19 @@ import org.junit.runner.RunWith;
 /** Tests for {@link WebvttExtractor}. */
 @RunWith(AndroidJUnit4.class)
 public class WebvttExtractorTest {
+
+  @Test
+  public void processSample_processTimestampHeader() throws IOException {
+    // Test file has map with X-TIMESTAMP-MAP=LOCAL:01:32:02.778,MPEGTS:497050076  So, local time
+    // is offset -622us from PTS.
+    //
+    WebvttExtractor extractor = new WebvttExtractor(null,
+        new TimestampAdjuster(TimestampAdjuster.ptsToUs(497050076)));
+
+    FakeExtractorOutput output = TestUtil.extractAllSamplesFromFile(extractor, ApplicationProvider.getApplicationContext(), "webvtt/wrapped_pts");
+
+    output.assertOutput(ApplicationProvider.getApplicationContext(), "webvtt/wrapped_pts_golden_extractor_output");
+  }
 
   @Test
   public void sniff_sniffsWebvttHeaderWithTrailingSpace() throws IOException {
