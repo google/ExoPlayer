@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import android.net.Uri;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
@@ -41,6 +42,7 @@ public final class FakeTimeline extends Timeline {
 
     public final int periodCount;
     public final Object id;
+    public final MediaItem mediaItem;
     public final boolean isSeekable;
     public final boolean isDynamic;
     public final boolean isLive;
@@ -169,6 +171,7 @@ public final class FakeTimeline extends Timeline {
       Assertions.checkArgument(durationUs != C.TIME_UNSET || periodCount == 1);
       this.periodCount = periodCount;
       this.id = id;
+      this.mediaItem = FAKE_MEDIA_ITEM.buildUpon().setTag(id).build();
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
       this.isLive = isLive;
@@ -179,6 +182,9 @@ public final class FakeTimeline extends Timeline {
       this.adPlaybackState = adPlaybackState;
     }
   }
+
+  /** The fake media item used by the fake timeline. */
+  public static final MediaItem FAKE_MEDIA_ITEM = new MediaItem.Builder().setUri(Uri.EMPTY).build();
 
   private static final long AD_DURATION_US = 10 * C.MICROS_PER_SECOND;
 
@@ -262,7 +268,7 @@ public final class FakeTimeline extends Timeline {
     TimelineWindowDefinition windowDefinition = windowDefinitions[windowIndex];
     window.set(
         /* uid= */ windowDefinition.id,
-        /* tag= */ windowDefinition.id,
+        windowDefinition.mediaItem,
         manifests[windowIndex],
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
