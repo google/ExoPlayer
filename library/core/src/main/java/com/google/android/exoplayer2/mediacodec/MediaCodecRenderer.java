@@ -395,6 +395,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean codecNeedsAdaptationWorkaroundBuffer;
   private boolean shouldSkipAdaptationWorkaroundOutputBuffer;
   private boolean codecNeedsEosPropagation;
+  @Nullable private C2Mp3TimestampTracker c2Mp3TimestampTracker;
   private ByteBuffer[] inputBuffers;
   private ByteBuffer[] outputBuffers;
   private long codecHotswapDeadlineMs;
@@ -911,6 +912,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     decodeOnlyPresentationTimestamps.clear();
     largestQueuedPresentationTimeUs = C.TIME_UNSET;
     lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
+    if (c2Mp3TimestampTracker != null) {
+      c2Mp3TimestampTracker.reset();
+    }
     codecDrainState = DRAIN_STATE_NONE;
     codecDrainAction = DRAIN_ACTION_NONE;
     // Reconfiguration data sent shortly before the flush may not have been processed by the
@@ -944,6 +948,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsEosOutputExceptionWorkaround = false;
     codecNeedsMonoChannelCountWorkaround = false;
     codecNeedsEosPropagation = false;
+    c2Mp3TimestampTracker = null;
     codecReconfigured = false;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     resetCodecBuffers();
@@ -1157,6 +1162,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         codecNeedsMonoChannelCountWorkaround(codecName, codecFormat);
     codecNeedsEosPropagation =
         codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
+    if ("c2.android.mp3.decoder".equals(codecInfo.name)) {
+      c2Mp3TimestampTracker = new C2Mp3TimestampTracker();
+    }
+
     if (getState() == STATE_STARTED) {
       codecHotswapDeadlineMs = SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS;
     }
@@ -1369,6 +1378,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     long presentationTimeUs = buffer.timeUs;
+
+    if (c2Mp3TimestampTracker != null) {
+      presentationTimeUs =
+          c2Mp3TimestampTracker.updateAndGetPresentationTimeUs(inputFormat, buffer);
+    }
+
     if (buffer.isDecodeOnly()) {
       decodeOnlyPresentationTimestamps.add(presentationTimeUs);
     }
