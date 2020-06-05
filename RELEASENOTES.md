@@ -157,6 +157,8 @@
 *   HLS:
     *   Add support for upstream discard including cancelation of ongoing load
         ([#6322](https://github.com/google/ExoPlayer/issues/6322)).
+    *   Respect 33-bit PTS wrapping when applying `X-TIMESTAMP-MAP` to WebVTT
+        timestamps ([#7464](https://github.com/google/ExoPlayer/issues/7464)).
 *   Ogg: Allow non-contiguous pages
     ([#7230](https://github.com/google/ExoPlayer/issues/7230)).
 *   Extractors:

@@ -176,8 +176,9 @@ public final class WebvttExtractor implements Extractor {
 
     long firstCueTimeUs =
         WebvttParserUtil.parseTimestampUs(Assertions.checkNotNull(cueHeaderMatcher.group(1)));
-    long sampleTimeUs = timestampAdjuster.adjustTsTimestamp(
-        TimestampAdjuster.usToPts(firstCueTimeUs + tsTimestampUs - vttTimestampUs));
+    long sampleTimeUs =
+        timestampAdjuster.adjustTsTimestamp(
+            TimestampAdjuster.usToWrappedPts(firstCueTimeUs + tsTimestampUs - vttTimestampUs));
     long subsampleOffsetUs = sampleTimeUs - firstCueTimeUs;
     // Output the track.
     TrackOutput trackOutput = buildTrackOutput(subsampleOffsetUs);

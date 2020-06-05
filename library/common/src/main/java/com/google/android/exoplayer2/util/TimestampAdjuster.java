@@ -113,7 +113,7 @@ public final class TimestampAdjuster {
     if (lastSampleTimestampUs != C.TIME_UNSET) {
       // The wrap count for the current PTS may be closestWrapCount or (closestWrapCount - 1),
       // and we need to snap to the one closest to lastSampleTimestampUs.
-      long lastPts = usToPts(lastSampleTimestampUs);
+      long lastPts = usToNonWrappedPts(lastSampleTimestampUs);
       long closestWrapCount = (lastPts + (MAX_PTS_PLUS_ONE / 2)) / MAX_PTS_PLUS_ONE;
       long ptsWrapBelow = pts90Khz + (MAX_PTS_PLUS_ONE * (closestWrapCount - 1));
       long ptsWrapAbove = pts90Khz + (MAX_PTS_PLUS_ONE * closestWrapCount);
@@ -174,13 +174,26 @@ public final class TimestampAdjuster {
   }
 
   /**
+   * Converts a timestamp in microseconds to a 90 kHz clock timestamp, performing wraparound to keep
+   * the result within 33-bits.
+   *
+   * @param us A value in microseconds.
+   * @return The corresponding value as a 90 kHz clock timestamp, wrapped to 33 bits.
+   */
+  public static long usToWrappedPts(long us) {
+    return usToNonWrappedPts(us) % MAX_PTS_PLUS_ONE;
+  }
+
+  /**
    * Converts a timestamp in microseconds to a 90 kHz clock timestamp.
+   *
+   * <p>Does not perform any wraparound. To get a 90 kHz timestamp suitable for use with MPEG-TS,
+   * use {@link #usToWrappedPts(long)}.
    *
    * @param us A value in microseconds.
    * @return The corresponding value as a 90 kHz clock timestamp.
    */
-  public static long usToPts(long us) {
+  public static long usToNonWrappedPts(long us) {
     return (us * 90000) / C.MICROS_PER_SECOND;
   }
-
 }
