@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
+import com.google.android.exoplayer2.audio.DefaultAudioSink.DefaultAudioProcessorChain;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
@@ -90,6 +91,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private boolean enableDecoderFallback;
   private MediaCodecSelector mediaCodecSelector;
   private @MediaCodecRenderer.MediaCodecOperationMode int mediaCodecOperationMode;
+  private boolean enableOffload;
 
   /** @param context A {@link Context}. */
   public DefaultRenderersFactory(Context context) {
@@ -184,6 +186,20 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
+   * Sets whether audio should be played using the offload path. Audio offload disables audio
+   * processors (for example speed adjustment).
+   *
+   * <p>The default value is {@code false}.
+   *
+   * @param enableOffload If audio offload should be used.
+   * @return This factory, for convenience.
+   */
+  public DefaultRenderersFactory setEnableAudioOffload(boolean enableOffload) {
+    this.enableOffload = enableOffload;
+    return this;
+  }
+
+  /**
    * Sets the maximum duration for which video renderers can attempt to seamlessly join an ongoing
    * playback.
    *
@@ -223,6 +239,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
         buildAudioProcessors(),
         eventHandler,
         audioRendererEventListener,
+        enableOffload,
         renderersList);
     buildTextRenderers(context, textRendererOutput, eventHandler.getLooper(),
         extensionRendererMode, renderersList);
@@ -373,6 +390,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     before output. May be empty.
    * @param eventHandler A handler to use when invoking event listeners and outputs.
    * @param eventListener An event listener.
+   * @param enableOffload If the renderer should use audio offload for all supported formats.
    * @param out An array to which the built renderers should be appended.
    */
   protected void buildAudioRenderers(
@@ -383,6 +401,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
       AudioProcessor[] audioProcessors,
       Handler eventHandler,
       AudioRendererEventListener eventListener,
+      boolean enableOffload,
       ArrayList<Renderer> out) {
     MediaCodecAudioRenderer audioRenderer =
         new MediaCodecAudioRenderer(
@@ -391,7 +410,11 @@ public class DefaultRenderersFactory implements RenderersFactory {
             enableDecoderFallback,
             eventHandler,
             eventListener,
-            new DefaultAudioSink(AudioCapabilities.getCapabilities(context), audioProcessors));
+            new DefaultAudioSink(
+                AudioCapabilities.getCapabilities(context),
+                new DefaultAudioProcessorChain(audioProcessors),
+                /* enableFloatOutput= */ false,
+                enableOffload));
     audioRenderer.experimental_setMediaCodecOperationMode(mediaCodecOperationMode);
     out.add(audioRenderer);
 
