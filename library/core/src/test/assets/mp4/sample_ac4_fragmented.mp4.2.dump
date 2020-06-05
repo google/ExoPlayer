@@ -33,7 +33,7 @@ track 0:
     flags = 1
     data = length 520, hash FEE56928
   sample 1:
-    time = 520000
+    time = 519999
     flags = 1
     data = length 599, hash 41F496C5
   sample 2:

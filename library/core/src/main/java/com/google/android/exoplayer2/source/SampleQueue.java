@@ -55,6 +55,7 @@ public class SampleQueue implements TrackOutput {
   private final SampleExtrasHolder extrasHolder;
   private final DrmSessionManager<?> drmSessionManager;
   private UpstreamFormatChangedListener upstreamFormatChangeListener;
+  private final Looper playbackLooper;
 
   @Nullable private Format downstreamFormat;
   @Nullable private DrmSession<?> currentDrmSession;
@@ -91,11 +92,13 @@ public class SampleQueue implements TrackOutput {
    * Creates a sample queue.
    *
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
+   * @param playbackLooper The looper associated with the media playback thread.
    * @param drmSessionManager The {@link DrmSessionManager} to obtain {@link DrmSession DrmSessions}
    *     from. The created instance does not take ownership of this {@link DrmSessionManager}.
    */
-  public SampleQueue(Allocator allocator, DrmSessionManager<?> drmSessionManager) {
+  public SampleQueue(Allocator allocator, Looper playbackLooper, DrmSessionManager<?> drmSessionManager) {
     sampleDataQueue = new SampleDataQueue(allocator);
+    this.playbackLooper = playbackLooper;
     this.drmSessionManager = drmSessionManager;
     extrasHolder = new SampleExtrasHolder();
     capacity = SAMPLE_CAPACITY_INCREMENT;
@@ -789,8 +792,7 @@ public class SampleQueue implements TrackOutput {
     }
     // Ensure we acquire the new session before releasing the previous one in case the same session
     // is being used for both DrmInitData.
-    DrmSession<?> previousSession = currentDrmSession;
-    Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
+    @Nullable DrmSession previousSession = currentDrmSession;
     currentDrmSession =
         newDrmInitData != null
             ? drmSessionManager.acquireSession(playbackLooper, newDrmInitData)

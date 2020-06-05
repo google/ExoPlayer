@@ -664,9 +664,9 @@ public class FragmentedMp4Extractor implements Extractor {
   private static Pair<Integer, DefaultSampleValues> parseTrex(ParsableByteArray trex) {
     trex.setPosition(Atom.FULL_HEADER_SIZE);
     int trackId = trex.readInt();
-    int defaultSampleDescriptionIndex = trex.readUnsignedIntToInt() - 1;
-    int defaultSampleDuration = trex.readUnsignedIntToInt();
-    int defaultSampleSize = trex.readUnsignedIntToInt();
+    int defaultSampleDescriptionIndex = trex.readInt() - 1;
+    int defaultSampleDuration = trex.readInt();
+    int defaultSampleSize = trex.readInt();
     int defaultSampleFlags = trex.readInt();
 
     return Pair.create(trackId, new DefaultSampleValues(defaultSampleDescriptionIndex,
@@ -751,8 +751,9 @@ public class FragmentedMp4Extractor implements Extractor {
     }
   }
 
-  private static void parseTruns(ContainerAtom traf, TrackBundle trackBundle, long decodeTime,
-      @Flags int flags) {
+  private static void parseTruns(
+      ContainerAtom traf, TrackBundle trackBundle, long decodeTime, @Flags int flags)
+      throws ParserException {
     int trunCount = 0;
     int totalSampleCount = 0;
     List<LeafAtom> leafChildren = traf.leafChildren;
@@ -871,13 +872,20 @@ public class FragmentedMp4Extractor implements Extractor {
     DefaultSampleValues defaultSampleValues = trackBundle.defaultSampleValues;
     int defaultSampleDescriptionIndex =
         ((atomFlags & 0x02 /* default_sample_description_index_present */) != 0)
-            ? tfhd.readUnsignedIntToInt() - 1 : defaultSampleValues.sampleDescriptionIndex;
-    int defaultSampleDuration = ((atomFlags & 0x08 /* default_sample_duration_present */) != 0)
-        ? tfhd.readUnsignedIntToInt() : defaultSampleValues.duration;
-    int defaultSampleSize = ((atomFlags & 0x10 /* default_sample_size_present */) != 0)
-        ? tfhd.readUnsignedIntToInt() : defaultSampleValues.size;
-    int defaultSampleFlags = ((atomFlags & 0x20 /* default_sample_flags_present */) != 0)
-        ? tfhd.readUnsignedIntToInt() : defaultSampleValues.flags;
+            ? tfhd.readInt() - 1
+            : defaultSampleValues.sampleDescriptionIndex;
+    int defaultSampleDuration =
+        ((atomFlags & 0x08 /* default_sample_duration_present */) != 0)
+            ? tfhd.readInt()
+            : defaultSampleValues.duration;
+    int defaultSampleSize =
+        ((atomFlags & 0x10 /* default_sample_size_present */) != 0)
+            ? tfhd.readInt()
+            : defaultSampleValues.size;
+    int defaultSampleFlags =
+        ((atomFlags & 0x20 /* default_sample_flags_present */) != 0)
+            ? tfhd.readInt()
+            : defaultSampleValues.flags;
     trackBundle.fragment.header = new DefaultSampleValues(defaultSampleDescriptionIndex,
         defaultSampleDuration, defaultSampleSize, defaultSampleFlags);
     return trackBundle;
@@ -910,16 +918,22 @@ public class FragmentedMp4Extractor implements Extractor {
   /**
    * Parses a trun atom (defined in 14496-12).
    *
-   * @param trackBundle The {@link TrackBundle} that contains the {@link TrackFragment} into
-   *     which parsed data should be placed.
+   * @param trackBundle The {@link TrackBundle} that contains the {@link TrackFragment} into which
+   *     parsed data should be placed.
    * @param index Index of the track run in the fragment.
    * @param decodeTime The decode time of the first sample in the fragment run.
    * @param flags Flags to allow any required workaround to be executed.
    * @param trun The trun atom to decode.
    * @return The starting position of samples for the next run.
    */
-  private static int parseTrun(TrackBundle trackBundle, int index, long decodeTime,
-      @Flags int flags, ParsableByteArray trun, int trackRunStart) {
+  private static int parseTrun(
+      TrackBundle trackBundle,
+      int index,
+      long decodeTime,
+      @Flags int flags,
+      ParsableByteArray trun,
+      int trackRunStart)
+      throws ParserException {
     trun.setPosition(Atom.HEADER_SIZE);
     int fullAtom = trun.readInt();
     int atomFlags = Atom.parseFullAtomFlags(fullAtom);
@@ -937,7 +951,7 @@ public class FragmentedMp4Extractor implements Extractor {
     boolean firstSampleFlagsPresent = (atomFlags & 0x04 /* first_sample_flags_present */) != 0;
     int firstSampleFlags = defaultSampleValues.flags;
     if (firstSampleFlagsPresent) {
-      firstSampleFlags = trun.readUnsignedIntToInt();
+      firstSampleFlags = trun.readInt();
     }
 
     boolean sampleDurationsPresent = (atomFlags & 0x100 /* sample_duration_present */) != 0;
@@ -948,20 +962,20 @@ public class FragmentedMp4Extractor implements Extractor {
 
     // Offset to the entire video timeline. In the presence of B-frames this is usually used to
     // ensure that the first frame's presentation timestamp is zero.
-    long edtsOffset = 0;
+    long edtsOffsetUs = 0;
 
     // Currently we only support a single edit that moves the entire media timeline (indicated by
     // duration == 0). Other uses of edit lists are uncommon and unsupported.
     if (track.editListDurations != null && track.editListDurations.length == 1
         && track.editListDurations[0] == 0) {
-      edtsOffset =
+      edtsOffsetUs =
           Util.scaleLargeTimestamp(
-              track.editListMediaTimes[0], C.MILLIS_PER_SECOND, track.timescale);
+              track.editListMediaTimes[0], C.MICROS_PER_SECOND, track.timescale);
     }
 
     int[] sampleSizeTable = fragment.sampleSizeTable;
-    int[] sampleCompositionTimeOffsetTable = fragment.sampleCompositionTimeOffsetTable;
-    long[] sampleDecodingTimeTable = fragment.sampleDecodingTimeTable;
+    int[] sampleCompositionTimeOffsetUsTable = fragment.sampleCompositionTimeOffsetUsTable;
+    long[] sampleDecodingTimeUsTable = fragment.sampleDecodingTimeUsTable;
     boolean[] sampleIsSyncFrameTable = fragment.sampleIsSyncFrameTable;
 
     boolean workaroundEveryVideoFrameIsSyncFrame = track.type == C.TRACK_TYPE_VIDEO
@@ -972,9 +986,10 @@ public class FragmentedMp4Extractor implements Extractor {
     long cumulativeTime = index > 0 ? fragment.nextFragmentDecodeTime : decodeTime;
     for (int i = trackRunStart; i < trackRunEnd; i++) {
       // Use trun values if present, otherwise tfhd, otherwise trex.
-      int sampleDuration = sampleDurationsPresent ? trun.readUnsignedIntToInt()
-          : defaultSampleValues.duration;
-      int sampleSize = sampleSizesPresent ? trun.readUnsignedIntToInt() : defaultSampleValues.size;
+      int sampleDuration =
+          checkNonNegative(sampleDurationsPresent ? trun.readInt() : defaultSampleValues.duration);
+      int sampleSize =
+          checkNonNegative(sampleSizesPresent ? trun.readInt() : defaultSampleValues.size);
       int sampleFlags = (i == 0 && firstSampleFlagsPresent) ? firstSampleFlags
           : sampleFlagsPresent ? trun.readInt() : defaultSampleValues.flags;
       if (sampleCompositionTimeOffsetsPresent) {
@@ -984,13 +999,13 @@ public class FragmentedMp4Extractor implements Extractor {
         // here, because unsigned integers will still be parsed correctly (unless their top bit is
         // set, which is never true in practice because sample offsets are always small).
         int sampleOffset = trun.readInt();
-        sampleCompositionTimeOffsetTable[i] =
-            (int) ((sampleOffset * C.MILLIS_PER_SECOND) / timescale);
+        sampleCompositionTimeOffsetUsTable[i] =
+            (int) ((sampleOffset * C.MICROS_PER_SECOND) / timescale);
       } else {
-        sampleCompositionTimeOffsetTable[i] = 0;
+        sampleCompositionTimeOffsetUsTable[i] = 0;
       }
-      sampleDecodingTimeTable[i] =
-          Util.scaleLargeTimestamp(cumulativeTime, C.MILLIS_PER_SECOND, timescale) - edtsOffset;
+      sampleDecodingTimeUsTable[i] =
+          Util.scaleLargeTimestamp(cumulativeTime, C.MICROS_PER_SECOND, timescale) - edtsOffsetUs;
       sampleSizeTable[i] = sampleSize;
       sampleIsSyncFrameTable[i] = ((sampleFlags >> 16) & 0x1) == 0
           && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);
@@ -998,6 +1013,13 @@ public class FragmentedMp4Extractor implements Extractor {
     }
     fragment.nextFragmentDecodeTime = cumulativeTime;
     return trackRunEnd;
+  }
+
+  private static int checkNonNegative(int value) throws ParserException {
+    if (value < 0) {
+      throw new ParserException("Unexpected negtive value: " + value);
+    }
+    return value;
   }
 
   private static void parseUuid(ParsableByteArray uuid, TrackFragment out,
@@ -1269,7 +1291,7 @@ public class FragmentedMp4Extractor implements Extractor {
     Track track = currentTrackBundle.track;
     TrackOutput output = currentTrackBundle.output;
     int sampleIndex = currentTrackBundle.currentSampleIndex;
-    long sampleTimeUs = fragment.getSamplePresentationTime(sampleIndex) * 1000L;
+    long sampleTimeUs = fragment.getSamplePresentationTimeUs(sampleIndex);
     if (timestampAdjuster != null) {
       sampleTimeUs = timestampAdjuster.adjustSampleTimestamp(sampleTimeUs);
     }
@@ -1513,10 +1535,9 @@ public class FragmentedMp4Extractor implements Extractor {
      * @param timeUs The seek time, in microseconds.
      */
     public void seek(long timeUs) {
-      long timeMs = C.usToMs(timeUs);
       int searchIndex = currentSampleIndex;
       while (searchIndex < fragment.sampleCount
-          && fragment.getSamplePresentationTime(searchIndex) < timeMs) {
+          && fragment.getSamplePresentationTimeUs(searchIndex) < timeUs) {
         if (fragment.sampleIsSyncFrameTable[searchIndex]) {
           firstSampleToOutputIndex = searchIndex;
         }

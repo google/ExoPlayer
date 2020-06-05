@@ -727,6 +727,24 @@ public final class Util {
   }
 
   /**
+   * Returns the index of the first occurrence of {@code value} in {@code array}, or {@link
+   * C#INDEX_UNSET} if {@code value} is not contained in {@code array}.
+   *
+   * @param array The array to search.
+   * @param value The value to search for.
+   * @return The index of the first occurrence of value in {@code array}, or {@link C#INDEX_UNSET}
+   *     if {@code value} is not contained in {@code array}.
+   */
+  public static int linearSearch(long[] array, long value) {
+    for (int i = 0; i < array.length; i++) {
+      if (array[i] == value) {
+        return i;
+      }
+    }
+    return C.INDEX_UNSET;
+  }
+
+  /**
    * Returns the index of the largest element in {@code array} that is less than (or optionally
    * equal to) a specified {@code value}.
    *

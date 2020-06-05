@@ -573,7 +573,9 @@ public final class MediaCodecInfo {
     width = alignedSize.x;
     height = alignedSize.y;
 
-    if (frameRate == Format.NO_VALUE || frameRate <= 0) {
+    // VideoCapabilities.areSizeAndRateSupported incorrectly returns false if frameRate < 1 on some
+    // versions of Android, so we only check the size in this case [Internal ref: b/153940404].
+    if (frameRate == Format.NO_VALUE || frameRate < 1) {
       return capabilities.isSizeSupported(width, height);
     } else {
       // The signaled frame rate may be slightly higher than the actual frame rate, so we take the

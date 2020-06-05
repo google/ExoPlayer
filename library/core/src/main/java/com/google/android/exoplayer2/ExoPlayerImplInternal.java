@@ -120,7 +120,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private int pendingPrepareCount;
   private SeekPosition pendingInitialSeekPosition;
   private long rendererPositionUs;
-  private int nextPendingMessageIndex;
+  private int nextPendingMessageIndexHint;
   private boolean deliverPendingMessageAtStartPositionRequired;
 
   public ExoPlayerImplInternal(
@@ -928,7 +928,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         pendingMessageInfo.message.markAsProcessed(/* isDelivered= */ false);
       }
       pendingMessages.clear();
-      nextPendingMessageIndex = 0;
     }
     MediaPeriodId mediaPeriodId =
         resetPosition
@@ -954,7 +953,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
             startPositionUs);
     if (releaseMediaSource) {
       if (mediaSource != null) {
-        mediaSource.releaseSource(/* caller= */ this);
+        try {
+          mediaSource.releaseSource(/* caller= */ this);
+        } catch (RuntimeException e) {
+          // There's nothing we can do.
+          Log.e(TAG, "Failed to release child source.", e);
+        }
         mediaSource = null;
       }
     }
@@ -1077,6 +1081,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Correct next index if necessary (e.g. after seeking, timeline changes, or new messages)
     int currentPeriodIndex =
         playbackInfo.timeline.getIndexOfPeriod(playbackInfo.periodId.periodUid);
+    int nextPendingMessageIndex = Math.min(nextPendingMessageIndexHint, pendingMessages.size());
     PendingMessageInfo previousInfo =
         nextPendingMessageIndex > 0 ? pendingMessages.get(nextPendingMessageIndex - 1) : null;
     while (previousInfo != null
@@ -1122,6 +1127,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
               ? pendingMessages.get(nextPendingMessageIndex)
               : null;
     }
+    nextPendingMessageIndexHint = nextPendingMessageIndex;
   }
 
   private void ensureStopped(Renderer renderer) throws ExoPlaybackException {

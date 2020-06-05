@@ -120,9 +120,20 @@ public final class DefaultAudioSink implements AudioSink {
 
     /**
      * Creates a new default chain of audio processors, with the user-defined {@code
-     * audioProcessors} applied before silence skipping and playback parameters.
+     * audioProcessors} applied before silence skipping and speed adjustment processors.
      */
     public DefaultAudioProcessorChain(AudioProcessor... audioProcessors) {
+      this(audioProcessors, new SilenceSkippingAudioProcessor(), new SonicAudioProcessor());
+    }
+
+    /**
+     * Creates a new default chain of audio processors, with the user-defined {@code
+     * audioProcessors} applied before silence skipping and speed adjustment processors.
+     */
+    public DefaultAudioProcessorChain(
+        AudioProcessor[] audioProcessors,
+        SilenceSkippingAudioProcessor silenceSkippingAudioProcessor,
+        SonicAudioProcessor sonicAudioProcessor) {
       // The passed-in type may be more specialized than AudioProcessor[], so allocate a new array
       // rather than using Arrays.copyOf.
       this.audioProcessors = new AudioProcessor[audioProcessors.length + 2];
@@ -132,8 +143,8 @@ public final class DefaultAudioSink implements AudioSink {
           /* dest= */ this.audioProcessors,
           /* destPos= */ 0,
           /* length= */ audioProcessors.length);
-      silenceSkippingAudioProcessor = new SilenceSkippingAudioProcessor();
-      sonicAudioProcessor = new SonicAudioProcessor();
+      this.silenceSkippingAudioProcessor = silenceSkippingAudioProcessor;
+      this.sonicAudioProcessor = sonicAudioProcessor;
       this.audioProcessors[audioProcessors.length] = silenceSkippingAudioProcessor;
       this.audioProcessors[audioProcessors.length + 1] = sonicAudioProcessor;
     }

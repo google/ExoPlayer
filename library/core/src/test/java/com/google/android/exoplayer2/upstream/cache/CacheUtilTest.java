@@ -207,7 +207,6 @@ public final class CacheUtilTest {
     CacheUtil.cache(
         new DataSpec(Uri.parse("test_data")),
         cache,
-        /* cacheKeyFactory= */ null,
         dataSource,
         counters,
         /* isCanceled= */ null);
@@ -224,8 +223,7 @@ public final class CacheUtilTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, 10, 20, null);
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(
-        dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
+    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 20, 20);
     counters.reset();
@@ -233,7 +231,6 @@ public final class CacheUtilTest {
     CacheUtil.cache(
         new DataSpec(testUri),
         cache,
-        /* cacheKeyFactory= */ null,
         dataSource,
         counters,
         /* isCanceled= */ null);
@@ -251,8 +248,7 @@ public final class CacheUtilTest {
 
     DataSpec dataSpec = new DataSpec(Uri.parse("test_data"));
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(
-        dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
+    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 100, 100);
     assertCachedData(cache, fakeDataSet);
@@ -268,8 +264,7 @@ public final class CacheUtilTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, 10, 20, null);
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(
-        dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
+    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 20, 20);
     counters.reset();
@@ -277,7 +272,6 @@ public final class CacheUtilTest {
     CacheUtil.cache(
         new DataSpec(testUri),
         cache,
-        /* cacheKeyFactory= */ null,
         dataSource,
         counters,
         /* isCanceled= */ null);
@@ -294,8 +288,7 @@ public final class CacheUtilTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, 0, 1000, null);
     CachingCounters counters = new CachingCounters();
-    CacheUtil.cache(
-        dataSpec, cache, /* cacheKeyFactory= */ null, dataSource, counters, /* isCanceled= */ null);
+    CacheUtil.cache(dataSpec, cache, dataSource, counters, /* isCanceled= */ null);
 
     counters.assertValues(0, 100, 1000);
     assertCachedData(cache, fakeDataSet);
@@ -344,7 +337,6 @@ public final class CacheUtilTest {
     CacheUtil.cache(
         new DataSpec(Uri.parse("test_data")),
         cache,
-        /* cacheKeyFactory= */ null,
         dataSource,
         counters,
         /* isCanceled= */ null);

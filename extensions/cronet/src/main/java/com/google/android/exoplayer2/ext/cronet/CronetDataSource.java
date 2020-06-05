@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Predicate;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -81,14 +82,6 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       this.cronetConnectionStatus = cronetConnectionStatus;
     }
 
-  }
-
-  /** Thrown on catching an InterruptedException. */
-  public static final class InterruptedIOException extends IOException {
-
-    public InterruptedIOException(InterruptedException e) {
-      super(e);
-    }
   }
 
   static {
@@ -440,7 +433,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw new OpenException(new InterruptedIOException(e), dataSpec, Status.INVALID);
+      throw new OpenException(new InterruptedIOException(), dataSpec, Status.INVALID);
     }
 
     // Check for a valid response code.
@@ -705,7 +698,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     if (dataSpec.httpBody != null && !requestHeaders.containsKey(CONTENT_TYPE)) {
       throw new IOException("HTTP request with non-empty body must set Content-Type");
     }
-    
+
     // Set the Range header.
     if (dataSpec.position != 0 || dataSpec.length != C.LENGTH_UNSET) {
       StringBuilder rangeValue = new StringBuilder();
@@ -769,7 +762,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       }
       Thread.currentThread().interrupt();
       throw new HttpDataSourceException(
-          new InterruptedIOException(e),
+          new InterruptedIOException(),
           castNonNull(currentDataSpec),
           HttpDataSourceException.TYPE_READ);
     } catch (SocketTimeoutException e) {

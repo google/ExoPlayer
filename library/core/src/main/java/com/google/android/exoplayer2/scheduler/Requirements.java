@@ -129,8 +129,9 @@ public final class Requirements implements Parcelable {
     }
 
     ConnectivityManager connectivityManager =
-        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo networkInfo = Assertions.checkNotNull(connectivityManager).getActiveNetworkInfo();
+        (ConnectivityManager)
+            Assertions.checkNotNull(context.getSystemService(Context.CONNECTIVITY_SERVICE));
+    @Nullable NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
     if (networkInfo == null
         || !networkInfo.isConnected()
         || !isInternetConnectivityValidated(connectivityManager)) {
@@ -156,23 +157,27 @@ public final class Requirements implements Parcelable {
   }
 
   private boolean isDeviceIdle(Context context) {
-    PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    PowerManager powerManager =
+        (PowerManager) Assertions.checkNotNull(context.getSystemService(Context.POWER_SERVICE));
     return Util.SDK_INT >= 23
         ? powerManager.isDeviceIdleMode()
         : Util.SDK_INT >= 20 ? !powerManager.isInteractive() : !powerManager.isScreenOn();
   }
 
   private static boolean isInternetConnectivityValidated(ConnectivityManager connectivityManager) {
-    // It's possible to query NetworkCapabilities from API level 23, but RequirementsWatcher only
-    // fires an event to update its Requirements when NetworkCapabilities change from API level 24.
-    // Since Requirements won't be updated, we assume connectivity is validated on API level 23.
+    // It's possible to check NetworkCapabilities.NET_CAPABILITY_VALIDATED from API level 23, but
+    // RequirementsWatcher only fires an event to re-check the requirements when NetworkCapabilities
+    // change from API level 24. We assume that network capability is validated for API level 23 to
+    // keep in sync.
     if (Util.SDK_INT < 24) {
       return true;
     }
-    Network activeNetwork = connectivityManager.getActiveNetwork();
+
+    @Nullable Network activeNetwork = connectivityManager.getActiveNetwork();
     if (activeNetwork == null) {
       return false;
     }
+    @Nullable
     NetworkCapabilities networkCapabilities =
         connectivityManager.getNetworkCapabilities(activeNetwork);
     return networkCapabilities != null

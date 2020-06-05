@@ -679,7 +679,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         return sampleQueues[i];
       }
     }
-    SampleQueue trackOutput = new SampleQueue(allocator, drmSessionManager);
+    SampleQueue trackOutput = new SampleQueue(
+        allocator, /* playbackLooper= */ handler.getLooper(), drmSessionManager);
     trackOutput.setUpstreamFormatChangeListener(this);
     @NullableType
     TrackId[] sampleQueueTrackIds = Arrays.copyOf(this.sampleQueueTrackIds, trackCount + 1);
@@ -728,6 +729,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             && icyHeaders.bitrate != Format.NO_VALUE) {
           trackFormat = trackFormat.copyWithBitrate(icyHeaders.bitrate);
         }
+      }
+      if (trackFormat.drmInitData != null) {
+        trackFormat =
+            trackFormat.copyWithExoMediaCryptoType(
+                drmSessionManager.getExoMediaCryptoType(trackFormat.drmInitData));
       }
       trackArray[i] = new TrackGroup(trackFormat);
     }

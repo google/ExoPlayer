@@ -150,6 +150,23 @@ public final class RequirementsWatcher {
     }
   }
 
+  /**
+   * Re-checks the requirements if there are network requirements that are currently not met.
+   *
+   * <p>When we receive an event that implies newly established network connectivity, we re-check
+   * the requirements by calling {@link #checkRequirements()}. This check sometimes sees that there
+   * is still no active network, meaning that any network requirements will remain not met. By
+   * calling this method when we receive other events that imply continued network connectivity, we
+   * can detect that the requirements are met once an active network does exist.
+   */
+  private void recheckNotMetNetworkRequirements() {
+    if ((notMetRequirements & (Requirements.NETWORK | Requirements.NETWORK_UNMETERED)) == 0) {
+      // No unmet network requirements to recheck.
+      return;
+    }
+    checkRequirements();
+  }
+
   private class DeviceStatusChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -161,17 +178,25 @@ public final class RequirementsWatcher {
 
   @RequiresApi(24)
   private final class NetworkCallback extends ConnectivityManager.NetworkCallback {
-    boolean receivedCapabilitiesChange;
-    boolean networkValidated;
+
+    private boolean receivedCapabilitiesChange;
+    private boolean networkValidated;
 
     @Override
     public void onAvailable(Network network) {
-      onNetworkCallback();
+      postCheckRequirements();
     }
 
     @Override
     public void onLost(Network network) {
-      onNetworkCallback();
+      postCheckRequirements();
+    }
+
+    @Override
+    public void onBlockedStatusChanged(Network network, boolean blocked) {
+      if (!blocked) {
+        postRecheckNotMetNetworkRequirements();
+      }
     }
 
     @Override
@@ -181,15 +206,26 @@ public final class RequirementsWatcher {
       if (!receivedCapabilitiesChange || this.networkValidated != networkValidated) {
         receivedCapabilitiesChange = true;
         this.networkValidated = networkValidated;
-        onNetworkCallback();
+        postCheckRequirements();
+      } else if (networkValidated) {
+        postRecheckNotMetNetworkRequirements();
       }
     }
 
-    private void onNetworkCallback() {
+    private void postCheckRequirements() {
       handler.post(
           () -> {
             if (networkCallback != null) {
               checkRequirements();
+            }
+          });
+    }
+
+    private void postRecheckNotMetNetworkRequirements() {
+      handler.post(
+          () -> {
+            if (networkCallback != null) {
+              recheckNotMetNetworkRequirements();
             }
           });
     }

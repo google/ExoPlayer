@@ -1022,7 +1022,7 @@ public abstract class DownloadService extends Service {
         try {
           Intent intent = getIntent(context, serviceClass, DownloadService.ACTION_INIT);
           context.startService(intent);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
           // The process is classed as idle by the platform. Starting a background service is not
           // allowed in this state.
           Log.w(TAG, "Failed to restart DownloadService (process is idle).");

@@ -32,11 +32,12 @@ android {
 }
 
 dependencies {
-    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.19.0'
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'com.google.guava:guava:' + guavaVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 

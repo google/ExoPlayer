@@ -685,13 +685,13 @@ public abstract class Action {
    */
   public static final class WaitForPlaybackState extends Action {
 
-    private final int targetPlaybackState;
+    @Player.State private final int targetPlaybackState;
 
     /**
      * @param tag A tag to use for logging.
      * @param targetPlaybackState The playback state to wait for.
      */
-    public WaitForPlaybackState(String tag, int targetPlaybackState) {
+    public WaitForPlaybackState(String tag, @Player.State int targetPlaybackState) {
       super(tag, "WaitForPlaybackState");
       this.targetPlaybackState = targetPlaybackState;
     }

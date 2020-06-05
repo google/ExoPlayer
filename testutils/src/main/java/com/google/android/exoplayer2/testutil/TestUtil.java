@@ -36,6 +36,9 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
@@ -440,5 +443,23 @@ public class TestUtil {
       length += position;
     }
     return new DefaultExtractorInput(dataSource, position, length);
+  }
+
+  /**
+   * Creates a {@link ConditionVariable} whose {@link ConditionVariable#block(long)} method times
+   * out according to wallclock time when used in Robolectric tests.
+   */
+  public static ConditionVariable createRobolectricConditionVariable() {
+    return new ConditionVariable(
+        new SystemClock() {
+          @Override
+          public long elapsedRealtime() {
+            // elapsedRealtime() does not advance during Robolectric test execution, so use
+            // currentTimeMillis() instead. This is technically unsafe because this clock is not
+            // guaranteed to be monotonic, but in practice it will work provided the clock of the
+            // host machine does not change during test execution.
+            return Clock.DEFAULT.currentTimeMillis();
+          }
+        });
   }
 }

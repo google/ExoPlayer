@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.metadata.id3.InternalFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import java.nio.ByteBuffer;
 
 /** Utilities for handling metadata in MP4. */
 /* package */ final class MetadataUtil {
@@ -282,7 +281,6 @@ import java.nio.ByteBuffer;
   private static final int TYPE_TOP_BYTE_REPLACEMENT = 0xFD; // Truncated value of \uFFFD.
 
   private static final String MDTA_KEY_ANDROID_CAPTURE_FPS = "com.android.capture.fps";
-  private static final int MDTA_TYPE_INDICATOR_FLOAT = 23;
 
   private MetadataUtil() {}
 
@@ -312,15 +310,8 @@ import java.nio.ByteBuffer;
         Metadata.Entry entry = mdtaMetadata.get(i);
         if (entry instanceof MdtaMetadataEntry) {
           MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
-          if (MDTA_KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)
-              && mdtaMetadataEntry.typeIndicator == MDTA_TYPE_INDICATOR_FLOAT) {
-            try {
-              float fps = ByteBuffer.wrap(mdtaMetadataEntry.value).asFloatBuffer().get();
-              format = format.copyWithFrameRate(fps);
-              format = format.copyWithMetadata(new Metadata(mdtaMetadataEntry));
-            } catch (NumberFormatException e) {
-              Log.w(TAG, "Ignoring invalid framerate");
-            }
+          if (MDTA_KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)) {
+            format = format.copyWithMetadata(new Metadata(mdtaMetadataEntry));
           }
         }
       }

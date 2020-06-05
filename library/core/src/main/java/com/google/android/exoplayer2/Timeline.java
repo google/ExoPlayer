@@ -19,6 +19,7 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 
 /**
  * A flexible representation of the structure of media. A timeline is able to represent the
@@ -278,6 +279,48 @@ public abstract class Timeline {
       return positionInFirstPeriodUs;
     }
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || !getClass().equals(obj.getClass())) {
+        return false;
+      }
+      Window that = (Window) obj;
+      return Util.areEqual(uid, that.uid)
+          && Util.areEqual(tag, that.tag)
+          && Util.areEqual(manifest, that.manifest)
+          && presentationStartTimeMs == that.presentationStartTimeMs
+          && windowStartTimeMs == that.windowStartTimeMs
+          && isSeekable == that.isSeekable
+          && isDynamic == that.isDynamic
+          && isLive == that.isLive
+          && defaultPositionUs == that.defaultPositionUs
+          && durationUs == that.durationUs
+          && firstPeriodIndex == that.firstPeriodIndex
+          && lastPeriodIndex == that.lastPeriodIndex
+          && positionInFirstPeriodUs == that.positionInFirstPeriodUs;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 7;
+      result = 31 * result + uid.hashCode();
+      result = 31 * result + (tag == null ? 0 : tag.hashCode());
+      result = 31 * result + (manifest == null ? 0 : manifest.hashCode());
+      result = 31 * result + (int) (presentationStartTimeMs ^ (presentationStartTimeMs >>> 32));
+      result = 31 * result + (int) (windowStartTimeMs ^ (windowStartTimeMs >>> 32));
+      result = 31 * result + (isSeekable ? 1 : 0);
+      result = 31 * result + (isDynamic ? 1 : 0);
+      result = 31 * result + (isLive ? 1 : 0);
+      result = 31 * result + (int) (defaultPositionUs ^ (defaultPositionUs >>> 32));
+      result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));
+      result = 31 * result + firstPeriodIndex;
+      result = 31 * result + lastPeriodIndex;
+      result = 31 * result + (int) (positionInFirstPeriodUs ^ (positionInFirstPeriodUs >>> 32));
+      return result;
+    }
   }
 
   /**
@@ -423,8 +466,8 @@ public abstract class Timeline {
      * microseconds.
      *
      * @param adGroupIndex The ad group index.
-     * @return The time of the ad group at the index, in microseconds, or {@link
-     *     C#TIME_END_OF_SOURCE} for a post-roll ad group.
+     * @return The time of the ad group at the index relative to the start of the enclosing {@link
+     *     Period}, in microseconds, or {@link C#TIME_END_OF_SOURCE} for a post-roll ad group.
      */
     public long getAdGroupTimeUs(int adGroupIndex) {
       return adPlaybackState.adGroupTimesUs[adGroupIndex];
@@ -467,22 +510,23 @@ public abstract class Timeline {
     }
 
     /**
-     * Returns the index of the ad group at or before {@code positionUs}, if that ad group is
-     * unplayed. Returns {@link C#INDEX_UNSET} if the ad group at or before {@code positionUs} has
-     * no ads remaining to be played, or if there is no such ad group.
+     * Returns the index of the ad group at or before {@code positionUs} in the period, if that ad
+     * group is unplayed. Returns {@link C#INDEX_UNSET} if the ad group at or before {@code
+     * positionUs} has no ads remaining to be played, or if there is no such ad group.
      *
-     * @param positionUs The position at or before which to find an ad group, in microseconds.
+     * @param positionUs The period position at or before which to find an ad group, in
+     *     microseconds.
      * @return The index of the ad group, or {@link C#INDEX_UNSET}.
      */
     public int getAdGroupIndexForPositionUs(long positionUs) {
-      return adPlaybackState.getAdGroupIndexForPositionUs(positionUs);
+      return adPlaybackState.getAdGroupIndexForPositionUs(positionUs, durationUs);
     }
 
     /**
-     * Returns the index of the next ad group after {@code positionUs} that has ads remaining to be
-     * played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
+     * Returns the index of the next ad group after {@code positionUs} in the period that has ads
+     * remaining to be played. Returns {@link C#INDEX_UNSET} if there is no such ad group.
      *
-     * @param positionUs The position after which to find an ad group, in microseconds.
+     * @param positionUs The period position after which to find an ad group, in microseconds.
      * @return The index of the ad group, or {@link C#INDEX_UNSET}.
      */
     public int getAdGroupIndexAfterPositionUs(long positionUs) {
@@ -534,6 +578,34 @@ public abstract class Timeline {
       return adPlaybackState.adResumePositionUs;
     }
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || !getClass().equals(obj.getClass())) {
+        return false;
+      }
+      Period that = (Period) obj;
+      return Util.areEqual(id, that.id)
+          && Util.areEqual(uid, that.uid)
+          && windowIndex == that.windowIndex
+          && durationUs == that.durationUs
+          && positionInWindowUs == that.positionInWindowUs
+          && Util.areEqual(adPlaybackState, that.adPlaybackState);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 7;
+      result = 31 * result + (id == null ? 0 : id.hashCode());
+      result = 31 * result + (uid == null ? 0 : uid.hashCode());
+      result = 31 * result + windowIndex;
+      result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));
+      result = 31 * result + (int) (positionInWindowUs ^ (positionInWindowUs >>> 32));
+      result = 31 * result + (adPlaybackState == null ? 0 : adPlaybackState.hashCode());
+      return result;
+    }
   }
 
   /** An empty timeline. */
@@ -834,4 +906,50 @@ public abstract class Timeline {
    * @return The unique id of the period.
    */
   public abstract Object getUidOfPeriod(int periodIndex);
+
+  @Override
+  public boolean equals(@Nullable Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof Timeline)) {
+      return false;
+    }
+    Timeline other = (Timeline) obj;
+    if (other.getWindowCount() != getWindowCount() || other.getPeriodCount() != getPeriodCount()) {
+      return false;
+    }
+    Timeline.Window window = new Timeline.Window();
+    Timeline.Period period = new Timeline.Period();
+    Timeline.Window otherWindow = new Timeline.Window();
+    Timeline.Period otherPeriod = new Timeline.Period();
+    for (int i = 0; i < getWindowCount(); i++) {
+      if (!getWindow(i, window).equals(other.getWindow(i, otherWindow))) {
+        return false;
+      }
+    }
+    for (int i = 0; i < getPeriodCount(); i++) {
+      if (!getPeriod(i, period, /* setIds= */ true)
+          .equals(other.getPeriod(i, otherPeriod, /* setIds= */ true))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    Window window = new Window();
+    Period period = new Period();
+    int result = 7;
+    result = 31 * result + getWindowCount();
+    for (int i = 0; i < getWindowCount(); i++) {
+      result = 31 * result + getWindow(i, window).hashCode();
+    }
+    result = 31 * result + getPeriodCount();
+    for (int i = 0; i < getPeriodCount(); i++) {
+      result = 31 * result + getPeriod(i, period, /* setIds= */ true).hashCode();
+    }
+    return result;
+  }
 }

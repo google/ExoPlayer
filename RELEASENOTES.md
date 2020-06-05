@@ -1,5 +1,84 @@
 # Release notes #
 
+### 2.11.5 (2020-06-05) ###
+
+*   Improve the smoothness of video playback immediately after starting, seeking
+    or resuming a playback
+    ([#6901](https://github.com/google/ExoPlayer/issues/6901)).
+*   Add `SilenceMediaSource.Factory` to support tags.
+*   Enable the configuration of `SilenceSkippingAudioProcessor`
+    ([#6705](https://github.com/google/ExoPlayer/issues/6705)).
+*   Fix bug where `PlayerMessages` throw an exception after `MediaSources`
+    are removed from the playlist
+    ([#7278](https://github.com/google/ExoPlayer/issues/7278)).
+*   Fix "Not allowed to start service" `IllegalStateException` in
+    `DownloadService`
+    ([#7306](https://github.com/google/ExoPlayer/issues/7306)).
+*   Fix issue in `AudioTrackPositionTracker` that could cause negative positions
+    to be reported at the start of playback and immediately after seeking
+    ([#7456](https://github.com/google/ExoPlayer/issues/7456).
+*   Fix further cases where downloads would sometimes not resume after their
+    network requirements are met
+    ([#7453](https://github.com/google/ExoPlayer/issues/7453).
+*   DASH:
+    *   Merge trick play adaptation sets (i.e., adaptation sets marked with
+        `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as
+        the main adaptation sets to which they refer. Trick play tracks are
+        marked with the `C.ROLE_FLAG_TRICK_PLAY` flag.
+    *   Fix assertion failure in `SampleQueue` when playing DASH streams with
+        EMSG tracks ([#7273](https://github.com/google/ExoPlayer/issues/7273)).
+*   MP4: Store the Android capture frame rate only in `Format.metadata`.
+    `Format.frameRate` now stores the calculated frame rate.
+*   FMP4: Avoid throwing an exception while parsing default sample values whose
+    most significant bits are set
+    ([#7207](https://github.com/google/ExoPlayer/issues/7207)).
+*   MP3: Fix issue parsing the XING headers belonging to files larger than 2GB
+    ([#7337](https://github.com/google/ExoPlayer/issues/7337)).
+*   MPEG-TS: Fix issue where SEI NAL units were incorrectly dropped from H.265
+    samples ([#7113](https://github.com/google/ExoPlayer/issues/7113)).
+*   UI:
+    *   Fix `DefaultTimeBar` to respect touch transformations
+        ([#7303](https://github.com/google/ExoPlayer/issues/7303)).
+    *   Add `showScrubber` and `hideScrubber` methods to `DefaultTimeBar`.
+*   Text:
+    *   Use anti-aliasing and bitmap filtering when displaying bitmap
+        subtitles.
+    *   Fix `SubtitlePainter` to render `EDGE_TYPE_OUTLINE` using the correct
+        color.
+*   IMA extension:
+    *   Upgrade to IMA SDK version 3.19.0, and migrate to new
+        preloading APIs
+        ([#6429](https://github.com/google/ExoPlayer/issues/6429)). This fixes
+        several issues involving preloading and handling of ad loading error
+        cases: ([#4140](https://github.com/google/ExoPlayer/issues/4140),
+        [#5006](https://github.com/google/ExoPlayer/issues/5006),
+        [#6030](https://github.com/google/ExoPlayer/issues/6030),
+        [#6097](https://github.com/google/ExoPlayer/issues/6097),
+        [#6425](https://github.com/google/ExoPlayer/issues/6425),
+        [#6967](https://github.com/google/ExoPlayer/issues/6967),
+        [#7041](https://github.com/google/ExoPlayer/issues/7041),
+        [#7161](https://github.com/google/ExoPlayer/issues/7161),
+        [#7212](https://github.com/google/ExoPlayer/issues/7212),
+        [#7340](https://github.com/google/ExoPlayer/issues/7340)).
+    *   Add support for timing out ad preloading, to avoid playback getting
+        stuck if an ad group unexpectedly fails to load
+        ([#5444](https://github.com/google/ExoPlayer/issues/5444),
+        [#5966](https://github.com/google/ExoPlayer/issues/5966),
+        [#7002](https://github.com/google/ExoPlayer/issues/7002)).
+    *   Fix `AdsMediaSource` child `MediaSource`s not being released.
+*   Cronet extension: Default to using the Cronet implementation in Google Play
+    Services rather than Cronet Embedded. This allows Cronet to be used with a
+    negligible increase in application size, compared to approximately 8MB when
+    embedding the library.
+*   OkHttp extension: Upgrade OkHttp dependency to 3.12.11.
+*   MediaSession extension:
+    *   Only set the playback state to `BUFFERING` if `playWhenReady` is true
+        ([#7206](https://github.com/google/ExoPlayer/issues/7206)).
+    *   Add missing `@Nullable` annotations to `MediaSessionConnector`
+        ([#7234](https://github.com/google/ExoPlayer/issues/7234)).
+*   AV1 extension: Add a heuristic to determine the default number of threads
+    used for AV1 playback using the extension.
+
 ### 2.11.4 (2020-04-08) ###
 
 * Add `SimpleExoPlayer.setWakeMode` to allow automatic `WifiLock` and `WakeLock`
