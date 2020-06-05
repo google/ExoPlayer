@@ -325,7 +325,21 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ba
 <h4>cancelLoad</h4>
 <pre>public&nbsp;void&nbsp;cancelLoad()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#cancelLoad--">Loader.Loadable</a></code></span></div>
-<div class="block">Cancels the load.</div>
+<div class="block">Cancels the load.
+
+ <p>Loadable implementations should ensure that a currently executing <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> call
+ will exit reasonably quickly after this method is called. The <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> call may exit
+ either by returning or by throwing an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top"><code>IOException</code></a>.
+
+ <p>If there is a currently executing <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> call, then the thread on which that call
+ is being made will be interrupted immediately after the call to this method. Hence
+ implementations do not need to (and should not attempt to) interrupt the loading thread
+ themselves.
+
+ <p>Although the loading thread will be interrupted, Loadable implementations should not use
+ the interrupted status of the loading thread in <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--"><code>Loader.Loadable.load()</code></a> to determine whether the load
+ has been canceled. This approach is not robust [Internal ref: b/79223737]. Instead,
+ implementations should use their own flag to signal cancelation (for example, using <a href="https://developer.android.com/reference/java/util/concurrent/atomic/AtomicBoolean.html" title="class or interface in java.util.concurrent.atomic" target="_top"><code>AtomicBoolean</code></a>).</div>
 </li>
 </ul>
 <a name="load--">

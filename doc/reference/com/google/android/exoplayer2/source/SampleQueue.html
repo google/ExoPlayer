@@ -160,7 +160,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#SampleQueue-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.drm.DrmSessionManager-">SampleQueue</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#SampleQueue-com.google.android.exoplayer2.upstream.Allocator-android.os.Looper-com.google.android.exoplayer2.drm.DrmSessionManager-">SampleQueue</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+           <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;playbackLooper,
            <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager)</code>
 <div class="block">Creates a sample queue.</div>
 </td>
@@ -421,18 +422,20 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SampleQueue-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.drm.DrmSessionManager-">
+<a name="SampleQueue-com.google.android.exoplayer2.upstream.Allocator-android.os.Looper-com.google.android.exoplayer2.drm.DrmSessionManager-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SampleQueue</h4>
 <pre>public&nbsp;SampleQueue(<a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+                   <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;playbackLooper,
                    <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager)</pre>
 <div class="block">Creates a sample queue.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>allocator</code> - An <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a> from which allocations for sample data can be obtained.</dd>
+<dd><code>playbackLooper</code> - The looper associated with the media playback thread.</dd>
 <dd><code>drmSessionManager</code> - The <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to obtain <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a>
      from. The created instance does not take ownership of this <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>.</dd>
 </dl>

@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":42,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -178,15 +178,6 @@ implements <a href="../../../../../../com/google/android/exoplayer2/Player.Event
 <div class="block">Creates a new IMA ads loader.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#ImaAdsLoader-android.content.Context-android.net.Uri-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">ImaAdsLoader</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-            <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;adTagUri,
-            com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader.Builder</code></a>.</span></div>
-</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -197,7 +188,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/Player.Event
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -241,7 +232,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/Player.Event
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#loadAd-java.lang.String-">loadAd</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;adUriString)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#loadAd-com.google.ads.interactivemedia.v3.api.player.AdMediaInfo-com.google.ads.interactivemedia.v3.api.AdPodInfo-">loadAd</a></span>(com.google.ads.interactivemedia.v3.api.player.AdMediaInfo&nbsp;adMediaInfo,
+      com.google.ads.interactivemedia.v3.api.AdPodInfo&nbsp;adPodInfo)</code>&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
@@ -283,11 +275,11 @@ implements <a href="../../../../../../com/google/android/exoplayer2/Player.Event
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#pauseAd--">pauseAd</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#pauseAd-com.google.ads.interactivemedia.v3.api.player.AdMediaInfo-">pauseAd</a></span>(com.google.ads.interactivemedia.v3.api.player.AdMediaInfo&nbsp;adMediaInfo)</code>&nbsp;</td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#playAd--">playAd</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#playAd-com.google.ads.interactivemedia.v3.api.player.AdMediaInfo-">playAd</a></span>(com.google.ads.interactivemedia.v3.api.player.AdMediaInfo&nbsp;adMediaInfo)</code>&nbsp;</td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
@@ -307,44 +299,32 @@ implements <a href="../../../../../../com/google/android/exoplayer2/Player.Event
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#resumeAd--">resumeAd</a></span>()</code>&nbsp;</td>
-</tr>
-<tr id="i21" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#setCompanionSlots-java.util.Collection-">setCompanionSlots</a></span>(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionSlots)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <code>getAdDisplayContainer().setCompanionSlots(...)</code>.</span></div>
-</div>
-</td>
-</tr>
-<tr id="i22" class="altColor">
-<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Sets the player that will play the loaded ads.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#setSupportedContentTypes-int...-">setSupportedContentTypes</a></span>(int...&nbsp;contentTypes)</code>
 <div class="block">Sets the supported content types for ad media.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#start-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">start</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener,
      <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a>&nbsp;adViewProvider)</code>
 <div class="block">Starts using the ads loader for playback.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#stop--">stop</a></span>()</code>
 <div class="block">Stops using the ads loader for playback and deregisters the event listener.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#stopAd--">stopAd</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html#stopAd-com.google.ads.interactivemedia.v3.api.player.AdMediaInfo-">stopAd</a></span>(com.google.ads.interactivemedia.v3.api.player.AdMediaInfo&nbsp;adMediaInfo)</code>&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -378,7 +358,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/Player.Event
 <a name="ImaAdsLoader-android.content.Context-android.net.Uri-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>ImaAdsLoader</h4>
 <pre>public&nbsp;ImaAdsLoader(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
@@ -392,30 +372,6 @@ implements <a href="../../../../../../com/google/android/exoplayer2/Player.Event
 <dd><code>adTagUri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of an ad tag compatible with the Android IMA SDK. See
      https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
      more information.</dd>
-</dl>
-</li>
-</ul>
-<a name="ImaAdsLoader-android.content.Context-android.net.Uri-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>ImaAdsLoader</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;ImaAdsLoader(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;adTagUri,
-                                @Nullable
-                                com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader.Builder</code></a>.</span></div>
-<div class="block">Creates a new IMA ads loader.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The context.</dd>
-<dd><code>adTagUri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of an ad tag compatible with the Android IMA SDK. See
-     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
-     more information.</dd>
-<dd><code>imaSdkSettings</code> - <code>ImaSdkSettings</code> used to configure the IMA SDK, or <code>null</code> to
-     use the default settings. If set, the player type and version fields may be overwritten.</dd>
 </dl>
 </li>
 </ul>
@@ -451,24 +407,6 @@ public&nbsp;ImaAdsLoader(<a href="https://developer.android.com/reference/androi
  the media source detaches from this instance. It is therefore necessary to re-register views
  each time the ads loader is reused. Alternatively, provide overlay views via the <code>AdsLoader.AdViewProvider</code> when creating the media source to benefit from automatic
  registration.</div>
-</li>
-</ul>
-<a name="setCompanionSlots-java.util.Collection-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setCompanionSlots</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;setCompanionSlots(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionSlots)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>getAdDisplayContainer().setCompanionSlots(...)</code>.</span></div>
-<div class="block">Sets the slots for displaying companion ads. Individual slots can be created using <code>ImaSdkFactory.createCompanionAdSlot()</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>companionSlots</code> - Slots for displaying companion ads.</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><code>BaseDisplayContainer.setCompanionSlots(Collection)</code></dd>
-</dl>
 </li>
 </ul>
 <a name="requestAds-android.view.ViewGroup-">
@@ -581,6 +519,8 @@ public&nbsp;void&nbsp;setCompanionSlots(<a href="https://developer.android.com/r
  no longer needed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code>release</code>&nbsp;in interface&nbsp;<code>com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer</code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#release--">release</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader</a></code></dd>
 </dl>
 </li>
@@ -686,13 +626,14 @@ public&nbsp;void&nbsp;setCompanionSlots(<a href="https://developer.android.com/r
 </dl>
 </li>
 </ul>
-<a name="loadAd-java.lang.String-">
+<a name="loadAd-com.google.ads.interactivemedia.v3.api.player.AdMediaInfo-com.google.ads.interactivemedia.v3.api.AdPodInfo-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>loadAd</h4>
-<pre>public&nbsp;void&nbsp;loadAd(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;adUriString)</pre>
+<pre>public&nbsp;void&nbsp;loadAd(com.google.ads.interactivemedia.v3.api.player.AdMediaInfo&nbsp;adMediaInfo,
+                   com.google.ads.interactivemedia.v3.api.AdPodInfo&nbsp;adPodInfo)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>loadAd</code>&nbsp;in interface&nbsp;<code>com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer</code></dd>
@@ -725,55 +666,42 @@ public&nbsp;void&nbsp;setCompanionSlots(<a href="https://developer.android.com/r
 </dl>
 </li>
 </ul>
-<a name="playAd--">
+<a name="playAd-com.google.ads.interactivemedia.v3.api.player.AdMediaInfo-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>playAd</h4>
-<pre>public&nbsp;void&nbsp;playAd()</pre>
+<pre>public&nbsp;void&nbsp;playAd(com.google.ads.interactivemedia.v3.api.player.AdMediaInfo&nbsp;adMediaInfo)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>playAd</code>&nbsp;in interface&nbsp;<code>com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer</code></dd>
 </dl>
 </li>
 </ul>
-<a name="stopAd--">
+<a name="stopAd-com.google.ads.interactivemedia.v3.api.player.AdMediaInfo-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>stopAd</h4>
-<pre>public&nbsp;void&nbsp;stopAd()</pre>
+<pre>public&nbsp;void&nbsp;stopAd(com.google.ads.interactivemedia.v3.api.player.AdMediaInfo&nbsp;adMediaInfo)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>stopAd</code>&nbsp;in interface&nbsp;<code>com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer</code></dd>
 </dl>
 </li>
 </ul>
-<a name="pauseAd--">
+<a name="pauseAd-com.google.ads.interactivemedia.v3.api.player.AdMediaInfo-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>pauseAd</h4>
-<pre>public&nbsp;void&nbsp;pauseAd()</pre>
+<pre>public&nbsp;void&nbsp;pauseAd(com.google.ads.interactivemedia.v3.api.player.AdMediaInfo&nbsp;adMediaInfo)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>pauseAd</code>&nbsp;in interface&nbsp;<code>com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer</code></dd>
-</dl>
-</li>
-</ul>
-<a name="resumeAd--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>resumeAd</h4>
-<pre>public&nbsp;void&nbsp;resumeAd()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code>resumeAd</code>&nbsp;in interface&nbsp;<code>com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer</code></dd>
 </dl>
 </li>
 </ul>
@@ -802,6 +730,31 @@ public&nbsp;void&nbsp;setCompanionSlots(<a href="https://developer.android.com/r
 </dl>
 </li>
 </ul>
+<a name="onPositionDiscontinuity-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onPositionDiscontinuity</h4>
+<pre>public&nbsp;void&nbsp;onPositionDiscontinuity(<a href="../../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@Player.DiscontinuityReason</a>
+                                    int&nbsp;reason)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-">Player.EventListener</a></code></span></div>
+<div class="block">Called when a position discontinuity occurs without a change to the timeline. A position
+ discontinuity occurs when the current window or period index changes (as a result of playback
+ transitioning from one period in the timeline to the next), or when the playback position
+ jumps within the period currently being played (as a result of a seek being performed, or
+ when the source introduces a discontinuity internally).
+
+ <p>When a position discontinuity occurs as a result of a change to the timeline this method
+ is <em>not</em> called. <a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> is called in this case.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-">onPositionDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>reason</code> - The <a href="../../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.DiscontinuityReason</code></a> responsible for the discontinuity.</dd>
+</dl>
+</li>
+</ul>
 <a name="onPlayerStateChanged-boolean-int-">
 <!--   -->
 </a>
@@ -825,7 +778,7 @@ public&nbsp;void&nbsp;setCompanionSlots(<a href="https://developer.android.com/r
 <a name="onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>onPlayerError</h4>
 <pre>public&nbsp;void&nbsp;onPlayerError(<a href="../../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;error)</pre>
@@ -837,31 +790,6 @@ public&nbsp;void&nbsp;setCompanionSlots(<a href="https://developer.android.com/r
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">onPlayerError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>error</code> - The error.</dd>
-</dl>
-</li>
-</ul>
-<a name="onPositionDiscontinuity-int-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>onPositionDiscontinuity</h4>
-<pre>public&nbsp;void&nbsp;onPositionDiscontinuity(<a href="../../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@Player.DiscontinuityReason</a>
-                                    int&nbsp;reason)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-">Player.EventListener</a></code></span></div>
-<div class="block">Called when a position discontinuity occurs without a change to the timeline. A position
- discontinuity occurs when the current window or period index changes (as a result of playback
- transitioning from one period in the timeline to the next), or when the playback position
- jumps within the period currently being played (as a result of a seek being performed, or
- when the source introduces a discontinuity internally).
-
- <p>When a position discontinuity occurs as a result of a change to the timeline this method
- is <em>not</em> called. <a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a> is called in this case.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-">onPositionDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>reason</code> - The <a href="../../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.DiscontinuityReason</code></a> responsible for the discontinuity.</dd>
 </dl>
 </li>
 </ul>

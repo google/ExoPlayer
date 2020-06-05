@@ -187,14 +187,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheUtil.ProgressListener</a>&nbsp;progressListener,
      <a href="https://developer.android.com/reference/java/util/concurrent/atomic/AtomicBoolean.html" title="class or interface in java.util.concurrent.atomic" target="_top">AtomicBoolean</a>&nbsp;isCanceled,
      boolean&nbsp;enableEOFException)</code>
-<div class="block">Caches the data defined by <code>dataSpec</code> while skipping already cached data.</div>
+<div class="block">Caches the data defined by <code>dataSpec</code>, skipping already cached data.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.html#cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheKeyFactory-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.cache.CacheUtil.ProgressListener-java.util.concurrent.atomic.AtomicBoolean-">cache</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.html#cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.cache.CacheUtil.ProgressListener-java.util.concurrent.atomic.AtomicBoolean-">cache</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-     <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory,
      <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
      <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheUtil.ProgressListener</a>&nbsp;progressListener,
      <a href="https://developer.android.com/reference/java/util/concurrent/atomic/AtomicBoolean.html" title="class or interface in java.util.concurrent.atomic" target="_top">AtomicBoolean</a>&nbsp;isCanceled)</code>
@@ -321,7 +320,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.cache.CacheKeyFactory-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.cache.CacheUtil.ProgressListener-java.util.concurrent.atomic.AtomicBoolean-">
+<a name="cache-com.google.android.exoplayer2.upstream.DataSpec-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.cache.CacheUtil.ProgressListener-java.util.concurrent.atomic.AtomicBoolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -330,8 +329,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>@WorkerThread
 public static&nbsp;void&nbsp;cache(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                                        <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                                       @Nullable
-                                       <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory,
                                        <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
                                        @Nullable
                                        <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheUtil.ProgressListener</a>&nbsp;progressListener,
@@ -347,7 +344,6 @@ public static&nbsp;void&nbsp;cache(<a href="../../../../../../com/google/android
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSpec</code> - Defines the data to be cached.</dd>
 <dd><code>cache</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to store the data.</dd>
-<dd><code>cacheKeyFactory</code> - An optional factory for cache keys.</dd>
 <dd><code>upstream</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache.</dd>
 <dd><code>progressListener</code> - A listener to receive progress updates, or <code>null</code>.</dd>
 <dd><code>isCanceled</code> - An optional flag that will interrupt caching if set to true.</dd>
@@ -380,13 +376,14 @@ public static&nbsp;void&nbsp;cache(<a href="../../../../../../com/google/android
                                        boolean&nbsp;enableEOFException)
                                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
                                        <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Caches the data defined by <code>dataSpec</code> while skipping already cached data. Caching stops
- early if end of input is reached and <code>enableEOFException</code> is false.
+<div class="block">Caches the data defined by <code>dataSpec</code>, skipping already cached data. Caching stops early
+ if end of input is reached and <code>enableEOFException</code> is false.
 
- <p>If a <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> is given, it's used to pause and resume caching depending
- on <code>priority</code> and the priority of other tasks registered to the PriorityTaskManager.
- Please note that it's the responsibility of the calling code to call <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html#add-int-"><code>PriorityTaskManager.add(int)</code></a> to register with the manager before calling this method, and to call
- <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html#remove-int-"><code>PriorityTaskManager.remove(int)</code></a> afterwards to unregister.
+ <p>If a <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html" title="class in com.google.android.exoplayer2.util"><code>PriorityTaskManager</code></a> is provided, it's used to pause and resume caching
+ depending on <code>priority</code> and the priority of other tasks registered to the
+ PriorityTaskManager. Please note that it's the responsibility of the calling code to call
+ <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html#add-int-"><code>PriorityTaskManager.add(int)</code></a> to register with the manager before calling this method, and to
+ call <a href="../../../../../../com/google/android/exoplayer2/util/PriorityTaskManager.html#remove-int-"><code>PriorityTaskManager.remove(int)</code></a> afterwards to unregister.
 
  <p>This method may be slow and shouldn't normally be called on the main thread.</div>
 <dl>

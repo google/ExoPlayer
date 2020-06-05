@@ -108,8 +108,17 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public final class <span class="typeNameLabel">ConditionVariable</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
-<div class="block">An interruptible condition variable whose <a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#open--"><code>open()</code></a> and <a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#close--"><code>close()</code></a> methods return
- whether they resulted in a change of state.</div>
+<div class="block">An interruptible condition variable. This class provides a number of benefits over <a href="https://developer.android.com/reference/android/os/ConditionVariable.html" title="class or interface in android.os" target="_top"><code>ConditionVariable</code></a>:
+
+ <ul>
+   <li>Consistent use of (<a href="../../../../../com/google/android/exoplayer2/util/Clock.html#elapsedRealtime--"><code>Clock.elapsedRealtime()</code></a> for timing <a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#block-long-"><code>block(long)</code></a> timeout
+       intervals. <a href="https://developer.android.com/reference/android/os/ConditionVariable.html" title="class or interface in android.os"><code>ConditionVariable</code></a> used <a href="https://developer.android.com/reference/java/lang/System.html?is-external=true#currentTimeMillis--" title="class or interface in java.lang" target="_top"><code>System.currentTimeMillis()</code></a>
+       prior to Android 10, which is not a correct clock to use for interval timing because it's
+       not guaranteed to be monotonic.
+   <li>Support for injecting a custom <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a>.
+   <li>The ability to query the variable's current state, by calling <a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#isOpen--"><code>isOpen()</code></a>.
+   <li><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#open--"><code>open()</code></a> and <a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#close--"><code>close()</code></a> return whether they changed the variable's state.
+ </ul></div>
 </li>
 </ul>
 </div>
@@ -128,7 +137,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#ConditionVariable--">ConditionVariable</a></span>()</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#ConditionVariable--">ConditionVariable</a></span>()</code>
+<div class="block">Creates an instance using <a href="../../../../../com/google/android/exoplayer2/util/Clock.html#DEFAULT"><code>Clock.DEFAULT</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#ConditionVariable-com.google.android.exoplayer2.util.Clock-">ConditionVariable</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>
+<div class="block">Creates an instance.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -153,8 +169,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#block-long-">block</a></span>(long&nbsp;timeout)</code>
-<div class="block">Blocks until the condition is opened or until <code>timeout</code> milliseconds have passed.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#block-long-">block</a></span>(long&nbsp;timeoutMs)</code>
+<div class="block">Blocks until the condition is opened or until <code>timeoutMs</code> have passed.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -200,10 +216,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a name="ConditionVariable--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>ConditionVariable</h4>
 <pre>public&nbsp;ConditionVariable()</pre>
+<div class="block">Creates an instance using <a href="../../../../../com/google/android/exoplayer2/util/Clock.html#DEFAULT"><code>Clock.DEFAULT</code></a>.</div>
+</li>
+</ul>
+<a name="ConditionVariable-com.google.android.exoplayer2.util.Clock-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>ConditionVariable</h4>
+<pre>public&nbsp;ConditionVariable(<a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>clock</code> - The <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> whose <a href="../../../../../com/google/android/exoplayer2/util/Clock.html#elapsedRealtime--"><code>Clock.elapsedRealtime()</code></a> method is used to
+     determine when <a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#block-long-"><code>block(long)</code></a> should time out.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -263,12 +295,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>block</h4>
-<pre>public&nbsp;boolean&nbsp;block(long&nbsp;timeout)
+<pre>public&nbsp;boolean&nbsp;block(long&nbsp;timeoutMs)
               throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Blocks until the condition is opened or until <code>timeout</code> milliseconds have passed.</div>
+<div class="block">Blocks until the condition is opened or until <code>timeoutMs</code> have passed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>timeout</code> - The maximum time to wait in milliseconds.</dd>
+<dd><code>timeoutMs</code> - The maximum time to wait in milliseconds. If <code>timeoutMs &lt;= 0</code> then the
+     call will return immediately without blocking.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the condition was opened, false if the call returns because of the timeout.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -226,17 +226,23 @@ extends <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioPro
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html#onFlush--">onFlush</a></span>()</code>
+<div class="block">Called when the processor is flushed, directly or as part of resetting.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html#onQueueEndOfStream--">onQueueEndOfStream</a></span>()</code>
 <div class="block">Called when the end-of-stream is queued to the processor.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html#onReset--">onReset</a></span>()</code>
 <div class="block">Called when the processor is reset.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html#queueInput-java.nio.ByteBuffer-">queueInput</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;inputBuffer)</code>
 <div class="block">Queues audio data between the position and limit of the input <code>buffer</code> for processing.</div>
@@ -248,7 +254,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioPro
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.audio.<a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">BaseAudioProcessor</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#configure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">configure</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#flush--">flush</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#getOutput--">getOutput</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#hasPendingOutput--">hasPendingOutput</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#isActive--">isActive</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#isEnded--">isEnded</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#onFlush--">onFlush</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#queueEndOfStream--">queueEndOfStream</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#replaceOutputBuffer-int-">replaceOutputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#reset--">reset</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#configure-com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat-">configure</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#flush--">flush</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#getOutput--">getOutput</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#hasPendingOutput--">hasPendingOutput</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#isActive--">isActive</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#isEnded--">isEnded</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#queueEndOfStream--">queueEndOfStream</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#replaceOutputBuffer-int-">replaceOutputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#reset--">reset</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -325,6 +331,21 @@ extends <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioPro
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The input buffer to process.</dd>
+</dl>
+</li>
+</ul>
+<a name="onFlush--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onFlush</h4>
+<pre>protected&nbsp;void&nbsp;onFlush()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#onFlush--">BaseAudioProcessor</a></code></span></div>
+<div class="block">Called when the processor is flushed, directly or as part of resetting.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html#onFlush--">onFlush</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">BaseAudioProcessor</a></code></dd>
 </dl>
 </li>
 </ul>

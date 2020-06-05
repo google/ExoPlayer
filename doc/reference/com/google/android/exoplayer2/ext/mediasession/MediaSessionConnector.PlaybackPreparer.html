@@ -262,13 +262,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <h4>onPrepareFromMediaId</h4>
 <pre>void&nbsp;onPrepareFromMediaId(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;mediaId,
                           boolean&nbsp;playWhenReady,
+                          @Nullable
                           <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" target="_top">Bundle</a>&nbsp;extras)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepareFromMediaId(String, Bundle)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaId</code> - The media id of the media item to be prepared.</dd>
 <dd><code>playWhenReady</code> - Whether playback should be started after preparation.</dd>
-<dd><code>extras</code> - A <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" target="_top"><code>Bundle</code></a> of extras passed by the media controller.</dd>
+<dd><code>extras</code> - A <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" target="_top"><code>Bundle</code></a> of extras passed by the media controller, may be null.</dd>
 </dl>
 </li>
 </ul>
@@ -280,13 +281,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <h4>onPrepareFromSearch</h4>
 <pre>void&nbsp;onPrepareFromSearch(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;query,
                          boolean&nbsp;playWhenReady,
+                         @Nullable
                          <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" target="_top">Bundle</a>&nbsp;extras)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepareFromSearch(String, Bundle)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>query</code> - The search query.</dd>
 <dd><code>playWhenReady</code> - Whether playback should be started after preparation.</dd>
-<dd><code>extras</code> - A <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" target="_top"><code>Bundle</code></a> of extras passed by the media controller.</dd>
+<dd><code>extras</code> - A <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" target="_top"><code>Bundle</code></a> of extras passed by the media controller, may be null.</dd>
 </dl>
 </li>
 </ul>
@@ -298,13 +300,14 @@ extends <a href="../../../../../../com/google/android/exoplayer2/ext/mediasessio
 <h4>onPrepareFromUri</h4>
 <pre>void&nbsp;onPrepareFromUri(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
                       boolean&nbsp;playWhenReady,
+                      @Nullable
                       <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" target="_top">Bundle</a>&nbsp;extras)</pre>
 <div class="block">See <code>MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of the media item to be prepared.</dd>
 <dd><code>playWhenReady</code> - Whether playback should be started after preparation.</dd>
-<dd><code>extras</code> - A <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" target="_top"><code>Bundle</code></a> of extras passed by the media controller.</dd>
+<dd><code>extras</code> - A <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" target="_top"><code>Bundle</code></a> of extras passed by the media controller, may be null.</dd>
 </dl>
 </li>
 </ul>

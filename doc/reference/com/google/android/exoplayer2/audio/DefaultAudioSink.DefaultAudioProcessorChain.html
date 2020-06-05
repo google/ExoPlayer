@@ -138,7 +138,14 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAu
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html#DefaultAudioProcessorChain-com.google.android.exoplayer2.audio.AudioProcessor...-">DefaultAudioProcessorChain</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</code>
-<div class="block">Creates a new default chain of audio processors, with the user-defined <code>audioProcessors</code> applied before silence skipping and playback parameters.</div>
+<div class="block">Creates a new default chain of audio processors, with the user-defined <code>audioProcessors</code> applied before silence skipping and speed adjustment processors.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html#DefaultAudioProcessorChain-com.google.android.exoplayer2.audio.AudioProcessor:A-com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor-com.google.android.exoplayer2.audio.SonicAudioProcessor-">DefaultAudioProcessorChain</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
+                          <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a>&nbsp;silenceSkippingAudioProcessor,
+                          <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SonicAudioProcessor</a>&nbsp;sonicAudioProcessor)</code>
+<div class="block">Creates a new default chain of audio processors, with the user-defined <code>audioProcessors</code> applied before silence skipping and speed adjustment processors.</div>
 </td>
 </tr>
 </table>
@@ -208,11 +215,23 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAu
 <a name="DefaultAudioProcessorChain-com.google.android.exoplayer2.audio.AudioProcessor...-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DefaultAudioProcessorChain</h4>
 <pre>public&nbsp;DefaultAudioProcessorChain(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</pre>
-<div class="block">Creates a new default chain of audio processors, with the user-defined <code>audioProcessors</code> applied before silence skipping and playback parameters.</div>
+<div class="block">Creates a new default chain of audio processors, with the user-defined <code>audioProcessors</code> applied before silence skipping and speed adjustment processors.</div>
+</li>
+</ul>
+<a name="DefaultAudioProcessorChain-com.google.android.exoplayer2.audio.AudioProcessor:A-com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor-com.google.android.exoplayer2.audio.SonicAudioProcessor-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DefaultAudioProcessorChain</h4>
+<pre>public&nbsp;DefaultAudioProcessorChain(<a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
+                                  <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a>&nbsp;silenceSkippingAudioProcessor,
+                                  <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SonicAudioProcessor</a>&nbsp;sonicAudioProcessor)</pre>
+<div class="block">Creates a new default chain of audio processors, with the user-defined <code>audioProcessors</code> applied before silence skipping and speed adjustment processors.</div>
 </li>
 </ul>
 </li>

@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.video.SimpleDecoderVideoRenderer">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -167,6 +167,19 @@ extends <a href="../../../../../../com/google/android/exoplayer2/video/SimpleDec
 <!--   -->
 </a>
 <h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/av1/Libgav1VideoRenderer.html#THREAD_COUNT_AUTODETECT">THREAD_COUNT_AUTODETECT</a></span></code>
+<div class="block">Attempts to use as many threads as performance processors available on the device.</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.video.SimpleDecoderVideoRenderer">
 <!--   -->
@@ -313,6 +326,30 @@ extends <a href="../../../../../../com/google/android/exoplayer2/video/SimpleDec
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="THREAD_COUNT_AUTODETECT">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>THREAD_COUNT_AUTODETECT</h4>
+<pre>public static final&nbsp;int THREAD_COUNT_AUTODETECT</pre>
+<div class="block">Attempts to use as many threads as performance processors available on the device. If the
+ number of performance processors cannot be detected, the number of available processors is
+ used.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.av1.Libgav1VideoRenderer.THREAD_COUNT_AUTODETECT">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
@@ -369,7 +406,9 @@ extends <a href="../../../../../../com/google/android/exoplayer2/video/SimpleDec
 <dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
 <dd><code>maxDroppedFramesToNotify</code> - The maximum number of frames that can be dropped between
      invocations of <a href="../../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onDroppedFrames-int-long-"><code>VideoRendererEventListener.onDroppedFrames(int, long)</code></a>.</dd>
-<dd><code>threads</code> - Number of threads libgav1 will use to decode.</dd>
+<dd><code>threads</code> - Number of threads libgav1 will use to decode. If
+     <a href="../../../../../../com/google/android/exoplayer2/ext/av1/Libgav1VideoRenderer.html#THREAD_COUNT_AUTODETECT"><code>THREAD_COUNT_AUTODETECT</code></a> is passed, then the number of threads to use is
+     auto-detected based on CPU capabilities.</dd>
 <dd><code>numInputBuffers</code> - Number of input buffers.</dd>
 <dd><code>numOutputBuffers</code> - Number of output buffers.</dd>
 </dl>
@@ -556,13 +595,13 @@ protected&nbsp;int&nbsp;supportsFormatInternal(@Nullable
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.video.SimpleDecoderVideoRenderer">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

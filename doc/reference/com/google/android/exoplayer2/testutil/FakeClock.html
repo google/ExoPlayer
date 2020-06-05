@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -152,7 +152,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/Clock.html
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html#FakeClock-long-">FakeClock</a></span>(long&nbsp;initialTimeMs)</code>
-<div class="block">Create <a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeClock</code></a> with an arbitrary initial timestamp.</div>
+<div class="block">Creates a fake clock assuming the system was booted exactly at time <code>0</code> (the Unix Epoch)
+ and <code>initialTimeMs</code> milliseconds have passed since system boot.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html#FakeClock-long-long-">FakeClock</a></span>(long&nbsp;bootTimeMs,
+         long&nbsp;initialTimeMs)</code>
+<div class="block">Creates a fake clock specifying when the system was booted and how much time has passed since
+ then.</div>
 </td>
 </tr>
 </table>
@@ -202,13 +210,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/Clock.html
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html#elapsedRealtime--">elapsedRealtime</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html#currentTimeMillis--">currentTimeMillis</a></span>()</code>
+<div class="block">Returns the current time in milliseconds since the Unix Epoch.</div>
+</td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html#elapsedRealtime--">elapsedRealtime</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html#sleep-long-">sleep</a></span>(long&nbsp;sleepTimeMs)</code>&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html#uptimeMillis--">uptimeMillis</a></span>()</code>&nbsp;</td>
 </tr>
@@ -237,14 +251,32 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/Clock.html
 <a name="FakeClock-long-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>FakeClock</h4>
 <pre>public&nbsp;FakeClock(long&nbsp;initialTimeMs)</pre>
-<div class="block">Create <a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeClock</code></a> with an arbitrary initial timestamp.</div>
+<div class="block">Creates a fake clock assuming the system was booted exactly at time <code>0</code> (the Unix Epoch)
+ and <code>initialTimeMs</code> milliseconds have passed since system boot.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>initialTimeMs</code> - Initial timestamp in milliseconds.</dd>
+<dd><code>initialTimeMs</code> - The initial elapsed time since the boot time, in milliseconds.</dd>
+</dl>
+</li>
+</ul>
+<a name="FakeClock-long-long-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>FakeClock</h4>
+<pre>public&nbsp;FakeClock(long&nbsp;bootTimeMs,
+                 long&nbsp;initialTimeMs)</pre>
+<div class="block">Creates a fake clock specifying when the system was booted and how much time has passed since
+ then.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bootTimeMs</code> - The time the system was booted since the Unix Epoch, in milliseconds.</dd>
+<dd><code>initialTimeMs</code> - The initial elapsed time since the boot time, in milliseconds.</dd>
 </dl>
 </li>
 </ul>
@@ -267,6 +299,23 @@ implements <a href="../../../../../com/google/android/exoplayer2/util/Clock.html
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeDiffMs</code> - The amount of time to add to the timestamp in milliseconds.</dd>
+</dl>
+</li>
+</ul>
+<a name="currentTimeMillis--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentTimeMillis</h4>
+<pre>public&nbsp;long&nbsp;currentTimeMillis()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/util/Clock.html#currentTimeMillis--">Clock</a></code></span></div>
+<div class="block">Returns the current time in milliseconds since the Unix Epoch.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/util/Clock.html#currentTimeMillis--">currentTimeMillis</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/java/lang/System.html#currentTimeMillis--" title="class or interface in java.lang" target="_top"><code>System.currentTimeMillis()</code></a></dd>
 </dl>
 </li>
 </ul>

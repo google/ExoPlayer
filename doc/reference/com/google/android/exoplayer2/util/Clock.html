@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -98,7 +98,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/testutil/AutoAdvancingFakeClock.html" title="class in com.google.android.exoplayer2.testutil">AutoAdvancingFakeClock</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html" title="class in com.google.android.exoplayer2.testutil">FakeClock</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/testutil/AutoAdvancingFakeClock.html" title="class in com.google.android.exoplayer2.testutil">AutoAdvancingFakeClock</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/FakeClock.html" title="class in com.google.android.exoplayer2.testutil">FakeClock</a>, <a href="../../../../../com/google/android/exoplayer2/util/SystemClock.html" title="class in com.google.android.exoplayer2.util">SystemClock</a></dd>
 </dl>
 <hr>
 <br>
@@ -154,13 +154,19 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Clock.html#elapsedRealtime--">elapsedRealtime</a></span>()</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Clock.html#currentTimeMillis--">currentTimeMillis</a></span>()</code>
+<div class="block">Returns the current time in milliseconds since the Unix Epoch.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Clock.html#elapsedRealtime--">elapsedRealtime</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Clock.html#sleep-long-">sleep</a></span>(long&nbsp;sleepTimeMs)</code>&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Clock.html#uptimeMillis--">uptimeMillis</a></span>()</code>&nbsp;</td>
 </tr>
@@ -197,6 +203,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="currentTimeMillis--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentTimeMillis</h4>
+<pre>long&nbsp;currentTimeMillis()</pre>
+<div class="block">Returns the current time in milliseconds since the Unix Epoch.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/java/lang/System.html#currentTimeMillis--" title="class or interface in java.lang" target="_top"><code>System.currentTimeMillis()</code></a></dd>
+</dl>
+</li>
+</ul>
 <a name="elapsedRealtime--">
 <!--   -->
 </a>

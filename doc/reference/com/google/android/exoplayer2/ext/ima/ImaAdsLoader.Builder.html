@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -119,6 +119,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#DEFAULT_AD_PRELOAD_TIMEOUT_MS">DEFAULT_AD_PRELOAD_TIMEOUT_MS</a></span></code>
+<div class="block">The default duration in milliseconds for which the player must buffer while preloading an ad
+ group before that ad group is skipped and marked as having failed to load.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -170,35 +192,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdPreloadTimeoutMs-long-">setAdPreloadTimeoutMs</a></span>(long&nbsp;adPreloadTimeoutMs)</code>
+<div class="block">Sets the duration in milliseconds for which the player must buffer while preloading an ad
+ group before that ad group is skipped and marked as having failed to load.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdUiElements-java.util.Set-">setAdUiElements</a></span>(<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" target="_top">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</code>
 <div class="block">Sets the ad UI elements to be rendered by the IMA SDK.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setFocusSkipButtonWhenAvailable-boolean-">setFocusSkipButtonWhenAvailable</a></span>(boolean&nbsp;focusSkipButtonWhenAvailable)</code>
 <div class="block">Sets whether to focus the skip button (when available) on Android TV devices.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setImaSdkSettings-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">setImaSdkSettings</a></span>(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</code>
 <div class="block">Sets the IMA SDK settings.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMaxMediaBitrate-int-">setMaxMediaBitrate</a></span>(int&nbsp;bitrate)</code>
 <div class="block">Sets the media maximum recommended bitrate for ads, in bps.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMediaLoadTimeoutMs-int-">setMediaLoadTimeoutMs</a></span>(int&nbsp;mediaLoadTimeoutMs)</code>
 <div class="block">Sets the ad media load timeout, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setVastLoadTimeoutMs-int-">setVastLoadTimeoutMs</a></span>(int&nbsp;vastLoadTimeoutMs)</code>
 <div class="block">Sets the VAST load timeout, in milliseconds.</div>
@@ -220,6 +249,33 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="DEFAULT_AD_PRELOAD_TIMEOUT_MS">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_AD_PRELOAD_TIMEOUT_MS</h4>
+<pre>public static final&nbsp;long DEFAULT_AD_PRELOAD_TIMEOUT_MS</pre>
+<div class="block">The default duration in milliseconds for which the player must buffer while preloading an ad
+ group before that ad group is skipped and marked as having failed to load.
+
+ <p>This value should be large enough not to trigger discarding the ad when it actually might
+ load soon, but small enough so that user is not waiting for too long.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdPreloadTimeoutMs-long-"><code>setAdPreloadTimeoutMs(long)</code></a>, 
+<a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.ima.ImaAdsLoader.Builder.DEFAULT_AD_PRELOAD_TIMEOUT_MS">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
@@ -298,6 +354,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd>This builder, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><code>AdsRenderingSettings.setUiElements(Set)</code></dd>
+</dl>
+</li>
+</ul>
+<a name="setAdPreloadTimeoutMs-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdPreloadTimeoutMs</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdPreloadTimeoutMs(long&nbsp;adPreloadTimeoutMs)</pre>
+<div class="block">Sets the duration in milliseconds for which the player must buffer while preloading an ad
+ group before that ad group is skipped and marked as having failed to load. Pass <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there should be no such timeout. The default value is <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#DEFAULT_AD_PRELOAD_TIMEOUT_MS">10000L</a> ms.
+
+ <p>The purpose of this timeout is to avoid playback getting stuck in the unexpected case that
+ the IMA SDK does not load an ad break based on the player's reported content position.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adPreloadTimeoutMs</code> - The timeout buffering duration in milliseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> for no timeout.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
 </dl>
 </li>
 </ul>
@@ -463,13 +539,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -198,13 +198,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#equals-java.lang.Object-">equals</a></span>(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;obj)</code>&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getAdCountInAdGroup-int-">getAdCountInAdGroup</a></span>(int&nbsp;adGroupIndex)</code>
 <div class="block">Returns the number of ads in the ad group at index <code>adGroupIndex</code>, or
  <a href="../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if not yet known.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getAdDurationUs-int-int-">getAdDurationUs</a></span>(int&nbsp;adGroupIndex,
                int&nbsp;adIndexInAdGroup)</code>
@@ -212,60 +216,60 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <code>adGroupIndex</code>, in microseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not yet known.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getAdGroupCount--">getAdGroupCount</a></span>()</code>
 <div class="block">Returns the number of ad groups in the period.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getAdGroupIndexAfterPositionUs-long-">getAdGroupIndexAfterPositionUs</a></span>(long&nbsp;positionUs)</code>
-<div class="block">Returns the index of the next ad group after <code>positionUs</code> that has ads remaining to be
- played.</div>
-</td>
-</tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getAdGroupIndexForPositionUs-long-">getAdGroupIndexForPositionUs</a></span>(long&nbsp;positionUs)</code>
-<div class="block">Returns the index of the ad group at or before <code>positionUs</code>, if that ad group is
- unplayed.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getAdGroupIndexAfterPositionUs-long-">getAdGroupIndexAfterPositionUs</a></span>(long&nbsp;positionUs)</code>
+<div class="block">Returns the index of the next ad group after <code>positionUs</code> in the period that has ads
+ remaining to be played.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getAdGroupIndexForPositionUs-long-">getAdGroupIndexForPositionUs</a></span>(long&nbsp;positionUs)</code>
+<div class="block">Returns the index of the ad group at or before <code>positionUs</code> in the period, if that ad
+ group is unplayed.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getAdGroupTimeUs-int-">getAdGroupTimeUs</a></span>(int&nbsp;adGroupIndex)</code>
 <div class="block">Returns the time of the ad group at index <code>adGroupIndex</code> in the period, in
  microseconds.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getAdResumePositionUs--">getAdResumePositionUs</a></span>()</code>
 <div class="block">Returns the position offset in the first unplayed ad at which to begin playback, in
  microseconds.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getDurationMs--">getDurationMs</a></span>()</code>
 <div class="block">Returns the duration of the period in milliseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getDurationUs--">getDurationUs</a></span>()</code>
 <div class="block">Returns the duration of this period in microseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getFirstAdIndexToPlay-int-">getFirstAdIndexToPlay</a></span>(int&nbsp;adGroupIndex)</code>
 <div class="block">Returns the index of the first ad in the specified ad group that should be played, or the
  number of ads in the ad group if no ads should be played.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getNextAdIndexToPlay-int-int-">getNextAdIndexToPlay</a></span>(int&nbsp;adGroupIndex,
                     int&nbsp;lastPlayedAdIndex)</code>
@@ -274,34 +278,38 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  be played.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getPositionInWindowMs--">getPositionInWindowMs</a></span>()</code>
 <div class="block">Returns the position of the start of this period relative to the start of the window to which
  it belongs, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#getPositionInWindowUs--">getPositionInWindowUs</a></span>()</code>
 <div class="block">Returns the position of the start of this period relative to the start of the window to which
  it belongs, in microseconds.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#hasPlayedAdGroup-int-">hasPlayedAdGroup</a></span>(int&nbsp;adGroupIndex)</code>
 <div class="block">Returns whether the ad group at index <code>adGroupIndex</code> has been played.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#isAdAvailable-int-int-">isAdAvailable</a></span>(int&nbsp;adGroupIndex,
              int&nbsp;adIndexInAdGroup)</code>
 <div class="block">Returns whether the URL for the specified ad is known.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#set-java.lang.Object-java.lang.Object-int-long-long-">set</a></span>(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;id,
    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;uid,
@@ -311,7 +319,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets the data held by this period.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Timeline.Period.html#set-java.lang.Object-java.lang.Object-int-long-long-com.google.android.exoplayer2.source.ads.AdPlaybackState-">set</a></span>(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;id,
    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;uid,
@@ -328,7 +336,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -545,7 +553,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adGroupIndex</code> - The ad group index.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The time of the ad group at the index, in microseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> for a post-roll ad group.</dd>
+<dd>The time of the ad group at the index relative to the start of the enclosing <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, in microseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> for a post-roll ad group.</dd>
 </dl>
 </li>
 </ul>
@@ -611,12 +619,12 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <li class="blockList">
 <h4>getAdGroupIndexForPositionUs</h4>
 <pre>public&nbsp;int&nbsp;getAdGroupIndexForPositionUs(long&nbsp;positionUs)</pre>
-<div class="block">Returns the index of the ad group at or before <code>positionUs</code>, if that ad group is
- unplayed. Returns <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the ad group at or before <code>positionUs</code> has
- no ads remaining to be played, or if there is no such ad group.</div>
+<div class="block">Returns the index of the ad group at or before <code>positionUs</code> in the period, if that ad
+ group is unplayed. Returns <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the ad group at or before <code>positionUs</code> has no ads remaining to be played, or if there is no such ad group.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>positionUs</code> - The position at or before which to find an ad group, in microseconds.</dd>
+<dd><code>positionUs</code> - The period position at or before which to find an ad group, in
+     microseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The index of the ad group, or <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</dd>
 </dl>
@@ -629,11 +637,11 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <li class="blockList">
 <h4>getAdGroupIndexAfterPositionUs</h4>
 <pre>public&nbsp;int&nbsp;getAdGroupIndexAfterPositionUs(long&nbsp;positionUs)</pre>
-<div class="block">Returns the index of the next ad group after <code>positionUs</code> that has ads remaining to be
- played. Returns <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no such ad group.</div>
+<div class="block">Returns the index of the next ad group after <code>positionUs</code> in the period that has ads
+ remaining to be played. Returns <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no such ad group.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>positionUs</code> - The position after which to find an ad group, in microseconds.</dd>
+<dd><code>positionUs</code> - The period position after which to find an ad group, in microseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The index of the ad group, or <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</dd>
 </dl>
@@ -696,12 +704,39 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <a name="getAdResumePositionUs--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getAdResumePositionUs</h4>
 <pre>public&nbsp;long&nbsp;getAdResumePositionUs()</pre>
 <div class="block">Returns the position offset in the first unplayed ad at which to begin playback, in
  microseconds.</div>
+</li>
+</ul>
+<a name="equals-java.lang.Object-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>equals</h4>
+<pre>public&nbsp;boolean&nbsp;equals(@Nullable
+                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;obj)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals-java.lang.Object-" title="class or interface in java.lang">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="hashCode--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>hashCode</h4>
+<pre>public&nbsp;int&nbsp;hashCode()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode--" title="class or interface in java.lang">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" target="_top">Object</a></code></dd>
+</dl>
 </li>
 </ul>
 </li>

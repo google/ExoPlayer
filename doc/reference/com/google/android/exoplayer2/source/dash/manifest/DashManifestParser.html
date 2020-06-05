@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":9,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":9,"i22":10,"i23":10,"i24":10,"i25":9,"i26":9,"i27":9,"i28":9,"i29":9,"i30":10,"i31":10,"i32":10,"i33":9,"i34":10,"i35":9,"i36":10,"i37":9,"i38":9,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":9,"i53":9,"i54":10,"i55":10,"i56":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":9,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":9,"i22":10,"i23":10,"i24":10,"i25":9,"i26":9,"i27":9,"i28":9,"i29":9,"i30":10,"i31":10,"i32":10,"i33":9,"i34":10,"i35":9,"i36":10,"i37":9,"i38":9,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":9,"i54":9,"i55":10,"i56":10,"i57":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -177,10 +177,11 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest">AdaptationSet</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildAdaptationSet-int-int-java.util.List-java.util.List-java.util.List-">buildAdaptationSet</a></span>(int&nbsp;id,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildAdaptationSet-int-int-java.util.List-java.util.List-java.util.List-java.util.List-">buildAdaptationSet</a></span>(int&nbsp;id,
                   int&nbsp;contentType,
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Representation</a>&gt;&nbsp;representations,
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
+                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code>&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -201,7 +202,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildFormat-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-java.util.List-java.util.List-java.lang.String-java.util.List-">buildFormat</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;id,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#buildFormat-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-java.util.List-java.util.List-java.lang.String-java.util.List-java.util.List-">buildFormat</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;id,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;containerMimeType,
            int&nbsp;width,
            int&nbsp;height,
@@ -213,6 +214,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;codecs,
+           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code>&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
@@ -466,7 +468,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </tr>
 <tr id="i43" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-long-">parseRepresentation</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-java.util.List-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-long-">parseRepresentation</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;baseUrl,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;adaptationSetMimeType,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;adaptationSetCodecs,
@@ -478,6 +480,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;adaptationSetLanguage,
                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetRoleDescriptors,
                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetAccessibilityDescriptors,
+                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetEssentialProperties,
                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetSupplementalProperties,
                    <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
                    long&nbsp;periodDurationMs)</code>&nbsp;</td>
@@ -488,62 +491,66 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </tr>
 <tr id="i45" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRoleFlagsFromRoleDescriptors-java.util.List-">parseRoleFlagsFromRoleDescriptors</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRoleFlagsFromProperties-java.util.List-">parseRoleFlagsFromProperties</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code>&nbsp;</td>
 </tr>
 <tr id="i46" class="altColor">
+<td class="colFirst"><code>protected int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseRoleFlagsFromRoleDescriptors-java.util.List-">parseRoleFlagsFromRoleDescriptors</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code>&nbsp;</td>
+</tr>
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseSegmentBase-org.xmlpull.v1.XmlPullParser-com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase-">parseSegmentBase</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;parent)</code>&nbsp;</td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseSegmentList-org.xmlpull.v1.XmlPullParser-com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentList-long-">parseSegmentList</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a>&nbsp;parent,
                 long&nbsp;periodDurationMs)</code>&nbsp;</td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseSegmentTemplate-org.xmlpull.v1.XmlPullParser-com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTemplate-java.util.List-long-">parseSegmentTemplate</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp,
                     <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a>&nbsp;parent,
                     <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetSupplementalProperties,
                     long&nbsp;periodDurationMs)</code>&nbsp;</td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseSegmentTimeline-org.xmlpull.v1.XmlPullParser-long-long-">parseSegmentTimeline</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp,
                     long&nbsp;timescale,
                     long&nbsp;periodDurationMs)</code>&nbsp;</td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseSegmentUrl-org.xmlpull.v1.XmlPullParser-">parseSegmentUrl</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp)</code>&nbsp;</td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseSelectionFlagsFromRoleDescriptors-java.util.List-">parseSelectionFlagsFromRoleDescriptors</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code>&nbsp;</td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseString-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-">parseString</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;name,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;defaultValue)</code>&nbsp;</td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseText-org.xmlpull.v1.XmlPullParser-java.lang.String-">parseText</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp,
          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;label)</code>&nbsp;</td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseTvaAudioPurposeCsValue-java.lang.String-">parseTvaAudioPurposeCsValue</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;value)</code>&nbsp;</td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseUrlTemplate-org.xmlpull.v1.XmlPullParser-java.lang.String-com.google.android.exoplayer2.source.dash.manifest.UrlTemplate-">parseUrlTemplate</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;name,
                 <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;defaultValue)</code>&nbsp;</td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifestParser.html#parseUtcTiming-org.xmlpull.v1.XmlPullParser-">parseUtcTiming</a></span>(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" target="_top">XmlPullParser</a>&nbsp;xpp)</code>&nbsp;</td>
 </tr>
@@ -730,7 +737,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </dl>
 </li>
 </ul>
-<a name="buildAdaptationSet-int-int-java.util.List-java.util.List-java.util.List-">
+<a name="buildAdaptationSet-int-int-java.util.List-java.util.List-java.util.List-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -740,6 +747,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
                                            int&nbsp;contentType,
                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Representation</a>&gt;&nbsp;representations,
                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
+                                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
 </li>
 </ul>
@@ -802,7 +810,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </dl>
 </li>
 </ul>
-<a name="parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-long-">
+<a name="parseRepresentation-org.xmlpull.v1.XmlPullParser-java.lang.String-java.lang.String-java.lang.String-int-int-float-int-int-java.lang.String-java.util.List-java.util.List-java.util.List-java.util.List-com.google.android.exoplayer2.source.dash.manifest.SegmentBase-long-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -823,6 +831,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
                                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;adaptationSetLanguage,
                                                                     <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetRoleDescriptors,
                                                                     <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetAccessibilityDescriptors,
+                                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetEssentialProperties,
                                                                     <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;adaptationSetSupplementalProperties,
                                                                     @Nullable
                                                                     <a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/SegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase</a>&nbsp;segmentBase,
@@ -836,7 +845,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
 </dl>
 </li>
 </ul>
-<a name="buildFormat-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-java.util.List-java.util.List-java.lang.String-java.util.List-">
+<a name="buildFormat-java.lang.String-java.lang.String-int-int-float-int-int-int-java.lang.String-java.util.List-java.util.List-java.lang.String-java.util.List-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -858,6 +867,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/upstream/
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
                              @Nullable
                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;codecs,
+                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
 </li>
 </ul>
@@ -1269,6 +1279,16 @@ protected&nbsp;int&nbsp;parseRoleFlagsFromRoleDescriptors(<a href="https://devel
 <h4>parseRoleFlagsFromAccessibilityDescriptors</h4>
 <pre><a href="../../../../../../../com/google/android/exoplayer2/C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@C.RoleFlags</a>
 protected&nbsp;int&nbsp;parseRoleFlagsFromAccessibilityDescriptors(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+</li>
+</ul>
+<a name="parseRoleFlagsFromProperties-java.util.List-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseRoleFlagsFromProperties</h4>
+<pre><a href="../../../../../../../com/google/android/exoplayer2/C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@C.RoleFlags</a>
+protected&nbsp;int&nbsp;parseRoleFlagsFromProperties(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/dash/manifest/Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
 </li>
 </ul>
 <a name="parseDashRoleSchemeValue-java.lang.String-">

@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.audio.BaseAudioProcessor">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -146,6 +146,31 @@ extends <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioPro
 <!--   -->
 </a>
 <h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#DEFAULT_MINIMUM_SILENCE_DURATION_US">DEFAULT_MINIMUM_SILENCE_DURATION_US</a></span></code>
+<div class="block">The default value for <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#SilenceSkippingAudioProcessor-long-long-short-"><code>minimumSilenceDurationUs</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#DEFAULT_PADDING_SILENCE_US">DEFAULT_PADDING_SILENCE_US</a></span></code>
+<div class="block">The default value for <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#SilenceSkippingAudioProcessor-long-long-short-"><code>paddingSilenceUs</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static short</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#DEFAULT_SILENCE_THRESHOLD_LEVEL">DEFAULT_SILENCE_THRESHOLD_LEVEL</a></span></code>
+<div class="block">The default value for <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#SilenceSkippingAudioProcessor-long-long-short-"><code>silenceThresholdLevel</code></a>.</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.audio.BaseAudioProcessor">
 <!--   -->
@@ -175,7 +200,14 @@ extends <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioPro
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#SilenceSkippingAudioProcessor--">SilenceSkippingAudioProcessor</a></span>()</code>
-<div class="block">Creates a new silence trimming audio processor.</div>
+<div class="block">Creates a new silence skipping audio processor.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#SilenceSkippingAudioProcessor-long-long-short-">SilenceSkippingAudioProcessor</a></span>(long&nbsp;minimumSilenceDurationUs,
+                             long&nbsp;paddingSilenceUs,
+                             short&nbsp;silenceThresholdLevel)</code>
+<div class="block">Creates a new silence skipping audio processor.</div>
 </td>
 </tr>
 </table>
@@ -265,6 +297,56 @@ extends <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioPro
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="DEFAULT_MINIMUM_SILENCE_DURATION_US">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_MINIMUM_SILENCE_DURATION_US</h4>
+<pre>public static final&nbsp;long DEFAULT_MINIMUM_SILENCE_DURATION_US</pre>
+<div class="block">The default value for <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#SilenceSkippingAudioProcessor-long-long-short-"><code>minimumSilenceDurationUs</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor.DEFAULT_MINIMUM_SILENCE_DURATION_US">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_PADDING_SILENCE_US">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DEFAULT_PADDING_SILENCE_US</h4>
+<pre>public static final&nbsp;long DEFAULT_PADDING_SILENCE_US</pre>
+<div class="block">The default value for <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#SilenceSkippingAudioProcessor-long-long-short-"><code>paddingSilenceUs</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor.DEFAULT_PADDING_SILENCE_US">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_SILENCE_THRESHOLD_LEVEL">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_SILENCE_THRESHOLD_LEVEL</h4>
+<pre>public static final&nbsp;short DEFAULT_SILENCE_THRESHOLD_LEVEL</pre>
+<div class="block">The default value for <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html#SilenceSkippingAudioProcessor-long-long-short-"><code>silenceThresholdLevel</code></a>.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor.DEFAULT_SILENCE_THRESHOLD_LEVEL">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
@@ -274,11 +356,31 @@ extends <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioPro
 <a name="SilenceSkippingAudioProcessor--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>SilenceSkippingAudioProcessor</h4>
 <pre>public&nbsp;SilenceSkippingAudioProcessor()</pre>
-<div class="block">Creates a new silence trimming audio processor.</div>
+<div class="block">Creates a new silence skipping audio processor.</div>
+</li>
+</ul>
+<a name="SilenceSkippingAudioProcessor-long-long-short-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>SilenceSkippingAudioProcessor</h4>
+<pre>public&nbsp;SilenceSkippingAudioProcessor(long&nbsp;minimumSilenceDurationUs,
+                                     long&nbsp;paddingSilenceUs,
+                                     short&nbsp;silenceThresholdLevel)</pre>
+<div class="block">Creates a new silence skipping audio processor.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minimumSilenceDurationUs</code> - The minimum duration of audio that must be below <code>silenceThresholdLevel</code> to classify that part of audio as silent, in microseconds.</dd>
+<dd><code>paddingSilenceUs</code> - The duration of silence by which to extend non-silent sections, in
+     microseconds. The value must not exceed <code>minimumSilenceDurationUs</code>.</dd>
+<dd><code>silenceThresholdLevel</code> - The absolute level below which an individual PCM sample is
+     classified as silent.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -468,13 +570,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/audio/BaseAudioPro
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.audio.BaseAudioProcessor">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
