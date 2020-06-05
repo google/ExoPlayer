@@ -15,14 +15,15 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.common.truth.Truth.assertThat;
 
-import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -68,7 +69,12 @@ public class FakeMediaSource extends BaseMediaSource {
     }
   }
 
-  private static final DataSpec FAKE_DATA_SPEC = new DataSpec(Uri.parse("http://manifest.uri"));
+  /** The media item used by the fake media source. */
+  public static final MediaItem FAKE_MEDIA_ITEM =
+      new MediaItem.Builder().setUri("http://manifest.uri").build();
+
+  private static final DataSpec FAKE_DATA_SPEC =
+      new DataSpec(castNonNull(FAKE_MEDIA_ITEM.playbackProperties).uri);
   private static final int MANIFEST_LOAD_BYTES = 100;
 
   private final TrackGroupArray trackGroupArray;
@@ -137,6 +143,14 @@ public class FakeMediaSource extends BaseMediaSource {
     return timeline.getWindow(0, new Timeline.Window()).tag;
   }
 
+  // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
+  public MediaItem getMediaItem() {
+    if (timeline == null || timeline.isEmpty()) {
+      return FAKE_MEDIA_ITEM;
+    }
+    return timeline.getWindow(0, new Timeline.Window()).mediaItem;
+  }
+
   @Override
   @Nullable
   public Timeline getInitialTimeline() {
@@ -172,7 +186,7 @@ public class FakeMediaSource extends BaseMediaSource {
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
-    int periodIndex = Util.castNonNull(timeline).getIndexOfPeriod(id.periodUid);
+    int periodIndex = castNonNull(timeline).getIndexOfPeriod(id.periodUid);
     Assertions.checkArgument(periodIndex != C.INDEX_UNSET);
     Period period = timeline.getPeriod(periodIndex, new Period());
     EventDispatcher eventDispatcher =
@@ -202,7 +216,7 @@ public class FakeMediaSource extends BaseMediaSource {
     drmSessionManager.release();
     releasedSource = true;
     preparedSource = false;
-    Util.castNonNull(sourceInfoRefreshHandler).removeCallbacksAndMessages(null);
+    castNonNull(sourceInfoRefreshHandler).removeCallbacksAndMessages(null);
     sourceInfoRefreshHandler = null;
   }
 

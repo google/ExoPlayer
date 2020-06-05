@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.net.Uri;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -66,7 +68,10 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
               initialTimeline, /* firstWindowUid= */ null, /* firstPeriodUid= */ null);
       hasRealTimeline = true;
     } else {
-      timeline = MaskingTimeline.createWithDummyTimeline(mediaSource.getTag());
+      // TODO(bachinger) Use mediasSource.getMediaItem() to provide the media item.
+      timeline =
+          MaskingTimeline.createWithDummyTimeline(
+              new MediaItem.Builder().setUri(Uri.EMPTY).setTag(mediaSource.getTag()).build());
     }
   }
 
@@ -268,9 +273,9 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
      *
      * @param windowTag A window tag.
      */
-    public static MaskingTimeline createWithDummyTimeline(@Nullable Object windowTag) {
+    public static MaskingTimeline createWithDummyTimeline(MediaItem mediaItem) {
       return new MaskingTimeline(
-          new DummyTimeline(windowTag), Window.SINGLE_WINDOW_UID, DUMMY_EXTERNAL_PERIOD_UID);
+          new DummyTimeline(mediaItem), Window.SINGLE_WINDOW_UID, DUMMY_EXTERNAL_PERIOD_UID);
     }
 
     /**
@@ -348,10 +353,11 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   @VisibleForTesting
   public static final class DummyTimeline extends Timeline {
 
-    @Nullable private final Object tag;
+    private final MediaItem mediaItem;
 
-    public DummyTimeline(@Nullable Object tag) {
-      this.tag = tag;
+    /** Creates a new instance with the given media item. */
+    public DummyTimeline(MediaItem mediaItem) {
+      this.mediaItem = mediaItem;
     }
 
     @Override
@@ -363,7 +369,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       window.set(
           Window.SINGLE_WINDOW_UID,
-          tag,
+          mediaItem,
           /* manifest= */ null,
           /* presentationStartTimeMs= */ C.TIME_UNSET,
           /* windowStartTimeMs= */ C.TIME_UNSET,

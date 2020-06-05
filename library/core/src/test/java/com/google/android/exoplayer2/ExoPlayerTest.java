@@ -126,7 +126,9 @@ public final class ExoPlayerTest {
   @Before
   public void setUp() {
     context = ApplicationProvider.getApplicationContext();
-    dummyTimeline = new MaskingMediaSource.DummyTimeline(/* tag= */ 0);
+    dummyTimeline =
+        new MaskingMediaSource.DummyTimeline(
+            FakeTimeline.FAKE_MEDIA_ITEM.buildUpon().setTag(0).build());
   }
 
   /**
@@ -136,7 +138,8 @@ public final class ExoPlayerTest {
   @Test
   public void playEmptyTimeline() throws Exception {
     Timeline timeline = Timeline.EMPTY;
-    Timeline expectedMaskingTimeline = new MaskingMediaSource.DummyTimeline(/* tag= */ null);
+    Timeline expectedMaskingTimeline =
+        new MaskingMediaSource.DummyTimeline(FakeTimeline.FAKE_MEDIA_ITEM);
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_UNKNOWN);
     ExoPlayerTestRunner testRunner =
         new ExoPlayerTestRunner.Builder(context)
@@ -1226,13 +1229,15 @@ public final class ExoPlayerTest {
         new FakeTimeline(
             new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ firstWindowId));
     Timeline firstExpectedMaskingTimeline =
-        new MaskingMediaSource.DummyTimeline(/* tag= */ firstWindowId);
+        new MaskingMediaSource.DummyTimeline(
+            FakeTimeline.FAKE_MEDIA_ITEM.buildUpon().setTag(firstWindowId).build());
     Object secondWindowId = new Object();
     Timeline secondTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ secondWindowId));
     Timeline secondExpectedMaskingTimeline =
-        new MaskingMediaSource.DummyTimeline(/* tag= */ secondWindowId);
+        new MaskingMediaSource.DummyTimeline(
+            FakeTimeline.FAKE_MEDIA_ITEM.buildUpon().setTag(secondWindowId).build());
     MediaSource secondSource = new FakeMediaSource(secondTimeline);
     AtomicLong positionAfterReprepare = new AtomicLong();
     ActionSchedule actionSchedule =
@@ -1278,13 +1283,15 @@ public final class ExoPlayerTest {
         new FakeTimeline(
             new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ firstWindowId));
     Timeline firstExpectedDummyTimeline =
-        new MaskingMediaSource.DummyTimeline(/* tag= */ firstWindowId);
+        new MaskingMediaSource.DummyTimeline(
+            FakeTimeline.FAKE_MEDIA_ITEM.buildUpon().setTag(firstWindowId).build());
     Object secondWindowId = new Object();
     Timeline secondTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ secondWindowId));
     Timeline secondExpectedDummyTimeline =
-        new MaskingMediaSource.DummyTimeline(/* tag= */ secondWindowId);
+        new MaskingMediaSource.DummyTimeline(
+            FakeTimeline.FAKE_MEDIA_ITEM.buildUpon().setTag(secondWindowId).build());
     MediaSource secondSource = new FakeMediaSource(secondTimeline);
     AtomicLong positionAfterReprepare = new AtomicLong();
     ActionSchedule actionSchedule =
@@ -1330,13 +1337,15 @@ public final class ExoPlayerTest {
         new FakeTimeline(
             new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ firstWindowId));
     Timeline firstExpectedDummyTimeline =
-        new MaskingMediaSource.DummyTimeline(/* tag= */ firstWindowId);
+        new MaskingMediaSource.DummyTimeline(
+            FakeTimeline.FAKE_MEDIA_ITEM.buildUpon().setTag(firstWindowId).build());
     Object secondWindowId = new Object();
     Timeline secondTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ secondWindowId));
     Timeline secondExpectedDummyTimeline =
-        new MaskingMediaSource.DummyTimeline(/* tag= */ secondWindowId);
+        new MaskingMediaSource.DummyTimeline(
+            FakeTimeline.FAKE_MEDIA_ITEM.buildUpon().setTag(secondWindowId).build());
     MediaSource secondSource = new FakeMediaSource(secondTimeline);
     AtomicLong positionAfterReprepare = new AtomicLong();
     ActionSchedule actionSchedule =

@@ -18,9 +18,11 @@ package com.google.android.exoplayer2.source;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
@@ -171,7 +173,7 @@ public final class ClippingMediaSourceTest {
     // Timeline that's dynamic and not seekable. A child source might report such a timeline prior
     // to it having loaded sufficient data to establish its duration and seekability. Such timelines
     // should not result in clipping failure.
-    Timeline timeline = new DummyTimeline(/* tag= */ null);
+    Timeline timeline = new DummyTimeline(MediaItem.fromUri(Uri.EMPTY));
 
     Timeline clippedTimeline =
         getClippedTimeline(
