@@ -131,7 +131,10 @@ public final class Requirements implements Parcelable {
     ConnectivityManager connectivityManager =
         (ConnectivityManager)
             Assertions.checkNotNull(context.getSystemService(Context.CONNECTIVITY_SERVICE));
-    if (!isInternetConnectivityValidated(connectivityManager)) {
+    @Nullable NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+    if (networkInfo == null
+        || !networkInfo.isConnected()
+        || !isInternetConnectivityValidated(connectivityManager)) {
       return requirements & (NETWORK | NETWORK_UNMETERED);
     }
 
@@ -164,11 +167,10 @@ public final class Requirements implements Parcelable {
   private static boolean isInternetConnectivityValidated(ConnectivityManager connectivityManager) {
     // It's possible to check NetworkCapabilities.NET_CAPABILITY_VALIDATED from API level 23, but
     // RequirementsWatcher only fires an event to re-check the requirements when NetworkCapabilities
-    // change from API level 24. We use the legacy path for API level 23 here to keep in sync.
+    // change from API level 24. We assume that network capability is validated for API level 23 to
+    // keep in sync.
     if (Util.SDK_INT < 24) {
-      // Legacy path.
-      @Nullable NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-      return networkInfo != null && networkInfo.isConnected();
+      return true;
     }
 
     @Nullable Network activeNetwork = connectivityManager.getActiveNetwork();
