@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer2.source;
 
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.AbstractConcatenatedTimeline;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource.MediaSourceHolder;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
@@ -53,6 +55,9 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   private static final int MSG_SET_SHUFFLE_ORDER = 3;
   private static final int MSG_UPDATE_TIMELINE = 4;
   private static final int MSG_ON_COMPLETION = 5;
+
+  private static final MediaItem DUMMY_MEDIA_ITEM =
+      new MediaItem.Builder().setUri(Uri.EMPTY).build();
 
   // Accessed on any thread.
   @GuardedBy("this")
@@ -437,10 +442,11 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
 
   // CompositeMediaSource implementation.
 
-  @Override
-  @Nullable
-  public Object getTag() {
-    return null;
+  // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
+  public MediaItem getMediaItem() {
+    // This method is actually never called because getInitialTimeline is implemented and hence the
+    // MaskingMediaSource does not need to create a dummy timeline for this media source.
+    return DUMMY_MEDIA_ITEM;
   }
 
   @Override
@@ -990,10 +996,9 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
       // Do nothing.
     }
 
-    @Override
-    @Nullable
-    public Object getTag() {
-      return null;
+    // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
+    public MediaItem getMediaItem() {
+      return DUMMY_MEDIA_ITEM;
     }
 
     @Override
