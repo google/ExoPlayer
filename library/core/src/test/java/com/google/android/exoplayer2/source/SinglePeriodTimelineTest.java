@@ -50,7 +50,7 @@ public final class SinglePeriodTimelineTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* mediaItem= */ null);
+            MediaItem.fromUri(Uri.EMPTY));
     // Should return null with any positive position projection.
     Pair<Object, Long> position = timeline.getPeriodPosition(window, period, 0, C.TIME_UNSET, 1);
     assertThat(position).isNull();
@@ -73,7 +73,7 @@ public final class SinglePeriodTimelineTest {
             /* isDynamic= */ true,
             /* isLive= */ true,
             /* manifest= */ null,
-            /* mediaItem= */ null);
+            MediaItem.fromUri(Uri.EMPTY));
     // Should return null with a positive position projection beyond window duration.
     Pair<Object, Long> position =
         timeline.getPeriodPosition(window, period, 0, C.TIME_UNSET, windowDurationUs + 1);
@@ -100,26 +100,6 @@ public final class SinglePeriodTimelineTest {
             /* tag= */ (Object) null);
 
     assertThat(timeline.getWindow(/* windowIndex= */ 0, window).tag).isNull();
-    assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).id).isNull();
-    assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).id).isNull();
-    assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).uid).isNull();
-    assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid)
-        .isNotNull();
-  }
-
-  @Test
-  public void setNullMediaItem_returnsFallbackMediaItem_butUsesDefaultUid() {
-    SinglePeriodTimeline timeline =
-        new SinglePeriodTimeline(
-            /* durationUs= */ C.TIME_UNSET,
-            /* isSeekable= */ false,
-            /* isDynamic= */ false,
-            /* isLive= */ false,
-            /* manifest= */ null,
-            /* mediaItem= */ null);
-
-    assertThat(timeline.getWindow(/* windowIndex= */ 0, window).mediaItem.mediaId)
-        .isEqualTo("com.google.android.exoplayer2.Timeline");
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).id).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).id).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).uid).isNull();
@@ -171,7 +151,7 @@ public final class SinglePeriodTimelineTest {
             /* isDynamic= */ false,
             /* isLive= */ false,
             /* manifest= */ null,
-            /* mediaItem= */ null);
+            MediaItem.fromUri(Uri.EMPTY));
     Object uid = timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid;
 
     assertThat(timeline.getIndexOfPeriod(uid)).isEqualTo(0);

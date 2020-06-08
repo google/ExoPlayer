@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -61,7 +62,7 @@ public final class AdsMediaSourceTest {
           /* isDynamic= */ false,
           /* isLive= */ false,
           /* manifest= */ null,
-          /* mediaItem= */ null);
+          MediaItem.fromUri(Uri.EMPTY));
   private static final Object PREROLL_AD_PERIOD_UID =
       PREROLL_AD_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
@@ -73,7 +74,7 @@ public final class AdsMediaSourceTest {
           /* isDynamic= */ false,
           /* isLive= */ false,
           /* manifest= */ null,
-          /* mediaItem= */ null);
+          MediaItem.fromUri(Uri.EMPTY));
   private static final Object CONTENT_PERIOD_UID =
       CONTENT_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
