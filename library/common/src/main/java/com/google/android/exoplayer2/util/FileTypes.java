@@ -15,11 +15,17 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.util.MimeTypes.normalizeMimeType;
+
 import android.net.Uri;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
+import java.util.Map;
 
 /** Defines common file type constants and helper methods. */
 public final class FileTypes {
@@ -64,6 +70,8 @@ public final class FileTypes {
   /** File type for the WebVTT format. */
   public static final int WEBVTT = 13;
 
+  @VisibleForTesting /* package */ static final String HEADER_CONTENT_TYPE = "Content-Type";
+
   private static final String EXTENSION_AC3 = ".ac3";
   private static final String EXTENSION_EC3 = ".ec3";
   private static final String EXTENSION_AC4 = ".ac4";
@@ -94,13 +102,72 @@ public final class FileTypes {
 
   private FileTypes() {}
 
+  /** Returns the {@link Type} corresponding to the response headers provided. */
+  @FileTypes.Type
+  public static int inferFileTypeFromResponseHeaders(Map<String, List<String>> responseHeaders) {
+    @Nullable List<String> contentTypes = responseHeaders.get(HEADER_CONTENT_TYPE);
+    @Nullable
+    String mimeType = contentTypes == null || contentTypes.isEmpty() ? null : contentTypes.get(0);
+    return inferFileTypeFromMimeType(mimeType);
+  }
+
   /**
-   * Returns the {@link Type} corresponding to the filename extension of the provided {@link Uri}.
-   * The filename is considered to be the last segment of the {@link Uri} path.
+   * Returns the {@link Type} corresponding to the MIME type provided.
+   *
+   * <p>Returns {@link #UNKNOWN} if the mime type is {@code null}.
    */
   @FileTypes.Type
-  public static int getFormatFromExtension(Uri uri) {
-    String filename = uri.getLastPathSegment();
+  public static int inferFileTypeFromMimeType(@Nullable String mimeType) {
+    if (mimeType == null) {
+      return FileTypes.UNKNOWN;
+    }
+    mimeType = normalizeMimeType(mimeType);
+    switch (mimeType) {
+      case MimeTypes.AUDIO_AC3:
+      case MimeTypes.AUDIO_E_AC3:
+      case MimeTypes.AUDIO_E_AC3_JOC:
+        return FileTypes.AC3;
+      case MimeTypes.AUDIO_AC4:
+        return FileTypes.AC4;
+      case MimeTypes.AUDIO_AMR:
+      case MimeTypes.AUDIO_AMR_NB:
+      case MimeTypes.AUDIO_AMR_WB:
+        return FileTypes.AMR;
+      case MimeTypes.AUDIO_FLAC:
+        return FileTypes.FLAC;
+      case MimeTypes.VIDEO_FLV:
+        return FileTypes.FLV;
+      case MimeTypes.VIDEO_MATROSKA:
+      case MimeTypes.AUDIO_MATROSKA:
+      case MimeTypes.VIDEO_WEBM:
+      case MimeTypes.AUDIO_WEBM:
+      case MimeTypes.APPLICATION_WEBM:
+        return FileTypes.MATROSKA;
+      case MimeTypes.AUDIO_MPEG:
+        return FileTypes.MP3;
+      case MimeTypes.VIDEO_MP4:
+      case MimeTypes.AUDIO_MP4:
+      case MimeTypes.APPLICATION_MP4:
+        return FileTypes.MP4;
+      case MimeTypes.AUDIO_OGG:
+        return FileTypes.OGG;
+      case MimeTypes.VIDEO_PS:
+        return FileTypes.PS;
+      case MimeTypes.VIDEO_MP2T:
+        return FileTypes.TS;
+      case MimeTypes.AUDIO_WAV:
+        return FileTypes.WAV;
+      case MimeTypes.TEXT_VTT:
+        return FileTypes.WEBVTT;
+      default:
+        return FileTypes.UNKNOWN;
+    }
+  }
+
+  /** Returns the {@link Type} corresponding to the {@link Uri} provided. */
+  @FileTypes.Type
+  public static int inferFileTypeFromUri(Uri uri) {
+    @Nullable String filename = uri.getLastPathSegment();
     if (filename == null) {
       return FileTypes.UNKNOWN;
     } else if (filename.endsWith(EXTENSION_AC3) || filename.endsWith(EXTENSION_EC3)) {

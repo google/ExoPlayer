@@ -47,6 +47,7 @@ public final class MimeTypes {
   public static final String BASE_TYPE_APPLICATION = "application";
 
   public static final String VIDEO_MP4 = BASE_TYPE_VIDEO + "/mp4";
+  public static final String VIDEO_MATROSKA = BASE_TYPE_VIDEO + "/x-matroska";
   public static final String VIDEO_WEBM = BASE_TYPE_VIDEO + "/webm";
   public static final String VIDEO_H263 = BASE_TYPE_VIDEO + "/3gpp";
   public static final String VIDEO_H264 = BASE_TYPE_VIDEO + "/avc";
@@ -67,6 +68,7 @@ public final class MimeTypes {
 
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
   public static final String AUDIO_AAC = BASE_TYPE_AUDIO + "/mp4a-latm";
+  public static final String AUDIO_MATROSKA = BASE_TYPE_AUDIO + "/x-matroska";
   public static final String AUDIO_WEBM = BASE_TYPE_AUDIO + "/webm";
   public static final String AUDIO_MPEG = BASE_TYPE_AUDIO + "/mpeg";
   public static final String AUDIO_MPEG_L1 = BASE_TYPE_AUDIO + "/mpeg-L1";
@@ -91,6 +93,7 @@ public final class MimeTypes {
   public static final String AUDIO_ALAC = BASE_TYPE_AUDIO + "/alac";
   public static final String AUDIO_MSGSM = BASE_TYPE_AUDIO + "/gsm";
   public static final String AUDIO_OGG = BASE_TYPE_AUDIO + "/ogg";
+  public static final String AUDIO_WAV = BASE_TYPE_AUDIO + "/wav";
   public static final String AUDIO_UNKNOWN = BASE_TYPE_AUDIO + "/x-unknown";
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
@@ -500,6 +503,26 @@ public final class MimeTypes {
       return null;
     }
     return new Mp4aObjectType(objectTypeIndication, audioObjectTypeIndication);
+  }
+
+  /**
+   * Normalizes the MIME type provided so that equivalent MIME types are uniquely represented.
+   *
+   * @param mimeType The MIME type to normalize. The MIME type provided is returned if its
+   *     normalized form is unknown.
+   * @return The normalized MIME type.
+   */
+  public static String normalizeMimeType(String mimeType) {
+    switch (mimeType) {
+      case BASE_TYPE_AUDIO + "/x-flac":
+        return AUDIO_FLAC;
+      case BASE_TYPE_AUDIO + "/mp3":
+        return AUDIO_MPEG;
+      case BASE_TYPE_AUDIO + "/x-wav":
+        return AUDIO_WAV;
+      default:
+        return mimeType;
+    }
   }
 
   /**
