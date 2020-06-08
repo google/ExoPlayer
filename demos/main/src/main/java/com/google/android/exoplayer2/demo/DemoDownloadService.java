@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.demo.DemoApplication.DOWNLOAD_NOTIFI
 import android.app.Notification;
 import android.content.Context;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
@@ -94,7 +95,8 @@ public class DemoDownloadService extends DownloadService {
     }
 
     @Override
-    public void onDownloadChanged(@NonNull DownloadManager manager, @NonNull Download download) {
+    public void onDownloadChanged(
+        DownloadManager downloadManager, Download download, @Nullable Throwable error) {
       Notification notification;
       if (download.state == Download.STATE_COMPLETED) {
         notification =

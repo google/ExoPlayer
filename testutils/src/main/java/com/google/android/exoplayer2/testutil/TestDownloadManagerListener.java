@@ -100,7 +100,8 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   @Override
-  public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+  public void onDownloadChanged(
+      DownloadManager downloadManager, Download download, @Nullable Throwable error) {
     if (download.state == Download.STATE_FAILED) {
       failureReason = download.failureReason;
     }

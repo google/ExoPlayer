@@ -126,7 +126,9 @@ public class DownloadTracker {
 
     @Override
     public void onDownloadChanged(
-        @NonNull DownloadManager downloadManager, @NonNull Download download) {
+        @NonNull DownloadManager downloadManager,
+        @NonNull Download download,
+        @Nullable Throwable error) {
       downloads.put(download.request.uri, download);
       for (Listener listener : listeners) {
         listener.onDownloadsChanged();
