@@ -15,11 +15,17 @@
  */
 package com.google.android.exoplayer2.util;
 
-import static com.google.android.exoplayer2.util.FileTypes.getFormatFromExtension;
+import static com.google.android.exoplayer2.util.FileTypes.HEADER_CONTENT_TYPE;
+import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromMimeType;
+import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromUri;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,30 +34,64 @@ import org.junit.runner.RunWith;
 public class FileTypesTest {
 
   @Test
-  public void getFormatFromExtension_withExtension_returnsExpectedFormat() {
-    assertThat(getFormatFromExtension(Uri.parse("filename.mp3"))).isEqualTo(FileTypes.MP3);
+  public void inferFileFormat_fromResponseHeaders_returnsExpectedFormat() {
+    Map<String, List<String>> responseHeaders = new HashMap<>();
+    responseHeaders.put(HEADER_CONTENT_TYPE, Collections.singletonList(MimeTypes.VIDEO_MP4));
+
+    assertThat(FileTypes.inferFileTypeFromResponseHeaders(responseHeaders))
+        .isEqualTo(FileTypes.MP4);
   }
 
   @Test
-  public void getFormatFromExtension_withExtensionPrefix_returnsExpectedFormat() {
-    assertThat(getFormatFromExtension(Uri.parse("filename.mka"))).isEqualTo(FileTypes.MATROSKA);
+  public void inferFileFormat_fromResponseHeadersWithUnknownContentType_returnsUnknownFormat() {
+    Map<String, List<String>> responseHeaders = new HashMap<>();
+    responseHeaders.put(HEADER_CONTENT_TYPE, Collections.singletonList("unknown"));
+
+    assertThat(FileTypes.inferFileTypeFromResponseHeaders(responseHeaders))
+        .isEqualTo(FileTypes.UNKNOWN);
   }
 
   @Test
-  public void getFormatFromExtension_withUnknownExtension_returnsUnknownFormat() {
-    assertThat(getFormatFromExtension(Uri.parse("filename.unknown"))).isEqualTo(FileTypes.UNKNOWN);
+  public void inferFileFormat_fromResponseHeadersWithoutContentType_returnsUnknownFormat() {
+    assertThat(FileTypes.inferFileTypeFromResponseHeaders(new HashMap<>()))
+        .isEqualTo(FileTypes.UNKNOWN);
   }
 
   @Test
-  public void getFormatFromExtension_withUriNotEndingWithFilename_returnsExpectedFormat() {
+  public void inferFileFormat_fromMimeType_returnsExpectedFormat() {
+    assertThat(FileTypes.inferFileTypeFromMimeType("audio/x-flac")).isEqualTo(FileTypes.FLAC);
+  }
+
+  @Test
+  public void inferFileFormat_fromUnknownMimeType_returnsUnknownFormat() {
+    assertThat(inferFileTypeFromMimeType(/* mimeType= */ "unknown")).isEqualTo(FileTypes.UNKNOWN);
+  }
+
+  @Test
+  public void inferFileFormat_fromNullMimeType_returnsUnknownFormat() {
+    assertThat(inferFileTypeFromMimeType(/* mimeType= */ null)).isEqualTo(FileTypes.UNKNOWN);
+  }
+
+  @Test
+  public void inferFileFormat_fromUri_returnsExpectedFormat() {
     assertThat(
-            getFormatFromExtension(
+            inferFileTypeFromUri(
                 Uri.parse("http://www.example.com/filename.mp3?query=myquery#fragment")))
         .isEqualTo(FileTypes.MP3);
   }
 
   @Test
-  public void getFormatFromExtension_withNullFilename_returnsUnknownFormat() {
-    assertThat(getFormatFromExtension(Uri.EMPTY)).isEqualTo(FileTypes.UNKNOWN);
+  public void inferFileFormat_fromUriWithExtensionPrefix_returnsExpectedFormat() {
+    assertThat(inferFileTypeFromUri(Uri.parse("filename.mka"))).isEqualTo(FileTypes.MATROSKA);
+  }
+
+  @Test
+  public void inferFileFormat_fromUriWithUnknownExtension_returnsUnknownFormat() {
+    assertThat(inferFileTypeFromUri(Uri.parse("filename.unknown"))).isEqualTo(FileTypes.UNKNOWN);
+  }
+
+  @Test
+  public void inferFileFormat_fromEmptyUri_returnsUnknownFormat() {
+    assertThat(inferFileTypeFromUri(Uri.EMPTY)).isEqualTo(FileTypes.UNKNOWN);
   }
 }

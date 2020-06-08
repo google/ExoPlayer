@@ -1676,6 +1676,7 @@ public final class Util {
    * @param mimeType If not null, used to infer the type.
    * @return The content type.
    */
+  @C.ContentType
   public static int inferContentTypeWithMimeType(Uri uri, @Nullable String mimeType) {
     if (mimeType == null) {
       return Util.inferContentType(uri);

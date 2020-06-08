@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
-import static com.google.android.exoplayer2.util.FileTypes.getFormatFromExtension;
+import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromUri;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -272,11 +272,11 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   public synchronized Extractor[] createExtractors(Uri uri) {
     List<Extractor> extractors = new ArrayList<>(/* initialCapacity= */ 14);
 
-    @FileTypes.Type int extensionFormat = getFormatFromExtension(uri);
-    addExtractorsForFormat(extensionFormat, extractors);
+    @FileTypes.Type int inferredFileType = inferFileTypeFromUri(uri);
+    addExtractorsForFormat(inferredFileType, extractors);
 
     for (int format : DEFAULT_EXTRACTOR_ORDER) {
-      if (format != extensionFormat) {
+      if (format != inferredFileType) {
         addExtractorsForFormat(format, extractors);
       }
     }
