@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
@@ -400,13 +399,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
       // from the stream. If the manifest defines an index then the stream shouldn't, but in cases
       // where it does we should ignore it.
       if (representationHolder.segmentIndex == null) {
-        SeekMap seekMap = representationHolder.chunkExtractor.getSeekMap();
-        if (seekMap != null) {
+        @Nullable ChunkIndex chunkIndex = representationHolder.chunkExtractor.getChunkIndex();
+        if (chunkIndex != null) {
           representationHolders[trackIndex] =
               representationHolder.copyWithNewSegmentIndex(
                   new DashWrappingSegmentIndex(
-                      (ChunkIndex) seekMap,
-                      representationHolder.representation.presentationTimeOffsetUs));
+                      chunkIndex, representationHolder.representation.presentationTimeOffsetUs));
         }
       }
     }

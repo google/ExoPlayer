@@ -136,9 +136,10 @@ public final class DashUtil {
   @Nullable
   public static ChunkIndex loadChunkIndex(
       DataSource dataSource, int trackType, Representation representation) throws IOException {
+    @Nullable
     ChunkExtractor chunkExtractor =
         loadInitializationData(dataSource, trackType, representation, true);
-    return chunkExtractor == null ? null : (ChunkIndex) chunkExtractor.getSeekMap();
+    return chunkExtractor == null ? null : chunkExtractor.getChunkIndex();
   }
 
   /**
