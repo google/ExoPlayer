@@ -18,9 +18,9 @@ package com.google.android.exoplayer2.source.chunk;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import java.io.IOException;
 
@@ -50,11 +50,11 @@ public interface ChunkExtractor {
   }
 
   /**
-   * Returns the {@link SeekMap} most recently output by the extractor, or null if the extractor has
-   * not output a {@link SeekMap}.
+   * Returns the {@link ChunkIndex} most recently obtained from the chunks, or null if a {@link
+   * ChunkIndex} has not been obtained.
    */
   @Nullable
-  SeekMap getSeekMap();
+  ChunkIndex getChunkIndex();
 
   /**
    * Returns the sample {@link Format}s for the tracks identified by the extractor, or null if the

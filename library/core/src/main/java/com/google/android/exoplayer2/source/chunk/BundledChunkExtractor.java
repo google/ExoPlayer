@@ -21,6 +21,7 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -74,8 +75,8 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
 
   @Override
   @Nullable
-  public SeekMap getSeekMap() {
-    return seekMap;
+  public ChunkIndex getChunkIndex() {
+    return seekMap instanceof ChunkIndex ? (ChunkIndex) seekMap : null;
   }
 
   @Override
