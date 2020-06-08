@@ -8,9 +8,9 @@ track 0:
   sample count = 1
   format 0:
     sampleMimeType = text/vtt
-    subsampleOffsetUs = 622
+    subsampleOffsetUs = -954437176378
   sample 0:
-    time = 5522778844
+    time = 5522778622
     flags = 1
-    data = length 669, hash BC471F03
+    data = length 669, hash 350F6844
 tracksEnded = true
