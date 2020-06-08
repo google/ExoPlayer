@@ -947,7 +947,7 @@ public final class Cea608Decoder extends CeaDecoder {
       int lineAnchor;
       int line;
       // Note: Row indices are in the range [1-15].
-      if (captionMode == CC_MODE_ROLL_UP || row > (BASE_ROW / 2)) {
+      if (row > (BASE_ROW / 2)) {
         lineAnchor = Cue.ANCHOR_TYPE_END;
         line = row - BASE_ROW;
         // Two line adjustments. The first is because line indices from the bottom of the window
