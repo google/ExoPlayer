@@ -93,8 +93,10 @@ public final class DownloadManager {
      *
      * @param downloadManager The reporting instance.
      * @param download The state of the download.
+     * @param error exception occurred when a download is failed
      */
-    default void onDownloadChanged(DownloadManager downloadManager, Download download) {}
+    default void onDownloadChanged(
+        DownloadManager downloadManager, Download download, @Nullable Throwable error) {}
 
     /**
      * Called when a download is removed.
@@ -614,7 +616,7 @@ public final class DownloadManager {
       }
     } else {
       for (Listener listener : listeners) {
-        listener.onDownloadChanged(this, updatedDownload);
+        listener.onDownloadChanged(this, updatedDownload, update.error);
       }
     }
     if (waitingForRequirementsChanged) {
@@ -906,7 +908,7 @@ public final class DownloadManager {
       ArrayList<Download> updateList = new ArrayList<>(downloads);
       for (int i = 0; i < downloads.size(); i++) {
         DownloadUpdate update =
-            new DownloadUpdate(downloads.get(i), /* isRemove= */ false, updateList);
+            new DownloadUpdate(downloads.get(i), /* isRemove= */ false, updateList, null);
         mainHandler.obtainMessage(MSG_DOWNLOAD_UPDATE, update).sendToTarget();
       }
       syncTasks();
@@ -1121,7 +1123,11 @@ public final class DownloadManager {
         Log.e(TAG, "Failed to update index.", e);
       }
       DownloadUpdate update =
-          new DownloadUpdate(download, /* isRemove= */ false, new ArrayList<>(downloads));
+          new DownloadUpdate(
+              download,
+              /* isRemove= */ false,
+              new ArrayList<>(downloads),
+              finalError);
       mainHandler.obtainMessage(MSG_DOWNLOAD_UPDATE, update).sendToTarget();
     }
 
@@ -1139,7 +1145,7 @@ public final class DownloadManager {
           Log.e(TAG, "Failed to remove from database");
         }
         DownloadUpdate update =
-            new DownloadUpdate(download, /* isRemove= */ true, new ArrayList<>(downloads));
+            new DownloadUpdate(download, /* isRemove= */ true, new ArrayList<>(downloads), null);
         mainHandler.obtainMessage(MSG_DOWNLOAD_UPDATE, update).sendToTarget();
       }
     }
@@ -1194,7 +1200,7 @@ public final class DownloadManager {
         Log.e(TAG, "Failed to update index.", e);
       }
       DownloadUpdate update =
-          new DownloadUpdate(download, /* isRemove= */ false, new ArrayList<>(downloads));
+          new DownloadUpdate(download, /* isRemove= */ false, new ArrayList<>(downloads), null);
       mainHandler.obtainMessage(MSG_DOWNLOAD_UPDATE, update).sendToTarget();
       return download;
     }
@@ -1355,11 +1361,14 @@ public final class DownloadManager {
     public final Download download;
     public final boolean isRemove;
     public final List<Download> downloads;
+    @Nullable public final Throwable error;
 
-    public DownloadUpdate(Download download, boolean isRemove, List<Download> downloads) {
+    public DownloadUpdate(
+        Download download, boolean isRemove, List<Download> downloads, @Nullable Throwable error) {
       this.download = download;
       this.isRemove = isRemove;
       this.downloads = downloads;
+      this.error = error;
     }
   }
 }
