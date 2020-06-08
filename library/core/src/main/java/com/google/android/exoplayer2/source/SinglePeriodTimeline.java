@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
+import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
@@ -27,6 +30,11 @@ import com.google.android.exoplayer2.util.Assertions;
 public final class SinglePeriodTimeline extends Timeline {
 
   private static final Object UID = new Object();
+  private static final MediaItem MEDIA_ITEM =
+      new MediaItem.Builder()
+          .setMediaId("com.google.android.exoplayer2.source.SinglePeriodTimeline")
+          .setUri(Uri.EMPTY)
+          .build();
 
   private final long presentationStartTimeMs;
   private final long windowStartTimeMs;
@@ -84,7 +92,7 @@ public final class SinglePeriodTimeline extends Timeline {
       boolean isDynamic,
       boolean isLive,
       @Nullable Object manifest,
-      @Nullable MediaItem mediaItem) {
+      MediaItem mediaItem) {
     this(
         durationUs,
         durationUs,
@@ -154,7 +162,7 @@ public final class SinglePeriodTimeline extends Timeline {
       boolean isDynamic,
       boolean isLive,
       @Nullable Object manifest,
-      @Nullable MediaItem mediaItem) {
+      MediaItem mediaItem) {
     this(
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
@@ -200,7 +208,7 @@ public final class SinglePeriodTimeline extends Timeline {
         isDynamic,
         isLive,
         manifest,
-        /* mediaItem= */ null,
+        MEDIA_ITEM.buildUpon().setTag(tag).build(),
         tag);
   }
 
@@ -239,7 +247,7 @@ public final class SinglePeriodTimeline extends Timeline {
       boolean isDynamic,
       boolean isLive,
       @Nullable Object manifest,
-      @Nullable MediaItem mediaItem) {
+      MediaItem mediaItem) {
     this(
         presentationStartTimeMs,
         windowStartTimeMs,
@@ -268,7 +276,7 @@ public final class SinglePeriodTimeline extends Timeline {
       boolean isDynamic,
       boolean isLive,
       @Nullable Object manifest,
-      @Nullable MediaItem mediaItem,
+      MediaItem mediaItem,
       @Nullable Object tag) {
     this.presentationStartTimeMs = presentationStartTimeMs;
     this.windowStartTimeMs = windowStartTimeMs;
@@ -281,7 +289,7 @@ public final class SinglePeriodTimeline extends Timeline {
     this.isDynamic = isDynamic;
     this.isLive = isLive;
     this.manifest = manifest;
-    this.mediaItem = mediaItem;
+    this.mediaItem = checkNotNull(mediaItem);
     this.tag = tag;
   }
 
@@ -351,7 +359,7 @@ public final class SinglePeriodTimeline extends Timeline {
   @Override
   public Period getPeriod(int periodIndex, Period period, boolean setIds) {
     Assertions.checkIndex(periodIndex, 0, 1);
-    Object uid = setIds ? UID : null;
+    @Nullable Object uid = setIds ? UID : null;
     return period.set(/* id= */ null, uid, 0, periodDurationUs, -windowPositionInPeriodUs);
   }
 

@@ -57,7 +57,7 @@ public final class MediaPeriodQueueTest {
           /* isDynamic= */ false,
           /* isLive= */ false,
           /* manifest= */ null,
-          /* mediaItem= */ null);
+          MediaItem.fromUri(Uri.EMPTY));
   private static final Uri AD_URI = Uri.EMPTY;
 
   private MediaPeriodQueue mediaPeriodQueue;
