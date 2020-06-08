@@ -34,7 +34,7 @@ import com.google.android.exoplayer2.util.Log;
 
   private long processedSamples;
   private long anchorTimestampUs;
-  private boolean audioHeaderInvalid;
+  private boolean seenInvalidMpegAudioHeader;
 
   /**
    * Resets the timestamp tracker.
@@ -44,7 +44,7 @@ import com.google.android.exoplayer2.util.Log;
   public void reset() {
     processedSamples = 0;
     anchorTimestampUs = 0;
-    audioHeaderInvalid = false;
+    seenInvalidMpegAudioHeader = false;
   }
 
   /**
@@ -55,7 +55,7 @@ import com.google.android.exoplayer2.util.Log;
    * @return The expected output presentation time, in microseconds.
    */
   public long updateAndGetPresentationTimeUs(Format format, DecoderInputBuffer buffer) {
-    if (audioHeaderInvalid || buffer.data == null) {
+    if (seenInvalidMpegAudioHeader || buffer.data == null) {
       return buffer.timeUs;
     }
 
@@ -70,6 +70,7 @@ import com.google.android.exoplayer2.util.Log;
 
     int frameCount = MpegAudioUtil.parseMpegAudioFrameSampleCount(sampleHeaderData);
     if (frameCount == C.LENGTH_UNSET) {
+      seenInvalidMpegAudioHeader = true;
       Log.w(TAG, "MPEG audio header is invalid.");
       return buffer.timeUs;
     }
