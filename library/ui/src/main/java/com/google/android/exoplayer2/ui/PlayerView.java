@@ -1001,6 +1001,46 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   /**
+   * Sets whether the rewind button is shown.
+   *
+   * @param showRewindButton Whether the rewind button is shown.
+   */
+  public void setShowRewindButton(boolean showRewindButton) {
+    Assertions.checkStateNotNull(controller);
+    controller.setShowRewindButton(showRewindButton);
+  }
+
+  /**
+   * Sets whether the fast forward button is shown.
+   *
+   * @param showFastForwardButton Whether the fast forward button is shown.
+   */
+  public void setShowFastForwardButton(boolean showFastForwardButton) {
+    Assertions.checkStateNotNull(controller);
+    controller.setShowFastForwardButton(showFastForwardButton);
+  }
+
+  /**
+   * Sets whether the previous button is shown.
+   *
+   * @param showPreviousButton Whether the previous button is shown.
+   */
+  public void setShowPreviousButton(boolean showPreviousButton) {
+    Assertions.checkStateNotNull(controller);
+    controller.setShowPreviousButton(showPreviousButton);
+  }
+
+  /**
+   * Sets whether the next button is shown.
+   *
+   * @param showNextButton Whether the next button is shown.
+   */
+  public void setShowNextButton(boolean showNextButton) {
+    Assertions.checkStateNotNull(controller);
+    controller.setShowNextButton(showNextButton);
+  }
+
+  /**
    * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
    *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
