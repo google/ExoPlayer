@@ -191,6 +191,10 @@
         ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
     *   Update `TrackSelectionDialogBuilder` to use AndroidX Compat Dialog
         ([#7357](https://github.com/google/ExoPlayer/issues/7357)).
+    *   Prevent the video surface going black when seeking to an unprepared
+        period within the current window. For example when seeking over an ad
+        group, or to the next period in a multi-period DASH stream
+        ([#5507](https://github.com/google/ExoPlayer/issues/5507)).
 *   Metadata: Add minimal DVB Application Information Table (AIT) support
     ([#6922](https://github.com/google/ExoPlayer/pull/6922)).
 *   Cast extension: Implement playlist API and deprecate the old queue
