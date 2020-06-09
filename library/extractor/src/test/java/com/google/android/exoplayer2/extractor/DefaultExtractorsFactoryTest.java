@@ -33,8 +33,12 @@ import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.PsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.extractor.wav.WavExtractor;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,7 +47,7 @@ import org.junit.runner.RunWith;
 public final class DefaultExtractorsFactoryTest {
 
   @Test
-  public void createExtractors_withoutUri_optimizesSniffingOrder() {
+  public void createExtractors_withoutMediaInfo_optimizesSniffingOrder() {
     DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
 
     Extractor[] extractors = defaultExtractorsFactory.createExtractors();
@@ -69,24 +73,31 @@ public final class DefaultExtractorsFactoryTest {
   }
 
   @Test
-  public void createExtractors_withUri_startsWithExtractorsMatchingExtension() {
+  public void createExtractors_withMediaInfo_startsWithExtractorsMatchingHeadersAndThenUri() {
     DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
+    Uri uri = Uri.parse("test.mp3");
+    Map<String, List<String>> responseHeaders = new HashMap<>();
+    responseHeaders.put("Content-Type", Collections.singletonList(MimeTypes.VIDEO_MP4));
 
-    Extractor[] extractors = defaultExtractorsFactory.createExtractors(Uri.parse("test.mp4"));
+    Extractor[] extractors = defaultExtractorsFactory.createExtractors(uri, responseHeaders);
 
     List<Class<? extends Extractor>> extractorClasses = getExtractorClasses(extractors);
     assertThat(extractorClasses.subList(0, 2))
         .containsExactly(Mp4Extractor.class, FragmentedMp4Extractor.class);
+    assertThat(extractorClasses.get(2)).isEqualTo(Mp3Extractor.class);
   }
 
   @Test
-  public void createExtractors_withUri_optimizesSniffingOrder() {
+  public void createExtractors_withMediaInfo_optimizesSniffingOrder() {
     DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
+    Uri uri = Uri.parse("test.mp3");
+    Map<String, List<String>> responseHeaders = new HashMap<>();
+    responseHeaders.put("Content-Type", Collections.singletonList(MimeTypes.VIDEO_MP4));
 
-    Extractor[] extractors = defaultExtractorsFactory.createExtractors(Uri.parse("test.mp4"));
+    Extractor[] extractors = defaultExtractorsFactory.createExtractors(uri, responseHeaders);
 
     List<Class<? extends Extractor>> extractorClasses = getExtractorClasses(extractors);
-    assertThat(extractorClasses.subList(2, extractors.length))
+    assertThat(extractorClasses.subList(3, extractors.length))
         .containsExactly(
             FlvExtractor.class,
             FlacExtractor.class,
@@ -98,8 +109,7 @@ public final class DefaultExtractorsFactoryTest {
             MatroskaExtractor.class,
             AdtsExtractor.class,
             Ac3Extractor.class,
-            Ac4Extractor.class,
-            Mp3Extractor.class)
+            Ac4Extractor.class)
         .inOrder();
   }
 

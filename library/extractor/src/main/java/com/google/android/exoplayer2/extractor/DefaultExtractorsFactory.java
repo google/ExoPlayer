@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromResponseHeaders;
 import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromUri;
 
 import android.net.Uri;
@@ -39,7 +40,9 @@ import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An {@link ExtractorsFactory} that provides an array of extractors for the following formats:
@@ -265,18 +268,28 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
 
   @Override
   public synchronized Extractor[] createExtractors() {
-    return createExtractors(Uri.EMPTY);
+    return createExtractors(Uri.EMPTY, new HashMap<>());
   }
 
   @Override
-  public synchronized Extractor[] createExtractors(Uri uri) {
+  public synchronized Extractor[] createExtractors(
+      Uri uri, Map<String, List<String>> responseHeaders) {
     List<Extractor> extractors = new ArrayList<>(/* initialCapacity= */ 14);
 
-    @FileTypes.Type int inferredFileType = inferFileTypeFromUri(uri);
-    addExtractorsForFormat(inferredFileType, extractors);
+    @FileTypes.Type
+    int responseHeadersInferredFileType = inferFileTypeFromResponseHeaders(responseHeaders);
+    if (responseHeadersInferredFileType != FileTypes.UNKNOWN) {
+      addExtractorsForFormat(responseHeadersInferredFileType, extractors);
+    }
+
+    @FileTypes.Type int uriInferredFileType = inferFileTypeFromUri(uri);
+    if (uriInferredFileType != FileTypes.UNKNOWN
+        && uriInferredFileType != responseHeadersInferredFileType) {
+      addExtractorsForFormat(uriInferredFileType, extractors);
+    }
 
     for (int format : DEFAULT_EXTRACTOR_ORDER) {
-      if (format != inferredFileType) {
+      if (format != responseHeadersInferredFileType && format != uriInferredFileType) {
         addExtractorsForFormat(format, extractors);
       }
     }
