@@ -946,7 +946,7 @@ public final class Cea608Decoder extends CeaDecoder {
 
       int lineAnchor;
       int line;
-      // Note: Row indices are in the range [1-15].
+      // Note: Row indices are in the range [1-15], Cue.line counts from 0 (top) and -1 (bottom).
       if (row > (BASE_ROW / 2)) {
         lineAnchor = Cue.ANCHOR_TYPE_END;
         line = row - BASE_ROW;
@@ -955,9 +955,12 @@ public final class Cea608Decoder extends CeaDecoder {
         line -= 2;
       } else {
         lineAnchor = Cue.ANCHOR_TYPE_START;
-        // Line indices from the top of the window start from 0, but we want a blank row to act as
-        // the safe area. As a result no adjustment is necessary.
-        line = row;
+        // The `row` of roll-up cues positions the bottom line (even for cues shown in the top
+        // half of the screen), so we need to consider the number of rows in this cue. In
+        // non-roll-up, we don't need any further adjustments because we leave the first line
+        // (cue.line=0) blank to act as the safe area, so positioning row=1 at Cue.line=1 is
+        // correct.
+        line = captionMode == CC_MODE_ROLL_UP ? row - (captionRowCount - 1) : row;
       }
 
       return new Cue(

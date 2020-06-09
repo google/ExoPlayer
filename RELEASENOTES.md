@@ -122,8 +122,8 @@
     *   Ignore excess characters in CEA-608 lines (max length is 32)
         ([#7341](https://github.com/google/ExoPlayer/issues/7341)).
     *   Add support for WebVTT's `ruby-position` CSS property.
-    *   Don't assume CEA-608 captions are in the bottom half of the
-        screen([#7475](https://github.com/google/ExoPlayer/issues/7475)).
+    *   Fix positioning for CEA-608 roll-up captions in the top half of screen
+        ([#7475](https://github.com/google/ExoPlayer/issues/7475)).
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.
