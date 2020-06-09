@@ -48,6 +48,8 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
@@ -1506,6 +1508,13 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           SingleTapListener,
           PlayerControlView.VisibilityListener {
 
+    private final Period period;
+    private @Nullable Object lastPeriodUidWithTracks;
+
+    public ComponentListener() {
+      period = new Period();
+    }
+
     // TextOutput implementation
 
     @Override
@@ -1554,6 +1563,29 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
     @Override
     public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
+      // Suppress the update if transitioning to an unprepared period within the same window. This
+      // is necessary to avoid closing the shutter when such a transition occurs. See:
+      // https://github.com/google/ExoPlayer/issues/5507.
+      Player player = Assertions.checkNotNull(PlayerView.this.player);
+      Timeline timeline = player.getCurrentTimeline();
+      if (timeline.isEmpty()) {
+        lastPeriodUidWithTracks = null;
+      } else if (!player.getCurrentTrackGroups().isEmpty()) {
+        lastPeriodUidWithTracks =
+            timeline.getPeriod(player.getCurrentPeriodIndex(), period, /* setIds= */ true).uid;
+      } else if (lastPeriodUidWithTracks != null) {
+        int lastPeriodIndexWithTracks = timeline.getIndexOfPeriod(lastPeriodUidWithTracks);
+        if (lastPeriodIndexWithTracks != C.INDEX_UNSET) {
+          int lastWindowIndexWithTracks =
+              timeline.getPeriod(lastPeriodIndexWithTracks, period).windowIndex;
+          if (player.getCurrentWindowIndex() == lastWindowIndexWithTracks) {
+            // We're in the same window. Suppress the update.
+            return;
+          }
+        }
+        lastPeriodUidWithTracks = null;
+      }
+
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
     }
 

@@ -1,5 +1,12 @@
 # Release notes #
 
+### 2.11.6 (not yet released) ###
+
+*   UI: Prevent `PlayerView` from temporarily hiding the video surface when
+    seeking to an unprepared period within the current window. For example when
+    seeking over an ad group, or to the next period in a multi-period DASH
+    stream ([#5507](https://github.com/google/ExoPlayer/issues/5507)).
+
 ### 2.11.5 (2020-06-05) ###
 
 *   Improve the smoothness of video playback immediately after starting, seeking
