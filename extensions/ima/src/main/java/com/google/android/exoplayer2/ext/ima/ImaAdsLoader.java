@@ -383,7 +383,7 @@ public final class ImaAdsLoader
   private int lastVolumePercentage;
 
   @Nullable private AdsManager adsManager;
-  private boolean initializedAdsManager;
+  private boolean isAdsManagerInitialized;
   private boolean hasAdPlaybackState;
   @Nullable private AdLoadException pendingAdLoadError;
   private Timeline timeline;
@@ -980,9 +980,16 @@ public final class ImaAdsLoader
     if (contentDurationUs != C.TIME_UNSET) {
       adPlaybackState = adPlaybackState.withContentDurationUs(contentDurationUs);
     }
-    if (!initializedAdsManager && adsManager != null) {
-      initializedAdsManager = true;
-      initializeAdsManager(adsManager);
+    @Nullable AdsManager adsManager = this.adsManager;
+    if (!isAdsManagerInitialized && adsManager != null) {
+      isAdsManagerInitialized = true;
+      AdsRenderingSettings adsRenderingSettings = setupAdsRendering();
+      adsManager.init(adsRenderingSettings);
+      adsManager.start();
+      updateAdPlaybackState();
+      if (DEBUG) {
+        Log.d(TAG, "Initialized with ads rendering settings: " + adsRenderingSettings);
+      }
     }
     handleTimelineOrPositionChanged();
   }
@@ -1056,7 +1063,8 @@ public final class ImaAdsLoader
 
   // Internal methods.
 
-  private void initializeAdsManager(AdsManager adsManager) {
+  /** Configures ads rendering for starting playback, returning the settings for the IMA SDK. */
+  private AdsRenderingSettings setupAdsRendering() {
     AdsRenderingSettings adsRenderingSettings = imaFactory.createAdsRenderingSettings();
     adsRenderingSettings.setEnablePreloading(true);
     adsRenderingSettings.setMimeTypes(supportedMimeTypes);
@@ -1072,36 +1080,32 @@ public final class ImaAdsLoader
     }
 
     // Skip ads based on the start position as required.
-    long[] adGroupTimesUs = getAdGroupTimesUs(adsManager.getAdCuePoints());
+    long[] adGroupTimesUs = adPlaybackState.adGroupTimesUs;
     long contentPositionMs =
         getContentPeriodPositionMs(Assertions.checkNotNull(player), timeline, period);
     int adGroupIndexForPosition =
         adPlaybackState.getAdGroupIndexForPositionUs(
             C.msToUs(contentPositionMs), C.msToUs(contentDurationMs));
-    if (adGroupIndexForPosition > 0 && adGroupIndexForPosition != C.INDEX_UNSET) {
-      // Skip any ad groups before the one at or immediately before the playback position.
-      for (int i = 0; i < adGroupIndexForPosition; i++) {
-        adPlaybackState = adPlaybackState.withSkippedAdGroup(i);
+    if (adGroupIndexForPosition != C.INDEX_UNSET) {
+      // Provide the player's initial position to trigger loading and playing the ad. If there are
+      // no midrolls, we are playing a preroll and any pending content position wouldn't be cleared.
+      if (hasMidrollAdGroups(adGroupTimesUs)) {
+        pendingContentPositionMs = contentPositionMs;
       }
-      // Play ads after the midpoint between the ad to play and the one before it, to avoid issues
-      // with rounding one of the two ad times.
-      long adGroupForPositionTimeUs = adGroupTimesUs[adGroupIndexForPosition];
-      long adGroupBeforeTimeUs = adGroupTimesUs[adGroupIndexForPosition - 1];
-      double midpointTimeUs = (adGroupForPositionTimeUs + adGroupBeforeTimeUs) / 2d;
-      adsRenderingSettings.setPlayAdsAfterTime(midpointTimeUs / C.MICROS_PER_SECOND);
+      if (adGroupIndexForPosition > 0) {
+        // Skip any ad groups before the one at or immediately before the playback position.
+        for (int i = 0; i < adGroupIndexForPosition; i++) {
+          adPlaybackState = adPlaybackState.withSkippedAdGroup(i);
+        }
+        // Play ads after the midpoint between the ad to play and the one before it, to avoid issues
+        // with rounding one of the two ad times.
+        long adGroupForPositionTimeUs = adGroupTimesUs[adGroupIndexForPosition];
+        long adGroupBeforeTimeUs = adGroupTimesUs[adGroupIndexForPosition - 1];
+        double midpointTimeUs = (adGroupForPositionTimeUs + adGroupBeforeTimeUs) / 2d;
+        adsRenderingSettings.setPlayAdsAfterTime(midpointTimeUs / C.MICROS_PER_SECOND);
+      }
     }
-
-    if (adGroupIndexForPosition != C.INDEX_UNSET && hasMidrollAdGroups(adGroupTimesUs)) {
-      // Provide the player's initial position to trigger loading and playing the ad.
-      pendingContentPositionMs = contentPositionMs;
-    }
-
-    adsManager.init(adsRenderingSettings);
-    adsManager.start();
-    updateAdPlaybackState();
-    if (DEBUG) {
-      Log.d(TAG, "Initialized with ads rendering settings: " + adsRenderingSettings);
-    }
+    return adsRenderingSettings;
   }
 
   private void handleAdEvent(AdEvent adEvent) {
