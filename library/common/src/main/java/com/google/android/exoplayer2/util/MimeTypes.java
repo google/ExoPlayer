@@ -475,11 +475,15 @@ public final class MimeTypes {
    * Retrieves the object type of an mp4 audio codec from its string as defined in RFC 6381.
    *
    * <p>Per https://mp4ra.org/#/object_types and https://tools.ietf.org/html/rfc6381#section-3.3, an
-   * mp4 codec string has the form: <code>
+   * mp4 codec string has the form:
+   *
+   * <pre>
    *         ~~~~~~~~~~~~~~ Object Type Indication (OTI) byte in hex
    *    mp4a.[a-zA-Z0-9]{2}(.[0-9]{1,2})?
    *                         ~~~~~~~~~~ audio OTI, decimal. Only for certain OTI.
-   * </code> For example: mp4a.40.2, has an OTI of 0x40 and an audio OTI of 2.
+   * </pre>
+   *
+   * For example: mp4a.40.2, has an OTI of 0x40 and an audio OTI of 2.
    *
    * @param codec The string as defined in RFC 6381 describing an mp4 audio codec.
    * @return The {@link Mp4aObjectType} or {@code null} if the input is invalid.
