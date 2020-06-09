@@ -276,7 +276,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     return new ProgressiveMediaPeriod(
         playbackProperties.uri,
         dataSource,
-        extractorsFactory.createExtractors(playbackProperties.uri),
+        extractorsFactory,
         drmSessionManager,
         loadableLoadErrorHandlingPolicy,
         createEventDispatcher(id),

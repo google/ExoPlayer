@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekMap.SeekPoints;
@@ -143,7 +144,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource The data source to read the media.
-   * @param extractors The extractors to use to read the data source.
+   * @param extractorsFactory The {@link ExtractorsFactory} to use to read the data source.
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
    * @param eventDispatcher A dispatcher to notify of events.
    * @param listener A listener to notify when information about the period changes.
@@ -161,7 +162,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public ProgressiveMediaPeriod(
       Uri uri,
       DataSource dataSource,
-      Extractor[] extractors,
+      ExtractorsFactory extractorsFactory,
       DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       EventDispatcher eventDispatcher,
@@ -179,7 +180,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     loader = new Loader("Loader:ProgressiveMediaPeriod");
-    ProgressiveMediaExtractor progressiveMediaExtractor = new BundledExtractorsAdapter(extractors);
+    ProgressiveMediaExtractor progressiveMediaExtractor =
+        new BundledExtractorsAdapter(extractorsFactory);
     this.progressiveMediaExtractor = progressiveMediaExtractor;
     loadCondition = new ConditionVariable();
     maybeFinishPrepareRunnable = this::maybeFinishPrepare;
@@ -1022,7 +1024,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             icyTrackOutput.format(ICY_FORMAT);
           }
           progressiveMediaExtractor.init(
-              extractorDataSource, uri, position, length, extractorOutput);
+              extractorDataSource,
+              uri,
+              dataSource.getResponseHeaders(),
+              position,
+              length,
+              extractorOutput);
 
           if (icyHeaders != null) {
             progressiveMediaExtractor.disableSeekingOnMp3Streams();
