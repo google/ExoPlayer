@@ -41,6 +41,6 @@ public class TestUtilTest {
     long startTimeMs = System.currentTimeMillis();
     assertThat(conditionVariable.block(/* timeoutMs= */ 500)).isFalse();
     long endTimeMs = System.currentTimeMillis();
-    assertThat(endTimeMs - startTimeMs).isAtLeast(500);
+    assertThat(endTimeMs - startTimeMs).isAtLeast(500L);
   }
 }
