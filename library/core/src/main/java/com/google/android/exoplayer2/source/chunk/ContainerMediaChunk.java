@@ -138,7 +138,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
     } finally {
       Util.closeQuietly(dataSource);
     }
-    loadCompleted = true;
+    loadCompleted = !loadCanceled;
   }
 
   /**
