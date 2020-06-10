@@ -505,9 +505,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               /* stayInBounds= */ !playlistTracker.isLive() || previous == null)
           + mediaPlaylist.mediaSequence;
     }
-    // We ignore the case of previous not having loaded completely, in which case we load the next
-    // segment.
-    return previous.getNextChunkIndex();
+    return previous.isLoadCompleted() ? previous.getNextChunkIndex() : previous.chunkIndex;
   }
 
   private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
