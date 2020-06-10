@@ -133,6 +133,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ArrayList<HlsSampleStream> hlsSampleStreams;
   private final Map<String, DrmInitData> overridingDrmInitData;
 
+  @Nullable private Chunk loadingChunk;
   private HlsSampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
   private Set<Integer> sampleQueueMappingDoneByType;
@@ -674,6 +675,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (isMediaChunk(loadable)) {
       initMediaChunkLoad((HlsMediaChunk) loadable);
     }
+    loadingChunk = loadable;
     long elapsedRealtimeMs =
         loader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
@@ -700,14 +702,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return;
     }
 
-    int currentQueueSize = mediaChunks.size();
-    int preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
-    if (currentQueueSize <= preferredQueueSize) {
+    if (loader.isLoading()) {
+      Assertions.checkNotNull(loadingChunk);
+      if (chunkSource.shouldCancelLoad(positionUs, loadingChunk, readOnlyMediaChunks)) {
+        loader.cancelLoading();
+      }
       return;
     }
-    if (loader.isLoading()) {
-      loader.cancelLoading();
-    } else {
+
+    int preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
+    if (preferredQueueSize < mediaChunks.size()) {
       discardUpstream(preferredQueueSize);
     }
   }
@@ -716,6 +720,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void onLoadCompleted(Chunk loadable, long elapsedRealtimeMs, long loadDurationMs) {
+    loadingChunk = null;
     chunkSource.onChunkLoadCompleted(loadable);
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
@@ -746,6 +751,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Override
   public void onLoadCanceled(
       Chunk loadable, long elapsedRealtimeMs, long loadDurationMs, boolean released) {
+    loadingChunk = null;
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -841,6 +847,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         error,
         wasCanceled);
     if (wasCanceled) {
+      loadingChunk = null;
       loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     }
 
@@ -885,7 +892,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (newQueueSize == C.LENGTH_UNSET) {
       return;
     }
-    
+
     long endTimeUs = getLastMediaChunk().endTimeUs;
     HlsMediaChunk firstRemovedChunk = discardUpstreamMediaChunksFromIndex(newQueueSize);
     if (mediaChunks.isEmpty()) {
