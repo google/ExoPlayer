@@ -458,6 +458,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * could be replaced with chunks of a significantly higher quality (e.g. because the available
    * bandwidth has substantially increased).
    *
+   * <p>Will only be called if no {@link MediaChunk} in the queue is currently loading.
+   *
    * @param playbackPositionUs The current playback position, in microseconds.
    * @param queue The queue of buffered {@link MediaChunk MediaChunks}.
    * @return The preferred queue size.
@@ -467,6 +469,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return queue.size();
     }
     return trackSelection.evaluateQueueSize(playbackPositionUs, queue);
+  }
+
+  /**
+   * Returns whether an ongoing load of a chunk should be canceled.
+   *
+   * @param playbackPositionUs The current playback position, in microseconds.
+   * @param loadingChunk The currently loading {@link Chunk}.
+   * @param queue The queue of buffered {@link MediaChunk MediaChunks}.
+   * @return Whether the ongoing load of {@code loadingChunk} should be canceled.
+   */
+  public boolean shouldCancelLoad(
+      long playbackPositionUs, Chunk loadingChunk, List<? extends MediaChunk> queue) {
+    if (fatalError != null) {
+      return false;
+    }
+    return trackSelection.shouldCancelChunkLoad(playbackPositionUs, loadingChunk, queue);
   }
 
   // Private methods.

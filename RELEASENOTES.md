@@ -88,6 +88,9 @@
         ([#7332](https://github.com/google/ExoPlayer/issues/7332)).
     *   Add `HttpDataSource.InvalidResponseCodeException#responseBody` field
         ([#6853](https://github.com/google/ExoPlayer/issues/6853)).
+    *   Add `TrackSelection.shouldCancelMediaChunkLoad` to check whether an
+        ongoing load should be canceled. Only supported by HLS streams so far.
+        ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
