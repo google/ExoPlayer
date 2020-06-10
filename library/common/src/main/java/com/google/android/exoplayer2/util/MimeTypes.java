@@ -529,6 +529,16 @@ public final class MimeTypes {
     }
   }
 
+  /** Returns whether the given {@code mimeType} is a WebM MIME type. */
+  public static boolean isWebm(@Nullable String mimeType) {
+    if (mimeType == null) {
+      return false;
+    }
+    return mimeType.startsWith(MimeTypes.VIDEO_WEBM)
+        || mimeType.startsWith(MimeTypes.AUDIO_WEBM)
+        || mimeType.startsWith(MimeTypes.APPLICATION_WEBM);
+  }
+
   /**
    * Returns the top-level type of {@code mimeType}, or null if {@code mimeType} is null or does not
    * contain a forward slash character ({@code '/'}).

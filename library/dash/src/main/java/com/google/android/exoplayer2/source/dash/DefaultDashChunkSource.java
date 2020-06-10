@@ -771,11 +771,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return getFirstSegmentNum() + availableSegmentCount - 1;
     }
 
-    private static boolean mimeTypeIsWebm(String mimeType) {
-      return mimeType.startsWith(MimeTypes.VIDEO_WEBM) || mimeType.startsWith(MimeTypes.AUDIO_WEBM)
-          || mimeType.startsWith(MimeTypes.APPLICATION_WEBM);
-    }
-
     @Nullable
     private static ChunkExtractor createChunkExtractor(
         int trackType,
@@ -784,6 +779,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         List<Format> closedCaptionFormats,
         @Nullable TrackOutput playerEmsgTrackOutput) {
       String containerMimeType = representation.format.containerMimeType;
+
       Extractor extractor;
       if (MimeTypes.isText(containerMimeType)) {
         if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
@@ -793,7 +789,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           // All other text types are raw formats that do not need an extractor.
           return null;
         }
-      } else if (mimeTypeIsWebm(containerMimeType)) {
+      } else if (MimeTypes.isWebm(containerMimeType)) {
         extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
       } else {
         int flags = 0;
