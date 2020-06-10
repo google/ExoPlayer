@@ -349,7 +349,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (!hasGapTag) {
         loadMedia();
       }
-      loadCompleted = true;
+      loadCompleted = !loadCanceled;
     }
   }
 
