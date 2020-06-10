@@ -19,7 +19,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
+import java.nio.ByteBuffer;
 
 /**
  * Tracks the number of processed samples to calculate an accurate current timestamp, matching the
@@ -55,17 +57,15 @@ import com.google.android.exoplayer2.util.Log;
    * @return The expected output presentation time, in microseconds.
    */
   public long updateAndGetPresentationTimeUs(Format format, DecoderInputBuffer buffer) {
-    if (seenInvalidMpegAudioHeader || buffer.data == null) {
+    if (seenInvalidMpegAudioHeader) {
       return buffer.timeUs;
     }
 
-    // These calculations mirror the timestamp calculations in the Codec2 Mp3 Decoder.
-    // https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/mp3/C2SoftMp3Dec.cpp;l=464;drc=ed134640332fea70ca4b05694289d91a5265bb46
-    long presentationTimeUs = processedSamples * C.MICROS_PER_SECOND / format.sampleRate;
+    ByteBuffer data = Assertions.checkNotNull(buffer.data);
     int sampleHeaderData = 0;
     for (int i = 0; i < 4; i++) {
       sampleHeaderData <<= 8;
-      sampleHeaderData |= buffer.data.get(i) & 0xFF;
+      sampleHeaderData |= data.get(i) & 0xFF;
     }
 
     int frameCount = MpegAudioUtil.parseMpegAudioFrameSampleCount(sampleHeaderData);
@@ -74,14 +74,20 @@ import com.google.android.exoplayer2.util.Log;
       Log.w(TAG, "MPEG audio header is invalid.");
       return buffer.timeUs;
     }
-    long outSize = frameCount * format.channelCount * 2L;
-    boolean isFirstSample = processedSamples == 0;
-    long outOffset = 0;
-    if (isFirstSample) {
+
+    // These calculations mirror the timestamp calculations in the Codec2 Mp3 Decoder.
+    // https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/mp3/C2SoftMp3Dec.cpp;l=464;drc=ed134640332fea70ca4b05694289d91a5265bb46
+    if (processedSamples == 0) {
       anchorTimestampUs = buffer.timeUs;
-      outOffset = DECODER_DELAY_SAMPLES;
+      processedSamples = frameCount - DECODER_DELAY_SAMPLES;
+      return anchorTimestampUs;
     }
-    processedSamples += (outSize / (format.channelCount * 2L)) - outOffset;
-    return anchorTimestampUs + presentationTimeUs;
+    long processedDurationUs = getProcessedDurationUs(format);
+    processedSamples += frameCount;
+    return anchorTimestampUs + processedDurationUs;
+  }
+
+  private long getProcessedDurationUs(Format format) {
+    return processedSamples * C.MICROS_PER_SECOND / format.sampleRate;
   }
 }
