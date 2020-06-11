@@ -279,26 +279,26 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     @FileTypes.Type
     int responseHeadersInferredFileType = inferFileTypeFromResponseHeaders(responseHeaders);
     if (responseHeadersInferredFileType != FileTypes.UNKNOWN) {
-      addExtractorsForFormat(responseHeadersInferredFileType, extractors);
+      addExtractorsForFileType(responseHeadersInferredFileType, extractors);
     }
 
     @FileTypes.Type int uriInferredFileType = inferFileTypeFromUri(uri);
     if (uriInferredFileType != FileTypes.UNKNOWN
         && uriInferredFileType != responseHeadersInferredFileType) {
-      addExtractorsForFormat(uriInferredFileType, extractors);
+      addExtractorsForFileType(uriInferredFileType, extractors);
     }
 
-    for (int format : DEFAULT_EXTRACTOR_ORDER) {
-      if (format != responseHeadersInferredFileType && format != uriInferredFileType) {
-        addExtractorsForFormat(format, extractors);
+    for (int fileType : DEFAULT_EXTRACTOR_ORDER) {
+      if (fileType != responseHeadersInferredFileType && fileType != uriInferredFileType) {
+        addExtractorsForFileType(fileType, extractors);
       }
     }
 
     return extractors.toArray(new Extractor[extractors.size()]);
   }
 
-  private void addExtractorsForFormat(@FileTypes.Type int fileFormat, List<Extractor> extractors) {
-    switch (fileFormat) {
+  private void addExtractorsForFileType(@FileTypes.Type int fileType, List<Extractor> extractors) {
+    switch (fileType) {
       case FileTypes.AC3:
         extractors.add(new Ac3Extractor());
         break;
