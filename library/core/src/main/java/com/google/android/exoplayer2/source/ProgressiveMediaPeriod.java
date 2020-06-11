@@ -734,13 +734,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void setSeekMap(SeekMap seekMap) {
     this.seekMap = icyHeaders == null ? seekMap : new Unseekable(/* durationUs= */ C.TIME_UNSET);
-    if (!prepared) {
-      maybeFinishPrepare();
-    }
     durationUs = seekMap.getDurationUs();
     isLive = length == C.LENGTH_UNSET && seekMap.getDurationUs() == C.TIME_UNSET;
     dataType = isLive ? C.DATA_TYPE_MEDIA_PROGRESSIVE_LIVE : C.DATA_TYPE_MEDIA;
     listener.onSourceInfoRefreshed(durationUs, seekMap.isSeekable(), isLive);
+    if (!prepared) {
+      maybeFinishPrepare();
+    }
   }
 
   private void maybeFinishPrepare() {
