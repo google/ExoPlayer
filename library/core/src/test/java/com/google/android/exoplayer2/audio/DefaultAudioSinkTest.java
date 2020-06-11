@@ -21,7 +21,6 @@ import static org.robolectric.annotation.Config.TARGET_SDK;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -51,11 +50,6 @@ public final class DefaultAudioSinkTest {
   private static final int SAMPLE_RATE_44_1 = 44100;
   private static final int TRIM_100_MS_FRAME_COUNT = 4410;
   private static final int TRIM_10_MS_FRAME_COUNT = 441;
-  private static final Format STEREO_44_1_FORMAT =
-      new Format.Builder()
-          .setChannelCount(CHANNEL_COUNT_STEREO)
-          .setSampleRate(SAMPLE_RATE_44_1)
-          .build();
 
   private DefaultAudioSink defaultAudioSink;
   private ArrayAudioBufferSink arrayAudioBufferSink;
@@ -207,13 +201,19 @@ public final class DefaultAudioSinkTest {
   @Config(minSdk = OLDEST_SDK, maxSdk = 20)
   @Test
   public void doesNotSupportFloatOutputBeforeApi21() {
-    assertThat(defaultAudioSink.supportsOutput(STEREO_44_1_FORMAT, C.ENCODING_PCM_FLOAT)).isFalse();
+    assertThat(
+            defaultAudioSink.supportsOutput(
+                CHANNEL_COUNT_STEREO, SAMPLE_RATE_44_1, C.ENCODING_PCM_FLOAT))
+        .isFalse();
   }
 
   @Config(minSdk = 21, maxSdk = TARGET_SDK)
   @Test
   public void supportsFloatOutputFromApi21() {
-    assertThat(defaultAudioSink.supportsOutput(STEREO_44_1_FORMAT, C.ENCODING_PCM_FLOAT)).isTrue();
+    assertThat(
+            defaultAudioSink.supportsOutput(
+                CHANNEL_COUNT_STEREO, SAMPLE_RATE_44_1, C.ENCODING_PCM_FLOAT))
+        .isTrue();
   }
 
   @Test
@@ -221,7 +221,10 @@ public final class DefaultAudioSinkTest {
     DefaultAudioSink defaultAudioSink =
         new DefaultAudioSink(
             new AudioCapabilities(new int[] {C.ENCODING_AAC_LC}, 2), new AudioProcessor[0]);
-    assertThat(defaultAudioSink.supportsOutput(STEREO_44_1_FORMAT, C.ENCODING_AAC_LC)).isFalse();
+    assertThat(
+            defaultAudioSink.supportsOutput(
+                CHANNEL_COUNT_STEREO, SAMPLE_RATE_44_1, C.ENCODING_AAC_LC))
+        .isFalse();
   }
 
   private void configureDefaultAudioSink(int channelCount) throws AudioSink.ConfigurationException {
