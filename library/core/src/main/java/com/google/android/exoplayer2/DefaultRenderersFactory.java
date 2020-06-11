@@ -219,12 +219,20 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * Sets whether audio should be played using the offload path. Audio offload disables audio
-   * processors (for example speed adjustment).
+   * Sets whether audio should be played using the offload path.
+   *
+   * <p>Audio offload disables ExoPlayer audio processing, but significantly reduces the energy
+   * consumption of the playback when {@link
+   * ExoPlayer#experimental_enableOffloadScheduling(boolean)} is enabled.
+   *
+   * <p>Most Android devices can only support one offload {@link android.media.AudioTrack} at a time
+   * and can invalidate it at any time. Thus an app can never be guaranteed that it will be able to
+   * play in offload.
    *
    * <p>The default value is {@code false}.
    *
-   * @param enableOffload If audio offload should be used.
+   * @param enableOffload Whether to enable use of audio offload for supported formats, if
+   *     available.
    * @return This factory, for convenience.
    */
   public DefaultRenderersFactory setEnableAudioOffload(boolean enableOffload) {
@@ -423,7 +431,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *     before output. May be empty.
    * @param eventHandler A handler to use when invoking event listeners and outputs.
    * @param eventListener An event listener.
-   * @param enableOffload If the renderer should use audio offload for all supported formats.
+   * @param enableOffload Whether to enable use of audio offload for supported formats, if
+   *     available.
    * @param out An array to which the built renderers should be appended.
    */
   protected void buildAudioRenderers(
