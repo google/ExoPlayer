@@ -40,7 +40,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>This adapter supports queueing input buffers asynchronously.
  */
 @RequiresApi(23)
-/* package */ final class DedicatedThreadAsyncMediaCodecAdapter extends MediaCodec.Callback
+/* package */ final class AsynchronousMediaCodecAdapter extends MediaCodec.Callback
     implements MediaCodecAdapter {
 
   @Documented
@@ -70,7 +70,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
    *     labelling the internal thread accordingly.
    */
-  /* package */ DedicatedThreadAsyncMediaCodecAdapter(MediaCodec codec, int trackType) {
+  /* package */ AsynchronousMediaCodecAdapter(MediaCodec codec, int trackType) {
     this(
         codec,
         /* enableAsynchronousQueueing= */ false,
@@ -86,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
    *     labelling the internal thread accordingly.
    */
-  /* package */ DedicatedThreadAsyncMediaCodecAdapter(
+  /* package */ AsynchronousMediaCodecAdapter(
       MediaCodec codec, boolean enableAsynchronousQueueing, int trackType) {
     this(
         codec,
@@ -96,7 +96,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @VisibleForTesting
-  /* package */ DedicatedThreadAsyncMediaCodecAdapter(
+  /* package */ AsynchronousMediaCodecAdapter(
       MediaCodec codec,
       boolean enableAsynchronousQueueing,
       int trackType,

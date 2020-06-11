@@ -40,11 +40,11 @@ import org.robolectric.Shadows;
 import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowLooper;
 
-/** Unit tests for {@link DedicatedThreadAsyncMediaCodecAdapter}. */
+/** Unit tests for {@link AsynchronousMediaCodecAdapter}. */
 @LooperMode(LEGACY)
 @RunWith(AndroidJUnit4.class)
-public class DedicatedThreadAsyncMediaCodecAdapterTest {
-  private DedicatedThreadAsyncMediaCodecAdapter adapter;
+public class AsynchronousMediaCodecAdapterTest {
+  private AsynchronousMediaCodecAdapter adapter;
   private MediaCodec codec;
   private TestHandlerThread handlerThread;
   private MediaCodec.BufferInfo bufferInfo;
@@ -54,7 +54,7 @@ public class DedicatedThreadAsyncMediaCodecAdapterTest {
     codec = MediaCodec.createByCodecName("h264");
     handlerThread = new TestHandlerThread("TestHandlerThread");
     adapter =
-        new DedicatedThreadAsyncMediaCodecAdapter(
+        new AsynchronousMediaCodecAdapter(
             codec,
             /* enableAsynchronousQueueing= */ false,
             /* trackType= */ C.TRACK_TYPE_VIDEO,
