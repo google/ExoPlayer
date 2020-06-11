@@ -214,11 +214,10 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   /**
    * Returns whether the sink supports the audio format.
    *
-   * @see AudioSink#supportsOutput(int, int, int)
+   * @see AudioSink#supportsOutput(Format, int)
    */
-  protected final boolean supportsOutput(
-      int channelCount, int sampleRateHz, @C.Encoding int encoding) {
-    return audioSink.supportsOutput(channelCount, sampleRateHz, encoding);
+  protected final boolean supportsOutput(Format format, @C.Encoding int encoding) {
+    return audioSink.supportsOutput(format, encoding);
   }
 
   @Override
