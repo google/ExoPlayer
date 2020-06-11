@@ -88,6 +88,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6613,6 +6614,85 @@ public final class ExoPlayerTest {
             isPlayingChange1,
             isPlayingChange2)
         .inOrder();
+  }
+
+  /**
+   * This tests that renderer offsets and buffer times in the renderer are set correctly even when
+   * the sources have a window-to-period offset and a non-zero default start position. The start
+   * offset of the first source is also updated during preparation to make sure the player adapts
+   * everything accordingly.
+   */
+  @Test
+  public void
+      playlistWithMediaWithStartOffsets_andStartOffsetChangesDuringPreparation_appliesCorrectRenderingOffsetToAllPeriods()
+          throws Exception {
+    List<Long> rendererStreamOffsetsUs = new ArrayList<>();
+    List<Long> firstBufferTimesUsWithOffset = new ArrayList<>();
+    FakeRenderer renderer =
+        new FakeRenderer(C.TRACK_TYPE_VIDEO) {
+          boolean pendingFirstBufferTime = false;
+
+          @Override
+          protected void onStreamChanged(Format[] formats, long offsetUs) {
+            rendererStreamOffsetsUs.add(offsetUs);
+            pendingFirstBufferTime = true;
+          }
+
+          @Override
+          protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
+            if (pendingFirstBufferTime) {
+              firstBufferTimesUsWithOffset.add(bufferTimeUs);
+              pendingFirstBufferTime = false;
+            }
+            return super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
+          }
+        };
+    Timeline timelineWithOffsets =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ new Object(),
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US,
+                /* defaultPositionUs= */ 4_567_890,
+                /* windowOffsetInFirstPeriodUs= */ 1_234_567,
+                AdPlaybackState.NONE));
+    ExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(renderer).build();
+    FakeMediaSource firstMediaSource =
+        new FakeMediaSource(/* timeline= */ null, ExoPlayerTestRunner.VIDEO_FORMAT);
+    FakeMediaSource secondMediaSource =
+        new FakeMediaSource(timelineWithOffsets, ExoPlayerTestRunner.VIDEO_FORMAT);
+    player.setMediaSources(ImmutableList.of(firstMediaSource, secondMediaSource));
+
+    // Start playback and wait until player is idly waiting for an update of the first source.
+    player.prepare();
+    player.play();
+    TestExoPlayer.runUntilPendingCommandsAreFullyHandled(player);
+    // Update media with a non-zero default start position and window offset.
+    firstMediaSource.setNewSourceInfo(timelineWithOffsets);
+    // Wait until player transitions to second source (which also has non-zero offsets).
+    TestExoPlayer.runUntilPositionDiscontinuity(
+        player, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+    assertThat(player.getCurrentWindowIndex()).isEqualTo(1);
+    player.release();
+
+    assertThat(rendererStreamOffsetsUs).hasSize(2);
+    assertThat(firstBufferTimesUsWithOffset).hasSize(2);
+    // Assert that the offsets and buffer times match the expected sample time.
+    long firstSampleTimeUs = 4_567_890 + 1_234_567;
+    assertThat(firstBufferTimesUsWithOffset.get(0))
+        .isEqualTo(rendererStreamOffsetsUs.get(0) + firstSampleTimeUs);
+    assertThat(firstBufferTimesUsWithOffset.get(1))
+        .isEqualTo(rendererStreamOffsetsUs.get(1) + firstSampleTimeUs);
+    // Assert that the second source continues rendering seamlessly at the point where the first one
+    // ended.
+    long periodDurationUs =
+        timelineWithOffsets.getPeriod(/* periodIndex= */ 0, new Timeline.Period()).durationUs;
+    assertThat(firstBufferTimesUsWithOffset.get(1))
+        .isEqualTo(rendererStreamOffsetsUs.get(0) + periodDurationUs);
   }
 
   // Internal methods.
