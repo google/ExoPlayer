@@ -325,6 +325,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
 
+  private boolean drmResourcesAcquired;
   @Nullable private Format inputFormat;
   private Format outputFormat;
   @Nullable private DrmSession<FrameworkMediaCrypto> codecDrmSession;
@@ -343,6 +344,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean codecNeedsReconfigureWorkaround;
   private boolean codecNeedsDiscardToSpsWorkaround;
   private boolean codecNeedsFlushWorkaround;
+  private boolean codecNeedsSosFlushWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
   private boolean codecNeedsEosOutputExceptionWorkaround;
   private boolean codecNeedsMonoChannelCountWorkaround;
@@ -363,6 +365,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @DrainAction private int codecDrainAction;
   private boolean codecReceivedBuffers;
   private boolean codecReceivedEos;
+  private boolean codecHasOutputMediaFormat;
   private long largestQueuedPresentationTimeUs;
   private long lastBufferInStreamPresentationTimeUs;
   private boolean inputStreamEnded;
@@ -597,6 +600,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   @Override
   protected void onEnabled(boolean joining) throws ExoPlaybackException {
+    if (drmSessionManager != null && !drmResourcesAcquired) {
+      drmResourcesAcquired = true;
+      drmSessionManager.prepare();
+    }
     decoderCounters = new DecoderCounters();
   }
 
@@ -637,12 +644,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     } finally {
       setSourceDrmSession(null);
     }
+    if (drmSessionManager != null && drmResourcesAcquired) {
+      drmResourcesAcquired = false;
+      drmSessionManager.release();
+    }
   }
 
   protected void releaseCodec() {
     availableCodecInfos = null;
     codecInfo = null;
     codecFormat = null;
+    codecHasOutputMediaFormat = false;
     resetInputBuffer();
     resetOutputBuffer();
     resetCodecBuffers();
@@ -756,6 +768,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     if (codecDrainAction == DRAIN_ACTION_REINITIALIZE
         || codecNeedsFlushWorkaround
+        || (codecNeedsSosFlushWorkaround && !codecHasOutputMediaFormat)
         || (codecNeedsEosFlushWorkaround && codecReceivedEos)) {
       releaseCodec();
       return true;
@@ -935,6 +948,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsReconfigureWorkaround = codecNeedsReconfigureWorkaround(codecName);
     codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, codecFormat);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
+    codecNeedsSosFlushWorkaround = codecNeedsSosFlushWorkaround(codecName);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
     codecNeedsMonoChannelCountWorkaround =
@@ -1246,7 +1260,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     if ((sourceDrmSession == null && codecDrmSession != null)
         || (sourceDrmSession != null && codecDrmSession == null)
-        || (sourceDrmSession != null && !codecInfo.secure)
+        || (sourceDrmSession != codecDrmSession
+            && !codecInfo.secure
+            && maybeRequiresSecureDecoder(sourceDrmSession, newFormat))
         || (Util.SDK_INT < 23 && sourceDrmSession != codecDrmSession)) {
       // We might need to switch between the clear and protected output paths, or we're using DRM
       // prior to API level 23 where the codec needs to be re-initialized to switch to the new DRM
@@ -1599,6 +1615,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** Processes a new output {@link MediaFormat}. */
   private void processOutputFormat() throws ExoPlaybackException {
+    codecHasOutputMediaFormat = true;
     MediaFormat mediaFormat = codec.getOutputFormat();
     if (codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER
         && mediaFormat.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
@@ -1714,9 +1731,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     maybeInitCodec();
   }
 
+  private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
+    // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
+    // box presentationTimeUs, creating a Long object that would need to be garbage collected.
+    int size = decodeOnlyPresentationTimestamps.size();
+    for (int i = 0; i < size; i++) {
+      if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
+        decodeOnlyPresentationTimestamps.remove(i);
+        return true;
+      }
+    }
+    return false;
+  }
+
   @TargetApi(23)
   private void updateDrmSessionOrReinitializeCodecV23() throws ExoPlaybackException {
-    FrameworkMediaCrypto sessionMediaCrypto = sourceDrmSession.getMediaCrypto();
+    @Nullable FrameworkMediaCrypto sessionMediaCrypto = sourceDrmSession.getMediaCrypto();
     if (sessionMediaCrypto == null) {
       // We'd only expect this to happen if the CDM from which the pending session is obtained needs
       // provisioning. This is unlikely to happen (it probably requires a switch from one DRM scheme
@@ -1750,17 +1780,38 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecDrainAction = DRAIN_ACTION_NONE;
   }
 
-  private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
-    // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
-    // box presentationTimeUs, creating a Long object that would need to be garbage collected.
-    int size = decodeOnlyPresentationTimestamps.size();
-    for (int i = 0; i < size; i++) {
-      if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
-        decodeOnlyPresentationTimestamps.remove(i);
-        return true;
-      }
+  /**
+   * Returns whether a {@link DrmSession} may require a secure decoder for a given {@link Format}.
+   *
+   * @param drmSession The {@link DrmSession}.
+   * @param format The {@link Format}.
+   * @return Whether a secure decoder may be required.
+   */
+  private static boolean maybeRequiresSecureDecoder(
+      DrmSession<FrameworkMediaCrypto> drmSession, Format format) {
+    @Nullable FrameworkMediaCrypto sessionMediaCrypto = drmSession.getMediaCrypto();
+    if (sessionMediaCrypto == null) {
+      // We'd only expect this to happen if the CDM from which the pending session is obtained needs
+      // provisioning. This is unlikely to happen (it probably requires a switch from one DRM scheme
+      // to another, where the new CDM hasn't been used before and needs provisioning). Assume that
+      // a secure decoder may be required.
+      return true;
     }
-    return false;
+    if (sessionMediaCrypto.forceAllowInsecureDecoderComponents) {
+      return false;
+    }
+    MediaCrypto mediaCrypto;
+    try {
+      mediaCrypto = new MediaCrypto(sessionMediaCrypto.uuid, sessionMediaCrypto.sessionId);
+    } catch (MediaCryptoException e) {
+      // This shouldn't happen, but if it does then assume that a secure decoder may be required.
+      return true;
+    }
+    try {
+      return mediaCrypto.requiresSecureDecoderComponent(format.sampleMimeType);
+    } finally {
+      mediaCrypto.release();
+    }
   }
 
   private static MediaCodec.CryptoInfo getFrameworkCryptoInfo(
@@ -1944,4 +1995,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
   }
 
+  /**
+   * Returns whether the decoder is known to behave incorrectly if flushed prior to having output a
+   * {@link MediaFormat}.
+   *
+   * <p>If true is returned, the renderer will work around the issue by instantiating a new decoder
+   * when this case occurs.
+   *
+   * <p>See [Internal: b/141097367].
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to behave incorrectly if flushed prior to having output a
+   *     {@link MediaFormat}. False otherwise.
+   */
+  private static boolean codecNeedsSosFlushWorkaround(String name) {
+    return Util.SDK_INT == 29 && "c2.android.aac.decoder".equals(name);
+  }
 }

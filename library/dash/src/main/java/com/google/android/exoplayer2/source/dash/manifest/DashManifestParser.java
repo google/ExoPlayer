@@ -222,10 +222,11 @@ public class DashManifestParser extends DefaultHandler
 
   protected Pair<Period, Long> parsePeriod(XmlPullParser xpp, String baseUrl, long defaultStartMs)
       throws XmlPullParserException, IOException {
-    String id = xpp.getAttributeValue(null, "id");
+    @Nullable String id = xpp.getAttributeValue(null, "id");
     long startMs = parseDuration(xpp, "start", defaultStartMs);
     long durationMs = parseDuration(xpp, "duration", C.TIME_UNSET);
-    SegmentBase segmentBase = null;
+    @Nullable SegmentBase segmentBase = null;
+    @Nullable Descriptor assetIdentifier = null;
     List<AdaptationSet> adaptationSets = new ArrayList<>();
     List<EventStream> eventStreams = new ArrayList<>();
     boolean seenFirstBaseUrl = false;
@@ -246,17 +247,24 @@ public class DashManifestParser extends DefaultHandler
         segmentBase = parseSegmentList(xpp, null, durationMs);
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentTemplate")) {
         segmentBase = parseSegmentTemplate(xpp, null, Collections.emptyList(), durationMs);
+      } else if (XmlPullParserUtil.isStartTag(xpp, "AssetIdentifier")) {
+        assetIdentifier = parseDescriptor(xpp, "AssetIdentifier");
       } else {
         maybeSkipTag(xpp);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "Period"));
 
-    return Pair.create(buildPeriod(id, startMs, adaptationSets, eventStreams), durationMs);
+    return Pair.create(
+        buildPeriod(id, startMs, adaptationSets, eventStreams, assetIdentifier), durationMs);
   }
 
-  protected Period buildPeriod(String id, long startMs, List<AdaptationSet> adaptationSets,
-      List<EventStream> eventStreams) {
-    return new Period(id, startMs, adaptationSets, eventStreams);
+  protected Period buildPeriod(
+      @Nullable String id,
+      long startMs,
+      List<AdaptationSet> adaptationSets,
+      List<EventStream> eventStreams,
+      @Nullable Descriptor assetIdentifier) {
+    return new Period(id, startMs, adaptationSets, eventStreams, assetIdentifier);
   }
 
   // AdaptationSet parsing.
@@ -281,6 +289,7 @@ public class DashManifestParser extends DefaultHandler
     ArrayList<Descriptor> inbandEventStreams = new ArrayList<>();
     ArrayList<Descriptor> accessibilityDescriptors = new ArrayList<>();
     ArrayList<Descriptor> roleDescriptors = new ArrayList<>();
+    ArrayList<Descriptor> essentialProperties = new ArrayList<>();
     ArrayList<Descriptor> supplementalProperties = new ArrayList<>();
     List<RepresentationInfo> representationInfos = new ArrayList<>();
 
@@ -309,6 +318,8 @@ public class DashManifestParser extends DefaultHandler
         audioChannels = parseAudioChannelConfiguration(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Accessibility")) {
         accessibilityDescriptors.add(parseDescriptor(xpp, "Accessibility"));
+      } else if (XmlPullParserUtil.isStartTag(xpp, "EssentialProperty")) {
+        essentialProperties.add(parseDescriptor(xpp, "EssentialProperty"));
       } else if (XmlPullParserUtil.isStartTag(xpp, "SupplementalProperty")) {
         supplementalProperties.add(parseDescriptor(xpp, "SupplementalProperty"));
       } else if (XmlPullParserUtil.isStartTag(xpp, "Representation")) {
@@ -326,6 +337,7 @@ public class DashManifestParser extends DefaultHandler
                 language,
                 roleDescriptors,
                 accessibilityDescriptors,
+                essentialProperties,
                 supplementalProperties,
                 segmentBase,
                 periodDurationMs);
@@ -361,14 +373,28 @@ public class DashManifestParser extends DefaultHandler
               inbandEventStreams));
     }
 
-    return buildAdaptationSet(id, contentType, representations, accessibilityDescriptors,
+    return buildAdaptationSet(
+        id,
+        contentType,
+        representations,
+        accessibilityDescriptors,
+        essentialProperties,
         supplementalProperties);
   }
 
-  protected AdaptationSet buildAdaptationSet(int id, int contentType,
-      List<Representation> representations, List<Descriptor> accessibilityDescriptors,
+  protected AdaptationSet buildAdaptationSet(
+      int id,
+      int contentType,
+      List<Representation> representations,
+      List<Descriptor> accessibilityDescriptors,
+      List<Descriptor> essentialProperties,
       List<Descriptor> supplementalProperties) {
-    return new AdaptationSet(id, contentType, representations, accessibilityDescriptors,
+    return new AdaptationSet(
+        id,
+        contentType,
+        representations,
+        accessibilityDescriptors,
+        essentialProperties,
         supplementalProperties);
   }
 
@@ -497,6 +523,7 @@ public class DashManifestParser extends DefaultHandler
       @Nullable String adaptationSetLanguage,
       List<Descriptor> adaptationSetRoleDescriptors,
       List<Descriptor> adaptationSetAccessibilityDescriptors,
+      List<Descriptor> adaptationSetEssentialProperties,
       List<Descriptor> adaptationSetSupplementalProperties,
       @Nullable SegmentBase segmentBase,
       long periodDurationMs)
@@ -514,7 +541,9 @@ public class DashManifestParser extends DefaultHandler
     String drmSchemeType = null;
     ArrayList<SchemeData> drmSchemeDatas = new ArrayList<>();
     ArrayList<Descriptor> inbandEventStreams = new ArrayList<>();
-    ArrayList<Descriptor> supplementalProperties = new ArrayList<>();
+    ArrayList<Descriptor> essentialProperties = new ArrayList<>(adaptationSetEssentialProperties);
+    ArrayList<Descriptor> supplementalProperties =
+        new ArrayList<>(adaptationSetSupplementalProperties);
 
     boolean seenFirstBaseUrl = false;
     do {
@@ -547,6 +576,8 @@ public class DashManifestParser extends DefaultHandler
         }
       } else if (XmlPullParserUtil.isStartTag(xpp, "InbandEventStream")) {
         inbandEventStreams.add(parseDescriptor(xpp, "InbandEventStream"));
+      } else if (XmlPullParserUtil.isStartTag(xpp, "EssentialProperty")) {
+        essentialProperties.add(parseDescriptor(xpp, "EssentialProperty"));
       } else if (XmlPullParserUtil.isStartTag(xpp, "SupplementalProperty")) {
         supplementalProperties.add(parseDescriptor(xpp, "SupplementalProperty"));
       } else {
@@ -568,6 +599,7 @@ public class DashManifestParser extends DefaultHandler
             adaptationSetRoleDescriptors,
             adaptationSetAccessibilityDescriptors,
             codecs,
+            essentialProperties,
             supplementalProperties);
     segmentBase = segmentBase != null ? segmentBase : new SingleSegmentBase();
 
@@ -588,11 +620,14 @@ public class DashManifestParser extends DefaultHandler
       List<Descriptor> roleDescriptors,
       List<Descriptor> accessibilityDescriptors,
       @Nullable String codecs,
+      List<Descriptor> essentialProperties,
       List<Descriptor> supplementalProperties) {
     String sampleMimeType = getSampleMimeType(containerMimeType, codecs);
     @C.SelectionFlags int selectionFlags = parseSelectionFlagsFromRoleDescriptors(roleDescriptors);
     @C.RoleFlags int roleFlags = parseRoleFlagsFromRoleDescriptors(roleDescriptors);
     roleFlags |= parseRoleFlagsFromAccessibilityDescriptors(accessibilityDescriptors);
+    roleFlags |= parseRoleFlagsFromProperties(essentialProperties);
+    roleFlags |= parseRoleFlagsFromProperties(supplementalProperties);
     if (sampleMimeType != null) {
       if (MimeTypes.AUDIO_E_AC3.equals(sampleMimeType)) {
         sampleMimeType = parseEac3SupplementalProperties(supplementalProperties);
@@ -1220,6 +1255,18 @@ public class DashManifestParser extends DefaultHandler
       } else if ("urn:tva:metadata:cs:AudioPurposeCS:2007"
           .equalsIgnoreCase(descriptor.schemeIdUri)) {
         result |= parseTvaAudioPurposeCsValue(descriptor.value);
+      }
+    }
+    return result;
+  }
+
+  @C.RoleFlags
+  protected int parseRoleFlagsFromProperties(List<Descriptor> accessibilityDescriptors) {
+    @C.RoleFlags int result = 0;
+    for (int i = 0; i < accessibilityDescriptors.size(); i++) {
+      Descriptor descriptor = accessibilityDescriptors.get(i);
+      if ("http://dashif.org/guidelines/trickmode".equalsIgnoreCase(descriptor.schemeIdUri)) {
+        result |= C.ROLE_FLAG_TRICK_PLAY;
       }
     }
     return result;

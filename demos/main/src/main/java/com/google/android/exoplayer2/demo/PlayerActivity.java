@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.demo.Sample.UriSample;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -380,6 +381,7 @@ public class PlayerActivity extends AppCompatActivity
               .setTrackSelector(trackSelector)
               .build();
       player.addListener(new PlayerEventListener());
+      player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));
       playerView.setPlayer(player);
@@ -432,6 +434,11 @@ public class PlayerActivity extends AppCompatActivity
       mediaSources[i] = createLeafMediaSource(samples[i]);
       Sample.SubtitleInfo subtitleInfo = samples[i].subtitleInfo;
       if (subtitleInfo != null) {
+        if (Util.maybeRequestReadExternalStoragePermission(
+            /* activity= */ this, subtitleInfo.uri)) {
+          // The player will be reinitialized if the permission is granted.
+          return null;
+        }
         Format subtitleFormat =
             Format.createTextSampleFormat(
                 /* id= */ null,
@@ -507,7 +514,7 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private MediaSource createLeafMediaSource(
-      Uri uri, String extension, DrmSessionManager<ExoMediaCrypto> drmSessionManager) {
+      Uri uri, String extension, DrmSessionManager<?> drmSessionManager) {
     @ContentType int type = Util.inferContentType(uri, extension);
     switch (type) {
       case C.TYPE_DASH:
@@ -615,10 +622,23 @@ public class PlayerActivity extends AppCompatActivity
       }
       MediaSourceFactory adMediaSourceFactory =
           new MediaSourceFactory() {
+
+            private DrmSessionManager<?> drmSessionManager =
+                DrmSessionManager.getDummyDrmSessionManager();
+
+            @Override
+            public MediaSourceFactory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+              this.drmSessionManager =
+                  drmSessionManager != null
+                      ? drmSessionManager
+                      : DrmSessionManager.getDummyDrmSessionManager();
+              return this;
+            }
+
             @Override
             public MediaSource createMediaSource(Uri uri) {
               return PlayerActivity.this.createLeafMediaSource(
-                  uri, /* extension=*/ null, DrmSessionManager.getDummyDrmSessionManager());
+                  uri, /* extension=*/ null, drmSessionManager);
             }
 
             @Override

@@ -26,6 +26,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.util.Pair;
 import android.view.Surface;
@@ -158,7 +159,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private boolean tunneling;
   private int tunnelingAudioSessionId;
-  /* package */ OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
+  /* package */ @Nullable OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
 
   private long lastInputTimeUs;
   private long outputStreamOffsetUs;
@@ -767,7 +768,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @CallSuper
   @Override
   protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
-    buffersInCodecCount++;
+    // In tunneling mode the device may do frame rate conversion, so in general we can't keep track
+    // of the number of buffers in the codec.
+    if (!tunneling) {
+      buffersInCodecCount++;
+    }
     lastInputTimeUs = Math.max(buffer.timeUs, lastInputTimeUs);
     if (Util.SDK_INT < 23 && tunneling) {
       // In tunneled mode before API 23 we don't have a way to know when the buffer is output, so
@@ -995,6 +1000,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       processOutputFormat(getCodec(), format.width, format.height);
     }
     maybeNotifyVideoSizeChanged();
+    decoderCounters.renderedOutputBufferCount++;
     maybeNotifyRenderedFirstFrame();
     onProcessedOutputBuffer(presentationTimeUs);
   }
@@ -1012,7 +1018,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @CallSuper
   @Override
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
-    buffersInCodecCount--;
+    if (!tunneling) {
+      buffersInCodecCount--;
+    }
     while (pendingOutputStreamOffsetCount != 0
         && presentationTimeUs >= pendingOutputStreamSwitchTimesUs[0]) {
       outputStreamOffsetUs = pendingOutputStreamOffsetsUs[0];
@@ -1608,9 +1616,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     synchronized (MediaCodecVideoRenderer.class) {
       if (!evaluatedDeviceNeedsSetOutputSurfaceWorkaround) {
-        if (Util.SDK_INT <= 27 && ("dangal".equals(Util.DEVICE) || "HWEML".equals(Util.DEVICE))) {
-          // A small number of devices are affected on API level 27:
-          // https://github.com/google/ExoPlayer/issues/5169.
+        if ("dangal".equals(Util.DEVICE)) {
+          // Workaround for MiTV devices:
+          // https://github.com/google/ExoPlayer/issues/5169,
+          // https://github.com/google/ExoPlayer/issues/6899.
+          deviceNeedsSetOutputSurfaceWorkaround = true;
+        } else if (Util.SDK_INT <= 27 && "HWEML".equals(Util.DEVICE)) {
+          // Workaround for Huawei P20:
+          // https://github.com/google/ExoPlayer/issues/4468#issuecomment-459291645.
           deviceNeedsSetOutputSurfaceWorkaround = true;
         } else if (Util.SDK_INT >= 27) {
           // In general, devices running API level 27 or later should be unaffected. Do nothing.
@@ -1800,14 +1813,52 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @TargetApi(23)
-  private final class OnFrameRenderedListenerV23 implements MediaCodec.OnFrameRenderedListener {
+  private final class OnFrameRenderedListenerV23
+      implements MediaCodec.OnFrameRenderedListener, Handler.Callback {
 
-    private OnFrameRenderedListenerV23(MediaCodec codec) {
-      codec.setOnFrameRenderedListener(this, new Handler());
+    private static final int HANDLE_FRAME_RENDERED = 0;
+
+    private final Handler handler;
+
+    public OnFrameRenderedListenerV23(MediaCodec codec) {
+      handler = new Handler(this);
+      codec.setOnFrameRenderedListener(/* listener= */ this, handler);
     }
 
     @Override
     public void onFrameRendered(MediaCodec codec, long presentationTimeUs, long nanoTime) {
+      // Workaround bug in MediaCodec that causes deadlock if you call directly back into the
+      // MediaCodec from this listener method.
+      // Deadlock occurs because MediaCodec calls this listener method holding a lock,
+      // which may also be required by calls made back into the MediaCodec.
+      // This was fixed in https://android-review.googlesource.com/1156807.
+      //
+      // The workaround queues the event for subsequent processing, where the lock will not be held.
+      if (Util.SDK_INT < 30) {
+        Message message =
+            Message.obtain(
+                handler,
+                /* what= */ HANDLE_FRAME_RENDERED,
+                /* arg1= */ (int) (presentationTimeUs >> 32),
+                /* arg2= */ (int) presentationTimeUs);
+        handler.sendMessageAtFrontOfQueue(message);
+      } else {
+        handleFrameRendered(presentationTimeUs);
+      }
+    }
+
+    @Override
+    public boolean handleMessage(Message message) {
+      switch (message.what) {
+        case HANDLE_FRAME_RENDERED:
+          handleFrameRendered(Util.toLong(message.arg1, message.arg2));
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    private void handleFrameRendered(long presentationTimeUs) {
       if (this != tunnelingOnFrameRenderedListener) {
         // Stale event.
         return;
@@ -1818,6 +1869,5 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         onProcessedTunneledBuffer(presentationTimeUs);
       }
     }
-
   }
 }

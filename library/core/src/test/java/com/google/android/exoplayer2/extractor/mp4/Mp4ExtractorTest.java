@@ -37,4 +37,14 @@ public final class Mp4ExtractorTest {
   public void testMp4SampleWithMdatTooLong() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_mdat_too_long.mp4");
   }
+
+  @Test
+  public void testMp4SampleWithAc4Track() throws Exception {
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_ac4.mp4");
+  }
+
+  @Test
+  public void testMp4SampleWithSlowMotionMetadata() throws Exception {
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_android_slow_motion.mp4");
+  }
 }

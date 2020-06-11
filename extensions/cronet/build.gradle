@@ -31,7 +31,7 @@ android {
 }
 
 dependencies {
-    api 'org.chromium.net:cronet-embedded:76.3809.111'
+    api "com.google.android.gms:play-services-cronet:17.0.0"
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion

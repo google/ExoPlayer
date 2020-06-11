@@ -812,10 +812,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
         extractor =
             new FragmentedMp4Extractor(
-                flags, null, null, null, closedCaptionFormats, playerEmsgTrackOutput);
+                flags,
+                /* timestampAdjuster= */ null,
+                /* sideloadedTrack= */ null,
+                closedCaptionFormats,
+                playerEmsgTrackOutput);
       }
-      // Prefer drmInitData obtained from the manifest over drmInitData obtained from the stream,
-      // as per DASH IF Interoperability Recommendations V3.0, 7.5.3.
       return new ChunkExtractorWrapper(extractor, trackType, representation.format);
     }
   }

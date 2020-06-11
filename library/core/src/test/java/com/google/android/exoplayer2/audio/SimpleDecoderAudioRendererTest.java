@@ -67,9 +67,13 @@ public class SimpleDecoderAudioRendererTest {
           @Override
           protected SimpleDecoder<
                   DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends AudioDecoderException>
-              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
-                  throws AudioDecoderException {
+              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
             return new FakeDecoder();
+          }
+
+          @Override
+          protected Format getOutputFormat() {
+            return FORMAT;
           }
         };
   }

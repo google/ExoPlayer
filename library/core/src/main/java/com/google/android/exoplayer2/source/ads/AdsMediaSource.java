@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.ads;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -44,10 +45,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link MediaSource} that inserts ads linearly with a provided content media source. This source
@@ -128,15 +128,13 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   private final AdsLoader adsLoader;
   private final AdsLoader.AdViewProvider adViewProvider;
   private final Handler mainHandler;
-  private final Map<MediaSource, List<MaskingMediaPeriod>> maskingMediaPeriodByAdMediaSource;
   private final Timeline.Period period;
 
   // Accessed on the player thread.
   @Nullable private ComponentListener componentListener;
   @Nullable private Timeline contentTimeline;
   @Nullable private AdPlaybackState adPlaybackState;
-  private @NullableType MediaSource[][] adGroupMediaSources;
-  private @NullableType Timeline[][] adGroupTimelines;
+  private @NullableType AdMediaSourceHolder[][] adMediaSourceHolders;
 
   /**
    * Constructs a new source that inserts ads linearly with the content specified by {@code
@@ -178,10 +176,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     this.adsLoader = adsLoader;
     this.adViewProvider = adViewProvider;
     mainHandler = new Handler(Looper.getMainLooper());
-    maskingMediaPeriodByAdMediaSource = new HashMap<>();
     period = new Timeline.Period();
-    adGroupMediaSources = new MediaSource[0][];
-    adGroupTimelines = new Timeline[0][];
+    adMediaSourceHolders = new AdMediaSourceHolder[0][];
     adsLoader.setSupportedContentTypes(adMediaSourceFactory.getSupportedTypes());
   }
 
@@ -208,36 +204,21 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       int adIndexInAdGroup = id.adIndexInAdGroup;
       Uri adUri =
           Assertions.checkNotNull(adPlaybackState.adGroups[adGroupIndex].uris[adIndexInAdGroup]);
-      if (adGroupMediaSources[adGroupIndex].length <= adIndexInAdGroup) {
+      if (adMediaSourceHolders[adGroupIndex].length <= adIndexInAdGroup) {
         int adCount = adIndexInAdGroup + 1;
-        adGroupMediaSources[adGroupIndex] =
-            Arrays.copyOf(adGroupMediaSources[adGroupIndex], adCount);
-        adGroupTimelines[adGroupIndex] = Arrays.copyOf(adGroupTimelines[adGroupIndex], adCount);
+        adMediaSourceHolders[adGroupIndex] =
+            Arrays.copyOf(adMediaSourceHolders[adGroupIndex], adCount);
       }
-      MediaSource mediaSource = adGroupMediaSources[adGroupIndex][adIndexInAdGroup];
-      if (mediaSource == null) {
-        mediaSource = adMediaSourceFactory.createMediaSource(adUri);
-        adGroupMediaSources[adGroupIndex][adIndexInAdGroup] = mediaSource;
-        maskingMediaPeriodByAdMediaSource.put(mediaSource, new ArrayList<>());
-        prepareChildSource(id, mediaSource);
+      @Nullable
+      AdMediaSourceHolder adMediaSourceHolder =
+          adMediaSourceHolders[adGroupIndex][adIndexInAdGroup];
+      if (adMediaSourceHolder == null) {
+        MediaSource adMediaSource = adMediaSourceFactory.createMediaSource(adUri);
+        adMediaSourceHolder = new AdMediaSourceHolder(adMediaSource);
+        adMediaSourceHolders[adGroupIndex][adIndexInAdGroup] = adMediaSourceHolder;
+        prepareChildSource(id, adMediaSource);
       }
-      MaskingMediaPeriod maskingMediaPeriod =
-          new MaskingMediaPeriod(mediaSource, id, allocator, startPositionUs);
-      maskingMediaPeriod.setPrepareErrorListener(
-          new AdPrepareErrorListener(adUri, adGroupIndex, adIndexInAdGroup));
-      List<MaskingMediaPeriod> mediaPeriods = maskingMediaPeriodByAdMediaSource.get(mediaSource);
-      if (mediaPeriods == null) {
-        Object periodUid =
-            Assertions.checkNotNull(adGroupTimelines[adGroupIndex][adIndexInAdGroup])
-                .getUidOfPeriod(/* periodIndex= */ 0);
-        MediaPeriodId adSourceMediaPeriodId = new MediaPeriodId(periodUid, id.windowSequenceNumber);
-        maskingMediaPeriod.createPeriod(adSourceMediaPeriodId);
-      } else {
-        // Keep track of the masking media period so it can be populated with the real media period
-        // when the source's info becomes available.
-        mediaPeriods.add(maskingMediaPeriod);
-      }
-      return maskingMediaPeriod;
+      return adMediaSourceHolder.createMediaPeriod(adUri, id, allocator, startPositionUs);
     } else {
       MaskingMediaPeriod mediaPeriod =
           new MaskingMediaPeriod(contentMediaSource, id, allocator, startPositionUs);
@@ -249,12 +230,18 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
     MaskingMediaPeriod maskingMediaPeriod = (MaskingMediaPeriod) mediaPeriod;
-    List<MaskingMediaPeriod> mediaPeriods =
-        maskingMediaPeriodByAdMediaSource.get(maskingMediaPeriod.mediaSource);
-    if (mediaPeriods != null) {
-      mediaPeriods.remove(maskingMediaPeriod);
+    MediaPeriodId id = maskingMediaPeriod.id;
+    if (id.isAd()) {
+      AdMediaSourceHolder adMediaSourceHolder =
+          Assertions.checkNotNull(adMediaSourceHolders[id.adGroupIndex][id.adIndexInAdGroup]);
+      adMediaSourceHolder.releaseMediaPeriod(maskingMediaPeriod);
+      if (adMediaSourceHolder.isInactive()) {
+        releaseChildSource(id);
+        adMediaSourceHolders[id.adGroupIndex][id.adIndexInAdGroup] = null;
+      }
+    } else {
+      maskingMediaPeriod.releasePeriod();
     }
-    maskingMediaPeriod.releasePeriod();
   }
 
   @Override
@@ -262,11 +249,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     super.releaseSourceInternal();
     Assertions.checkNotNull(componentListener).release();
     componentListener = null;
-    maskingMediaPeriodByAdMediaSource.clear();
     contentTimeline = null;
     adPlaybackState = null;
-    adGroupMediaSources = new MediaSource[0][];
-    adGroupTimelines = new Timeline[0][];
+    adMediaSourceHolders = new AdMediaSourceHolder[0][];
     mainHandler.post(adsLoader::stop);
   }
 
@@ -276,14 +261,17 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     if (mediaPeriodId.isAd()) {
       int adGroupIndex = mediaPeriodId.adGroupIndex;
       int adIndexInAdGroup = mediaPeriodId.adIndexInAdGroup;
-      onAdSourceInfoRefreshed(mediaSource, adGroupIndex, adIndexInAdGroup, timeline);
+      Assertions.checkNotNull(adMediaSourceHolders[adGroupIndex][adIndexInAdGroup])
+          .handleSourceInfoRefresh(timeline);
     } else {
-      onContentSourceInfoRefreshed(timeline);
+      Assertions.checkArgument(timeline.getPeriodCount() == 1);
+      contentTimeline = timeline;
     }
+    maybeUpdateSourceInfo();
   }
 
   @Override
-  protected @Nullable MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
+  protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       MediaPeriodId childId, MediaPeriodId mediaPeriodId) {
     // The child id for the content period is just DUMMY_CONTENT_MEDIA_PERIOD_ID. That's why we need
     // to forward the reported mediaPeriodId in this case.
@@ -294,42 +282,17 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   private void onAdPlaybackState(AdPlaybackState adPlaybackState) {
     if (this.adPlaybackState == null) {
-      adGroupMediaSources = new MediaSource[adPlaybackState.adGroupCount][];
-      Arrays.fill(adGroupMediaSources, new MediaSource[0]);
-      adGroupTimelines = new Timeline[adPlaybackState.adGroupCount][];
-      Arrays.fill(adGroupTimelines, new Timeline[0]);
+      adMediaSourceHolders = new AdMediaSourceHolder[adPlaybackState.adGroupCount][];
+      Arrays.fill(adMediaSourceHolders, new AdMediaSourceHolder[0]);
     }
     this.adPlaybackState = adPlaybackState;
     maybeUpdateSourceInfo();
   }
 
-  private void onContentSourceInfoRefreshed(Timeline timeline) {
-    Assertions.checkArgument(timeline.getPeriodCount() == 1);
-    contentTimeline = timeline;
-    maybeUpdateSourceInfo();
-  }
-
-  private void onAdSourceInfoRefreshed(MediaSource mediaSource, int adGroupIndex,
-      int adIndexInAdGroup, Timeline timeline) {
-    Assertions.checkArgument(timeline.getPeriodCount() == 1);
-    adGroupTimelines[adGroupIndex][adIndexInAdGroup] = timeline;
-    List<MaskingMediaPeriod> mediaPeriods = maskingMediaPeriodByAdMediaSource.remove(mediaSource);
-    if (mediaPeriods != null) {
-      Object periodUid = timeline.getUidOfPeriod(/* periodIndex= */ 0);
-      for (int i = 0; i < mediaPeriods.size(); i++) {
-        MaskingMediaPeriod mediaPeriod = mediaPeriods.get(i);
-        MediaPeriodId adSourceMediaPeriodId =
-            new MediaPeriodId(periodUid, mediaPeriod.id.windowSequenceNumber);
-        mediaPeriod.createPeriod(adSourceMediaPeriodId);
-      }
-    }
-    maybeUpdateSourceInfo();
-  }
-
   private void maybeUpdateSourceInfo() {
-    Timeline contentTimeline = this.contentTimeline;
+    @Nullable Timeline contentTimeline = this.contentTimeline;
     if (adPlaybackState != null && contentTimeline != null) {
-      adPlaybackState = adPlaybackState.withAdDurationsUs(getAdDurations(adGroupTimelines, period));
+      adPlaybackState = adPlaybackState.withAdDurationsUs(getAdDurationsUs());
       Timeline timeline =
           adPlaybackState.adGroupCount == 0
               ? contentTimeline
@@ -338,19 +301,16 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     }
   }
 
-  private static long[][] getAdDurations(
-      @NullableType Timeline[][] adTimelines, Timeline.Period period) {
-    long[][] adDurations = new long[adTimelines.length][];
-    for (int i = 0; i < adTimelines.length; i++) {
-      adDurations[i] = new long[adTimelines[i].length];
-      for (int j = 0; j < adTimelines[i].length; j++) {
-        adDurations[i][j] =
-            adTimelines[i][j] == null
-                ? C.TIME_UNSET
-                : adTimelines[i][j].getPeriod(/* periodIndex= */ 0, period).getDurationUs();
+  private long[][] getAdDurationsUs() {
+    long[][] adDurationsUs = new long[adMediaSourceHolders.length][];
+    for (int i = 0; i < adMediaSourceHolders.length; i++) {
+      adDurationsUs[i] = new long[adMediaSourceHolders[i].length];
+      for (int j = 0; j < adMediaSourceHolders[i].length; j++) {
+        @Nullable AdMediaSourceHolder holder = adMediaSourceHolders[i][j];
+        adDurationsUs[i][j] = holder == null ? C.TIME_UNSET : holder.getDurationUs();
       }
     }
-    return adDurations;
+    return adDurationsUs;
   }
 
   /** Listener for component events. All methods are called on the main thread. */
@@ -399,7 +359,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
               dataSpec.uri,
               /* responseHeaders= */ Collections.emptyMap(),
               C.DATA_TYPE_AD,
-              C.TRACK_TYPE_UNKNOWN,
+              /* elapsedRealtimeMs= */ SystemClock.elapsedRealtime(),
               /* loadDurationMs= */ 0,
               /* bytesLoaded= */ 0,
               error,
@@ -434,6 +394,63 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
               /* wasCanceled= */ true);
       mainHandler.post(
           () -> adsLoader.handlePrepareError(adGroupIndex, adIndexInAdGroup, exception));
+    }
+  }
+
+  private final class AdMediaSourceHolder {
+
+    private final MediaSource adMediaSource;
+    private final List<MaskingMediaPeriod> activeMediaPeriods;
+
+    @MonotonicNonNull private Timeline timeline;
+
+    public AdMediaSourceHolder(MediaSource adMediaSource) {
+      this.adMediaSource = adMediaSource;
+      activeMediaPeriods = new ArrayList<>();
+    }
+
+    public MediaPeriod createMediaPeriod(
+        Uri adUri, MediaPeriodId id, Allocator allocator, long startPositionUs) {
+      MaskingMediaPeriod maskingMediaPeriod =
+          new MaskingMediaPeriod(adMediaSource, id, allocator, startPositionUs);
+      maskingMediaPeriod.setPrepareErrorListener(
+          new AdPrepareErrorListener(adUri, id.adGroupIndex, id.adIndexInAdGroup));
+      activeMediaPeriods.add(maskingMediaPeriod);
+      if (timeline != null) {
+        Object periodUid = timeline.getUidOfPeriod(/* periodIndex= */ 0);
+        MediaPeriodId adSourceMediaPeriodId = new MediaPeriodId(periodUid, id.windowSequenceNumber);
+        maskingMediaPeriod.createPeriod(adSourceMediaPeriodId);
+      }
+      return maskingMediaPeriod;
+    }
+
+    public void handleSourceInfoRefresh(Timeline timeline) {
+      Assertions.checkArgument(timeline.getPeriodCount() == 1);
+      if (this.timeline == null) {
+        Object periodUid = timeline.getUidOfPeriod(/* periodIndex= */ 0);
+        for (int i = 0; i < activeMediaPeriods.size(); i++) {
+          MaskingMediaPeriod mediaPeriod = activeMediaPeriods.get(i);
+          MediaPeriodId adSourceMediaPeriodId =
+              new MediaPeriodId(periodUid, mediaPeriod.id.windowSequenceNumber);
+          mediaPeriod.createPeriod(adSourceMediaPeriodId);
+        }
+      }
+      this.timeline = timeline;
+    }
+
+    public long getDurationUs() {
+      return timeline == null
+          ? C.TIME_UNSET
+          : timeline.getPeriod(/* periodIndex= */ 0, period).getDurationUs();
+    }
+
+    public void releaseMediaPeriod(MaskingMediaPeriod maskingMediaPeriod) {
+      activeMediaPeriods.remove(maskingMediaPeriod);
+      maskingMediaPeriod.releasePeriod();
+    }
+
+    public boolean isInactive() {
+      return activeMediaPeriods.isEmpty();
     }
   }
 }

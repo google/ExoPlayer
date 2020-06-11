@@ -95,14 +95,16 @@ public final class C {
    * The name of the ASCII charset.
    */
   public static final String ASCII_NAME = "US-ASCII";
+
   /**
    * The name of the UTF-8 charset.
    */
   public static final String UTF8_NAME = "UTF-8";
 
-  /**
-   * The name of the UTF-16 charset.
-   */
+  /** The name of the ISO-8859-1 charset. */
+  public static final String ISO88591_NAME = "ISO-8859-1";
+
+  /** The name of the UTF-16 charset. */
   public static final String UTF16_NAME = "UTF-16";
 
   /** The name of the UTF-16 little-endian charset. */
@@ -148,8 +150,8 @@ public final class C {
   /**
    * Represents an audio encoding, or an invalid or unset value. One of {@link Format#NO_VALUE},
    * {@link #ENCODING_INVALID}, {@link #ENCODING_PCM_8BIT}, {@link #ENCODING_PCM_16BIT}, {@link
-   * #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT}, {@link #ENCODING_PCM_FLOAT}, {@link
-   * #ENCODING_PCM_MU_LAW}, {@link #ENCODING_PCM_A_LAW}, {@link #ENCODING_AC3}, {@link
+   * #ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT},
+   * {@link #ENCODING_PCM_FLOAT}, {@link #ENCODING_MP3}, {@link #ENCODING_AC3}, {@link
    * #ENCODING_E_AC3}, {@link #ENCODING_E_AC3_JOC}, {@link #ENCODING_AC4}, {@link #ENCODING_DTS},
    * {@link #ENCODING_DTS_HD} or {@link #ENCODING_DOLBY_TRUEHD}.
    */
@@ -160,26 +162,26 @@ public final class C {
     ENCODING_INVALID,
     ENCODING_PCM_8BIT,
     ENCODING_PCM_16BIT,
+    ENCODING_PCM_16BIT_BIG_ENDIAN,
     ENCODING_PCM_24BIT,
     ENCODING_PCM_32BIT,
     ENCODING_PCM_FLOAT,
-    ENCODING_PCM_MU_LAW,
-    ENCODING_PCM_A_LAW,
+    ENCODING_MP3,
     ENCODING_AC3,
     ENCODING_E_AC3,
     ENCODING_E_AC3_JOC,
     ENCODING_AC4,
     ENCODING_DTS,
     ENCODING_DTS_HD,
-    ENCODING_DOLBY_TRUEHD,
+    ENCODING_DOLBY_TRUEHD
   })
   public @interface Encoding {}
 
   /**
    * Represents a PCM audio encoding, or an invalid or unset value. One of {@link Format#NO_VALUE},
    * {@link #ENCODING_INVALID}, {@link #ENCODING_PCM_8BIT}, {@link #ENCODING_PCM_16BIT}, {@link
-   * #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT}, {@link #ENCODING_PCM_FLOAT}, {@link
-   * #ENCODING_PCM_MU_LAW} or {@link #ENCODING_PCM_A_LAW}.
+   * #ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT},
+   * {@link #ENCODING_PCM_FLOAT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -188,11 +190,10 @@ public final class C {
     ENCODING_INVALID,
     ENCODING_PCM_8BIT,
     ENCODING_PCM_16BIT,
+    ENCODING_PCM_16BIT_BIG_ENDIAN,
     ENCODING_PCM_24BIT,
     ENCODING_PCM_32BIT,
-    ENCODING_PCM_FLOAT,
-    ENCODING_PCM_MU_LAW,
-    ENCODING_PCM_A_LAW
+    ENCODING_PCM_FLOAT
   })
   public @interface PcmEncoding {}
   /** @see AudioFormat#ENCODING_INVALID */
@@ -201,16 +202,16 @@ public final class C {
   public static final int ENCODING_PCM_8BIT = AudioFormat.ENCODING_PCM_8BIT;
   /** @see AudioFormat#ENCODING_PCM_16BIT */
   public static final int ENCODING_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
+  /** Like {@link #ENCODING_PCM_16BIT}, but with the bytes in big endian order. */
+  public static final int ENCODING_PCM_16BIT_BIG_ENDIAN = 0x10000000;
   /** PCM encoding with 24 bits per sample. */
-  public static final int ENCODING_PCM_24BIT = 0x80000000;
+  public static final int ENCODING_PCM_24BIT = 0x20000000;
   /** PCM encoding with 32 bits per sample. */
-  public static final int ENCODING_PCM_32BIT = 0x40000000;
+  public static final int ENCODING_PCM_32BIT = 0x30000000;
   /** @see AudioFormat#ENCODING_PCM_FLOAT */
   public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;
-  /** Audio encoding for mu-law. */
-  public static final int ENCODING_PCM_MU_LAW = 0x10000000;
-  /** Audio encoding for A-law. */
-  public static final int ENCODING_PCM_A_LAW = 0x20000000;
+  /** @see AudioFormat#ENCODING_MP3 */
+  public static final int ENCODING_MP3 = AudioFormat.ENCODING_MP3;
   /** @see AudioFormat#ENCODING_AC3 */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
   /** @see AudioFormat#ENCODING_E_AC3 */
@@ -976,8 +977,8 @@ public final class C {
   /**
    * Network connection type. One of {@link #NETWORK_TYPE_UNKNOWN}, {@link #NETWORK_TYPE_OFFLINE},
    * {@link #NETWORK_TYPE_WIFI}, {@link #NETWORK_TYPE_2G}, {@link #NETWORK_TYPE_3G}, {@link
-   * #NETWORK_TYPE_4G}, {@link #NETWORK_TYPE_CELLULAR_UNKNOWN}, {@link #NETWORK_TYPE_ETHERNET} or
-   * {@link #NETWORK_TYPE_OTHER}.
+   * #NETWORK_TYPE_4G}, {@link #NETWORK_TYPE_5G}, {@link #NETWORK_TYPE_CELLULAR_UNKNOWN}, {@link
+   * #NETWORK_TYPE_ETHERNET} or {@link #NETWORK_TYPE_OTHER}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -988,6 +989,7 @@ public final class C {
     NETWORK_TYPE_2G,
     NETWORK_TYPE_3G,
     NETWORK_TYPE_4G,
+    NETWORK_TYPE_5G,
     NETWORK_TYPE_CELLULAR_UNKNOWN,
     NETWORK_TYPE_ETHERNET,
     NETWORK_TYPE_OTHER
@@ -1005,6 +1007,8 @@ public final class C {
   public static final int NETWORK_TYPE_3G = 4;
   /** Network type for a 4G cellular connection. */
   public static final int NETWORK_TYPE_4G = 5;
+  /** Network type for a 5G cellular connection. */
+  public static final int NETWORK_TYPE_5G = 9;
   /**
    * Network type for cellular connections which cannot be mapped to one of {@link
    * #NETWORK_TYPE_2G}, {@link #NETWORK_TYPE_3G}, or {@link #NETWORK_TYPE_4G}.
@@ -1012,11 +1016,39 @@ public final class C {
   public static final int NETWORK_TYPE_CELLULAR_UNKNOWN = 6;
   /** Network type for an Ethernet connection. */
   public static final int NETWORK_TYPE_ETHERNET = 7;
-  /**
-   * Network type for other connections which are not Wifi or cellular (e.g. Ethernet, VPN,
-   * Bluetooth).
-   */
+  /** Network type for other connections which are not Wifi or cellular (e.g. VPN, Bluetooth). */
   public static final int NETWORK_TYPE_OTHER = 8;
+
+  /**
+   * Mode specifying whether the player should hold a WakeLock and a WifiLock. One of {@link
+   * #WAKE_MODE_NONE}, {@link #WAKE_MODE_LOCAL} and {@link #WAKE_MODE_NETWORK}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({WAKE_MODE_NONE, WAKE_MODE_LOCAL, WAKE_MODE_NETWORK})
+  public @interface WakeMode {}
+  /**
+   * A wake mode that will not cause the player to hold any locks.
+   *
+   * <p>This is suitable for applications that do not play media with the screen off.
+   */
+  public static final int WAKE_MODE_NONE = 0;
+  /**
+   * A wake mode that will cause the player to hold a {@link android.os.PowerManager.WakeLock}
+   * during playback.
+   *
+   * <p>This is suitable for applications that play media with the screen off and do not load media
+   * over wifi.
+   */
+  public static final int WAKE_MODE_LOCAL = 1;
+  /**
+   * A wake mode that will cause the player to hold a {@link android.os.PowerManager.WakeLock} and a
+   * {@link android.net.wifi.WifiManager.WifiLock} during playback.
+   *
+   * <p>This is suitable for applications that play media with the screen off and may load media
+   * over wifi.
+   */
+  public static final int WAKE_MODE_NETWORK = 2;
 
   /**
    * Track role flags. Possible flag values are {@link #ROLE_FLAG_MAIN}, {@link
@@ -1024,7 +1056,8 @@ public final class C {
    * #ROLE_FLAG_DUB}, {@link #ROLE_FLAG_EMERGENCY}, {@link #ROLE_FLAG_CAPTION}, {@link
    * #ROLE_FLAG_SUBTITLE}, {@link #ROLE_FLAG_SIGN}, {@link #ROLE_FLAG_DESCRIBES_VIDEO}, {@link
    * #ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND}, {@link #ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY},
-   * {@link #ROLE_FLAG_TRANSCRIBES_DIALOG} and {@link #ROLE_FLAG_EASY_TO_READ}.
+   * {@link #ROLE_FLAG_TRANSCRIBES_DIALOG}, {@link #ROLE_FLAG_EASY_TO_READ} and {@link
+   * #ROLE_FLAG_TRICK_PLAY}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1044,7 +1077,8 @@ public final class C {
         ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND,
         ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY,
         ROLE_FLAG_TRANSCRIBES_DIALOG,
-        ROLE_FLAG_EASY_TO_READ
+        ROLE_FLAG_EASY_TO_READ,
+        ROLE_FLAG_TRICK_PLAY
       })
   public @interface RoleFlags {}
   /** Indicates a main track. */
@@ -1090,6 +1124,8 @@ public final class C {
   public static final int ROLE_FLAG_TRANSCRIBES_DIALOG = 1 << 12;
   /** Indicates the track contains a text that has been edited for ease of reading. */
   public static final int ROLE_FLAG_EASY_TO_READ = 1 << 13;
+  /** Indicates the track is intended for trick play. */
+  public static final int ROLE_FLAG_TRICK_PLAY = 1 << 14;
 
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving

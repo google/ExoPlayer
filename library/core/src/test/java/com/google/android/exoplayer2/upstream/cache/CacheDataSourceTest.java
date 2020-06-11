@@ -365,7 +365,6 @@ public final class CacheDataSourceTest {
     CacheUtil.cache(
         unboundedDataSpec,
         cache,
-        /* cacheKeyFactory= */ null,
         upstream2,
         /* progressListener= */ null,
         /* isCanceled= */ null);
@@ -414,7 +413,6 @@ public final class CacheDataSourceTest {
     CacheUtil.cache(
         unboundedDataSpec,
         cache,
-        /* cacheKeyFactory= */ null,
         upstream2,
         /* progressListener= */ null,
         /* isCanceled= */ null);
@@ -438,7 +436,6 @@ public final class CacheDataSourceTest {
     CacheUtil.cache(
         dataSpec,
         cache,
-        /* cacheKeyFactory= */ null,
         upstream,
         /* progressListener= */ null,
         /* isCanceled= */ null);
@@ -474,7 +471,6 @@ public final class CacheDataSourceTest {
     CacheUtil.cache(
         dataSpec,
         cache,
-        /* cacheKeyFactory= */ null,
         upstream,
         /* progressListener= */ null,
         /* isCanceled= */ null);

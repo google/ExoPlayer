@@ -137,20 +137,6 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
-     * default value is {@link DrmSessionManager#DUMMY}.
-     *
-     * @param drmSessionManager The {@link DrmSessionManager}.
-     * @return This factory, for convenience.
-     * @throws IllegalStateException If one of the {@code create} methods has already been called.
-     */
-    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
-      Assertions.checkState(!isCreateCalled);
-      this.drmSessionManager = drmSessionManager;
-      return this;
-    }
-
-    /**
      * Sets the minimum number of times to retry if a loading error occurs. See {@link
      * #setLoadErrorHandlingPolicy} for the default value.
      *
@@ -308,6 +294,24 @@ public final class DashMediaSource extends BaseMediaSource {
         mediaSource.addEventListener(eventHandler, eventListener);
       }
       return mediaSource;
+    }
+
+    /**
+     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
+     * default value is {@link DrmSessionManager#DUMMY}.
+     *
+     * @param drmSessionManager The {@link DrmSessionManager}.
+     * @return This factory, for convenience.
+     * @throws IllegalStateException If one of the {@code create} methods has already been called.
+     */
+    @Override
+    public Factory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+      Assertions.checkState(!isCreateCalled);
+      this.drmSessionManager =
+          drmSessionManager != null
+              ? drmSessionManager
+              : DrmSessionManager.getDummyDrmSessionManager();
+      return this;
     }
 
     /**
@@ -806,15 +810,18 @@ public final class DashMediaSource extends BaseMediaSource {
     manifestLoadPending &= manifest.dynamic;
     manifestLoadStartTimestampMs = elapsedRealtimeMs - loadDurationMs;
     manifestLoadEndTimestampMs = elapsedRealtimeMs;
-    if (manifest.location != null) {
-      synchronized (manifestUriLock) {
-        // This condition checks that replaceManifestUri wasn't called between the start and end of
-        // this load. If it was, we ignore the manifest location and prefer the manual replacement.
-        @SuppressWarnings("ReferenceEquality")
-        boolean isSameUriInstance = loadable.dataSpec.uri == manifestUri;
-        if (isSameUriInstance) {
-          manifestUri = manifest.location;
-        }
+
+    synchronized (manifestUriLock) {
+      // Checks whether replaceManifestUri(Uri) was called to manually replace the URI between the
+      // start and end of this load. If it was then isSameUriInstance evaluates to false, and we
+      // prefer the manual replacement to one derived from the previous request.
+      @SuppressWarnings("ReferenceEquality")
+      boolean isSameUriInstance = loadable.dataSpec.uri == manifestUri;
+      if (isSameUriInstance) {
+        // Replace the manifest URI with one specified by a manifest Location element (if present),
+        // or with the final (possibly redirected) URI. This follows the recommendation in
+        // DASH-IF-IOP 4.3, section 3.2.15.3. See: https://dashif.org/docs/DASH-IF-IOP-v4.3.pdf.
+        manifestUri = manifest.location != null ? manifest.location : loadable.getUri();
       }
     }
 

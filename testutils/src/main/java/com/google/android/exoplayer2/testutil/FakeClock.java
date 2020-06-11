@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
+import androidx.annotation.GuardedBy;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import java.util.ArrayList;
@@ -28,16 +29,31 @@ public class FakeClock implements Clock {
 
   private final List<Long> wakeUpTimes;
   private final List<HandlerMessageData> handlerMessages;
+  private final long bootTimeMs;
 
-  private long currentTimeMs;
+  @GuardedBy("this")
+  private long timeSinceBootMs;
 
   /**
-   * Create {@link FakeClock} with an arbitrary initial timestamp.
+   * Creates a fake clock assuming the system was booted exactly at time {@code 0} (the Unix Epoch)
+   * and {@code initialTimeMs} milliseconds have passed since system boot.
    *
-   * @param initialTimeMs Initial timestamp in milliseconds.
+   * @param initialTimeMs The initial elapsed time since the boot time, in milliseconds.
    */
   public FakeClock(long initialTimeMs) {
-    this.currentTimeMs = initialTimeMs;
+    this(/* bootTimeMs= */ 0, initialTimeMs);
+  }
+
+  /**
+   * Creates a fake clock specifying when the system was booted and how much time has passed since
+   * then.
+   *
+   * @param bootTimeMs The time the system was booted since the Unix Epoch, in milliseconds.
+   * @param initialTimeMs The initial elapsed time since the boot time, in milliseconds.
+   */
+  public FakeClock(long bootTimeMs, long initialTimeMs) {
+    this.bootTimeMs = bootTimeMs;
+    this.timeSinceBootMs = initialTimeMs;
     this.wakeUpTimes = new ArrayList<>();
     this.handlerMessages = new ArrayList<>();
   }
@@ -48,23 +64,28 @@ public class FakeClock implements Clock {
    * @param timeDiffMs The amount of time to add to the timestamp in milliseconds.
    */
   public synchronized void advanceTime(long timeDiffMs) {
-    currentTimeMs += timeDiffMs;
+    timeSinceBootMs += timeDiffMs;
     for (Long wakeUpTime : wakeUpTimes) {
-      if (wakeUpTime <= currentTimeMs) {
+      if (wakeUpTime <= timeSinceBootMs) {
         notifyAll();
         break;
       }
     }
     for (int i = handlerMessages.size() - 1; i >= 0; i--) {
-      if (handlerMessages.get(i).maybeSendToTarget(currentTimeMs)) {
+      if (handlerMessages.get(i).maybeSendToTarget(timeSinceBootMs)) {
         handlerMessages.remove(i);
       }
     }
   }
 
   @Override
+  public synchronized long currentTimeMillis() {
+    return bootTimeMs + timeSinceBootMs;
+  }
+
+  @Override
   public synchronized long elapsedRealtime() {
-    return currentTimeMs;
+    return timeSinceBootMs;
   }
 
   @Override
@@ -77,9 +98,9 @@ public class FakeClock implements Clock {
     if (sleepTimeMs <= 0) {
       return;
     }
-    Long wakeUpTimeMs = currentTimeMs + sleepTimeMs;
+    Long wakeUpTimeMs = timeSinceBootMs + sleepTimeMs;
     wakeUpTimes.add(wakeUpTimeMs);
-    while (currentTimeMs < wakeUpTimeMs) {
+    while (timeSinceBootMs < wakeUpTimeMs) {
       try {
         wait();
       } catch (InterruptedException e) {
@@ -97,7 +118,7 @@ public class FakeClock implements Clock {
   /** Adds a handler post to list of pending messages. */
   protected synchronized boolean addHandlerMessageAtTime(
       HandlerWrapper handler, Runnable runnable, long timeMs) {
-    if (timeMs <= currentTimeMs) {
+    if (timeMs <= timeSinceBootMs) {
       return handler.post(runnable);
     }
     handlerMessages.add(new HandlerMessageData(timeMs, handler, runnable));
@@ -107,7 +128,7 @@ public class FakeClock implements Clock {
   /** Adds an empty handler message to list of pending messages. */
   protected synchronized boolean addHandlerMessageAtTime(
       HandlerWrapper handler, int message, long timeMs) {
-    if (timeMs <= currentTimeMs) {
+    if (timeMs <= timeSinceBootMs) {
       return handler.sendEmptyMessage(message);
     }
     handlerMessages.add(new HandlerMessageData(timeMs, handler, message));

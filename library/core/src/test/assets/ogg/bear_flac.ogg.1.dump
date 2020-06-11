@@ -24,6 +24,7 @@ track 0:
     selectionFlags = 0
     language = null
     drmInitData = -
+    metadata = null
     initializationData:
       data = length 42, hash 83F6895
   total output bytes = 113666

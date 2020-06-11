@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
+import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
@@ -127,7 +129,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ArrayList<HlsSampleStream> hlsSampleStreams;
   private final Map<String, DrmInitData> overridingDrmInitData;
 
-  private SampleQueue[] sampleQueues;
+  private FormatAdjustingSampleQueue[] sampleQueues;
   private int[] sampleQueueTrackIds;
   private Set<Integer> sampleQueueMappingDoneByType;
   private SparseIntArray sampleQueueIndicesByType;
@@ -161,6 +163,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   // Accessed only by the loading thread.
   private boolean tracksEnded;
   private long sampleOffsetUs;
+  @Nullable private DrmInitData drmInitData;
   private int chunkUid;
 
   /**
@@ -206,7 +209,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleQueueTrackIds = new int[0];
     sampleQueueMappingDoneByType = new HashSet<>(MAPPABLE_TYPES.size());
     sampleQueueIndicesByType = new SparseIntArray(MAPPABLE_TYPES.size());
-    sampleQueues = new SampleQueue[0];
+    sampleQueues = new FormatAdjustingSampleQueue[0];
     sampleQueueIsAudioVideoFlags = new boolean[0];
     sampleQueuesEnabledStates = new boolean[0];
     mediaChunks = new ArrayList<>();
@@ -360,13 +363,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           // If there's still a chance of avoiding a seek, try and seek within the sample queue.
           if (!seekRequired) {
             SampleQueue sampleQueue = sampleQueues[trackGroupToSampleQueueIndex[trackGroupIndex]];
-            sampleQueue.rewind();
-            // A seek can be avoided if we're able to advance to the current playback position in
+            // A seek can be avoided if we're able to seek to the current playback position in
             // the sample queue, or if we haven't read anything from the queue since the previous
             // seek (this case is common for sparse tracks such as metadata tracks). In all other
             // cases a seek is required.
             seekRequired =
-                sampleQueue.advanceTo(positionUs, true, true) == SampleQueue.ADVANCE_FAILED
+                !sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ true)
                     && sampleQueue.getReadIndex() != 0;
           }
         }
@@ -583,8 +585,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
       return sampleQueue.advanceToEnd();
     } else {
-      int skipCount = sampleQueue.advanceTo(positionUs, true, true);
-      return skipCount == SampleQueue.ADVANCE_FAILED ? 0 : skipCount;
+      return sampleQueue.advanceTo(positionUs);
     }
   }
 
@@ -823,13 +824,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param chunkUid The chunk's uid.
    * @param shouldSpliceIn Whether the samples parsed from the chunk should be spliced into any
    *     samples already queued to the wrapper.
-   * @param reusingExtractor Whether the extractor for the chunk has already been used for preceding
-   *     chunks.
    */
-  public void init(int chunkUid, boolean shouldSpliceIn, boolean reusingExtractor) {
-    if (!reusingExtractor) {
-      sampleQueueMappingDoneByType.clear();
-    }
+  public void init(int chunkUid, boolean shouldSpliceIn) {
     this.chunkUid = chunkUid;
     for (SampleQueue sampleQueue : sampleQueues) {
       sampleQueue.sourceId(chunkUid);
@@ -884,8 +880,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * different ID, then return a {@link DummyTrackOutput} that does nothing.
    *
    * <p>If a {@link SampleQueue} for {@code type} has been created but is not mapped, then map it to
-   * this {@code id} and return it. This situation can happen after a call to {@link #init} with
-   * {@code reusingExtractor=false}.
+   * this {@code id} and return it. This situation can happen after a call to {@link
+   * #onNewExtractor}.
    *
    * @param id The ID of the track.
    * @param type The type of the track, must be one of {@link #MAPPABLE_TYPES}.
@@ -910,8 +906,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private SampleQueue createSampleQueue(int id, int type) {
     int trackCount = sampleQueues.length;
 
-    SampleQueue trackOutput =
-        new FormatAdjustingSampleQueue(allocator, drmSessionManager, overridingDrmInitData);
+    boolean isAudioVideo = type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
+    FormatAdjustingSampleQueue trackOutput =
+        new FormatAdjustingSampleQueue(
+            allocator,
+            /* playbackLooper= */ handler.getLooper(),
+            drmSessionManager,
+            overridingDrmInitData);
+    if (isAudioVideo) {
+      trackOutput.setDrmInitData(drmInitData);
+    }
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.sourceId(chunkUid);
     trackOutput.setUpstreamFormatChangeListener(this);
@@ -919,8 +923,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     sampleQueueTrackIds[trackCount] = id;
     sampleQueues = Util.nullSafeArrayAppend(sampleQueues, trackOutput);
     sampleQueueIsAudioVideoFlags = Arrays.copyOf(sampleQueueIsAudioVideoFlags, trackCount + 1);
-    sampleQueueIsAudioVideoFlags[trackCount] =
-        type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO;
+    sampleQueueIsAudioVideoFlags[trackCount] = isAudioVideo;
     haveAudioVideoSampleQueues |= sampleQueueIsAudioVideoFlags[trackCount];
     sampleQueueMappingDoneByType.add(type);
     sampleQueueIndicesByType.append(type, trackCount);
@@ -952,10 +955,58 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   // Called by the loading thread.
 
+  /** Called when an {@link HlsMediaChunk} starts extracting media with a new {@link Extractor}. */
+  public void onNewExtractor() {
+    sampleQueueMappingDoneByType.clear();
+  }
+
+  /**
+   * Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples that
+   * are subsequently loaded by this wrapper.
+   *
+   * @param sampleOffsetUs The timestamp offset in microseconds.
+   */
   public void setSampleOffsetUs(long sampleOffsetUs) {
-    this.sampleOffsetUs = sampleOffsetUs;
-    for (SampleQueue sampleQueue : sampleQueues) {
-      sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+    if (this.sampleOffsetUs != sampleOffsetUs) {
+      this.sampleOffsetUs = sampleOffsetUs;
+      for (SampleQueue sampleQueue : sampleQueues) {
+        sampleQueue.setSampleOffsetUs(sampleOffsetUs);
+      }
+    }
+  }
+
+  /**
+   * Sets default {@link DrmInitData} for samples that are subsequently loaded by this wrapper.
+   *
+   * <p>This method should be called prior to loading each {@link HlsMediaChunk}. The {@link
+   * DrmInitData} passed should be that of an EXT-X-KEY tag that applies to the chunk, or {@code
+   * null} otherwise.
+   *
+   * <p>The final {@link DrmInitData} for subsequently queued samples is determined as followed:
+   *
+   * <ol>
+   *   <li>It is initially set to {@code drmInitData}, unless {@code drmInitData} is null in which
+   *       case it's set to {@link Format#drmInitData} of the upstream {@link Format}.
+   *   <li>If the initial {@link DrmInitData} is non-null and {@link #overridingDrmInitData}
+   *       contains an entry whose key matches the {@link DrmInitData#schemeType}, then the sample's
+   *       {@link DrmInitData} is overridden to be this entry's value.
+   * </ol>
+   *
+   * <p>
+   *
+   * @param drmInitData The default {@link DrmInitData} for samples that are subsequently queued. If
+   *     non-null then it takes precedence over {@link Format#drmInitData} of the upstream {@link
+   *     Format}, but will still be overridden by a matching override in {@link
+   *     #overridingDrmInitData}.
+   */
+  public void setDrmInitData(@Nullable DrmInitData drmInitData) {
+    if (!Util.areEqual(this.drmInitData, drmInitData)) {
+      this.drmInitData = drmInitData;
+      for (int i = 0; i < sampleQueues.length; i++) {
+        if (sampleQueueIsAudioVideoFlags[i]) {
+          sampleQueues[i].setDrmInitData(drmInitData);
+        }
+      }
     }
   }
 
@@ -1169,9 +1220,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int sampleQueueCount = sampleQueues.length;
     for (int i = 0; i < sampleQueueCount; i++) {
       SampleQueue sampleQueue = sampleQueues[i];
-      sampleQueue.rewind();
-      boolean seekInsideQueue = sampleQueue.advanceTo(positionUs, true, false)
-          != SampleQueue.ADVANCE_FAILED;
+      boolean seekInsideQueue = sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ false);
       // If we have AV tracks then an in-queue seek is successful if the seek into every AV queue
       // is successful. We ignore whether seeks within non-AV queues are successful in this case, as
       // they may be sparse or poorly interleaved. If we only have non-AV tracks then a seek is
@@ -1283,25 +1332,35 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final class FormatAdjustingSampleQueue extends SampleQueue {
 
     private final Map<String, DrmInitData> overridingDrmInitData;
+    @Nullable private DrmInitData drmInitData;
 
     public FormatAdjustingSampleQueue(
         Allocator allocator,
+        Looper playbackLooper,
         DrmSessionManager<?> drmSessionManager,
         Map<String, DrmInitData> overridingDrmInitData) {
-      super(allocator, drmSessionManager);
+      super(allocator, playbackLooper, drmSessionManager);
       this.overridingDrmInitData = overridingDrmInitData;
     }
 
+    public void setDrmInitData(@Nullable DrmInitData drmInitData) {
+      this.drmInitData = drmInitData;
+      invalidateUpstreamFormatAdjustment();
+    }
+
     @Override
-    public void format(Format format) {
-      DrmInitData drmInitData = format.drmInitData;
+    public Format getAdjustedUpstreamFormat(Format format) {
+      @Nullable
+      DrmInitData drmInitData = this.drmInitData != null ? this.drmInitData : format.drmInitData;
       if (drmInitData != null) {
+        @Nullable
         DrmInitData overridingDrmInitData = this.overridingDrmInitData.get(drmInitData.schemeType);
         if (overridingDrmInitData != null) {
           drmInitData = overridingDrmInitData;
         }
       }
-      super.format(format.copyWithAdjustments(drmInitData, getAdjustedMetadata(format.metadata)));
+      return super.getAdjustedUpstreamFormat(
+          format.copyWithAdjustments(drmInitData, getAdjustedMetadata(format.metadata)));
     }
 
     /**

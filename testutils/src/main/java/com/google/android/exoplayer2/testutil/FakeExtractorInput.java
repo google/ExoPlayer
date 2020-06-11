@@ -65,7 +65,8 @@ public final class FakeExtractorInput implements ExtractorInput {
   private int readPosition;
   private int peekPosition;
 
-  private final SparseBooleanArray partiallySatisfiedTargetPositions;
+  private final SparseBooleanArray partiallySatisfiedTargetReadPositions;
+  private final SparseBooleanArray partiallySatisfiedTargetPeekPositions;
   private final SparseBooleanArray failedReadPositions;
   private final SparseBooleanArray failedPeekPositions;
 
@@ -75,7 +76,8 @@ public final class FakeExtractorInput implements ExtractorInput {
     this.simulateUnknownLength = simulateUnknownLength;
     this.simulatePartialReads = simulatePartialReads;
     this.simulateIOErrors = simulateIOErrors;
-    partiallySatisfiedTargetPositions = new SparseBooleanArray();
+    partiallySatisfiedTargetReadPositions = new SparseBooleanArray();
+    partiallySatisfiedTargetPeekPositions = new SparseBooleanArray();
     failedReadPositions = new SparseBooleanArray();
     failedPeekPositions = new SparseBooleanArray();
   }
@@ -84,7 +86,8 @@ public final class FakeExtractorInput implements ExtractorInput {
   public void reset() {
     readPosition = 0;
     peekPosition = 0;
-    partiallySatisfiedTargetPositions.clear();
+    partiallySatisfiedTargetReadPositions.clear();
+    partiallySatisfiedTargetPeekPositions.clear();
     failedReadPositions.clear();
     failedPeekPositions.clear();
   }
@@ -104,7 +107,7 @@ public final class FakeExtractorInput implements ExtractorInput {
   @Override
   public int read(byte[] target, int offset, int length) throws IOException {
     checkIOException(readPosition, failedReadPositions);
-    length = getReadLength(length);
+    length = getLengthToRead(readPosition, length, partiallySatisfiedTargetReadPositions);
     return readFullyInternal(target, offset, length, true) ? length : C.RESULT_END_OF_INPUT;
   }
 
@@ -123,7 +126,7 @@ public final class FakeExtractorInput implements ExtractorInput {
   @Override
   public int skip(int length) throws IOException {
     checkIOException(readPosition, failedReadPositions);
-    length = getReadLength(length);
+    length = getLengthToRead(readPosition, length, partiallySatisfiedTargetReadPositions);
     return skipFullyInternal(length, true) ? length : C.RESULT_END_OF_INPUT;
   }
 
@@ -139,15 +142,17 @@ public final class FakeExtractorInput implements ExtractorInput {
   }
 
   @Override
+  public int peek(byte[] target, int offset, int length) throws IOException {
+    checkIOException(peekPosition, failedPeekPositions);
+    length = getLengthToRead(peekPosition, length, partiallySatisfiedTargetPeekPositions);
+    return peekFullyInternal(target, offset, length, true) ? length : C.RESULT_END_OF_INPUT;
+  }
+
+  @Override
   public boolean peekFully(byte[] target, int offset, int length, boolean allowEndOfInput)
       throws IOException {
     checkIOException(peekPosition, failedPeekPositions);
-    if (!checkXFully(allowEndOfInput, peekPosition, length)) {
-      return false;
-    }
-    System.arraycopy(data, peekPosition, target, offset, length);
-    peekPosition += length;
-    return true;
+    return peekFullyInternal(target, offset, length, allowEndOfInput);
   }
 
   @Override
@@ -221,18 +226,19 @@ public final class FakeExtractorInput implements ExtractorInput {
     return true;
   }
 
-  private int getReadLength(int requestedLength) {
-    if (readPosition == data.length) {
+  private int getLengthToRead(
+      int position, int requestedLength, SparseBooleanArray partiallySatisfiedTargetPositions) {
+    if (position == data.length) {
       // If the requested length is non-zero, the end of the input will be read.
       return requestedLength == 0 ? 0 : Integer.MAX_VALUE;
     }
-    int targetPosition = readPosition + requestedLength;
+    int targetPosition = position + requestedLength;
     if (simulatePartialReads && requestedLength > 1
         && !partiallySatisfiedTargetPositions.get(targetPosition)) {
       partiallySatisfiedTargetPositions.put(targetPosition, true);
       return 1;
     }
-    return Math.min(requestedLength, data.length - readPosition);
+    return Math.min(requestedLength, data.length - position);
   }
 
   private boolean readFullyInternal(byte[] target, int offset, int length, boolean allowEndOfInput)
@@ -252,6 +258,16 @@ public final class FakeExtractorInput implements ExtractorInput {
     }
     readPosition += length;
     peekPosition = readPosition;
+    return true;
+  }
+
+  private boolean peekFullyInternal(byte[] target, int offset, int length, boolean allowEndOfInput)
+      throws EOFException {
+    if (!checkXFully(allowEndOfInput, peekPosition, length)) {
+      return false;
+    }
+    System.arraycopy(data, peekPosition, target, offset, length);
+    peekPosition += length;
     return true;
   }
 

@@ -79,7 +79,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * during playback, and displays playback controls using a {@link PlayerControlView}.
  *
  * <p>A PlayerView can be customized by setting attributes (or calling corresponding methods),
- * overriding the view's layout file or by specifying a custom view layout file, as outlined below.
+ * overriding drawables, overriding the view's layout file, or by specifying a custom view layout
+ * file.
  *
  * <h3>Attributes</h3>
  *
@@ -142,6 +143,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *         <li>Corresponding method: None
  *         <li>Default: {@code surface_view}
  *       </ul>
+ *   <li><b>{@code use_sensor_rotation}</b> - Whether to use the orientation sensor for rotation
+ *       during spherical playbacks (if available).
+ *       <ul>
+ *         <li>Corresponding method: {@link #setUseSensorRotation(boolean)}
+ *         <li>Default: {@code true}
+ *       </ul>
  *   <li><b>{@code shutter_background_color}</b> - The background color of the {@code exo_shutter}
  *       view.
  *       <ul>
@@ -171,6 +178,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       PlayerControlView} unless the layout is overridden to specify a custom {@code
  *       exo_controller} (see below).
  * </ul>
+ *
+ * <h3>Overriding drawables</h3>
+ *
+ * The drawables used by {@link PlayerControlView} (with its default layout file) can be overridden
+ * by drawables with the same names defined in your application. See the {@link PlayerControlView}
+ * documentation for a list of drawables that can be overridden.
  *
  * <h3>Overriding the layout file</h3>
  *
@@ -301,6 +314,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
   private boolean keepContentOnPlayerReset;
+  private boolean useSensorRotation;
   @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   @Nullable private CharSequence customErrorMessage;
   private int controllerShowTimeoutMs;
@@ -360,6 +374,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     boolean controllerAutoShow = true;
     boolean controllerHideDuringAds = true;
     int showBuffering = SHOW_BUFFERING_NEVER;
+    useSensorRotation = true;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PlayerView, 0, 0);
       try {
@@ -383,6 +398,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
                 R.styleable.PlayerView_keep_content_on_player_reset, keepContentOnPlayerReset);
         controllerHideDuringAds =
             a.getBoolean(R.styleable.PlayerView_hide_during_ads, controllerHideDuringAds);
+        useSensorRotation =
+            a.getBoolean(R.styleable.PlayerView_use_sensor_rotation, useSensorRotation);
       } finally {
         a.recycle();
       }
@@ -415,6 +432,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
         case SURFACE_TYPE_SPHERICAL_GL_SURFACE_VIEW:
           SphericalGLSurfaceView sphericalGLSurfaceView = new SphericalGLSurfaceView(context);
           sphericalGLSurfaceView.setSingleTapListener(componentListener);
+          sphericalGLSurfaceView.setUseSensorRotation(useSensorRotation);
           surfaceView = sphericalGLSurfaceView;
           break;
         case SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW:
@@ -736,6 +754,22 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     if (this.keepContentOnPlayerReset != keepContentOnPlayerReset) {
       this.keepContentOnPlayerReset = keepContentOnPlayerReset;
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
+    }
+  }
+
+  /**
+   * Sets whether to use the orientation sensor for rotation during spherical playbacks (if
+   * available)
+   *
+   * @param useSensorRotation Whether to use the orientation sensor for rotation during spherical
+   *     playbacks.
+   */
+  public void setUseSensorRotation(boolean useSensorRotation) {
+    if (this.useSensorRotation != useSensorRotation) {
+      this.useSensorRotation = useSensorRotation;
+      if (surfaceView instanceof SphericalGLSurfaceView) {
+        ((SphericalGLSurfaceView) surfaceView).setUseSensorRotation(useSensorRotation);
+      }
     }
   }
 

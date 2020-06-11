@@ -433,10 +433,15 @@ import java.util.List;
         long editDuration =
             Util.scaleLargeTimestamp(
                 track.editListDurations[i], track.timescale, track.movieTimescale);
-        startIndices[i] = Util.binarySearchCeil(timestamps, editMediaTime, true, true);
+        startIndices[i] =
+            Util.binarySearchFloor(
+                timestamps, editMediaTime, /* inclusive= */ true, /* stayInBounds= */ true);
         endIndices[i] =
             Util.binarySearchCeil(
-                timestamps, editMediaTime + editDuration, omitClippedSample, false);
+                timestamps,
+                editMediaTime + editDuration,
+                /* inclusive= */ omitClippedSample,
+                /* stayInBounds= */ false);
         while (startIndices[i] < endIndices[i]
             && (flags[startIndices[i]] & C.BUFFER_FLAG_KEY_FRAME) == 0) {
           // Applying the edit correctly would require prerolling from the previous sync sample. In
@@ -474,7 +479,7 @@ import java.util.List;
         long ptsUs = Util.scaleLargeTimestamp(pts, C.MICROS_PER_SECOND, track.movieTimescale);
         long timeInSegmentUs =
             Util.scaleLargeTimestamp(
-                timestamps[j] - editMediaTime, C.MICROS_PER_SECOND, track.timescale);
+                Math.max(0, timestamps[j] - editMediaTime), C.MICROS_PER_SECOND, track.timescale);
         editedTimestamps[sampleIndex] = ptsUs + timeInSegmentUs;
         if (copyMetadata && editedSizes[sampleIndex] > editedMaximumSize) {
           editedMaximumSize = sizes[j];
@@ -779,6 +784,7 @@ import java.util.List;
           || childAtomType == Atom.TYPE_sawb
           || childAtomType == Atom.TYPE_lpcm
           || childAtomType == Atom.TYPE_sowt
+          || childAtomType == Atom.TYPE_twos
           || childAtomType == Atom.TYPE__mp3
           || childAtomType == Atom.TYPE_alac
           || childAtomType == Atom.TYPE_alaw
@@ -1039,6 +1045,7 @@ import java.util.List;
 
     int channelCount;
     int sampleRate;
+    @C.PcmEncoding int pcmEncoding = Format.NO_VALUE;
 
     if (quickTimeSoundDescriptionVersion == 0 || quickTimeSoundDescriptionVersion == 1) {
       channelCount = parent.readUnsignedShort();
@@ -1099,6 +1106,10 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_AMR_WB;
     } else if (atomType == Atom.TYPE_lpcm || atomType == Atom.TYPE_sowt) {
       mimeType = MimeTypes.AUDIO_RAW;
+      pcmEncoding = C.ENCODING_PCM_16BIT;
+    } else if (atomType == Atom.TYPE_twos) {
+      mimeType = MimeTypes.AUDIO_RAW;
+      pcmEncoding = C.ENCODING_PCM_16BIT_BIG_ENDIAN;
     } else if (atomType == Atom.TYPE__mp3) {
       mimeType = MimeTypes.AUDIO_MPEG;
     } else if (atomType == Atom.TYPE_alac) {
@@ -1185,9 +1196,6 @@ import java.util.List;
     }
 
     if (out.format == null && mimeType != null) {
-      // TODO: Determine the correct PCM encoding.
-      @C.PcmEncoding int pcmEncoding =
-          MimeTypes.AUDIO_RAW.equals(mimeType) ? C.ENCODING_PCM_16BIT : Format.NO_VALUE;
       out.format = Format.createAudioSampleFormat(Integer.toString(trackId), mimeType, null,
           Format.NO_VALUE, Format.NO_VALUE, channelCount, sampleRate, pcmEncoding,
           initializationData == null ? null : Collections.singletonList(initializationData),

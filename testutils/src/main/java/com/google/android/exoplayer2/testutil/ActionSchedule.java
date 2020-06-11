@@ -433,7 +433,7 @@ public final class ActionSchedule {
      * @param targetPlaybackState The target playback state.
      * @return The builder, for convenience.
      */
-    public Builder waitForPlaybackState(int targetPlaybackState) {
+    public Builder waitForPlaybackState(@Player.State int targetPlaybackState) {
       return apply(new WaitForPlaybackState(tag, targetPlaybackState));
     }
 
