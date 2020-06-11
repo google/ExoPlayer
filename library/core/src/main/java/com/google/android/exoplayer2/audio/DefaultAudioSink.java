@@ -421,7 +421,7 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public boolean supportsOutput(Format format, @C.Encoding int encoding) {
+  public boolean supportsOutput(int channelCount, int sampleRateHz, @C.Encoding int encoding) {
     if (encoding == C.ENCODING_INVALID) {
       return false;
     }
@@ -433,11 +433,10 @@ public final class DefaultAudioSink implements AudioSink {
       return encoding != C.ENCODING_PCM_FLOAT || Util.SDK_INT >= 21;
     }
     if (enableOffload
-        && isOffloadedPlaybackSupported(
-            format.channelCount, format.sampleRate, encoding, audioAttributes)) {
+        && isOffloadedPlaybackSupported(channelCount, sampleRateHz, encoding, audioAttributes)) {
       return true;
     }
-    return isPassthroughPlaybackSupported(encoding, format.channelCount);
+    return isPassthroughPlaybackSupported(encoding, channelCount);
   }
 
   @Override
@@ -476,13 +475,8 @@ public final class DefaultAudioSink implements AudioSink {
     @C.Encoding int encoding = inputEncoding;
     boolean useFloatOutput =
         enableFloatOutput
-            && Util.isEncodingHighResolutionPcm(inputEncoding)
-            && supportsOutput(
-                new Format.Builder()
-                    .setChannelCount(inputChannelCount)
-                    .setSampleRate(inputSampleRate)
-                    .build(),
-                C.ENCODING_PCM_FLOAT);
+            && supportsOutput(inputChannelCount, inputSampleRate, C.ENCODING_PCM_FLOAT)
+            && Util.isEncodingHighResolutionPcm(inputEncoding);
     AudioProcessor[] availableAudioProcessors =
         useFloatOutput ? toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
     if (processingEnabled) {
