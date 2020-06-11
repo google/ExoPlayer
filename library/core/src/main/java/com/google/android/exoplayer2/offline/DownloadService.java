@@ -974,7 +974,8 @@ public abstract class DownloadService extends Service {
     }
 
     @Override
-    public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+    public void onDownloadChanged(
+        DownloadManager downloadManager, Download download, @Nullable Exception finalException) {
       if (downloadService != null) {
         downloadService.notifyDownloadChanged(download);
       }
