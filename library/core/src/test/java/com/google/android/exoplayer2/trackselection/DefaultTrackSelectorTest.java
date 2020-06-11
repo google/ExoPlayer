@@ -131,51 +131,16 @@ public final class DefaultTrackSelectorTest {
     trackSelector.init(invalidationListener, bandwidthMeter);
   }
 
+  @Test
+  public void parameters_buildUponThenBuild_isEqual() {
+    Parameters parameters = buildParametersForEqualsTest();
+    assertThat(parameters.buildUpon().build()).isEqualTo(parameters);
+  }
+
   /** Tests {@link Parameters} {@link android.os.Parcelable} implementation. */
   @Test
-  public void parametersParcelable() {
-    SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides = new SparseArray<>();
-    Map<TrackGroupArray, SelectionOverride> videoOverrides = new HashMap<>();
-    videoOverrides.put(new TrackGroupArray(VIDEO_TRACK_GROUP), new SelectionOverride(0, 1));
-    selectionOverrides.put(2, videoOverrides);
-
-    SparseBooleanArray rendererDisabledFlags = new SparseBooleanArray();
-    rendererDisabledFlags.put(3, true);
-
-    Parameters parametersToParcel =
-        new Parameters(
-            // Video
-            /* maxVideoWidth= */ 0,
-            /* maxVideoHeight= */ 1,
-            /* maxVideoFrameRate= */ 2,
-            /* maxVideoBitrate= */ 3,
-            /* exceedVideoConstraintsIfNecessary= */ false,
-            /* allowVideoMixedMimeTypeAdaptiveness= */ true,
-            /* allowVideoNonSeamlessAdaptiveness= */ false,
-            /* viewportWidth= */ 4,
-            /* viewportHeight= */ 5,
-            /* viewportOrientationMayChange= */ true,
-            // Audio
-            /* preferredAudioLanguage= */ "en",
-            /* maxAudioChannelCount= */ 6,
-            /* maxAudioBitrate= */ 7,
-            /* exceedAudioConstraintsIfNecessary= */ false,
-            /* allowAudioMixedMimeTypeAdaptiveness= */ true,
-            /* allowAudioMixedSampleRateAdaptiveness= */ false,
-            /* allowAudioMixedChannelCountAdaptiveness= */ true,
-            // Text
-            /* preferredTextLanguage= */ "de",
-            /* preferredTextRoleFlags= */ C.ROLE_FLAG_CAPTION,
-            /* selectUndeterminedTextLanguage= */ true,
-            /* disabledTextTrackSelectionFlags= */ 8,
-            // General
-            /* forceLowestBitrate= */ false,
-            /* forceHighestSupportedBitrate= */ true,
-            /* exceedRendererCapabilitiesIfNecessary= */ false,
-            /* tunnelingAudioSessionId= */ C.AUDIO_SESSION_ID_UNSET,
-            // Overrides
-            selectionOverrides,
-            rendererDisabledFlags);
+  public void parameters_parcelAndUnParcelable() {
+    Parameters parametersToParcel = buildParametersForEqualsTest();
 
     Parcel parcel = Parcel.obtain();
     parametersToParcel.writeToParcel(parcel, 0);
@@ -1508,6 +1473,61 @@ public final class DefaultTrackSelectorTest {
         .setChannelCount(channelCount)
         .setSampleRate(sampleRate)
         .build();
+  }
+
+  /**
+   * Returns {@link Parameters} suitable for simple round trip equality tests.
+   *
+   * <p>Primitive variables are set to different values (to the extent that this is possible), to
+   * increase the probability of such tests failing if they accidentally compare mismatched
+   * variables.
+   */
+  private static Parameters buildParametersForEqualsTest() {
+    SparseArray<Map<TrackGroupArray, SelectionOverride>> selectionOverrides = new SparseArray<>();
+    Map<TrackGroupArray, SelectionOverride> videoOverrides = new HashMap<>();
+    videoOverrides.put(new TrackGroupArray(VIDEO_TRACK_GROUP), new SelectionOverride(0, 1));
+    selectionOverrides.put(2, videoOverrides);
+
+    SparseBooleanArray rendererDisabledFlags = new SparseBooleanArray();
+    rendererDisabledFlags.put(3, true);
+
+    return new Parameters(
+        // Video
+        /* maxVideoWidth= */ 0,
+        /* maxVideoHeight= */ 1,
+        /* maxVideoFrameRate= */ 2,
+        /* maxVideoBitrate= */ 3,
+        /* minVideoWidth= */ 4,
+        /* minVideoHeight= */ 5,
+        /* minVideoFrameRate= */ 6,
+        /* minVideoBitrate= */ 7,
+        /* exceedVideoConstraintsIfNecessary= */ false,
+        /* allowVideoMixedMimeTypeAdaptiveness= */ true,
+        /* allowVideoNonSeamlessAdaptiveness= */ false,
+        /* viewportWidth= */ 8,
+        /* viewportHeight= */ 9,
+        /* viewportOrientationMayChange= */ true,
+        // Audio
+        /* preferredAudioLanguage= */ "en",
+        /* maxAudioChannelCount= */ 10,
+        /* maxAudioBitrate= */ 11,
+        /* exceedAudioConstraintsIfNecessary= */ false,
+        /* allowAudioMixedMimeTypeAdaptiveness= */ true,
+        /* allowAudioMixedSampleRateAdaptiveness= */ false,
+        /* allowAudioMixedChannelCountAdaptiveness= */ true,
+        // Text
+        /* preferredTextLanguage= */ "de",
+        /* preferredTextRoleFlags= */ C.ROLE_FLAG_CAPTION,
+        /* selectUndeterminedTextLanguage= */ true,
+        /* disabledTextTrackSelectionFlags= */ 12,
+        // General
+        /* forceLowestBitrate= */ false,
+        /* forceHighestSupportedBitrate= */ true,
+        /* exceedRendererCapabilitiesIfNecessary= */ false,
+        /* tunnelingAudioSessionId= */ 13,
+        // Overrides
+        selectionOverrides,
+        rendererDisabledFlags);
   }
 
   /**
