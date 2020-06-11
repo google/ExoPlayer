@@ -4,7 +4,6 @@
 
 *   Core library:
     *   Implement getTag for SilenceMediaSource.
-    *   Add `Player.getTrackSelector` to access track selector from UI module.
     *   Added `TextComponent.getCurrentCues` because the current cues are no
         longer forwarded to a new `TextOutput` in `SimpleExoPlayer`
         automatically.
@@ -76,7 +75,6 @@
         `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
         generalized to work with `Decoder` rather than `SimpleDecoder`.
     *   Add media item based playlist API to Player.
-    *   Remove deprecated members in `DefaultTrackSelector`.
     *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
         that the device volume can be controlled by player.
     *   Parse track titles from Matroska files
@@ -92,6 +90,12 @@
         ongoing load should be canceled. Only supported by HLS streams so far.
         ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
+*   Track selection:
+    *   Add `Player.getTrackSelector`.
+    *   Remove deprecated members in `DefaultTrackSelector`.
+    *   Add `DefaultTrackSelector` constraints for minimum video resolution,
+        bitrate and frame rate
+        ([#4511](https://github.com/google/ExoPlayer/issues/4511)).
 *   Text:
     *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
         later).
