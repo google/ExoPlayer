@@ -47,30 +47,6 @@ import java.lang.annotation.RetentionPolicy;
 public interface Renderer extends PlayerMessage.Target {
 
   /**
-   * Some renderers can signal when {@link #render(long, long)} should be called.
-   *
-   * <p>That allows the player to sleep until the next wakeup, instead of calling {@link
-   * #render(long, long)} in a tight loop. The aim of this interrupt based scheduling is to save
-   * power.
-   */
-  interface WakeupListener {
-
-    /**
-     * The renderer no longer needs to render until the next wakeup.
-     *
-     * @param wakeupDeadlineMs Maximum time in milliseconds until {@link #onWakeup()} will be
-     *     called.
-     */
-    void onSleep(long wakeupDeadlineMs);
-
-    /**
-     * The renderer needs to render some frames. The client should call {@link #render(long, long)}
-     * at its earliest convenience.
-     */
-    void onWakeup();
-  }
-
-  /**
    * The type of a message that can be passed to a video renderer via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link Surface}, or
    * null.
@@ -161,14 +137,6 @@ public interface Renderer extends PlayerMessage.Target {
    * representing the audio session ID that will be attached to the underlying audio track.
    */
   int MSG_SET_AUDIO_SESSION_ID = 102;
-  /**
-   * A type of a message that can be passed to a {@link Renderer} via {@link
-   * ExoPlayer#createMessage(Target)}, to inform the renderer that it can schedule waking up another
-   * component.
-   *
-   * <p>The message payload must be a {@link WakeupListener} instance.
-   */
-  int MSG_SET_WAKEUP_LISTENER = 103;
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.
