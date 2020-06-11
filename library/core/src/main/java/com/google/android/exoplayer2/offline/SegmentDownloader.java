@@ -82,7 +82,7 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
   /**
    * @param mediaItem The {@link MediaItem} to be downloaded.
-   * @param manifestParser A parser for the manifest.
+   * @param manifestParser A parser for manifests belonging to the media to be downloaded.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
    *     download will be written.
    * @param executor An {@link Executor} used to make requests for the media being downloaded.

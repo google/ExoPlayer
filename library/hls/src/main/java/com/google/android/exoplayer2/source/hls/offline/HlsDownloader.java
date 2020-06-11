@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.UriUtil;
 import java.io.IOException;
@@ -110,7 +111,26 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
    */
   public HlsDownloader(
       MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {
-    super(mediaItem, new HlsPlaylistParser(), cacheDataSourceFactory, executor);
+    this(mediaItem, new HlsPlaylistParser(), cacheDataSourceFactory, executor);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param mediaItem The {@link MediaItem} to be downloaded.
+   * @param manifestParser A parser for HLS playlists.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   * @param executor An {@link Executor} used to make requests for the media being downloaded.
+   *     Providing an {@link Executor} that uses multiple threads will speed up the download by
+   *     allowing parts of it to be executed in parallel.
+   */
+  public HlsDownloader(
+      MediaItem mediaItem,
+      Parser<HlsPlaylist> manifestParser,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
+    super(mediaItem, manifestParser, cacheDataSourceFactory, executor);
   }
 
   @Override
