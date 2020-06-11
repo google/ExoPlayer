@@ -154,7 +154,7 @@ public class FakeRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onReset() {
+  protected void onDisabled() {
     if (currentDrmSession != null) {
       currentDrmSession.release(/* eventDispatcher= */ null);
       currentDrmSession = null;
