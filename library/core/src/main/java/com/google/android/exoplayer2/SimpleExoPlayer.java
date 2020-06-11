@@ -634,6 +634,11 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void experimental_enableOffloadScheduling(boolean enableOffloadScheduling) {
+    player.experimental_enableOffloadScheduling(enableOffloadScheduling);
+  }
+
+  @Override
   @Nullable
   public AudioComponent getAudioComponent() {
     return this;

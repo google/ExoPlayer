@@ -335,6 +335,11 @@ import java.lang.reflect.Method;
     return bufferSize - bytesPending;
   }
 
+  /** Returns the duration of audio that is buffered but unplayed. */
+  public long getPendingBufferDurationMs(long writtenFrames) {
+    return C.usToMs(framesToDurationUs(writtenFrames - getPlaybackHeadPosition()));
+  }
+
   /** Returns whether the track is in an invalid state and must be recreated. */
   public boolean isStalled(long writtenFrames) {
     return forceResetWorkaroundTimeMs != C.TIME_UNSET

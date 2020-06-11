@@ -203,6 +203,11 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  public void experimental_enableOffloadScheduling(boolean enableOffloadScheduling) {
+    internalPlayer.experimental_enableOffloadScheduling(enableOffloadScheduling);
+  }
+
+  @Override
   @Nullable
   public AudioComponent getAudioComponent() {
     return null;
