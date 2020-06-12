@@ -841,9 +841,8 @@ public class DashManifestParser extends DefaultHandler
   }
 
   /**
-   * /**
    * Parses a single EventStream node in the manifest.
-   * <p>
+   *
    * @param xpp The current xml parser.
    * @return The {@link EventStream} parsed from this EventStream node.
    * @throws XmlPullParserException If there is any error parsing this node.
