@@ -489,6 +489,54 @@ public final class AdPlaybackState {
     return result;
   }
 
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("AdPlaybackState(adResumePositionUs=");
+    sb.append(adResumePositionUs);
+    sb.append(", adGroups=[");
+    for (int i = 0; i < adGroups.length; i++) {
+      sb.append("adGroup(timeUs=");
+      sb.append(adGroupTimesUs[i]);
+      sb.append(", ads=[");
+      for (int j = 0; j < adGroups[i].states.length; j++) {
+        sb.append("ad(state=");
+        switch (adGroups[i].states[j]) {
+          case AD_STATE_UNAVAILABLE:
+            sb.append('_');
+            break;
+          case AD_STATE_ERROR:
+            sb.append('!');
+            break;
+          case AD_STATE_AVAILABLE:
+            sb.append('R');
+            break;
+          case AD_STATE_PLAYED:
+            sb.append('P');
+            break;
+          case AD_STATE_SKIPPED:
+            sb.append('S');
+            break;
+          default:
+            sb.append('?');
+            break;
+        }
+        sb.append(", durationUs=");
+        sb.append(adGroups[i].durationsUs[j]);
+        sb.append(')');
+        if (j < adGroups[i].states.length - 1) {
+          sb.append(", ");
+        }
+      }
+      sb.append("])");
+      if (i < adGroups.length - 1) {
+        sb.append(", ");
+      }
+    }
+    sb.append("])");
+    return sb.toString();
+  }
+
   private boolean isPositionBeforeAdGroup(
       long positionUs, long periodDurationUs, int adGroupIndex) {
     if (positionUs == C.TIME_END_OF_SOURCE) {
