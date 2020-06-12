@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.source.chunk.ChunkExtractor.TrackOutputProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -93,11 +92,7 @@ public final class InitializationChunk extends Chunk {
               dataSource, loadDataSpec.position, dataSource.open(loadDataSpec));
       // Load and decode the initialization data.
       try {
-        int result = Extractor.RESULT_CONTINUE;
-        while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = chunkExtractor.read(input);
-        }
-        Assertions.checkState(result != Extractor.RESULT_SEEK);
+        while (!loadCanceled && chunkExtractor.read(input)) {}
       } finally {
         nextLoadPosition = input.getPosition() - dataSpec.position;
       }

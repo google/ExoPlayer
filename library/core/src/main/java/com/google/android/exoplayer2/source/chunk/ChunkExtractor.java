@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
-import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import java.io.IOException;
@@ -79,8 +78,9 @@ public interface ChunkExtractor {
    * Reads from the given {@link ExtractorInput}.
    *
    * @param input The input to read from.
-   * @return One of the {@link Extractor}{@code .RESULT_*} values.
+   * @return Whether there is any data left to extract. Returns false if the end of input has been
+   *     reached.
    * @throws IOException If an error occurred reading from or parsing the input.
    */
-  int read(ExtractorInput input) throws IOException;
+  boolean read(ExtractorInput input) throws IOException;
 }

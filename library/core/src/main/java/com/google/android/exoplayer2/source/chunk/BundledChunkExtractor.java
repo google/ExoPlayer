@@ -105,8 +105,10 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
   }
 
   @Override
-  public int read(ExtractorInput input) throws IOException {
-    return extractor.read(input, DUMMY_POSITION_HOLDER);
+  public boolean read(ExtractorInput input) throws IOException {
+    int result = extractor.read(input, DUMMY_POSITION_HOLDER);
+    Assertions.checkState(result != Extractor.RESULT_SEEK);
+    return result == Extractor.RESULT_CONTINUE;
   }
 
   // ExtractorOutput implementation.
