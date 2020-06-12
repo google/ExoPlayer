@@ -17,7 +17,10 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
+import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 
 /**
@@ -30,12 +33,24 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
  *
  * @see com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode
  */
-/* package */ interface MediaCodecAdapter {
+public interface MediaCodecAdapter {
 
   /**
-   * Starts this instance.
+   * Configures this adapter and the underlying {@link MediaCodec}. Needs to be called before {@link
+   * #start()}.
    *
-   * @see MediaCodec#start().
+   * @see MediaCodec#configure(MediaFormat, Surface, MediaCrypto, int)
+   */
+  void configure(
+      @Nullable MediaFormat mediaFormat,
+      @Nullable Surface surface,
+      @Nullable MediaCrypto crypto,
+      int flags);
+
+  /**
+   * Starts this instance. Needs to be called after {@link #configure}.
+   *
+   * @see MediaCodec#start()
    */
   void start();
 
@@ -109,4 +124,7 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
    * is a risk the adapter might interact with a stopped or released {@link MediaCodec}.
    */
   void shutdown();
+
+  /** Returns the {@link MediaCodec} instance of this adapter. */
+  MediaCodec getCodec();
 }

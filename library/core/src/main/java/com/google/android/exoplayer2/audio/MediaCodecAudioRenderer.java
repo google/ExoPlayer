@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
@@ -289,7 +290,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void configureCodec(
       MediaCodecInfo codecInfo,
-      MediaCodec codec,
+      MediaCodecAdapter codecAdapter,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
@@ -301,7 +302,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
             && !MimeTypes.AUDIO_RAW.equals(format.sampleMimeType);
     MediaFormat mediaFormat =
         getMediaFormat(format, codecInfo.codecMimeType, codecMaxInputSize, codecOperatingRate);
-    codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
+    codecAdapter.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     // Store the input MIME type if we're using the passthrough codec.
     passthroughFormat = passthroughEnabled ? format : null;
   }

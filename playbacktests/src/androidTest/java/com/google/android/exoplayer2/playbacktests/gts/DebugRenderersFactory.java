@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
@@ -107,7 +108,7 @@ import java.util.ArrayList;
     @Override
     protected void configureCodec(
         MediaCodecInfo codecInfo,
-        MediaCodec codec,
+        MediaCodecAdapter codecAdapter,
         Format format,
         MediaCrypto crypto,
         float operatingRate) {
@@ -117,7 +118,7 @@ import java.util.ArrayList;
       // dropped frames allowed, this is not desired behavior. Hence we skip (rather than drop)
       // frames up to the current playback position [Internal: b/66494991].
       skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
-      super.configureCodec(codecInfo, codec, format, crypto, operatingRate);
+      super.configureCodec(codecInfo, codecAdapter, format, crypto, operatingRate);
     }
 
     @Override
