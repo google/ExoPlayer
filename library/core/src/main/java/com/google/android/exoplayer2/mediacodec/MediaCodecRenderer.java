@@ -532,7 +532,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * Configures a newly created {@link MediaCodec}.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param codec The {@link MediaCodec} to configure.
+   * @param codecAdapter The {@link MediaCodecAdapter} to configure.
    * @param format The {@link Format} for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
    * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
@@ -540,7 +540,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected abstract void configureCodec(
       MediaCodecInfo codecInfo,
-      MediaCodec codec,
+      MediaCodecAdapter codecAdapter,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate);
@@ -1036,8 +1036,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /**
    * Configures passthrough where no codec is used. Called instead of {@link
-   * #configureCodec(MediaCodecInfo, MediaCodec, Format, MediaCrypto, float)} when no codec is used
-   * in passthrough.
+   * #configureCodec(MediaCodecInfo, MediaCodecAdapter, Format, MediaCrypto, float)} when no codec
+   * is used in passthrough.
    */
   private void initPassthrough(Format format) {
     disablePassthrough(); // In case of transition between 2 passthrough formats.
@@ -1088,7 +1088,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
-      configureCodec(codecInfo, codec, inputFormat, crypto, codecOperatingRate);
+      configureCodec(codecInfo, codecAdapter, inputFormat, crypto, codecOperatingRate);
       TraceUtil.endSection();
       TraceUtil.beginSection("startCodec");
       codecAdapter.start();
