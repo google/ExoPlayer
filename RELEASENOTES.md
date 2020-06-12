@@ -208,7 +208,10 @@
     ([#6922](https://github.com/google/ExoPlayer/pull/6922)).
 *   Cast extension: Implement playlist API and deprecate the old queue
     manipulation API.
-*   IMA extension: Add option to skip ads before the start position.
+*   IMA extension:
+    *   Add option to skip ads before the start position.
+    *   Catch unexpected errors in `stopAd` to avoid a crash
+        ([#7492](https://github.com/google/ExoPlayer/issues/7492)).
 *   Demo app: Retain previous position in list of samples.
 *   Add Guava dependency.
 
