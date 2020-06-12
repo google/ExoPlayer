@@ -6,7 +6,10 @@
     seeking to an unprepared period within the current window. For example when
     seeking over an ad group, or to the next period in a multi-period DASH
     stream ([#5507](https://github.com/google/ExoPlayer/issues/5507)).
-*   IMA extension: Add option to skip ads before the start position.
+*   IMA extension:
+    *   Add option to skip ads before the start position.
+    *   Catch unexpected errors in `stopAd` to avoid a crash
+        ([#7492](https://github.com/google/ExoPlayer/issues/7492)).
 
 ### 2.11.5 (2020-06-05) ###
 
