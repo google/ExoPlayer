@@ -715,7 +715,7 @@ public final class ImaAdsLoader
     }
     try {
       handleAdPrepareError(adGroupIndex, adIndexInAdGroup, exception);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       maybeNotifyInternalError("handlePrepareError", e);
     }
   }
@@ -742,7 +742,7 @@ public final class ImaAdsLoader
         adPlaybackState = new AdPlaybackState(getAdGroupTimesUs(adsManager.getAdCuePoints()));
         hasAdPlaybackState = true;
         updateAdPlaybackState();
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         maybeNotifyInternalError("onAdsManagerLoaded", e);
       }
     }
@@ -762,7 +762,7 @@ public final class ImaAdsLoader
     }
     try {
       handleAdEvent(adEvent);
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       maybeNotifyInternalError("onAdEvent", e);
     }
   }
@@ -784,7 +784,7 @@ public final class ImaAdsLoader
     } else if (isAdGroupLoadError(error)) {
       try {
         handleAdGroupLoadError(error);
-      } catch (Exception e) {
+      } catch (RuntimeException e) {
         maybeNotifyInternalError("onAdError", e);
       }
     }
@@ -885,7 +885,7 @@ public final class ImaAdsLoader
       adPlaybackState =
           adPlaybackState.withAdUri(adInfo.adGroupIndex, adInfo.adIndexInAdGroup, adUri);
       updateAdPlaybackState();
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       maybeNotifyInternalError("loadAd", e);
     }
   }
@@ -959,7 +959,7 @@ public final class ImaAdsLoader
     Assertions.checkState(imaAdState != IMA_AD_STATE_NONE);
     try {
       stopAdInternal();
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       maybeNotifyInternalError("stopAd", e);
     }
   }
