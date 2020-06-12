@@ -81,8 +81,7 @@ import java.util.PriorityQueue;
     Assertions.checkArgument(inputBuffer == dequeuedInputBuffer);
     CeaInputBuffer ceaInputBuffer = (CeaInputBuffer) inputBuffer;
     if (ceaInputBuffer.isDecodeOnly()) {
-      // We can drop this buffer early (i.e. before it would be decoded) as the CEA formats allow
-      // for decoding to begin mid-stream.
+      // We can start decoding anywhere in CEA formats, so discarding on the input side is fine.
       releaseInputBuffer(ceaInputBuffer);
     } else {
       ceaInputBuffer.queuedInputBufferCount = queuedInputBufferCount++;
@@ -97,15 +96,12 @@ import java.util.PriorityQueue;
     if (availableOutputBuffers.isEmpty()) {
       return null;
     }
-    // iterate through all available input buffers whose timestamps are less than or equal
-    // to the current playback position; processing input buffers for future content should
-    // be deferred until they would be applicable
+    // Process input buffers up to the current playback position. Processing of input buffers for
+    // future content is deferred.
     while (!queuedInputBuffers.isEmpty()
         && Util.castNonNull(queuedInputBuffers.peek()).timeUs <= playbackPositionUs) {
       CeaInputBuffer inputBuffer = Util.castNonNull(queuedInputBuffers.poll());
 
-      // If the input buffer indicates we've reached the end of the stream, we can
-      // return immediately with an output buffer propagating that
       if (inputBuffer.isEndOfStream()) {
         // availableOutputBuffers.isEmpty() is checked at the top of the method, so this is safe.
         SubtitleOutputBuffer outputBuffer = Util.castNonNull(availableOutputBuffers.pollFirst());
@@ -116,18 +112,13 @@ import java.util.PriorityQueue;
 
       decode(inputBuffer);
 
-      // check if we have any caption updates to report
       if (isNewSubtitleDataAvailable()) {
-        // Even if the subtitle is decode-only; we need to generate it to consume the data so it
-        // isn't accidentally prepended to the next subtitle
         Subtitle subtitle = createSubtitle();
-        if (!inputBuffer.isDecodeOnly()) {
-          // availableOutputBuffers.isEmpty() is checked at the top of the method, so this is safe.
-          SubtitleOutputBuffer outputBuffer = Util.castNonNull(availableOutputBuffers.pollFirst());
-          outputBuffer.setContent(inputBuffer.timeUs, subtitle, Format.OFFSET_SAMPLE_RELATIVE);
-          releaseInputBuffer(inputBuffer);
-          return outputBuffer;
-        }
+        // availableOutputBuffers.isEmpty() is checked at the top of the method, so this is safe.
+        SubtitleOutputBuffer outputBuffer = Util.castNonNull(availableOutputBuffers.pollFirst());
+        outputBuffer.setContent(inputBuffer.timeUs, subtitle, Format.OFFSET_SAMPLE_RELATIVE);
+        releaseInputBuffer(inputBuffer);
+        return outputBuffer;
       }
 
       releaseInputBuffer(inputBuffer);
@@ -160,7 +151,7 @@ import java.util.PriorityQueue;
 
   @Override
   public void release() {
-    // Do nothing
+    // Do nothing.
   }
 
   /**
