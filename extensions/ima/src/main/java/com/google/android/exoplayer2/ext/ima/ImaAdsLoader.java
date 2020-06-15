@@ -662,7 +662,7 @@ public final class ImaAdsLoader
         adsManager.resume();
       }
     } else if (adsManager != null) {
-      adPlaybackState = new AdPlaybackState(getAdGroupTimesUs(adsManager.getAdCuePoints()));
+      adPlaybackState = AdPlaybackStateFactory.fromCuePoints(adsManager.getAdCuePoints());
       updateAdPlaybackState();
     } else {
       // Ads haven't loaded yet, so request them.
@@ -739,7 +739,7 @@ public final class ImaAdsLoader
     if (player != null) {
       // If a player is attached already, start playback immediately.
       try {
-        adPlaybackState = new AdPlaybackState(getAdGroupTimesUs(adsManager.getAdCuePoints()));
+        adPlaybackState = AdPlaybackStateFactory.fromCuePoints(adsManager.getAdCuePoints());
         hasAdPlaybackState = true;
         updateAdPlaybackState();
       } catch (RuntimeException e) {
@@ -1543,28 +1543,6 @@ public final class ImaAdsLoader
         - (timeline.isEmpty()
             ? 0
             : timeline.getPeriod(/* periodIndex= */ 0, period).getPositionInWindowMs());
-  }
-
-  private static long[] getAdGroupTimesUs(List<Float> cuePoints) {
-    if (cuePoints.isEmpty()) {
-      // If no cue points are specified, there is a preroll ad.
-      return new long[] {0};
-    }
-
-    int count = cuePoints.size();
-    long[] adGroupTimesUs = new long[count];
-    int adGroupIndex = 0;
-    for (int i = 0; i < count; i++) {
-      double cuePoint = cuePoints.get(i);
-      if (cuePoint == -1.0) {
-        adGroupTimesUs[count - 1] = C.TIME_END_OF_SOURCE;
-      } else {
-        adGroupTimesUs[adGroupIndex++] = (long) (C.MICROS_PER_SECOND * cuePoint);
-      }
-    }
-    // Cue points may be out of order, so sort them.
-    Arrays.sort(adGroupTimesUs, 0, adGroupIndex);
-    return adGroupTimesUs;
   }
 
   private static boolean isAdGroupLoadError(AdError adError) {
