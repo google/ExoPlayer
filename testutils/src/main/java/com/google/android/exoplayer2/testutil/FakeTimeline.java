@@ -184,7 +184,8 @@ public final class FakeTimeline extends Timeline {
   }
 
   /** The fake media item used by the fake timeline. */
-  public static final MediaItem FAKE_MEDIA_ITEM = new MediaItem.Builder().setUri(Uri.EMPTY).build();
+  public static final MediaItem FAKE_MEDIA_ITEM =
+      new MediaItem.Builder().setMediaId("FakeTimeline").setUri(Uri.EMPTY).build();
 
   private static final long AD_DURATION_US = 10 * C.MICROS_PER_SECOND;
 

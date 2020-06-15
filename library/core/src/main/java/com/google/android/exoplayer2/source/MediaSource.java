@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -273,11 +274,17 @@ public interface MediaSource {
     return true;
   }
 
-  /** Returns the tag set on the media source, or null if none was set. */
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @Deprecated
   @Nullable
   default Object getTag() {
     return null;
   }
+
+  /** Returns the {@link MediaItem} whose media is provided by the source. */
+  MediaItem getMediaItem();
 
   /**
    * Registers a {@link MediaSourceCaller}. Starts source preparation if needed and enables the

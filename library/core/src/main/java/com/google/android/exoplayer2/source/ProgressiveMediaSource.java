@@ -244,14 +244,19 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     this.timelineDurationUs = C.TIME_UNSET;
   }
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return playbackProperties.tag;
   }
 
-  @Nullable
-  public Object getMediaItem() {
+  @Override
+  public MediaItem getMediaItem() {
     return mediaItem;
   }
 
