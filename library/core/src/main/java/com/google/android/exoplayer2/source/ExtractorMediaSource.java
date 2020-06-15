@@ -333,10 +333,20 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
             continueLoadingCheckIntervalBytes);
   }
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return progressiveMediaSource.getTag();
+  }
+
+  @Override
+  public MediaItem getMediaItem() {
+    return progressiveMediaSource.getMediaItem();
   }
 
   @Override

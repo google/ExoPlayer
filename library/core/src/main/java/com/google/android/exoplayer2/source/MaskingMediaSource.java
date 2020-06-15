@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.source;
 
-import android.net.Uri;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -68,10 +67,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
               initialTimeline, /* firstWindowUid= */ null, /* firstPeriodUid= */ null);
       hasRealTimeline = true;
     } else {
-      // TODO(bachinger) Use mediasSource.getMediaItem() to provide the media item.
-      timeline =
-          MaskingTimeline.createWithDummyTimeline(
-              new MediaItem.Builder().setUri(Uri.EMPTY).setTag(mediaSource.getTag()).build());
+      timeline = MaskingTimeline.createWithDummyTimeline(mediaSource.getMediaItem());
     }
   }
 
@@ -89,10 +85,20 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     }
   }
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return mediaSource.getTag();
+  }
+
+  @Override
+  public MediaItem getMediaItem() {
+    return mediaSource.getMediaItem();
   }
 
   @Override

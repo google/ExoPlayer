@@ -294,13 +294,18 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
   // MediaSource implementation.
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return castNonNull(mediaItem.playbackProperties).tag;
   }
 
-  // TODO(bachinger) Add @Override annotation once the method is defined by MediaSource.
+  @Override
   public MediaItem getMediaItem() {
     return mediaItem;
   }

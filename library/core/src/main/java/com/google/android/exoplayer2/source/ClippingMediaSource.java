@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -184,10 +185,20 @@ public final class ClippingMediaSource extends CompositeMediaSource<Void> {
     window = new Timeline.Window();
   }
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return mediaSource.getTag();
+  }
+
+  @Override
+  public MediaItem getMediaItem() {
+    return mediaSource.getMediaItem();
   }
 
   @Override

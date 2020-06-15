@@ -140,7 +140,7 @@ public final class ExoPlayerTest {
   public void playEmptyTimeline() throws Exception {
     Timeline timeline = Timeline.EMPTY;
     Timeline expectedMaskingTimeline =
-        new MaskingMediaSource.DummyTimeline(FakeTimeline.FAKE_MEDIA_ITEM);
+        new MaskingMediaSource.DummyTimeline(FakeMediaSource.FAKE_MEDIA_ITEM);
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_UNKNOWN);
     ExoPlayerTestRunner testRunner =
         new ExoPlayerTestRunner.Builder(context)
@@ -3443,6 +3443,11 @@ public final class ExoPlayerTest {
           @Override
           public boolean isSingleWindow() {
             return false;
+          }
+
+          @Override
+          public MediaItem getMediaItem() {
+            return underlyingSource.getMediaItem();
           }
 
           @Override

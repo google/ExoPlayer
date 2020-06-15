@@ -442,7 +442,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
 
   // CompositeMediaSource implementation.
 
-  // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
+  @Override
   public MediaItem getMediaItem() {
     // This method is actually never called because getInitialTimeline is implemented and hence the
     // MaskingMediaSource does not need to create a dummy timeline for this media source.
@@ -996,7 +996,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
       // Do nothing.
     }
 
-    // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
+    @Override
     public MediaItem getMediaItem() {
       return DUMMY_MEDIA_ITEM;
     }

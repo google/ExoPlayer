@@ -22,6 +22,7 @@ import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.CompositeMediaSource;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -181,10 +182,20 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     adsLoader.setSupportedContentTypes(adMediaSourceFactory.getSupportedTypes());
   }
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return contentMediaSource.getTag();
+  }
+
+  @Override
+  public MediaItem getMediaItem() {
+    return contentMediaSource.getMediaItem();
   }
 
   @Override

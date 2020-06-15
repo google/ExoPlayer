@@ -77,7 +77,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
   }
 
   /** The media id used by any media item of silence media sources. */
-  public static final String MEDIA_ID = "com.google.android.exoplayer2.source.SilenceMediaSource";
+  public static final String MEDIA_ID = "SilenceMediaSource";
 
   private static final int SAMPLE_RATE_HZ = 44100;
   @C.PcmEncoding private static final int PCM_ENCODING = C.ENCODING_PCM_16BIT;
@@ -145,16 +145,20 @@ public final class SilenceMediaSource extends BaseMediaSource {
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {}
 
-  /** Returns the {@link MediaItem} of this media source. */
-  // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
-  public MediaItem getMediaItem() {
-    return mediaItem;
-  }
-
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Nullable
   @Override
   public Object getTag() {
     return Assertions.checkNotNull(mediaItem.playbackProperties).tag;
+  }
+
+  @Override
+  public MediaItem getMediaItem() {
+    return mediaItem;
   }
 
   @Override

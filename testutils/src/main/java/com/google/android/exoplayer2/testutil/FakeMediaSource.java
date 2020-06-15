@@ -71,7 +71,7 @@ public class FakeMediaSource extends BaseMediaSource {
 
   /** The media item used by the fake media source. */
   public static final MediaItem FAKE_MEDIA_ITEM =
-      new MediaItem.Builder().setUri("http://manifest.uri").build();
+      new MediaItem.Builder().setMediaId("FakeMediaSource").setUri("http://manifest.uri").build();
 
   private static final DataSpec FAKE_DATA_SPEC =
       new DataSpec(castNonNull(FAKE_MEDIA_ITEM.playbackProperties).uri);
@@ -134,6 +134,11 @@ public class FakeMediaSource extends BaseMediaSource {
     return timeline;
   }
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
@@ -143,7 +148,7 @@ public class FakeMediaSource extends BaseMediaSource {
     return timeline.getWindow(0, new Timeline.Window()).tag;
   }
 
-  // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
+  @Override
   public MediaItem getMediaItem() {
     if (timeline == null || timeline.isEmpty()) {
       return FAKE_MEDIA_ITEM;
