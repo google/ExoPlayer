@@ -489,7 +489,7 @@ public final class ExoPlayerTest {
   public void adGroupWithLoadErrorIsSkipped() throws Exception {
     AdPlaybackState initialAdPlaybackState =
         FakeTimeline.createAdPlaybackState(
-            /* adsPerAdGroup= */ 1, /* adGroupTimesUs=... */
+            /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */
             TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
                 + 5 * C.MICROS_PER_SECOND);
     Timeline fakeTimeline =
@@ -499,7 +499,11 @@ public final class ExoPlayerTest {
                 /* id= */ 0,
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
                 /* durationUs= */ C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 0,
+                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                 initialAdPlaybackState));
     AdPlaybackState errorAdPlaybackState = initialAdPlaybackState.withAdLoadError(0, 0);
     final Timeline adErrorTimeline =
@@ -509,7 +513,11 @@ public final class ExoPlayerTest {
                 /* id= */ 0,
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
                 /* durationUs= */ C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 0,
+                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                 errorAdPlaybackState));
     final FakeMediaSource fakeMediaSource =
         new FakeMediaSource(fakeTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
@@ -660,7 +668,7 @@ public final class ExoPlayerTest {
 
   @Test
   public void internalDiscontinuityAtInitialPosition() throws Exception {
-    FakeTimeline timeline = new FakeTimeline(1);
+    FakeTimeline timeline = new FakeTimeline(/* windowCount= */ 1);
     FakeMediaSource mediaSource =
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
@@ -672,8 +680,9 @@ public final class ExoPlayerTest {
               EventDispatcher eventDispatcher,
               @Nullable TransferListener transferListener) {
             FakeMediaPeriod mediaPeriod = new FakeMediaPeriod(trackGroupArray, eventDispatcher);
+            // Set a discontinuity at the position this period is supposed to start at anyway.
             mediaPeriod.setDiscontinuityPositionUs(
-                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US);
+                timeline.getWindow(/* windowIndex= */ 0, new Window()).positionInFirstPeriodUs);
             return mediaPeriod;
           }
         };
