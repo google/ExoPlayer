@@ -74,7 +74,9 @@
     *   `SimpleDecoderVideoRenderer` and `SimpleDecoderAudioRenderer` renamed to
         `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
         generalized to work with `Decoder` rather than `SimpleDecoder`.
-    *   Add media item based playlist API to Player.
+    *   Add media item based playlist API to `Player`.
+    *   Add `getCurrentMediaItem` to `Player`.
+    *   Remove deprecated members in `DefaultTrackSelector`.
     *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
         that the device volume can be controlled by player.
     *   Parse track titles from Matroska files
