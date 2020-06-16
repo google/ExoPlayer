@@ -1242,10 +1242,19 @@ public interface Player {
   int getPreviousWindowIndex();
 
   /**
-   * Returns the tag of the currently playing window in the timeline. May be null if no tag is set
-   * or the timeline is not yet available.
+   * @deprecated Use {@link #getCurrentMediaItem()} and {@link MediaItem.PlaybackProperties#tag}
+   *     instead.
    */
-  @Nullable Object getCurrentTag();
+  @Deprecated
+  @Nullable
+  Object getCurrentTag();
+
+  /**
+   * Returns the media item of the current window in the timeline. May be null if the timeline is
+   * empty.
+   */
+  @Nullable
+  MediaItem getCurrentMediaItem();
 
   /**
    * Returns the duration of the current content window or ad in milliseconds, or {@link

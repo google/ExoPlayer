@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SilenceMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
@@ -6707,6 +6708,62 @@ public final class ExoPlayerTest {
         timelineWithOffsets.getPeriod(/* periodIndex= */ 0, new Timeline.Period()).durationUs;
     assertThat(firstBufferTimesUsWithOffset.get(1))
         .isEqualTo(rendererStreamOffsetsUs.get(0) + periodDurationUs);
+  }
+
+  @Test
+  public void mediaItemOfSources_correctInTimelineWindows() throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    final Player[] playerHolder = {null};
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    playerHolder[0] = player;
+                  }
+                })
+            .waitForPlaybackState(Player.STATE_READY)
+            .seek(/* positionMs= */ 0)
+            .waitForPlaybackState(Player.STATE_ENDED)
+            .build();
+    List<MediaItem> currentMediaItems = new ArrayList<>();
+    List<MediaItem> initialMediaItems = new ArrayList<>();
+    Player.EventListener eventListener =
+        new Player.EventListener() {
+          @Override
+          public void onTimelineChanged(Timeline timeline, int reason) {
+            if (reason != Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) {
+              return;
+            }
+            Window window = new Window();
+            for (int i = 0; i < timeline.getWindowCount(); i++) {
+              initialMediaItems.add(timeline.getWindow(i, window).mediaItem);
+            }
+          }
+
+          @Override
+          public void onPositionDiscontinuity(int reason) {
+            currentMediaItems.add(playerHolder[0].getCurrentMediaItem());
+          }
+        };
+    new ExoPlayerTestRunner.Builder(context)
+        .setEventListener(eventListener)
+        .setActionSchedule(actionSchedule)
+        .setMediaSources(
+            factory.setTag("1").createMediaSource(),
+            factory.setTag("2").createMediaSource(),
+            factory.setTag("3").createMediaSource())
+        .build()
+        .start()
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+
+    assertThat(currentMediaItems.get(0).playbackProperties.tag).isEqualTo("1");
+    assertThat(currentMediaItems.get(1).playbackProperties.tag).isEqualTo("2");
+    assertThat(currentMediaItems.get(2).playbackProperties.tag).isEqualTo("3");
+    assertThat(initialMediaItems).containsExactlyElementsIn(currentMediaItems);
   }
 
   // Internal methods.
