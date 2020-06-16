@@ -155,12 +155,22 @@ public final class MimeTypes {
     if (mimeType == null) {
       return false;
     }
-    // TODO: Consider adding additional audio MIME types here.
+    // TODO: Add additional audio MIME types. Also consider evaluating based on Format rather than
+    // just MIME type, since in some cases the property is true for a subset of the profiles
+    // belonging to a single MIME type. If we do this, we should move the method to a different
+    // class. See [Internal ref: http://go/exo-audio-format-random-access].
     switch (mimeType) {
-      case AUDIO_AAC:
       case AUDIO_MPEG:
       case AUDIO_MPEG_L1:
       case AUDIO_MPEG_L2:
+      case AUDIO_RAW:
+      case AUDIO_ALAW:
+      case AUDIO_MLAW:
+      case AUDIO_OPUS:
+      case AUDIO_FLAC:
+      case AUDIO_AC3:
+      case AUDIO_E_AC3:
+      case AUDIO_E_AC3_JOC:
         return true;
       default:
         return false;
