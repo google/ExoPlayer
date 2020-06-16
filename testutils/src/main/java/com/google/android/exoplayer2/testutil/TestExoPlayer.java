@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -36,11 +37,8 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.Supplier;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,30 +49,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * components.
  */
 public class TestExoPlayer {
-
-  /**
-   * The default timeout applied when calling one of the {@code runUntil} methods. This timeout
-   * should be sufficient for any condition using a Robolectric test.
-   */
-  public static final long DEFAULT_TIMEOUT_MS = 10_000;
-
-  /** Reflectively call Robolectric ShadowLooper#runOneTask. */
-  private static final Object shadowLooper;
-
-  private static final Method runOneTaskMethod;
-
-  static {
-    try {
-      Class<?> clazz = Class.forName("org.robolectric.Shadows");
-      Method shadowOfMethod =
-          Assertions.checkNotNull(clazz.getDeclaredMethod("shadowOf", Looper.class));
-      shadowLooper =
-          Assertions.checkNotNull(shadowOfMethod.invoke(new Object(), Looper.getMainLooper()));
-      runOneTaskMethod = shadowLooper.getClass().getDeclaredMethod("runOneTask");
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
 
   /** A builder of {@link SimpleExoPlayer} instances for testing. */
   public static class Builder {
@@ -317,7 +291,8 @@ public class TestExoPlayer {
    *
    * @param player The {@link Player}.
    * @param expectedState The expected {@link Player.State}.
-   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS default timeout} is exceeded.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
    */
   public static void runUntilPlaybackState(Player player, @Player.State int expectedState)
       throws TimeoutException {
@@ -336,7 +311,7 @@ public class TestExoPlayer {
           }
         };
     player.addListener(listener);
-    runUntil(receivedExpectedState::get);
+    runMainLooperUntil(receivedExpectedState::get);
     player.removeListener(listener);
   }
 
@@ -346,7 +321,8 @@ public class TestExoPlayer {
    *
    * @param player The {@link Player}.
    * @param expectedPlayWhenReady The expected value for {@link Player#getPlayWhenReady()}.
-   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS default timeout} is exceeded.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
    */
   public static void runUntilPlayWhenReady(Player player, boolean expectedPlayWhenReady)
       throws TimeoutException {
@@ -366,7 +342,7 @@ public class TestExoPlayer {
           }
         };
     player.addListener(listener);
-    runUntil(receivedExpectedPlayWhenReady::get);
+    runMainLooperUntil(receivedExpectedPlayWhenReady::get);
   }
 
   /**
@@ -375,7 +351,8 @@ public class TestExoPlayer {
    *
    * @param player The {@link Player}.
    * @param expectedTimeline The expected {@link Timeline}.
-   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS default timeout} is exceeded.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
    */
   public static void runUntilTimelineChanged(Player player, Timeline expectedTimeline)
       throws TimeoutException {
@@ -395,7 +372,7 @@ public class TestExoPlayer {
           }
         };
     player.addListener(listener);
-    runUntil(receivedExpectedTimeline::get);
+    runMainLooperUntil(receivedExpectedTimeline::get);
   }
 
   /**
@@ -403,7 +380,8 @@ public class TestExoPlayer {
    *
    * @param player The {@link Player}.
    * @return The new {@link Timeline}.
-   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS default timeout} is exceeded.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
    */
   public static Timeline runUntilTimelineChanged(Player player) throws TimeoutException {
     verifyMainTestThread(player);
@@ -417,7 +395,7 @@ public class TestExoPlayer {
           }
         };
     player.addListener(listener);
-    runUntil(() -> receivedTimeline.get() != null);
+    runMainLooperUntil(() -> receivedTimeline.get() != null);
     return receivedTimeline.get();
   }
 
@@ -428,7 +406,8 @@ public class TestExoPlayer {
    *
    * @param player The {@link Player}.
    * @param expectedReason The expected {@link Player.DiscontinuityReason}.
-   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS default timeout} is exceeded.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
    */
   public static void runUntilPositionDiscontinuity(
       Player player, @Player.DiscontinuityReason int expectedReason) throws TimeoutException {
@@ -444,7 +423,7 @@ public class TestExoPlayer {
           }
         };
     player.addListener(listener);
-    runUntil(receivedCallback::get);
+    runMainLooperUntil(receivedCallback::get);
   }
 
   /**
@@ -452,7 +431,8 @@ public class TestExoPlayer {
    *
    * @param player The {@link Player}.
    * @return The raised {@link ExoPlaybackException}.
-   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS default timeout} is exceeded.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
    */
   public static ExoPlaybackException runUntilError(Player player) throws TimeoutException {
     verifyMainTestThread(player);
@@ -466,7 +446,7 @@ public class TestExoPlayer {
           }
         };
     player.addListener(listener);
-    runUntil(() -> receivedError.get() != null);
+    runMainLooperUntil(() -> receivedError.get() != null);
     return receivedError.get();
   }
 
@@ -475,7 +455,8 @@ public class TestExoPlayer {
    * callback has been called.
    *
    * @param player The {@link Player}.
-   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS default timeout} is exceeded.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
    */
   public static void runUntilRenderedFirstFrame(SimpleExoPlayer player) throws TimeoutException {
     verifyMainTestThread(player);
@@ -489,7 +470,7 @@ public class TestExoPlayer {
           }
         };
     player.addVideoListener(listener);
-    runUntil(receivedCallback::get);
+    runMainLooperUntil(receivedCallback::get);
   }
 
   /**
@@ -497,7 +478,8 @@ public class TestExoPlayer {
    * commands on the internal playback thread.
    *
    * @param player The {@link Player}.
-   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS default timeout} is exceeded.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
    */
   public static void runUntilPendingCommandsAreFullyHandled(ExoPlayer player)
       throws TimeoutException {
@@ -510,52 +492,12 @@ public class TestExoPlayer {
         .createMessage((type, data) -> receivedMessageCallback.set(true))
         .setHandler(Util.createHandler())
         .send();
-    runUntil(receivedMessageCallback::get);
-  }
-
-  /**
-   * Runs tasks of the main {@link Looper} until the {@code condition} returns {@code true}.
-   *
-   * @param condition The condition.
-   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS} is exceeded.
-   */
-  public static void runUntil(Supplier<Boolean> condition) throws TimeoutException {
-    runUntil(condition, DEFAULT_TIMEOUT_MS, Clock.DEFAULT);
-  }
-
-  /**
-   * Runs tasks of the main {@link Looper} until the {@code condition} returns {@code true}.
-   *
-   * @param condition The condition.
-   * @param timeoutMs The timeout in milliseconds.
-   * @param clock The {@link Clock} to measure the timeout.
-   * @throws TimeoutException If the {@code timeoutMs timeout} is exceeded.
-   */
-  public static void runUntil(Supplier<Boolean> condition, long timeoutMs, Clock clock)
-      throws TimeoutException {
-    verifyMainTestThread();
-    try {
-      long timeoutTimeMs = clock.currentTimeMillis() + timeoutMs;
-      while (!condition.get()) {
-        if (clock.currentTimeMillis() >= timeoutTimeMs) {
-          throw new TimeoutException();
-        }
-        runOneTaskMethod.invoke(shadowLooper);
-      }
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new IllegalStateException(e);
-    }
+    runMainLooperUntil(receivedMessageCallback::get);
   }
 
   private static void verifyMainTestThread(Player player) {
     if (Looper.myLooper() != Looper.getMainLooper()
         || player.getApplicationLooper() != Looper.getMainLooper()) {
-      throw new IllegalStateException();
-    }
-  }
-
-  private static void verifyMainTestThread() {
-    if (Looper.myLooper() != Looper.getMainLooper()) {
       throw new IllegalStateException();
     }
   }

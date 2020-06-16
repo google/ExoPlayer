@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -24,7 +25,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
-import com.google.android.exoplayer2.testutil.TestExoPlayer;
 import com.google.android.exoplayer2.upstream.AssetDataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
@@ -72,7 +72,7 @@ public final class ProgressiveMediaPeriodTest {
           }
         },
         /* positionUs= */ 0);
-    TestExoPlayer.runUntil(prepareCallbackCalled::get);
+    runMainLooperUntil(prepareCallbackCalled::get);
     mediaPeriod.release();
 
     assertThat(sourceInfoRefreshCalledBeforeOnPrepared.get()).isTrue();
