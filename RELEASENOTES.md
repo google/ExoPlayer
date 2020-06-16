@@ -176,6 +176,7 @@
         timestamps ([#7464](https://github.com/google/ExoPlayer/issues/7464)).
 *   Ogg: Allow non-contiguous pages
     ([#7230](https://github.com/google/ExoPlayer/issues/7230)).
+*   Matroska: Remove support for "Invisible" block header flag.
 *   Extractors:
     *   Add `IndexSeeker` for accurate seeks in VBR MP3 streams
         ([#6787](https://github.com/google/ExoPlayer/issues/6787)). This seeker
