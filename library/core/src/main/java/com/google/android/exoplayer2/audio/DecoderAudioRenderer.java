@@ -123,7 +123,6 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   private boolean allowPositionDiscontinuity;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private boolean waitingForKeys;
 
   public DecoderAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -399,52 +398,30 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
       return false;
     }
 
-    @SampleStream.ReadDataResult int result;
     FormatHolder formatHolder = getFormatHolder();
-    if (waitingForKeys) {
-      // We've already read an encrypted sample into buffer, and are waiting for keys.
-      result = C.RESULT_BUFFER_READ;
-    } else {
-      result = readSource(formatHolder, inputBuffer, false);
+    switch (readSource(formatHolder, inputBuffer, /* formatRequired= */ false)) {
+      case C.RESULT_NOTHING_READ:
+        return false;
+      case C.RESULT_FORMAT_READ:
+        onInputFormatChanged(formatHolder);
+        return true;
+      case C.RESULT_BUFFER_READ:
+        if (inputBuffer.isEndOfStream()) {
+          inputStreamEnded = true;
+          decoder.queueInputBuffer(inputBuffer);
+          inputBuffer = null;
+          return false;
+        }
+        inputBuffer.flip();
+        onQueueInputBuffer(inputBuffer);
+        decoder.queueInputBuffer(inputBuffer);
+        decoderReceivedBuffers = true;
+        decoderCounters.inputBufferCount++;
+        inputBuffer = null;
+        return true;
+      default:
+        throw new IllegalStateException();
     }
-
-    if (result == C.RESULT_NOTHING_READ) {
-      return false;
-    }
-    if (result == C.RESULT_FORMAT_READ) {
-      onInputFormatChanged(formatHolder);
-      return true;
-    }
-    if (inputBuffer.isEndOfStream()) {
-      inputStreamEnded = true;
-      decoder.queueInputBuffer(inputBuffer);
-      inputBuffer = null;
-      return false;
-    }
-    boolean bufferEncrypted = inputBuffer.isEncrypted();
-    waitingForKeys = shouldWaitForKeys(bufferEncrypted);
-    if (waitingForKeys) {
-      return false;
-    }
-    inputBuffer.flip();
-    onQueueInputBuffer(inputBuffer);
-    decoder.queueInputBuffer(inputBuffer);
-    decoderReceivedBuffers = true;
-    decoderCounters.inputBufferCount++;
-    inputBuffer = null;
-    return true;
-  }
-
-  private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    if (decoderDrmSession == null
-        || (!bufferEncrypted && decoderDrmSession.playClearSamplesWithoutKeys())) {
-      return false;
-    }
-    @DrmSession.State int drmSessionState = decoderDrmSession.getState();
-    if (drmSessionState == DrmSession.STATE_ERROR) {
-      throw createRendererException(decoderDrmSession.getError(), inputFormat);
-    }
-    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
   }
 
   private void processEndOfStream() throws ExoPlaybackException {
@@ -458,7 +435,6 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   }
 
   private void flushDecoder() throws ExoPlaybackException {
-    waitingForKeys = false;
     if (decoderReinitializationState != REINITIALIZATION_STATE_NONE) {
       releaseDecoder();
       maybeInitDecoder();
@@ -481,7 +457,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   @Override
   public boolean isReady() {
     return audioSink.hasPendingData()
-        || (inputFormat != null && !waitingForKeys && (isSourceReady() || outputBuffer != null));
+        || (inputFormat != null && (isSourceReady() || outputBuffer != null));
   }
 
   @Override
@@ -543,7 +519,6 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   protected void onDisabled() {
     inputFormat = null;
     audioTrackNeedsConfigure = true;
-    waitingForKeys = false;
     try {
       setSourceDrmSession(null);
       releaseDecoder();
