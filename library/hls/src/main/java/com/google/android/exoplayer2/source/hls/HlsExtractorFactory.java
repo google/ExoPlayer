@@ -31,33 +31,6 @@ import java.util.Map;
  */
 public interface HlsExtractorFactory {
 
-  /** Holds an {@link Extractor} and associated parameters. */
-  final class Result {
-
-    /** The created extractor; */
-    public final Extractor extractor;
-    /** Whether the segments for which {@link #extractor} is created are packed audio segments. */
-    public final boolean isPackedAudioExtractor;
-    /**
-     * Whether {@link #extractor} may be reused for following continuous (no immediately preceding
-     * discontinuities) segments of the same variant.
-     */
-    public final boolean isReusable;
-
-    /**
-     * Creates a result.
-     *
-     * @param extractor See {@link #extractor}.
-     * @param isPackedAudioExtractor See {@link #isPackedAudioExtractor}.
-     * @param isReusable See {@link #isReusable}.
-     */
-    public Result(Extractor extractor, boolean isPackedAudioExtractor, boolean isReusable) {
-      this.extractor = extractor;
-      this.isPackedAudioExtractor = isPackedAudioExtractor;
-      this.isReusable = isReusable;
-    }
-  }
-
   HlsExtractorFactory DEFAULT = new DefaultHlsExtractorFactory();
 
   /**
@@ -76,11 +49,11 @@ public interface HlsExtractorFactory {
    * @param sniffingExtractorInput The first extractor input that will be passed to the returned
    *     extractor's {@link Extractor#read(ExtractorInput, PositionHolder)}. Must only be used to
    *     call {@link Extractor#sniff(ExtractorInput)}.
-   * @return A {@link Result}.
+   * @return An {@link HlsMediaChunkExtractor}.
    * @throws IOException If an I/O error is encountered while sniffing.
    */
-  Result createExtractor(
-      @Nullable Extractor previousExtractor,
+  HlsMediaChunkExtractor createExtractor(
+      @Nullable HlsMediaChunkExtractor previousExtractor,
       Uri uri,
       Format format,
       @Nullable List<Format> muxedCaptionFormats,
