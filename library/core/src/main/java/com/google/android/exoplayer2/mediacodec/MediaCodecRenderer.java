@@ -401,7 +401,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private long lastBufferInStreamPresentationTimeUs;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private boolean waitingForKeys;
   private boolean waitingForFirstSyncSample;
   private boolean waitingForFirstSampleInFormat;
   private boolean pendingOutputEndOfStream;
@@ -880,7 +879,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
     isDecodeOnlyOutputBuffer = false;
     isLastOutputBuffer = false;
-    waitingForKeys = false;
     decodeOnlyPresentationTimestamps.clear();
     largestQueuedPresentationTimeUs = C.TIME_UNSET;
     lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
@@ -1235,25 +1233,20 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return true;
     }
 
-    @SampleStream.ReadDataResult int result;
-    FormatHolder formatHolder = getFormatHolder();
-    int adaptiveReconfigurationBytes = 0;
-    if (waitingForKeys) {
-      // We've already read an encrypted sample into buffer, and are waiting for keys.
-      result = C.RESULT_BUFFER_READ;
-    } else {
-      // For adaptive reconfiguration, decoders expect all reconfiguration data to be supplied at
-      // the start of the buffer that also contains the first frame in the new format.
-      if (codecReconfigurationState == RECONFIGURATION_STATE_WRITE_PENDING) {
-        for (int i = 0; i < codecFormat.initializationData.size(); i++) {
-          byte[] data = codecFormat.initializationData.get(i);
-          buffer.data.put(data);
-        }
-        codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
+    // For adaptive reconfiguration, decoders expect all reconfiguration data to be supplied at
+    // the start of the buffer that also contains the first frame in the new format.
+    if (codecReconfigurationState == RECONFIGURATION_STATE_WRITE_PENDING) {
+      for (int i = 0; i < codecFormat.initializationData.size(); i++) {
+        byte[] data = codecFormat.initializationData.get(i);
+        buffer.data.put(data);
       }
-      adaptiveReconfigurationBytes = buffer.data.position();
-      result = readSource(formatHolder, buffer, false);
+      codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
     }
+    int adaptiveReconfigurationBytes = buffer.data.position();
+
+    FormatHolder formatHolder = getFormatHolder();
+    @SampleStream.ReadDataResult
+    int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
 
     if (hasReadStreamToEnd()) {
       // Notify output queue of the last buffer's timestamp.
@@ -1321,14 +1314,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     waitingForFirstSyncSample = false;
 
     boolean bufferEncrypted = buffer.isEncrypted();
-    waitingForKeys = shouldWaitForKeys(bufferEncrypted);
-    if (waitingForKeys) {
-      return false;
-    }
     if (bufferEncrypted) {
       buffer.cryptoInfo.increaseClearDataFirstSubSampleBy(adaptiveReconfigurationBytes);
     }
-
     if (codecNeedsDiscardToSpsWorkaround && !bufferEncrypted) {
       NalUnitUtil.discardToSps(buffer.data);
       if (buffer.data.position() == 0) {
@@ -1383,18 +1371,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     decoderCounters.inputBufferCount++;
     return true;
-  }
-
-  private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    if (codecDrmSession == null
-        || (!bufferEncrypted && codecDrmSession.playClearSamplesWithoutKeys())) {
-      return false;
-    }
-    @DrmSession.State int drmSessionState = codecDrmSession.getState();
-    if (drmSessionState == DrmSession.STATE_ERROR) {
-      throw createRendererException(codecDrmSession.getError(), inputFormat);
-    }
-    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
   }
 
   /**
@@ -1624,7 +1600,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   public boolean isReady() {
     return inputFormat != null
-        && !waitingForKeys
         && (isSourceReady()
             || hasOutputBuffer()
             || (codecHotswapDeadlineMs != C.TIME_UNSET
