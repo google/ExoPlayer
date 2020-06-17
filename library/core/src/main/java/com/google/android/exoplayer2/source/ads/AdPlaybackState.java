@@ -124,13 +124,9 @@ public final class AdPlaybackState {
       return result;
     }
 
-    /**
-     * Returns a new instance with the ad count set to {@code count}. This method may only be called
-     * if this instance's ad count has not yet been specified.
-     */
+    /** Returns a new instance with the ad count set to {@code count}. */
     @CheckResult
     public AdGroup withAdCount(int count) {
-      Assertions.checkArgument(this.count == C.LENGTH_UNSET && states.length <= count);
       @AdState int[] states = copyStatesWithSpaceForAdCount(this.states, count);
       long[] durationsUs = copyDurationsUsWithSpaceForAdCount(this.durationsUs, count);
       @NullableType Uri[] uris = Arrays.copyOf(this.uris, count);
@@ -139,17 +135,11 @@ public final class AdPlaybackState {
 
     /**
      * Returns a new instance with the specified {@code uri} set for the specified ad, and the ad
-     * marked as {@link #AD_STATE_AVAILABLE}. The specified ad must currently be in {@link
-     * #AD_STATE_UNAVAILABLE}, which is the default state.
-     *
-     * <p>This instance's ad count may be unknown, in which case {@code index} must be less than the
-     * ad count specified later. Otherwise, {@code index} must be less than the current ad count.
+     * marked as {@link #AD_STATE_AVAILABLE}.
      */
     @CheckResult
     public AdGroup withAdUri(Uri uri, int index) {
-      Assertions.checkArgument(count == C.LENGTH_UNSET || index < count);
       @AdState int[] states = copyStatesWithSpaceForAdCount(this.states, index + 1);
-      Assertions.checkArgument(states[index] == AD_STATE_UNAVAILABLE);
       long[] durationsUs =
           this.durationsUs.length == states.length
               ? this.durationsUs
