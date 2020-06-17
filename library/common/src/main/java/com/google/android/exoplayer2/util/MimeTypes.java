@@ -101,6 +101,7 @@ public final class MimeTypes {
 
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
+  public static final String APPLICATION_MATROSKA = BASE_TYPE_APPLICATION + "/x-matroska";
   public static final String APPLICATION_MPD = BASE_TYPE_APPLICATION + "/dash+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_SS = BASE_TYPE_APPLICATION + "/vnd.ms-sstr+xml";
@@ -539,14 +540,17 @@ public final class MimeTypes {
     }
   }
 
-  /** Returns whether the given {@code mimeType} is a WebM MIME type. */
-  public static boolean isWebm(@Nullable String mimeType) {
+  /** Returns whether the given {@code mimeType} is a Matroska MIME type, including WebM. */
+  public static boolean isMatroska(@Nullable String mimeType) {
     if (mimeType == null) {
       return false;
     }
     return mimeType.startsWith(MimeTypes.VIDEO_WEBM)
         || mimeType.startsWith(MimeTypes.AUDIO_WEBM)
-        || mimeType.startsWith(MimeTypes.APPLICATION_WEBM);
+        || mimeType.startsWith(MimeTypes.APPLICATION_WEBM)
+        || mimeType.startsWith(MimeTypes.VIDEO_MATROSKA)
+        || mimeType.startsWith(MimeTypes.AUDIO_MATROSKA)
+        || mimeType.startsWith(MimeTypes.APPLICATION_MATROSKA);
   }
 
   /**
