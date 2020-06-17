@@ -1485,6 +1485,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
           // Drop events after release.
           return;
         }
+
         int adGroupIndex = getAdGroupIndexForAdPod(adPodInfo);
         int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
         AdInfo adInfo = new AdInfo(adGroupIndex, adIndexInAdGroup);
@@ -1494,21 +1495,23 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
           // will timeout after its media load timeout.
           return;
         }
+
+        // The ad count may increase on successive loads of ads in the same ad pod, for example, due
+        // to separate requests for ad tags with multiple ads within the ad pod completing after an
+        // earlier ad has loaded. See also https://github.com/google/ExoPlayer/issues/7477.
         AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adInfo.adGroupIndex];
-        if (adGroup.count == C.LENGTH_UNSET) {
-          adPlaybackState =
-              adPlaybackState.withAdCount(
-                  adInfo.adGroupIndex, Math.max(adPodInfo.getTotalAds(), adGroup.states.length));
-          adGroup = adPlaybackState.adGroups[adInfo.adGroupIndex];
-        }
+        adPlaybackState =
+            adPlaybackState.withAdCount(
+                adInfo.adGroupIndex, Math.max(adPodInfo.getTotalAds(), adGroup.states.length));
+        adGroup = adPlaybackState.adGroups[adInfo.adGroupIndex];
         for (int i = 0; i < adIndexInAdGroup; i++) {
           // Any preceding ads that haven't loaded are not going to load.
           if (adGroup.states[i] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
             adPlaybackState =
-                adPlaybackState.withAdLoadError(
-                    /* adGroupIndex= */ adGroupIndex, /* adIndexInAdGroup= */ i);
+                adPlaybackState.withAdLoadError(adGroupIndex, /* adIndexInAdGroup= */ i);
           }
         }
+
         Uri adUri = Uri.parse(adMediaInfo.getUrl());
         adPlaybackState =
             adPlaybackState.withAdUri(adInfo.adGroupIndex, adInfo.adIndexInAdGroup, adUri);
