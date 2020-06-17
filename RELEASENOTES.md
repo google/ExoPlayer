@@ -220,6 +220,9 @@
         ([#7508](https://github.com/google/ExoPlayer/issues/7508)).
     *   Fix a bug where the number of ads in an ad group couldn't change
         ([#7477](https://github.com/google/ExoPlayer/issues/7477)).
+    *   Work around unexpected `pauseAd`/`stopAd` for ads that have preloaded
+        on seeking to another position
+        ([#7492](https://github.com/google/ExoPlayer/issues/7492)).
 *   Demo app: Retain previous position in list of samples.
 *   Add Guava dependency.
 
