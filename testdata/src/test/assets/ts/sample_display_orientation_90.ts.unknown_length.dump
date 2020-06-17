@@ -1,0 +1,73 @@
+seekMap:
+  isSeekable = false
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=0]]
+numberOfTracks = 2
+track 256:
+  total output bytes = 15413
+  sample count = 12
+  format 0:
+    id = 1/256
+    sampleMimeType = video/avc
+    codecs = avc1.42C029
+    width = 176
+    height = 144
+    rotationDegrees = 270
+    initializationData:
+      data = length 17, hash C9F98A8
+      data = length 9, hash D7E64600
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 1471, hash D4B30FBE
+  sample 1:
+    time = 33333
+    flags = 0
+    data = length 727, hash 2F844DF0
+  sample 2:
+    time = 66666
+    flags = 0
+    data = length 225, hash BBA8388
+  sample 3:
+    time = 100000
+    flags = 0
+    data = length 900, hash 6216A2F7
+  sample 4:
+    time = 133333
+    flags = 0
+    data = length 1018, hash BCA42846
+  sample 5:
+    time = 166666
+    flags = 0
+    data = length 988, hash 2F009773
+  sample 6:
+    time = 200000
+    flags = 0
+    data = length 821, hash 86D16164
+  sample 7:
+    time = 233333
+    flags = 0
+    data = length 1500, hash 569EA795
+  sample 8:
+    time = 266666
+    flags = 0
+    data = length 1674, hash 6620230C
+  sample 9:
+    time = 300000
+    flags = 0
+    data = length 2262, hash 8DF0F1BB
+  sample 10:
+    time = 333333
+    flags = 0
+    data = length 1432, hash ADA83BCC
+  sample 11:
+    time = 366666
+    flags = 0
+    data = length 1669, hash EC74E5C8
+track 8448:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    id = 1/8448
+    sampleMimeType = application/cea-608
+tracksEnded = true

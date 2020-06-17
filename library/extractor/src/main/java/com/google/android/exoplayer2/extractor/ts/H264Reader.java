@@ -20,7 +20,9 @@ import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_RA
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.extractor.DisplayOrientationSeiReader;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.FormatHolder;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -49,6 +51,7 @@ public final class H264Reader implements ElementaryStreamReader {
   private static final int NAL_UNIT_TYPE_PPS = 8; // Picture parameter set
 
   private final SeiReader seiReader;
+  private final DisplayOrientationSeiReader displayOrientationSeiReader;
   private final boolean allowNonIdrKeyframes;
   private final boolean detectAccessUnits;
   private final NalUnitTargetBuffer sps;
@@ -60,9 +63,7 @@ public final class H264Reader implements ElementaryStreamReader {
   private @MonotonicNonNull String formatId;
   private @MonotonicNonNull TrackOutput output;
   private @MonotonicNonNull SampleReader sampleReader;
-
-  // State that should not be reset on seek.
-  private boolean hasOutputFormat;
+  private @MonotonicNonNull FormatHolder formatHolder;
 
   // Per PES packet state that gets reset at the start of each PES packet.
   private long pesTimeUs;
@@ -84,6 +85,7 @@ public final class H264Reader implements ElementaryStreamReader {
     this.seiReader = seiReader;
     this.allowNonIdrKeyframes = allowNonIdrKeyframes;
     this.detectAccessUnits = detectAccessUnits;
+    this.displayOrientationSeiReader = new DisplayOrientationSeiReader();
     prefixFlags = new boolean[3];
     sps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_SPS, 128);
     pps = new NalUnitTargetBuffer(NAL_UNIT_TYPE_PPS, 128);
@@ -110,6 +112,7 @@ public final class H264Reader implements ElementaryStreamReader {
     formatId = idGenerator.getFormatId();
     output = extractorOutput.track(idGenerator.getTrackId(), C.TRACK_TYPE_VIDEO);
     sampleReader = new SampleReader(output, allowNonIdrKeyframes, detectAccessUnits);
+    formatHolder = new FormatHolder(output);
     seiReader.createTracks(extractorOutput, idGenerator);
   }
 
@@ -171,7 +174,7 @@ public final class H264Reader implements ElementaryStreamReader {
 
   @RequiresNonNull("sampleReader")
   private void startNalUnit(long position, int nalUnitType, long pesTimeUs) {
-    if (!hasOutputFormat || sampleReader.needsSpsPps()) {
+    if (!formatHolder.hasFormat() || sampleReader.needsSpsPps()) {
       sps.startNalUnit(nalUnitType);
       pps.startNalUnit(nalUnitType);
     }
@@ -181,7 +184,7 @@ public final class H264Reader implements ElementaryStreamReader {
 
   @RequiresNonNull("sampleReader")
   private void nalUnitData(byte[] dataArray, int offset, int limit) {
-    if (!hasOutputFormat || sampleReader.needsSpsPps()) {
+    if (!formatHolder.hasFormat() || sampleReader.needsSpsPps()) {
       sps.appendToNalUnit(dataArray, offset, limit);
       pps.appendToNalUnit(dataArray, offset, limit);
     }
@@ -191,10 +194,10 @@ public final class H264Reader implements ElementaryStreamReader {
 
   @RequiresNonNull({"output", "sampleReader"})
   private void endNalUnit(long position, int offset, int discardPadding, long pesTimeUs) {
-    if (!hasOutputFormat || sampleReader.needsSpsPps()) {
+    if (!formatHolder.hasFormat() || sampleReader.needsSpsPps()) {
       sps.endNalUnit(discardPadding);
       pps.endNalUnit(discardPadding);
-      if (!hasOutputFormat) {
+      if (!formatHolder.hasFormat()) {
         if (sps.isCompleted() && pps.isCompleted()) {
           List<byte[]> initializationData = new ArrayList<>();
           initializationData.add(Arrays.copyOf(sps.nalData, sps.nalLength));
@@ -206,7 +209,8 @@ public final class H264Reader implements ElementaryStreamReader {
                   spsData.profileIdc,
                   spsData.constraintsFlagsAndReservedZero2Bits,
                   spsData.levelIdc);
-          output.format(
+
+          formatHolder.update(
               new Format.Builder()
                   .setId(formatId)
                   .setSampleMimeType(MimeTypes.VIDEO_H264)
@@ -215,8 +219,9 @@ public final class H264Reader implements ElementaryStreamReader {
                   .setHeight(spsData.height)
                   .setPixelWidthHeightRatio(spsData.pixelWidthAspectRatio)
                   .setInitializationData(initializationData)
-                  .build());
-          hasOutputFormat = true;
+                  .build()
+          );
+
           sampleReader.putSps(spsData);
           sampleReader.putPps(ppsData);
           sps.reset();
@@ -235,11 +240,21 @@ public final class H264Reader implements ElementaryStreamReader {
     if (sei.endNalUnit(discardPadding)) {
       int unescapedLength = NalUnitUtil.unescapeStream(sei.nalData, sei.nalLength);
       seiWrapper.reset(sei.nalData, unescapedLength);
-      seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
-      seiReader.consume(pesTimeUs, seiWrapper);
+      seiWrapper.setPosition(3); // NAL prefix.
+
+      if (displayOrientationSeiReader.isDisplayOrientation(seiWrapper) && formatHolder.hasFormat()) {
+        DisplayOrientationSeiReader.DisplayOrientationData orientationData =
+            displayOrientationSeiReader.read(seiWrapper);
+
+        formatHolder.update(orientationData);
+      } else if (!displayOrientationSeiReader.isDisplayOrientation(seiWrapper)) {
+        seiWrapper.reset(sei.nalData, unescapedLength);
+        seiWrapper.setPosition(4); // NAL prefix and nal_unit() header.
+        seiReader.consume(pesTimeUs, seiWrapper);
+      }
     }
     boolean sampleIsKeyFrame =
-        sampleReader.endNalUnit(position, offset, hasOutputFormat, randomAccessIndicator);
+        sampleReader.endNalUnit(position, offset, formatHolder.hasFormat(), randomAccessIndicator);
     if (sampleIsKeyFrame) {
       // This is either an IDR frame or the first I-frame since the random access indicator, so mark
       // it as a keyframe. Clear the flag so that subsequent non-IDR I-frames are not marked as

@@ -111,6 +111,17 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void sampleWithDisplayOrientation() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new,
+        "ts/sample_display_orientation_90.ts",
+        new ExtractorAsserts.AssertionConfig.Builder()
+            .setDeduplicateConsecutiveFormats(true)
+            .build(),
+        simulationConfig);
+  }
+
+  @Test
   public void sampleWithAc3() throws Exception {
     ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac3.ts", simulationConfig);
   }

@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.extractor.flv;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.extractor.DisplayOrientationSeiReader;
+import com.google.android.exoplayer2.extractor.FormatHolder;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -46,15 +48,19 @@ import com.google.android.exoplayer2.video.AvcConfig;
   private int nalUnitLengthFieldLength;
 
   // State variables.
-  private boolean hasOutputFormat;
   private boolean hasOutputKeyframe;
   private int frameType;
+
+  private final DisplayOrientationSeiReader displayOrientationSeiReader;
+  private final FormatHolder formatHolder;
 
   /**
    * @param output A {@link TrackOutput} to which samples should be written.
    */
   public VideoTagPayloadReader(TrackOutput output) {
     super(output);
+    displayOrientationSeiReader = new DisplayOrientationSeiReader();
+    formatHolder = new FormatHolder(output);
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
     nalLength = new ParsableByteArray(4);
   }
@@ -84,24 +90,23 @@ import com.google.android.exoplayer2.video.AvcConfig;
 
     timeUs += compositionTimeMs * 1000L;
     // Parse avc sequence header in case this was not done before.
-    if (packetType == AVC_PACKET_TYPE_SEQUENCE_HEADER && !hasOutputFormat) {
+    if (packetType == AVC_PACKET_TYPE_SEQUENCE_HEADER && !formatHolder.hasFormat()) {
       ParsableByteArray videoSequence = new ParsableByteArray(new byte[data.bytesLeft()]);
       data.readBytes(videoSequence.data, 0, data.bytesLeft());
       AvcConfig avcConfig = AvcConfig.parse(videoSequence);
       nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
       // Construct and output the format.
-      Format format =
+      formatHolder.update(
           new Format.Builder()
               .setSampleMimeType(MimeTypes.VIDEO_H264)
               .setWidth(avcConfig.width)
               .setHeight(avcConfig.height)
               .setPixelWidthHeightRatio(avcConfig.pixelWidthAspectRatio)
               .setInitializationData(avcConfig.initializationData)
-              .build();
-      output.format(format);
-      hasOutputFormat = true;
+              .build()
+      );
       return false;
-    } else if (packetType == AVC_PACKET_TYPE_AVC_NALU && hasOutputFormat) {
+    } else if (packetType == AVC_PACKET_TYPE_AVC_NALU && formatHolder.hasFormat()) {
       boolean isKeyframe = frameType == VIDEO_FRAME_KEYFRAME;
       if (!hasOutputKeyframe && !isKeyframe) {
         return false;
@@ -129,6 +134,14 @@ import com.google.android.exoplayer2.video.AvcConfig;
         nalStartCode.setPosition(0);
         output.sampleData(nalStartCode, 4);
         bytesWritten += 4;
+
+        // Check for display orientation
+        if (displayOrientationSeiReader.isDisplayOrientation(data)) {
+          DisplayOrientationSeiReader.DisplayOrientationData orientationData =
+              displayOrientationSeiReader.read(data);
+
+          formatHolder.update(orientationData);
+        }
 
         // Write the payload of the NAL unit.
         output.sampleData(data, bytesToWrite);
