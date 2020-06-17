@@ -427,7 +427,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
       extractor =
           extractorFactory.createExtractor(
-              previousExtractor,
               dataSpec.uri,
               trackFormat,
               muxedCaptionFormats,

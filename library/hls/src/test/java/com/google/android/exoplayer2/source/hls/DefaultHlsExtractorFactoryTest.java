@@ -69,7 +69,6 @@ public class DefaultHlsExtractorFactoryTest {
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
@@ -93,7 +92,6 @@ public class DefaultHlsExtractorFactoryTest {
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
@@ -116,7 +114,6 @@ public class DefaultHlsExtractorFactoryTest {
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
@@ -140,7 +137,6 @@ public class DefaultHlsExtractorFactoryTest {
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
@@ -158,7 +154,6 @@ public class DefaultHlsExtractorFactoryTest {
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
