@@ -35,10 +35,10 @@
     ([#7306](https://github.com/google/ExoPlayer/issues/7306)).
 *   Fix issue in `AudioTrackPositionTracker` that could cause negative positions
     to be reported at the start of playback and immediately after seeking
-    ([#7456](https://github.com/google/ExoPlayer/issues/7456).
+    ([#7456](https://github.com/google/ExoPlayer/issues/7456)).
 *   Fix further cases where downloads would sometimes not resume after their
     network requirements are met
-    ([#7453](https://github.com/google/ExoPlayer/issues/7453).
+    ([#7453](https://github.com/google/ExoPlayer/issues/7453)).
 *   DASH:
     *   Merge trick play adaptation sets (i.e., adaptation sets marked with
         `http://dashif.org/guidelines/trickmode`) into the same `TrackGroup` as
@@ -118,10 +118,10 @@
     `DefaultAudioSink` constructor
     ([#7134](https://github.com/google/ExoPlayer/issues/7134)).
   * Workaround issue that could cause slower than realtime playback of AAC on
-    Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671).
+    Android 10 ([#6671](https://github.com/google/ExoPlayer/issues/6671)).
   * Fix case where another app spuriously holding transient audio focus could
     prevent ExoPlayer from acquiring audio focus for an indefinite period of
-    time ([#7182](https://github.com/google/ExoPlayer/issues/7182).
+    time ([#7182](https://github.com/google/ExoPlayer/issues/7182)).
   * Fix case where the player volume could be permanently ducked if audio focus
     was released whilst ducking.
   * Fix playback of WAV files with trailing non-media bytes
@@ -1041,7 +1041,7 @@
   ([#4492](https://github.com/google/ExoPlayer/issues/4492) and
   [#4634](https://github.com/google/ExoPlayer/issues/4634)).
 * Fix issue where removing looping media from a playlist throws an exception
-  ([#4871](https://github.com/google/ExoPlayer/issues/4871).
+  ([#4871](https://github.com/google/ExoPlayer/issues/4871)).
 * Fix issue where the preferred audio or text track would not be selected if
   mapped onto a secondary renderer of the corresponding type
   ([#4711](http://github.com/google/ExoPlayer/issues/4711)).
@@ -1458,7 +1458,7 @@
   resources when the playback thread has quit by the time the loading task has
   completed.
 * ID3: Better handle malformed ID3 data
-  ([#3792](https://github.com/google/ExoPlayer/issues/3792).
+  ([#3792](https://github.com/google/ExoPlayer/issues/3792)).
 * Support 14-bit mode and little endianness in DTS PES packets
   ([#3340](https://github.com/google/ExoPlayer/issues/3340)).
 * Demo app: Add ability to download not DRM protected content.
