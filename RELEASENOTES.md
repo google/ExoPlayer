@@ -13,6 +13,8 @@
     *   Fix a bug that caused playback to be stuck buffering on resuming from
         the background after all ads had played to the end
         ([#7508](https://github.com/google/ExoPlayer/issues/7508)).
+    *   Fix a bug where the number of ads in an ad group couldn't change
+        ([#7477](https://github.com/google/ExoPlayer/issues/7477)).
 
 ### 2.11.5 (2020-06-05) ###
 
