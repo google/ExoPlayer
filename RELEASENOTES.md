@@ -1,6 +1,6 @@
 # Release notes #
 
-### 2.11.6 (not yet released) ###
+### 2.11.6 (2020-06-24) ###
 
 *   UI: Prevent `PlayerView` from temporarily hiding the video surface when
     seeking to an unprepared period within the current window. For example when
