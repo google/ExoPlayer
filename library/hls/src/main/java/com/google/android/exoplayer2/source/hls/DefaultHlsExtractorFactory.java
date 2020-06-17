@@ -89,7 +89,6 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
 
   @Override
   public BundledHlsMediaChunkExtractor createExtractor(
-      @Nullable HlsMediaChunkExtractor previousExtractor,
       Uri uri,
       Format format,
       @Nullable List<Format> muxedCaptionFormats,

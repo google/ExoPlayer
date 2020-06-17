@@ -36,9 +36,6 @@ public interface HlsExtractorFactory {
   /**
    * Creates an {@link Extractor} for extracting HLS media chunks.
    *
-   * @param previousExtractor A previously used {@link Extractor} which can be reused if the current
-   *     chunk is a continuation of the previously extracted chunk, or null otherwise. It is the
-   *     responsibility of implementers to only reuse extractors that are suited for reusage.
    * @param uri The URI of the media chunk.
    * @param format A {@link Format} associated with the chunk to extract.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
@@ -53,7 +50,6 @@ public interface HlsExtractorFactory {
    * @throws IOException If an I/O error is encountered while sniffing.
    */
   HlsMediaChunkExtractor createExtractor(
-      @Nullable HlsMediaChunkExtractor previousExtractor,
       Uri uri,
       Format format,
       @Nullable List<Format> muxedCaptionFormats,
