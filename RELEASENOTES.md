@@ -203,14 +203,19 @@
         ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
     *   Update `TrackSelectionDialogBuilder` to use AndroidX Compat Dialog
         ([#7357](https://github.com/google/ExoPlayer/issues/7357)).
-    *   Prevent the video surface going black when seeking to an unprepared
-        period within the current window. For example when seeking over an ad
-        group, or to the next period in a multi-period DASH stream
-        ([#5507](https://github.com/google/ExoPlayer/issues/5507)).
 *   Metadata: Add minimal DVB Application Information Table (AIT) support
     ([#6922](https://github.com/google/ExoPlayer/pull/6922)).
 *   Cast extension: Implement playlist API and deprecate the old queue
     manipulation API.
+*   Demo app: Retain previous position in list of samples.
+*   Add Guava dependency.
+
+### 2.11.6 (2020-06-19) ###
+
+*   UI: Prevent `PlayerView` from temporarily hiding the video surface when
+    seeking to an unprepared period within the current window. For example when
+    seeking over an ad group, or to the next period in a multi-period DASH
+    stream ([#5507](https://github.com/google/ExoPlayer/issues/5507)).
 *   IMA extension:
     *   Add option to skip ads before the start position.
     *   Catch unexpected errors in `stopAd` to avoid a crash
@@ -223,8 +228,6 @@
     *   Work around unexpected `pauseAd`/`stopAd` for ads that have preloaded
         on seeking to another position
         ([#7492](https://github.com/google/ExoPlayer/issues/7492)).
-*   Demo app: Retain previous position in list of samples.
-*   Add Guava dependency.
 
 ### 2.11.5 (2020-06-05) ###
 
