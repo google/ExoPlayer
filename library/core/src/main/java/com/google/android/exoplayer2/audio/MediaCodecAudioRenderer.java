@@ -92,8 +92,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
 
-  @Nullable private WakeupListener wakeupListener;
-
   /**
    * @param context A context.
    * @param mediaCodecSelector A decoder selector.
@@ -698,9 +696,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       case MSG_SET_AUDIO_SESSION_ID:
         audioSink.setAudioSessionId((Integer) message);
         break;
-      case MSG_SET_WAKEUP_LISTENER:
-        this.wakeupListener = (WakeupListener) message;
-        break;
       default:
         super.handleMessage(messageType, message);
         break;
@@ -879,20 +874,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
       eventDispatcher.skipSilenceEnabledChanged(skipSilenceEnabled);
       onAudioTrackSkipSilenceEnabledChanged(skipSilenceEnabled);
-    }
-
-    @Override
-    public void onOffloadBufferEmptying() {
-      if (wakeupListener != null) {
-        wakeupListener.onWakeup();
-      }
-    }
-
-    @Override
-    public void onOffloadBufferFull(long bufferEmptyingDeadlineMs) {
-      if (wakeupListener != null) {
-        wakeupListener.onSleep(bufferEmptyingDeadlineMs);
-      }
     }
   }
 }

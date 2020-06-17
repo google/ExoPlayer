@@ -20,7 +20,6 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.ConditionVariable;
-import android.os.Handler;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -275,7 +274,6 @@ public final class DefaultAudioSink implements AudioSink {
   private final AudioTrackPositionTracker audioTrackPositionTracker;
   private final ArrayDeque<MediaPositionParameters> mediaPositionParametersCheckpoints;
   private final boolean enableOffload;
-  @MonotonicNonNull private StreamEventCallback offloadStreamEventCallback;
 
   @Nullable private Listener listener;
   /** Used to keep the audio session active on pre-V21 builds (see {@link #initialize(long)}). */
@@ -306,7 +304,7 @@ public final class DefaultAudioSink implements AudioSink {
   @Nullable private ByteBuffer inputBuffer;
   private int inputBufferAccessUnitCount;
   @Nullable private ByteBuffer outputBuffer;
-  @MonotonicNonNull private byte[] preV21OutputBuffer;
+  private byte[] preV21OutputBuffer;
   private int preV21OutputBufferOffset;
   private int drainingAudioProcessorIndex;
   private boolean handledEndOfStream;
@@ -368,10 +366,7 @@ public final class DefaultAudioSink implements AudioSink {
    *     be available when float output is in use.
    * @param enableOffload Whether audio offloading is enabled. If an audio format can be both played
    *     with offload and encoded audio passthrough, it will be played in offload. Audio offload is
-   *     supported starting with API 29 ({@link android.os.Build.VERSION_CODES#Q}). Most Android
-   *     devices can only support one offload {@link android.media.AudioTrack} at a time and can
-   *     invalidate it at any time. Thus an app can never be guaranteed that it will be able to play
-   *     in offload.
+   *     supported starting with API 29 ({@link android.os.Build.VERSION_CODES#Q}).
    */
   public DefaultAudioSink(
       @Nullable AudioCapabilities audioCapabilities,
@@ -409,7 +404,6 @@ public final class DefaultAudioSink implements AudioSink {
     activeAudioProcessors = new AudioProcessor[0];
     outputBuffers = new ByteBuffer[0];
     mediaPositionParametersCheckpoints = new ArrayDeque<>();
-    offloadStreamEventCallback = Util.SDK_INT >= 29 ? new StreamEventCallback() : null;
   }
 
   // AudioSink implementation.
@@ -569,9 +563,6 @@ public final class DefaultAudioSink implements AudioSink {
     audioTrack =
         Assertions.checkNotNull(configuration)
             .buildAudioTrack(tunneling, audioAttributes, audioSessionId);
-    if (isOffloadedPlayback(audioTrack)) {
-      registerStreamEventCallback(audioTrack);
-    }
     int audioSessionId = audioTrack.getAudioSessionId();
     if (enablePreV21AudioSessionWorkaround) {
       if (Util.SDK_INT < 21) {
@@ -753,16 +744,6 @@ public final class DefaultAudioSink implements AudioSink {
     return false;
   }
 
-  @RequiresApi(29)
-  private void registerStreamEventCallback(AudioTrack audioTrack) {
-    if (offloadStreamEventCallback == null) {
-      // Must be lazily initialized to receive stream event callbacks on the current (playback)
-      // thread as the constructor is not called in the playback thread.
-      offloadStreamEventCallback = new StreamEventCallback();
-    }
-    offloadStreamEventCallback.register(audioTrack);
-  }
-
   private void processBuffers(long avSyncPresentationTimeUs) throws WriteException {
     int count = activeAudioProcessors.length;
     int index = count;
@@ -839,15 +820,6 @@ public final class DefaultAudioSink implements AudioSink {
 
     if (bytesWritten < 0) {
       throw new WriteException(bytesWritten);
-    }
-
-    if (playing
-        && listener != null
-        && bytesWritten < bytesRemaining
-        && isOffloadedPlayback(audioTrack)) {
-      long pendingDurationMs =
-          audioTrackPositionTracker.getPendingBufferDurationMs(writtenEncodedFrames);
-      listener.onOffloadBufferFull(pendingDurationMs);
     }
 
     if (configuration.isInputPcm) {
@@ -1068,9 +1040,6 @@ public final class DefaultAudioSink implements AudioSink {
       if (audioTrackPositionTracker.isPlaying()) {
         audioTrack.pause();
       }
-      if (isOffloadedPlayback(audioTrack)) {
-        Assertions.checkNotNull(offloadStreamEventCallback).unregister(audioTrack);
-      }
       // AudioTrack.release can take some time, so we call it on a background thread.
       final AudioTrack toRelease = audioTrack;
       audioTrack = null;
@@ -1258,36 +1227,6 @@ public final class DefaultAudioSink implements AudioSink {
     AudioFormat audioFormat = getAudioFormat(sampleRateHz, channelMask, encoding);
     return AudioManager.isOffloadedPlaybackSupported(
         audioFormat, audioAttributes.getAudioAttributesV21());
-  }
-
-  private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
-    return Util.SDK_INT >= 29 && audioTrack.isOffloadedPlayback();
-  }
-
-  @RequiresApi(29)
-  private final class StreamEventCallback extends AudioTrack.StreamEventCallback {
-    private final Handler handler;
-
-    public StreamEventCallback() {
-      handler = new Handler();
-    }
-
-    @Override
-    public void onDataRequest(AudioTrack track, int size) {
-      Assertions.checkState(track == DefaultAudioSink.this.audioTrack);
-      if (listener != null) {
-        listener.onOffloadBufferEmptying();
-      }
-    }
-
-    public void register(AudioTrack audioTrack) {
-      audioTrack.registerStreamEventCallback(handler::post, this);
-    }
-
-    public void unregister(AudioTrack audioTrack) {
-      audioTrack.unregisterStreamEventCallback(this);
-      handler.removeCallbacksAndMessages(/* token= */ null);
-    }
   }
 
   private static AudioTrack initializeKeepSessionIdAudioTrack(int audioSessionId) {

@@ -20,8 +20,6 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
-import com.google.android.exoplayer2.audio.AudioCapabilities;
-import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
@@ -599,39 +597,4 @@ public interface ExoPlayer extends Player {
    * @see #setPauseAtEndOfMediaItems(boolean)
    */
   boolean getPauseAtEndOfMediaItems();
-
-  /**
-   * Enables audio offload scheduling, which runs ExoPlayer's main loop as rarely as possible when
-   * playing an audio stream using audio offload.
-   *
-   * <p>Only use this scheduling mode if the player is not displaying anything to the user. For
-   * example when the application is in the background, or the screen is off. The player state
-   * (including position) is rarely updated (between 10s and 1min).
-   *
-   * <p>While offload scheduling is enabled, player events may be delivered severely delayed and
-   * apps should not interact with the player. When returning to the foreground, disable offload
-   * scheduling before interacting with the player
-   *
-   * <p>This mode should save significant power when the phone is playing offload audio with the
-   * screen off.
-   *
-   * <p>This mode only has an effect when playing an audio track in offload mode, which requires all
-   * the following:
-   *
-   * <ul>
-   *   <li>audio offload rendering is enabled in {@link
-   *       DefaultRenderersFactory#setEnableAudioOffload} or the equivalent option passed to {@link
-   *       com.google.android.exoplayer2.audio.DefaultAudioSink#DefaultAudioSink(AudioCapabilities,
-   *       DefaultAudioSink.AudioProcessorChain, boolean, boolean)}.
-   *   <li>an audio track is playing in a format which the device supports offloading (for example
-   *       MP3 or AAC).
-   *   <li>The {@link com.google.android.exoplayer2.audio.AudioSink} is playing with an offload
-   *       {@link android.media.AudioTrack}.
-   * </ul>
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release.
-   *
-   * @param enableOffloadScheduling Whether to enable offload scheduling.
-   */
-  void experimental_enableOffloadScheduling(boolean enableOffloadScheduling);
 }
