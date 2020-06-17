@@ -10,6 +10,9 @@
     *   Add option to skip ads before the start position.
     *   Catch unexpected errors in `stopAd` to avoid a crash
         ([#7492](https://github.com/google/ExoPlayer/issues/7492)).
+    *   Fix a bug that caused playback to be stuck buffering on resuming from
+        the background after all ads had played to the end
+        ([#7508](https://github.com/google/ExoPlayer/issues/7508)).
 
 ### 2.11.5 (2020-06-05) ###
 

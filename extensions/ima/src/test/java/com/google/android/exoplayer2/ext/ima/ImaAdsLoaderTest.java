@@ -44,6 +44,8 @@ import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
+import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
+import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -113,6 +115,9 @@ public final class ImaAdsLoaderTest {
   private ViewGroup adViewGroup;
   private View adOverlayView;
   private AdsLoader.AdViewProvider adViewProvider;
+  private AdEvent.AdEventListener adEventListener;
+  private ContentProgressProvider contentProgressProvider;
+  private VideoAdPlayer videoAdPlayer;
   private TestAdsLoaderListener adsLoaderListener;
   private FakePlayer fakeExoPlayer;
   private ImaAdsLoader imaAdsLoader;
@@ -191,6 +196,8 @@ public final class ImaAdsLoaderTest {
   @Test
   public void startAndCallbacksAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_CUE_POINTS_SECONDS);
+    // Request ads in order to get a reference to the ad event listener.
+    imaAdsLoader.requestAds(adViewGroup);
     imaAdsLoader.release();
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
     fakeExoPlayer.setPlayingContentPosition(/* position= */ 0);
@@ -201,16 +208,16 @@ public final class ImaAdsLoaderTest {
     // when using Robolectric and accessing VideoProgressUpdate.VIDEO_TIME_NOT_READY, due to the IMA
     // SDK being proguarded.
     imaAdsLoader.requestAds(adViewGroup);
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, mockPrerollSingleAd));
-    imaAdsLoader.loadAd(TEST_AD_MEDIA_INFO, mockAdPodInfo);
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, mockPrerollSingleAd));
-    imaAdsLoader.playAd(TEST_AD_MEDIA_INFO);
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
-    imaAdsLoader.pauseAd(TEST_AD_MEDIA_INFO);
-    imaAdsLoader.stopAd(TEST_AD_MEDIA_INFO);
+    adEventListener.onAdEvent(getAdEvent(AdEventType.LOADED, mockPrerollSingleAd));
+    videoAdPlayer.loadAd(TEST_AD_MEDIA_INFO, mockAdPodInfo);
+    adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, mockPrerollSingleAd));
+    videoAdPlayer.playAd(TEST_AD_MEDIA_INFO);
+    adEventListener.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
+    videoAdPlayer.pauseAd(TEST_AD_MEDIA_INFO);
+    videoAdPlayer.stopAd(TEST_AD_MEDIA_INFO);
     imaAdsLoader.onPlayerError(ExoPlaybackException.createForSource(new IOException()));
     imaAdsLoader.onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
+    adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
     imaAdsLoader.handlePrepareError(
         /* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, new IOException());
   }
@@ -221,27 +228,27 @@ public final class ImaAdsLoaderTest {
 
     // Load the preroll ad.
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.LOADED, mockPrerollSingleAd));
-    imaAdsLoader.loadAd(TEST_AD_MEDIA_INFO, mockAdPodInfo);
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, mockPrerollSingleAd));
+    adEventListener.onAdEvent(getAdEvent(AdEventType.LOADED, mockPrerollSingleAd));
+    videoAdPlayer.loadAd(TEST_AD_MEDIA_INFO, mockAdPodInfo);
+    adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, mockPrerollSingleAd));
 
     // Play the preroll ad.
-    imaAdsLoader.playAd(TEST_AD_MEDIA_INFO);
+    videoAdPlayer.playAd(TEST_AD_MEDIA_INFO);
     fakeExoPlayer.setPlayingAdPosition(
         /* adGroupIndex= */ 0,
         /* adIndexInAdGroup= */ 0,
         /* position= */ 0,
         /* contentPosition= */ 0);
     fakeExoPlayer.setState(Player.STATE_READY, true);
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.FIRST_QUARTILE, mockPrerollSingleAd));
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.MIDPOINT, mockPrerollSingleAd));
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.THIRD_QUARTILE, mockPrerollSingleAd));
+    adEventListener.onAdEvent(getAdEvent(AdEventType.STARTED, mockPrerollSingleAd));
+    adEventListener.onAdEvent(getAdEvent(AdEventType.FIRST_QUARTILE, mockPrerollSingleAd));
+    adEventListener.onAdEvent(getAdEvent(AdEventType.MIDPOINT, mockPrerollSingleAd));
+    adEventListener.onAdEvent(getAdEvent(AdEventType.THIRD_QUARTILE, mockPrerollSingleAd));
 
     // Play the content.
     fakeExoPlayer.setPlayingContentPosition(0);
-    imaAdsLoader.stopAd(TEST_AD_MEDIA_INFO);
-    imaAdsLoader.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
+    videoAdPlayer.stopAd(TEST_AD_MEDIA_INFO);
+    adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
 
     // Verify that the preroll ad has been marked as played.
     assertThat(adsLoaderListener.adPlaybackState)
@@ -261,7 +268,7 @@ public final class ImaAdsLoaderTest {
 
     // Simulate loading an empty postroll ad.
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
-    imaAdsLoader.onAdEvent(mockPostrollFetchErrorAdEvent);
+    adEventListener.onAdEvent(mockPostrollFetchErrorAdEvent);
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
@@ -286,7 +293,7 @@ public final class ImaAdsLoaderTest {
     fakeExoPlayer.setState(Player.STATE_BUFFERING, /* playWhenReady= */ true);
     // Advance before the timeout and simulating polling content progress.
     ShadowSystemClock.advanceBy(Duration.ofSeconds(1));
-    imaAdsLoader.getContentProgress();
+    contentProgressProvider.getContentProgress();
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
@@ -308,7 +315,7 @@ public final class ImaAdsLoaderTest {
     fakeExoPlayer.setState(Player.STATE_BUFFERING, /* playWhenReady= */ true);
     // Advance past the timeout and simulate polling content progress.
     ShadowSystemClock.advanceBy(Duration.ofSeconds(5));
-    imaAdsLoader.getContentProgress();
+    contentProgressProvider.getContentProgress();
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
@@ -633,6 +640,8 @@ public final class ImaAdsLoaderTest {
         .thenAnswer(invocation -> userRequestContextCaptor.getValue());
     List<com.google.ads.interactivemedia.v3.api.AdsLoader.AdsLoadedListener> adsLoadedListeners =
         new ArrayList<>();
+    // Deliberately don't handle removeAdsLoadedListener to allow testing behavior if the IMA SDK
+    // invokes callbacks after release.
     doAnswer(
             invocation -> {
               adsLoadedListeners.add(invocation.getArgument(0));
@@ -640,13 +649,6 @@ public final class ImaAdsLoaderTest {
             })
         .when(mockAdsLoader)
         .addAdsLoadedListener(any());
-    doAnswer(
-            invocation -> {
-              adsLoadedListeners.remove(invocation.getArgument(0));
-              return null;
-            })
-        .when(mockAdsLoader)
-        .removeAdsLoadedListener(any());
     when(mockAdsManagerLoadedEvent.getAdsManager()).thenReturn(mockAdsManager);
     when(mockAdsManagerLoadedEvent.getUserRequestContext())
         .thenAnswer(invocation -> mockAdsRequest.getUserRequestContext());
@@ -661,6 +663,30 @@ public final class ImaAdsLoaderTest {
                 })
         .when(mockAdsLoader)
         .requestAds(mockAdsRequest);
+
+    doAnswer(
+            invocation -> {
+              adEventListener = invocation.getArgument(0);
+              return null;
+            })
+        .when(mockAdsManager)
+        .addAdEventListener(any());
+
+    doAnswer(
+            invocation -> {
+              contentProgressProvider = invocation.getArgument(0);
+              return null;
+            })
+        .when(mockAdsRequest)
+        .setContentProgressProvider(any());
+
+    doAnswer(
+            invocation -> {
+              videoAdPlayer = invocation.getArgument(0);
+              return null;
+            })
+        .when(mockAdDisplayContainer)
+        .setPlayer(any());
 
     when(mockImaFactory.createAdDisplayContainer()).thenReturn(mockAdDisplayContainer);
     when(mockImaFactory.createAdsRenderingSettings()).thenReturn(mockAdsRenderingSettings);
