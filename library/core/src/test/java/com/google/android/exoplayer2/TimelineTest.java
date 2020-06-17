@@ -17,7 +17,6 @@ package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
@@ -126,38 +125,6 @@ public class TimelineTest {
         otherWindow.set(
             window.uid,
             window.mediaItem,
-            window.manifest,
-            window.presentationStartTimeMs,
-            window.windowStartTimeMs,
-            window.elapsedRealtimeEpochOffsetMs,
-            window.isSeekable,
-            window.isDynamic,
-            window.isLive,
-            window.defaultPositionUs,
-            window.durationUs,
-            window.firstPeriodIndex,
-            window.lastPeriodIndex,
-            window.positionInFirstPeriodUs);
-    assertThat(window).isEqualTo(otherWindow);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void windowSet_withTag() {
-    Object tag = new Object();
-    Timeline.Window window =
-        populateWindow(
-            new MediaItem.Builder()
-                .setMediaId("com.google.android.exoplayer2.Timeline")
-                .setUri(Uri.EMPTY)
-                .setTag(tag)
-                .build(),
-            tag);
-    Timeline.Window otherWindow = new Timeline.Window();
-    otherWindow =
-        otherWindow.set(
-            window.uid,
-            window.tag,
             window.manifest,
             window.presentationStartTimeMs,
             window.windowStartTimeMs,
