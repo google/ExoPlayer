@@ -90,6 +90,17 @@ public interface AudioSink {
      * @param skipSilenceEnabled Whether skipping silences is enabled.
      */
     void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled);
+
+    /** Called when the offload buffer has been partially emptied. */
+    default void onOffloadBufferEmptying() {}
+
+    /**
+     * Called when the offload buffer has been filled completely.
+     *
+     * @param bufferEmptyingDeadlineMs Maximum time in milliseconds until {@link
+     *     #onOffloadBufferEmptying()} will be called.
+     */
+    default void onOffloadBufferFull(long bufferEmptyingDeadlineMs) {}
   }
 
   /**
