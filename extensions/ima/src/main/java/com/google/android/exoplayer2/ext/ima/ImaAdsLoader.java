@@ -1478,11 +1478,16 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     @Override
     public void loadAd(AdMediaInfo adMediaInfo, AdPodInfo adPodInfo) {
       try {
-        if (DEBUG) {
-          Log.d(TAG, "loadAd " + getAdMediaInfoString(adMediaInfo) + ", ad pod " + adPodInfo);
-        }
         if (adsManager == null) {
           // Drop events after release.
+          if (DEBUG) {
+            Log.d(
+                TAG,
+                "loadAd after release "
+                    + getAdMediaInfoString(adMediaInfo)
+                    + ", ad pod "
+                    + adPodInfo);
+          }
           return;
         }
 
@@ -1490,6 +1495,9 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
         int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
         AdInfo adInfo = new AdInfo(adGroupIndex, adIndexInAdGroup);
         adInfoByAdMediaInfo.put(adMediaInfo, adInfo);
+        if (DEBUG) {
+          Log.d(TAG, "loadAd " + getAdMediaInfoString(adMediaInfo));
+        }
         if (adPlaybackState.isAdInErrorState(adGroupIndex, adIndexInAdGroup)) {
           // We have already marked this ad as having failed to load, so ignore the request. IMA
           // will timeout after its media load timeout.
@@ -1590,10 +1598,21 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
         // Drop event after release.
         return;
       }
+      if (imaAdState == IMA_AD_STATE_NONE) {
+        // This method is called if loadAd has been called but the preloaded ad won't play due to a
+        // seek to a different position, so drop the event and discard the ad. See also [Internal:
+        // b/159111848].
+        @Nullable AdInfo adInfo = adInfoByAdMediaInfo.get(adMediaInfo);
+        if (adInfo != null) {
+          adPlaybackState =
+              adPlaybackState.withSkippedAd(adInfo.adGroupIndex, adInfo.adIndexInAdGroup);
+          updateAdPlaybackState();
+        }
+        return;
+      }
 
       try {
         Assertions.checkNotNull(player);
-        Assertions.checkState(imaAdState != IMA_AD_STATE_NONE);
         stopAdInternal();
       } catch (RuntimeException e) {
         maybeNotifyInternalError("stopAd", e);
@@ -1605,8 +1624,13 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
       if (DEBUG) {
         Log.d(TAG, "pauseAd " + getAdMediaInfoString(adMediaInfo));
       }
+      if (adsManager == null) {
+        // Drop event after release.
+        return;
+      }
       if (imaAdState == IMA_AD_STATE_NONE) {
-        // This method is called after content is resumed.
+        // This method is called if loadAd has been called but the loaded ad won't play due to a
+        // seek to a different position, so drop the event. See also [Internal: b/159111848].
         return;
       }
 
