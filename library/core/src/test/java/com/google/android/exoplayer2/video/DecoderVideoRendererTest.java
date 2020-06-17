@@ -24,11 +24,11 @@ import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
-import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.decoder.DecoderException;
@@ -39,6 +39,8 @@ import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem;
 import com.google.android.exoplayer2.util.MimeTypes;
+import java.util.concurrent.Phaser;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -75,11 +77,7 @@ public final class DecoderVideoRendererTest {
             eventListener,
             /* maxDroppedFramesToNotify= */ -1) {
 
-          private final Object pendingDecodeCallLock = new Object();
-
-          @GuardedBy("pendingDecodeCallLock")
-          private int pendingDecodeCalls;
-
+          private final Phaser inputBuffersInCodecPhaser = new Phaser();
           @C.VideoOutputMode private int outputMode;
 
           @Override
@@ -106,29 +104,17 @@ public final class DecoderVideoRendererTest {
 
           @Override
           protected void onQueueInputBuffer(VideoDecoderInputBuffer buffer) {
-            // SimpleDecoder.decode() is called on a background thread we have no control about from
-            // the test. Ensure the background calls are predictably serialized by waiting for them
-            // to finish:
-            //  1. Mark decode calls as "pending" here.
-            //  2. Send a message on the test thread to wait for all pending decode calls.
-            //  3. Decrement the pending counter in decode calls and wake up the waiting test.
-            //  4. The tests need to call ShadowLooper.idleMainThread() to wait for pending calls.
-            synchronized (pendingDecodeCallLock) {
-              pendingDecodeCalls++;
-            }
-            new Handler()
-                .post(
-                    () -> {
-                      synchronized (pendingDecodeCallLock) {
-                        while (pendingDecodeCalls > 0) {
-                          try {
-                            pendingDecodeCallLock.wait();
-                          } catch (InterruptedException e) {
-                            // Ignore.
-                          }
-                        }
-                      }
-                    });
+            // Decoding is done on a background thread we have no control about from the test.
+            // Ensure the background calls are predictably serialized by waiting for them to finish:
+            //  1. Register queued input buffers here.
+            //  2. Deregister the input buffer when it's cleared. If an input buffer is cleared it
+            //     will have been fully handled by the decoder.
+            //  3. Send a message on the test thread to wait for all currently pending input buffers
+            //     to be cleared.
+            //  4. The tests need to call ShadowLooper.idleMainThread() to execute the wait message
+            //     sent in step (3).
+            int currentPhase = inputBuffersInCodecPhaser.register();
+            new Handler().post(() -> inputBuffersInCodecPhaser.awaitAdvance(currentPhase));
             super.onQueueInputBuffer(buffer);
           }
 
@@ -144,7 +130,13 @@ public final class DecoderVideoRendererTest {
               @Override
               protected VideoDecoderInputBuffer createInputBuffer() {
                 return new VideoDecoderInputBuffer(
-                    DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
+                    DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT) {
+                  @Override
+                  public void clear() {
+                    super.clear();
+                    inputBuffersInCodecPhaser.arriveAndDeregister();
+                  }
+                };
               }
 
               @Override
@@ -164,10 +156,6 @@ public final class DecoderVideoRendererTest {
                   VideoDecoderOutputBuffer outputBuffer,
                   boolean reset) {
                 outputBuffer.init(inputBuffer.timeUs, outputMode, /* supplementalData= */ null);
-                synchronized (pendingDecodeCallLock) {
-                  pendingDecodeCalls--;
-                  pendingDecodeCallLock.notify();
-                }
                 return null;
               }
 
@@ -179,6 +167,16 @@ public final class DecoderVideoRendererTest {
           }
         };
     renderer.setOutputSurface(new Surface(new SurfaceTexture(/* texName= */ 0)));
+  }
+
+  @After
+  public void shutDown() throws Exception {
+    if (renderer.getState() == Renderer.STATE_STARTED) {
+      renderer.stop();
+    }
+    if (renderer.getState() == Renderer.STATE_ENABLED) {
+      renderer.disable();
+    }
   }
 
   @Test
