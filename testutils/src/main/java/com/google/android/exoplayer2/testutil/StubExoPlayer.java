@@ -465,9 +465,4 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   public boolean getPauseAtEndOfMediaItems() {
     throw new UnsupportedOperationException();
   }
-
-  @Override
-  public void experimental_enableOffloadScheduling(boolean enableOffloadScheduling) {
-    throw new UnsupportedOperationException();
-  }
 }
