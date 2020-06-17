@@ -225,44 +225,6 @@ public abstract class Timeline {
       mediaItem = DUMMY_MEDIA_ITEM;
     }
 
-    /**
-     * @deprecated Use {@link #set(Object, MediaItem, Object, long, long, long, boolean, boolean,
-     *     boolean, long, long, int, int, long)} instead.
-     */
-    @Deprecated
-    public Window set(
-        Object uid,
-        @Nullable Object tag,
-        @Nullable Object manifest,
-        long presentationStartTimeMs,
-        long windowStartTimeMs,
-        long elapsedRealtimeEpochOffsetMs,
-        boolean isSeekable,
-        boolean isDynamic,
-        boolean isLive,
-        long defaultPositionUs,
-        long durationUs,
-        int firstPeriodIndex,
-        int lastPeriodIndex,
-        long positionInFirstPeriodUs) {
-      set(
-          uid,
-          DUMMY_MEDIA_ITEM.buildUpon().setTag(tag).build(),
-          manifest,
-          presentationStartTimeMs,
-          windowStartTimeMs,
-          elapsedRealtimeEpochOffsetMs,
-          isSeekable,
-          isDynamic,
-          isLive,
-          defaultPositionUs,
-          durationUs,
-          firstPeriodIndex,
-          lastPeriodIndex,
-          positionInFirstPeriodUs);
-      return this;
-    }
-
     /** Sets the data held by this window. */
     @SuppressWarnings("deprecation")
     public Window set(
