@@ -789,7 +789,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           // All other text types are raw formats that do not need an extractor.
           return null;
         }
-      } else if (MimeTypes.isWebm(containerMimeType)) {
+      } else if (MimeTypes.isMatroska(containerMimeType)) {
         extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
       } else {
         int flags = 0;
