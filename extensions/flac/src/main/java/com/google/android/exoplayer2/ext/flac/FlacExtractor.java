@@ -53,6 +53,11 @@ public final class FlacExtractor implements Extractor {
   /** Factory that returns one extractor which is a {@link FlacExtractor}. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new FlacExtractor()};
 
+  // LINT.IfChange
+  /*
+   * Flags in the two FLAC extractors should be kept in sync. If we ever change this then
+   * DefaultExtractorsFactory will need modifying, because it currently assumes this is the case.
+   */
   /**
    * Flags controlling the behavior of the extractor. Possible flag value is {@link
    * #FLAG_DISABLE_ID3_METADATA}.
@@ -68,7 +73,9 @@ public final class FlacExtractor implements Extractor {
    * Flag to disable parsing of ID3 metadata. Can be set to save memory if ID3 metadata is not
    * required.
    */
-  public static final int FLAG_DISABLE_ID3_METADATA = 1;
+  public static final int FLAG_DISABLE_ID3_METADATA =
+      com.google.android.exoplayer2.extractor.flac.FlacExtractor.FLAG_DISABLE_ID3_METADATA;
+  // LINT.ThenChange(../../../../../../../../../../../library/extractor/src/main/java/com/google/android/exoplayer2/extractor/flac/FlacExtractor.java)
 
   private final ParsableByteArray outputBuffer;
   private final boolean id3MetadataDisabled;
