@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.IOException;
 
@@ -75,11 +76,13 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
   }
 
   @Override
-  public HlsMediaChunkExtractor reuseOrRecreate() {
-    if (extractor instanceof TsExtractor || extractor instanceof FragmentedMp4Extractor) {
-      // We can reuse this instance.
-      return this;
-    }
+  public boolean isReusable() {
+    return extractor instanceof TsExtractor || extractor instanceof FragmentedMp4Extractor;
+  }
+
+  @Override
+  public HlsMediaChunkExtractor recreate() {
+    Assertions.checkState(!isReusable());
     Extractor newExtractorInstance;
     if (extractor instanceof WebvttExtractor) {
       newExtractorInstance = new WebvttExtractor(masterPlaylistFormat.language, timestampAdjuster);
@@ -93,7 +96,7 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
       newExtractorInstance = new Mp3Extractor();
     } else {
       throw new IllegalStateException(
-          "Unexpected previousExtractor type: " + extractor.getClass().getSimpleName());
+          "Unexpected extractor type for recreation: " + extractor.getClass().getSimpleName());
     }
     return new BundledHlsMediaChunkExtractor(
         newExtractorInstance, masterPlaylistFormat, timestampAdjuster);

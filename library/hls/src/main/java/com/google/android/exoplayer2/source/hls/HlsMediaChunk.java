@@ -134,10 +134,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     boolean shouldSpliceIn;
     ImmutableMap<SampleQueue, Integer> sampleQueueDiscardFromIndices = ImmutableMap.of();
     if (previousChunk != null) {
+      boolean isFollowingChunk =
+          playlistUrl.equals(previousChunk.playlistUrl) && previousChunk.loadCompleted;
       id3Decoder = previousChunk.id3Decoder;
       scratchId3Data = previousChunk.scratchId3Data;
       boolean canContinueWithoutSplice =
-          (playlistUrl.equals(previousChunk.playlistUrl) && previousChunk.loadCompleted)
+          isFollowingChunk
               || (mediaPlaylist.hasIndependentSegments
                   && segmentStartTimeInPeriodUs >= previousChunk.endTimeUs);
       shouldSpliceIn = !canContinueWithoutSplice;
@@ -145,8 +147,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         sampleQueueDiscardFromIndices = previousChunk.sampleQueueDiscardFromIndices;
       }
       previousExtractor =
-          previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
-                  && !shouldSpliceIn
+          isFollowingChunk
+                  && previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
               ? previousChunk.extractor
               : null;
     } else {
@@ -334,9 +336,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public void load() throws IOException {
     // output == null means init() hasn't been called.
     Assertions.checkNotNull(output);
-    if (extractor == null && previousExtractor != null) {
-      extractor = previousExtractor.reuseOrRecreate();
-      initDataLoadRequired = extractor != previousExtractor;
+    if (extractor == null && previousExtractor != null && previousExtractor.isReusable()) {
+      extractor = previousExtractor;
+      initDataLoadRequired = false;
     }
     maybeLoadInitData();
     if (!loadCanceled) {
@@ -426,13 +428,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       extractorInput.resetPeekPosition();
 
       extractor =
-          extractorFactory.createExtractor(
-              dataSpec.uri,
-              trackFormat,
-              muxedCaptionFormats,
-              timestampAdjuster,
-              dataSource.getResponseHeaders(),
-              extractorInput);
+          previousExtractor != null
+              ? previousExtractor.recreate()
+              : extractorFactory.createExtractor(
+                  dataSpec.uri,
+                  trackFormat,
+                  muxedCaptionFormats,
+                  timestampAdjuster,
+                  dataSource.getResponseHeaders(),
+                  extractorInput);
       if (extractor.isPackedAudioExtractor()) {
         output.setSampleOffsetUs(
             id3Timestamp != C.TIME_UNSET
