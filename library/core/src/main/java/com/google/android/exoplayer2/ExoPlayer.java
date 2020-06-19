@@ -209,7 +209,7 @@ public interface ExoPlayer extends Player {
       this.mediaSourceFactory = mediaSourceFactory;
       this.loadControl = loadControl;
       this.bandwidthMeter = bandwidthMeter;
-      looper = Util.getCurrentOrMainLooper();
+      looper = Util.getLooper();
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
       clock = Clock.DEFAULT;

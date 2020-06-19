@@ -228,7 +228,7 @@ public final class DownloadManager {
     listeners = new CopyOnWriteArraySet<>();
 
     @SuppressWarnings("methodref.receiver.bound.invalid")
-    Handler mainHandler = Util.createHandlerForCurrentOrMainLooper(this::handleMainMessage);
+    Handler mainHandler = Util.createHandler(this::handleMainMessage);
     this.applicationHandler = mainHandler;
     HandlerThread internalThread = new HandlerThread("ExoPlayer:DownloadManager");
     internalThread.start();

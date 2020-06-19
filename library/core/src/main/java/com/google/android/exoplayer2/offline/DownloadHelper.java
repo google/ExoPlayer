@@ -156,7 +156,7 @@ public final class DownloadHelper {
   public static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {
     Renderer[] renderers =
         renderersFactory.createRenderers(
-            Util.createHandlerForCurrentOrMainLooper(),
+            Util.createHandler(),
             new VideoRendererEventListener() {},
             new AudioRendererEventListener() {},
             (cues) -> {},
@@ -501,7 +501,7 @@ public final class DownloadHelper {
     this.rendererCapabilities = rendererCapabilities;
     this.scratchSet = new SparseIntArray();
     trackSelector.init(/* listener= */ () -> {}, new DummyBandwidthMeter());
-    callbackHandler = Util.createHandlerForCurrentOrMainLooper();
+    callbackHandler = new Handler(Util.getLooper());
     window = new Timeline.Window();
   }
 
@@ -970,8 +970,7 @@ public final class DownloadHelper {
       allocator = new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
       pendingMediaPeriods = new ArrayList<>();
       @SuppressWarnings("methodref.receiver.bound.invalid")
-      Handler downloadThreadHandler =
-          Util.createHandlerForCurrentOrMainLooper(this::handleDownloadHelperCallbackMessage);
+      Handler downloadThreadHandler = Util.createHandler(this::handleDownloadHelperCallbackMessage);
       this.downloadHelperHandler = downloadThreadHandler;
       mediaSourceThread = new HandlerThread("ExoPlayer:DownloadHelper");
       mediaSourceThread.start();
