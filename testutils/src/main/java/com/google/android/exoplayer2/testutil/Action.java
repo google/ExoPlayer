@@ -602,7 +602,7 @@ public abstract class Action {
       } else {
         message.setPosition(positionMs);
       }
-      message.setHandler(Util.createHandler());
+      message.setHandler(Util.createHandlerForCurrentOrMainLooper());
       message.setDeleteAfterDelivery(deleteAfterDelivery);
       message.send();
     }
@@ -684,7 +684,7 @@ public abstract class Action {
         @Nullable Surface surface,
         HandlerWrapper handler,
         @Nullable ActionNode nextAction) {
-      Handler testThreadHandler = Util.createHandler();
+      Handler testThreadHandler = Util.createHandlerForCurrentOrMainLooper();
       // Schedule a message on the playback thread to ensure the player is paused immediately.
       player
           .createMessage(
@@ -1048,7 +1048,7 @@ public abstract class Action {
       player
           .createMessage(
               (type, data) -> nextAction.schedule(player, trackSelector, surface, handler))
-          .setHandler(Util.createHandler())
+          .setHandler(Util.createHandlerForCurrentOrMainLooper())
           .send();
     }
 
