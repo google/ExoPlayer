@@ -399,8 +399,8 @@ public final class Util {
    * <p>If the current thread doesn't have a {@link Looper}, the application's main thread {@link
    * Looper} is used.
    */
-  public static Handler createHandler() {
-    return createHandler(/* callback= */ null);
+  public static Handler createHandlerForCurrentOrMainLooper() {
+    return createHandlerForCurrentOrMainLooper(/* callback= */ null);
   }
 
   /**
@@ -416,8 +416,9 @@ public final class Util {
    *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
-  public static Handler createHandler(@Nullable Handler.@UnknownInitialization Callback callback) {
-    return createHandler(getLooper(), callback);
+  public static Handler createHandlerForCurrentOrMainLooper(
+      @Nullable Handler.@UnknownInitialization Callback callback) {
+    return createHandler(getCurrentOrMainLooper(), callback);
   }
 
   /**
@@ -441,8 +442,8 @@ public final class Util {
    * Returns the {@link Looper} associated with the current thread, or the {@link Looper} of the
    * application's main thread if the current thread doesn't have a {@link Looper}.
    */
-  public static Looper getLooper() {
-    Looper myLooper = Looper.myLooper();
+  public static Looper getCurrentOrMainLooper() {
+    @Nullable Looper myLooper = Looper.myLooper();
     return myLooper != null ? myLooper : Looper.getMainLooper();
   }
 

@@ -490,7 +490,7 @@ public class TestExoPlayer {
     AtomicBoolean receivedMessageCallback = new AtomicBoolean(false);
     player
         .createMessage((type, data) -> receivedMessageCallback.set(true))
-        .setHandler(Util.createHandler())
+        .setHandler(Util.createHandlerForCurrentOrMainLooper())
         .send();
     runMainLooperUntil(receivedMessageCallback::get);
   }

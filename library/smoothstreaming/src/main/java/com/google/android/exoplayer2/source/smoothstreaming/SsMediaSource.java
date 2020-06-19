@@ -620,7 +620,7 @@ public final class SsMediaSource extends BaseMediaSource
       manifestDataSource = manifestDataSourceFactory.createDataSource();
       manifestLoader = new Loader("Loader:Manifest");
       manifestLoaderErrorThrower = manifestLoader;
-      manifestRefreshHandler = Util.createHandler();
+      manifestRefreshHandler = Util.createHandlerForCurrentOrMainLooper();
       startLoadingManifest();
     }
   }

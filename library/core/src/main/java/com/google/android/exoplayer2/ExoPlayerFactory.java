@@ -101,11 +101,7 @@ public final class ExoPlayerFactory {
       TrackSelector trackSelector,
       LoadControl loadControl) {
     return newSimpleInstance(
-        context,
-        renderersFactory,
-        trackSelector,
-        loadControl,
-        Util.getLooper());
+        context, renderersFactory, trackSelector, loadControl, Util.getCurrentOrMainLooper());
   }
 
   /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
@@ -124,7 +120,7 @@ public final class ExoPlayerFactory {
         loadControl,
         bandwidthMeter,
         new AnalyticsCollector(Clock.DEFAULT),
-        Util.getLooper());
+        Util.getCurrentOrMainLooper());
   }
 
   /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
@@ -142,7 +138,7 @@ public final class ExoPlayerFactory {
         trackSelector,
         loadControl,
         analyticsCollector,
-        Util.getLooper());
+        Util.getCurrentOrMainLooper());
   }
 
   /** @deprecated Use {@link SimpleExoPlayer.Builder} instead. */
@@ -220,7 +216,8 @@ public final class ExoPlayerFactory {
   @SuppressWarnings("deprecation")
   public static ExoPlayer newInstance(
       Context context, Renderer[] renderers, TrackSelector trackSelector, LoadControl loadControl) {
-    return newInstance(context, renderers, trackSelector, loadControl, Util.getLooper());
+    return newInstance(
+        context, renderers, trackSelector, loadControl, Util.getCurrentOrMainLooper());
   }
 
   /** @deprecated Use {@link ExoPlayer.Builder} instead. */
