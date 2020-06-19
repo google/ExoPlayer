@@ -1763,7 +1763,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     private final Handler handler;
 
     public OnFrameRenderedListenerV23(MediaCodec codec) {
-      handler = Util.createHandlerForCurrentOrMainLooper(/* callback= */ this);
+      handler = Util.createHandlerForCurrentLooper(/* callback= */ this);
       codec.setOnFrameRenderedListener(/* listener= */ this, handler);
     }
 

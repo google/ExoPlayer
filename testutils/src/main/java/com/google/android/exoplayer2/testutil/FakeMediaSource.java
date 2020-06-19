@@ -176,7 +176,7 @@ public class FakeMediaSource extends BaseMediaSource {
     drmSessionManager.prepare();
     preparedSource = true;
     releasedSource = false;
-    sourceInfoRefreshHandler = Util.createHandlerForCurrentOrMainLooper();
+    sourceInfoRefreshHandler = Util.createHandlerForCurrentLooper();
     if (timeline != null) {
       finishSourcePreparation(/* sendManifestLoadEvents= */ true);
     }
