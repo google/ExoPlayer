@@ -599,7 +599,7 @@ public final class ClippingMediaSourceTest {
       testRunner.runOnPlaybackThread(
           () ->
               clippingMediaSource.addEventListener(
-                  Util.createHandler(),
+                  Util.createHandlerForCurrentOrMainLooper(),
                   new MediaSourceEventListener() {
                     @Override
                     public void onDownstreamFormatChanged(

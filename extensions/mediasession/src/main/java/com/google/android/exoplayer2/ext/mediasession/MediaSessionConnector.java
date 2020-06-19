@@ -437,7 +437,7 @@ public final class MediaSessionConnector {
    */
   public MediaSessionConnector(MediaSessionCompat mediaSession) {
     this.mediaSession = mediaSession;
-    looper = Util.getLooper();
+    looper = Util.getCurrentOrMainLooper();
     componentListener = new ComponentListener();
     commandReceivers = new ArrayList<>();
     customCommandReceivers = new ArrayList<>();

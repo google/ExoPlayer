@@ -412,7 +412,9 @@ public final class ConcatenatingMediaSourceTest {
     dummyMainThread.runOnMainThread(
         () ->
             mediaSource.addMediaSource(
-                createFakeMediaSource(), Util.createHandler(), runnableInvoked::countDown));
+                createFakeMediaSource(),
+                Util.createHandlerForCurrentOrMainLooper(),
+                runnableInvoked::countDown));
     runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
 
@@ -428,7 +430,7 @@ public final class ConcatenatingMediaSourceTest {
         () ->
             mediaSource.addMediaSources(
                 Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                Util.createHandler(),
+                Util.createHandlerForCurrentOrMainLooper(),
                 runnableInvoked::countDown));
     runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
@@ -446,7 +448,7 @@ public final class ConcatenatingMediaSourceTest {
             mediaSource.addMediaSource(
                 /* index */ 0,
                 createFakeMediaSource(),
-                Util.createHandler(),
+                Util.createHandlerForCurrentOrMainLooper(),
                 runnableInvoked::countDown));
     runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
@@ -464,7 +466,7 @@ public final class ConcatenatingMediaSourceTest {
             mediaSource.addMediaSources(
                 /* index */ 0,
                 Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                Util.createHandler(),
+                Util.createHandlerForCurrentOrMainLooper(),
                 runnableInvoked::countDown));
     runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
@@ -481,7 +483,9 @@ public final class ConcatenatingMediaSourceTest {
         () -> {
           mediaSource.addMediaSource(createFakeMediaSource());
           mediaSource.removeMediaSource(
-              /* index */ 0, Util.createHandler(), runnableInvoked::countDown);
+              /* index */ 0,
+              Util.createHandlerForCurrentOrMainLooper(),
+              runnableInvoked::countDown);
         });
     runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
@@ -499,7 +503,10 @@ public final class ConcatenatingMediaSourceTest {
           mediaSource.addMediaSources(
               Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
           mediaSource.moveMediaSource(
-              /* fromIndex */ 1, /* toIndex */ 0, Util.createHandler(), runnableInvoked::countDown);
+              /* fromIndex */ 1, /* toIndex */
+              0,
+              Util.createHandlerForCurrentOrMainLooper(),
+              runnableInvoked::countDown);
         });
     runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
@@ -516,7 +523,9 @@ public final class ConcatenatingMediaSourceTest {
       dummyMainThread.runOnMainThread(
           () ->
               mediaSource.addMediaSource(
-                  createFakeMediaSource(), Util.createHandler(), timelineGrabber));
+                  createFakeMediaSource(),
+                  Util.createHandlerForCurrentOrMainLooper(),
+                  timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
@@ -535,7 +544,7 @@ public final class ConcatenatingMediaSourceTest {
               mediaSource.addMediaSources(
                   Arrays.asList(
                       new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                  Util.createHandler(),
+                  Util.createHandlerForCurrentOrMainLooper(),
                   timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
@@ -553,7 +562,10 @@ public final class ConcatenatingMediaSourceTest {
       dummyMainThread.runOnMainThread(
           () ->
               mediaSource.addMediaSource(
-                  /* index */ 0, createFakeMediaSource(), Util.createHandler(), timelineGrabber));
+                  /* index */ 0,
+                  createFakeMediaSource(),
+                  Util.createHandlerForCurrentOrMainLooper(),
+                  timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(1);
     } finally {
@@ -573,7 +585,7 @@ public final class ConcatenatingMediaSourceTest {
                   /* index */ 0,
                   Arrays.asList(
                       new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
-                  Util.createHandler(),
+                  Util.createHandlerForCurrentOrMainLooper(),
                   timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
@@ -593,7 +605,8 @@ public final class ConcatenatingMediaSourceTest {
       final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
       dummyMainThread.runOnMainThread(
           () ->
-              mediaSource.removeMediaSource(/* index */ 0, Util.createHandler(), timelineGrabber));
+              mediaSource.removeMediaSource(
+                  /* index */ 0, Util.createHandlerForCurrentOrMainLooper(), timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(0);
     } finally {
@@ -617,7 +630,10 @@ public final class ConcatenatingMediaSourceTest {
       dummyMainThread.runOnMainThread(
           () ->
               mediaSource.moveMediaSource(
-                  /* fromIndex */ 1, /* toIndex */ 0, Util.createHandler(), timelineGrabber));
+                  /* fromIndex */ 1, /* toIndex */
+                  0,
+                  Util.createHandlerForCurrentOrMainLooper(),
+                  timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getWindowCount()).isEqualTo(2);
     } finally {
@@ -638,7 +654,7 @@ public final class ConcatenatingMediaSourceTest {
             mediaSource.moveMediaSource(
                 /* currentIndex= */ 0,
                 /* newIndex= */ 1,
-                Util.createHandler(),
+                Util.createHandlerForCurrentOrMainLooper(),
                 callbackCalledCondition::countDown);
             mediaSource.releaseSource(caller);
           });
@@ -890,7 +906,8 @@ public final class ConcatenatingMediaSourceTest {
     testRunner.prepareSource();
     final TimelineGrabber timelineGrabber = new TimelineGrabber(testRunner);
 
-    dummyMainThread.runOnMainThread(() -> mediaSource.clear(Util.createHandler(), timelineGrabber));
+    dummyMainThread.runOnMainThread(
+        () -> mediaSource.clear(Util.createHandlerForCurrentOrMainLooper(), timelineGrabber));
 
     Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
     assertThat(timeline.isEmpty()).isTrue();
@@ -1042,7 +1059,7 @@ public final class ConcatenatingMediaSourceTest {
         () ->
             mediaSource.setShuffleOrder(
                 new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0),
-                Util.createHandler(),
+                Util.createHandlerForCurrentOrMainLooper(),
                 runnableInvoked::countDown));
     runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
     dummyMainThread.release();
@@ -1062,7 +1079,7 @@ public final class ConcatenatingMediaSourceTest {
           () ->
               mediaSource.setShuffleOrder(
                   new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 3),
-                  Util.createHandler(),
+                  Util.createHandlerForCurrentOrMainLooper(),
                   timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
       assertThat(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true)).isEqualTo(0);

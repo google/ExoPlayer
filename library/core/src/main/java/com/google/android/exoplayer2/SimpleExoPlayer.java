@@ -199,7 +199,7 @@ public class SimpleExoPlayer extends BasePlayer
       this.loadControl = loadControl;
       this.bandwidthMeter = bandwidthMeter;
       this.analyticsCollector = analyticsCollector;
-      looper = Util.getLooper();
+      looper = Util.getCurrentOrMainLooper();
       audioAttributes = AudioAttributes.DEFAULT;
       wakeMode = C.WAKE_MODE_NONE;
       videoScalingMode = Renderer.VIDEO_SCALING_MODE_DEFAULT;

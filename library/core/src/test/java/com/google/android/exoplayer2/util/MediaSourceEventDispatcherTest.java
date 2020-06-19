@@ -65,7 +65,9 @@ public class MediaSourceEventDispatcherTest {
   @Test
   public void listenerReceivesEventPopulatedWithMediaPeriodInfo() {
     eventDispatcher.addEventListener(
-        Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
+        Util.createHandlerForCurrentOrMainLooper(),
+        mediaSourceEventListener,
+        MediaSourceEventListener.class);
 
     eventDispatcher.dispatch(
         MediaSourceEventListener::onMediaPeriodCreated, MediaSourceEventListener.class);
@@ -76,9 +78,13 @@ public class MediaSourceEventDispatcherTest {
   @Test
   public void sameListenerObjectRegisteredTwiceOnlyReceivesEventsOnce() {
     eventDispatcher.addEventListener(
-        Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
+        Util.createHandlerForCurrentOrMainLooper(),
+        mediaSourceEventListener,
+        MediaSourceEventListener.class);
     eventDispatcher.addEventListener(
-        Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
+        Util.createHandlerForCurrentOrMainLooper(),
+        mediaSourceEventListener,
+        MediaSourceEventListener.class);
 
     eventDispatcher.dispatch(
         MediaSourceEventListener::onMediaPeriodCreated, MediaSourceEventListener.class);
@@ -154,7 +160,9 @@ public class MediaSourceEventDispatcherTest {
   @Test
   public void listenersAreCopiedToNewDispatcher() {
     eventDispatcher.addEventListener(
-        Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
+        Util.createHandlerForCurrentOrMainLooper(),
+        mediaSourceEventListener,
+        MediaSourceEventListener.class);
 
     MediaSource.MediaPeriodId newPeriodId = new MediaSource.MediaPeriodId("different uid");
     MediaSourceEventDispatcher newEventDispatcher =
@@ -170,7 +178,9 @@ public class MediaSourceEventDispatcherTest {
   @Test
   public void removingListenerStopsEventDispatch() {
     eventDispatcher.addEventListener(
-        Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
+        Util.createHandlerForCurrentOrMainLooper(),
+        mediaSourceEventListener,
+        MediaSourceEventListener.class);
     eventDispatcher.removeEventListener(mediaSourceEventListener, MediaSourceEventListener.class);
 
     eventDispatcher.dispatch(
@@ -182,7 +192,9 @@ public class MediaSourceEventDispatcherTest {
   @Test
   public void removingListenerWithDifferentTypeToRegistrationDoesntRemove() {
     eventDispatcher.addEventListener(
-        Util.createHandler(), mediaAndDrmEventListener, MediaSourceEventListener.class);
+        Util.createHandlerForCurrentOrMainLooper(),
+        mediaAndDrmEventListener,
+        MediaSourceEventListener.class);
     eventDispatcher.removeEventListener(mediaAndDrmEventListener, DrmSessionEventListener.class);
 
     eventDispatcher.dispatch(
@@ -195,9 +207,13 @@ public class MediaSourceEventDispatcherTest {
   public void listenersAreCountedBasedOnListenerAndType() {
     // Add the listener twice and remove it once.
     eventDispatcher.addEventListener(
-        Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
+        Util.createHandlerForCurrentOrMainLooper(),
+        mediaSourceEventListener,
+        MediaSourceEventListener.class);
     eventDispatcher.addEventListener(
-        Util.createHandler(), mediaSourceEventListener, MediaSourceEventListener.class);
+        Util.createHandlerForCurrentOrMainLooper(),
+        mediaSourceEventListener,
+        MediaSourceEventListener.class);
     eventDispatcher.removeEventListener(mediaSourceEventListener, MediaSourceEventListener.class);
 
     eventDispatcher.dispatch(

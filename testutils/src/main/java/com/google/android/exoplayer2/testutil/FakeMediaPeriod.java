@@ -162,7 +162,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         /* mediaEndTimeUs = */ C.TIME_UNSET);
     prepareCallback = callback;
     if (deferOnPrepared) {
-      playerHandler = Util.createHandler();
+      playerHandler = Util.createHandlerForCurrentOrMainLooper();
     } else {
       finishPreparation();
     }

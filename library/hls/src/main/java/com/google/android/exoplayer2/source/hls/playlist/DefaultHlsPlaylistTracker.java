@@ -121,7 +121,7 @@ public final class DefaultHlsPlaylistTracker
       Uri initialPlaylistUri,
       EventDispatcher eventDispatcher,
       PrimaryPlaylistListener primaryPlaylistListener) {
-    this.playlistRefreshHandler = Util.createHandler();
+    this.playlistRefreshHandler = Util.createHandlerForCurrentOrMainLooper();
     this.eventDispatcher = eventDispatcher;
     this.primaryPlaylistListener = primaryPlaylistListener;
     ParsingLoadable<HlsPlaylist> masterPlaylistLoadable =
