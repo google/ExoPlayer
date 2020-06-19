@@ -680,7 +680,7 @@ public final class DashMediaSource extends BaseMediaSource {
     } else {
       dataSource = manifestDataSourceFactory.createDataSource();
       loader = new Loader("Loader:DashMediaSource");
-      handler = Util.createHandler();
+      handler = Util.createHandlerForCurrentOrMainLooper();
       startLoadingManifest();
     }
   }
