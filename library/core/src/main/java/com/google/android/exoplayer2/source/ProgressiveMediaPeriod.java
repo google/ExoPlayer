@@ -192,7 +192,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 .onContinueLoadingRequested(ProgressiveMediaPeriod.this);
           }
         };
-    handler = Util.createHandlerForCurrentOrMainLooper();
+    handler = Util.createHandler();
     sampleQueueTrackIds = new TrackId[0];
     sampleQueues = new SampleQueue[0];
     pendingResetPositionUs = C.TIME_UNSET;

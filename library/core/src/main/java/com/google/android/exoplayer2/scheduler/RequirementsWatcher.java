@@ -71,7 +71,7 @@ public final class RequirementsWatcher {
     this.context = context.getApplicationContext();
     this.listener = listener;
     this.requirements = requirements;
-    handler = Util.createHandlerForCurrentOrMainLooper();
+    handler = new Handler(Util.getLooper());
   }
 
   /**

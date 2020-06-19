@@ -227,7 +227,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     @SuppressWarnings("nullness:methodref.receiver.bound.invalid")
     Runnable onTracksEndedRunnable = this::onTracksEnded;
     this.onTracksEndedRunnable = onTracksEndedRunnable;
-    handler = Util.createHandlerForCurrentOrMainLooper();
+    handler = Util.createHandler();
     lastSeekPositionUs = positionUs;
     pendingResetPositionUs = positionUs;
   }

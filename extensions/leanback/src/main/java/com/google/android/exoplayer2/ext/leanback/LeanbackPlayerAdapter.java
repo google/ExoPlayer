@@ -72,7 +72,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     this.context = context;
     this.player = player;
     this.updatePeriodMs = updatePeriodMs;
-    handler = Util.createHandlerForCurrentOrMainLooper();
+    handler = Util.createHandler();
     componentListener = new ComponentListener();
     controlDispatcher = new DefaultControlDispatcher();
   }

@@ -105,7 +105,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     this.allocator = allocator;
 
     manifestPublishTimeToExpiryTimeUs = new TreeMap<>();
-    handler = Util.createHandlerForCurrentOrMainLooper(/* callback= */ this);
+    handler = Util.createHandler(/* callback= */ this);
     decoder = new EventMessageDecoder();
     lastLoadedChunkEndTimeUs = C.TIME_UNSET;
     lastLoadedChunkEndTimeBeforeRefreshUs = C.TIME_UNSET;

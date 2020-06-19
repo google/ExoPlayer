@@ -437,8 +437,8 @@ import java.util.Set;
         (source, timeline) -> mediaSourceListInfoListener.onPlaylistUpdateRequested();
     ForwardingEventListener eventListener = new ForwardingEventListener(holder);
     childSources.put(holder, new MediaSourceAndListener(mediaSource, caller, eventListener));
-    mediaSource.addEventListener(Util.createHandlerForCurrentOrMainLooper(), eventListener);
-    mediaSource.addDrmEventListener(Util.createHandlerForCurrentOrMainLooper(), eventListener);
+    mediaSource.addEventListener(Util.createHandler(), eventListener);
+    mediaSource.addDrmEventListener(Util.createHandler(), eventListener);
     mediaSource.prepareSource(caller, mediaTransferListener);
   }
 
