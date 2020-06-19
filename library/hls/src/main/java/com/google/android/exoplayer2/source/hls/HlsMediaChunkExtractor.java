@@ -51,9 +51,12 @@ public interface HlsMediaChunkExtractor {
   /** Returns whether this is a packed audio extractor, as defined in RFC 8216, Section 3.4. */
   boolean isPackedAudioExtractor();
 
+  /** Returns whether this instance can be used for extracting multiple continuous segments. */
+  boolean isReusable();
+
   /**
-   * If this instance can be used for extracting multiple continuous segments, returns itself.
-   * Otherwise, returns a new instance for extracting the same type of media.
+   * Returns a new instance for extracting the same type of media as this one. Can only be called on
+   * instances that are not {@link #isReusable() reusable}.
    */
-  HlsMediaChunkExtractor reuseOrRecreate();
+  HlsMediaChunkExtractor recreate();
 }
