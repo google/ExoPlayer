@@ -1261,7 +1261,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     }
 
     // adPodInfo.podIndex may be 0-based or 1-based, so for now look up the cue point instead.
-    long adGroupTimeUs = (long) (((float) adPodInfo.getTimeOffset()) * C.MICROS_PER_SECOND);
+    long adGroupTimeUs = (long) (adPodInfo.getTimeOffset() * C.MICROS_PER_SECOND);
     for (int adGroupIndex = 0; adGroupIndex < adPlaybackState.adGroupCount; adGroupIndex++) {
       if (adPlaybackState.adGroupTimesUs[adGroupIndex] == adGroupTimeUs) {
         return adGroupIndex;
