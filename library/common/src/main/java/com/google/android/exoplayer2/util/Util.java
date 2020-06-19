@@ -396,6 +396,32 @@ public final class Util {
   /**
    * Creates a {@link Handler} on the current {@link Looper} thread.
    *
+   * @throws IllegalStateException If the current thread doesn't have a {@link Looper}.
+   */
+  public static Handler createHandlerForCurrentLooper() {
+    return createHandlerForCurrentLooper(/* callback= */ null);
+  }
+
+  /**
+   * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
+   * Looper} thread.
+   *
+   * <p>The method accepts partially initialized objects as callback under the assumption that the
+   * Handler won't be used to send messages until the callback is fully initialized.
+   *
+   * @param callback A {@link Handler.Callback}. May be a partially initialized class, or null if no
+   *     callback is required.
+   * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
+   * @throws IllegalStateException If the current thread doesn't have a {@link Looper}.
+   */
+  public static Handler createHandlerForCurrentLooper(
+      @Nullable Handler.@UnknownInitialization Callback callback) {
+    return createHandler(Assertions.checkStateNotNull(Looper.myLooper()), callback);
+  }
+
+  /**
+   * Creates a {@link Handler} on the current {@link Looper} thread.
+   *
    * <p>If the current thread doesn't have a {@link Looper}, the application's main thread {@link
    * Looper} is used.
    */
@@ -405,9 +431,10 @@ public final class Util {
 
   /**
    * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
-   * Looper} thread. The method accepts partially initialized objects as callback under the
-   * assumption that the Handler won't be used to send messages until the callback is fully
-   * initialized.
+   * Looper} thread.
+   *
+   * <p>The method accepts partially initialized objects as callback under the assumption that the
+   * Handler won't be used to send messages until the callback is fully initialized.
    *
    * <p>If the current thread doesn't have a {@link Looper}, the application's main thread {@link
    * Looper} is used.
@@ -423,9 +450,10 @@ public final class Util {
 
   /**
    * Creates a {@link Handler} with the specified {@link Handler.Callback} on the specified {@link
-   * Looper} thread. The method accepts partially initialized objects as callback under the
-   * assumption that the Handler won't be used to send messages until the callback is fully
-   * initialized.
+   * Looper} thread.
+   *
+   * <p>The method accepts partially initialized objects as callback under the assumption that the
+   * Handler won't be used to send messages until the callback is fully initialized.
    *
    * @param looper A {@link Looper} to run the callback on.
    * @param callback A {@link Handler.Callback}. May be a partially initialized class, or null if no
