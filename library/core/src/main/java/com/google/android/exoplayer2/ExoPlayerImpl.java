@@ -659,7 +659,14 @@ import java.util.concurrent.TimeoutException;
   public void setForegroundMode(boolean foregroundMode) {
     if (this.foregroundMode != foregroundMode) {
       this.foregroundMode = foregroundMode;
-      internalPlayer.setForegroundMode(foregroundMode);
+      if (!internalPlayer.setForegroundMode(foregroundMode)) {
+        notifyListeners(
+            listener ->
+                listener.onPlayerError(
+                    ExoPlaybackException.createForUnexpected(
+                        new RuntimeException(
+                            new TimeoutException("Setting foreground mode timed out.")))));
+      }
     }
   }
 
