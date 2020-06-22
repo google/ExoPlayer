@@ -66,6 +66,7 @@ dependencies {
         exclude module: modulePrefix.substring(1) + 'library-core'
     }
     testImplementation 'com.google.guava:guava:' + guavaVersion
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + mockWebServerVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'testutils')
 }
