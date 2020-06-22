@@ -229,6 +229,8 @@
         on seeking to another position
         ([#7492](https://github.com/google/ExoPlayer/issues/7492)).
     *   Fix incorrect rounding of ad cue points.
+    *   Fix handling of postrolls preloading
+        ([#7518](https://github.com/google/ExoPlayer/issues/7518)).
 
 ### 2.11.5 (2020-06-05) ###
 
