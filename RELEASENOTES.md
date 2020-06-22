@@ -228,6 +228,7 @@
     *   Work around unexpected `pauseAd`/`stopAd` for ads that have preloaded
         on seeking to another position
         ([#7492](https://github.com/google/ExoPlayer/issues/7492)).
+    *   Fix incorrect rounding of ad cue points.
 
 ### 2.11.5 (2020-06-05) ###
 
