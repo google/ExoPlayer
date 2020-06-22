@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-import java.nio.charset.Charset;
+import com.google.common.base.Charsets;
 import java.util.List;
 
 /**
@@ -171,10 +171,10 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     if (parsableByteArray.bytesLeft() >= SIZE_BOM_UTF16) {
       char firstChar = parsableByteArray.peekChar();
       if (firstChar == BOM_UTF16_BE || firstChar == BOM_UTF16_LE) {
-        return parsableByteArray.readString(textLength, Charset.forName(C.UTF16_NAME));
+        return parsableByteArray.readString(textLength, Charsets.UTF_16);
       }
     }
-    return parsableByteArray.readString(textLength, Charset.forName(C.UTF8_NAME));
+    return parsableByteArray.readString(textLength, Charsets.UTF_8);
   }
 
   private void applyStyleRecord(ParsableByteArray parsableByteArray,

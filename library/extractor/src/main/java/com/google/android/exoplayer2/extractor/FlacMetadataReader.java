@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.extractor;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.VorbisUtil.CommentHeader;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -25,8 +24,8 @@ import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.base.Charsets;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -275,7 +274,7 @@ public final class FlacMetadataReader {
 
     int pictureType = scratch.readInt();
     int mimeTypeLength = scratch.readInt();
-    String mimeType = scratch.readString(mimeTypeLength, Charset.forName(C.ASCII_NAME));
+    String mimeType = scratch.readString(mimeTypeLength, Charsets.US_ASCII);
     int descriptionLength = scratch.readInt();
     String description = scratch.readString(descriptionLength);
     int width = scratch.readInt();

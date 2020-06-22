@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.net.URLDecoder;
 
@@ -63,7 +64,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
       }
     } else {
       // TODO: Add support for other charsets.
-      data = Util.getUtf8Bytes(URLDecoder.decode(dataString, C.ASCII_NAME));
+      data = Util.getUtf8Bytes(URLDecoder.decode(dataString, Charsets.US_ASCII.name()));
     }
     endPosition =
         dataSpec.length != C.LENGTH_UNSET ? (int) dataSpec.length + readPosition : data.length;

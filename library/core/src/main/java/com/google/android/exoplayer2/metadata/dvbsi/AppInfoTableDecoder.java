@@ -16,14 +16,13 @@
 package com.google.android.exoplayer2.metadata.dvbsi;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableBitArray;
+import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
@@ -109,7 +108,7 @@ public final class AppInfoTableDecoder implements MetadataDecoder {
             // See section 5.3.6.2.
             while (sectionData.getBytePosition() < positionOfNextDescriptor) {
               int urlBaseLength = sectionData.readBits(8);
-              urlBase = sectionData.readBytesAsString(urlBaseLength, Charset.forName(C.ASCII_NAME));
+              urlBase = sectionData.readBytesAsString(urlBaseLength, Charsets.US_ASCII);
 
               int extensionCount = sectionData.readBits(8);
               for (int urlExtensionIndex = 0;
@@ -122,8 +121,7 @@ public final class AppInfoTableDecoder implements MetadataDecoder {
           }
         } else if (descriptorTag == DESCRIPTOR_SIMPLE_APPLICATION_LOCATION) {
           // See section 5.3.7.
-          urlExtension =
-              sectionData.readBytesAsString(descriptorLength, Charset.forName(C.ASCII_NAME));
+          urlExtension = sectionData.readBytesAsString(descriptorLength, Charsets.US_ASCII);
         }
 
         sectionData.setPosition(positionOfNextDescriptor * 8);

@@ -16,15 +16,14 @@
 package com.google.android.exoplayer2.metadata.icy;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,8 +39,8 @@ public final class IcyDecoder implements MetadataDecoder {
   private final CharsetDecoder iso88591Decoder;
 
   public IcyDecoder() {
-    utf8Decoder = Charset.forName(C.UTF8_NAME).newDecoder();
-    iso88591Decoder = Charset.forName(C.ISO88591_NAME).newDecoder();
+    utf8Decoder = Charsets.UTF_8.newDecoder();
+    iso88591Decoder = Charsets.ISO_8859_1.newDecoder();
   }
 
   @Override
