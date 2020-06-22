@@ -84,15 +84,6 @@ import java.nio.ByteBuffer;
     return "libgav1";
   }
 
-  /**
-   * Sets the output mode for frames rendered by the decoder.
-   *
-   * @param outputMode The output mode.
-   */
-  public void setOutputMode(@C.VideoOutputMode int outputMode) {
-    this.outputMode = outputMode;
-  }
-
   @Override
   protected VideoDecoderInputBuffer createInputBuffer() {
     return new VideoDecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
@@ -154,6 +145,15 @@ import java.nio.ByteBuffer;
       gav1ReleaseFrame(gav1DecoderContext, buffer);
     }
     super.releaseOutputBuffer(buffer);
+  }
+
+  /**
+   * Sets the output mode for frames rendered by the decoder.
+   *
+   * @param outputMode The output mode.
+   */
+  public void setOutputMode(@C.VideoOutputMode int outputMode) {
+    this.outputMode = outputMode;
   }
 
   /**

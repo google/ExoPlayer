@@ -87,15 +87,6 @@ import java.nio.ByteBuffer;
     return "libvpx" + VpxLibrary.getVersion();
   }
 
-  /**
-   * Sets the output mode for frames rendered by the decoder.
-   *
-   * @param outputMode The output mode.
-   */
-  public void setOutputMode(@C.VideoOutputMode int outputMode) {
-    this.outputMode = outputMode;
-  }
-
   @Override
   protected VideoDecoderInputBuffer createInputBuffer() {
     return new VideoDecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
@@ -181,6 +172,15 @@ import java.nio.ByteBuffer;
     super.release();
     lastSupplementalData = null;
     vpxClose(vpxDecContext);
+  }
+
+  /**
+   * Sets the output mode for frames rendered by the decoder.
+   *
+   * @param outputMode The output mode.
+   */
+  public void setOutputMode(@C.VideoOutputMode int outputMode) {
+    this.outputMode = outputMode;
   }
 
   /** Renders the outputBuffer to the surface. Used with OUTPUT_MODE_SURFACE_YUV only. */
