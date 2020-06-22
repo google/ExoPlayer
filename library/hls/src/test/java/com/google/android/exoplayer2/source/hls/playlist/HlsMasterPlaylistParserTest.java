@@ -27,9 +27,9 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.base.Charsets;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -461,7 +461,7 @@ public class HlsMasterPlaylistParserTest {
       throws IOException {
     Uri playlistUri = Uri.parse(uri);
     ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(playlistString.getBytes(Charset.forName(C.UTF8_NAME)));
+        new ByteArrayInputStream(playlistString.getBytes(Charsets.UTF_8));
     return (HlsMasterPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
   }
 }

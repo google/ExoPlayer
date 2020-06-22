@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
+import com.google.common.base.Charsets;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -933,7 +934,7 @@ public class DashManifestParser extends DefaultHandler
       throws XmlPullParserException, IOException {
     scratchOutputStream.reset();
     XmlSerializer xmlSerializer = Xml.newSerializer();
-    xmlSerializer.setOutput(scratchOutputStream, C.UTF8_NAME);
+    xmlSerializer.setOutput(scratchOutputStream, Charsets.UTF_8.name());
     // Start reading everything between <Event> and </Event>, and serialize them into an Xml
     // byte array.
     xpp.nextToken();

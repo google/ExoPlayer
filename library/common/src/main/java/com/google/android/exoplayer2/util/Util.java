@@ -54,6 +54,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.common.base.Ascii;
+import com.google.common.base.Charsets;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -63,7 +64,6 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -595,7 +595,7 @@ public final class Util {
    * @return The string.
    */
   public static String fromUtf8Bytes(byte[] bytes) {
-    return new String(bytes, Charset.forName(C.UTF8_NAME));
+    return new String(bytes, Charsets.UTF_8);
   }
 
   /**
@@ -607,7 +607,7 @@ public final class Util {
    * @return The string.
    */
   public static String fromUtf8Bytes(byte[] bytes, int offset, int length) {
-    return new String(bytes, offset, length, Charset.forName(C.UTF8_NAME));
+    return new String(bytes, offset, length, Charsets.UTF_8);
   }
 
   /**
@@ -617,7 +617,7 @@ public final class Util {
    * @return The code points encoding using UTF-8.
    */
   public static byte[] getUtf8Bytes(String value) {
-    return value.getBytes(Charset.forName(C.UTF8_NAME));
+    return value.getBytes(Charsets.UTF_8);
   }
 
   /**

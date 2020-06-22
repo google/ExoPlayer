@@ -85,23 +85,34 @@ public final class C {
   public static final int BYTES_PER_FLOAT = 4;
 
   /**
-   * The name of the ASCII charset.
+   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
+   *     com.google.common.base.Charsets} instead.
    */
-  public static final String ASCII_NAME = "US-ASCII";
+  @Deprecated public static final String ASCII_NAME = "US-ASCII";
 
   /**
-   * The name of the UTF-8 charset.
+   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
+   *     com.google.common.base.Charsets} instead.
    */
-  public static final String UTF8_NAME = "UTF-8";
+  @Deprecated public static final String UTF8_NAME = "UTF-8";
 
-  /** The name of the ISO-8859-1 charset. */
-  public static final String ISO88591_NAME = "ISO-8859-1";
+  /**
+   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
+   *     com.google.common.base.Charsets} instead.
+   */
+  @Deprecated public static final String ISO88591_NAME = "ISO-8859-1";
 
-  /** The name of the UTF-16 charset. */
-  public static final String UTF16_NAME = "UTF-16";
+  /**
+   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
+   *     com.google.common.base.Charsets} instead.
+   */
+  @Deprecated public static final String UTF16_NAME = "UTF-16";
 
-  /** The name of the UTF-16 little-endian charset. */
-  public static final String UTF16LE_NAME = "UTF-16LE";
+  /**
+   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
+   *     com.google.common.base.Charsets} instead.
+   */
+  @Deprecated public static final String UTF16LE_NAME = "UTF-16LE";
 
   /**
    * The name of the serif font family.

@@ -34,9 +34,9 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -438,7 +438,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
       return data;
     }
     int recordLength = byteArray.readLittleEndianShort();
-    String xml = byteArray.readString(recordLength, Charset.forName(C.UTF16LE_NAME));
+    String xml = byteArray.readString(recordLength, Charsets.UTF_16LE);
     if (xml.contains("<LA_URL>")) {
       // LA_URL already present. Do nothing.
       return data;
@@ -459,7 +459,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     newData.putShort((short) objectRecordCount);
     newData.putShort((short) recordType);
     newData.putShort((short) (xmlWithMockLaUrl.length() * UTF_16_BYTES_PER_CHARACTER));
-    newData.put(xmlWithMockLaUrl.getBytes(Charset.forName(C.UTF16LE_NAME)));
+    newData.put(xmlWithMockLaUrl.getBytes(Charsets.UTF_16LE));
     return newData.array();
   }
 }

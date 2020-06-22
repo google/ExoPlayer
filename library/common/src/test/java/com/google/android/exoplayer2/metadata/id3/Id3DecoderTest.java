@@ -21,11 +21,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
-import java.nio.charset.Charset;
+import com.google.common.base.Charsets;
 import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -287,7 +286,7 @@ public final class Id3DecoderTest {
     for (FrameSpec frame : frames) {
       byte[] frameData = frame.frameData;
       String frameId = frame.frameId;
-      byte[] frameIdBytes = frameId.getBytes(Charset.forName(C.UTF8_NAME));
+      byte[] frameIdBytes = frameId.getBytes(Charsets.UTF_8);
       Assertions.checkState(frameIdBytes.length == 4);
 
       // Fill in the frame header.
