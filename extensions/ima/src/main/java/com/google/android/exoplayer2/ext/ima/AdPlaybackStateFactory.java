@@ -46,7 +46,7 @@ import java.util.List;
       if (cuePoint == -1.0) {
         adGroupTimesUs[count - 1] = C.TIME_END_OF_SOURCE;
       } else {
-        adGroupTimesUs[adGroupIndex++] = (long) (C.MICROS_PER_SECOND * cuePoint);
+        adGroupTimesUs[adGroupIndex++] = Math.round(C.MICROS_PER_SECOND * cuePoint);
       }
     }
     // Cue points may be out of order, so sort them.

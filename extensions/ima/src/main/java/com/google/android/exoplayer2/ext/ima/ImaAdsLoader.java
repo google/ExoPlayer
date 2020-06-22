@@ -343,6 +343,8 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
    * milliseconds.
    */
   private static final long THRESHOLD_AD_PRELOAD_MS = 4000;
+  /** The threshold below which ad cue points are treated as matching, in microseconds. */
+  private static final long THRESHOLD_AD_MATCH_US = 1000;
 
   private static final int TIMEOUT_UNSET = -1;
   private static final int BITRATE_UNSET = -1;
@@ -1252,9 +1254,15 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     }
 
     // adPodInfo.podIndex may be 0-based or 1-based, so for now look up the cue point instead.
-    long adGroupTimeUs = (long) (((float) adPodInfo.getTimeOffset()) * C.MICROS_PER_SECOND);
+    // We receive cue points from IMA SDK as floats. This code replicates the same calculation used
+    // to populate adGroupTimesUs (having truncated input back to float, to avoid failures if the
+    // behavior of the IMA SDK changes to provide greater precision in AdPodInfo).
+    long adPodTimeUs =
+        Math.round((double) ((float) adPodInfo.getTimeOffset()) * C.MICROS_PER_SECOND);
     for (int adGroupIndex = 0; adGroupIndex < adPlaybackState.adGroupCount; adGroupIndex++) {
-      if (adPlaybackState.adGroupTimesUs[adGroupIndex] == adGroupTimeUs) {
+      long adGroupTimeUs = adPlaybackState.adGroupTimesUs[adGroupIndex];
+      if (adGroupTimeUs != C.TIME_END_OF_SOURCE
+          && Math.abs(adGroupTimeUs - adPodTimeUs) < THRESHOLD_AD_MATCH_US) {
         return adGroupIndex;
       }
     }
