@@ -641,6 +641,55 @@ public final class ImaAdsLoaderTest {
     inOrder.verify(mockAdDisplayContainer).unregisterAllVideoControlsOverlays();
   }
 
+  @Test
+  public void loadAd_withLargeAdCuePoint_updatesAdPlaybackStateWithLoadedAd() {
+    float midrollTimeSecs = 1_765f;
+    ImmutableList<Float> cuePoints = ImmutableList.of(midrollTimeSecs);
+    setupPlayback(CONTENT_TIMELINE, cuePoints);
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
+    videoAdPlayer.loadAd(
+        TEST_AD_MEDIA_INFO,
+        new AdPodInfo() {
+          @Override
+          public int getTotalAds() {
+            return 1;
+          }
+
+          @Override
+          public int getAdPosition() {
+            return 1;
+          }
+
+          @Override
+          public boolean isBumper() {
+            return false;
+          }
+
+          @Override
+          public double getMaxDuration() {
+            return 0;
+          }
+
+          @Override
+          public int getPodIndex() {
+            return 0;
+          }
+
+          @Override
+          public double getTimeOffset() {
+            return midrollTimeSecs;
+          }
+        });
+
+    assertThat(adsLoaderListener.adPlaybackState)
+        .isEqualTo(
+            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
+                .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+                .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
+                .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}}));
+  }
+
   private void setupPlayback(Timeline contentTimeline, List<Float> cuePoints) {
     setupPlayback(
         contentTimeline,
