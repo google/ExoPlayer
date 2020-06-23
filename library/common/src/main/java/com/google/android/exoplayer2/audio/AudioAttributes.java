@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,14 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * Attributes for audio playback, which configure the underlying platform
- * {@link android.media.AudioTrack}.
- * <p>
- * To set the audio attributes, create an instance using the {@link Builder} and either pass it to
- * {@link com.google.android.exoplayer2.SimpleExoPlayer#setAudioAttributes(AudioAttributes)} or
- * send a message of type {@link C#MSG_SET_AUDIO_ATTRIBUTES} to the audio renderers.
- * <p>
- * This class is based on {@link android.media.AudioAttributes}, but can be used on all supported
+ * Attributes for audio playback, which configure the underlying platform {@link
+ * android.media.AudioTrack}.
+ *
+ * <p>To set the audio attributes, create an instance using the {@link Builder} and either pass it
+ * to the player or send a message of type {@link C#MSG_SET_AUDIO_ATTRIBUTES} to the audio
+ * renderers.
+ *
+ * <p>This class is based on {@link android.media.AudioAttributes}, but can be used on all supported
  * API versions.
  */
 public final class AudioAttributes {
