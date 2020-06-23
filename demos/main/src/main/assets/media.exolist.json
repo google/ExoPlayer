@@ -476,6 +476,11 @@
         "name": "VMAP full, empty, full midrolls",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv",
         "ad_tag_uri": "https://vastsynthesizer.appspot.com/empty-midroll-2"
+      },
+      {
+        "name": "VMAP midroll at 1765 s",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4",
+        "ad_tag_uri": "https://vastsynthesizer.appspot.com/midroll-large"
       }
     ]
   },
