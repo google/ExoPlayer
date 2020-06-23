@@ -23,18 +23,19 @@ import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.SinglePeriodAdTimeline;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
+import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
-import java.util.Collections;
+import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,12 +71,15 @@ public final class MediaPeriodQueueTest {
   private Allocator allocator;
   private MediaSourceList mediaSourceList;
   private FakeMediaSource fakeMediaSource;
-  private MediaSourceList.MediaSourceHolder mediaSourceHolder;
 
   @Before
   public void setUp() {
     mediaPeriodQueue = new MediaPeriodQueue();
-    mediaSourceList = mock(MediaSourceList.class);
+    mediaSourceList =
+        new MediaSourceList(
+            mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
+            /* analyticsCollector= */ null,
+            Util.createHandlerForCurrentOrMainLooper());
     rendererCapabilities = new RendererCapabilities[0];
     trackSelector = mock(TrackSelector.class);
     allocator = mock(Allocator.class);
@@ -408,10 +412,13 @@ public final class MediaPeriodQueueTest {
 
   private void setupTimeline(Timeline timeline) {
     fakeMediaSource = new FakeMediaSource(timeline);
-    mediaSourceHolder = new MediaSourceList.MediaSourceHolder(fakeMediaSource, false);
+    MediaSourceList.MediaSourceHolder mediaSourceHolder =
+        new MediaSourceList.MediaSourceHolder(fakeMediaSource, /* useLazyPreparation= */ false);
+    mediaSourceList.setMediaSources(
+        ImmutableList.of(mediaSourceHolder), new FakeShuffleOrder(/* length= */ 1));
     mediaSourceHolder.mediaSource.prepareSourceInternal(/* mediaTransferListener */ null);
 
-    Timeline playlistTimeline = createPlaylistTimeline();
+    Timeline playlistTimeline = mediaSourceList.createTimeline();
     firstPeriodUid = playlistTimeline.getUidOfPeriod(/* periodIndex= */ 0);
 
     playbackInfo =
@@ -443,13 +450,7 @@ public final class MediaPeriodQueueTest {
     SinglePeriodAdTimeline adTimeline =
         new SinglePeriodAdTimeline(CONTENT_TIMELINE, adPlaybackState);
     fakeMediaSource.setNewSourceInfo(adTimeline);
-    playbackInfo = playbackInfo.copyWithTimeline(createPlaylistTimeline());
-  }
-
-  private MediaSourceList.PlaylistTimeline createPlaylistTimeline() {
-    return new MediaSourceList.PlaylistTimeline(
-        Collections.singleton(mediaSourceHolder),
-        new ShuffleOrder.DefaultShuffleOrder(/* length= */ 1));
+    playbackInfo = playbackInfo.copyWithTimeline(mediaSourceList.createTimeline());
   }
 
   private void advance() {
