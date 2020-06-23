@@ -270,7 +270,9 @@ public final class AdPlaybackState {
   public final AdGroup[] adGroups;
   /** The position offset in the first unplayed ad at which to begin playback, in microseconds. */
   public final long adResumePositionUs;
-  /** The content duration in microseconds, if known. {@link C#TIME_UNSET} otherwise. */
+  /**
+   * The duration of the content period in microseconds, if known. {@link C#TIME_UNSET} otherwise.
+   */
   public final long contentDurationUs;
 
   /**
