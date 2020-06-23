@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +52,10 @@ public class MediaSourceListTest {
   @Before
   public void setUp() {
     mediaSourceList =
-        new MediaSourceList(mock(MediaSourceList.MediaSourceListInfoRefreshListener.class));
+        new MediaSourceList(
+            mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
+            /* analyticsCollector= */ null,
+            Util.createHandlerForCurrentOrMainLooper());
   }
 
   @Test

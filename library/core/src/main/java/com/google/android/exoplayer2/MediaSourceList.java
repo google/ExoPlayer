@@ -52,7 +52,7 @@ import java.util.Set;
  *
  * <p>With the exception of the constructor, all methods are called on the playback thread.
  */
-/* package */ class MediaSourceList {
+/* package */ final class MediaSourceList {
 
   /** Listener for source events. */
   public interface MediaSourceListInfoRefreshListener {
@@ -81,8 +81,20 @@ import java.util.Set;
 
   @Nullable private TransferListener mediaTransferListener;
 
-  @SuppressWarnings("initialization")
-  public MediaSourceList(MediaSourceListInfoRefreshListener listener) {
+  /**
+   * Creates the media source list.
+   *
+   * @param listener The {@link MediaSourceListInfoRefreshListener} to be informed of timeline
+   *     changes.
+   * @param analyticsCollector An optional {@link AnalyticsCollector} to be registered for media
+   *     source events.
+   * @param analyticsCollectorHandler The {@link Handler} to call {@link AnalyticsCollector} methods
+   *     on.
+   */
+  public MediaSourceList(
+      MediaSourceListInfoRefreshListener listener,
+      @Nullable AnalyticsCollector analyticsCollector,
+      Handler analyticsCollectorHandler) {
     mediaSourceListInfoListener = listener;
     shuffleOrder = new DefaultShuffleOrder(0);
     mediaSourceByMediaPeriod = new IdentityHashMap<>();
@@ -91,6 +103,12 @@ import java.util.Set;
     eventDispatcher = new MediaSourceEventListener.EventDispatcher();
     childSources = new HashMap<>();
     enabledMediaSourceHolders = new HashSet<>();
+    if (analyticsCollector != null) {
+      eventDispatcher.addEventListener(
+          analyticsCollectorHandler, analyticsCollector, MediaSourceEventListener.class);
+      eventDispatcher.addEventListener(
+          analyticsCollectorHandler, analyticsCollector, DrmSessionEventListener.class);
+    }
   }
 
   /**
@@ -100,8 +118,7 @@ import java.util.Set;
    * @param shuffleOrder The new shuffle order.
    * @return The new {@link Timeline}.
    */
-  public final Timeline setMediaSources(
-      List<MediaSourceHolder> holders, ShuffleOrder shuffleOrder) {
+  public Timeline setMediaSources(List<MediaSourceHolder> holders, ShuffleOrder shuffleOrder) {
     removeMediaSourcesInternal(/* fromIndex= */ 0, /* toIndex= */ mediaSourceHolders.size());
     return addMediaSources(/* index= */ this.mediaSourceHolders.size(), holders, shuffleOrder);
   }
@@ -115,7 +132,7 @@ import java.util.Set;
    * @param shuffleOrder The new shuffle order.
    * @return The new {@link Timeline}.
    */
-  public final Timeline addMediaSources(
+  public Timeline addMediaSources(
       int index, List<MediaSourceHolder> holders, ShuffleOrder shuffleOrder) {
     if (!holders.isEmpty()) {
       this.shuffleOrder = shuffleOrder;
@@ -165,8 +182,7 @@ import java.util.Set;
    * @throws IllegalArgumentException When the range is malformed, i.e. {@code fromIndex} &lt; 0,
    *     {@code toIndex} &gt; {@link #getSize()}, {@code fromIndex} &gt; {@code toIndex}
    */
-  public final Timeline removeMediaSourceRange(
-      int fromIndex, int toIndex, ShuffleOrder shuffleOrder) {
+  public Timeline removeMediaSourceRange(int fromIndex, int toIndex, ShuffleOrder shuffleOrder) {
     Assertions.checkArgument(fromIndex >= 0 && fromIndex <= toIndex && toIndex <= getSize());
     this.shuffleOrder = shuffleOrder;
     removeMediaSourcesInternal(fromIndex, toIndex);
@@ -185,7 +201,7 @@ import java.util.Set;
    * @throws IllegalArgumentException When an index is invalid, i.e. {@code currentIndex} &lt; 0,
    *     {@code currentIndex} &gt;= {@link #getSize()}, {@code newIndex} &lt; 0
    */
-  public final Timeline moveMediaSource(int currentIndex, int newIndex, ShuffleOrder shuffleOrder) {
+  public Timeline moveMediaSource(int currentIndex, int newIndex, ShuffleOrder shuffleOrder) {
     return moveMediaSourceRange(currentIndex, currentIndex + 1, newIndex, shuffleOrder);
   }
 
@@ -228,31 +244,20 @@ import java.util.Set;
   }
 
   /** Clears the playlist. */
-  public final Timeline clear(@Nullable ShuffleOrder shuffleOrder) {
+  public Timeline clear(@Nullable ShuffleOrder shuffleOrder) {
     this.shuffleOrder = shuffleOrder != null ? shuffleOrder : this.shuffleOrder.cloneAndClear();
     removeMediaSourcesInternal(/* fromIndex= */ 0, /* toIndex= */ getSize());
     return createTimeline();
   }
 
   /** Whether the playlist is prepared. */
-  public final boolean isPrepared() {
+  public boolean isPrepared() {
     return isPrepared;
   }
 
   /** Returns the number of media sources in the playlist. */
-  public final int getSize() {
+  public int getSize() {
     return mediaSourceHolders.size();
-  }
-
-  /**
-   * Sets the {@link AnalyticsCollector}.
-   *
-   * @param handler The handler on which to call the collector.
-   * @param analyticsCollector The analytics collector.
-   */
-  public final void setAnalyticsCollector(Handler handler, AnalyticsCollector analyticsCollector) {
-    eventDispatcher.addEventListener(handler, analyticsCollector, MediaSourceEventListener.class);
-    eventDispatcher.addEventListener(handler, analyticsCollector, DrmSessionEventListener.class);
   }
 
   /**
@@ -260,7 +265,7 @@ import java.util.Set;
    *
    * @param shuffleOrder A {@link ShuffleOrder}.
    */
-  public final Timeline setShuffleOrder(ShuffleOrder shuffleOrder) {
+  public Timeline setShuffleOrder(ShuffleOrder shuffleOrder) {
     int size = getSize();
     if (shuffleOrder.getLength() != size) {
       shuffleOrder =
@@ -273,7 +278,7 @@ import java.util.Set;
   }
 
   /** Prepares the playlist. */
-  public final void prepare(@Nullable TransferListener mediaTransferListener) {
+  public void prepare(@Nullable TransferListener mediaTransferListener) {
     Assertions.checkState(!isPrepared);
     this.mediaTransferListener = mediaTransferListener;
     for (int i = 0; i < mediaSourceHolders.size(); i++) {
@@ -312,7 +317,7 @@ import java.util.Set;
    *
    * @param mediaPeriod The period to release.
    */
-  public final void releasePeriod(MediaPeriod mediaPeriod) {
+  public void releasePeriod(MediaPeriod mediaPeriod) {
     MediaSourceHolder holder =
         Assertions.checkNotNull(mediaSourceByMediaPeriod.remove(mediaPeriod));
     holder.mediaSource.releasePeriod(mediaPeriod);
@@ -324,7 +329,7 @@ import java.util.Set;
   }
 
   /** Releases the playlist. */
-  public final void release() {
+  public void release() {
     for (MediaSourceAndListener childSource : childSources.values()) {
       try {
         childSource.mediaSource.releaseSource(childSource.caller);
@@ -340,14 +345,14 @@ import java.util.Set;
   }
 
   /** Throws any pending error encountered while loading or refreshing. */
-  public final void maybeThrowSourceInfoRefreshError() throws IOException {
+  public void maybeThrowSourceInfoRefreshError() throws IOException {
     for (MediaSourceAndListener childSource : childSources.values()) {
       childSource.mediaSource.maybeThrowSourceInfoRefreshError();
     }
   }
 
   /** Creates a timeline reflecting the current state of the playlist. */
-  public final Timeline createTimeline() {
+  public Timeline createTimeline() {
     if (mediaSourceHolders.isEmpty()) {
       return Timeline.EMPTY;
     }

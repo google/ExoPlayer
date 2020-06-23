@@ -186,10 +186,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     internalPlaybackThread.start();
     handler = clock.createHandler(internalPlaybackThread.getLooper(), this);
     deliverPendingMessageAtStartPositionRequired = true;
-    mediaSourceList = new MediaSourceList(this);
-    if (analyticsCollector != null) {
-      mediaSourceList.setAnalyticsCollector(eventHandler, analyticsCollector);
-    }
+    mediaSourceList = new MediaSourceList(/* listener= */ this, analyticsCollector, eventHandler);
   }
 
   public void experimental_setReleaseTimeoutMs(long releaseTimeoutMs) {
