@@ -133,6 +133,8 @@
     *   Add support for WebVTT's `ruby-position` CSS property.
     *   Fix positioning for CEA-608 roll-up captions in the top half of screen
         ([#7475](https://github.com/google/ExoPlayer/issues/7475)).
+    *   Redefine `Cue.lineType=LINE_TYPE_NUMBER` in terms of aligning the cue
+        text lines to grid of viewport lines, and ignore `Cue.lineAnchor`.
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.
