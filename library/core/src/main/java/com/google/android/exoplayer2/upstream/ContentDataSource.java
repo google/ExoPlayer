@@ -90,9 +90,19 @@ public final class ContentDataSource extends BaseDataSource {
           // returns 0 then the remaining length cannot be determined.
           FileChannel channel = inputStream.getChannel();
           long channelSize = channel.size();
-          bytesRemaining = channelSize == 0 ? C.LENGTH_UNSET : channelSize - channel.position();
+          if (channelSize == 0) {
+            bytesRemaining = C.LENGTH_UNSET;
+          } else {
+            bytesRemaining = channelSize - channel.position();
+            if (bytesRemaining < 0) {
+              throw new EOFException();
+            }
+          }
         } else {
           bytesRemaining = assetFileDescriptorLength - skipped;
+          if (bytesRemaining < 0) {
+            throw new EOFException();
+          }
         }
       }
     } catch (IOException e) {
