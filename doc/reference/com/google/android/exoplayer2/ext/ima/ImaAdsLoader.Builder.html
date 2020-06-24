@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -228,6 +228,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setPlayAdBeforeStartPosition-boolean-">setPlayAdBeforeStartPosition</a></span>(boolean&nbsp;playAdBeforeStartPosition)</code>
+<div class="block">Sets whether to play an ad before the start position when beginning playback.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setVastLoadTimeoutMs-int-">setVastLoadTimeoutMs</a></span>(int&nbsp;vastLoadTimeoutMs)</code>
 <div class="block">Sets the VAST load timeout, in milliseconds.</div>
@@ -448,6 +454,24 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd>This builder, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><code>AdsRenderingSettings.setFocusSkipButtonWhenAvailable(boolean)</code></dd>
+</dl>
+</li>
+</ul>
+<a name="setPlayAdBeforeStartPosition-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPlayAdBeforeStartPosition</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setPlayAdBeforeStartPosition(boolean&nbsp;playAdBeforeStartPosition)</pre>
+<div class="block">Sets whether to play an ad before the start position when beginning playback. If <code>true</code>, an ad will be played if there is one at or before the start position. If <code>false</code>, an ad will be played only if there is one exactly at the start position. The default
+ setting is <code>true</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playAdBeforeStartPosition</code> - Whether to play an ad before the start position when
+     beginning playback.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
 </dl>
 </li>
 </ul>

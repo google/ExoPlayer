@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var methods = {"i0":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -202,21 +202,13 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Forwardi
 <div class="block">Populates a <a href="../../../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/SinglePeriodAdTimeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">getWindow</a></span>(int&nbsp;windowIndex,
-         <a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-         long&nbsp;defaultPositionProjectionUs)</code>
-<div class="block">Populates a <a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
-</td>
-</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.ForwardingTimeline">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source">ForwardingTimeline</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getFirstWindowIndex-boolean-">getFirstWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getIndexOfPeriod-java.lang.Object-">getIndexOfPeriod</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getLastWindowIndex-boolean-">getLastWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getNextWindowIndex-int-int-boolean-">getNextWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getPeriodCount--">getPeriodCount</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getPreviousWindowIndex-int-int-boolean-">getPreviousWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getUidOfPeriod-int-">getUidOfPeriod</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getWindowCount--">getWindowCount</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getFirstWindowIndex-boolean-">getFirstWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getIndexOfPeriod-java.lang.Object-">getIndexOfPeriod</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getLastWindowIndex-boolean-">getLastWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getNextWindowIndex-int-int-boolean-">getNextWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getPeriodCount--">getPeriodCount</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getPreviousWindowIndex-int-int-boolean-">getPreviousWindowIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getUidOfPeriod-int-">getUidOfPeriod</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">getWindow</a>, <a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getWindowCount--">getWindowCount</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.Timeline">
@@ -274,7 +266,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Forwardi
 <a name="getPeriod-int-com.google.android.exoplayer2.Timeline.Period-boolean-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>getPeriod</h4>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;getPeriod(int&nbsp;periodIndex,
@@ -293,30 +285,6 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/Forwardi
      the fields are required.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The populated <a href="../../../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>, for convenience.</dd>
-</dl>
-</li>
-</ul>
-<a name="getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getWindow</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow(int&nbsp;windowIndex,
-                                 <a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
-                                 long&nbsp;defaultPositionProjectionUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Timeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">Timeline</a></code></span></div>
-<div class="block">Populates a <a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html#getWindow-int-com.google.android.exoplayer2.Timeline.Window-long-">getWindow</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source">ForwardingTimeline</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The index of the window.</dd>
-<dd><code>window</code> - The <a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> to populate. Must not be null.</dd>
-<dd><code>defaultPositionProjectionUs</code> - A duration into the future that the populated window's
-     default start position should be projected.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The populated <a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a>, for convenience.</dd>
 </dl>
 </li>
 </ul>

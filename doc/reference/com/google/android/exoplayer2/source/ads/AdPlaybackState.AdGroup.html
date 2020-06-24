@@ -407,8 +407,7 @@ public final&nbsp;int[] states</pre>
 <h4>withAdCount</h4>
 <pre>@CheckResult
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withAdCount(int&nbsp;count)</pre>
-<div class="block">Returns a new instance with the ad count set to <code>count</code>. This method may only be called
- if this instance's ad count has not yet been specified.</div>
+<div class="block">Returns a new instance with the ad count set to <code>count</code>.</div>
 </li>
 </ul>
 <a name="withAdUri-android.net.Uri-int-">
@@ -421,10 +420,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;withAdUri(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
                                                       int&nbsp;index)</pre>
 <div class="block">Returns a new instance with the specified <code>uri</code> set for the specified ad, and the ad
- marked as <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html#AD_STATE_AVAILABLE"><code>AdPlaybackState.AD_STATE_AVAILABLE</code></a>. The specified ad must currently be in <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html#AD_STATE_UNAVAILABLE"><code>AdPlaybackState.AD_STATE_UNAVAILABLE</code></a>, which is the default state.
-
- <p>This instance's ad count may be unknown, in which case <code>index</code> must be less than the
- ad count specified later. Otherwise, <code>index</code> must be less than the current ad count.</div>
+ marked as <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdPlaybackState.html#AD_STATE_AVAILABLE"><code>AdPlaybackState.AD_STATE_AVAILABLE</code></a>.</div>
 </li>
 </ul>
 <a name="withAdState-int-int-">
