@@ -196,6 +196,7 @@
     *   Upgrade Truth dependency from 0.44 to 1.0.
     *   Upgrade to JUnit 4.13-rc-2.
 *   UI
+    *   Remove `SimpleExoPlayerView` and `PlaybackControlView`.
     *   Remove deperecated `exo_simple_player_view.xml` and
         `exo_playback_control_view.xml` from resource.
     *   Add setter methods to `PlayerView` and `PlayerControlView` to set

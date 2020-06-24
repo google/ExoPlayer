@@ -276,14 +276,14 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
-  // PlaybackControlView.PlaybackPreparer implementation
+  // PlaybackPreparer implementation
 
   @Override
   public void preparePlayback() {
     player.prepare();
   }
 
-  // PlaybackControlView.VisibilityListener implementation
+  // PlayerControlView.VisibilityListener implementation
 
   @Override
   public void onVisibilityChange(int visibility) {
