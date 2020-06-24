@@ -526,6 +526,13 @@
         "subtitle_language": "en"
       },
       {
+        "name": "WebVTT line positioning",
+        "uri": "https://html5demos.com/assets/dizzy.mp4",
+        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/webvtt/numeric-lines.vtt",
+        "subtitle_mime_type": "text/vtt",
+        "subtitle_language": "en"
+      },
+      {
         "name": "SSA/ASS position & alignment",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4",
         "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ssa/test-subs-position.ass",

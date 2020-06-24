@@ -144,10 +144,9 @@ public final class Cue {
   @Nullable public final Bitmap bitmap;
 
   /**
-   * The position of the {@link #lineAnchor} of the cue box within the viewport in the direction
-   * orthogonal to the writing direction (determined by {@link #verticalType}), or {@link
-   * #DIMEN_UNSET}. When set, the interpretation of the value depends on the value of {@link
-   * #lineType}.
+   * The position of the cue box within the viewport in the direction orthogonal to the writing
+   * direction (determined by {@link #verticalType}), or {@link #DIMEN_UNSET}. When set, the
+   * interpretation of the value depends on the value of {@link #lineType}.
    *
    * <p>The measurement direction depends on {@link #verticalType}:
    *
@@ -167,40 +166,35 @@ public final class Cue {
    *
    * <ul>
    *   <li>{@link #LINE_TYPE_FRACTION} indicates that {@link #line} is a fractional position within
-   *       the viewport.
-   *   <li>{@link #LINE_TYPE_NUMBER} indicates that {@link #line} is a line number, where the size
-   *       of each line is taken to be the size of the first line of the cue.
+   *       the viewport (measured to the part of the cue box determined by {@link #lineAnchor}).
+   *   <li>{@link #LINE_TYPE_NUMBER} indicates that {@link #line} is a viewport line number. The
+   *       viewport is divided into lines (each equal in size to the first line of the cue box). The
+   *       cue box is positioned to align with the viewport lines as follows:
    *       <ul>
-   *         <li>When {@link #line} is greater than or equal to 0 lines count from the start of the
-   *             viewport, with 0 indicating zero offset from the start edge. When {@link #line} is
-   *             negative lines count from the end of the viewport, with -1 indicating zero offset
-   *             from the end edge.
-   *         <li>For horizontal text the line spacing is the height of the first line of the cue,
-   *             and the start and end of the viewport are the top and bottom respectively.
+   *         <li>{@link #lineAnchor}) is ignored.
+   *         <li>When {@code line} is greater than or equal to 0 the first line in the cue box is
+   *             aligned with a viewport line, with 0 meaning the first line of the viewport.
+   *         <li>When {@code line} is negative the last line in the cue box is aligned with a
+   *             viewport line, with -1 meaning the last line of the viewport.
+   *         <li>For horizontal text the start and end of the viewport are the top and bottom
+   *             respectively.
    *       </ul>
-   * </ul>
-   *
-   * <p>Note that it's particularly important to consider the effect of {@link #lineAnchor} when
-   * using {@link #LINE_TYPE_NUMBER}.
-   *
-   * <ul>
-   *   <li>{@code (line == 0 && lineAnchor == ANCHOR_TYPE_START)} positions a (potentially
-   *       multi-line) cue at the very start of the viewport.
-   *   <li>{@code (line == -1 && lineAnchor == ANCHOR_TYPE_END)} positions a (potentially
-   *       multi-line) cue at the very end of the viewport.
-   *   <li>{@code (line == 0 && lineAnchor == ANCHOR_TYPE_END)} and {@code (line == -1 && lineAnchor
-   *       == ANCHOR_TYPE_START)} position cues entirely outside of the viewport.
-   *   <li>{@code (line == 1 && lineAnchor == ANCHOR_TYPE_END)} positions a cue so that only the
-   *       last line is visible at the start of the viewport.
-   *   <li>{@code (line == -2 && lineAnchor == ANCHOR_TYPE_START)} position a cue so that only its
-   *       first line is visible at the end of the viewport.
    * </ul>
    */
   public final @LineType int lineType;
 
   /**
-   * The cue box anchor positioned by {@link #line}. One of {@link #ANCHOR_TYPE_START}, {@link
-   * #ANCHOR_TYPE_MIDDLE}, {@link #ANCHOR_TYPE_END} and {@link #TYPE_UNSET}.
+   * The cue box anchor positioned by {@link #line} when {@link #lineType} is {@link
+   * #LINE_TYPE_FRACTION}.
+   *
+   * <p>One of:
+   *
+   * <ul>
+   *   <li>{@link #ANCHOR_TYPE_START}
+   *   <li>{@link #ANCHOR_TYPE_MIDDLE}
+   *   <li>{@link #ANCHOR_TYPE_END}
+   *   <li>{@link #TYPE_UNSET}
+   * </ul>
    *
    * <p>For the normal case of horizontal text, {@link #ANCHOR_TYPE_START}, {@link
    * #ANCHOR_TYPE_MIDDLE} and {@link #ANCHOR_TYPE_END} correspond to the top, middle and bottom of
@@ -584,8 +578,8 @@ public final class Cue {
     }
 
     /**
-     * Sets the position of the {@code lineAnchor} of the cue box within the viewport in the
-     * direction orthogonal to the writing direction.
+     * Sets the position of the cue box within the viewport in the direction orthogonal to the
+     * writing direction.
      *
      * @see Cue#line
      * @see Cue#lineType
