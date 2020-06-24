@@ -11,24 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: '../../constants.gradle'
-apply plugin: 'com.android.library'
-
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    testOptions.unitTests.includeAndroidResources = true
-}
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
     api "com.google.android.gms:play-services-cronet:17.0.0"
