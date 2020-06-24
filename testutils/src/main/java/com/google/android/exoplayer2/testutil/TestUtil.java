@@ -44,6 +44,8 @@ import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Supplier;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -174,16 +176,26 @@ public class TestUtil {
   /**
    * Converts an array of integers in the range [0, 255] into an equivalent byte array.
    *
-   * @param intArray An array of integers, all of which must be in the range [0, 255].
+   * @param bytes An array of integers, all of which must be in the range [0, 255].
    * @return The equivalent byte array.
    */
-  public static byte[] createByteArray(int... intArray) {
-    byte[] byteArray = new byte[intArray.length];
+  public static byte[] createByteArray(int... bytes) {
+    byte[] byteArray = new byte[bytes.length];
     for (int i = 0; i < byteArray.length; i++) {
-      Assertions.checkState(0x00 <= intArray[i] && intArray[i] <= 0xFF);
-      byteArray[i] = (byte) intArray[i];
+      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
+      byteArray[i] = (byte) bytes[i];
     }
     return byteArray;
+  }
+
+  /**
+   * Converts an array of integers in the range [0, 255] into an equivalent byte list.
+   *
+   * @param bytes An array of integers, all of which must be in the range [0, 255].
+   * @return The equivalent byte list.
+   */
+  public static ImmutableList<Byte> createByteList(int... bytes) {
+    return ImmutableList.copyOf(Bytes.asList(createByteArray(bytes)));
   }
 
   /** Writes one byte long dummy test data to the file and returns it. */
