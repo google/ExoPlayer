@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,6 +98,7 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
                 /* flags= */ 0));
   }
 
+  @Ignore
   @Test
   public void queueInputBuffer_multipleTimes_limitsObjectsAllocation() {
     enqueuer.start();
@@ -157,6 +159,7 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
                 /* flags= */ 0));
   }
 
+  @Ignore
   @Test
   public void queueSecureInputBuffer_multipleTimes_limitsObjectsAllocation() {
     enqueuer.start();
