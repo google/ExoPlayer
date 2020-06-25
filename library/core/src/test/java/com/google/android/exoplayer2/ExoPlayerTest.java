@@ -105,6 +105,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowAudioManager;
 
@@ -6764,6 +6765,20 @@ public final class ExoPlayerTest {
     assertThat(currentMediaItems.get(1).playbackProperties.tag).isEqualTo("2");
     assertThat(currentMediaItems.get(2).playbackProperties.tag).isEqualTo("3");
     assertThat(initialMediaItems).containsExactlyElementsIn(currentMediaItems);
+  }
+
+  // TODO: Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved
+  @Test
+  @Config(minSdk = Config.OLDEST_SDK, maxSdk = Config.TARGET_SDK)
+  public void buildSimpleExoPlayerInBackgroundThread_doesNotThrow() throws Exception {
+    Thread builderThread = new Thread(() -> new SimpleExoPlayer.Builder(context).build());
+    AtomicReference<Throwable> builderThrow = new AtomicReference<>();
+    builderThread.setUncaughtExceptionHandler((thread, throwable) -> builderThrow.set(throwable));
+
+    builderThread.start();
+    builderThread.join();
+
+    assertThat(builderThrow.get()).isNull();
   }
 
   // Internal methods.
