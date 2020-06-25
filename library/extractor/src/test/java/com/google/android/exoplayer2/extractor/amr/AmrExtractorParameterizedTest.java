@@ -37,8 +37,7 @@ public final class AmrExtractorParameterizedTest {
     return ExtractorAsserts.configs();
   }
 
-  @Parameter(0)
-  public ExtractorAsserts.SimulationConfig simulationConfig;
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void extractingNarrowBandSamples() throws Exception {
