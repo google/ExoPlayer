@@ -166,6 +166,7 @@
     *   No longer use a `MediaCodec` in audio passthrough mode.
     *   Check `DefaultAudioSink` supports passthrough, in addition to checking
         the `AudioCapabilities`
+    *   Add an experimental scheduling mode to save power in offload.
         ([#7404](https://github.com/google/ExoPlayer/issues/7404)).
     *   Adjust input timestamps in `MediaCodecRenderer` to account for the
         Codec2 MP3 decoder having lower timestamps on the output side.

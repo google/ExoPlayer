@@ -95,6 +95,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
+  /**
+   * Duration under which pausing the main DO_SOME_WORK loop is not expected to yield significant
+   * power saving.
+   *
+   * <p>This value is probably too high, power measurements are needed adjust it, but as renderer
+   * sleep is currently only implemented for audio offload, which uses buffer much bigger than 2s,
+   * this does not matter for now.
+   */
+  private static final long MIN_RENDERER_SLEEP_DURATION_MS = 2000;
 
   private final Renderer[] renderers;
   private final RendererCapabilities[] rendererCapabilities;
@@ -128,6 +137,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
   @Player.RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
   private boolean foregroundMode;
+  private boolean requestForRendererSleep;
+  private boolean offloadSchedulingEnabled;
 
   private int enabledRendererCount;
   @Nullable private SeekPosition pendingInitialSeekPosition;
@@ -195,6 +206,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   public void experimental_throwWhenStuckBuffering() {
     throwWhenStuckBuffering = true;
+  }
+
+  public void experimental_enableOffloadScheduling(boolean enableOffloadScheduling) {
+    offloadSchedulingEnabled = enableOffloadScheduling;
+    if (!enableOffloadScheduling) {
+      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    }
   }
 
   public void prepare() {
@@ -868,12 +886,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     if ((shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY)
         || playbackInfo.playbackState == Player.STATE_BUFFERING) {
-      scheduleNextWork(operationStartTimeMs, ACTIVE_INTERVAL_MS);
+      maybeScheduleWakeup(operationStartTimeMs, ACTIVE_INTERVAL_MS);
     } else if (enabledRendererCount != 0 && playbackInfo.playbackState != Player.STATE_ENDED) {
       scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
     } else {
       handler.removeMessages(MSG_DO_SOME_WORK);
     }
+    requestForRendererSleep = false; // A sleep request is only valid for the current doSomeWork.
 
     TraceUtil.endSection();
   }
@@ -881,6 +900,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void scheduleNextWork(long thisOperationStartTimeMs, long intervalMs) {
     handler.removeMessages(MSG_DO_SOME_WORK);
     handler.sendEmptyMessageAtTime(MSG_DO_SOME_WORK, thisOperationStartTimeMs + intervalMs);
+  }
+
+  private void maybeScheduleWakeup(long operationStartTimeMs, long intervalMs) {
+    if (offloadSchedulingEnabled && requestForRendererSleep) {
+      return;
+    }
+
+    scheduleNextWork(operationStartTimeMs, intervalMs);
   }
 
   private void seekToInternal(SeekPosition seekPosition) throws ExoPlaybackException {
@@ -2051,6 +2078,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
         joining,
         mayRenderStartOfStream,
         periodHolder.getRendererOffset());
+
+    renderer.handleMessage(
+        Renderer.MSG_SET_WAKEUP_LISTENER,
+        new Renderer.WakeupListener() {
+          @Override
+          public void onSleep(long wakeupDeadlineMs) {
+            // Do not sleep if the expected sleep time is not long enough to save significant power.
+            if (wakeupDeadlineMs >= MIN_RENDERER_SLEEP_DURATION_MS) {
+              requestForRendererSleep = true;
+            }
+          }
+
+          @Override
+          public void onWakeup() {
+            handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+          }
+        });
+
     mediaClock.onRendererEnabled(renderer);
     // Start the renderer if playing.
     if (playing) {
