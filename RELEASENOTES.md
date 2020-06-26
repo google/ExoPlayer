@@ -1,6 +1,10 @@
 # Release notes #
 
 ### 2.11.6 (2020-06-24) ###
+*   IMA extension: Fix the way 'content complete' is handled to avoid repeatedly
+    refreshing the timeline after playback ends.
+
+### 2.11.6 (2020-06-19) ###
 
 *   UI: Prevent `PlayerView` from temporarily hiding the video surface when
     seeking to an unprepared period within the current window. For example when
