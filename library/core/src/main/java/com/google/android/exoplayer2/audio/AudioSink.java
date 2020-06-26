@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.audio;
 import android.media.AudioTrack;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.Encoding;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import java.nio.ByteBuffer;
@@ -187,12 +188,12 @@ public interface AudioSink {
   /**
    * Returns whether the sink supports the audio format.
    *
-   * @param channelCount The number of channels, or {@link Format#NO_VALUE} if not known.
-   * @param sampleRate The sample rate, or {@link Format#NO_VALUE} if not known.
+   * @param format The format of the audio. {@link Format#pcmEncoding} is ignored and the {@code
+   *     encoding} argument is used instead.
    * @param encoding The audio encoding, or {@link Format#NO_VALUE} if not known.
    * @return Whether the sink supports the audio format.
    */
-  boolean supportsOutput(int channelCount, int sampleRate, @C.Encoding int encoding);
+  boolean supportsOutput(Format format, @Encoding int encoding);
 
   /**
    * Returns the playback position in the stream starting at zero, in microseconds, or
