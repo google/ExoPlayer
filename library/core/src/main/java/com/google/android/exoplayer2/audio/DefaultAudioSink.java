@@ -432,7 +432,12 @@ public final class DefaultAudioSink implements AudioSink {
     }
     if (enableOffload
         && isOffloadedPlaybackSupported(
-            format.channelCount, format.sampleRate, encoding, audioAttributes)) {
+            format.channelCount,
+            format.sampleRate,
+            encoding,
+            audioAttributes,
+            format.encoderDelay,
+            format.encoderPadding)) {
       return true;
     }
     return isPassthroughPlaybackSupported(encoding, format.channelCount);
@@ -516,7 +521,13 @@ public final class DefaultAudioSink implements AudioSink {
     boolean useOffload =
         enableOffload
             && !isInputPcm
-            && isOffloadedPlaybackSupported(channelCount, sampleRate, encoding, audioAttributes);
+            && isOffloadedPlaybackSupported(
+                channelCount,
+                sampleRate,
+                encoding,
+                audioAttributes,
+                trimStartFrames,
+                trimEndFrames);
 
     Configuration pendingConfiguration =
         new Configuration(
@@ -531,6 +542,8 @@ public final class DefaultAudioSink implements AudioSink {
             processingEnabled,
             canApplyPlaybackParameters,
             availableAudioProcessors,
+            trimStartFrames,
+            trimEndFrames,
             useOffload);
     if (isInitialized()) {
       this.pendingConfiguration = pendingConfiguration;
@@ -576,6 +589,7 @@ public final class DefaultAudioSink implements AudioSink {
             .buildAudioTrack(tunneling, audioAttributes, audioSessionId);
     if (isOffloadedPlayback(audioTrack)) {
       registerStreamEventCallbackV29(audioTrack);
+      audioTrack.setOffloadDelayPadding(configuration.trimStartFrames, configuration.trimEndFrames);
     }
     int audioSessionId = audioTrack.getAudioSessionId();
     if (enablePreV21AudioSessionWorkaround) {
@@ -653,6 +667,11 @@ public final class DefaultAudioSink implements AudioSink {
         // The current audio track can be reused for the new configuration.
         configuration = pendingConfiguration;
         pendingConfiguration = null;
+        if (isOffloadedPlayback(audioTrack)) {
+          audioTrack.setOffloadEndOfStream();
+          audioTrack.setOffloadDelayPadding(
+              configuration.trimStartFrames, configuration.trimEndFrames);
+        }
       }
       // Re-apply playback parameters.
       applyPlaybackSpeedAndSkipSilence(presentationTimeUs);
@@ -1255,14 +1274,24 @@ public final class DefaultAudioSink implements AudioSink {
       int channelCount,
       int sampleRateHz,
       @C.Encoding int encoding,
-      AudioAttributes audioAttributes) {
+      AudioAttributes audioAttributes,
+      int trimStartFrames,
+      int trimEndFrames) {
     if (Util.SDK_INT < 29) {
       return false;
     }
     int channelMask = getChannelConfig(channelCount, /* isInputPcm= */ false);
     AudioFormat audioFormat = getAudioFormat(sampleRateHz, channelMask, encoding);
-    return AudioManager.isOffloadedPlaybackSupported(
-        audioFormat, audioAttributes.getAudioAttributesV21());
+    if (!AudioManager.isOffloadedPlaybackSupported(
+        audioFormat, audioAttributes.getAudioAttributesV21())) {
+      return false;
+    }
+    if (trimStartFrames > 0 || trimEndFrames > 0) {
+      // TODO(internal b/158191844): Gapless offload is not supported by all devices and there is no
+      // API to query its support.
+      return false;
+    }
+    return true;
   }
 
   private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
@@ -1579,6 +1608,8 @@ public final class DefaultAudioSink implements AudioSink {
     public final boolean processingEnabled;
     public final boolean canApplyPlaybackParameters;
     public final AudioProcessor[] availableAudioProcessors;
+    public int trimStartFrames;
+    public int trimEndFrames;
     public final boolean useOffload;
 
     public Configuration(
@@ -1593,6 +1624,8 @@ public final class DefaultAudioSink implements AudioSink {
         boolean processingEnabled,
         boolean canApplyPlaybackParameters,
         AudioProcessor[] availableAudioProcessors,
+        int trimStartFrames,
+        int trimEndFrames,
         boolean useOffload) {
       this.isInputPcm = isInputPcm;
       this.inputPcmFrameSize = inputPcmFrameSize;
@@ -1604,6 +1637,8 @@ public final class DefaultAudioSink implements AudioSink {
       this.processingEnabled = processingEnabled;
       this.canApplyPlaybackParameters = canApplyPlaybackParameters;
       this.availableAudioProcessors = availableAudioProcessors;
+      this.trimStartFrames = trimStartFrames;
+      this.trimEndFrames = trimEndFrames;
       this.useOffload = useOffload;
 
       // Call computeBufferSize() last as it depends on the other configuration values.
