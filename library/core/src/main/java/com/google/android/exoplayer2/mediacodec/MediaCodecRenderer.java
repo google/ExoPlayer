@@ -405,6 +405,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean waitingForFirstSampleInFormat;
   private boolean pendingOutputEndOfStream;
   @MediaCodecOperationMode private int mediaCodecOperationMode;
+  @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
   private long outputStreamOffsetUs;
   private int pendingOutputStreamOffsetCount;
@@ -623,12 +624,24 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Sets an exception to be re-thrown by render.
+   *
+   * @param exception The exception.
+   */
+  protected void setPendingPlaybackException(ExoPlaybackException exception) {
+    pendingPlaybackException = exception;
+  }
+
+  /**
    * Polls the pending output format queue for a given buffer timestamp. If a format is present, it
    * is removed and returned. Otherwise returns {@code null}. Subclasses should only call this
    * method if they are taking over responsibility for output format propagation (e.g., when using
    * video tunneling).
+   *
+   * @throws ExoPlaybackException Thrown if an error occurs as a result of the output format change.
    */
-  protected final void updateOutputFormatForTime(long presentationTimeUs) {
+  protected final void updateOutputFormatForTime(long presentationTimeUs)
+      throws ExoPlaybackException {
     @Nullable Format format = formatQueue.pollFloor(presentationTimeUs);
     if (format != null) {
       outputFormat = format;
@@ -784,6 +797,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       pendingOutputEndOfStream = false;
       processEndOfStream();
     }
+    if (pendingPlaybackException != null) {
+      ExoPlaybackException playbackException = pendingPlaybackException;
+      pendingPlaybackException = null;
+      throw playbackException;
+    }
+
     try {
       if (outputStreamEnded) {
         renderToEndOfStream();
@@ -908,6 +927,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecInfo = null;
     codecFormat = null;
     codecHasOutputMediaFormat = false;
+    pendingPlaybackException = null;
     codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
     codecNeedsReconfigureWorkaround = false;
@@ -1490,8 +1510,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>The default implementation is a no-op.
    *
    * @param outputFormat The new output {@link Format}.
+   * @throws ExoPlaybackException Thrown if an error occurs handling the new output format.
    */
-  protected void onOutputFormatChanged(Format outputFormat) {
+  protected void onOutputFormatChanged(Format outputFormat) throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -1501,8 +1522,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>The default implementation is a no-op.
    *
    * @param outputFormat The format to configure the output with.
+   * @throws ExoPlaybackException Thrown if an error occurs configuring the output.
    */
-  protected void configureOutput(Format outputFormat) {
+  protected void configureOutput(Format outputFormat) throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -1538,8 +1560,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>The default implementation is a no-op.
    *
    * @param buffer The buffer to be queued.
+   * @throws ExoPlaybackException Thrown if an error occurs handling the input buffer.
    */
-  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
+  protected void onQueueInputBuffer(DecoderInputBuffer buffer) throws ExoPlaybackException {
     // Do nothing.
   }
 

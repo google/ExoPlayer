@@ -142,7 +142,7 @@ import java.util.ArrayList;
     }
 
     @Override
-    protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
+    protected void onQueueInputBuffer(DecoderInputBuffer buffer) throws ExoPlaybackException {
       super.onQueueInputBuffer(buffer);
       insertTimestamp(buffer.timeUs);
       maybeShiftTimestampsList();

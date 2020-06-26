@@ -170,6 +170,8 @@
         ([#7404](https://github.com/google/ExoPlayer/issues/7404)).
     *   Adjust input timestamps in `MediaCodecRenderer` to account for the
         Codec2 MP3 decoder having lower timestamps on the output side.
+    *   Propagate gapless audio metadata without the need to recreate the audio
+        decoders.
 *   DASH:
     *   Enable support for embedded CEA-708.
 *   HLS:
