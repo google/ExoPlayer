@@ -227,10 +227,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
     }
     if ((MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)
-            && !audioSink.supportsOutput(
-                format.channelCount, format.sampleRate, format.pcmEncoding))
-        || !audioSink.supportsOutput(
-            format.channelCount, format.sampleRate, C.ENCODING_PCM_16BIT)) {
+            && !audioSink.supportsOutput(format, format.pcmEncoding))
+        || !audioSink.supportsOutput(format, C.ENCODING_PCM_16BIT)) {
       // Assume the decoder outputs 16-bit PCM, unless the input is raw.
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
     }
@@ -464,8 +462,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
     if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
       // E-AC3 JOC is object-based so the output channel count is arbitrary.
-      if (audioSink.supportsOutput(
-          /* channelCount= */ Format.NO_VALUE, format.sampleRate, C.ENCODING_E_AC3_JOC)) {
+      Format eAc3JocFormat = format.buildUpon().setChannelCount(Format.NO_VALUE).build();
+      if (audioSink.supportsOutput(eAc3JocFormat, C.ENCODING_E_AC3_JOC)) {
         return MimeTypes.getEncoding(MimeTypes.AUDIO_E_AC3_JOC, format.codecs);
       }
       // E-AC3 receivers can decode JOC streams, but in 2-D rather than 3-D, so try to fall back.
@@ -473,7 +471,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
 
     @C.Encoding int encoding = MimeTypes.getEncoding(mimeType, format.codecs);
-    if (audioSink.supportsOutput(format.channelCount, format.sampleRate, encoding)) {
+    if (audioSink.supportsOutput(format, encoding)) {
       return encoding;
     } else {
       return C.ENCODING_INVALID;
