@@ -1035,7 +1035,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     if (imaAdState == IMA_AD_STATE_NONE
         && playbackState == Player.STATE_BUFFERING
         && playWhenReady) {
-      checkForContentComplete();
+      ensureSentContentCompleteIfAtEndOfStream();
     } else if (imaAdState != IMA_AD_STATE_NONE && playbackState == Player.STATE_ENDED) {
       AdMediaInfo adMediaInfo = Assertions.checkNotNull(imaAdMediaInfo);
       if (adMediaInfo == null) {
@@ -1057,15 +1057,8 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
       return;
     }
     if (!playingAd && !player.isPlayingAd()) {
-      checkForContentComplete();
-      if (sentContentComplete) {
-        for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
-          if (adPlaybackState.adGroupTimesUs[i] != C.TIME_END_OF_SOURCE) {
-            adPlaybackState = adPlaybackState.withSkippedAdGroup(/* adGroupIndex= */ i);
-          }
-        }
-        updateAdPlaybackState();
-      } else if (!timeline.isEmpty()) {
+      ensureSentContentCompleteIfAtEndOfStream();
+      if (!sentContentComplete && !timeline.isEmpty()) {
         long positionMs = getContentPeriodPositionMs(player, timeline, period);
         timeline.getPeriod(/* periodIndex= */ 0, period);
         int newAdGroupIndex = period.getAdGroupIndexForPositionUs(C.msToUs(positionMs));
@@ -1099,11 +1092,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     if (!sentContentComplete && !wasPlayingAd && playingAd && imaAdState == IMA_AD_STATE_NONE) {
       int adGroupIndex = player.getCurrentAdGroupIndex();
       if (adPlaybackState.adGroupTimesUs[adGroupIndex] == C.TIME_END_OF_SOURCE) {
-        adsLoader.contentComplete();
-        if (DEBUG) {
-          Log.d(TAG, "adsLoader.contentComplete from period transition");
-        }
-        sentContentComplete = true;
+        sendContentComplete();
       } else {
         // IMA hasn't called playAd yet, so fake the content position.
         fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
@@ -1221,18 +1210,29 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     updateAdPlaybackState();
   }
 
-  private void checkForContentComplete() {
-    long positionMs = getContentPeriodPositionMs(Assertions.checkNotNull(player), timeline, period);
+  private void ensureSentContentCompleteIfAtEndOfStream() {
     if (!sentContentComplete
         && contentDurationMs != C.TIME_UNSET
         && pendingContentPositionMs == C.TIME_UNSET
-        && positionMs + THRESHOLD_END_OF_CONTENT_MS >= contentDurationMs) {
-      adsLoader.contentComplete();
-      if (DEBUG) {
-        Log.d(TAG, "adsLoader.contentComplete from content position check");
-      }
-      sentContentComplete = true;
+        && getContentPeriodPositionMs(Assertions.checkNotNull(player), timeline, period)
+                + THRESHOLD_END_OF_CONTENT_MS
+            >= contentDurationMs) {
+      sendContentComplete();
     }
+  }
+
+  private void sendContentComplete() {
+    adsLoader.contentComplete();
+    sentContentComplete = true;
+    if (DEBUG) {
+      Log.d(TAG, "adsLoader.contentComplete");
+    }
+    for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
+      if (adPlaybackState.adGroupTimesUs[i] != C.TIME_END_OF_SOURCE) {
+        adPlaybackState = adPlaybackState.withSkippedAdGroup(/* adGroupIndex= */ i);
+      }
+    }
+    updateAdPlaybackState();
   }
 
   private void updateAdPlaybackState() {
