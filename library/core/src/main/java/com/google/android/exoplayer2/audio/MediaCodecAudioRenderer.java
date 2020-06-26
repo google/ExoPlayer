@@ -310,16 +310,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected @KeepCodecResult int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
-    // TODO: We currently rely on recreating the codec when encoder delay or padding is non-zero.
-    // Re-creating the codec is necessary to guarantee that onOutputMediaFormatChanged is called,
-    // which is where encoder delay and padding are propagated to the sink. We should find a better
-    // way to propagate these values, and then allow the codec to be re-used in cases where this
-    // would otherwise be possible.
-    if (getCodecMaxInputSize(codecInfo, newFormat) > codecMaxInputSize
-        || oldFormat.encoderDelay != 0
-        || oldFormat.encoderPadding != 0
-        || newFormat.encoderDelay != 0
-        || newFormat.encoderPadding != 0) {
+    if (getCodecMaxInputSize(codecInfo, newFormat) > codecMaxInputSize) {
       return KEEP_CODEC_RESULT_NO;
     } else if (codecInfo.isSeamlessAdaptationSupported(
         oldFormat, newFormat, /* isNewFormatComplete= */ true)) {
@@ -388,9 +379,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onOutputMediaFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
-      throws ExoPlaybackException {
+  protected void onOutputFormatChanged(Format outputFormat) throws ExoPlaybackException {
+    configureOutput(outputFormat);
+  }
+
+  @Override
+  protected void configureOutput(Format outputFormat) throws ExoPlaybackException {
     @C.Encoding int encoding;
+    MediaFormat mediaFormat;
     int channelCount;
     int sampleRate;
     if (passthroughFormat != null) {
@@ -398,18 +394,19 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       channelCount = passthroughFormat.channelCount;
       sampleRate = passthroughFormat.sampleRate;
     } else {
-      if (outputMediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
-        encoding = Util.getPcmEncoding(outputMediaFormat.getInteger(VIVO_BITS_PER_SAMPLE_KEY));
+      mediaFormat = getCodec().getOutputFormat();
+      if (mediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
+        encoding = Util.getPcmEncoding(mediaFormat.getInteger(VIVO_BITS_PER_SAMPLE_KEY));
       } else {
-        encoding = getPcmEncoding(inputFormat);
+        encoding = getPcmEncoding(outputFormat);
       }
-      channelCount = outputMediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
-      sampleRate = outputMediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE);
+      channelCount = mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+      sampleRate = mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE);
     }
     @Nullable int[] channelMap = null;
-    if (codecNeedsDiscardChannelsWorkaround && channelCount == 6 && inputFormat.channelCount < 6) {
-      channelMap = new int[inputFormat.channelCount];
-      for (int i = 0; i < inputFormat.channelCount; i++) {
+    if (codecNeedsDiscardChannelsWorkaround && channelCount == 6 && outputFormat.channelCount < 6) {
+      channelMap = new int[outputFormat.channelCount];
+      for (int i = 0; i < outputFormat.channelCount; i++) {
         channelMap[i] = i;
       }
     }
@@ -420,11 +417,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
           sampleRate,
           /* specifiedBufferSize= */ 0,
           channelMap,
-          inputFormat.encoderDelay,
-          inputFormat.encoderPadding);
+          outputFormat.encoderDelay,
+          outputFormat.encoderPadding);
     } catch (AudioSink.ConfigurationException e) {
-      // TODO(internal: b/145658993) Use outputFormat instead.
-      throw createRendererException(e, inputFormat);
+      throw createRendererException(e, outputFormat);
     }
   }
 
