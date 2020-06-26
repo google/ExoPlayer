@@ -841,6 +841,8 @@ public interface Player {
    *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
    *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
    *     position is not reset at all.
+   * @throws IllegalSeekPositionException If the provided {@code windowIndex} is not within the
+   *     bounds of the list of media items.
    */
   void setMediaItems(List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs);
 
@@ -1064,6 +1066,8 @@ public interface Player {
    *
    * @param windowIndex The index of the window whose associated default position should be seeked
    *     to.
+   * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
+   *     {@code windowIndex} is not within the bounds of the current timeline.
    */
   void seekToDefaultPosition(int windowIndex);
 
@@ -1223,21 +1227,25 @@ public interface Player {
   int getCurrentPeriodIndex();
 
   /**
-   * Returns the index of the window currently being played.
+   * Returns the index of the current {@link Timeline.Window window} in the {@link
+   * #getCurrentTimeline() timeline}, or the prospective window index if the {@link
+   * #getCurrentTimeline() current timeline} is empty.
    */
   int getCurrentWindowIndex();
 
   /**
    * Returns the index of the next timeline window to be played, which may depend on the current
    * repeat mode and whether shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if the window
-   * currently being played is the last window.
+   * currently being played is the last window or if the {@link #getCurrentTimeline() current
+   * timeline} is empty.
    */
   int getNextWindowIndex();
 
   /**
    * Returns the index of the previous timeline window to be played, which may depend on the current
    * repeat mode and whether shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if the window
-   * currently being played is the first window.
+   * currently being played is the first window or if the {@link #getCurrentTimeline() current
+   * timeline} is empty.
    */
   int getPreviousWindowIndex();
 
@@ -1262,7 +1270,11 @@ public interface Player {
    */
   long getDuration();
 
-  /** Returns the playback position in the current content window or ad, in milliseconds. */
+  /**
+   * Returns the playback position in the current content window or ad, in milliseconds, or the
+   * prospective position in milliseconds if the {@link #getCurrentTimeline() current timeline} is
+   * empty.
+   */
   long getCurrentPosition();
 
   /**
