@@ -43,7 +43,7 @@ import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/** Utility methods for parsing MP4 format atom payloads according to ISO 14496-12. */
+/** Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12. */
 @SuppressWarnings({"ConstantField"})
 /* package */ final class AtomParsers {
 
@@ -83,7 +83,54 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private static final byte[] opusMagic = Util.getUtf8Bytes("OpusHead");
 
   /**
-   * Parses a trak atom (defined in 14496-12).
+   * Parse the trak atoms in a moov atom (defined in ISO/IEC 14496-12).
+   *
+   * @param moov Moov atom to decode.
+   * @param gaplessInfoHolder Holder to populate with gapless playback information.
+   * @param ignoreEditLists Whether to ignore any edit lists in the trak boxes.
+   * @param isQuickTime True for QuickTime media. False otherwise.
+   * @return A list of {@link TrackSampleTable} instances.
+   * @throws ParserException Thrown if the trak atoms can't be parsed.
+   */
+  public static List<TrackSampleTable> parseTraks(
+      Atom.ContainerAtom moov,
+      GaplessInfoHolder gaplessInfoHolder,
+      boolean ignoreEditLists,
+      boolean isQuickTime)
+      throws ParserException {
+    List<TrackSampleTable> trackSampleTables = new ArrayList<>();
+    for (int i = 0; i < moov.containerChildren.size(); i++) {
+      Atom.ContainerAtom atom = moov.containerChildren.get(i);
+      if (atom.type != Atom.TYPE_trak) {
+        continue;
+      }
+      @Nullable
+      Track track =
+          parseTrak(
+              atom,
+              moov.getLeafAtomOfType(Atom.TYPE_mvhd),
+              /* duration= */ C.TIME_UNSET,
+              /* drmInitData= */ null,
+              ignoreEditLists,
+              isQuickTime);
+      if (track == null) {
+        continue;
+      }
+      Atom.ContainerAtom stblAtom =
+          atom.getContainerAtomOfType(Atom.TYPE_mdia)
+              .getContainerAtomOfType(Atom.TYPE_minf)
+              .getContainerAtomOfType(Atom.TYPE_stbl);
+      TrackSampleTable trackSampleTable = parseStbl(track, stblAtom, gaplessInfoHolder);
+      if (trackSampleTable.sampleCount == 0) {
+        continue;
+      }
+      trackSampleTables.add(trackSampleTable);
+    }
+    return trackSampleTables;
+  }
+
+  /**
+   * Parses a trak atom (defined in ISO/IEC 14496-12).
    *
    * @param trak Atom to decode.
    * @param mvhd Movie header atom, used to get the timescale.
@@ -93,6 +140,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @param ignoreEditLists Whether to ignore any edit lists in the trak box.
    * @param isQuickTime True for QuickTime media. False otherwise.
    * @return A {@link Track} instance, or {@code null} if the track's type isn't supported.
+   * @throws ParserException Thrown if the trak atom can't be parsed.
    */
   @Nullable
   public static Track parseTrak(
@@ -145,7 +193,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Parses an stbl atom (defined in 14496-12).
+   * Parses an stbl atom (defined in ISO/IEC 14496-12).
    *
    * @param track Track to which this sample table corresponds.
    * @param stblAtom stbl (sample table) atom to decode.
@@ -275,11 +323,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         if (ctts != null) {
           while (remainingSamplesAtTimestampOffset == 0 && remainingTimestampOffsetChanges > 0) {
             remainingSamplesAtTimestampOffset = ctts.readUnsignedIntToInt();
-            // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers
-            // in version 0 ctts boxes, however some streams violate the spec and use signed
-            // integers instead. It's safe to always decode sample offsets as signed integers here,
-            // because unsigned integers will still be parsed correctly (unless their top bit is
-            // set, which is never true in practice because sample offsets are always small).
+            // The BMFF spec (ISO/IEC 14496-12) states that sample offsets should be unsigned
+            // integers in version 0 ctts boxes, however some streams violate the spec and use
+            // signed integers instead. It's safe to always decode sample offsets as signed integers
+            // here, because unsigned integers will still be parsed correctly (unless their top bit
+            // is set, which is never true in practice because sample offsets are always small).
             timestampOffset = ctts.readInt();
             remainingTimestampOffsetChanges--;
           }
@@ -308,7 +356,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         remainingSamplesAtTimestampDelta--;
         if (remainingSamplesAtTimestampDelta == 0 && remainingTimestampDeltaChanges > 0) {
           remainingSamplesAtTimestampDelta = stts.readUnsignedIntToInt();
-          // The BMFF spec (ISO 14496-12) states that sample deltas should be unsigned integers
+          // The BMFF spec (ISO/IEC 14496-12) states that sample deltas should be unsigned integers
           // in stts boxes, however some streams violate the spec and use signed integers instead.
           // See https://github.com/google/ExoPlayer/issues/3384. It's safe to always decode sample
           // deltas as signed integers here, because unsigned integers will still be parsed
@@ -382,12 +430,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           track, offsets, sizes, maximumSize, timestamps, flags, durationUs);
     }
 
-    // See the BMFF spec (ISO 14496-12) subsection 8.6.6. Edit lists that require prerolling from a
-    // sync sample after reordering are not supported. Partial audio sample truncation is only
-    // supported in edit lists with one edit that removes less than MAX_GAPLESS_TRIM_SIZE_SAMPLES
-    // samples from the start/end of the track. This implementation handles simple
-    // discarding/delaying of samples. The extractor may place further restrictions on what edited
-    // streams are playable.
+    // See the BMFF spec (ISO/IEC 14496-12) subsection 8.6.6. Edit lists that require prerolling
+    // from a sync sample after reordering are not supported. Partial audio sample truncation is
+    // only supported in edit lists with one edit that removes less than
+    // MAX_GAPLESS_TRIM_SIZE_SAMPLES samples from the start/end of the track. This implementation
+    // handles simple discarding/delaying of samples. The extractor may place further restrictions
+    // on what edited streams are playable.
 
     if (track.editListDurations.length == 1
         && track.type == C.TRACK_TYPE_AUDIO
@@ -556,7 +604,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (hdlrAtom == null
         || keysAtom == null
         || ilstAtom == null
-        || AtomParsers.parseHdlr(hdlrAtom.data) != TYPE_mdta) {
+        || parseHdlr(hdlrAtom.data) != TYPE_mdta) {
       // There isn't enough information to parse the metadata, or the handler type is unexpected.
       return null;
     }
@@ -627,7 +675,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Parses a mvhd atom (defined in 14496-12), returning the timescale for the movie.
+   * Parses a mvhd atom (defined in ISO/IEC 14496-12), returning the timescale for the movie.
    *
    * @param mvhd Contents of the mvhd atom to be parsed.
    * @return Timescale for the movie.
@@ -641,7 +689,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Parses a tkhd atom (defined in 14496-12).
+   * Parses a tkhd atom (defined in ISO/IEC 14496-12).
    *
    * @return An object containing the parsed data.
    */
@@ -726,11 +774,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Parses an mdhd atom (defined in 14496-12).
+   * Parses an mdhd atom (defined in ISO/IEC 14496-12).
    *
    * @param mdhd The mdhd atom to decode.
    * @return A pair consisting of the media timescale defined as the number of time units that pass
-   * in one second, and the language code.
+   *     in one second, and the language code.
    */
   private static Pair<Long, String> parseMdhd(ParsableByteArray mdhd) {
     mdhd.setPosition(Atom.HEADER_SIZE);
@@ -749,7 +797,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Parses a stsd atom (defined in 14496-12).
+   * Parses a stsd atom (defined in ISO/IEC 14496-12).
    *
    * @param stsd The stsd atom to decode.
    * @param trackId The track's identifier in its container.
@@ -1025,7 +1073,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Parses the edts atom (defined in 14496-12 subsection 8.6.5).
+   * Parses the edts atom (defined in ISO/IEC 14496-12 subsection 8.6.5).
    *
    * @param edtsAtom edts (edit box) atom to decode.
    * @return Pair of edit list durations and edit list media times, or {@code null} if they are not
@@ -1287,7 +1335,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private static Pair<@NullableType String, byte @NullableType []> parseEsdsFromParent(
       ParsableByteArray parent, int position) {
     parent.setPosition(position + Atom.HEADER_SIZE + 4);
-    // Start of the ES_Descriptor (defined in 14496-1)
+    // Start of the ES_Descriptor (defined in ISO/IEC 14496-1)
     parent.skipBytes(1); // ES_Descriptor tag
     parseExpandableClassSize(parent);
     parent.skipBytes(2); // ES_ID
@@ -1303,11 +1351,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       parent.skipBytes(2);
     }
 
-    // Start of the DecoderConfigDescriptor (defined in 14496-1)
+    // Start of the DecoderConfigDescriptor (defined in ISO/IEC 14496-1)
     parent.skipBytes(1); // DecoderConfigDescriptor tag
     parseExpandableClassSize(parent);
 
-    // Set the MIME type based on the object type indication (14496-1 table 5).
+    // Set the MIME type based on the object type indication (ISO/IEC 14496-1 table 5).
     int objectTypeIndication = parent.readUnsignedByte();
     String mimeType = getMimeTypeFromMp4ObjectType(objectTypeIndication);
     if (MimeTypes.AUDIO_MPEG.equals(mimeType)
@@ -1448,9 +1496,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return null;
   }
 
-  /**
-   * Parses the size of an expandable class, as specified by ISO 14496-1 subsection 8.3.3.
-   */
+  /** Parses the size of an expandable class, as specified by ISO/IEC 14496-1 subsection 8.3.3. */
   private static int parseExpandableClassSize(ParsableByteArray data) {
     int currentByte = data.readUnsignedByte();
     int size = currentByte & 0x7F;

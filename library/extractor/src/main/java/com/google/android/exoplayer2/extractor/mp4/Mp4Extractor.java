@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import static com.google.android.exoplayer2.extractor.mp4.AtomParsers.parseTraks;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -406,8 +408,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
 
     boolean ignoreEditLists = (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0;
-    ArrayList<TrackSampleTable> trackSampleTables =
-        getTrackSampleTables(moov, gaplessInfoHolder, ignoreEditLists);
+    List<TrackSampleTable> trackSampleTables =
+        parseTraks(moov, gaplessInfoHolder, ignoreEditLists, isQuickTime);
 
     int trackCount = trackSampleTables.size();
     for (int i = 0; i < trackCount; i++) {
@@ -446,40 +448,6 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
     extractorOutput.endTracks();
     extractorOutput.seekMap(this);
-  }
-
-  private ArrayList<TrackSampleTable> getTrackSampleTables(
-      ContainerAtom moov, GaplessInfoHolder gaplessInfoHolder, boolean ignoreEditLists)
-      throws ParserException {
-    ArrayList<TrackSampleTable> trackSampleTables = new ArrayList<>();
-    for (int i = 0; i < moov.containerChildren.size(); i++) {
-      Atom.ContainerAtom atom = moov.containerChildren.get(i);
-      if (atom.type != Atom.TYPE_trak) {
-        continue;
-      }
-      @Nullable
-      Track track =
-          AtomParsers.parseTrak(
-              atom,
-              moov.getLeafAtomOfType(Atom.TYPE_mvhd),
-              /* duration= */ C.TIME_UNSET,
-              /* drmInitData= */ null,
-              ignoreEditLists,
-              isQuickTime);
-      if (track == null) {
-        continue;
-      }
-      Atom.ContainerAtom stblAtom =
-          atom.getContainerAtomOfType(Atom.TYPE_mdia)
-              .getContainerAtomOfType(Atom.TYPE_minf)
-              .getContainerAtomOfType(Atom.TYPE_stbl);
-      TrackSampleTable trackSampleTable = AtomParsers.parseStbl(track, stblAtom, gaplessInfoHolder);
-      if (trackSampleTable.sampleCount == 0) {
-        continue;
-      }
-      trackSampleTables.add(trackSampleTable);
-    }
-    return trackSampleTables;
   }
 
   /**
