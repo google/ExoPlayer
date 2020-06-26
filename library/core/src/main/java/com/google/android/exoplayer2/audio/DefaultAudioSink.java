@@ -1286,12 +1286,19 @@ public final class DefaultAudioSink implements AudioSink {
         audioFormat, audioAttributes.getAudioAttributesV21())) {
       return false;
     }
-    if (trimStartFrames > 0 || trimEndFrames > 0) {
-      // TODO(internal b/158191844): Gapless offload is not supported by all devices and there is no
-      // API to query its support.
-      return false;
-    }
-    return true;
+    boolean noGapless = trimStartFrames == 0 && trimEndFrames == 0;
+    return noGapless || isOffloadGaplessSupported();
+  }
+
+  /**
+   * Returns if the device supports gapless in offload playback.
+   *
+   * <p>Gapless offload is not supported by all devices and there is no API to query its support. As
+   * a result this detection is currently based on manual testing. TODO(internal b/158191844): Add
+   * an SDK API to query offload gapless support.
+   */
+  private static boolean isOffloadGaplessSupported() {
+    return Util.SDK_INT >= 30 && Util.MODEL.startsWith("Pixel");
   }
 
   private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
