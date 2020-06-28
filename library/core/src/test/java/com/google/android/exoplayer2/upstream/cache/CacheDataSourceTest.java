@@ -362,7 +362,6 @@ public final class CacheDataSourceTest {
             new CacheDataSource(cache, upstream2),
             unboundedDataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -413,7 +412,6 @@ public final class CacheDataSourceTest {
             new CacheDataSource(cache, upstream2),
             unboundedDataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -439,7 +437,6 @@ public final class CacheDataSourceTest {
             new CacheDataSource(cache, upstream),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -477,7 +474,6 @@ public final class CacheDataSourceTest {
             new CacheDataSource(cache, upstream),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();

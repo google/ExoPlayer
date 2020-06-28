@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.offline;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.util.Assertions;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -94,8 +95,8 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
    */
   public DefaultDownloaderFactory(
       CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {
-    this.cacheDataSourceFactory = cacheDataSourceFactory;
-    this.executor = executor;
+    this.cacheDataSourceFactory = Assertions.checkNotNull(cacheDataSourceFactory);
+    this.executor = Assertions.checkNotNull(executor);
   }
 
   @Override

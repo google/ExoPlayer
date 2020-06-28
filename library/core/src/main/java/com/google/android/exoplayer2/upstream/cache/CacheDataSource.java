@@ -376,8 +376,6 @@ public final class CacheDataSource implements DataSource {
   @Nullable private final DataSource cacheWriteDataSource;
   private final DataSource upstreamDataSource;
   private final CacheKeyFactory cacheKeyFactory;
-  @Nullable private final PriorityTaskManager upstreamPriorityTaskManager;
-  private final int upstreamPriority;
   @Nullable private final EventListener eventListener;
 
   private final boolean blockOnCache;
@@ -513,8 +511,6 @@ public final class CacheDataSource implements DataSource {
     this.ignoreCacheOnError = (flags & FLAG_IGNORE_CACHE_ON_ERROR) != 0;
     this.ignoreCacheForUnsetLengthRequests =
         (flags & FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS) != 0;
-    this.upstreamPriority = upstreamPriority;
-    this.upstreamPriorityTaskManager = upstreamPriorityTaskManager;
     if (upstreamDataSource != null) {
       if (upstreamPriorityTaskManager != null) {
         upstreamDataSource =
@@ -541,24 +537,6 @@ public final class CacheDataSource implements DataSource {
   /** Returns the {@link CacheKeyFactory} used by this instance. */
   public CacheKeyFactory getCacheKeyFactory() {
     return cacheKeyFactory;
-  }
-
-  /**
-   * Returns the {@link PriorityTaskManager} used when there's a cache miss and requests need to be
-   * made to the upstream {@link DataSource}, or {@code null} if there is none.
-   */
-  @Nullable
-  public PriorityTaskManager getUpstreamPriorityTaskManager() {
-    return upstreamPriorityTaskManager;
-  }
-
-  /**
-   * Returns the priority used when there's a cache miss and requests need to be made to the
-   * upstream {@link DataSource}. The priority is only used if the source has a {@link
-   * PriorityTaskManager}.
-   */
-  public int getUpstreamPriority() {
-    return upstreamPriority;
   }
 
   @Override

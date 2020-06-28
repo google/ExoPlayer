@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowExce
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Caching related utility methods. */
 public final class CacheWriter {
@@ -52,7 +51,6 @@ public final class CacheWriter {
   private final Cache cache;
   private final DataSpec dataSpec;
   private final boolean allowShortContent;
-  private final AtomicBoolean isCanceled;
   private final String cacheKey;
   private final byte[] temporaryBuffer;
   @Nullable private final ProgressListener progressListener;
@@ -62,6 +60,8 @@ public final class CacheWriter {
   private long endPosition;
   private long bytesCached;
 
+  private volatile boolean isCanceled;
+
   /**
    * @param dataSource A {@link CacheDataSource} that writes to the target cache.
    * @param dataSpec Defines the data to be written.
@@ -69,9 +69,6 @@ public final class CacheWriter {
    *     defined by the {@link DataSpec}. If {@code true} and the request exceeds the length of the
    *     content, then the content will be cached to the end. If {@code false} and the request
    *     exceeds the length of the content, {@link #cache} will throw an {@link IOException}.
-   * @param isCanceled An optional cancelation signal. If specified, {@link #cache} will check the
-   *     value of this signal frequently during caching. If the value is {@code true}, the operation
-   *     will be considered canceled and {@link #cache} will throw {@link InterruptedIOException}.
    * @param temporaryBuffer A temporary buffer to be used during caching, or {@code null} if the
    *     writer should instantiate its own internal temporary buffer.
    * @param progressListener An optional progress listener.
@@ -80,19 +77,26 @@ public final class CacheWriter {
       CacheDataSource dataSource,
       DataSpec dataSpec,
       boolean allowShortContent,
-      @Nullable AtomicBoolean isCanceled,
       @Nullable byte[] temporaryBuffer,
       @Nullable ProgressListener progressListener) {
     this.dataSource = dataSource;
     this.cache = dataSource.getCache();
     this.dataSpec = dataSpec;
     this.allowShortContent = allowShortContent;
-    this.isCanceled = isCanceled == null ? new AtomicBoolean() : isCanceled;
     this.temporaryBuffer =
         temporaryBuffer == null ? new byte[DEFAULT_BUFFER_SIZE_BYTES] : temporaryBuffer;
     this.progressListener = progressListener;
     cacheKey = dataSource.getCacheKeyFactory().buildCacheKey(dataSpec);
     nextPosition = dataSpec.position;
+  }
+
+  /**
+   * Cancels this writer's caching operation. {@link #cache} checks for cancelation frequently
+   * during execution, and throws an {@link InterruptedIOException} if it sees that the caching
+   * operation has been canceled.
+   */
+  public void cancel() {
+    isCanceled = true;
   }
 
   /**
@@ -230,7 +234,7 @@ public final class CacheWriter {
   }
 
   private void throwIfCanceled() throws InterruptedIOException {
-    if (isCanceled.get()) {
+    if (isCanceled) {
       throw new InterruptedIOException();
     }
   }

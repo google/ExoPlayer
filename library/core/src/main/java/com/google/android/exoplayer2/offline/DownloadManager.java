@@ -1331,7 +1331,7 @@ public final class DownloadManager {
           }
         }
       } catch (InterruptedException e) {
-        // The task was canceled. Do nothing.
+        Thread.currentThread().interrupt();
       } catch (Exception e) {
         finalException = e;
       }

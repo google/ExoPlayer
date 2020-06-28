@@ -116,7 +116,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             new DataSpec(Uri.parse("test_data")),
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -139,7 +138,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -152,7 +150,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             new DataSpec(testUri),
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -176,7 +173,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -201,7 +197,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -214,7 +209,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             new DataSpec(testUri),
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -237,7 +231,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             dataSpec,
             /* allowShortContent= */ true,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -262,7 +255,6 @@ public final class CacheWriterTest {
                         new CacheDataSource(cache, dataSource),
                         dataSpec,
                         /* allowShortContent= */ false,
-                        /* isCanceled= */ null,
                         /* temporaryBuffer= */ null,
                         /* progressListener= */ null)
                     .cache());
@@ -288,7 +280,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             new DataSpec(Uri.parse("test_data")),
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
