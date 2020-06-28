@@ -134,8 +134,8 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
   }
 
   @Override
-  protected List<Segment> getSegments(
-      DataSource dataSource, HlsPlaylist playlist, boolean allowIncompleteList) throws IOException {
+  protected List<Segment> getSegments(DataSource dataSource, HlsPlaylist playlist, boolean removing)
+      throws IOException, InterruptedException {
     ArrayList<DataSpec> mediaPlaylistDataSpecs = new ArrayList<>();
     if (playlist instanceof HlsMasterPlaylist) {
       HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
@@ -151,9 +151,9 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
       segments.add(new Segment(/* startTimeUs= */ 0, mediaPlaylistDataSpec));
       HlsMediaPlaylist mediaPlaylist;
       try {
-        mediaPlaylist = (HlsMediaPlaylist) getManifest(dataSource, mediaPlaylistDataSpec);
+        mediaPlaylist = (HlsMediaPlaylist) getManifest(dataSource, mediaPlaylistDataSpec, removing);
       } catch (IOException e) {
-        if (!allowIncompleteList) {
+        if (!removing) {
           throw e;
         }
         // Generating an incomplete segment list is allowed. Advance to the next media playlist.
