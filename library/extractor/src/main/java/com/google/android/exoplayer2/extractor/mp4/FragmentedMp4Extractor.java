@@ -1246,8 +1246,7 @@ public class FragmentedMp4Extractor implements Extractor {
           return false;
         }
 
-        long nextDataPosition = currentTrackBundle.fragment
-            .trunDataPosition[currentTrackBundle.currentTrackRunIndex];
+        long nextDataPosition = currentTrackBundle.getCurrentSampleOffset();
         // We skip bytes preceding the next sample to read.
         int bytesToSkip = (int) (nextDataPosition - input.getPosition());
         if (bytesToSkip < 0) {
@@ -1259,8 +1258,7 @@ public class FragmentedMp4Extractor implements Extractor {
         this.currentTrackBundle = currentTrackBundle;
       }
 
-      sampleSize = currentTrackBundle.fragment
-          .sampleSizeTable[currentTrackBundle.currentSampleIndex];
+      sampleSize = currentTrackBundle.getCurrentSampleSize();
 
       if (currentTrackBundle.currentSampleIndex < currentTrackBundle.firstSampleToOutputIndex) {
         input.skipFully(sampleSize);
@@ -1293,11 +1291,9 @@ public class FragmentedMp4Extractor implements Extractor {
       sampleCurrentNalBytesRemaining = 0;
     }
 
-    TrackFragment fragment = currentTrackBundle.fragment;
     Track track = currentTrackBundle.track;
     TrackOutput output = currentTrackBundle.output;
-    int sampleIndex = currentTrackBundle.currentSampleIndex;
-    long sampleTimeUs = fragment.getSamplePresentationTimeUs(sampleIndex);
+    long sampleTimeUs = currentTrackBundle.getCurrentSamplePresentationTimeUs();
     if (timestampAdjuster != null) {
       sampleTimeUs = timestampAdjuster.adjustSampleTimestamp(sampleTimeUs);
     }
@@ -1362,14 +1358,12 @@ public class FragmentedMp4Extractor implements Extractor {
       }
     }
 
-    @C.BufferFlags int sampleFlags = fragment.sampleIsSyncFrameTable[sampleIndex]
-        ? C.BUFFER_FLAG_KEY_FRAME : 0;
+    @C.BufferFlags int sampleFlags = currentTrackBundle.getCurrentSampleFlags();
 
     // Encryption data.
     TrackOutput.CryptoData cryptoData = null;
     TrackEncryptionBox encryptionBox = currentTrackBundle.getEncryptionBoxIfEncrypted();
     if (encryptionBox != null) {
-      sampleFlags |= C.BUFFER_FLAG_ENCRYPTED;
       cryptoData = encryptionBox.cryptoData;
     }
 
@@ -1418,7 +1412,7 @@ public class FragmentedMp4Extractor implements Extractor {
       if (trackBundle.currentTrackRunIndex == trackBundle.fragment.trunCount) {
         // This track fragment contains no more runs in the next mdat box.
       } else {
-        long trunOffset = trackBundle.fragment.trunDataPosition[trackBundle.currentTrackRunIndex];
+        long trunOffset = trackBundle.getCurrentSampleOffset();
         if (trunOffset < nextTrackRunOffset) {
           nextTrackBundle = trackBundle;
           nextTrackRunOffset = trunOffset;
@@ -1556,6 +1550,31 @@ public class FragmentedMp4Extractor implements Extractor {
       }
     }
 
+    /** Returns the presentation time of the current sample in microseconds. */
+    public long getCurrentSamplePresentationTimeUs() {
+      return fragment.getSamplePresentationTimeUs(currentSampleIndex);
+    }
+
+    /** Returns the byte offset of the current sample. */
+    public long getCurrentSampleOffset() {
+      return fragment.trunDataPosition[currentTrackRunIndex];
+    }
+
+    /** Returns the size of the current sample in bytes. */
+    public int getCurrentSampleSize() {
+      return fragment.sampleSizeTable[currentSampleIndex];
+    }
+
+    /** Returns the {@link C.BufferFlags} corresponding to the the current sample. */
+    @C.BufferFlags
+    public int getCurrentSampleFlags() {
+      int flags = fragment.sampleIsSyncFrameTable[currentSampleIndex] ? C.BUFFER_FLAG_KEY_FRAME : 0;
+      if (getEncryptionBoxIfEncrypted() != null) {
+        flags |= C.BUFFER_FLAG_ENCRYPTED;
+      }
+      return flags;
+    }
+
     /**
      * Advances the indices in the bundle to point to the next sample in the current fragment. If
      * the current sample is the last one in the current fragment, then the advanced state will be
@@ -1668,7 +1687,7 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     /** Skips the encryption data for the current sample. */
-    private void skipSampleEncryptionData() {
+    public void skipSampleEncryptionData() {
       @Nullable TrackEncryptionBox encryptionBox = getEncryptionBoxIfEncrypted();
       if (encryptionBox == null) {
         return;
@@ -1684,7 +1703,7 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     @Nullable
-    private TrackEncryptionBox getEncryptionBoxIfEncrypted() {
+    public TrackEncryptionBox getEncryptionBoxIfEncrypted() {
       int sampleDescriptionIndex = fragment.header.sampleDescriptionIndex;
       @Nullable
       TrackEncryptionBox encryptionBox =
