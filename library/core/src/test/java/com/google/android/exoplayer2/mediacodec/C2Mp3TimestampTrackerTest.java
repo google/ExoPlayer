@@ -34,7 +34,7 @@ public final class C2Mp3TimestampTrackerTest {
   private static final Format AUDIO_MP3 =
       new Format.Builder()
           .setSampleMimeType(MimeTypes.AUDIO_MPEG)
-          .setPcmEncoding(C.ENCODING_PCM_16BIT)
+          .setEncoding(C.ENCODING_PCM_16BIT)
           .setChannelCount(2)
           .setSampleRate(44_100)
           .build();

@@ -53,7 +53,7 @@ public class MediaCodecAudioRendererTest {
   private static final Format AUDIO_AAC =
       new Format.Builder()
           .setSampleMimeType(MimeTypes.AUDIO_AAC)
-          .setPcmEncoding(C.ENCODING_PCM_16BIT)
+          .setEncoding(C.ENCODING_PCM_16BIT)
           .setChannelCount(2)
           .setSampleRate(44100)
           .setEncoderDelay(100)
@@ -143,24 +143,10 @@ public class MediaCodecAudioRendererTest {
     } while (!mediaCodecAudioRenderer.isEnded());
 
     verify(audioSink)
-        .configure(
-            AUDIO_AAC.pcmEncoding,
-            AUDIO_AAC.channelCount,
-            AUDIO_AAC.sampleRate,
-            /* specifiedBufferSize= */ 0,
-            /* outputChannels= */ null,
-            AUDIO_AAC.encoderDelay,
-            AUDIO_AAC.encoderPadding);
+        .configure(AUDIO_AAC, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
 
     verify(audioSink)
-        .configure(
-            changedFormat.pcmEncoding,
-            changedFormat.channelCount,
-            changedFormat.sampleRate,
-            /* specifiedBufferSize= */ 0,
-            /* outputChannels= */ null,
-            changedFormat.encoderDelay,
-            changedFormat.encoderPadding);
+        .configure(changedFormat, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
   }
 
   @Test
@@ -205,24 +191,10 @@ public class MediaCodecAudioRendererTest {
     } while (!mediaCodecAudioRenderer.isEnded());
 
     verify(audioSink)
-        .configure(
-            AUDIO_AAC.pcmEncoding,
-            AUDIO_AAC.channelCount,
-            AUDIO_AAC.sampleRate,
-            /* specifiedBufferSize= */ 0,
-            /* outputChannels= */ null,
-            AUDIO_AAC.encoderDelay,
-            AUDIO_AAC.encoderPadding);
+        .configure(AUDIO_AAC, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
 
     verify(audioSink)
-        .configure(
-            changedFormat.pcmEncoding,
-            changedFormat.channelCount,
-            changedFormat.sampleRate,
-            /* specifiedBufferSize= */ 0,
-            /* outputChannels= */ null,
-            changedFormat.encoderDelay,
-            changedFormat.encoderPadding);
+        .configure(changedFormat, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
   }
 
   @Test

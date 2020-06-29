@@ -16,7 +16,7 @@ track 0:
     maxInputSize = 8820
     channelCount = 1
     sampleRate = 44100
-    pcmEncoding = 2
+    encoding = 2
   sample 0:
     time = 678790
     flags = 1

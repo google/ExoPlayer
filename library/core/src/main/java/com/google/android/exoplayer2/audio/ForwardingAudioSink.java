@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.audio;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C.Encoding;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import java.nio.ByteBuffer;
@@ -36,8 +35,8 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
-  public boolean supportsOutput(Format format, @Encoding int encoding) {
-    return sink.supportsOutput(format, encoding);
+  public boolean supportsOutput(Format format) {
+    return sink.supportsOutput(format);
   }
 
   @Override
@@ -46,23 +45,9 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
-  public void configure(
-      int inputEncoding,
-      int inputChannelCount,
-      int inputSampleRate,
-      int specifiedBufferSize,
-      @Nullable int[] outputChannels,
-      int trimStartFrames,
-      int trimEndFrames)
+  public void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException {
-    sink.configure(
-        inputEncoding,
-        inputChannelCount,
-        inputSampleRate,
-        specifiedBufferSize,
-        outputChannels,
-        trimStartFrames,
-        trimEndFrames);
+    sink.configure(inputFormat, specifiedBufferSize, outputChannels);
   }
 
   @Override

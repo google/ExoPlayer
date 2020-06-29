@@ -16,7 +16,7 @@ track 0:
     maxInputSize = 16384
     channelCount = 2
     sampleRate = 48000
-    pcmEncoding = 2
+    encoding = 2
     metadata = entries=[Picture: mimeType=image/png, description=]
   sample 0:
     time = 853333

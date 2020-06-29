@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.audio;
 import android.media.AudioTrack;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.C.Encoding;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import java.nio.ByteBuffer;
@@ -26,16 +25,15 @@ import java.nio.ByteBuffer;
 /**
  * A sink that consumes audio data.
  *
- * <p>Before starting playback, specify the input audio format by calling {@link #configure(int,
- * int, int, int, int[], int, int)}.
+ * <p>Before starting playback, specify the input audio format by calling {@link #configure(Format,
+ * int, int[])}.
  *
  * <p>Call {@link #handleBuffer(ByteBuffer, long, int)} to write data, and {@link
  * #handleDiscontinuity()} when the data being fed is discontinuous. Call {@link #play()} to start
  * playing the written data.
  *
- * <p>Call {@link #configure(int, int, int, int, int[], int, int)} whenever the input format
- * changes. The sink will be reinitialized on the next call to {@link #handleBuffer(ByteBuffer,
- * long, int)}.
+ * <p>Call {@link #configure(Format, int, int[])} whenever the input format changes. The sink will
+ * be reinitialized on the next call to {@link #handleBuffer(ByteBuffer, long, int)}.
  *
  * <p>Call {@link #flush()} to prepare the sink to receive audio data from a new playback position.
  *
@@ -188,12 +186,10 @@ public interface AudioSink {
   /**
    * Returns whether the sink supports the audio format.
    *
-   * @param format The format of the audio. {@link Format#pcmEncoding} is ignored and the {@code
-   *     encoding} argument is used instead.
-   * @param encoding The audio encoding, or {@link Format#NO_VALUE} if not known.
+   * @param format The format of the audio.
    * @return Whether the sink supports the audio format.
    */
-  boolean supportsOutput(Format format, @Encoding int encoding);
+  boolean supportsOutput(Format format);
 
   /**
    * Returns the playback position in the stream starting at zero, in microseconds, or
@@ -207,9 +203,7 @@ public interface AudioSink {
   /**
    * Configures (or reconfigures) the sink.
    *
-   * @param inputEncoding The encoding of audio data provided in the input buffers.
-   * @param inputChannelCount The number of channels.
-   * @param inputSampleRate The sample rate in Hz.
+   * @param inputFormat The format of audio data provided in the input buffers.
    * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to infer a
    *     suitable buffer size.
    * @param outputChannels A mapping from input to output channels that is applied to this sink's
@@ -217,20 +211,9 @@ public interface AudioSink {
    *     input unchanged. Otherwise, the element at index {@code i} specifies index of the input
    *     channel to map to output channel {@code i} when preprocessing input buffers. After the map
    *     is applied the audio data will have {@code outputChannels.length} channels.
-   * @param trimStartFrames The number of audio frames to trim from the start of data written to the
-   *     sink after this call.
-   * @param trimEndFrames The number of audio frames to trim from data written to the sink
-   *     immediately preceding the next call to {@link #flush()} or this method.
    * @throws ConfigurationException If an error occurs configuring the sink.
    */
-  void configure(
-      @C.Encoding int inputEncoding,
-      int inputChannelCount,
-      int inputSampleRate,
-      int specifiedBufferSize,
-      @Nullable int[] outputChannels,
-      int trimStartFrames,
-      int trimEndFrames)
+  void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException;
 
   /**
@@ -249,8 +232,8 @@ public interface AudioSink {
    *
    * <p>Returns whether the data was handled in full. If the data was not handled in full then the
    * same {@link ByteBuffer} must be provided to subsequent calls until it has been fully consumed,
-   * except in the case of an intervening call to {@link #flush()} (or to {@link #configure(int,
-   * int, int, int, int[], int, int)} that causes the sink to be flushed).
+   * except in the case of an intervening call to {@link #flush()} (or to {@link #configure(Format,
+   * int, int[])} that causes the sink to be flushed).
    *
    * @param buffer The buffer containing audio data.
    * @param presentationTimeUs The presentation timestamp of the buffer in microseconds.

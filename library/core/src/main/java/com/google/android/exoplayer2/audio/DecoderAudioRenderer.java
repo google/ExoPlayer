@@ -213,10 +213,10 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   /**
    * Returns whether the sink supports the audio format.
    *
-   * @see AudioSink#supportsOutput(Format, int)
+   * @see AudioSink#supportsOutput(Format)
    */
-  protected final boolean supportsOutput(Format format, @C.Encoding int encoding) {
-    return audioSink.supportsOutput(format, encoding);
+  protected final boolean supportsOutput(Format format) {
+    return audioSink.supportsOutput(format);
   }
 
   @Override
@@ -358,9 +358,13 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
     }
 
     if (audioTrackNeedsConfigure) {
-      Format outputFormat = getOutputFormat();
-      audioSink.configure(outputFormat.pcmEncoding, outputFormat.channelCount,
-          outputFormat.sampleRate, 0, null, encoderDelay, encoderPadding);
+      Format outputFormat =
+          getOutputFormat()
+              .buildUpon()
+              .setEncoderDelay(encoderDelay)
+              .setEncoderPadding(encoderPadding)
+              .build();
+      audioSink.configure(outputFormat, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
       audioTrackNeedsConfigure = false;
     }
 

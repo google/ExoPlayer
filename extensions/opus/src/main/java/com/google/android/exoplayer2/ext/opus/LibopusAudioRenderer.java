@@ -69,7 +69,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!supportsOutput(format, C.ENCODING_PCM_16BIT)) {
+    } else if (!supportsOutput(format.buildUpon().setEncoding(C.ENCODING_PCM_16BIT).build())) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (!drmIsSupported) {
       return FORMAT_UNSUPPORTED_DRM;
@@ -103,7 +103,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
         .setSampleMimeType(MimeTypes.AUDIO_RAW)
         .setChannelCount(channelCount)
         .setSampleRate(sampleRate)
-        .setPcmEncoding(C.ENCODING_PCM_16BIT)
+        .setEncoding(C.ENCODING_PCM_16BIT)
         .build();
   }
 }

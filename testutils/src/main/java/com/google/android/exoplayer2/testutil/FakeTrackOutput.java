@@ -312,7 +312,7 @@ public final class FakeTrackOutput implements TrackOutput, Dumper.Dumpable {
       addIfNonDefault(dumper, "pixelWidthHeightRatio", format -> format.pixelWidthHeightRatio);
       addIfNonDefault(dumper, "channelCount", format -> format.channelCount);
       addIfNonDefault(dumper, "sampleRate", format -> format.sampleRate);
-      addIfNonDefault(dumper, "pcmEncoding", format -> format.pcmEncoding);
+      addIfNonDefault(dumper, "encoding", format -> format.encoding);
       addIfNonDefault(dumper, "encoderDelay", format -> format.encoderDelay);
       addIfNonDefault(dumper, "encoderPadding", format -> format.encoderPadding);
       addIfNonDefault(dumper, "subsampleOffsetUs", format -> format.subsampleOffsetUs);
