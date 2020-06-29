@@ -275,9 +275,9 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     @Nullable private final Object replacedInternalPeriodUid;
 
     /**
-     * Returns an instance with a dummy timeline using the provided window tag.
+     * Returns an instance with a dummy timeline using the provided {@link MediaItem}.
      *
-     * @param windowTag A window tag.
+     * @param mediaItem A {@link MediaItem}.
      */
     public static MaskingTimeline createWithDummyTimeline(MediaItem mediaItem) {
       return new MaskingTimeline(
