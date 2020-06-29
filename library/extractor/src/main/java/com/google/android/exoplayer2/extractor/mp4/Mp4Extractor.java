@@ -409,11 +409,21 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
     boolean ignoreEditLists = (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0;
     List<TrackSampleTable> trackSampleTables =
-        parseTraks(moov, gaplessInfoHolder, ignoreEditLists, isQuickTime);
+        parseTraks(
+            moov,
+            gaplessInfoHolder,
+            /* duration= */ C.TIME_UNSET,
+            /* drmInitData= */ null,
+            ignoreEditLists,
+            isQuickTime,
+            /* modifyTrackFunction= */ track -> track);
 
     int trackCount = trackSampleTables.size();
     for (int i = 0; i < trackCount; i++) {
       TrackSampleTable trackSampleTable = trackSampleTables.get(i);
+      if (trackSampleTable.sampleCount == 0) {
+        continue;
+      }
       Track track = trackSampleTable.track;
       long trackDurationUs =
           track.durationUs != C.TIME_UNSET ? track.durationUs : trackSampleTable.durationUs;

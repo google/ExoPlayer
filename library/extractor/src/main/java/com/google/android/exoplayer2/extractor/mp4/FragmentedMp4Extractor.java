@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import static com.google.android.exoplayer2.extractor.mp4.AtomParsers.parseTraks;
+
 import android.util.Pair;
 import android.util.SparseArray;
 import androidx.annotation.IntDef;
@@ -31,6 +33,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -479,33 +482,22 @@ public class FragmentedMp4Extractor implements Extractor {
       }
     }
 
-    // Construction of tracks.
-    SparseArray<Track> tracks = new SparseArray<>();
-    int moovContainerChildrenSize = moov.containerChildren.size();
-    for (int i = 0; i < moovContainerChildrenSize; i++) {
-      Atom.ContainerAtom atom = moov.containerChildren.get(i);
-      if (atom.type == Atom.TYPE_trak) {
-        @Nullable
-        Track track =
-            modifyTrack(
-                AtomParsers.parseTrak(
-                    atom,
-                    moov.getLeafAtomOfType(Atom.TYPE_mvhd),
-                    duration,
-                    drmInitData,
-                    (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0,
-                    false));
-        if (track != null) {
-          tracks.put(track.id, track);
-        }
-      }
-    }
+    // Construction of tracks and sample tables.
+    List<TrackSampleTable> trackSampleTables =
+        parseTraks(
+            moov,
+            new GaplessInfoHolder(),
+            duration,
+            drmInitData,
+            /* ignoreEditLists= */ (flags & FLAG_WORKAROUND_IGNORE_EDIT_LISTS) != 0,
+            /* isQuickTime= */ false,
+            this::modifyTrack);
 
-    int trackCount = tracks.size();
+    int trackCount = trackSampleTables.size();
     if (trackBundles.size() == 0) {
       // We need to create the track bundles.
       for (int i = 0; i < trackCount; i++) {
-        Track track = tracks.valueAt(i);
+        Track track = trackSampleTables.get(i).track;
         TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i, track.type));
         trackBundle.init(track, getDefaultSampleValues(defaultSampleValuesArray, track.id));
         trackBundles.put(track.id, trackBundle);
@@ -516,7 +508,7 @@ public class FragmentedMp4Extractor implements Extractor {
     } else {
       Assertions.checkState(trackBundles.size() == trackCount);
       for (int i = 0; i < trackCount; i++) {
-        Track track = tracks.valueAt(i);
+        Track track = trackSampleTables.get(i).track;
         trackBundles
             .get(track.id)
             .init(track, getDefaultSampleValues(defaultSampleValuesArray, track.id));
@@ -1447,13 +1439,34 @@ public class FragmentedMp4Extractor implements Extractor {
 
   /** Returns whether the extractor should decode a leaf atom with type {@code atom}. */
   private static boolean shouldParseLeafAtom(int atom) {
-    return atom == Atom.TYPE_hdlr || atom == Atom.TYPE_mdhd || atom == Atom.TYPE_mvhd
-        || atom == Atom.TYPE_sidx || atom == Atom.TYPE_stsd || atom == Atom.TYPE_tfdt
-        || atom == Atom.TYPE_tfhd || atom == Atom.TYPE_tkhd || atom == Atom.TYPE_trex
-        || atom == Atom.TYPE_trun || atom == Atom.TYPE_pssh || atom == Atom.TYPE_saiz
-        || atom == Atom.TYPE_saio || atom == Atom.TYPE_senc || atom == Atom.TYPE_uuid
-        || atom == Atom.TYPE_sbgp || atom == Atom.TYPE_sgpd || atom == Atom.TYPE_elst
-        || atom == Atom.TYPE_mehd || atom == Atom.TYPE_emsg;
+    return atom == Atom.TYPE_hdlr
+        || atom == Atom.TYPE_mdhd
+        || atom == Atom.TYPE_mvhd
+        || atom == Atom.TYPE_sidx
+        || atom == Atom.TYPE_stsd
+        || atom == Atom.TYPE_stts
+        || atom == Atom.TYPE_ctts
+        || atom == Atom.TYPE_stsc
+        || atom == Atom.TYPE_stsz
+        || atom == Atom.TYPE_stz2
+        || atom == Atom.TYPE_stco
+        || atom == Atom.TYPE_co64
+        || atom == Atom.TYPE_stss
+        || atom == Atom.TYPE_tfdt
+        || atom == Atom.TYPE_tfhd
+        || atom == Atom.TYPE_tkhd
+        || atom == Atom.TYPE_trex
+        || atom == Atom.TYPE_trun
+        || atom == Atom.TYPE_pssh
+        || atom == Atom.TYPE_saiz
+        || atom == Atom.TYPE_saio
+        || atom == Atom.TYPE_senc
+        || atom == Atom.TYPE_uuid
+        || atom == Atom.TYPE_sbgp
+        || atom == Atom.TYPE_sgpd
+        || atom == Atom.TYPE_elst
+        || atom == Atom.TYPE_mehd
+        || atom == Atom.TYPE_emsg;
   }
 
   /** Returns whether the extractor should decode a container atom with type {@code atom}. */
