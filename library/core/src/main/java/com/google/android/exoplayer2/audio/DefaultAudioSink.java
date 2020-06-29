@@ -419,28 +419,28 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public boolean supportsOutput(Format format, @C.Encoding int encoding) {
-    if (encoding == C.ENCODING_INVALID) {
+  public boolean supportsOutput(Format format) {
+    if (format.encoding == C.ENCODING_INVALID) {
       return false;
     }
-    if (Util.isEncodingLinearPcm(encoding)) {
+    if (Util.isEncodingLinearPcm(format.encoding)) {
       // AudioTrack supports 16-bit integer PCM output in all platform API versions, and float
       // output from platform API version 21 only. Other integer PCM encodings are resampled by this
       // sink to 16-bit PCM. We assume that the audio framework will downsample any number of
       // channels to the output device's required number of channels.
-      return encoding != C.ENCODING_PCM_FLOAT || Util.SDK_INT >= 21;
+      return format.encoding != C.ENCODING_PCM_FLOAT || Util.SDK_INT >= 21;
     }
     if (enableOffload
         && isOffloadedPlaybackSupported(
             format.channelCount,
             format.sampleRate,
-            encoding,
+            format.encoding,
             audioAttributes,
             format.encoderDelay,
             format.encoderPadding)) {
       return true;
     }
-    return isPassthroughPlaybackSupported(encoding, format.channelCount);
+    return isPassthroughPlaybackSupported(format);
   }
 
   @Override
@@ -454,16 +454,9 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public void configure(
-      @C.Encoding int inputEncoding,
-      int inputChannelCount,
-      int inputSampleRate,
-      int specifiedBufferSize,
-      @Nullable int[] outputChannels,
-      int trimStartFrames,
-      int trimEndFrames)
+  public void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException {
-    if (Util.SDK_INT < 21 && inputChannelCount == 8 && outputChannels == null) {
+    if (Util.SDK_INT < 21 && inputFormat.channelCount == 8 && outputChannels == null) {
       // AudioTrack doesn't support 8 channel output before Android L. Discard the last two (side)
       // channels to give a 6 channel stream that is supported.
       outputChannels = new int[6];
@@ -472,24 +465,20 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
 
-    boolean isInputPcm = Util.isEncodingLinearPcm(inputEncoding);
+    boolean isInputPcm = Util.isEncodingLinearPcm(inputFormat.encoding);
     boolean processingEnabled = isInputPcm;
-    int sampleRate = inputSampleRate;
-    int channelCount = inputChannelCount;
-    @C.Encoding int encoding = inputEncoding;
+    int sampleRate = inputFormat.sampleRate;
+    int channelCount = inputFormat.channelCount;
+    @C.Encoding int encoding = inputFormat.encoding;
     boolean useFloatOutput =
         enableFloatOutput
-            && Util.isEncodingHighResolutionPcm(inputEncoding)
-            && supportsOutput(
-                new Format.Builder()
-                    .setChannelCount(inputChannelCount)
-                    .setSampleRate(inputSampleRate)
-                    .build(),
-                C.ENCODING_PCM_FLOAT);
+            && Util.isEncodingHighResolutionPcm(inputFormat.encoding)
+            && supportsOutput(inputFormat.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build());
     AudioProcessor[] availableAudioProcessors =
         useFloatOutput ? toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
     if (processingEnabled) {
-      trimmingAudioProcessor.setTrimFrameCount(trimStartFrames, trimEndFrames);
+      trimmingAudioProcessor.setTrimFrameCount(
+          inputFormat.encoderDelay, inputFormat.encoderPadding);
       channelMappingAudioProcessor.setChannelMap(outputChannels);
       AudioProcessor.AudioFormat outputFormat =
           new AudioProcessor.AudioFormat(sampleRate, channelCount, encoding);
@@ -514,7 +503,9 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     int inputPcmFrameSize =
-        isInputPcm ? Util.getPcmFrameSize(inputEncoding, inputChannelCount) : C.LENGTH_UNSET;
+        isInputPcm
+            ? Util.getPcmFrameSize(inputFormat.encoding, inputFormat.channelCount)
+            : C.LENGTH_UNSET;
     int outputPcmFrameSize =
         isInputPcm ? Util.getPcmFrameSize(encoding, channelCount) : C.LENGTH_UNSET;
     boolean canApplyPlaybackParameters = processingEnabled && !useFloatOutput;
@@ -526,14 +517,14 @@ public final class DefaultAudioSink implements AudioSink {
                 sampleRate,
                 encoding,
                 audioAttributes,
-                trimStartFrames,
-                trimEndFrames);
+                inputFormat.encoderDelay,
+                inputFormat.encoderPadding);
 
     Configuration pendingConfiguration =
         new Configuration(
             isInputPcm,
             inputPcmFrameSize,
-            inputSampleRate,
+            inputFormat.sampleRate,
             outputPcmFrameSize,
             sampleRate,
             outputChannelConfig,
@@ -542,8 +533,8 @@ public final class DefaultAudioSink implements AudioSink {
             processingEnabled,
             canApplyPlaybackParameters,
             availableAudioProcessors,
-            trimStartFrames,
-            trimEndFrames,
+            inputFormat.encoderDelay,
+            inputFormat.encoderPadding,
             useOffload);
     if (isInitialized()) {
       this.pendingConfiguration = pendingConfiguration;
@@ -1253,21 +1244,21 @@ public final class DefaultAudioSink implements AudioSink {
         : writtenEncodedFrames;
   }
 
-  private boolean isPassthroughPlaybackSupported(@C.Encoding int encoding, int channelCount) {
+  private boolean isPassthroughPlaybackSupported(Format format) {
     // Check for encodings that are known to work for passthrough with the implementation in this
     // class. This avoids trying to use passthrough with an encoding where the device/app reports
     // it's capable but it is untested or known to be broken (for example AAC-LC).
     return audioCapabilities != null
-        && audioCapabilities.supportsEncoding(encoding)
-        && (encoding == C.ENCODING_AC3
-            || encoding == C.ENCODING_E_AC3
-            || encoding == C.ENCODING_E_AC3_JOC
-            || encoding == C.ENCODING_AC4
-            || encoding == C.ENCODING_DTS
-            || encoding == C.ENCODING_DTS_HD
-            || encoding == C.ENCODING_DOLBY_TRUEHD)
-        && (channelCount == Format.NO_VALUE
-            || channelCount <= audioCapabilities.getMaxChannelCount());
+        && audioCapabilities.supportsEncoding(format.encoding)
+        && (format.encoding == C.ENCODING_AC3
+            || format.encoding == C.ENCODING_E_AC3
+            || format.encoding == C.ENCODING_E_AC3_JOC
+            || format.encoding == C.ENCODING_AC4
+            || format.encoding == C.ENCODING_DTS
+            || format.encoding == C.ENCODING_DTS_HD
+            || format.encoding == C.ENCODING_DOLBY_TRUEHD)
+        && (format.channelCount == Format.NO_VALUE
+            || format.channelCount <= audioCapabilities.getMaxChannelCount());
   }
 
   private static boolean isOffloadedPlaybackSupported(

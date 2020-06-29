@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.ForwardingAudioSink;
 import com.google.android.exoplayer2.util.Assertions;
@@ -52,25 +53,12 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
   }
 
   @Override
-  public void configure(
-      int inputEncoding,
-      int inputChannelCount,
-      int inputSampleRate,
-      int specifiedBufferSize,
-      @Nullable int[] outputChannels,
-      int trimStartFrames,
-      int trimEndFrames)
+  public void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException {
     interceptedData.add(
-        new DumpableConfiguration(inputEncoding, inputChannelCount, inputSampleRate));
-    super.configure(
-        inputEncoding,
-        inputChannelCount,
-        inputSampleRate,
-        specifiedBufferSize,
-        outputChannels,
-        trimStartFrames,
-        trimEndFrames);
+        new DumpableConfiguration(
+            inputFormat.encoding, inputFormat.channelCount, inputFormat.sampleRate));
+    super.configure(inputFormat, specifiedBufferSize, outputChannels);
   }
 
   @Override

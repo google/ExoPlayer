@@ -2098,7 +2098,7 @@ public class MatroskaExtractor implements Extractor {
         formatBuilder
             .setChannelCount(channelCount)
             .setSampleRate(sampleRate)
-            .setPcmEncoding(pcmEncoding);
+            .setEncoding(pcmEncoding);
       } else if (MimeTypes.isVideo(mimeType)) {
         type = C.TRACK_TYPE_VIDEO;
         if (displayUnit == Track.DISPLAY_UNIT_PIXELS) {

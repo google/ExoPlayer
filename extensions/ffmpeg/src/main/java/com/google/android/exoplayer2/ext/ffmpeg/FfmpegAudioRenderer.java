@@ -137,25 +137,27 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
         .setSampleMimeType(MimeTypes.AUDIO_RAW)
         .setChannelCount(decoder.getChannelCount())
         .setSampleRate(decoder.getSampleRate())
-        .setPcmEncoding(decoder.getEncoding())
+        .setEncoding(decoder.getEncoding())
         .build();
   }
 
   private boolean isOutputSupported(Format inputFormat) {
-    return shouldUseFloatOutput(inputFormat) || supportsOutput(inputFormat, C.ENCODING_PCM_16BIT);
+    return shouldUseFloatOutput(inputFormat)
+        || supportsOutput(inputFormat.buildUpon().setEncoding(C.ENCODING_PCM_16BIT).build());
   }
 
   private boolean shouldUseFloatOutput(Format inputFormat) {
     Assertions.checkNotNull(inputFormat.sampleMimeType);
-    if (!enableFloatOutput || !supportsOutput(inputFormat, C.ENCODING_PCM_FLOAT)) {
+    if (!enableFloatOutput
+        || !supportsOutput(inputFormat.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build())) {
       return false;
     }
     switch (inputFormat.sampleMimeType) {
       case MimeTypes.AUDIO_RAW:
         // For raw audio, output in 32-bit float encoding if the bit depth is > 16-bit.
-        return inputFormat.pcmEncoding == C.ENCODING_PCM_24BIT
-            || inputFormat.pcmEncoding == C.ENCODING_PCM_32BIT
-            || inputFormat.pcmEncoding == C.ENCODING_PCM_FLOAT;
+        return inputFormat.encoding == C.ENCODING_PCM_24BIT
+            || inputFormat.encoding == C.ENCODING_PCM_32BIT
+            || inputFormat.encoding == C.ENCODING_PCM_FLOAT;
       case MimeTypes.AUDIO_AC3:
         // AC-3 is always 16-bit, so there is no point outputting in 32-bit float encoding.
         return false;

@@ -279,7 +279,7 @@ public final class FlacExtractor implements Extractor {
             .setMaxInputSize(streamMetadata.getMaxDecodedFrameSize())
             .setChannelCount(streamMetadata.channels)
             .setSampleRate(streamMetadata.sampleRate)
-            .setPcmEncoding(getPcmEncoding(streamMetadata.bitsPerSample))
+            .setEncoding(getPcmEncoding(streamMetadata.bitsPerSample))
             .setMetadata(metadata)
             .build();
     output.format(mediaFormat);

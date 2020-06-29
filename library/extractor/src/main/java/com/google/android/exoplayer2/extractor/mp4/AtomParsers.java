@@ -294,7 +294,24 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     long timestampTimeUnits = 0;
     long duration;
 
-    if (!isFixedSampleSizeRawAudio) {
+    if (isFixedSampleSizeRawAudio) {
+      long[] chunkOffsetsBytes = new long[chunkIterator.length];
+      int[] chunkSampleCounts = new int[chunkIterator.length];
+      while (chunkIterator.moveNext()) {
+        chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
+        chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
+      }
+      int fixedSampleSize = Util.getPcmFrameSize(track.format.encoding, track.format.channelCount);
+      FixedSampleSizeRechunker.Results rechunkedResults =
+          FixedSampleSizeRechunker.rechunk(
+              fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
+      offsets = rechunkedResults.offsets;
+      sizes = rechunkedResults.sizes;
+      maximumSize = rechunkedResults.maximumSize;
+      timestamps = rechunkedResults.timestamps;
+      flags = rechunkedResults.flags;
+      duration = rechunkedResults.duration;
+    } else {
       offsets = new long[sampleCount];
       sizes = new int[sampleCount];
       timestamps = new long[sampleCount];
@@ -404,23 +421,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 + remainingSamplesAtTimestampOffset
                 + (!isCttsValid ? ", ctts invalid" : ""));
       }
-    } else {
-      long[] chunkOffsetsBytes = new long[chunkIterator.length];
-      int[] chunkSampleCounts = new int[chunkIterator.length];
-      while (chunkIterator.moveNext()) {
-        chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
-        chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
-      }
-      int fixedSampleSize =
-          Util.getPcmFrameSize(track.format.pcmEncoding, track.format.channelCount);
-      FixedSampleSizeRechunker.Results rechunkedResults = FixedSampleSizeRechunker.rechunk(
-          fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
-      offsets = rechunkedResults.offsets;
-      sizes = rechunkedResults.sizes;
-      maximumSize = rechunkedResults.maximumSize;
-      timestamps = rechunkedResults.timestamps;
-      flags = rechunkedResults.flags;
-      duration = rechunkedResults.duration;
     }
     long durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, track.timescale);
 
@@ -1303,7 +1303,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               .setCodecs(codecs)
               .setChannelCount(channelCount)
               .setSampleRate(sampleRate)
-              .setPcmEncoding(pcmEncoding)
+              .setEncoding(pcmEncoding)
               .setInitializationData(
                   initializationData == null ? null : Collections.singletonList(initializationData))
               .setDrmInitData(drmInitData)

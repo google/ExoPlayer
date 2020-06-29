@@ -100,7 +100,7 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
           new FlacStreamMetadata(format.initializationData.get(0), streamMetadataOffset);
       pcmEncoding = Util.getPcmEncoding(streamMetadata.bitsPerSample);
     }
-    if (!supportsOutput(format, pcmEncoding)) {
+    if (!supportsOutput(format.buildUpon().setEncoding(pcmEncoding).build())) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
       return FORMAT_UNSUPPORTED_DRM;
@@ -127,7 +127,7 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
         .setSampleMimeType(MimeTypes.AUDIO_RAW)
         .setChannelCount(streamMetadata.channels)
         .setSampleRate(streamMetadata.sampleRate)
-        .setPcmEncoding(Util.getPcmEncoding(streamMetadata.bitsPerSample))
+        .setEncoding(Util.getPcmEncoding(streamMetadata.bitsPerSample))
         .build();
   }
 }

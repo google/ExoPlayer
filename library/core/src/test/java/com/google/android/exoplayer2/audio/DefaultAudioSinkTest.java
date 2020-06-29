@@ -207,13 +207,15 @@ public final class DefaultAudioSinkTest {
   @Config(minSdk = OLDEST_SDK, maxSdk = 20)
   @Test
   public void doesNotSupportFloatOutputBeforeApi21() {
-    assertThat(defaultAudioSink.supportsOutput(STEREO_44_1_FORMAT, C.ENCODING_PCM_FLOAT)).isFalse();
+    Format floatFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build();
+    assertThat(defaultAudioSink.supportsOutput(floatFormat)).isFalse();
   }
 
   @Config(minSdk = 21, maxSdk = TARGET_SDK)
   @Test
   public void supportsFloatOutputFromApi21() {
-    assertThat(defaultAudioSink.supportsOutput(STEREO_44_1_FORMAT, C.ENCODING_PCM_FLOAT)).isTrue();
+    Format floatFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build();
+    assertThat(defaultAudioSink.supportsOutput(floatFormat)).isTrue();
   }
 
   @Test
@@ -221,7 +223,8 @@ public final class DefaultAudioSinkTest {
     DefaultAudioSink defaultAudioSink =
         new DefaultAudioSink(
             new AudioCapabilities(new int[] {C.ENCODING_AAC_LC}, 2), new AudioProcessor[0]);
-    assertThat(defaultAudioSink.supportsOutput(STEREO_44_1_FORMAT, C.ENCODING_AAC_LC)).isFalse();
+    Format aacLcFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_AAC_LC).build();
+    assertThat(defaultAudioSink.supportsOutput(aacLcFormat)).isFalse();
   }
 
   private void configureDefaultAudioSink(int channelCount) throws AudioSink.ConfigurationException {
@@ -230,14 +233,15 @@ public final class DefaultAudioSinkTest {
 
   private void configureDefaultAudioSink(int channelCount, int trimStartFrames, int trimEndFrames)
       throws AudioSink.ConfigurationException {
-    defaultAudioSink.configure(
-        C.ENCODING_PCM_16BIT,
-        channelCount,
-        SAMPLE_RATE_44_1,
-        /* specifiedBufferSize= */ 0,
-        /* outputChannels= */ null,
-        /* trimStartFrames= */ trimStartFrames,
-        /* trimEndFrames= */ trimEndFrames);
+    Format format =
+        new Format.Builder()
+            .setEncoding(C.ENCODING_PCM_16BIT)
+            .setChannelCount(channelCount)
+            .setSampleRate(SAMPLE_RATE_44_1)
+            .setEncoderDelay(trimStartFrames)
+            .setEncoderPadding(trimEndFrames)
+            .build();
+    defaultAudioSink.configure(format, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
   }
 
   /** Creates a one second silence buffer for 44.1 kHz stereo 16-bit audio. */
