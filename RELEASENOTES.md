@@ -215,8 +215,11 @@
     manipulation API.
 *   Demo app: Retain previous position in list of samples.
 *   Add Guava dependency.
-*   IMA extension: Fix the way 'content complete' is handled to avoid repeatedly
-    refreshing the timeline after playback ends.
+
+### 2.11.7 (2020-06-29) ###
+
+*   IMA extension: Fix the way postroll "content complete" notifications are
+    handled to avoid repeatedly refreshing the timeline after playback ends.
 
 ### 2.11.6 (2020-06-19) ###
 
