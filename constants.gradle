@@ -13,8 +13,8 @@
 // limitations under the License.
 project.ext {
     // ExoPlayer version and version code.
-    releaseVersion = '2.11.6'
-    releaseVersionCode = 2011006
+    releaseVersion = '2.11.7'
+    releaseVersionCode = 2011007
     minSdkVersion = 16
     appTargetSdkVersion = 29
     targetSdkVersion = 28 // TODO: Bump once b/143232359 is resolved

@@ -1,10 +1,11 @@
 # Release notes #
 
-### 2.11.6 (2020-06-24) ###
-*   IMA extension: Fix the way 'content complete' is handled to avoid repeatedly
-    refreshing the timeline after playback ends.
+### 2.11.7 (2020-06-29) ###
 
-### 2.11.6 (2020-06-19) ###
+*   IMA extension: Fix the way postroll "content complete" notifications are
+    handled to avoid repeatedly refreshing the timeline after playback ends.
+
+### 2.11.6 (2020-06-24) ###
 
 *   UI: Prevent `PlayerView` from temporarily hiding the video surface when
     seeking to an unprepared period within the current window. For example when
