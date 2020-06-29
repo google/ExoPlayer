@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.DolbyVisionConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
+import com.google.common.base.Function;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -87,16 +88,23 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    *
    * @param moov Moov atom to decode.
    * @param gaplessInfoHolder Holder to populate with gapless playback information.
+   * @param duration The duration in units of the timescale declared in the mvhd atom, or {@link
+   *     C#TIME_UNSET} if the duration should be parsed from the tkhd atom.
+   * @param drmInitData {@link DrmInitData} to be included in the format, or {@code null}.
    * @param ignoreEditLists Whether to ignore any edit lists in the trak boxes.
    * @param isQuickTime True for QuickTime media. False otherwise.
+   * @param modifyTrackFunction A function to apply to the {@link Track Tracks} in the result.
    * @return A list of {@link TrackSampleTable} instances.
    * @throws ParserException Thrown if the trak atoms can't be parsed.
    */
   public static List<TrackSampleTable> parseTraks(
       Atom.ContainerAtom moov,
       GaplessInfoHolder gaplessInfoHolder,
+      long duration,
+      @Nullable DrmInitData drmInitData,
       boolean ignoreEditLists,
-      boolean isQuickTime)
+      boolean isQuickTime,
+      Function<Track, Track> modifyTrackFunction)
       throws ParserException {
     List<TrackSampleTable> trackSampleTables = new ArrayList<>();
     for (int i = 0; i < moov.containerChildren.size(); i++) {
@@ -106,13 +114,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
       @Nullable
       Track track =
-          parseTrak(
-              atom,
-              moov.getLeafAtomOfType(Atom.TYPE_mvhd),
-              /* duration= */ C.TIME_UNSET,
-              /* drmInitData= */ null,
-              ignoreEditLists,
-              isQuickTime);
+          modifyTrackFunction.apply(
+              parseTrak(
+                  atom,
+                  moov.getLeafAtomOfType(Atom.TYPE_mvhd),
+                  duration,
+                  drmInitData,
+                  ignoreEditLists,
+                  isQuickTime));
       if (track == null) {
         continue;
       }
@@ -121,12 +130,93 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               .getContainerAtomOfType(Atom.TYPE_minf)
               .getContainerAtomOfType(Atom.TYPE_stbl);
       TrackSampleTable trackSampleTable = parseStbl(track, stblAtom, gaplessInfoHolder);
-      if (trackSampleTable.sampleCount == 0) {
-        continue;
-      }
       trackSampleTables.add(trackSampleTable);
     }
     return trackSampleTables;
+  }
+
+  /**
+   * Parses a udta atom.
+   *
+   * @param udtaAtom The udta (user data) atom to decode.
+   * @param isQuickTime True for QuickTime media. False otherwise.
+   * @return Parsed metadata, or null.
+   */
+  @Nullable
+  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
+    if (isQuickTime) {
+      // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
+      // decode one.
+      return null;
+    }
+    ParsableByteArray udtaData = udtaAtom.data;
+    udtaData.setPosition(Atom.HEADER_SIZE);
+    while (udtaData.bytesLeft() >= Atom.HEADER_SIZE) {
+      int atomPosition = udtaData.getPosition();
+      int atomSize = udtaData.readInt();
+      int atomType = udtaData.readInt();
+      if (atomType == Atom.TYPE_meta) {
+        udtaData.setPosition(atomPosition);
+        return parseUdtaMeta(udtaData, atomPosition + atomSize);
+      }
+      udtaData.setPosition(atomPosition + atomSize);
+    }
+    return null;
+  }
+
+  /**
+   * Parses a metadata meta atom if it contains metadata with handler 'mdta'.
+   *
+   * @param meta The metadata atom to decode.
+   * @return Parsed metadata, or null.
+   */
+  @Nullable
+  public static Metadata parseMdtaFromMeta(Atom.ContainerAtom meta) {
+    @Nullable Atom.LeafAtom hdlrAtom = meta.getLeafAtomOfType(Atom.TYPE_hdlr);
+    @Nullable Atom.LeafAtom keysAtom = meta.getLeafAtomOfType(Atom.TYPE_keys);
+    @Nullable Atom.LeafAtom ilstAtom = meta.getLeafAtomOfType(Atom.TYPE_ilst);
+    if (hdlrAtom == null
+        || keysAtom == null
+        || ilstAtom == null
+        || parseHdlr(hdlrAtom.data) != TYPE_mdta) {
+      // There isn't enough information to parse the metadata, or the handler type is unexpected.
+      return null;
+    }
+
+    // Parse metadata keys.
+    ParsableByteArray keys = keysAtom.data;
+    keys.setPosition(Atom.FULL_HEADER_SIZE);
+    int entryCount = keys.readInt();
+    String[] keyNames = new String[entryCount];
+    for (int i = 0; i < entryCount; i++) {
+      int entrySize = keys.readInt();
+      keys.skipBytes(4); // keyNamespace
+      int keySize = entrySize - 8;
+      keyNames[i] = keys.readString(keySize);
+    }
+
+    // Parse metadata items.
+    ParsableByteArray ilst = ilstAtom.data;
+    ilst.setPosition(Atom.HEADER_SIZE);
+    ArrayList<Metadata.Entry> entries = new ArrayList<>();
+    while (ilst.bytesLeft() > Atom.HEADER_SIZE) {
+      int atomPosition = ilst.getPosition();
+      int atomSize = ilst.readInt();
+      int keyIndex = ilst.readInt() - 1;
+      if (keyIndex >= 0 && keyIndex < keyNames.length) {
+        String key = keyNames[keyIndex];
+        @Nullable
+        Metadata.Entry entry =
+            MetadataUtil.parseMdtaMetadataEntryFromIlst(ilst, atomPosition + atomSize, key);
+        if (entry != null) {
+          entries.add(entry);
+        }
+      } else {
+        Log.w(TAG, "Skipped metadata with unknown key index: " + keyIndex);
+      }
+      ilst.setPosition(atomPosition + atomSize);
+    }
+    return entries.isEmpty() ? null : new Metadata(entries);
   }
 
   /**
@@ -143,7 +233,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @throws ParserException Thrown if the trak atom can't be parsed.
    */
   @Nullable
-  public static Track parseTrak(
+  private static Track parseTrak(
       Atom.ContainerAtom trak,
       Atom.LeafAtom mvhd,
       long duration,
@@ -201,7 +291,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @return Sample table described by the stbl atom.
    * @throws ParserException Thrown if the stbl atom can't be parsed.
    */
-  public static TrackSampleTable parseStbl(
+  private static TrackSampleTable parseStbl(
       Track track, Atom.ContainerAtom stblAtom, GaplessInfoHolder gaplessInfoHolder)
       throws ParserException {
     SampleSizeBox sampleSizeBox;
@@ -559,90 +649,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         editedTimestamps,
         editedFlags,
         editedDurationUs);
-  }
-
-  /**
-   * Parses a udta atom.
-   *
-   * @param udtaAtom The udta (user data) atom to decode.
-   * @param isQuickTime True for QuickTime media. False otherwise.
-   * @return Parsed metadata, or null.
-   */
-  @Nullable
-  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
-    if (isQuickTime) {
-      // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
-      // decode one.
-      return null;
-    }
-    ParsableByteArray udtaData = udtaAtom.data;
-    udtaData.setPosition(Atom.HEADER_SIZE);
-    while (udtaData.bytesLeft() >= Atom.HEADER_SIZE) {
-      int atomPosition = udtaData.getPosition();
-      int atomSize = udtaData.readInt();
-      int atomType = udtaData.readInt();
-      if (atomType == Atom.TYPE_meta) {
-        udtaData.setPosition(atomPosition);
-        return parseUdtaMeta(udtaData, atomPosition + atomSize);
-      }
-      udtaData.setPosition(atomPosition + atomSize);
-    }
-    return null;
-  }
-
-  /**
-   * Parses a metadata meta atom if it contains metadata with handler 'mdta'.
-   *
-   * @param meta The metadata atom to decode.
-   * @return Parsed metadata, or null.
-   */
-  @Nullable
-  public static Metadata parseMdtaFromMeta(Atom.ContainerAtom meta) {
-    @Nullable Atom.LeafAtom hdlrAtom = meta.getLeafAtomOfType(Atom.TYPE_hdlr);
-    @Nullable Atom.LeafAtom keysAtom = meta.getLeafAtomOfType(Atom.TYPE_keys);
-    @Nullable Atom.LeafAtom ilstAtom = meta.getLeafAtomOfType(Atom.TYPE_ilst);
-    if (hdlrAtom == null
-        || keysAtom == null
-        || ilstAtom == null
-        || parseHdlr(hdlrAtom.data) != TYPE_mdta) {
-      // There isn't enough information to parse the metadata, or the handler type is unexpected.
-      return null;
-    }
-
-    // Parse metadata keys.
-    ParsableByteArray keys = keysAtom.data;
-    keys.setPosition(Atom.FULL_HEADER_SIZE);
-    int entryCount = keys.readInt();
-    String[] keyNames = new String[entryCount];
-    for (int i = 0; i < entryCount; i++) {
-      int entrySize = keys.readInt();
-      keys.skipBytes(4); // keyNamespace
-      int keySize = entrySize - 8;
-      keyNames[i] = keys.readString(keySize);
-    }
-
-    // Parse metadata items.
-    ParsableByteArray ilst = ilstAtom.data;
-    ilst.setPosition(Atom.HEADER_SIZE);
-    ArrayList<Metadata.Entry> entries = new ArrayList<>();
-    while (ilst.bytesLeft() > Atom.HEADER_SIZE) {
-      int atomPosition = ilst.getPosition();
-      int atomSize = ilst.readInt();
-      int keyIndex = ilst.readInt() - 1;
-      if (keyIndex >= 0 && keyIndex < keyNames.length) {
-        String key = keyNames[keyIndex];
-        @Nullable
-        Metadata.Entry entry =
-            MetadataUtil.parseMdtaMetadataEntryFromIlst(ilst, atomPosition + atomSize, key);
-        if (entry != null) {
-          entries.add(entry);
-        }
-      } else {
-        Log.w(TAG, "Skipped metadata with unknown key index: " + keyIndex);
-      }
-      ilst.setPosition(atomPosition + atomSize);
-    }
-    return entries.isEmpty() ? null : new Metadata(entries);
   }
 
   @Nullable
