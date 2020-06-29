@@ -374,16 +374,16 @@ public class FragmentedMp4Extractor implements Extractor {
         fragment.auxiliaryDataPosition = atomPosition;
         fragment.dataPosition = atomPosition;
       }
+      if (!haveOutputSeekMap) {
+        // This must be the first moof in the stream.
+        extractorOutput.seekMap(new SeekMap.Unseekable(durationUs, atomPosition));
+        haveOutputSeekMap = true;
+      }
     }
 
     if (atomType == Atom.TYPE_mdat) {
       currentTrackBundle = null;
       endOfMdatPosition = atomPosition + atomSize;
-      if (!haveOutputSeekMap) {
-        // This must be the first mdat in the stream.
-        extractorOutput.seekMap(new SeekMap.Unseekable(durationUs, atomPosition));
-        haveOutputSeekMap = true;
-      }
       parserState = STATE_READING_ENCRYPTION_DATA;
       return true;
     }

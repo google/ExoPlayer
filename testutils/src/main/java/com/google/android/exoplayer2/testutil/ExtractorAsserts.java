@@ -341,21 +341,25 @@ public final class ExtractorAsserts {
       extractorOutput.assertOutput(context, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
     }
 
-    // If the SeekMap is seekable, test seeking in the stream.
     SeekMap seekMap = Assertions.checkNotNull(extractorOutput.seekMap);
-    if (seekMap.isSeekable()) {
-      long durationUs = seekMap.getDurationUs();
-      for (int j = 0; j < 4; j++) {
-        extractorOutput.clearTrackOutputs();
-        long timeUs = durationUs == C.TIME_UNSET ? 0 : (durationUs * j) / 3;
-        long position = seekMap.getSeekPoints(timeUs).first.position;
-        input.reset();
-        input.setPosition((int) position);
-        consumeTestData(extractor, input, timeUs, extractorOutput, false);
+    long durationUs = seekMap.getDurationUs();
+    // Only seek to the timeUs=0 if the SeekMap is unseekable or the duration is unknown.
+    int numberSeekTests = seekMap.isSeekable() && durationUs != C.TIME_UNSET ? 4 : 1;
+    for (int j = 0; j < numberSeekTests; j++) {
+      long timeUs = durationUs * j / 3;
+      long position = seekMap.getSeekPoints(timeUs).first.position;
+      if (timeUs == 0 && position == 0) {
+        // Already tested.
+        continue;
+      }
+      input.reset();
+      input.setPosition((int) position);
+      extractorOutput.clearTrackOutputs();
+      consumeTestData(extractor, input, timeUs, extractorOutput, false);
+      if (simulateUnknownLength && timeUs == 0) {
+        extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
+      } else {
         extractorOutput.assertOutput(context, dumpFilesPrefix + '.' + j + DUMP_EXTENSION);
-        if (durationUs == C.TIME_UNSET) {
-          break;
-        }
       }
     }
   }
