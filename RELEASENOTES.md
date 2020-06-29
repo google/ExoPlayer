@@ -145,7 +145,10 @@
         ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
     *   Remove generics from DRM components.
 *   Downloads and caching:
-    *   Merge downloads in `SegmentDownloader` to improve overall download speed
+    *   Support passing an `Executor` to `DefaultDownloaderFactory` on which
+        data downloads are performed.
+    *   Parallelize and merge downloads in `SegmentDownloader` to improve
+        overall download speed
         ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
     *   Support multiple non-overlapping write locks for the same key in
         `SimpleCache`.

@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Executors;
 
 /**
  * Placeholder application to facilitate overriding Application methods for debugging and testing.
@@ -129,7 +130,11 @@ public class DemoApplication extends MultiDexApplication {
           DOWNLOAD_TRACKER_ACTION_FILE, downloadIndex, /* addNewDownloadsAsCompleted= */ true);
       downloadManager =
           new DownloadManager(
-              this, getDatabaseProvider(), getDownloadCache(), buildHttpDataSourceFactory());
+              this,
+              getDatabaseProvider(),
+              getDownloadCache(),
+              buildHttpDataSourceFactory(),
+              Executors.newFixedThreadPool(/* nThreads= */ 6));
       downloadTracker =
           new DownloadTracker(/* context= */ this, buildDataSourceFactory(), downloadManager);
     }

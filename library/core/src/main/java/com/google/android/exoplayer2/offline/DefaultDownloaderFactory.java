@@ -79,7 +79,9 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
    *
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which
    *     downloads will be written.
+   * @deprecated Use {@link #DefaultDownloaderFactory(CacheDataSource.Factory, Executor)}.
    */
+  @Deprecated
   public DefaultDownloaderFactory(CacheDataSource.Factory cacheDataSourceFactory) {
     this(cacheDataSourceFactory, Runnable::run);
   }
@@ -89,9 +91,10 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
    *
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which
    *     downloads will be written.
-   * @param executor An {@link Executor} used to make requests for media being downloaded. Providing
-   *     an {@link Executor} that uses multiple threads will speed up download tasks that can be
-   *     split into smaller parts for parallel execution.
+   * @param executor An {@link Executor} used to download data. Passing {@code Runnable::run} will
+   *     cause each download task to download data on its own thread. Passing an {@link Executor}
+   *     that uses multiple threads will speed up download tasks that can be split into smaller
+   *     parts for parallel execution.
    */
   public DefaultDownloaderFactory(
       CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {

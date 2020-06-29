@@ -159,6 +159,8 @@ public abstract class RunnableFutureTask<R, E extends Exception> implements Runn
     // Do nothing.
   }
 
+  // The return value is guaranteed to be non-null if and only if R is a non-null type, but there's
+  // no way to assert this. Suppress the warning instead.
   @SuppressWarnings("return.type.incompatible")
   @UnknownNull
   private R getResult() throws ExecutionException {
