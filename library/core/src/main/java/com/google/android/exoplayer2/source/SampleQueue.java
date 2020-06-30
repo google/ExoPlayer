@@ -503,13 +503,23 @@ public class SampleQueue implements TrackOutput {
     if (upstreamFormatAdjustmentRequired) {
       format(Assertions.checkStateNotNull(unadjustedUpstreamFormat));
     }
+
+    boolean isKeyframe = (flags & C.BUFFER_FLAG_KEY_FRAME) != 0;
+    if (upstreamKeyframeRequired) {
+      if (!isKeyframe) {
+        return;
+      }
+      upstreamKeyframeRequired = false;
+    }
+
     timeUs += sampleOffsetUs;
     if (pendingSplice) {
-      if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0 || !attemptSplice(timeUs)) {
+      if (!isKeyframe || !attemptSplice(timeUs)) {
         return;
       }
       pendingSplice = false;
     }
+
     long absoluteOffset = sampleDataQueue.getTotalBytesWritten() - size - offset;
     commitSample(timeUs, flags, absoluteOffset, size, cryptoData);
   }
@@ -676,14 +686,6 @@ public class SampleQueue implements TrackOutput {
       long offset,
       int size,
       @Nullable CryptoData cryptoData) {
-    if (upstreamKeyframeRequired) {
-      if ((sampleFlags & C.BUFFER_FLAG_KEY_FRAME) == 0) {
-        return;
-      }
-      upstreamKeyframeRequired = false;
-    }
-    Assertions.checkState(!upstreamFormatRequired);
-
     isLastSampleQueued = (sampleFlags & C.BUFFER_FLAG_LAST_SAMPLE) != 0;
     largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timeUs);
 

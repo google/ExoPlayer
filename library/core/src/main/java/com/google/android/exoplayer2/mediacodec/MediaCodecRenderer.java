@@ -401,7 +401,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private long lastBufferInStreamPresentationTimeUs;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private boolean waitingForFirstSyncSample;
   private boolean waitingForFirstSampleInFormat;
   private boolean pendingOutputEndOfStream;
   @MediaCodecOperationMode private int mediaCodecOperationMode;
@@ -893,7 +892,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecHotswapDeadlineMs = C.TIME_UNSET;
     codecReceivedEos = false;
     codecReceivedBuffers = false;
-    waitingForFirstSyncSample = true;
     codecNeedsAdaptationWorkaroundBuffer = false;
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
     isDecodeOnlyOutputBuffer = false;
@@ -1319,19 +1317,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
       return false;
     }
-
-    // TODO: This code block may be unnecessary, because it's probably the case that the buffer will
-    // always be a keyframe if waitingForFirstSyncSample is true. Check this, and remove if so.
-    if (waitingForFirstSyncSample && !buffer.isKeyFrame()) {
-      buffer.clear();
-      if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
-        // The buffer we just cleared contained reconfiguration data. We need to re-write this
-        // data into a subsequent buffer (if there is one).
-        codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
-      }
-      return true;
-    }
-    waitingForFirstSyncSample = false;
 
     boolean bufferEncrypted = buffer.isEncrypted();
     if (bufferEncrypted) {
