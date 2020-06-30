@@ -61,6 +61,7 @@ import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -873,9 +874,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     upstreamTrackFormat = chunk.trackFormat;
     pendingResetPositionUs = C.TIME_UNSET;
     mediaChunks.add(chunk);
-    chunk.init(/* output= */ this, sampleQueues);
+    ImmutableList.Builder<Integer> sampleQueueWriteIndicesBuilder = ImmutableList.builder();
+    for (SampleQueue sampleQueue : sampleQueues) {
+      sampleQueueWriteIndicesBuilder.add(sampleQueue.getWriteIndex());
+    }
+    chunk.init(/* output= */ this, sampleQueueWriteIndicesBuilder.build());
     for (HlsSampleQueue sampleQueue : sampleQueues) {
       sampleQueue.setSourceChunk(chunk);
+      if (chunk.shouldSpliceIn) {
+        sampleQueue.splice();
+      }
     }
   }
 
@@ -884,7 +892,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     int newQueueSize = C.LENGTH_UNSET;
     for (int i = preferredQueueSize; i < mediaChunks.size(); i++) {
-      if (!haveReadFromMediaChunkDiscardRange(i)) {
+      if (canDiscardUpstreamMediaChunksFromIndex(i)) {
         newQueueSize = i;
         break;
       }
@@ -1102,23 +1110,32 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return true;
   }
 
-  private boolean haveReadFromMediaChunkDiscardRange(int mediaChunkIndex) {
-    HlsMediaChunk mediaChunk = mediaChunks.get(mediaChunkIndex);
-    for (SampleQueue sampleQueue : sampleQueues) {
-      int discardFromIndex = mediaChunk.getSampleQueueDiscardFromIndex(sampleQueue);
-      if (sampleQueue.getReadIndex() > discardFromIndex) {
-        return true;
+  private boolean canDiscardUpstreamMediaChunksFromIndex(int mediaChunkIndex) {
+    for (int i = mediaChunkIndex; i < mediaChunks.size(); i++) {
+      if (mediaChunks.get(i).shouldSpliceIn) {
+        // Discarding not possible because a spliced-in chunk potentially removed sample metadata
+        // from the previous chunks.
+        // TODO: Keep sample metadata to allow restoring these chunks [internal b/159904763].
+        return false;
       }
     }
-    return false;
+    HlsMediaChunk mediaChunk = mediaChunks.get(mediaChunkIndex);
+    for (int i = 0; i < sampleQueues.length; i++) {
+      int discardFromIndex = mediaChunk.getFirstSampleIndex(/* sampleQueueIndex= */ i);
+      if (sampleQueues[i].getReadIndex() > discardFromIndex) {
+        // Discarding not possible because we already read from the chunk.
+        return false;
+      }
+    }
+    return true;
   }
 
   private HlsMediaChunk discardUpstreamMediaChunksFromIndex(int chunkIndex) {
     HlsMediaChunk firstRemovedChunk = mediaChunks.get(chunkIndex);
     Util.removeRange(mediaChunks, /* fromIndex= */ chunkIndex, /* toIndex= */ mediaChunks.size());
-    for (SampleQueue sampleQueue : sampleQueues) {
-      int discardFromIndex = firstRemovedChunk.getSampleQueueDiscardFromIndex(sampleQueue);
-      sampleQueue.discardUpstreamSamples(discardFromIndex);
+    for (int i = 0; i < sampleQueues.length; i++) {
+      int discardFromIndex = firstRemovedChunk.getFirstSampleIndex(/* sampleQueueIndex= */ i);
+      sampleQueues[i].discardUpstreamSamples(discardFromIndex);
     }
     return firstRemovedChunk;
   }

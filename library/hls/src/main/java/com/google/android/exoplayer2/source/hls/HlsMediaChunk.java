@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
-import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -35,7 +34,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -132,7 +131,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     Id3Decoder id3Decoder;
     ParsableByteArray scratchId3Data;
     boolean shouldSpliceIn;
-    ImmutableMap<SampleQueue, Integer> sampleQueueDiscardFromIndices = ImmutableMap.of();
     if (previousChunk != null) {
       boolean isFollowingChunk =
           playlistUrl.equals(previousChunk.playlistUrl) && previousChunk.loadCompleted;
@@ -143,9 +141,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               || (mediaPlaylist.hasIndependentSegments
                   && segmentStartTimeInPeriodUs >= previousChunk.endTimeUs);
       shouldSpliceIn = !canContinueWithoutSplice;
-      if (shouldSpliceIn) {
-        sampleQueueDiscardFromIndices = previousChunk.sampleQueueDiscardFromIndices;
-      }
       previousExtractor =
           isFollowingChunk
                   && previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
@@ -181,8 +176,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         previousExtractor,
         id3Decoder,
         scratchId3Data,
-        shouldSpliceIn,
-        sampleQueueDiscardFromIndices);
+        shouldSpliceIn);
   }
 
   public static final String PRIV_TIMESTAMP_FRAME_OWNER =
@@ -203,6 +197,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /** The url of the playlist from which this chunk was obtained. */
   public final Uri playlistUrl;
 
+  /** Whether samples for this chunk should be spliced into existing samples. */
+  public final boolean shouldSpliceIn;
+
   @Nullable private final DataSource initDataSource;
   @Nullable private final DataSpec initDataSpec;
   @Nullable private final HlsMediaChunkExtractor previousExtractor;
@@ -217,7 +214,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final ParsableByteArray scratchId3Data;
   private final boolean mediaSegmentEncrypted;
   private final boolean initSegmentEncrypted;
-  private final boolean shouldSpliceIn;
 
   private @MonotonicNonNull HlsMediaChunkExtractor extractor;
   private @MonotonicNonNull HlsSampleStreamWrapper output;
@@ -227,7 +223,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean initDataLoadRequired;
   private volatile boolean loadCanceled;
   private boolean loadCompleted;
-  private ImmutableMap<SampleQueue, Integer> sampleQueueDiscardFromIndices;
+  private ImmutableList<Integer> sampleQueueFirstSampleIndices;
 
   private HlsMediaChunk(
       HlsExtractorFactory extractorFactory,
@@ -253,8 +249,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable HlsMediaChunkExtractor previousExtractor,
       Id3Decoder id3Decoder,
       ParsableByteArray scratchId3Data,
-      boolean shouldSpliceIn,
-      ImmutableMap<SampleQueue, Integer> sampleQueueDiscardFromIndices) {
+      boolean shouldSpliceIn) {
     super(
         mediaDataSource,
         dataSpec,
@@ -281,7 +276,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.id3Decoder = id3Decoder;
     this.scratchId3Data = scratchId3Data;
     this.shouldSpliceIn = shouldSpliceIn;
-    this.sampleQueueDiscardFromIndices = sampleQueueDiscardFromIndices;
+    sampleQueueFirstSampleIndices = ImmutableList.of();
     uid = uidSource.getAndIncrement();
   }
 
@@ -289,35 +284,29 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * Initializes the chunk for loading.
    *
    * @param output The {@link HlsSampleStreamWrapper} that will receive the loaded samples.
-   * @param sampleQueues The {@link SampleQueue sampleQueues} with already loaded samples.
+   * @param sampleQueueWriteIndices The current write indices in the existing sample queues of the
+   *     output.
    */
-  public void init(HlsSampleStreamWrapper output, SampleQueue[] sampleQueues) {
+  public void init(HlsSampleStreamWrapper output, ImmutableList<Integer> sampleQueueWriteIndices) {
     this.output = output;
-    if (shouldSpliceIn) {
-      for (SampleQueue sampleQueue : sampleQueues) {
-        sampleQueue.splice();
-      }
-      // sampleQueueDiscardFromIndices already set to values of previous chunk in constructor.
-    } else {
-      ImmutableMap.Builder<SampleQueue, Integer> mapBuilder = ImmutableMap.builder();
-      for (SampleQueue sampleQueue : sampleQueues) {
-        mapBuilder.put(sampleQueue, sampleQueue.getWriteIndex());
-      }
-      sampleQueueDiscardFromIndices = mapBuilder.build();
-    }
+    this.sampleQueueFirstSampleIndices = sampleQueueWriteIndices;
   }
 
   /**
-   * Returns the absolute index from which samples need to be discarded in the given {@link
-   * SampleQueue} when this media chunk is discarded.
+   * Returns the first sample index of this chunk in the specified sample queue in the output.
    *
-   * @param sampleQueue The {@link SampleQueue}.
-   * @return The absolute index from which samples need to be discarded.
+   * <p>Must not be used if {@link #shouldSpliceIn} is true.
+   *
+   * @param sampleQueueIndex The index of the sample queue in the output.
+   * @return The first sample index of this chunk in the specified sample queue.
    */
-  int getSampleQueueDiscardFromIndex(SampleQueue sampleQueue) {
-    // If the sample queue was created by this chunk or a later chunk, return 0 to discard the whole
-    // stream from the beginning.
-    return sampleQueueDiscardFromIndices.getOrDefault(sampleQueue, /* defaultValue= */ 0);
+  int getFirstSampleIndex(int sampleQueueIndex) {
+    Assertions.checkState(!shouldSpliceIn);
+    if (sampleQueueIndex >= sampleQueueFirstSampleIndices.size()) {
+      // The sample queue was created by this chunk or a later chunk.
+      return 0;
+    }
+    return sampleQueueFirstSampleIndices.get(sampleQueueIndex);
   }
 
   @Override
