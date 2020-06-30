@@ -127,11 +127,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Corresponding method: {@link #setShowShuffleButton(boolean)}
  *         <li>Default: false
  *       </ul>
- *   <li><b>{@code disable_animation}</b> - Whether animation is applied when hide and show
- *       controls.
+ *   <li><b>{@code animation_enabled}</b> - Whether an animation is used to show and hide the
+ *       playback controls.
  *       <ul>
- *         <li>Corresponding method: None
- *         <li>Default: false
+ *         <li>Corresponding method: {@link #setAnimationEnabled(boolean)}
+ *         <li>Default: true
  *       </ul>
  *   <li><b>{@code time_bar_min_update_interval}</b> - Specifies the minimum interval between time
  *       bar position updates.
@@ -471,8 +471,7 @@ public class StyledPlayerControlView extends FrameLayout {
     showNextButton = true;
     showShuffleButton = false;
     showSubtitleButton = false;
-    boolean disableAnimation = false;
-
+    boolean animationEnabled = true;
     boolean showVrButton = false;
 
     if (playbackAttrs != null) {
@@ -512,15 +511,15 @@ public class StyledPlayerControlView extends FrameLayout {
             a.getInt(
                 R.styleable.StyledPlayerControlView_time_bar_min_update_interval,
                 timeBarMinUpdateIntervalMs));
-        disableAnimation =
-            a.getBoolean(R.styleable.StyledPlayerControlView_disable_animation, disableAnimation);
+        animationEnabled =
+            a.getBoolean(R.styleable.StyledPlayerControlView_animation_enabled, animationEnabled);
       } finally {
         a.recycle();
       }
     }
 
     controlViewLayoutManager = new StyledPlayerControlViewLayoutManager();
-    controlViewLayoutManager.setDisableAnimation(disableAnimation);
+    controlViewLayoutManager.setAnimationEnabled(animationEnabled);
     visibilityListeners = new CopyOnWriteArrayList<>();
     period = new Timeline.Period();
     window = new Timeline.Window();
@@ -1029,6 +1028,20 @@ public class StyledPlayerControlView extends FrameLayout {
       vrButton.setOnClickListener(onClickListener);
       updateButton(getShowVrButton(), onClickListener != null, vrButton);
     }
+  }
+
+  /**
+   * Sets whether an animation is used to show and hide the playback controls.
+   *
+   * @param animationEnabled Whether an animation is applied to show and hide playback controls.
+   */
+  public void setAnimationEnabled(boolean animationEnabled) {
+    controlViewLayoutManager.setAnimationEnabled(animationEnabled);
+  }
+
+  /** Returns whether an animation is used to show and hide the playback controls. */
+  public boolean isAnimationEnabled() {
+    return controlViewLayoutManager.isAnimationEnabled();
   }
 
   /**

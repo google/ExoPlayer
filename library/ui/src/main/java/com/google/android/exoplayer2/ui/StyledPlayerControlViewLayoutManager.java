@@ -50,7 +50,7 @@ import java.util.ArrayList;
   private int uxState = UX_STATE_ALL_VISIBLE;
   private boolean isMinimalMode;
   private boolean needToShowBars;
-  private boolean disableAnimation = false;
+  private boolean animationEnabled = true;
 
   @Nullable private StyledPlayerControlView styledPlayerControlView;
 
@@ -93,7 +93,7 @@ import java.util.ArrayList;
       return;
     }
     removeHideCallbacks();
-    if (isAnimationDisabled()) {
+    if (!animationEnabled) {
       postDelayedRunnable(hideController, 0);
     } else if (uxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
       postDelayedRunnable(hideProgressBar, 0);
@@ -102,8 +102,12 @@ import java.util.ArrayList;
     }
   }
 
-  void setDisableAnimation(boolean disableAnimation) {
-    this.disableAnimation = disableAnimation;
+  void setAnimationEnabled(boolean animationEnabled) {
+    this.animationEnabled = animationEnabled;
+  }
+
+  boolean isAnimationEnabled() {
+    return animationEnabled;
   }
 
   void resetHideCallbacks() {
@@ -114,7 +118,7 @@ import java.util.ArrayList;
     int showTimeoutMs =
         styledPlayerControlView != null ? styledPlayerControlView.getShowTimeoutMs() : 0;
     if (showTimeoutMs > 0) {
-      if (isAnimationDisabled()) {
+      if (!animationEnabled) {
         postDelayedRunnable(hideController, showTimeoutMs);
       } else if (uxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
         postDelayedRunnable(hideProgressBar, ANIMATION_INTERVAL_MS);
@@ -428,15 +432,11 @@ import java.util.ArrayList;
     }
   }
 
-  private boolean isAnimationDisabled() {
-    return disableAnimation;
-  }
-
   private final Runnable showAllBars =
       new Runnable() {
         @Override
         public void run() {
-          if (isAnimationDisabled()) {
+          if (!animationEnabled) {
             setUxState(UX_STATE_ALL_VISIBLE);
             resetHideCallbacks();
             return;

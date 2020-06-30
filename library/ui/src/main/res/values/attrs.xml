@@ -70,7 +70,7 @@
   <attr name="show_vr_button" format="boolean"/>
   <attr name="time_bar_min_update_interval" format="integer"/>
   <attr name="controller_layout_id" format="reference"/>
-  <attr name="disable_animation" format="boolean"/>
+  <attr name="animation_enabled" format="boolean"/>
 
   <!-- DefaultTimeBar attributes -->
   <attr name="bar_height" format="dimension"/>
@@ -151,7 +151,7 @@
     <attr name="show_vr_button"/>
     <attr name="time_bar_min_update_interval"/>
     <attr name="controller_layout_id"/>
-    <attr name="disable_animation"/>
+    <attr name="animation_enabled"/>
     <!-- DefaultTimeBar attributes -->
     <attr name="bar_height"/>
     <attr name="touch_target_height"/>
@@ -214,7 +214,7 @@
     <attr name="show_vr_button"/>
     <attr name="time_bar_min_update_interval"/>
     <attr name="controller_layout_id"/>
-    <attr name="disable_animation"/>
+    <attr name="animation_enabled"/>
     <!-- DefaultTimeBar attributes -->
     <attr name="bar_height"/>
     <attr name="touch_target_height"/>
