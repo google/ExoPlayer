@@ -292,6 +292,8 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
   }
 
   /** Performs a deep copy of {@code cryptoInfo} to {@code frameworkCryptoInfo}. */
+  // TODO: Remove suppression [internal b/78934030].
+  @SuppressWarnings("nullness:argument.type.incompatible")
   private static void copy(
       CryptoInfo cryptoInfo, android.media.MediaCodec.CryptoInfo frameworkCryptoInfo) {
     // Update frameworkCryptoInfo fields directly because CryptoInfo.set performs an unnecessary
