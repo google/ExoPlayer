@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:width="24dp"
+    android:height="24dp">
+    <group>
+        <clip-path
+            android:pathData="M24 24L0 24 0 0 24 0 24 24Z" />
+        <path
+            android:pathData="M9.6 13.5l0.4 0c0.2 0 0.4 -0.1 0.5 -0.2 0.1 -0.1 0.2 -0.2 0.2 -0.4l0 -0.2c0 0 -0.1 -0.1 -0.1 -0.2 0 -0.1 -0.1 -0.1 -0.2 -0.1l-0.5 0c0 0 -0.1 0.1 -0.2 0.1 -0.1 0 -0.1 0.1 -0.1 0.2l0 0.2 -1 0c0 -0.2 0 -0.3 0.1 -0.5 0.1 -0.2 0.2 -0.3 0.3 -0.4 0.1 -0.1 0.3 -0.2 0.4 -0.2 0.1 0 0.4 -0.1 0.5 -0.1 0.2 0 0.4 0 0.6 0.1 0.2 0.1 0.3 0.1 0.5 0.2 0.2 0.1 0.2 0.2 0.3 0.4 0.1 0.2 0.1 0.3 0.1 0.5l0 0.3c0 0 -0.1 0.2 -0.1 0.3 0 0.1 -0.1 0.2 -0.2 0.2 -0.1 0 -0.2 0.1 -0.3 0.2 0.2 0.1 0.4 0.2 0.5 0.4 0.1 0.2 0.2 0.4 0.2 0.6 0 0.2 0 0.4 -0.1 0.5 -0.1 0.1 -0.2 0.3 -0.3 0.4C11 15.9 10.8 16 10.6 16 10.4 16 10.2 16.1 10 16.1 9.8 16.1 9.6 16.1 9.5 16 9.4 15.9 9.2 15.9 9 15.8 8.8 15.7 8.8 15.6 8.7 15.4 8.6 15.2 8.6 15 8.6 14.8l0.8 0 0 0.2c0 0 0.1 0.1 0.1 0.2 0 0.1 0.1 0.1 0.2 0.1l0.5 0c0 0 0.1 -0.1 0.2 -0.1 0.1 0 0.1 -0.1 0.1 -0.2l0 -0.5c0 0 -0.1 -0.1 -0.1 -0.2 0 -0.1 -0.1 -0.1 -0.2 -0.1l-0.6 0 0 -0.7zm5.7 0.7c0 0.3 0 0.6 -0.1 0.8l-0.3 0.6c0 0 -0.3 0.3 -0.5 0.3 -0.2 0 -0.4 0.1 -0.6 0.1 -0.2 0 -0.4 0 -0.6 -0.1C13 15.8 12.9 15.7 12.7 15.6 12.5 15.5 12.5 15.3 12.4 15 12.3 14.7 12.3 14.5 12.3 14.2l0 -0.7c0 -0.3 0 -0.6 0.1 -0.8l0.3 -0.6c0 0 0.3 -0.3 0.5 -0.3 0.2 0 0.4 -0.1 0.6 -0.1 0.2 0 0.4 0 0.6 0.1 0.2 0.1 0.3 0.2 0.5 0.3 0.2 0.1 0.2 0.3 0.3 0.6 0.1 0.3 0.1 0.5 0.1 0.8l0 0.7zm-0.9 -0.8l0 -0.5c0 0 -0.1 -0.2 -0.1 -0.3 0 -0.1 -0.1 -0.1 -0.2 -0.2 -0.1 -0.1 -0.2 -0.1 -0.3 -0.1 -0.1 0 -0.2 0 -0.3 0.1l-0.2 0.2c0 0 -0.1 0.2 -0.1 0.3l0 2c0 0 0.1 0.2 0.1 0.3 0 0.1 0.1 0.1 0.2 0.2 0.1 0.1 0.2 0.1 0.3 0.1 0.1 0 0.2 0 0.3 -0.1l0.2 -0.2c0 0 0.1 -0.2 0.1 -0.3l0 -1.5zM4 13c0 4.4 3.6 8 8 8 4.4 0 8 -3.6 8 -8l-2 0c0 3.3 -2.7 6 -6 6C8.7 19 6 16.3 6 13 6 9.7 8.7 7 12 7l0 4 5 -5 -5 -5 0 4C7.6 5 4 8.6 4 13Z"
+            android:fillColor="#FFFFFF" />
+    </group>
+</vector>

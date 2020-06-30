@@ -56,4 +56,142 @@
     <item name="android:contentDescription">@string/exo_controls_vr_description</item>
   </style>
 
+  <style name="ExoStyledControls" />
+
+  <style name="ExoStyledControls.Button">
+    <item name="android:background">?android:attr/selectableItemBackground</item>
+    <item name="android:scaleType">fitXY</item>
+    <item name="android:layout_width">@dimen/exo_icon_size</item>
+    <item name="android:layout_height">@dimen/exo_icon_size</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Previous">
+    <item name="android:src">@drawable/exo_styled_controls_previous</item>
+    <item name="android:contentDescription">@string/exo_controls_previous_description</item>
+    <item name="android:padding">@dimen/exo_icon_padding</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Next">
+    <item name="android:src">@drawable/exo_styled_controls_next</item>
+    <item name="android:contentDescription">@string/exo_controls_next_description</item>
+    <item name="android:padding">@dimen/exo_icon_padding</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.PlayPause">
+    <item name="android:src">@drawable/exo_styled_controls_play</item>
+    <item name="android:contentDescription">@string/exo_controls_play_description</item>
+    <item name="android:padding">@dimen/exo_pause_icon_padding</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.FfwdWithAmount">
+    <item name="android:background">@drawable/exo_ripple_ffwd</item>
+    <item name="android:contentDescription">@string/exo_controls_ffwd_desc_holder</item>
+    <item name="android:gravity">center|bottom</item>
+    <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
+    <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.RewWithAmount">
+    <item name="android:background">@drawable/exo_ripple_rew</item>
+    <item name="android:contentDescription">@string/exo_controls_rewind_desc_holder</item>
+    <item name="android:gravity">center|bottom</item>
+    <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
+    <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
+  </style>
+
+  <style name="ExoStyledControls.ButtonText">
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">@dimen/exo_icon_text_size</item>
+    <item name="android:textColor">@color/exo_white</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Minimal" />
+
+  <!-- TODO(insun): Merge play and pause buttons in minimal mode as well. -->
+  <style name="ExoStyledControls.Button.Minimal.Pause">
+    <item name="android:src">@drawable/exo_styled_controls_pause</item>
+    <item name="android:contentDescription">@string/exo_controls_pause_description</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Minimal.Play">
+    <item name="android:src">@drawable/exo_styled_controls_play</item>
+    <item name="android:contentDescription">@string/exo_controls_play_description</item>
+  </style>
+
+  <style name="ExoStyledControls.TitleBar">
+    <item name="android:layout_width">match_parent</item>
+    <item name="android:layout_height">@dimen/exo_title_bar_height</item>
+  </style>
+
+  <style name="ExoStyledControls.TimeText">
+    <item name="android:layout_width">wrap_content</item>
+    <item name="android:layout_height">wrap_content</item>
+    <item name="android:layout_gravity">center_vertical</item>
+    <item name="android:paddingLeft">4dp</item>
+    <item name="android:paddingRight">4dp</item>
+    <item name="android:textStyle">bold</item>
+    <item name="android:textSize">14sp</item>
+    <item name="android:gravity">center</item>
+  </style>
+
+  <style name="ExoStyledControls.TimeText.Position">
+    <item name="android:textColor">@color/exo_white</item>
+    <item name="android:text">@string/exo_controls_time_placeholder</item>
+  </style>
+
+  <style name="ExoStyledControls.TimeText.Interpunct">
+    <item name="android:textColor">@color/exo_white_opacity_70</item>
+    <item name="android:text">·</item>
+  </style>
+
+  <style name="ExoStyledControls.TimeText.Duration">
+    <item name="android:textColor">@color/exo_white_opacity_70</item>
+    <item name="android:text">@string/exo_controls_time_placeholder</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom">
+    <item name="android:gravity">center_horizontal</item>
+    <item name="android:padding">@dimen/exo_icon_padding</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom.Shuffle">
+    <item name="android:src">@drawable/exo_styled_controls_shuffle_off</item>
+    <item name="android:contentDescription">@string/exo_controls_shuffle_off_description</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom.RepeatToggle">
+    <item name="android:src">@drawable/exo_styled_controls_repeat_off</item>
+    <item name="android:contentDescription">@string/exo_controls_repeat_off_description</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom.VR">
+    <item name="android:src">@drawable/exo_styled_controls_vr</item>
+    <item name="android:contentDescription">@string/exo_controls_vr_description</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom.CC">
+    <item name="android:src">@drawable/exo_styled_controls_subtitle_off</item>
+    <item name="android:contentDescription">@string/exo_controls_cc_is_off</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom.FullScreen">
+    <item name="android:src">@drawable/exo_styled_controls_fullscreen_enter</item>
+    <item name="android:contentDescription">@string/exo_controls_fullscreen_enter_description</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom.OverflowShow">
+    <item name="android:src">@drawable/exo_styled_controls_overflow_show</item>
+    <item name="android:contentDescription">@string/exo_controls_overflow_right_button_description</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom.OverflowHide">
+    <item name="android:src">@drawable/exo_styled_controls_overflow_hide</item>
+    <item name="android:contentDescription">@string/exo_controls_overflow_left_button_description</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom.Settings">
+    <item name="android:src">@drawable/exo_styled_controls_settings</item>
+    <item name="android:contentDescription">@string/exo_controls_settings_description</item>
+  </style>
+
 </resources>

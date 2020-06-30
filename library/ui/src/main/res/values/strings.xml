@@ -42,8 +42,6 @@
   <string name="exo_controls_shuffle_on_description">Shuffle on</string>
   <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is off. [CHAR LIMIT=40] -->
   <string name="exo_controls_shuffle_off_description">Shuffle off</string>
-  <!-- Description for a media control button that toggles whether a video playback is fullscreen. [CHAR LIMIT=30] -->
-  <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
   <!-- Description for a media control button that toggles whether a video playback is in VR mode. [CHAR LIMIT=30] -->
   <string name="exo_controls_vr_description">VR mode</string>
   <!-- Description for a button that downloads a piece of media content onto the device. [CHAR LIMIT=20] -->
@@ -94,4 +92,61 @@
   <string name="exo_track_bitrate"><xliff:g id="bitrate" example="5.2">%1$.2f</xliff:g> Mbps</string>
   <!-- Defines a way of appending an item to a list of items. For example appending "banana" to "apple, pear" to get "apple, pear, banana". Note: the command separator will appear between all consecutive list items, so do not use an equivalent of 'and'. [CHAR LIMIT=40] -->
   <string name="exo_item_list"><xliff:g id="list" example="apple, pear">%1$s</xliff:g>, <xliff:g id="item" example="banana">%2$s</xliff:g></string>
+
+  <!-- The title of audio track selection. It is shown with the currently selected audio track's
+       information (such as language). If a user clicks it, the list of possible audio tracks
+       will be shown. [CHAR_LIMIT=20] -->
+  <string name="exo_controls_audio_track">Audio track</string>
+  <!-- The title of playback speed selection. It is shown with the current playback speed.
+       If a user clicks it, the list of possible playback speeds will be shown.
+       [CHAR_LIMIT=32] -->
+  <string name="exo_controls_playback_speed">Playback speed</string>
+  <!-- It implies that the playback speed is normal (1.0x). [CHAR_LIMIT=16] -->
+  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <!-- Text for displaying custom playback speed. [CHAR_LIMIT=16] -->
+  <string translatable="false" name="exo_controls_custom_playback_speed">
+        <xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x
+    </string>
+  <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
+  <string translatable="false" name="exo_controls_time_placeholder">00:00:00</string>
+  <!-- Content description of the left arrow button to navigate a list of buttons.
+       If a user clicks the arrow, it goes back to the previous button list.
+       [CHAR_LIMIT=32] -->
+  <string name="exo_controls_overflow_left_button_description">Back to previous button list</string>
+  <!-- Content description of the right arrow button to navigate a list of buttons.
+       If a user clicks the arrow, it shows a list of other buttons.
+       [CHAR_LIMIT=32] -->
+  <string name="exo_controls_overflow_right_button_description">See more buttons</string>
+  <!-- Content description of the seek bar, which indicates the playback progress.
+       [CHAR_LIMIT=32] -->
+  <string name="exo_controls_seek_bar_description">Playback progress</string>
+  <!-- Content description of the settings button.
+       [CHAR_LIMIT=32] -->
+  <string name="exo_controls_settings_description">Settings</string>
+  <!-- Content description of the close caption (subtitle) button, when subtitle is turned on.
+       If a user clicks the button, it will turned off.
+       [CHAR_LIMIT=40] -->
+  <string name="exo_controls_cc_is_on">Subtitle is on. Click to hide it.</string>
+  <!-- Content description of the close caption (subtitle) button, when subtitle is turned off.
+       If a user clicks the button, it will turned on.
+       [CHAR_LIMIT=40] -->
+  <string name="exo_controls_cc_is_off">Subtitle is off. Click to show it.</string>
+  <!-- Content description of the "rewind" button.
+       If a user clicks the button, it rewinds back by rewind amount.
+       [CHAR_LIMIT=32] -->
+  <string name="exo_controls_rewind_desc_holder">
+        Rewind by <xliff:g id="rewind_amount" example="10">%d</xliff:g> seconds</string>
+  <!-- Content description of the "fast-forward" button.
+       If a user clicks the button, it fast-forwards by fast forward amount.
+       [CHAR_LIMIT=32] -->
+  <string name="exo_controls_ffwd_desc_holder">
+        Go forward by <xliff:g id="fastforward_amount" example="30">%d</xliff:g> seconds</string>
+  <!-- Content description of the full screen enter button.
+       If a user clicks the button, the widget goes into full-screen mode.
+       [CHAR_LIMIT=32] -->
+  <string name="exo_controls_fullscreen_enter_description">Full screen enter</string>
+  <!-- Content description of the full screen exit button.
+       If a user clicks the button, the widget exits full-screen mode.
+       [CHAR_LIMIT=32] -->
+  <string name="exo_controls_fullscreen_exit_description">Full screen exit</string>
 </resources>

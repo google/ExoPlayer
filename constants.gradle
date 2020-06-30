@@ -34,6 +34,7 @@ project.ext {
     androidxCollectionVersion = '1.1.0'
     androidxMediaVersion = '1.0.1'
     androidxMultidexVersion = '2.0.0'
+    androidxRecyclerViewVersion = '1.1.0'
     androidxTestCoreVersion = '1.2.0'
     androidxTestJUnitVersion = '1.1.1'
     androidxTestRunnerVersion = '1.2.0'
