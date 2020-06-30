@@ -596,7 +596,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (mediaSourceListUpdateMessage.windowIndex != C.INDEX_UNSET) {
       pendingInitialSeekPosition =
           new SeekPosition(
-              new MediaSourceList.PlaylistTimeline(
+              new PlaylistTimeline(
                   mediaSourceListUpdateMessage.mediaSourceHolders,
                   mediaSourceListUpdateMessage.shuffleOrder),
               mediaSourceListUpdateMessage.windowIndex,

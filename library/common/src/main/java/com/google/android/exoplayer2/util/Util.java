@@ -64,6 +64,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -2184,6 +2185,24 @@ public final class Util {
     return elapsedRealtimeEpochOffsetMs == C.TIME_UNSET
         ? System.currentTimeMillis()
         : SystemClock.elapsedRealtime() + elapsedRealtimeEpochOffsetMs;
+  }
+
+  /**
+   * Moves the elements starting at {@code fromIndex} to {@code newFromIndex}.
+   *
+   * @param items The list of which to move elements.
+   * @param fromIndex The index at which the items to move start.
+   * @param toIndex The index up to which elements should be moved (exclusive).
+   * @param newFromIndex The new from index.
+   */
+  public static <T extends Object> void moveItems(
+      List<T> items, int fromIndex, int toIndex, int newFromIndex) {
+    ArrayDeque<T> removedItems = new ArrayDeque<>();
+    int removedItemsLength = toIndex - fromIndex;
+    for (int i = removedItemsLength - 1; i >= 0; i--) {
+      removedItems.addFirst(items.remove(fromIndex + i));
+    }
+    items.addAll(Math.min(newFromIndex, items.size()), removedItems);
   }
 
   @Nullable

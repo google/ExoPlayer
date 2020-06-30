@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
@@ -71,7 +72,7 @@ import java.util.concurrent.TimeoutException;
   private final CopyOnWriteArrayList<ListenerHolder> listeners;
   private final Timeline.Period period;
   private final ArrayDeque<Runnable> pendingListenerNotifications;
-  private final List<MediaSourceList.MediaSourceHolder> mediaSourceHolders;
+  private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
   private final boolean useLazyPreparation;
   private final MediaSourceFactory mediaSourceFactory;
 
@@ -130,7 +131,7 @@ import java.util.concurrent.TimeoutException;
       Looper applicationLooper) {
     Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
-    Assertions.checkState(renderers.length > 0);
+    checkState(renderers.length > 0);
     this.renderers = checkNotNull(renderers);
     this.trackSelector = checkNotNull(trackSelector);
     this.mediaSourceFactory = mediaSourceFactory;
@@ -139,7 +140,7 @@ import java.util.concurrent.TimeoutException;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     repeatMode = Player.REPEAT_MODE_OFF;
     listeners = new CopyOnWriteArrayList<>();
-    mediaSourceHolders = new ArrayList<>();
+    mediaSourceHolderSnapshots = new ArrayList<>();
     shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ 0);
     emptyTrackSelectorResult =
         new TrackSelectorResult(
@@ -387,7 +388,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void addMediaItems(List<MediaItem> mediaItems) {
-    addMediaItems(/* index= */ mediaSourceHolders.size(), mediaItems);
+    addMediaItems(/* index= */ mediaSourceHolderSnapshots.size(), mediaItems);
   }
 
   @Override
@@ -407,7 +408,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void addMediaSources(List<MediaSource> mediaSources) {
-    addMediaSources(/* index= */ mediaSourceHolders.size(), mediaSources);
+    addMediaSources(/* index= */ mediaSourceHolderSnapshots.size(), mediaSources);
   }
 
   @Override
@@ -442,14 +443,15 @@ import java.util.concurrent.TimeoutException;
     Assertions.checkArgument(
         fromIndex >= 0
             && fromIndex <= toIndex
-            && toIndex <= mediaSourceHolders.size()
+            && toIndex <= mediaSourceHolderSnapshots.size()
             && newFromIndex >= 0);
     int currentWindowIndex = getCurrentWindowIndex();
     long currentPositionMs = getCurrentPosition();
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
-    newFromIndex = Math.min(newFromIndex, mediaSourceHolders.size() - (toIndex - fromIndex));
-    MediaSourceList.moveMediaSourceHolders(mediaSourceHolders, fromIndex, toIndex, newFromIndex);
+    newFromIndex =
+        Math.min(newFromIndex, mediaSourceHolderSnapshots.size() - (toIndex - fromIndex));
+    Util.moveItems(mediaSourceHolderSnapshots, fromIndex, toIndex, newFromIndex);
     PlaybackInfo playbackInfo =
         maskTimelineAndWindowIndex(currentWindowIndex, currentPositionMs, oldTimeline);
     internalPlayer.moveMediaSources(fromIndex, toIndex, newFromIndex, shuffleOrder);
@@ -464,10 +466,10 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void clearMediaItems() {
-    if (mediaSourceHolders.isEmpty()) {
+    if (mediaSourceHolderSnapshots.isEmpty()) {
       return;
     }
-    removeMediaItemsInternal(/* fromIndex= */ 0, /* toIndex= */ mediaSourceHolders.size());
+    removeMediaItemsInternal(/* fromIndex= */ 0, /* toIndex= */ mediaSourceHolderSnapshots.size());
   }
 
   @Override
@@ -624,7 +626,7 @@ import java.util.concurrent.TimeoutException;
   @SuppressWarnings("deprecation")
   @Override
   public void setPlaybackSpeed(float playbackSpeed) {
-    Assertions.checkState(playbackSpeed > 0);
+    checkState(playbackSpeed > 0);
     if (this.playbackSpeed == playbackSpeed) {
       return;
     }
@@ -918,10 +920,17 @@ import java.util.concurrent.TimeoutException;
       pendingPlayWhenReadyChangeReason = playbackInfoUpdate.playWhenReadyChangeReason;
     }
     if (pendingOperationAcks == 0) {
-      if (!this.playbackInfo.timeline.isEmpty()
-          && playbackInfoUpdate.playbackInfo.timeline.isEmpty()) {
+      Timeline newTimeline = playbackInfoUpdate.playbackInfo.timeline;
+      if (!this.playbackInfo.timeline.isEmpty() && newTimeline.isEmpty()) {
         // Update the masking variables, which are used when the timeline becomes empty.
         resetMaskingPosition();
+      }
+      if (!newTimeline.isEmpty()) {
+        List<Timeline> timelines = ((PlaylistTimeline) newTimeline).getChildTimelines();
+        checkState(timelines.size() == mediaSourceHolderSnapshots.size());
+        for (int i = 0; i < timelines.size(); i++) {
+          mediaSourceHolderSnapshots.get(i).timeline = timelines.get(i);
+        }
       }
       boolean positionDiscontinuity = hasPendingDiscontinuity;
       hasPendingDiscontinuity = false;
@@ -940,7 +949,7 @@ import java.util.concurrent.TimeoutException;
     if (clearPlaylist) {
       // Reset list of media source holders which are used for creating the masking timeline.
       removeMediaSourceHolders(
-          /* fromIndex= */ 0, /* toIndexExclusive= */ mediaSourceHolders.size());
+          /* fromIndex= */ 0, /* toIndexExclusive= */ mediaSourceHolderSnapshots.size());
       resetMaskingPosition();
     } else {
       maskWithCurrentPosition();
@@ -1004,9 +1013,9 @@ import java.util.concurrent.TimeoutException;
     int currentWindowIndex = getCurrentWindowIndexInternal();
     long currentPositionMs = getCurrentPosition();
     pendingOperationAcks++;
-    if (!mediaSourceHolders.isEmpty()) {
+    if (!mediaSourceHolderSnapshots.isEmpty()) {
       removeMediaSourceHolders(
-          /* fromIndex= */ 0, /* toIndexExclusive= */ mediaSourceHolders.size());
+          /* fromIndex= */ 0, /* toIndexExclusive= */ mediaSourceHolderSnapshots.size());
     }
     List<MediaSourceList.MediaSourceHolder> holders =
         addMediaSourceHolders(/* index= */ 0, mediaSources);
@@ -1055,7 +1064,8 @@ import java.util.concurrent.TimeoutException;
       MediaSourceList.MediaSourceHolder holder =
           new MediaSourceList.MediaSourceHolder(mediaSources.get(i), useLazyPreparation);
       holders.add(holder);
-      mediaSourceHolders.add(i + index, holder);
+      mediaSourceHolderSnapshots.add(
+          i + index, new MediaSourceHolderSnapshot(holder.uid, holder.mediaSource.getTimeline()));
     }
     shuffleOrder =
         shuffleOrder.cloneAndInsert(
@@ -1065,11 +1075,11 @@ import java.util.concurrent.TimeoutException;
 
   private void removeMediaItemsInternal(int fromIndex, int toIndex) {
     Assertions.checkArgument(
-        fromIndex >= 0 && toIndex >= fromIndex && toIndex <= mediaSourceHolders.size());
+        fromIndex >= 0 && toIndex >= fromIndex && toIndex <= mediaSourceHolderSnapshots.size());
     int currentWindowIndex = getCurrentWindowIndex();
     long currentPositionMs = getCurrentPosition();
     Timeline oldTimeline = getCurrentTimeline();
-    int currentMediaSourceCount = mediaSourceHolders.size();
+    int currentMediaSourceCount = mediaSourceHolderSnapshots.size();
     pendingOperationAcks++;
     removeMediaSourceHolders(fromIndex, /* toIndexExclusive= */ toIndex);
     PlaybackInfo playbackInfo =
@@ -1094,17 +1104,14 @@ import java.util.concurrent.TimeoutException;
         /* seekProcessed= */ false);
   }
 
-  private List<MediaSourceList.MediaSourceHolder> removeMediaSourceHolders(
-      int fromIndex, int toIndexExclusive) {
-    List<MediaSourceList.MediaSourceHolder> removed = new ArrayList<>();
+  private void removeMediaSourceHolders(int fromIndex, int toIndexExclusive) {
     for (int i = toIndexExclusive - 1; i >= fromIndex; i--) {
-      removed.add(mediaSourceHolders.remove(i));
+      mediaSourceHolderSnapshots.remove(i);
     }
     shuffleOrder = shuffleOrder.cloneAndRemove(fromIndex, toIndexExclusive);
-    if (mediaSourceHolders.isEmpty()) {
+    if (mediaSourceHolderSnapshots.isEmpty()) {
       hasAdsMediaSource = false;
     }
-    return removed;
   }
 
   /**
@@ -1123,7 +1130,7 @@ import java.util.concurrent.TimeoutException;
       throw new IllegalStateException();
     }
     int sizeAfterModification =
-        mediaSources.size() + (mediaSourceReplacement ? 0 : mediaSourceHolders.size());
+        mediaSources.size() + (mediaSourceReplacement ? 0 : mediaSourceHolderSnapshots.size());
     for (int i = 0; i < mediaSources.size(); i++) {
       MediaSource mediaSource = checkNotNull(mediaSources.get(i));
       if (mediaSource instanceof AdsMediaSource) {
@@ -1139,9 +1146,9 @@ import java.util.concurrent.TimeoutException;
 
   private PlaybackInfo maskTimeline() {
     return playbackInfo.copyWithTimeline(
-        mediaSourceHolders.isEmpty()
+        mediaSourceHolderSnapshots.isEmpty()
             ? Timeline.EMPTY
-            : new MediaSourceList.PlaylistTimeline(mediaSourceHolders, shuffleOrder));
+            : new PlaylistTimeline(mediaSourceHolderSnapshots, shuffleOrder));
   }
 
   private PlaybackInfo maskTimelineAndWindowIndex(
@@ -1393,6 +1400,28 @@ import java.util.concurrent.TimeoutException;
       CopyOnWriteArrayList<ListenerHolder> listeners, ListenerInvocation listenerInvocation) {
     for (ListenerHolder listenerHolder : listeners) {
       listenerHolder.invoke(listenerInvocation);
+    }
+  }
+
+  private static final class MediaSourceHolderSnapshot implements MediaSourceInfoHolder {
+
+    private final Object uid;
+
+    private Timeline timeline;
+
+    public MediaSourceHolderSnapshot(Object uid, Timeline timeline) {
+      this.uid = uid;
+      this.timeline = timeline;
+    }
+
+    @Override
+    public Object getUid() {
+      return uid;
+    }
+
+    @Override
+    public Timeline getTimeline() {
+      return timeline;
     }
   }
 }

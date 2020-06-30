@@ -35,8 +35,6 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -234,7 +232,7 @@ import java.util.Set;
     int newEndIndex = newFromIndex + (toIndex - fromIndex) - 1;
     int endIndex = Math.max(newEndIndex, toIndex - 1);
     int windowOffset = mediaSourceHolders.get(startIndex).firstWindowIndexInChild;
-    moveMediaSourceHolders(mediaSourceHolders, fromIndex, toIndex, newFromIndex);
+    Util.moveItems(mediaSourceHolders, fromIndex, toIndex, newFromIndex);
     for (int i = startIndex; i <= endIndex; i++) {
       MediaSourceHolder holder = mediaSourceHolders.get(i);
       holder.firstWindowIndexInChild = windowOffset;
@@ -472,18 +470,8 @@ import java.util.Set;
     return PlaylistTimeline.getConcatenatedUid(holder.uid, childPeriodUid);
   }
 
-  /* package */ static void moveMediaSourceHolders(
-      List<MediaSourceHolder> mediaSourceHolders, int fromIndex, int toIndex, int newFromIndex) {
-    MediaSourceHolder[] removedItems = new MediaSourceHolder[toIndex - fromIndex];
-    for (int i = removedItems.length - 1; i >= 0; i--) {
-      removedItems[i] = mediaSourceHolders.remove(fromIndex + i);
-    }
-    mediaSourceHolders.addAll(
-        Math.min(newFromIndex, mediaSourceHolders.size()), Arrays.asList(removedItems));
-  }
-
   /** Data class to hold playlist media sources together with meta data needed to process them. */
-  /* package */ static final class MediaSourceHolder {
+  /* package */ static final class MediaSourceHolder implements MediaSourceInfoHolder {
 
     public final MaskingMediaSource mediaSource;
     public final Object uid;
@@ -503,88 +491,15 @@ import java.util.Set;
       this.isRemoved = false;
       this.activeMediaPeriodIds.clear();
     }
-  }
 
-  /** Timeline exposing concatenated timelines of playlist media sources. */
-  /* package */ static final class PlaylistTimeline extends AbstractConcatenatedTimeline {
-
-    private final int windowCount;
-    private final int periodCount;
-    private final int[] firstPeriodInChildIndices;
-    private final int[] firstWindowInChildIndices;
-    private final Timeline[] timelines;
-    private final Object[] uids;
-    private final HashMap<Object, Integer> childIndexByUid;
-
-    public PlaylistTimeline(
-        Collection<MediaSourceHolder> mediaSourceHolders, ShuffleOrder shuffleOrder) {
-      super(/* isAtomic= */ false, shuffleOrder);
-      int childCount = mediaSourceHolders.size();
-      firstPeriodInChildIndices = new int[childCount];
-      firstWindowInChildIndices = new int[childCount];
-      timelines = new Timeline[childCount];
-      uids = new Object[childCount];
-      childIndexByUid = new HashMap<>();
-      int index = 0;
-      int windowCount = 0;
-      int periodCount = 0;
-      for (MediaSourceHolder mediaSourceHolder : mediaSourceHolders) {
-        timelines[index] = mediaSourceHolder.mediaSource.getTimeline();
-        firstWindowInChildIndices[index] = windowCount;
-        firstPeriodInChildIndices[index] = periodCount;
-        windowCount += timelines[index].getWindowCount();
-        periodCount += timelines[index].getPeriodCount();
-        uids[index] = mediaSourceHolder.uid;
-        childIndexByUid.put(uids[index], index++);
-      }
-      this.windowCount = windowCount;
-      this.periodCount = periodCount;
+    @Override
+    public Object getUid() {
+      return uid;
     }
 
     @Override
-    protected int getChildIndexByPeriodIndex(int periodIndex) {
-      return Util.binarySearchFloor(firstPeriodInChildIndices, periodIndex + 1, false, false);
-    }
-
-    @Override
-    protected int getChildIndexByWindowIndex(int windowIndex) {
-      return Util.binarySearchFloor(firstWindowInChildIndices, windowIndex + 1, false, false);
-    }
-
-    @Override
-    protected int getChildIndexByChildUid(Object childUid) {
-      Integer index = childIndexByUid.get(childUid);
-      return index == null ? C.INDEX_UNSET : index;
-    }
-
-    @Override
-    protected Timeline getTimelineByChildIndex(int childIndex) {
-      return timelines[childIndex];
-    }
-
-    @Override
-    protected int getFirstPeriodIndexByChildIndex(int childIndex) {
-      return firstPeriodInChildIndices[childIndex];
-    }
-
-    @Override
-    protected int getFirstWindowIndexByChildIndex(int childIndex) {
-      return firstWindowInChildIndices[childIndex];
-    }
-
-    @Override
-    protected Object getChildUidByChildIndex(int childIndex) {
-      return uids[childIndex];
-    }
-
-    @Override
-    public int getWindowCount() {
-      return windowCount;
-    }
-
-    @Override
-    public int getPeriodCount() {
-      return periodCount;
+    public Timeline getTimeline() {
+      return mediaSource.getTimeline();
     }
   }
 

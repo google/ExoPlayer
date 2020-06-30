@@ -72,7 +72,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   /** Returns the {@link Timeline}. */
-  public synchronized Timeline getTimeline() {
+  public Timeline getTimeline() {
     return timeline;
   }
 
@@ -150,7 +150,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected synchronized void onChildSourceInfoRefreshed(
+  protected void onChildSourceInfoRefreshed(
       Void id, MediaSource mediaSource, Timeline newTimeline) {
     @Nullable MediaPeriodId idForMaskingPeriodPreparation = null;
     if (isPrepared) {
