@@ -550,7 +550,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return;
     }
 
-    if (inputFormat.drmInitData == null && usePassthrough(inputFormat)) {
+    if (sourceDrmSession == null && usePassthrough(inputFormat)) {
       initPassthrough(inputFormat);
       return;
     }
