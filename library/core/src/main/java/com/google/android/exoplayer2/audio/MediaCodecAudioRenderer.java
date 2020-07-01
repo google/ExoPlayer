@@ -84,10 +84,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private final AudioSink audioSink;
 
   private int codecMaxInputSize;
-  private boolean passthroughEnabled;
   private boolean codecNeedsDiscardChannelsWorkaround;
   private boolean codecNeedsEosBufferTimestampWorkaround;
-  @Nullable private Format passthroughCodecFormat;
+  @Nullable private Format codecPassthroughFormat;
   @Nullable private Format inputFormat;
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
@@ -299,14 +298,14 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     codecNeedsEosBufferTimestampWorkaround = codecNeedsEosBufferTimestampWorkaround(codecInfo.name);
-    passthroughEnabled =
-        MimeTypes.AUDIO_RAW.equals(codecInfo.mimeType)
-            && !MimeTypes.AUDIO_RAW.equals(format.sampleMimeType);
     MediaFormat mediaFormat =
         getMediaFormat(format, codecInfo.codecMimeType, codecMaxInputSize, codecOperatingRate);
     codecAdapter.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     // Store the input MIME type if we're using the passthrough codec.
-    passthroughCodecFormat = passthroughEnabled ? format : null;
+    boolean codecPassthroughEnabled =
+        MimeTypes.AUDIO_RAW.equals(codecInfo.mimeType)
+            && !MimeTypes.AUDIO_RAW.equals(format.sampleMimeType);
+    codecPassthroughFormat = codecPassthroughEnabled ? format : null;
   }
 
   @Override
@@ -388,8 +387,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void configureOutput(Format outputFormat) throws ExoPlaybackException {
     Format audioSinkInputFormat;
-    if (passthroughCodecFormat != null) {
-      @C.Encoding int passthroughEncoding = getPassthroughEncoding(passthroughCodecFormat);
+    if (codecPassthroughFormat != null) {
+      @C.Encoding int passthroughEncoding = getPassthroughEncoding(codecPassthroughFormat);
       // TODO(b/112299307): Passthrough can have become unavailable since usePassthrough was called.
       Assertions.checkState(passthroughEncoding != C.ENCODING_INVALID);
       audioSinkInputFormat = outputFormat.buildUpon().setEncoding(passthroughEncoding).build();
@@ -426,7 +425,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onOutputPassthroughFormatChanged(Format outputFormat) throws ExoPlaybackException {
+  protected void onOutputBypassFormatChanged(Format outputFormat) throws ExoPlaybackException {
     @C.Encoding int passthroughEncoding = getPassthroughEncoding(outputFormat);
     // TODO(b/112299307): Passthrough can have become unavailable since usePassthrough was called.
     Assertions.checkState(passthroughEncoding != C.ENCODING_INVALID);
@@ -631,7 +630,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       bufferPresentationTimeUs = getLargestQueuedPresentationTimeUs();
     }
 
-    if (passthroughEnabled && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
+    if (codecPassthroughFormat != null
+        && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
       codec.releaseOutputBuffer(bufferIndex, false);
       return true;

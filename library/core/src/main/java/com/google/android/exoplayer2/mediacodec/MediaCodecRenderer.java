@@ -346,7 +346,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final float assumedMinimumCodecOperatingRate;
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer flagsOnlyBuffer;
-  private final BatchBuffer passthroughBatchBuffer;
+  private final BatchBuffer bypassBatchBuffer;
   private final TimedValueQueue<Format> formatQueue;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
@@ -388,8 +388,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private ByteBuffer outputBuffer;
   private boolean isDecodeOnlyOutputBuffer;
   private boolean isLastOutputBuffer;
-  private boolean passthroughEnabled;
-  private boolean passthroughDrainAndReinitialize;
+  private boolean bypassEnabled;
+  private boolean bypassDrainAndReinitialize;
   private boolean codecReconfigured;
   @ReconfigurationState private int codecReconfigurationState;
   @DrainState private int codecDrainState;
@@ -441,7 +441,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     outputStreamOffsetUs = C.TIME_UNSET;
-    passthroughBatchBuffer = new BatchBuffer();
+    bypassBatchBuffer = new BatchBuffer();
     resetCodecStateForRelease();
   }
 
@@ -544,14 +544,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       @Nullable MediaCrypto crypto,
       float codecOperatingRate);
 
-  protected final void maybeInitCodecOrPassthrough() throws ExoPlaybackException {
-    if (codec != null || passthroughEnabled || inputFormat == null) {
-      // We have a codec or using passthrough, or don't have a format to decide how to render.
+  protected final void maybeInitCodecOrBypass() throws ExoPlaybackException {
+    if (codec != null || bypassEnabled || inputFormat == null) {
+      // We have a codec, are bypassing it, or don't have a format to decide how to render.
       return;
     }
 
     if (sourceDrmSession == null && usePassthrough(inputFormat)) {
-      initPassthrough(inputFormat);
+      initBypass(inputFormat);
       return;
     }
 
@@ -699,8 +699,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     inputStreamEnded = false;
     outputStreamEnded = false;
     pendingOutputEndOfStream = false;
-    if (passthroughEnabled) {
-      passthroughBatchBuffer.flush();
+    if (bypassEnabled) {
+      bypassBatchBuffer.flush();
     } else {
       flushOrReinitializeCodec();
     }
@@ -743,17 +743,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onReset() {
     try {
-      disablePassthrough();
+      disableBypass();
       releaseCodec();
     } finally {
       setSourceDrmSession(null);
     }
   }
 
-  private void disablePassthrough() {
-    passthroughDrainAndReinitialize = false;
-    passthroughBatchBuffer.clear();
-    passthroughEnabled = false;
+  private void disableBypass() {
+    bypassDrainAndReinitialize = false;
+    bypassBatchBuffer.clear();
+    bypassEnabled = false;
   }
 
   protected void releaseCodec() {
@@ -812,10 +812,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         return;
       }
       // We have a format.
-      maybeInitCodecOrPassthrough();
-      if (passthroughEnabled) {
-        TraceUtil.beginSection("renderPassthrough");
-        while (renderPassthrough(positionUs, elapsedRealtimeUs)) {}
+      maybeInitCodecOrBypass();
+      if (bypassEnabled) {
+        TraceUtil.beginSection("bypassRender");
+        while (bypassRender(positionUs, elapsedRealtimeUs)) {}
         TraceUtil.endSection();
       } else if (codec != null) {
         long renderStartTimeMs = SystemClock.elapsedRealtime();
@@ -846,7 +846,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * This method is a no-op if the codec is {@code null}.
    *
    * <p>The implementation of this method calls {@link #flushOrReleaseCodec()}, and {@link
-   * #maybeInitCodecOrPassthrough()} if the codec needs to be re-instantiated.
+   * #maybeInitCodecOrBypass()} if the codec needs to be re-instantiated.
    *
    * @return Whether the codec was released and reinitialized, rather than being flushed.
    * @throws ExoPlaybackException If an error occurs re-instantiating the codec.
@@ -854,7 +854,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected final boolean flushOrReinitializeCodec() throws ExoPlaybackException {
     boolean released = flushOrReleaseCodec();
     if (released) {
-      maybeInitCodecOrPassthrough();
+      maybeInitCodecOrBypass();
     }
     return released;
   }
@@ -1051,23 +1051,23 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Configures passthrough where no codec is used. Called instead of {@link
+   * Configures rendering where no codec is used. Called instead of {@link
    * #configureCodec(MediaCodecInfo, MediaCodecAdapter, Format, MediaCrypto, float)} when no codec
-   * is used in passthrough.
+   * is used to render.
    */
-  private void initPassthrough(Format format) {
-    disablePassthrough(); // In case of transition between 2 passthrough formats.
+  private void initBypass(Format format) {
+    disableBypass(); // In case of transition between 2 bypass formats.
 
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.AUDIO_AAC.equals(mimeType)
         && !MimeTypes.AUDIO_MPEG.equals(mimeType)
         && !MimeTypes.AUDIO_OPUS.equals(mimeType)) {
-      // TODO(b/154746451): Batching provokes frame drops in non offload passthrough.
-      passthroughBatchBuffer.setMaxAccessUnitCount(1);
+      // TODO(b/154746451): Batching provokes frame drops in non offload.
+      bypassBatchBuffer.setMaxAccessUnitCount(1);
     } else {
-      passthroughBatchBuffer.setMaxAccessUnitCount(BatchBuffer.DEFAULT_BATCH_SIZE_ACCESS_UNITS);
+      bypassBatchBuffer.setMaxAccessUnitCount(BatchBuffer.DEFAULT_BATCH_SIZE_ACCESS_UNITS);
     }
-    passthroughEnabled = true;
+    bypassEnabled = true;
   }
 
   private void initCodec(MediaCodecInfo codecInfo, MediaCrypto crypto) throws Exception {
@@ -1405,18 +1405,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     setSourceDrmSession(formatHolder.drmSession);
     inputFormat = newFormat;
 
-    if (passthroughEnabled) {
-      passthroughDrainAndReinitialize = true;
-      return; // Need to drain passthrough first.
+    if (bypassEnabled) {
+      bypassDrainAndReinitialize = true;
+      return; // Need to drain batch buffer first.
     }
 
     if (codec == null) {
-      maybeInitCodecOrPassthrough();
+      maybeInitCodecOrBypass();
       return;
     }
 
     // We have an existing codec that we may need to reconfigure or re-initialize or release it to
-    // switch to passthrough. If the existing codec instance is being kept then its operating rate
+    // switch to bypass. If the existing codec instance is being kept then its operating rate
     // may need to be updated.
 
     if ((sourceDrmSession == null && codecDrmSession != null)
@@ -1514,7 +1514,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Called when the output {@link Format} changes in passthrough.
+   * Called when the output {@link Format} changes in bypass mode (no codec used).
    *
    * <p>The default implementation is a no-op.
    *
@@ -1522,7 +1522,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException Thrown if an error occurs handling the new output media format.
    */
   // TODO(b/154849417): merge with {@link #onOutputFormatChanged(Format)}.
-  protected void onOutputPassthroughFormatChanged(Format outputFormat) throws ExoPlaybackException {
+  protected void onOutputBypassFormatChanged(Format outputFormat) throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -1874,7 +1874,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     iteration of the rendering loop.
    * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at the
    *     start of the current iteration of the rendering loop.
-   * @param codec The {@link MediaCodec} instance, or null in passthrough mode.
+   * @param codec The {@link MediaCodec} instance, or null in bypass mode were no codec is used.
    * @param buffer The output buffer to process.
    * @param bufferIndex The index of the output buffer.
    * @param bufferFlags The flags attached to the output buffer.
@@ -2003,7 +2003,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   private void reinitializeCodec() throws ExoPlaybackException {
     releaseCodec();
-    maybeInitCodecOrPassthrough();
+    maybeInitCodecOrBypass();
   }
 
   private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
@@ -2081,9 +2081,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @throws ExoPlaybackException If an error occurred while processing a buffer or handling a
    *     format change.
    */
-  private boolean renderPassthrough(long positionUs, long elapsedRealtimeUs)
+  private boolean bypassRender(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
-    BatchBuffer batchBuffer = passthroughBatchBuffer;
+    BatchBuffer batchBuffer = bypassBatchBuffer;
 
     // Let's process the pending buffer if any.
     Assertions.checkState(!outputStreamEnded);
@@ -2112,15 +2112,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     batchBuffer.batchWasConsumed();
 
-    if (passthroughDrainAndReinitialize) {
+    if (bypassDrainAndReinitialize) {
       if (!batchBuffer.isEmpty()) {
         return true; // Drain the batch buffer before propagating the format change.
       }
-      disablePassthrough(); // The new format might not be supported in passthrough.
-      passthroughDrainAndReinitialize = false;
-      maybeInitCodecOrPassthrough();
-      if (!passthroughEnabled) {
-        return false; // The new format is not supported in passthrough.
+      disableBypass(); // The new format might require a codec.
+      bypassDrainAndReinitialize = false;
+      maybeInitCodecOrBypass();
+      if (!bypassEnabled) {
+        return false; // The new format is not supported in codec bypass.
       }
     }
 
@@ -2132,7 +2132,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (!batchBuffer.isEmpty() && waitingForFirstSampleInFormat) {
       // This is the first buffer in a new format, the output format must be updated.
       outputFormat = Assertions.checkNotNull(inputFormat);
-      onOutputPassthroughFormatChanged(outputFormat);
+      onOutputBypassFormatChanged(outputFormat);
       waitingForFirstSampleInFormat = false;
     }
 
