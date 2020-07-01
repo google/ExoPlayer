@@ -1056,30 +1056,8 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   public void flush() {
     if (isInitialized()) {
-      submittedPcmBytes = 0;
-      submittedEncodedFrames = 0;
-      writtenPcmBytes = 0;
-      writtenEncodedFrames = 0;
-      framesPerEncodedSample = 0;
-      mediaPositionParameters =
-          new MediaPositionParameters(
-              getPlaybackSpeed(),
-              getSkipSilenceEnabled(),
-              /* mediaTimeUs= */ 0,
-              /* audioTrackPositionUs= */ 0);
-      startMediaTimeUs = 0;
-      afterDrainParameters = null;
-      mediaPositionParametersCheckpoints.clear();
-      trimmingAudioProcessor.resetTrimmedFrameCount();
-      flushAudioProcessors();
-      inputBuffer = null;
-      inputBufferAccessUnitCount = 0;
-      outputBuffer = null;
-      stoppedAudioTrack = false;
-      handledEndOfStream = false;
-      drainingAudioProcessorIndex = C.INDEX_UNSET;
-      avSyncHeader = null;
-      bytesUntilNextAvSync = 0;
+      resetSinkStateForFlush();
+
       if (audioTrackPositionTracker.isPlaying()) {
         audioTrack.pause();
       }
@@ -1124,6 +1102,33 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   // Internal methods.
+
+  private void resetSinkStateForFlush() {
+    submittedPcmBytes = 0;
+    submittedEncodedFrames = 0;
+    writtenPcmBytes = 0;
+    writtenEncodedFrames = 0;
+    framesPerEncodedSample = 0;
+    mediaPositionParameters =
+        new MediaPositionParameters(
+            getPlaybackSpeed(),
+            getSkipSilenceEnabled(),
+            /* mediaTimeUs= */ 0,
+            /* audioTrackPositionUs= */ 0);
+    startMediaTimeUs = 0;
+    afterDrainParameters = null;
+    mediaPositionParametersCheckpoints.clear();
+    inputBuffer = null;
+    inputBufferAccessUnitCount = 0;
+    outputBuffer = null;
+    stoppedAudioTrack = false;
+    handledEndOfStream = false;
+    drainingAudioProcessorIndex = C.INDEX_UNSET;
+    avSyncHeader = null;
+    bytesUntilNextAvSync = 0;
+    trimmingAudioProcessor.resetTrimmedFrameCount();
+    flushAudioProcessors();
+  }
 
   /** Releases {@link #keepSessionIdAudioTrack} asynchronously, if it is non-{@code null}. */
   private void releaseKeepSessionIdAudioTrack() {
