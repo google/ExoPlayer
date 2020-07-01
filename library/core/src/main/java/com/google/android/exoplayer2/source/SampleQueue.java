@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import android.os.Looper;
+import android.util.Log;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -52,6 +53,7 @@ public class SampleQueue implements TrackOutput {
   }
 
   @VisibleForTesting /* package */ static final int SAMPLE_CAPACITY_INCREMENT = 1000;
+  private static final String TAG = "SampleQueue";
 
   private final SampleDataQueue sampleDataQueue;
   private final SampleExtrasHolder extrasHolder;
@@ -77,6 +79,7 @@ public class SampleQueue implements TrackOutput {
   private int relativeFirstIndex;
   private int readPosition;
 
+  private long startTimeUs;
   private long largestDiscardedTimestampUs;
   private long largestQueuedTimestampUs;
   private boolean isLastSampleQueued;
@@ -87,6 +90,8 @@ public class SampleQueue implements TrackOutput {
   @Nullable private Format upstreamFormat;
   @Nullable private Format upstreamCommittedFormat;
   private int upstreamSourceId;
+  private boolean upstreamAllSamplesAreSyncSamples;
+  private boolean loggedUnexpectedNonSyncSample;
 
   private long sampleOffsetUs;
   private boolean pendingSplice;
@@ -119,6 +124,7 @@ public class SampleQueue implements TrackOutput {
     sizes = new int[capacity];
     cryptoDatas = new CryptoData[capacity];
     formats = new Format[capacity];
+    startTimeUs = Long.MIN_VALUE;
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
     upstreamFormatRequired = true;
@@ -155,6 +161,7 @@ public class SampleQueue implements TrackOutput {
     relativeFirstIndex = 0;
     readPosition = 0;
     upstreamKeyframeRequired = true;
+    startTimeUs = Long.MIN_VALUE;
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
     isLastSampleQueued = false;
@@ -164,6 +171,16 @@ public class SampleQueue implements TrackOutput {
       upstreamFormat = null;
       upstreamFormatRequired = true;
     }
+  }
+
+  /**
+   * Sets the start time for the queue. Samples with earlier timestamps will be discarded or have
+   * the {@link C#BUFFER_FLAG_DECODE_ONLY} flag set when read.
+   *
+   * @param startTimeUs The start time, in microseconds.
+   */
+  public final void setStartTimeUs(long startTimeUs) {
+    this.startTimeUs = startTimeUs;
   }
 
   /**
@@ -325,8 +342,6 @@ public class SampleQueue implements TrackOutput {
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
-   * @param decodeOnlyUntilUs If a buffer is read, the {@link C#BUFFER_FLAG_DECODE_ONLY} flag will
-   *     be set if the buffer's timestamp is less than this value.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
    */
@@ -335,11 +350,9 @@ public class SampleQueue implements TrackOutput {
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
       boolean formatRequired,
-      boolean loadingFinished,
-      long decodeOnlyUntilUs) {
+      boolean loadingFinished) {
     int result =
-        readSampleMetadata(
-            formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilUs, extrasHolder);
+        readSampleMetadata(formatHolder, buffer, formatRequired, loadingFinished, extrasHolder);
     if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream() && !buffer.isFlagsOnly()) {
       sampleDataQueue.readToBuffer(buffer, extrasHolder);
     }
@@ -357,6 +370,7 @@ public class SampleQueue implements TrackOutput {
     if (sampleIndex < absoluteFirstIndex || sampleIndex > absoluteFirstIndex + length) {
       return false;
     }
+    startTimeUs = Long.MIN_VALUE;
     readPosition = sampleIndex - absoluteFirstIndex;
     return true;
   }
@@ -382,6 +396,7 @@ public class SampleQueue implements TrackOutput {
     if (offset == -1) {
       return false;
     }
+    startTimeUs = timeUs;
     readPosition += offset;
     return true;
   }
@@ -513,6 +528,22 @@ public class SampleQueue implements TrackOutput {
     }
 
     timeUs += sampleOffsetUs;
+    if (upstreamAllSamplesAreSyncSamples) {
+      if (timeUs < startTimeUs) {
+        // If we know that all samples are sync samples, we can discard those that come before the
+        // start time on the write side of the queue.
+        return;
+      }
+      if ((flags & C.BUFFER_FLAG_KEY_FRAME) == 0) {
+        // The flag should always be set unless the source content has incorrect sample metadata.
+        // Log a warning (once per format change, to avoid log spam) and override the flag.
+        if (!loggedUnexpectedNonSyncSample) {
+          Log.w(TAG, "Overriding unexpected non-sync sample for format: " + upstreamFormat);
+          loggedUnexpectedNonSyncSample = true;
+        }
+        flags |= C.BUFFER_FLAG_KEY_FRAME;
+      }
+    }
     if (pendingSplice) {
       if (!isKeyframe || !attemptSplice(timeUs)) {
         return;
@@ -568,25 +599,9 @@ public class SampleQueue implements TrackOutput {
       DecoderInputBuffer buffer,
       boolean formatRequired,
       boolean loadingFinished,
-      long decodeOnlyUntilUs,
       SampleExtrasHolder extrasHolder) {
     buffer.waitingForKeys = false;
-    // This is a temporary fix for https://github.com/google/ExoPlayer/issues/6155.
-    // TODO: Remove it and replace it with a fix that discards samples when writing to the queue.
-    boolean hasNextSample;
-    int relativeReadIndex = C.INDEX_UNSET;
-    while ((hasNextSample = hasNextSample())) {
-      relativeReadIndex = getRelativeIndex(readPosition);
-      long timeUs = timesUs[relativeReadIndex];
-      if (timeUs < decodeOnlyUntilUs
-          && MimeTypes.allSamplesAreSyncSamples(formats[relativeReadIndex].sampleMimeType)) {
-        readPosition++;
-      } else {
-        break;
-      }
-    }
-
-    if (!hasNextSample) {
+    if (!hasNextSample()) {
       if (loadingFinished || isLastSampleQueued) {
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
@@ -598,6 +613,7 @@ public class SampleQueue implements TrackOutput {
       }
     }
 
+    int relativeReadIndex = getRelativeIndex(readPosition);
     if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
       onFormatResult(formats[relativeReadIndex], formatHolder);
       return C.RESULT_FORMAT_READ;
@@ -610,7 +626,7 @@ public class SampleQueue implements TrackOutput {
 
     buffer.setFlags(flags[relativeReadIndex]);
     buffer.timeUs = timesUs[relativeReadIndex];
-    if (buffer.timeUs < decodeOnlyUntilUs) {
+    if (buffer.timeUs < startTimeUs) {
       buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
     }
     if (buffer.isFlagsOnly()) {
@@ -631,16 +647,19 @@ public class SampleQueue implements TrackOutput {
       // current upstreamFormat so we can detect format changes on the read side using cheap
       // referential quality.
       return false;
-    } else if (Util.areEqual(format, upstreamCommittedFormat)) {
+    }
+    if (Util.areEqual(format, upstreamCommittedFormat)) {
       // The format has changed back to the format of the last committed sample. If they are
       // different objects, we revert back to using upstreamCommittedFormat as the upstreamFormat
       // so we can detect format changes on the read side using cheap referential equality.
       upstreamFormat = upstreamCommittedFormat;
-      return true;
     } else {
       upstreamFormat = format;
-      return true;
     }
+    upstreamAllSamplesAreSyncSamples =
+        MimeTypes.allSamplesAreSyncSamples(upstreamFormat.sampleMimeType);
+    loggedUnexpectedNonSyncSample = false;
+    return true;
   }
 
   private synchronized long discardSampleMetadataTo(

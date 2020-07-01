@@ -560,8 +560,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     int result =
-        sampleQueues[sampleQueueIndex].read(
-            formatHolder, buffer, requireFormat, loadingFinished, lastSeekPositionUs);
+        sampleQueues[sampleQueueIndex].read(formatHolder, buffer, requireFormat, loadingFinished);
     if (result == C.RESULT_FORMAT_READ) {
       Format format = Assertions.checkNotNull(formatHolder.format);
       if (sampleQueueIndex == primarySampleQueueIndex) {
@@ -641,6 +640,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     if (isPendingReset()) {
       chunkQueue = Collections.emptyList();
       loadPositionUs = pendingResetPositionUs;
+      for (SampleQueue sampleQueue : sampleQueues) {
+        sampleQueue.setStartTimeUs(pendingResetPositionUs);
+      }
     } else {
       chunkQueue = readOnlyMediaChunks;
       HlsMediaChunk lastMediaChunk = getLastMediaChunk();

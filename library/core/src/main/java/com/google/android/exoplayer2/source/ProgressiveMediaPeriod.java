@@ -480,8 +480,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     maybeNotifyDownstreamFormat(sampleQueueIndex);
     int result =
-        sampleQueues[sampleQueueIndex].read(
-            formatHolder, buffer, formatRequired, loadingFinished, lastSeekPositionUs);
+        sampleQueues[sampleQueueIndex].read(formatHolder, buffer, formatRequired, loadingFinished);
     if (result == C.RESULT_NOTHING_READ) {
       maybeStartDeferredRetry(sampleQueueIndex);
     }
@@ -815,6 +814,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       loadable.setLoadPosition(
           Assertions.checkNotNull(seekMap).getSeekPoints(pendingResetPositionUs).first.position,
           pendingResetPositionUs);
+      for (SampleQueue sampleQueue : sampleQueues) {
+        sampleQueue.setStartTimeUs(pendingResetPositionUs);
+      }
       pendingResetPositionUs = C.TIME_UNSET;
     }
     extractedSamplesCountAtStartOfLoad = getExtractedSamplesCount();

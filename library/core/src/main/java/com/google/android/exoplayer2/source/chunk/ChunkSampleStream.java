@@ -87,7 +87,6 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private long lastSeekPositionUs;
   private int nextNotifyPrimaryFormatMediaChunkIndex;
 
-  /* package */ long decodeOnlyUntilPositionUs;
   /* package */ boolean loadingFinished;
 
   /**
@@ -282,14 +281,12 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (seekToMediaChunk != null) {
       // When seeking to the start of a chunk we use the index of the first sample in the chunk
       // rather than the seek position. This ensures we seek to the keyframe at the start of the
-      // chunk even if the sample timestamps are slightly offset from the chunk start times.
+      // chunk even if its timestamp is slightly earlier than the advertised chunk start time.
       seekInsideBuffer = primarySampleQueue.seekTo(seekToMediaChunk.getFirstSampleIndex(0));
-      decodeOnlyUntilPositionUs = 0;
     } else {
       seekInsideBuffer =
           primarySampleQueue.seekTo(
               positionUs, /* allowTimeBeyondBuffer= */ positionUs < getNextLoadPositionUs());
-      decodeOnlyUntilPositionUs = lastSeekPositionUs;
     }
 
     if (seekInsideBuffer) {
@@ -383,8 +380,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
     maybeNotifyPrimaryTrackFormatChanged();
 
-    return primarySampleQueue.read(
-        formatHolder, buffer, formatRequired, loadingFinished, decodeOnlyUntilPositionUs);
+    return primarySampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished);
   }
 
   @Override
@@ -577,9 +573,16 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     if (isMediaChunk(loadable)) {
       BaseMediaChunk mediaChunk = (BaseMediaChunk) loadable;
       if (pendingReset) {
-        boolean resetToMediaChunk = mediaChunk.startTimeUs == pendingResetPositionUs;
-        // Only enable setting of the decode only flag if we're not resetting to a chunk boundary.
-        decodeOnlyUntilPositionUs = resetToMediaChunk ? 0 : pendingResetPositionUs;
+        // Only set the queue start times if we're not seeking to a chunk boundary. If we are
+        // seeking to a chunk boundary then we want the queue to pass through all of the samples in
+        // the chunk. Doing this ensures we'll always output the keyframe at the start of the chunk,
+        // even if its timestamp is slightly earlier than the advertised chunk start time.
+        if (mediaChunk.startTimeUs != pendingResetPositionUs) {
+          primarySampleQueue.setStartTimeUs(pendingResetPositionUs);
+          for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
+            embeddedSampleQueue.setStartTimeUs(pendingResetPositionUs);
+          }
+        }
         pendingResetPositionUs = C.TIME_UNSET;
       }
       mediaChunk.init(chunkOutput);
@@ -799,12 +802,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         return C.RESULT_NOTHING_READ;
       }
       maybeNotifyDownstreamFormat();
-      return sampleQueue.read(
-          formatHolder,
-          buffer,
-          formatRequired,
-          loadingFinished,
-          decodeOnlyUntilPositionUs);
+      return sampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished);
     }
 
     public void release() {

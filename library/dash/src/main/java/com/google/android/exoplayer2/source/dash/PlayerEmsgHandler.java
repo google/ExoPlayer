@@ -380,11 +380,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
       buffer.clear();
       int result =
           sampleQueue.read(
-              formatHolder,
-              buffer,
-              /* formatRequired= */ false,
-              /* loadingFinished= */ false,
-              /* decodeOnlyUntilUs= */ 0);
+              formatHolder, buffer, /* formatRequired= */ false, /* loadingFinished= */ false);
       if (result == C.RESULT_BUFFER_READ) {
         buffer.flip();
         return buffer;
