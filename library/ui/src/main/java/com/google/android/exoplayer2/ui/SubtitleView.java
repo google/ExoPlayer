@@ -229,7 +229,9 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
    * default size before API level 19.
    */
   public void setUserDefaultTextSize() {
-    float fontScale = Util.SDK_INT >= 19 && !isInEditMode() ? getUserCaptionFontScaleV19() : 1f;
+    float fontScale = Util.SDK_INT >= 19 && isCaptionManagerEnabled() && !isInEditMode()
+        ? getUserCaptionFontScaleV19()
+        : 1f;
     setFractionalTextSize(DEFAULT_TEXT_SIZE_FRACTION * fontScale);
   }
 
