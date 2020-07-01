@@ -1514,19 +1514,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Called when the output {@link Format} changes in bypass mode (no codec used).
-   *
-   * <p>The default implementation is a no-op.
-   *
-   * @param outputFormat The new output {@link MediaFormat}.
-   * @throws ExoPlaybackException Thrown if an error occurs handling the new output media format.
-   */
-  // TODO(b/154849417): merge with {@link #onOutputFormatChanged(Format)}.
-  protected void onOutputBypassFormatChanged(Format outputFormat) throws ExoPlaybackException {
-    // Do nothing.
-  }
-
-  /**
    * Handles supplemental data associated with an input buffer.
    *
    * <p>The default implementation is a no-op.
@@ -2132,7 +2119,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (!batchBuffer.isEmpty() && waitingForFirstSampleInFormat) {
       // This is the first buffer in a new format, the output format must be updated.
       outputFormat = Assertions.checkNotNull(inputFormat);
-      onOutputBypassFormatChanged(outputFormat);
+      onOutputFormatChanged(outputFormat);
       waitingForFirstSampleInFormat = false;
     }
 

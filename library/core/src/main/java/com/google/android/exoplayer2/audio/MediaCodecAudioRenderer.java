@@ -387,11 +387,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void configureOutput(Format outputFormat) throws ExoPlaybackException {
     Format audioSinkInputFormat;
-    if (codecPassthroughFormat != null) {
-      @C.Encoding int passthroughEncoding = getPassthroughEncoding(codecPassthroughFormat);
-      // TODO(b/112299307): Passthrough can have become unavailable since usePassthrough was called.
-      Assertions.checkState(passthroughEncoding != C.ENCODING_INVALID);
-      audioSinkInputFormat = outputFormat.buildUpon().setEncoding(passthroughEncoding).build();
+    @Nullable int[] channelMap = null;
+    if (codecPassthroughFormat != null) { // Raw codec passthrough
+      audioSinkInputFormat = getFormatWithEncodingForPassthrough(codecPassthroughFormat);
+    } else if (getCodec() == null) { // Codec bypass passthrough
+      audioSinkInputFormat = getFormatWithEncodingForPassthrough(outputFormat);
     } else {
       MediaFormat mediaFormat = getCodec().getOutputFormat();
       @C.Encoding int encoding;
@@ -407,31 +407,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
               .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE))
               .build();
-    }
-    @Nullable int[] channelMap = null;
-    if (codecNeedsDiscardChannelsWorkaround
-        && audioSinkInputFormat.channelCount == 6
-        && outputFormat.channelCount < 6) {
-      channelMap = new int[outputFormat.channelCount];
-      for (int i = 0; i < outputFormat.channelCount; i++) {
-        channelMap[i] = i;
+      if (codecNeedsDiscardChannelsWorkaround
+          && audioSinkInputFormat.channelCount == 6
+          && outputFormat.channelCount < 6) {
+        channelMap = new int[outputFormat.channelCount];
+        for (int i = 0; i < outputFormat.channelCount; i++) {
+          channelMap[i] = i;
+        }
       }
     }
     try {
       audioSink.configure(audioSinkInputFormat, /* specifiedBufferSize= */ 0, channelMap);
-    } catch (AudioSink.ConfigurationException e) {
-      throw createRendererException(e, outputFormat);
-    }
-  }
-
-  @Override
-  protected void onOutputBypassFormatChanged(Format outputFormat) throws ExoPlaybackException {
-    @C.Encoding int passthroughEncoding = getPassthroughEncoding(outputFormat);
-    // TODO(b/112299307): Passthrough can have become unavailable since usePassthrough was called.
-    Assertions.checkState(passthroughEncoding != C.ENCODING_INVALID);
-    Format format = outputFormat.buildUpon().setEncoding(passthroughEncoding).build();
-    try {
-      audioSink.configure(format, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
     } catch (AudioSink.ConfigurationException e) {
       throw createRendererException(e, outputFormat);
     }
@@ -797,6 +783,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               : Math.max(currentPositionUs, newCurrentPositionUs);
       allowPositionDiscontinuity = false;
     }
+  }
+
+  private Format getFormatWithEncodingForPassthrough(Format outputFormat) {
+    @C.Encoding int passthroughEncoding = getPassthroughEncoding(outputFormat);
+    // TODO(b/112299307): Passthrough can have become unavailable since usePassthrough was called.
+    Assertions.checkState(passthroughEncoding != C.ENCODING_INVALID);
+    return outputFormat.buildUpon().setEncoding(passthroughEncoding).build();
   }
 
   /**
