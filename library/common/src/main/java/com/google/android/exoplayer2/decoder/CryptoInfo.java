@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -30,13 +32,13 @@ public final class CryptoInfo {
    *
    * @see android.media.MediaCodec.CryptoInfo#iv
    */
-  public byte[] iv;
+  @Nullable public byte[] iv;
   /**
    * The 16 byte key id.
    *
    * @see android.media.MediaCodec.CryptoInfo#key
    */
-  public byte[] key;
+  @Nullable public byte[] key;
   /**
    * The type of encryption that has been applied. Must be one of the {@link C.CryptoMode} values.
    *
@@ -49,14 +51,14 @@ public final class CryptoInfo {
    *
    * @see android.media.MediaCodec.CryptoInfo#numBytesOfClearData
    */
-  public int[] numBytesOfClearData;
+  @Nullable public int[] numBytesOfClearData;
   /**
    * The number of trailing encrypted bytes in each sub-sample. If null, all bytes are treated as
    * clear and {@link #numBytesOfClearData} must be specified.
    *
    * @see android.media.MediaCodec.CryptoInfo#numBytesOfEncryptedData
    */
-  public int[] numBytesOfEncryptedData;
+  @Nullable public int[] numBytesOfEncryptedData;
   /**
    * The number of subSamples that make up the buffer's contents.
    *
@@ -73,7 +75,7 @@ public final class CryptoInfo {
   public int clearBlocks;
 
   private final android.media.MediaCodec.CryptoInfo frameworkCryptoInfo;
-  private final PatternHolderV24 patternHolder;
+  @Nullable private final PatternHolderV24 patternHolder;
 
   public CryptoInfo() {
     frameworkCryptoInfo = new android.media.MediaCodec.CryptoInfo();
@@ -102,7 +104,7 @@ public final class CryptoInfo {
     frameworkCryptoInfo.iv = iv;
     frameworkCryptoInfo.mode = mode;
     if (Util.SDK_INT >= 24) {
-      patternHolder.set(encryptedBlocks, clearBlocks);
+      Assertions.checkNotNull(patternHolder).set(encryptedBlocks, clearBlocks);
     }
   }
 

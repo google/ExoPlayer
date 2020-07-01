@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.drm.DecryptionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -166,13 +167,28 @@ import java.util.List;
     }
     ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     CryptoInfo cryptoInfo = inputBuffer.cryptoInfo;
-    int result = inputBuffer.isEncrypted()
-        ? opusSecureDecode(nativeDecoderContext, inputBuffer.timeUs, inputData, inputData.limit(),
-            outputBuffer, SAMPLE_RATE, exoMediaCrypto, cryptoInfo.mode,
-            cryptoInfo.key, cryptoInfo.iv, cryptoInfo.numSubSamples,
-            cryptoInfo.numBytesOfClearData, cryptoInfo.numBytesOfEncryptedData)
-        : opusDecode(nativeDecoderContext, inputBuffer.timeUs, inputData, inputData.limit(),
-            outputBuffer);
+    int result =
+        inputBuffer.isEncrypted()
+            ? opusSecureDecode(
+                nativeDecoderContext,
+                inputBuffer.timeUs,
+                inputData,
+                inputData.limit(),
+                outputBuffer,
+                SAMPLE_RATE,
+                exoMediaCrypto,
+                cryptoInfo.mode,
+                Assertions.checkNotNull(cryptoInfo.key),
+                Assertions.checkNotNull(cryptoInfo.iv),
+                cryptoInfo.numSubSamples,
+                cryptoInfo.numBytesOfClearData,
+                cryptoInfo.numBytesOfEncryptedData)
+            : opusDecode(
+                nativeDecoderContext,
+                inputBuffer.timeUs,
+                inputData,
+                inputData.limit(),
+                outputBuffer);
     if (result < 0) {
       if (result == DRM_ERROR) {
         String message = "Drm error: " + opusGetErrorMessage(nativeDecoderContext);
@@ -253,8 +269,8 @@ import java.util.List;
       byte[] key,
       byte[] iv,
       int numSubSamples,
-      int[] numBytesOfClearData,
-      int[] numBytesOfEncryptedData);
+      @Nullable int[] numBytesOfClearData,
+      @Nullable int[] numBytesOfEncryptedData);
 
   private native void opusClose(long decoder);
   private native void opusReset(long decoder);

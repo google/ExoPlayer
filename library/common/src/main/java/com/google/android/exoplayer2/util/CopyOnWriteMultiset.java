@@ -41,7 +41,9 @@ import java.util.Set;
  *
  * @param <E> The type of element being stored.
  */
-public final class CopyOnWriteMultiset<E> implements Iterable<E> {
+// Intentionally extending @NonNull-by-default Object to disallow @Nullable E types.
+@SuppressWarnings("TypeParameterExplicitlyExtendsObject")
+public final class CopyOnWriteMultiset<E extends Object> implements Iterable<E> {
 
   private final Object lock;
 

@@ -40,19 +40,19 @@ public final class NalUnitUtilTest {
     byte[] data = buildTestData();
 
     // Should find NAL unit.
-    int result = NalUnitUtil.findNalUnit(data, 0, data.length, null);
+    int result = NalUnitUtil.findNalUnit(data, 0, data.length, new boolean[3]);
     assertThat(result).isEqualTo(TEST_NAL_POSITION);
     // Should find NAL unit whose prefix ends one byte before the limit.
-    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 4, null);
+    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 4, new boolean[3]);
     assertThat(result).isEqualTo(TEST_NAL_POSITION);
     // Shouldn't find NAL unit whose prefix ends at the limit (since the limit is exclusive).
-    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 3, null);
+    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 3, new boolean[3]);
     assertThat(result).isEqualTo(TEST_NAL_POSITION + 3);
     // Should find NAL unit whose prefix starts at the offset.
-    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION, data.length, null);
+    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION, data.length, new boolean[3]);
     assertThat(result).isEqualTo(TEST_NAL_POSITION);
     // Shouldn't find NAL unit whose prefix starts one byte past the offset.
-    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION + 1, data.length, null);
+    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION + 1, data.length, new boolean[3]);
     assertThat(result).isEqualTo(data.length);
   }
 

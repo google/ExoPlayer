@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -1309,7 +1310,7 @@ public final class Format implements Parcelable {
     int initializationDataSize = in.readInt();
     initializationData = new ArrayList<>(initializationDataSize);
     for (int i = 0; i < initializationDataSize; i++) {
-      initializationData.add(in.createByteArray());
+      initializationData.add(Assertions.checkNotNull(in.createByteArray()));
     }
     drmInitData = in.readParcelable(DrmInitData.class.getClassLoader());
     subsampleOffsetUs = in.readLong();
