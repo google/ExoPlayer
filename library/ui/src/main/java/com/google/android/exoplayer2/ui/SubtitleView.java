@@ -327,23 +327,28 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
 
   @RequiresApi(19)
   private boolean isCaptionManagerEnabled() {
+    @Nullable
     CaptioningManager captioningManager =
         (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
-    return captioningManager.isEnabled();
+    return captioningManager != null && captioningManager.isEnabled();
   }
 
   @RequiresApi(19)
   private float getUserCaptionFontScaleV19() {
+    @Nullable
     CaptioningManager captioningManager =
         (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
-    return captioningManager.getFontScale();
+    return captioningManager == null ? 1f : captioningManager.getFontScale();
   }
 
   @RequiresApi(19)
   private CaptionStyleCompat getUserCaptionStyleV19() {
+    @Nullable
     CaptioningManager captioningManager =
         (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
-    return CaptionStyleCompat.createFromCaptionStyle(captioningManager.getUserStyle());
+    return captioningManager == null
+        ? CaptionStyleCompat.DEFAULT
+        : CaptionStyleCompat.createFromCaptionStyle(captioningManager.getUserStyle());
   }
 
   private void updateOutput() {
