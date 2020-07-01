@@ -1402,7 +1402,11 @@ public final class DefaultAudioSink implements AudioSink {
     switch (encoding) {
       case C.ENCODING_MP3:
         int headerDataInBigEndian = Util.getBigEndianInt(buffer, buffer.position());
-        return MpegAudioUtil.parseMpegAudioFrameSampleCount(headerDataInBigEndian);
+        int frameCount = MpegAudioUtil.parseMpegAudioFrameSampleCount(headerDataInBigEndian);
+        if (frameCount == C.LENGTH_UNSET) {
+          throw new IllegalArgumentException();
+        }
+        return frameCount;
       case C.ENCODING_AAC_LC:
         return AacUtil.AAC_LC_AUDIO_SAMPLE_COUNT;
       case C.ENCODING_AAC_HE_V1:
