@@ -20,6 +20,7 @@ import android.media.DeniedByServerException;
 import android.media.MediaCryptoException;
 import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
+import android.media.ResourceBusyException;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.PersistableBundle;
@@ -57,7 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 // TODO: Consider replacing this with a Robolectric ShadowMediaDrm so we can use a real
 //  FrameworkMediaDrm.
 @RequiresApi(29)
-public class FakeExoMediaDrm implements ExoMediaDrm {
+public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   public static final ProvisionRequest DUMMY_PROVISION_REQUEST =
       new ProvisionRequest(TestUtil.createByteArray(7, 8, 9), "bar.test");
@@ -72,6 +73,7 @@ public class FakeExoMediaDrm implements ExoMediaDrm {
   private static final ImmutableList<Byte> VALID_KEY_RESPONSE = TestUtil.createByteList(1, 2, 3);
   private static final ImmutableList<Byte> KEY_DENIED_RESPONSE = TestUtil.createByteList(9, 8, 7);
 
+  private final int maxConcurrentSessions;
   private final Map<String, byte[]> byteProperties;
   private final Map<String, String> stringProperties;
   private final Set<List<Byte>> openSessionIds;
@@ -82,9 +84,20 @@ public class FakeExoMediaDrm implements ExoMediaDrm {
 
   /**
    * Constructs an instance that returns random and unique {@code sessionIds} for subsequent calls
-   * to {@link #openSession()}.
+   * to {@link #openSession()} with no limit on the number of concurrent open sessions.
    */
   public FakeExoMediaDrm() {
+    this(/* maxConcurrentSessions= */ Integer.MAX_VALUE);
+  }
+
+  /**
+   * Constructs an instance that returns random and unique {@code sessionIds} for subsequent calls
+   * to {@link #openSession()} with a limit on the number of concurrent open sessions.
+   *
+   * @param maxConcurrentSessions The max number of sessions allowed to be open simultaneously.
+   */
+  public FakeExoMediaDrm(int maxConcurrentSessions) {
+    this.maxConcurrentSessions = maxConcurrentSessions;
     byteProperties = new HashMap<>();
     stringProperties = new HashMap<>();
     openSessionIds = new HashSet<>();
@@ -114,6 +127,9 @@ public class FakeExoMediaDrm implements ExoMediaDrm {
   @Override
   public byte[] openSession() throws MediaDrmException {
     Assertions.checkState(referenceCount > 0);
+    if (openSessionIds.size() >= maxConcurrentSessions) {
+      throw new ResourceBusyException("Too many sessions open. max=" + maxConcurrentSessions);
+    }
     byte[] sessionId =
         TestUtil.buildTestData(/* length= */ 10, sessionIdGenerator.incrementAndGet());
     if (!openSessionIds.add(toByteList(sessionId))) {

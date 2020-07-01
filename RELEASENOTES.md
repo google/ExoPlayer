@@ -144,6 +144,10 @@
         `OfflineLicenseHelper`
         ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
     *   Remove generics from DRM components.
+    *   Keep DRM sessions alive for a short time before fully releasing them
+        ([#7011](https://github.com/google/ExoPlayer/issues/7011),
+        [#6725](https://github.com/google/ExoPlayer/issues/6725),
+        [#7066](https://github.com/google/ExoPlayer/issues/7066)).
 *   Downloads and caching:
     *   Support passing an `Executor` to `DefaultDownloaderFactory` on which
         data downloads are performed.

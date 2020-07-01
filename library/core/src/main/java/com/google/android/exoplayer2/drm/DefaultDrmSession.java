@@ -85,15 +85,26 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     void onProvisionCompleted();
   }
 
-  /** Callback to be notified when the session is released. */
-  public interface ReleaseCallback {
+  /** Callback to be notified when the reference count of this session changes. */
+  public interface ReferenceCountListener {
 
     /**
-     * Called immediately after releasing session resources.
+     * Called when the internal reference count of this session is incremented.
      *
-     * @param session The session.
+     * @param session This session.
+     * @param newReferenceCount The reference count after being incremented.
      */
-    void onSessionReleased(DefaultDrmSession session);
+    void onReferenceCountIncremented(DefaultDrmSession session, int newReferenceCount);
+
+    /**
+     * Called when the internal reference count of this session is decremented.
+     *
+     * <p>{@code newReferenceCount == 0} indicates this session is in {@link #STATE_RELEASED}.
+     *
+     * @param session This session.
+     * @param newReferenceCount The reference count after being decremented.
+     */
+    void onReferenceCountDecremented(DefaultDrmSession session, int newReferenceCount);
   }
 
   private static final String TAG = "DefaultDrmSession";
@@ -107,7 +118,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final ExoMediaDrm mediaDrm;
   private final ProvisioningManager provisioningManager;
-  private final ReleaseCallback releaseCallback;
+  private final ReferenceCountListener referenceCountListener;
   private final @DefaultDrmSessionManager.Mode int mode;
   private final boolean playClearSamplesWithoutKeys;
   private final boolean isPlaceholderSession;
@@ -137,7 +148,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param uuid The UUID of the drm scheme.
    * @param mediaDrm The media DRM.
    * @param provisioningManager The manager for provisioning.
-   * @param releaseCallback The {@link ReleaseCallback}.
+   * @param referenceCountListener The {@link ReferenceCountListener}.
    * @param schemeDatas DRM scheme datas for this session, or null if an {@code
    *     offlineLicenseKeySetId} is provided or if {@code isPlaceholderSession} is true.
    * @param mode The DRM mode. Ignored if {@code isPlaceholderSession} is true.
@@ -154,7 +165,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       UUID uuid,
       ExoMediaDrm mediaDrm,
       ProvisioningManager provisioningManager,
-      ReleaseCallback releaseCallback,
+      ReferenceCountListener referenceCountListener,
       @Nullable List<SchemeData> schemeDatas,
       @DefaultDrmSessionManager.Mode int mode,
       boolean playClearSamplesWithoutKeys,
@@ -170,7 +181,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     this.uuid = uuid;
     this.provisioningManager = provisioningManager;
-    this.releaseCallback = releaseCallback;
+    this.referenceCountListener = referenceCountListener;
     this.mediaDrm = mediaDrm;
     this.mode = mode;
     this.playClearSamplesWithoutKeys = playClearSamplesWithoutKeys;
@@ -280,6 +291,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       eventDispatcher.dispatch(
           DrmSessionEventListener::onDrmSessionAcquired, DrmSessionEventListener.class);
     }
+    referenceCountListener.onReferenceCountIncremented(this, referenceCount);
   }
 
   @Override
@@ -300,7 +312,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         mediaDrm.closeSession(sessionId);
         sessionId = null;
       }
-      releaseCallback.onSessionReleased(this);
       dispatchEvent(DrmSessionEventListener::onDrmSessionReleased);
     }
     if (eventDispatcher != null) {
@@ -312,6 +323,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
       eventDispatchers.remove(eventDispatcher);
     }
+    referenceCountListener.onReferenceCountDecremented(this, referenceCount);
   }
 
   // Internal methods.
