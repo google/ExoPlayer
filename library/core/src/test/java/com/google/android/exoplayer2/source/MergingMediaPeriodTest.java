@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
@@ -143,7 +144,12 @@ public final class MergingMediaPeriodTest {
       }
       mediaPeriods[i] =
           new FakeMediaPeriodWithSelectTracksPosition(
-              new TrackGroupArray(trackGroups), new EventDispatcher());
+              new TrackGroupArray(trackGroups),
+              new EventDispatcher()
+                  .withParameters(
+                      /* windowIndex= */ i,
+                      new MediaPeriodId(/* periodUid= */ i),
+                      /* mediaTimeOffsetMs= */ 0));
     }
     MergingMediaPeriod mergingMediaPeriod =
         new MergingMediaPeriod(
