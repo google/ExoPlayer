@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.analytics;
 
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.view.Surface;
@@ -57,6 +59,7 @@ import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -822,10 +825,10 @@ public final class AnalyticsCollectorTest {
         .containsExactly(window0Period1Seq0, period1Seq0)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
-        .containsExactly(window0Period1Seq0, window1Period0Seq1, period1Seq0)
+        .containsExactly(window0Period1Seq0, window1Period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
-        .containsExactly(window0Period1Seq0, window1Period0Seq1, period1Seq0)
+        .containsExactly(window0Period1Seq0, window1Period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
         .containsExactly(window0Period1Seq0, period1Seq0)
@@ -926,14 +929,15 @@ public final class AnalyticsCollectorTest {
 
   @Test
   public void adPlayback() throws Exception {
-    long contentDurationsUs = 10 * C.MICROS_PER_SECOND;
+    long contentDurationsUs = 11 * C.MICROS_PER_SECOND;
+    long windowOffsetInFirstPeriodUs =
+        TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
     AtomicReference<AdPlaybackState> adPlaybackState =
         new AtomicReference<>(
             FakeTimeline.createAdPlaybackState(
                 /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */
-                0,
-                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
-                    + 5 * C.MICROS_PER_SECOND,
+                windowOffsetInFirstPeriodUs,
+                windowOffsetInFirstPeriodUs + 5 * C.MICROS_PER_SECOND,
                 C.TIME_END_OF_SOURCE));
     AtomicInteger playedAdCount = new AtomicInteger(0);
     Timeline adTimeline =
@@ -946,7 +950,23 @@ public final class AnalyticsCollectorTest {
                 contentDurationsUs,
                 adPlaybackState.get()));
     FakeMediaSource fakeMediaSource =
-        new FakeMediaSource(adTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
+        new FakeMediaSource(
+            adTimeline,
+            DrmSessionManager.DUMMY,
+            (unusedFormat, mediaPeriodId) -> {
+              if (mediaPeriodId.isAd()) {
+                return ImmutableList.of(oneByteSample(/* timeUs= */ 0), END_OF_STREAM_ITEM);
+              } else {
+                // Provide a single sample before and after the midroll ad and another after the
+                // postroll.
+                return ImmutableList.of(
+                    oneByteSample(windowOffsetInFirstPeriodUs + C.MICROS_PER_SECOND),
+                    oneByteSample(windowOffsetInFirstPeriodUs + 6 * C.MICROS_PER_SECOND),
+                    oneByteSample(windowOffsetInFirstPeriodUs + contentDurationsUs),
+                    END_OF_STREAM_ITEM);
+              }
+            },
+            ExoPlayerTestRunner.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .executeRunnable(
@@ -965,7 +985,7 @@ public final class AnalyticsCollectorTest {
                                   adPlaybackState
                                       .get()
                                       .withPlayedAd(
-                                          playedAdCount.getAndIncrement(),
+                                          /* adGroupIndex= */ playedAdCount.getAndIncrement(),
                                           /* adIndexInAdGroup= */ 0));
                               fakeMediaSource.setNewSourceInfo(
                                   new FakeTimeline(
@@ -974,7 +994,7 @@ public final class AnalyticsCollectorTest {
                                           /* id= */ 0,
                                           /* isSeekable= */ true,
                                           /* isDynamic= */ false,
-                                          /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
+                                          contentDurationsUs,
                                           adPlaybackState.get())),
                                   /* sendManifestLoadEvents= */ false);
                             }
@@ -1185,6 +1205,8 @@ public final class AnalyticsCollectorTest {
 
   @Test
   public void seekAfterMidroll() throws Exception {
+    long windowOffsetInFirstPeriodUs =
+        TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
     Timeline adTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -1195,10 +1217,23 @@ public final class AnalyticsCollectorTest {
                 10 * C.MICROS_PER_SECOND,
                 FakeTimeline.createAdPlaybackState(
                     /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */
-                    TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
-                        + 5 * C.MICROS_PER_SECOND)));
+                    windowOffsetInFirstPeriodUs + 5 * C.MICROS_PER_SECOND)));
     FakeMediaSource fakeMediaSource =
-        new FakeMediaSource(adTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
+        new FakeMediaSource(
+            adTimeline,
+            DrmSessionManager.DUMMY,
+            (unusedFormat, mediaPeriodId) -> {
+              if (mediaPeriodId.isAd()) {
+                return ImmutableList.of(oneByteSample(/* timeUs= */ 0), END_OF_STREAM_ITEM);
+              } else {
+                // Provide a sample before the midroll and another after the seek point below (6s).
+                return ImmutableList.of(
+                    oneByteSample(windowOffsetInFirstPeriodUs + C.MICROS_PER_SECOND),
+                    oneByteSample(windowOffsetInFirstPeriodUs + 7 * C.MICROS_PER_SECOND),
+                    END_OF_STREAM_ITEM);
+              }
+            },
+            ExoPlayerTestRunner.VIDEO_FORMAT);
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()

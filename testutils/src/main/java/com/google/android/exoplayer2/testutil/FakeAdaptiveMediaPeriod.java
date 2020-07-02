@@ -58,7 +58,14 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
       FakeChunkSource.Factory chunkSourceFactory,
       long durationUs,
       @Nullable TransferListener transferListener) {
-    super(trackGroupArray, eventDispatcher);
+    super(
+        trackGroupArray,
+        /* trackDataFactory= */ (unusedFormat, unusedMediaPeriodId) -> {
+          throw new RuntimeException("unused track data");
+        },
+        eventDispatcher,
+        DrmSessionManager.DUMMY,
+        /* deferOnPrepared= */ false);
     this.allocator = allocator;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;

@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.testutil.FakeMediaPeriod.TrackDataFactory;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -46,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Fake {@link MediaSource} that provides a given timeline. Creating the period will return a {@link
@@ -78,6 +80,7 @@ public class FakeMediaSource extends BaseMediaSource {
   private static final int MANIFEST_LOAD_BYTES = 100;
 
   private final TrackGroupArray trackGroupArray;
+  @Nullable private final FakeMediaPeriod.TrackDataFactory trackDataFactory;
   private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
   private final ArrayList<MediaPeriodId> createdMediaPeriods;
   private final DrmSessionManager drmSessionManager;
@@ -107,18 +110,35 @@ public class FakeMediaSource extends BaseMediaSource {
    */
   public FakeMediaSource(
       @Nullable Timeline timeline, DrmSessionManager drmSessionManager, Format... formats) {
-    this(timeline, drmSessionManager, buildTrackGroupArray(formats));
+    this(timeline, drmSessionManager, /* trackDataFactory= */ null, buildTrackGroupArray(formats));
+  }
+
+  /**
+   * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
+   * {@link TrackGroupArray} using the given {@link Format}s. It passes {@code drmSessionManager}
+   * and {@code trackDataFactory} into the created periods. The provided {@link Timeline} may be
+   * null to prevent an immediate source info refresh message when preparing the media source. It
+   * can be manually set later using {@link #setNewSourceInfo(Timeline)}.
+   */
+  public FakeMediaSource(
+      @Nullable Timeline timeline,
+      DrmSessionManager drmSessionManager,
+      @Nullable FakeMediaPeriod.TrackDataFactory trackDataFactory,
+      Format... formats) {
+    this(timeline, drmSessionManager, trackDataFactory, buildTrackGroupArray(formats));
   }
 
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with the
-   * given {@link TrackGroupArray}. The provided {@link Timeline} may be null to prevent an
+   * provided {@link TrackGroupArray}, {@link DrmSessionManager} and {@link
+   * FakeMediaPeriod.TrackDataFactory}. The provided {@link Timeline} may be null to prevent an
    * immediate source info refresh message when preparing the media source. It can be manually set
    * later using {@link #setNewSourceInfo(Timeline)}.
    */
   public FakeMediaSource(
       @Nullable Timeline timeline,
       DrmSessionManager drmSessionManager,
+      @Nullable FakeMediaPeriod.TrackDataFactory trackDataFactory,
       TrackGroupArray trackGroupArray) {
     if (timeline != null) {
       this.timeline = timeline;
@@ -127,6 +147,7 @@ public class FakeMediaSource extends BaseMediaSource {
     this.activeMediaPeriods = new ArrayList<>();
     this.createdMediaPeriods = new ArrayList<>();
     this.drmSessionManager = drmSessionManager;
+    this.trackDataFactory = trackDataFactory;
   }
 
   @Nullable
@@ -292,6 +313,7 @@ public class FakeMediaSource extends BaseMediaSource {
    *     May be null if no listener is available.
    * @return A new {@link FakeMediaPeriod}.
    */
+  @RequiresNonNull("this.timeline")
   protected FakeMediaPeriod createFakeMediaPeriod(
       MediaPeriodId id,
       TrackGroupArray trackGroupArray,
@@ -299,8 +321,17 @@ public class FakeMediaSource extends BaseMediaSource {
       DrmSessionManager drmSessionManager,
       EventDispatcher eventDispatcher,
       @Nullable TransferListener transferListener) {
+    long positionInWindowUs =
+        timeline.getPeriodByUid(id.periodUid, new Period()).getPositionInWindowUs();
+    long defaultFirstSampleTimeUs = positionInWindowUs >= 0 || id.isAd() ? 0 : -positionInWindowUs;
     return new FakeMediaPeriod(
-        trackGroupArray, drmSessionManager, eventDispatcher, /* deferOnPrepared= */ false);
+        trackGroupArray,
+        trackDataFactory != null
+            ? trackDataFactory
+            : TrackDataFactory.singleSampleWithTimeUs(defaultFirstSampleTimeUs),
+        eventDispatcher,
+        drmSessionManager,
+        /* deferOnPrepared= */ false);
   }
 
   private void finishSourcePreparation(boolean sendManifestLoadEvents) {

@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SE
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_SUPPORTED;
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,9 +34,11 @@ import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -103,7 +106,11 @@ public class DecoderAudioRendererTest {
     audioRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {FORMAT},
-        new FakeSampleStream(FORMAT, /* eventDispatcher= */ null, /* shouldOutputSample= */ false),
+        new FakeSampleStream(
+            DrmSessionManager.DUMMY,
+            /* eventDispatcher= */ null,
+            FORMAT,
+            ImmutableList.of(END_OF_STREAM_ITEM)),
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,

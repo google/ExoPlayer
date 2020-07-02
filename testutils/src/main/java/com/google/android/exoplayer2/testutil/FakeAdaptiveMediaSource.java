@@ -38,7 +38,13 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
       Timeline timeline,
       TrackGroupArray trackGroupArray,
       FakeChunkSource.Factory chunkSourceFactory) {
-    super(timeline, DrmSessionManager.DUMMY, trackGroupArray);
+    super(
+        timeline,
+        DrmSessionManager.DUMMY,
+        /* trackDataFactory= */ (unusedFormat, unusedMediaPeriodId) -> {
+          throw new RuntimeException("Unused TrackDataFactory");
+        },
+        trackGroupArray);
     this.chunkSourceFactory = chunkSourceFactory;
   }
 

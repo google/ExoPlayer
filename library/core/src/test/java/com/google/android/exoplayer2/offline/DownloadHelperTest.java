@@ -503,14 +503,14 @@ public class DownloadHelperTest {
       int periodIndex = TEST_TIMELINE.getIndexOfPeriod(id.periodUid);
       return new FakeMediaPeriod(
           trackGroupArrays[periodIndex],
+          TEST_TIMELINE.getWindow(0, new Timeline.Window()).positionInFirstPeriodUs,
           new EventDispatcher()
               .withParameters(/* windowIndex= */ 0, id, /* mediaTimeOffsetMs= */ 0)) {
         @Override
         public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
           List<StreamKey> result = new ArrayList<>();
           for (TrackSelection trackSelection : trackSelections) {
-            int groupIndex =
-                trackGroupArrays[periodIndex].indexOf(trackSelection.getTrackGroup());
+            int groupIndex = trackGroupArrays[periodIndex].indexOf(trackSelection.getTrackGroup());
             for (int i = 0; i < trackSelection.length(); i++) {
               result.add(
                   new StreamKey(periodIndex, groupIndex, trackSelection.getIndexInTrackGroup(i)));

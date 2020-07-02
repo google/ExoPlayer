@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.format;
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -33,8 +36,8 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
-import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -108,19 +111,18 @@ public class MediaCodecAudioRendererTest {
 
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
-            /* format= */ AUDIO_AAC,
             DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(changedFormat),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            FakeSampleStreamItem.END_OF_STREAM_ITEM);
+            /* initialFormat= */ AUDIO_AAC,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0),
+                oneByteSample(/* timeUs= */ 50),
+                oneByteSample(/* timeUs= */ 100),
+                format(changedFormat),
+                oneByteSample(/* timeUs= */ 150),
+                oneByteSample(/* timeUs= */ 200),
+                oneByteSample(/* timeUs= */ 250),
+                END_OF_STREAM_ITEM));
 
     mediaCodecAudioRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -156,19 +158,18 @@ public class MediaCodecAudioRendererTest {
 
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
-            /* format= */ AUDIO_AAC,
             DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(changedFormat),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            FakeSampleStreamItem.END_OF_STREAM_ITEM);
+            /* initialFormat= */ AUDIO_AAC,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0),
+                oneByteSample(/* timeUs= */ 50),
+                oneByteSample(/* timeUs= */ 100),
+                format(changedFormat),
+                oneByteSample(/* timeUs= */ 150),
+                oneByteSample(/* timeUs= */ 200),
+                oneByteSample(/* timeUs= */ 250),
+                END_OF_STREAM_ITEM));
 
     mediaCodecAudioRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -224,13 +225,10 @@ public class MediaCodecAudioRendererTest {
 
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
-            /* format= */ AUDIO_AAC,
             DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            FakeSampleStreamItem.END_OF_STREAM_ITEM);
+            /* initialFormat= */ AUDIO_AAC,
+            ImmutableList.of(oneByteSample(/* timeUs= */ 0), END_OF_STREAM_ITEM));
 
     exceptionThrowingRenderer.enable(
         RendererConfiguration.DEFAULT,

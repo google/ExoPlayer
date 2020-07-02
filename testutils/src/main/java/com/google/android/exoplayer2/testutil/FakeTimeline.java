@@ -37,8 +37,7 @@ public final class FakeTimeline extends Timeline {
     public static final long DEFAULT_WINDOW_DURATION_US = 10 * C.MICROS_PER_SECOND;
 
     /** Default offset of a window in its first period in microseconds. */
-    public static final long DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US =
-        10_000 * C.MICROS_PER_SECOND;
+    public static final long DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US = 123 * C.MICROS_PER_SECOND;
 
     public final int periodCount;
     public final Object id;
@@ -187,7 +186,7 @@ public final class FakeTimeline extends Timeline {
   public static final MediaItem FAKE_MEDIA_ITEM =
       new MediaItem.Builder().setMediaId("FakeTimeline").setUri(Uri.EMPTY).build();
 
-  private static final long AD_DURATION_US = 10 * C.MICROS_PER_SECOND;
+  private static final long AD_DURATION_US = 5 * C.MICROS_PER_SECOND;
 
   private final TimelineWindowDefinition[] windowDefinitions;
   private final Object[] manifests;
