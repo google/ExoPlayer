@@ -21,7 +21,6 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
@@ -249,19 +248,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     synchronized (lock) {
       mediaCodecAsyncCallback.onOutputFormatChanged(codec, format);
     }
-  }
-
-  @VisibleForTesting
-  /* package */ void onMediaCodecError(IllegalStateException e) {
-    synchronized (lock) {
-      mediaCodecAsyncCallback.onMediaCodecError(e);
-    }
-  }
-
-  @VisibleForTesting
-  @Nullable
-  /* package */ Looper getLooper() {
-    return handlerThread.getLooper();
   }
 
   private void onFlushCompleted() {
