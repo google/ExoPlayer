@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import static android.content.Context.UI_MODE_SERVICE;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
@@ -1829,8 +1830,7 @@ public final class Util {
     Matcher matcher = ESCAPED_CHARACTER_PATTERN.matcher(fileName);
     int startOfNotEscaped = 0;
     while (percentCharacterCount > 0 && matcher.find()) {
-      char unescapedCharacter =
-          (char) Integer.parseInt(Assertions.checkNotNull(matcher.group(1)), 16);
+      char unescapedCharacter = (char) Integer.parseInt(checkNotNull(matcher.group(1)), 16);
       builder.append(fileName, startOfNotEscaped, matcher.start()).append(unescapedCharacter);
       startOfNotEscaped = matcher.end();
       percentCharacterCount--;
@@ -2086,7 +2086,8 @@ public final class Util {
    * @return The size of the current mode, in pixels.
    */
   public static Point getCurrentDisplayModeSize(Context context) {
-    WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    WindowManager windowManager =
+        checkNotNull((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
     return getCurrentDisplayModeSize(context, windowManager.getDefaultDisplay());
   }
 
@@ -2327,7 +2328,7 @@ public final class Util {
   private static boolean isTrafficRestricted(Uri uri) {
     return "http".equals(uri.getScheme())
         && !NetworkSecurityPolicy.getInstance()
-            .isCleartextTrafficPermitted(Assertions.checkNotNull(uri.getHost()));
+            .isCleartextTrafficPermitted(checkNotNull(uri.getHost()));
   }
 
   private static String maybeReplaceGrandfatheredLanguageTags(String languageTag) {
