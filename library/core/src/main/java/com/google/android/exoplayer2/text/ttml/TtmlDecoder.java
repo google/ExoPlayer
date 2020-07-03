@@ -444,6 +444,26 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     }
 
     float regionTextHeight = 1.0f / cellResolution.rows;
+
+    @Cue.VerticalType int verticalType = Cue.TYPE_UNSET;
+    @Nullable
+    String writingDirection =
+        XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_TTS_WRITING_MODE);
+    if (writingDirection != null) {
+      switch (Util.toLowerInvariant(writingDirection)) {
+          // TODO: Support horizontal RTL modes.
+        case TtmlNode.VERTICAL:
+        case TtmlNode.VERTICAL_LR:
+          verticalType = Cue.VERTICAL_TYPE_LR;
+          break;
+        case TtmlNode.VERTICAL_RL:
+          verticalType = Cue.VERTICAL_TYPE_RL;
+          break;
+        default:
+          // ignore
+          break;
+      }
+    }
     return new TtmlRegion(
         regionId,
         position,
@@ -453,7 +473,8 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         width,
         height,
         /* textSizeType= */ Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING,
-        /* textSize= */ regionTextHeight);
+        /* textSize= */ regionTextHeight,
+        verticalType);
   }
 
   private static String[] parseStyleIds(String parentStyleIds) {
@@ -585,21 +606,6 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               break;
             case TtmlNode.NO_UNDERLINE:
               style = createIfNull(style).setUnderline(false);
-              break;
-          }
-          break;
-        case TtmlNode.ATTR_TTS_WRITING_MODE:
-          switch (Util.toLowerInvariant(attributeValue)) {
-              // TODO: Support horizontal RTL modes.
-            case TtmlNode.VERTICAL:
-            case TtmlNode.VERTICAL_LR:
-              style = createIfNull(style).setVerticalType(Cue.VERTICAL_TYPE_LR);
-              break;
-            case TtmlNode.VERTICAL_RL:
-              style = createIfNull(style).setVerticalType(Cue.VERTICAL_TYPE_RL);
-              break;
-            default:
-              // ignore
               break;
           }
           break;
