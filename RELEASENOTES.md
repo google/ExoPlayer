@@ -135,6 +135,8 @@
         ([#7475](https://github.com/google/ExoPlayer/issues/7475)).
     *   Redefine `Cue.lineType=LINE_TYPE_NUMBER` in terms of aligning the cue
         text lines to grid of viewport lines, and ignore `Cue.lineAnchor`.
+    *   Check `CaptionManager.isEnabled()` before using it for user-specified
+        font-scaling.
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.
