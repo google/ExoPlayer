@@ -315,7 +315,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           /* maximumSize= */ 0,
           /* timestampsUs= */ new long[0],
           /* flags= */ new int[0],
-          /* durationUs= */ C.TIME_UNSET);
+          /* durationUs= */ 0);
     }
 
     // Entries are byte offsets of chunks.
