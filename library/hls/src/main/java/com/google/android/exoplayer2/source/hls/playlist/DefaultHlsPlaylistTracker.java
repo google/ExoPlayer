@@ -314,7 +314,7 @@ public final class DefaultHlsPlaylistTracker
     long currentTimeMs = SystemClock.elapsedRealtime();
     for (int i = 0; i < variantsSize; i++) {
       MediaPlaylistBundle bundle = playlistBundles.get(variants.get(i).url);
-      if (currentTimeMs > bundle.blacklistUntilMs) {
+      if (currentTimeMs > bundle.excludeUntilMs) {
         primaryMediaPlaylistUrl = bundle.playlistUrl;
         bundle.loadPlaylist();
         return true;
@@ -377,13 +377,13 @@ public final class DefaultHlsPlaylistTracker
     }
   }
 
-  private boolean notifyPlaylistError(Uri playlistUrl, long blacklistDurationMs) {
+  private boolean notifyPlaylistError(Uri playlistUrl, long exclusionDurationMs) {
     int listenersSize = listeners.size();
-    boolean anyBlacklistingFailed = false;
+    boolean anyExclusionFailed = false;
     for (int i = 0; i < listenersSize; i++) {
-      anyBlacklistingFailed |= !listeners.get(i).onPlaylistError(playlistUrl, blacklistDurationMs);
+      anyExclusionFailed |= !listeners.get(i).onPlaylistError(playlistUrl, exclusionDurationMs);
     }
-    return anyBlacklistingFailed;
+    return anyExclusionFailed;
   }
 
   private HlsMediaPlaylist getLatestPlaylistSnapshot(
@@ -467,7 +467,7 @@ public final class DefaultHlsPlaylistTracker
     private long lastSnapshotLoadMs;
     private long lastSnapshotChangeMs;
     private long earliestNextLoadTimeMs;
-    private long blacklistUntilMs;
+    private long excludeUntilMs;
     private boolean loadPending;
     private IOException playlistError;
 
@@ -504,7 +504,7 @@ public final class DefaultHlsPlaylistTracker
     }
 
     public void loadPlaylist() {
-      blacklistUntilMs = 0;
+      excludeUntilMs = 0;
       if (loadPending || mediaPlaylistLoader.isLoading() || mediaPlaylistLoader.hasFatalError()) {
         // Load already pending, in progress, or a fatal error has been encountered. Do nothing.
         return;
@@ -590,16 +590,16 @@ public final class DefaultHlsPlaylistTracker
       LoadErrorInfo loadErrorInfo =
           new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
       LoadErrorAction loadErrorAction;
-      long blacklistDurationMs = loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
-      boolean shouldBlacklist = blacklistDurationMs != C.TIME_UNSET;
+      long exclusionDurationMs = loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
+      boolean shouldExclude = exclusionDurationMs != C.TIME_UNSET;
 
-      boolean blacklistingFailed =
-          notifyPlaylistError(playlistUrl, blacklistDurationMs) || !shouldBlacklist;
-      if (shouldBlacklist) {
-        blacklistingFailed |= blacklistPlaylist(blacklistDurationMs);
+      boolean exclusionFailed =
+          notifyPlaylistError(playlistUrl, exclusionDurationMs) || !shouldExclude;
+      if (shouldExclude) {
+        exclusionFailed |= excludePlaylist(exclusionDurationMs);
       }
 
-      if (blacklistingFailed) {
+      if (exclusionFailed) {
         long retryDelay = loadErrorHandlingPolicy.getRetryDelayMsFor(loadErrorInfo);
         loadErrorAction =
             retryDelay != C.TIME_UNSET
@@ -654,7 +654,7 @@ public final class DefaultHlsPlaylistTracker
             < playlistSnapshot.mediaSequence) {
           // TODO: Allow customization of playlist resets handling.
           // The media sequence jumped backwards. The server has probably reset. We do not try
-          // blacklisting in this case.
+          // excluding in this case.
           playlistError = new PlaylistResetException(playlistUrl);
           notifyPlaylistError(playlistUrl, C.TIME_UNSET);
         } else if (currentTimeMs - lastSnapshotChangeMs
@@ -668,11 +668,11 @@ public final class DefaultHlsPlaylistTracker
                   new MediaLoadData(C.DATA_TYPE_MANIFEST),
                   playlistError,
                   /* errorCount= */ 1);
-          long blacklistDurationMs =
+          long exclusionDurationMs =
               loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
-          notifyPlaylistError(playlistUrl, blacklistDurationMs);
-          if (blacklistDurationMs != C.TIME_UNSET) {
-            blacklistPlaylist(blacklistDurationMs);
+          notifyPlaylistError(playlistUrl, exclusionDurationMs);
+          if (exclusionDurationMs != C.TIME_UNSET) {
+            excludePlaylist(exclusionDurationMs);
           }
         }
       }
@@ -693,14 +693,14 @@ public final class DefaultHlsPlaylistTracker
     }
 
     /**
-     * Blacklists the playlist.
+     * Excludes the playlist.
      *
-     * @param blacklistDurationMs The number of milliseconds for which the playlist should be
-     *     blacklisted.
-     * @return Whether the playlist is the primary, despite being blacklisted.
+     * @param exclusionDurationMs The number of milliseconds for which the playlist should be
+     *     excluded.
+     * @return Whether the playlist is the primary, despite being excluded.
      */
-    private boolean blacklistPlaylist(long blacklistDurationMs) {
-      blacklistUntilMs = SystemClock.elapsedRealtime() + blacklistDurationMs;
+    private boolean excludePlaylist(long exclusionDurationMs) {
+      excludeUntilMs = SystemClock.elapsedRealtime() + exclusionDurationMs;
       return playlistUrl.equals(primaryMediaPlaylistUrl) && !maybeSelectNewPrimaryUrl();
     }
   }

@@ -371,28 +371,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Attempts to blacklist the track associated with the given chunk. Blacklisting will fail if the
-   * track is the only non-blacklisted track in the selection.
+   * Attempts to exclude the track associated with the given chunk. Exclusion will fail if the track
+   * is the only non-excluded track in the selection.
    *
-   * @param chunk The chunk whose load caused the blacklisting attempt.
-   * @param blacklistDurationMs The number of milliseconds for which the track selection should be
-   *     blacklisted.
-   * @return Whether the blacklisting succeeded.
+   * @param chunk The chunk whose load caused the exclusion attempt.
+   * @param exclusionDurationMs The number of milliseconds for which the track selection should be
+   *     excluded.
+   * @return Whether the exclusion succeeded.
    */
-  public boolean maybeBlacklistTrack(Chunk chunk, long blacklistDurationMs) {
+  public boolean maybeExcludeTrack(Chunk chunk, long exclusionDurationMs) {
     return trackSelection.blacklist(
-        trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), blacklistDurationMs);
+        trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), exclusionDurationMs);
   }
 
   /**
    * Called when a playlist load encounters an error.
    *
    * @param playlistUrl The {@link Uri} of the playlist whose load encountered an error.
-   * @param blacklistDurationMs The duration for which the playlist should be blacklisted. Or {@link
-   *     C#TIME_UNSET} if the playlist should not be blacklisted.
-   * @return True if blacklisting did not encounter errors. False otherwise.
+   * @param exclusionDurationMs The duration for which the playlist should be excluded. Or {@link
+   *     C#TIME_UNSET} if the playlist should not be excluded.
+   * @return True if excluding did not encounter errors. False otherwise.
    */
-  public boolean onPlaylistError(Uri playlistUrl, long blacklistDurationMs) {
+  public boolean onPlaylistError(Uri playlistUrl, long exclusionDurationMs) {
     int trackGroupIndex = C.INDEX_UNSET;
     for (int i = 0; i < playlistUrls.length; i++) {
       if (playlistUrls[i].equals(playlistUrl)) {
@@ -408,8 +408,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return true;
     }
     seenExpectedPlaylistError |= playlistUrl.equals(expectedPlaylistUrl);
-    return blacklistDurationMs == C.TIME_UNSET
-        || trackSelection.blacklist(trackSelectionIndex, blacklistDurationMs);
+    return exclusionDurationMs == C.TIME_UNSET
+        || trackSelection.blacklist(trackSelectionIndex, exclusionDurationMs);
   }
 
   /**

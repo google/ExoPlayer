@@ -515,8 +515,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     chunkSource.setIsTimestampMaster(isTimestampMaster);
   }
 
-  public boolean onPlaylistError(Uri playlistUrl, long blacklistDurationMs) {
-    return chunkSource.onPlaylistError(playlistUrl, blacklistDurationMs);
+  public boolean onPlaylistError(Uri playlistUrl, long exclusionDurationMs) {
+    return chunkSource.onPlaylistError(playlistUrl, exclusionDurationMs);
   }
 
   // SampleStream implementation.
@@ -793,7 +793,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       int errorCount) {
     long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
-    boolean blacklistSucceeded = false;
+    boolean exclusionSucceeded = false;
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -815,12 +815,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
     LoadErrorAction loadErrorAction;
-    long blacklistDurationMs = loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
-    if (blacklistDurationMs != C.TIME_UNSET) {
-      blacklistSucceeded = chunkSource.maybeBlacklistTrack(loadable, blacklistDurationMs);
+    long exclusionDurationMs = loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo);
+    if (exclusionDurationMs != C.TIME_UNSET) {
+      exclusionSucceeded = chunkSource.maybeExcludeTrack(loadable, exclusionDurationMs);
     }
 
-    if (blacklistSucceeded) {
+    if (exclusionSucceeded) {
       if (isMediaChunk && bytesLoaded == 0) {
         HlsMediaChunk removed = mediaChunks.remove(mediaChunks.size() - 1);
         Assertions.checkState(removed == loadable);
@@ -829,7 +829,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         }
       }
       loadErrorAction = Loader.DONT_RETRY;
-    } else /* did not blacklist */ {
+    } else /* did not exclude */ {
       long retryDelayMs = loadErrorHandlingPolicy.getRetryDelayMsFor(loadErrorInfo);
       loadErrorAction =
           retryDelayMs != C.TIME_UNSET
@@ -854,7 +854,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     }
 
-    if (blacklistSucceeded) {
+    if (exclusionSucceeded) {
       if (!prepared) {
         continueLoading(lastSeekPositionUs);
       } else {
