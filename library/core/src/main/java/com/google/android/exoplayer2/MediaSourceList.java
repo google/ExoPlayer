@@ -67,7 +67,7 @@ import java.util.Set;
   private static final String TAG = "MediaSourceList";
 
   private final List<MediaSourceHolder> mediaSourceHolders;
-  private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
+  private final IdentityHashMap<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final Map<Object, MediaSourceHolder> mediaSourceByUid;
   private final MediaSourceListInfoRefreshListener mediaSourceListInfoListener;
   private final MediaSourceEventListener.EventDispatcher eventDispatcher;

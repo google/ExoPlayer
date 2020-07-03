@@ -72,7 +72,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
 
   // Accessed on the playback thread only.
   private final List<MediaSourceHolder> mediaSourceHolders;
-  private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
+  private final IdentityHashMap<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final Map<Object, MediaSourceHolder> mediaSourceByUid;
   private final Set<MediaSourceHolder> enabledMediaSourceHolders;
   private final boolean isAtomic;
