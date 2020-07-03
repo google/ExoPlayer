@@ -89,7 +89,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public boolean sampleEncryptionDataNeedsFill;
   /**
-   * The absolute decode time of the start of the next fragment.
+   * The absolute decode time of the start of the next fragment, excluding the samples outside
+   * fragments.
    */
   public long nextFragmentDecodeTime;
 

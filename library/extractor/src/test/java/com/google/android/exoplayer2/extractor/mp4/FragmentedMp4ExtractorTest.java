@@ -98,6 +98,14 @@ public final class FragmentedMp4ExtractorTest {
         simulationConfig);
   }
 
+  @Test
+  public void samplePartiallyFragmented() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(ImmutableList.of()),
+        "mp4/sample_partially_fragmented.mp4",
+        simulationConfig);
+  }
+
   private static ExtractorFactory getExtractorFactory(final List<Format> closedCaptionFormats) {
     return () ->
         new FragmentedMp4Extractor(

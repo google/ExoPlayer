@@ -203,6 +203,7 @@
         ([#6410](https://github.com/google/ExoPlayer/issues/6410)).
     *   Select first extractors based on the filename extension and the response
         headers mime type in `DefaultExtractorsFactory`.
+    *   Add support for partially fragmented MP4s.
 *   Testing
     *   Add `TestExoPlayer`, a utility class with APIs to create
         `SimpleExoPlayer` instances with fake components for testing.
