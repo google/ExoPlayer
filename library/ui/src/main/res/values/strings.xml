@@ -111,42 +111,42 @@
   <string translatable="false" name="exo_controls_time_placeholder">00:00:00</string>
   <!-- Content description of the left arrow button to navigate a list of buttons.
        If a user clicks the arrow, it goes back to the previous button list.
-       [CHAR_LIMIT=32] -->
+       [CHAR_LIMIT=55] -->
   <string name="exo_controls_overflow_left_button_description">Back to previous button list</string>
   <!-- Content description of the right arrow button to navigate a list of buttons.
        If a user clicks the arrow, it shows a list of other buttons.
-       [CHAR_LIMIT=32] -->
+       [CHAR_LIMIT=55] -->
   <string name="exo_controls_overflow_right_button_description">See more buttons</string>
   <!-- Content description of the seek bar, which indicates the playback progress.
-       [CHAR_LIMIT=32] -->
+       [CHAR_LIMIT=55] -->
   <string name="exo_controls_seek_bar_description">Playback progress</string>
   <!-- Content description of the settings button.
-       [CHAR_LIMIT=32] -->
+       [CHAR_LIMIT=30] -->
   <string name="exo_controls_settings_description">Settings</string>
   <!-- Content description of the close caption (subtitle) button, when subtitle is turned on.
        If a user clicks the button, it will turned off.
-       [CHAR_LIMIT=40] -->
-  <string name="exo_controls_cc_is_on">Subtitle is on. Click to hide it.</string>
+       [CHAR_LIMIT=55] -->
+  <string name="exo_controls_cc_is_on">Tap to hide subtitles</string>
   <!-- Content description of the close caption (subtitle) button, when subtitle is turned off.
        If a user clicks the button, it will turned on.
-       [CHAR_LIMIT=40] -->
-  <string name="exo_controls_cc_is_off">Subtitle is off. Click to show it.</string>
+       [CHAR_LIMIT=55] -->
+  <string name="exo_controls_cc_is_off">Tap to show subtitles</string>
   <!-- Content description of the "rewind" button.
        If a user clicks the button, it rewinds back by rewind amount.
-       [CHAR_LIMIT=32] -->
+       [CHAR_LIMIT=55] -->
   <string name="exo_controls_rewind_desc_holder">
-        Rewind by <xliff:g id="rewind_amount" example="10">%d</xliff:g> seconds</string>
+        Rewind <xliff:g id="rewind_amount" example="10">%d</xliff:g> seconds</string>
   <!-- Content description of the "fast-forward" button.
        If a user clicks the button, it fast-forwards by fast forward amount.
-       [CHAR_LIMIT=32] -->
+       [CHAR_LIMIT=55] -->
   <string name="exo_controls_ffwd_desc_holder">
-        Go forward by <xliff:g id="fastforward_amount" example="30">%d</xliff:g> seconds</string>
+        Fast forward <xliff:g id="fastforward_amount" example="30">%d</xliff:g> seconds</string>
   <!-- Content description of the full screen enter button.
        If a user clicks the button, the widget goes into full-screen mode.
-       [CHAR_LIMIT=32] -->
-  <string name="exo_controls_fullscreen_enter_description">Full screen enter</string>
+       [CHAR_LIMIT=40] -->
+  <string name="exo_controls_fullscreen_enter_description">Enter fullscreen</string>
   <!-- Content description of the full screen exit button.
        If a user clicks the button, the widget exits full-screen mode.
-       [CHAR_LIMIT=32] -->
-  <string name="exo_controls_fullscreen_exit_description">Full screen exit</string>
+       [CHAR_LIMIT=40] -->
+  <string name="exo_controls_fullscreen_exit_description">Exit fullscreen</string>
 </resources>
