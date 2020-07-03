@@ -274,7 +274,7 @@ public class IntentUtil {
     intent.putExtra(DRM_SCHEME_EXTRA + extrasKeySuffix, drmConfiguration.uuid.toString());
     intent.putExtra(
         DRM_LICENSE_URL_EXTRA + extrasKeySuffix,
-        checkNotNull(drmConfiguration.licenseUri).toString());
+        drmConfiguration.licenseUri != null ? drmConfiguration.licenseUri.toString() : null);
     intent.putExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, drmConfiguration.multiSession);
     intent.putExtra(
         DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix,
