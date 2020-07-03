@@ -63,7 +63,7 @@ public class FakeVideoRenderer extends FakeRenderer {
   }
 
   @Override
-  protected void onStopped() throws ExoPlaybackException {
+  protected void onStopped() {
     super.onStopped();
     eventDispatcher.droppedFrames(/* droppedFrameCount= */ 0, /* elapsedMs= */ 0);
     eventDispatcher.reportVideoFrameProcessingOffset(

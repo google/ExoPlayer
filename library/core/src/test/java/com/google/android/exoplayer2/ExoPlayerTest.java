@@ -6089,69 +6089,6 @@ public final class ExoPlayerTest {
     assertThat(trackSelectionsAfterError.get().get(1)).isNotNull(); // Audio renderer.
   }
 
-  @Test
-  public void errorThrownDuringRendererDisableAtPeriodTransition_isReportedForCurrentPeriod() {
-    FakeMediaSource source1 =
-        new FakeMediaSource(
-            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT);
-    FakeMediaSource source2 =
-        new FakeMediaSource(
-            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.AUDIO_FORMAT);
-    FakeRenderer videoRenderer =
-        new FakeRenderer(C.TRACK_TYPE_VIDEO) {
-          @Override
-          protected void onStopped() throws ExoPlaybackException {
-            // Fail when stopping the renderer. This will happen during the period transition.
-            throw createRendererException(
-                new IllegalStateException(), ExoPlayerTestRunner.VIDEO_FORMAT);
-          }
-        };
-    FakeRenderer audioRenderer = new FakeRenderer(C.TRACK_TYPE_AUDIO);
-    AtomicReference<TrackGroupArray> trackGroupsAfterError = new AtomicReference<>();
-    AtomicReference<TrackSelectionArray> trackSelectionsAfterError = new AtomicReference<>();
-    AtomicInteger windowIndexAfterError = new AtomicInteger();
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    player.addAnalyticsListener(
-                        new AnalyticsListener() {
-                          @Override
-                          public void onPlayerError(
-                              EventTime eventTime, ExoPlaybackException error) {
-                            trackGroupsAfterError.set(player.getCurrentTrackGroups());
-                            trackSelectionsAfterError.set(player.getCurrentTrackSelections());
-                            windowIndexAfterError.set(player.getCurrentWindowIndex());
-                          }
-                        });
-                  }
-                })
-            .build();
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(source1, source2)
-            .setActionSchedule(actionSchedule)
-            .setRenderers(videoRenderer, audioRenderer)
-            .build();
-
-    assertThrows(
-        ExoPlaybackException.class,
-        () ->
-            testRunner
-                .start(/* doPrepare= */ true)
-                .blockUntilActionScheduleFinished(TIMEOUT_MS)
-                .blockUntilEnded(TIMEOUT_MS));
-
-    assertThat(windowIndexAfterError.get()).isEqualTo(0);
-    assertThat(trackGroupsAfterError.get().length).isEqualTo(1);
-    assertThat(trackGroupsAfterError.get().get(0).getFormat(0))
-        .isEqualTo(ExoPlayerTestRunner.VIDEO_FORMAT);
-    assertThat(trackSelectionsAfterError.get().get(0)).isNotNull(); // Video renderer.
-    assertThat(trackSelectionsAfterError.get().get(1)).isNull(); // Audio renderer.
-  }
-
   // TODO(b/150584930): Fix reporting of renderer errors.
   @Ignore
   @Test

@@ -466,13 +466,11 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Stops the renderer, transitioning it to the {@link #STATE_ENABLED} state.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_STARTED}.
    *
-   * @throws ExoPlaybackException If an error occurs.
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_STARTED}.
    */
-  void stop() throws ExoPlaybackException;
+  void stop();
 
   /**
    * Disable the renderer, transitioning it to the {@link #STATE_DISABLED} state.

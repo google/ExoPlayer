@@ -91,6 +91,7 @@
     *   Add `TrackSelection.shouldCancelMediaChunkLoad` to check whether an
         ongoing load should be canceled. Only supported by HLS streams so far.
         ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
+    *   Remove throws clause from Renderer.stop.
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Track selection:
     *   Add `Player.getTrackSelector`.

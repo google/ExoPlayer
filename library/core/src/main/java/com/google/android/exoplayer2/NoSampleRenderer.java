@@ -130,7 +130,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void stop() throws ExoPlaybackException {
+  public final void stop() {
     Assertions.checkState(state == STATE_STARTED);
     state = STATE_ENABLED;
     onStopped();
@@ -237,12 +237,10 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
 
   /**
    * Called when the renderer is stopped.
-   * <p>
-   * The default implementation is a no-op.
    *
-   * @throws ExoPlaybackException If an error occurs.
+   * <p>The default implementation is a no-op.
    */
-  protected void onStopped() throws ExoPlaybackException {
+  protected void onStopped() {
     // Do nothing.
   }
 
