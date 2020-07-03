@@ -16,9 +16,15 @@
   -->
 <tt xmlns:ttm="http://www.w3.org/2006/10/ttaf1#metadata"
   xmlns:ttp="http://www.w3.org/2006/10/ttaf1#parameter"
-  xmlns:tts="http://www.w3.org/2006/10/ttaf1#style"
-  xmlns="http://www.w3.org/ns/ttml"
+  xmlns:tts="http://www.w3.org/2006/10/ttaf1#style" xmlns="http://www.w3.org/ns/ttml"
   xmlns="http://www.w3.org/2006/10/ttaf1">
+  <head>
+    <styling>
+      <style id="cont" tts:ruby="container" />
+      <style id="base" tts:ruby="base" />
+      <style id="text" tts:ruby="text" />
+    </styling>
+  </head>
   <body>
     <div>
       <!-- Base before and after text, one with explicit position -->
@@ -47,17 +53,29 @@
       </p>
     </div>
     <div>
-      <!-- No text section -> no span -->
+      <!-- ruby info in style block -->
       <p begin="30s" end="38s">
+        Cue with
+        <span style="cont">
+          <span style="base">annotated</span>
+          <span style="text">rubies</span>
+          text.
+        </span>
+      </p>
+    </div>
+    <div>
+      <!-- No text section -> no span -->
+      <p begin="40s" end="48s">
         Cue with
         <span tts:ruby="container" tts:rubyPosition="before">
           <span tts:ruby="base">annotated</span>
         </span>
-        text.</p>
+        text.
+      </p>
     </div>
     <div>
       <!-- No base section -> text still stripped-->
-      <p begin="40s" end="48s">
+      <p begin="50s" end="58s">
         Cue with
         <span tts:ruby="container" tts:rubyPosition="before">
           <span tts:ruby="text">rubies</span>
@@ -67,7 +85,7 @@
     </div>
     <div>
       <!-- No container section -> text still stripped-->
-      <p begin="50s" end="58s">
+      <p begin="60s" end="68s">
         Cue with
         <span tts:ruby="text">rubies</span>
         <span tts:ruby="base">annotated</span>
