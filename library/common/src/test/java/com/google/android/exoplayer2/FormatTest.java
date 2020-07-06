@@ -24,6 +24,7 @@ import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -53,9 +54,10 @@ public final class FormatTest {
     parcel.setDataPosition(0);
 
     Format formatFromParcel = Format.CREATOR.createFromParcel(parcel);
-    Format expectedFormat = formatToParcel.buildUpon().setExoMediaCryptoType(null).build();
+    Format expectedFormat =
+        formatToParcel.buildUpon().setExoMediaCryptoType(UnsupportedMediaCrypto.class).build();
 
-    assertThat(formatFromParcel.exoMediaCryptoType).isNull();
+    assertThat(formatFromParcel.exoMediaCryptoType).isEqualTo(UnsupportedMediaCrypto.class);
     assertThat(formatFromParcel).isEqualTo(expectedFormat);
 
     parcel.recycle();

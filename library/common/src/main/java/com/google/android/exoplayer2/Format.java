@@ -20,6 +20,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -788,9 +789,9 @@ public final class Format implements Parcelable {
   // Provided by source.
 
   /**
-   * The type of the {@link ExoMediaCrypto} provided by the media source, if the media source can
-   * acquire a DRM session for {@link #drmInitData}. Null if the media source cannot acquire a
-   * session for {@link #drmInitData}, or if not applicable.
+   * The type of the {@link ExoMediaCrypto} that the source will associate to the content that this
+   * format describes, or null if the source will not associate an {@link ExoMediaCrypto}. Cannot be
+   * null if {@link #drmInitData} is not null.
    */
   @Nullable public final Class<? extends ExoMediaCrypto> exoMediaCryptoType;
 
@@ -1287,6 +1288,13 @@ public final class Format implements Parcelable {
     // Text specific.
     this.accessibilityChannel = accessibilityChannel;
     // Provided by source.
+    if (exoMediaCryptoType == null && drmInitData != null) {
+      // Described content is encrypted but no exoMediaCryptoType has been assigned. Use
+      // UnsupportedMediaCrypto (not supported by any Renderers), so MediaSources are forced to
+      // replace
+      // this value in order to have Renderers flag this Format as supported.
+      exoMediaCryptoType = UnsupportedMediaCrypto.class;
+    }
     this.exoMediaCryptoType = exoMediaCryptoType;
   }
 
@@ -1334,7 +1342,10 @@ public final class Format implements Parcelable {
     // Text specific.
     accessibilityChannel = in.readInt();
     // Provided by source.
-    exoMediaCryptoType = null;
+    // If the described content is encrypted. Use UnsupportedMediaCrypto (not supported by any
+    // Renderers), so MediaSources are forced to replace this value in order to have Renderers flag
+    // this Format as supported.
+    exoMediaCryptoType = drmInitData != null ? UnsupportedMediaCrypto.class : null;
   }
 
   /** Returns a {@link Format.Builder} initialized with the values of this instance. */
