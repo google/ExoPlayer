@@ -1318,6 +1318,21 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return false;
     }
 
+    // This logic is required for cases where the decoder needs to be flushed or re-instantiated
+    // during normal consumption of samples from the source (i.e., without a corresponding
+    // Renderer.enable or Renderer.resetPosition call). This is necessary for certain legacy and
+    // workaround behaviors, for example when switching the output Surface on API levels prior to
+    // the introduction of MediaCodec.setOutputSurface.
+    if (!codecReceivedBuffers && !buffer.isKeyFrame()) {
+      buffer.clear();
+      if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
+        // The buffer we just cleared contained reconfiguration data. We need to re-write this data
+        // into a subsequent buffer (if there is one).
+        codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+      }
+      return true;
+    }
+
     boolean bufferEncrypted = buffer.isEncrypted();
     if (bufferEncrypted) {
       buffer.cryptoInfo.increaseClearDataFirstSubSampleBy(adaptiveReconfigurationBytes);

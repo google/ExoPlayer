@@ -133,7 +133,7 @@ public class MediaCodecVideoRendererTest {
             /* eventDispatcher= */ null,
             /* initialFormat= */ VIDEO_H264,
             ImmutableList.of(
-                oneByteSample(/* timeUs= */ 0), // First buffer.
+                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), // First buffer.
                 oneByteSample(/* timeUs= */ 50_000), // Late buffer.
                 oneByteSample(/* timeUs= */ 100_000), // Last buffer.
                 FakeSampleStreamItem.END_OF_STREAM_ITEM));
@@ -169,7 +169,8 @@ public class MediaCodecVideoRendererTest {
             /* eventDispatcher= */ null,
             /* initialFormat= */ VIDEO_H264,
             ImmutableList.of(
-                oneByteSample(/* timeUs= */ 0), FakeSampleStreamItem.END_OF_STREAM_ITEM)),
+                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME),
+                FakeSampleStreamItem.END_OF_STREAM_ITEM)),
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
@@ -204,7 +205,7 @@ public class MediaCodecVideoRendererTest {
             DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* initialFormat= */ pAsp1,
-            ImmutableList.of(oneByteSample(/* timeUs= */ 0)));
+            ImmutableList.of(oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME)));
 
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -248,7 +249,7 @@ public class MediaCodecVideoRendererTest {
             DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* initialFormat= */ VIDEO_H264,
-            ImmutableList.of(oneByteSample(/* timeUs= */ 0)));
+            ImmutableList.of(oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME)));
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {VIDEO_H264},
@@ -262,7 +263,8 @@ public class MediaCodecVideoRendererTest {
     mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     mediaCodecVideoRenderer.resetPosition(0);
     mediaCodecVideoRenderer.setCurrentStreamFinal();
-    fakeSampleStream.addFakeSampleStreamItem(oneByteSample(/* timeUs= */ 0));
+    fakeSampleStream.addFakeSampleStreamItem(
+        oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME));
     fakeSampleStream.addFakeSampleStreamItem(FakeSampleStreamItem.END_OF_STREAM_ITEM);
     int positionUs = 10;
     do {
@@ -280,7 +282,7 @@ public class MediaCodecVideoRendererTest {
             DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* initialFormat= */ VIDEO_H264,
-            ImmutableList.of(oneByteSample(/* timeUs= */ 0)));
+            ImmutableList.of(oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME)));
 
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -329,7 +331,7 @@ public class MediaCodecVideoRendererTest {
             DrmSessionManager.DUMMY,
             /* eventDispatcher= */ null,
             /* initialFormat= */ VIDEO_H264,
-            ImmutableList.of(oneByteSample(/* timeUs= */ 0)));
+            ImmutableList.of(oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME)));
 
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -445,16 +447,16 @@ public class MediaCodecVideoRendererTest {
             /* eventDispatcher= */ null,
             /* initialFormat= */ mp4Uhd,
             ImmutableList.of(
-                oneByteSample(/* timeUs= */ 0),
+                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME),
                 format(VIDEO_H264),
-                oneByteSample(/* timeUs= */ 50),
+                oneByteSample(/* timeUs= */ 50, C.BUFFER_FLAG_KEY_FRAME),
                 oneByteSample(/* timeUs= */ 100),
                 format(mp4Uhd),
-                oneByteSample(/* timeUs= */ 150),
+                oneByteSample(/* timeUs= */ 150, C.BUFFER_FLAG_KEY_FRAME),
                 oneByteSample(/* timeUs= */ 200),
                 oneByteSample(/* timeUs= */ 250),
                 format(VIDEO_H264),
-                oneByteSample(/* timeUs= */ 300),
+                oneByteSample(/* timeUs= */ 300, C.BUFFER_FLAG_KEY_FRAME),
                 FakeSampleStreamItem.END_OF_STREAM_ITEM));
 
     mediaCodecVideoRenderer.enable(
