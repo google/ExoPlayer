@@ -57,6 +57,8 @@ import java.io.IOException;
         0x71742020, // qt[space][space], Apple QuickTime
         0x4d534e56, // MSNV, Sony PSP
         0x64627931, // dby1, Dolby Vision
+        0x69736d6c, // isml
+        0x70696666, // piff
       };
 
   /**
