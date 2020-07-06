@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
+import com.google.android.exoplayer2.video.MonitorMediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionRenderer;
 import java.lang.annotation.Documented;
@@ -316,7 +317,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
       long allowedVideoJoiningTimeMs,
       ArrayList<Renderer> out) {
     MediaCodecVideoRenderer videoRenderer =
-        new MediaCodecVideoRenderer(
+        new MonitorMediaCodecVideoRenderer(
             context,
             mediaCodecSelector,
             allowedVideoJoiningTimeMs,
