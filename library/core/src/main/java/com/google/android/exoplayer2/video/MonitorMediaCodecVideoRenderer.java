@@ -5,6 +5,9 @@ import android.os.Handler;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.util.Log;
 
@@ -12,6 +15,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 public class MonitorMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
     PtsHistory ptsHistory = new PtsHistory();
+    PtsExpectedQueue ptsQueue = new PtsExpectedQueue();
 
     public MonitorMediaCodecVideoRenderer(
             Context context,
@@ -29,6 +33,63 @@ public class MonitorMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
                 eventHandler,
                 eventListener,
                 maxDroppedFramesToNotify);
+    }
+
+    @Override
+    public String getName() {
+        return "MonVidRenderer";
+    }
+
+    @Override
+    protected void resetCodecStateForFlush() {
+        super.resetCodecStateForFlush();
+        if (ptsQueue != null) {// We need this. It can be the following stack
+            ptsQueue.clearTimestamps();
+        }
+    }
+
+    @Override
+    protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
+        super.onInputFormatChanged(formatHolder);
+        // TODO: figure out why!
+        // Ensure timestamps of buffers queued after this format change are never inserted into the
+        // queue of expected output timestamps before those of buffers that have already been queued.
+        ptsQueue.freeze();
+    }
+
+    @Override
+    protected void onQueueInputBuffer(DecoderInputBuffer buffer) throws ExoPlaybackException {
+        super.onQueueInputBuffer(buffer);
+        ptsQueue.insertTimestamp(buffer.timeUs);
+        ptsQueue.maybeShiftTimestampsList();
+    }
+
+    @Override
+    protected void onProcessedOutputBuffer(long presentationTimeUs) {
+        super.onProcessedOutputBuffer(presentationTimeUs);
+        ptsHistory.record(presentationTimeUs);
+        ptsQueue.increaseBufferCount();
+
+        int dropCount = 0;
+
+        long expectedTimestampUs = ptsQueue.dequeueTimestamp();
+        long nextExpected = expectedTimestampUs;
+        while (presentationTimeUs > nextExpected) {
+            dropCount++;
+            nextExpected = ptsQueue.dequeueTimestamp();
+        }
+
+        if (dropCount == 0) return; // No drop happened, continue.
+
+        String warning = "Expected to dequeue video buffer with presentation "
+                + "timestamp: " + expectedTimestampUs + ". Instead got: " + presentationTimeUs
+                + " (Processed buffers since last flush: " + ptsQueue.bufferCount + "), dropCount = " + dropCount;
+
+        if (nextExpected == presentationTimeUs) {
+            Log.w("DROP-MON", warning);
+        } else {
+            throw new IllegalStateException("PTS does not exist in the queue, I don't know what to do!");
+        }
     }
 
     @Override
@@ -66,13 +127,7 @@ public class MonitorMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
 
     }
 
-    @Override
-    protected void onProcessedOutputBuffer(long presentationTimeUs) {
-        super.onProcessedOutputBuffer(presentationTimeUs);
-        ptsHistory.record(presentationTimeUs);
-    }
-
-    private class PtsHistory {
+    private static class PtsHistory {
         public static final int RECORD_CNT = 100; //
         private int idx = 0;
         private long[] timeRecords = new long[RECORD_CNT * 2];
@@ -91,5 +146,57 @@ public class MonitorMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
             }
         }
     }
-    
+
+    private static class PtsExpectedQueue {
+        private int startIndex;
+        private int queueSize;
+        private int bufferCount;
+        private int minimumInsertIndex;
+
+        private static final int ARRAY_SIZE = 1000;
+        private final long[] timestampsList = new long[ARRAY_SIZE];
+
+        public void clearTimestamps() {
+            startIndex = 0;
+            queueSize = 0;
+            bufferCount = 0;
+            minimumInsertIndex = 0;
+        }
+
+        public void increaseBufferCount() {
+            bufferCount ++;
+        }
+
+        public void insertTimestamp(long presentationTimeUs) {
+            for (int i = startIndex + queueSize - 1; i >= minimumInsertIndex; i--) {
+                if (presentationTimeUs >= timestampsList[i]) {
+                    timestampsList[i + 1] = presentationTimeUs;
+                    queueSize++;
+                    return;
+                }
+                timestampsList[i + 1] = timestampsList[i];
+            }
+            timestampsList[minimumInsertIndex] = presentationTimeUs;
+            queueSize++;
+        }
+
+        public void maybeShiftTimestampsList() {
+            if (startIndex + queueSize == ARRAY_SIZE) {
+                System.arraycopy(timestampsList, startIndex, timestampsList, 0, queueSize);
+                minimumInsertIndex -= startIndex;
+                startIndex = 0;
+            }
+        }
+
+        public long dequeueTimestamp() {
+            queueSize--;
+            startIndex++;
+            minimumInsertIndex = Math.max(minimumInsertIndex, startIndex);
+            return timestampsList[startIndex - 1];
+        }
+
+        public void freeze() {
+            minimumInsertIndex = startIndex + queueSize;
+        }
+    }
 }

@@ -1786,7 +1786,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 /* what= */ HANDLE_FRAME_RENDERED,
                 /* arg1= */ (int) (presentationTimeUs >> 32),
                 /* arg2= */ (int) presentationTimeUs);
-        handler.sendMessageAtFrontOfQueue(message);
+        handler.sendMessage(message);
       } else {
         handleFrameRendered(presentationTimeUs);
       }
