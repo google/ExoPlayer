@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.AssetDataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
@@ -50,7 +51,11 @@ public final class ProgressiveMediaPeriodTest {
             () -> new Extractor[] {new Mp4Extractor()},
             DrmSessionManager.DUMMY,
             new DefaultLoadErrorHandlingPolicy(),
-            new MediaSourceEventListener.EventDispatcher(),
+            new MediaSourceEventListener.EventDispatcher()
+                .withParameters(
+                    /* windowIndex= */ 0,
+                    new MediaPeriodId(/* periodUid= */ new Object()),
+                    /* mediaTimeOffsetMs= */ 0),
             sourceInfoRefreshListener,
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
             /* customCacheKey= */ null,
