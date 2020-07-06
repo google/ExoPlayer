@@ -146,7 +146,7 @@ public final class FakeChunkSource implements ChunkSource {
 
   @Override
   public boolean onChunkLoadError(
-      Chunk chunk, boolean cancelable, Exception e, long blacklistDurationMs) {
+      Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs) {
     return false;
   }
 

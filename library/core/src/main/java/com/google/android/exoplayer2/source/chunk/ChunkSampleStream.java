@@ -489,12 +489,12 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
 
-    long blacklistDurationMs =
+    long exclusionDurationMs =
         cancelable
             ? loadErrorHandlingPolicy.getBlacklistDurationMsFor(loadErrorInfo)
             : C.TIME_UNSET;
     @Nullable LoadErrorAction loadErrorAction = null;
-    if (chunkSource.onChunkLoadError(loadable, cancelable, error, blacklistDurationMs)) {
+    if (chunkSource.onChunkLoadError(loadable, cancelable, error, exclusionDurationMs)) {
       if (cancelable) {
         loadErrorAction = Loader.DONT_RETRY;
         if (isMediaChunk) {

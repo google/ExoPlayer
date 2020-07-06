@@ -49,10 +49,8 @@ public abstract class BaseTrackSelection implements TrackSelection {
    * The {@link Format}s of the selected tracks, in order of decreasing bandwidth.
    */
   private final Format[] formats;
-  /**
-   * Selected track blacklist timestamps, in order of decreasing bandwidth.
-   */
-  private final long[] blacklistUntilTimes;
+  /** Selected track exclusion timestamps, in order of decreasing bandwidth. */
+  private final long[] excludeUntilTimes;
 
   // Lazily initialized hashcode.
   private int hashCode;
@@ -77,7 +75,7 @@ public abstract class BaseTrackSelection implements TrackSelection {
     for (int i = 0; i < length; i++) {
       this.tracks[i] = group.indexOf(formats[i]);
     }
-    blacklistUntilTimes = new long[length];
+    excludeUntilTimes = new long[length];
   }
 
   @Override
@@ -152,30 +150,30 @@ public abstract class BaseTrackSelection implements TrackSelection {
   }
 
   @Override
-  public final boolean blacklist(int index, long blacklistDurationMs) {
+  public final boolean blacklist(int index, long exclusionDurationMs) {
     long nowMs = SystemClock.elapsedRealtime();
-    boolean canBlacklist = isBlacklisted(index, nowMs);
-    for (int i = 0; i < length && !canBlacklist; i++) {
-      canBlacklist = i != index && !isBlacklisted(i, nowMs);
+    boolean canExclude = isBlacklisted(index, nowMs);
+    for (int i = 0; i < length && !canExclude; i++) {
+      canExclude = i != index && !isBlacklisted(i, nowMs);
     }
-    if (!canBlacklist) {
+    if (!canExclude) {
       return false;
     }
-    blacklistUntilTimes[index] =
+    excludeUntilTimes[index] =
         Math.max(
-            blacklistUntilTimes[index],
-            Util.addWithOverflowDefault(nowMs, blacklistDurationMs, Long.MAX_VALUE));
+            excludeUntilTimes[index],
+            Util.addWithOverflowDefault(nowMs, exclusionDurationMs, Long.MAX_VALUE));
     return true;
   }
 
   /**
-   * Returns whether the track at the specified index in the selection is blacklisted.
+   * Returns whether the track at the specified index in the selection is excluded.
    *
    * @param index The index of the track in the selection.
    * @param nowMs The current time in the timebase of {@link SystemClock#elapsedRealtime()}.
    */
   protected final boolean isBlacklisted(int index, long nowMs) {
-    return blacklistUntilTimes[index] > nowMs;
+    return excludeUntilTimes[index] > nowMs;
   }
 
   // Object overrides.

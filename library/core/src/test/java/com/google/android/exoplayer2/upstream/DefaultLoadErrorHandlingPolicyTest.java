@@ -47,35 +47,35 @@ public final class DefaultLoadErrorHandlingPolicyTest {
       new MediaLoadData(/* dataType= */ C.DATA_TYPE_UNKNOWN);
 
   @Test
-  public void getBlacklistDurationMsFor_blacklist404() {
+  public void getExclusionDurationMsFor_responseCode404() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(
             404, "Not Found", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
-    assertThat(getDefaultPolicyBlacklistOutputFor(exception))
+    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
         .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
 
   @Test
-  public void getBlacklistDurationMsFor_blacklist410() {
+  public void getExclusionDurationMsFor_responseCode410() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(
             410, "Gone", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
-    assertThat(getDefaultPolicyBlacklistOutputFor(exception))
+    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
         .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
 
   @Test
-  public void getBlacklistDurationMsFor_dontBlacklistUnexpectedHttpCodes() {
+  public void getExclusionDurationMsFor_dontExcludeUnexpectedHttpCodes() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(
             500, "Internal Server Error", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
-    assertThat(getDefaultPolicyBlacklistOutputFor(exception)).isEqualTo(C.TIME_UNSET);
+    assertThat(getDefaultPolicyExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
-  public void getBlacklistDurationMsFor_dontBlacklistUnexpectedExceptions() {
+  public void getExclusionDurationMsFor_dontExcludeUnexpectedExceptions() {
     IOException exception = new IOException();
-    assertThat(getDefaultPolicyBlacklistOutputFor(exception)).isEqualTo(C.TIME_UNSET);
+    assertThat(getDefaultPolicyExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
@@ -91,7 +91,7 @@ public final class DefaultLoadErrorHandlingPolicyTest {
     assertThat(getDefaultPolicyRetryDelayOutputFor(new IOException(), 9)).isEqualTo(5000);
   }
 
-  private static long getDefaultPolicyBlacklistOutputFor(IOException exception) {
+  private static long getDefaultPolicyExclusionDurationMsFor(IOException exception) {
     LoadErrorInfo loadErrorInfo =
         new LoadErrorInfo(
             PLACEHOLDER_LOAD_EVENT_INFO,

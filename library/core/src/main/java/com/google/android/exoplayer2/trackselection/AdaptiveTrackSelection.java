@@ -569,22 +569,22 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    * Computes the ideal selected index ignoring buffer health.
    *
    * @param nowMs The current time in the timebase of {@link Clock#elapsedRealtime()}, or {@link
-   *     Long#MIN_VALUE} to ignore blacklisting.
+   *     Long#MIN_VALUE} to ignore track exclusion.
    */
   private int determineIdealSelectedIndex(long nowMs) {
     long effectiveBitrate = bandwidthProvider.getAllocatedBandwidth();
-    int lowestBitrateNonBlacklistedIndex = 0;
+    int lowestBitrateAllowedIndex = 0;
     for (int i = 0; i < length; i++) {
       if (nowMs == Long.MIN_VALUE || !isBlacklisted(i, nowMs)) {
         Format format = getFormat(i);
         if (canSelectFormat(format, format.bitrate, playbackSpeed, effectiveBitrate)) {
           return i;
         } else {
-          lowestBitrateNonBlacklistedIndex = i;
+          lowestBitrateAllowedIndex = i;
         }
       }
     }
-    return lowestBitrateNonBlacklistedIndex;
+    return lowestBitrateAllowedIndex;
   }
 
   private long minDurationForQualityIncreaseUs(long availableDurationUs) {

@@ -265,10 +265,10 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
   @Override
   public boolean onChunkLoadError(
-      Chunk chunk, boolean cancelable, Exception e, long blacklistDurationMs) {
+      Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs) {
     return cancelable
-        && blacklistDurationMs != C.TIME_UNSET
-        && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), blacklistDurationMs);
+        && exclusionDurationMs != C.TIME_UNSET
+        && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), exclusionDurationMs);
   }
 
   // Private methods.

@@ -32,7 +32,7 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
    * streams.
    */
   public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT_PROGRESSIVE_LIVE = 6;
-  /** The default duration for which a track is blacklisted in milliseconds. */
+  /** The default duration for which a track is excluded in milliseconds. */
   public static final long DEFAULT_TRACK_BLACKLIST_MS = 60_000;
 
   private static final int DEFAULT_BEHAVIOR_MIN_LOADABLE_RETRY_COUNT = -1;
@@ -61,8 +61,9 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
   }
 
   /**
-   * Blacklists resources whose load error was an {@link InvalidResponseCodeException} with response
-   * code HTTP 404 or 410. The duration of the blacklisting is {@link #DEFAULT_TRACK_BLACKLIST_MS}.
+   * Returns the exclusion duration, given by {@link #DEFAULT_TRACK_BLACKLIST_MS}, if the load error
+   * was an {@link InvalidResponseCodeException} with response code HTTP 404, 410 or 416, or {@link
+   * C#TIME_UNSET} otherwise.
    */
   @Override
   public long getBlacklistDurationMsFor(LoadErrorInfo loadErrorInfo) {
