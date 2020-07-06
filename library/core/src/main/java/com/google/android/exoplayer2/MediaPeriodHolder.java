@@ -297,7 +297,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             positionUs);
     associateNoSampleRenderersWithEmptySampleStream(sampleStreams);
 
-    // Update whether we have enabled tracks and sanity check the expected streams are non-null.
+    // Update whether we have enabled tracks and check that the expected streams are non-null.
     hasEnabledTracks = false;
     for (int i = 0; i < sampleStreams.length; i++) {
       if (sampleStreams[i] != null) {

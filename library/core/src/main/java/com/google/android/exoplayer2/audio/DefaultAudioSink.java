@@ -708,7 +708,7 @@ public final class DefaultAudioSink implements AudioSink {
         afterDrainParameters = null;
       }
 
-      // Sanity check that presentationTimeUs is consistent with the expected value.
+      // Check that presentationTimeUs is consistent with the expected value.
       long expectedPresentationTimeUs =
           startMediaTimeUs
               + configuration.inputFramesToDurationUs(

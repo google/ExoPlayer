@@ -179,13 +179,13 @@ public final class CacheDataSourceTest2 {
         null); // eventListener
   }
 
-  private static void emptyCache(Cache cache) throws CacheException {
+  private static void emptyCache(Cache cache) {
     for (String key : cache.getKeys()) {
       for (CacheSpan span : cache.getCachedSpans(key)) {
         cache.removeSpan(span);
       }
     }
-    // Sanity check that the cache really is empty now.
+    // Check that the cache really is empty now.
     assertThat(cache.getKeys().isEmpty()).isTrue();
   }
 

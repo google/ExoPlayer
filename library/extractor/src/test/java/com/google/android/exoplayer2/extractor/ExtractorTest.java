@@ -28,9 +28,9 @@ public final class ExtractorTest {
 
   @Test
   public void constants() {
-    // Sanity check that constant values match those defined by {@link C}.
+    // Check that constant values match those defined by {@link C}.
     assertThat(Extractor.RESULT_END_OF_INPUT).isEqualTo(C.RESULT_END_OF_INPUT);
-    // Sanity check that the other constant values don't overlap.
+    // Check that the other constant values don't overlap.
     assertThat(C.RESULT_END_OF_INPUT != Extractor.RESULT_CONTINUE).isTrue();
     assertThat(C.RESULT_END_OF_INPUT != Extractor.RESULT_SEEK).isTrue();
   }

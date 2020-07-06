@@ -84,7 +84,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
         continue;
       }
 
-      // Parse the index line as a sanity check.
+      // Parse and check the index line.
       try {
         Integer.parseInt(currentLine);
       } catch (NumberFormatException e) {

@@ -435,7 +435,7 @@ import java.lang.reflect.Method;
       return;
     }
 
-    // Perform sanity checks on the timestamp and accept/reject it.
+    // Check the timestamp and accept/reject it.
     long audioTimestampSystemTimeUs = audioTimestampPoller.getTimestampSystemTimeUs();
     long audioTimestampPositionFrames = audioTimestampPoller.getTimestampPositionFrames();
     if (Math.abs(audioTimestampSystemTimeUs - systemTimeUs) > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
@@ -469,9 +469,9 @@ import java.lang.reflect.Method;
             castNonNull((Integer) getLatencyMethod.invoke(Assertions.checkNotNull(audioTrack)))
                     * 1000L
                 - bufferSizeUs;
-        // Sanity check that the latency is non-negative.
+        // Check that the latency is non-negative.
         latencyUs = Math.max(latencyUs, 0);
-        // Sanity check that the latency isn't too large.
+        // Check that the latency isn't too large.
         if (latencyUs > MAX_LATENCY_US) {
           listener.onInvalidLatency(latencyUs);
           latencyUs = 0;

@@ -43,7 +43,7 @@ public final class ProjectionDecoder {
   private static final int TYPE_MESH = 0x6d657368;
   private static final int TYPE_PROJ = 0x70726f6a;
 
-  // Sanity limits to prevent a bad file from creating an OOM situation. We don't expect a mesh to
+  // Limits to prevent a bad file from creating an OOM situation. We don't expect a mesh to
   // exceed these limits.
   private static final int MAX_COORDINATE_COUNT = 10_000;
   private static final int MAX_VERTEX_COUNT = 32 * 1000;
