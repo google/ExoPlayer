@@ -15,15 +15,18 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Handler;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Player.RepeatMode;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Holds a queue of media periods, from the currently playing media period at the front to the
@@ -41,6 +44,8 @@ import com.google.android.exoplayer2.util.Assertions;
 
   private final Timeline.Period period;
   private final Timeline.Window window;
+  @Nullable private final AnalyticsCollector analyticsCollector;
+  private final Handler analyticsCollectorHandler;
 
   private long nextWindowSequenceNumber;
   private @RepeatMode int repeatMode;
@@ -52,8 +57,18 @@ import com.google.android.exoplayer2.util.Assertions;
   @Nullable private Object oldFrontPeriodUid;
   private long oldFrontPeriodWindowSequenceNumber;
 
-  /** Creates a new media period queue. */
-  public MediaPeriodQueue() {
+  /**
+   * Creates a new media period queue.
+   *
+   * @param analyticsCollector An optional {@link AnalyticsCollector} to be informed of queue
+   *     changes.
+   * @param analyticsCollectorHandler The {@link Handler} to call {@link AnalyticsCollector} methods
+   *     on.
+   */
+  public MediaPeriodQueue(
+      @Nullable AnalyticsCollector analyticsCollector, Handler analyticsCollectorHandler) {
+    this.analyticsCollector = analyticsCollector;
+    this.analyticsCollectorHandler = analyticsCollectorHandler;
     period = new Timeline.Period();
     window = new Timeline.Window();
   }
@@ -168,6 +183,7 @@ import com.google.android.exoplayer2.util.Assertions;
     oldFrontPeriodUid = null;
     loading = newPeriodHolder;
     length++;
+    notifyQueueUpdate();
     return newPeriodHolder;
   }
 
@@ -203,6 +219,7 @@ import com.google.android.exoplayer2.util.Assertions;
   public MediaPeriodHolder advanceReadingPeriod() {
     Assertions.checkState(reading != null && reading.getNext() != null);
     reading = reading.getNext();
+    notifyQueueUpdate();
     return reading;
   }
 
@@ -228,6 +245,7 @@ import com.google.android.exoplayer2.util.Assertions;
       oldFrontPeriodWindowSequenceNumber = playing.info.id.windowSequenceNumber;
     }
     playing = playing.getNext();
+    notifyQueueUpdate();
     return playing;
   }
 
@@ -241,6 +259,9 @@ import com.google.android.exoplayer2.util.Assertions;
    */
   public boolean removeAfter(MediaPeriodHolder mediaPeriodHolder) {
     Assertions.checkState(mediaPeriodHolder != null);
+    if (mediaPeriodHolder.equals(loading)) {
+      return false;
+    }
     boolean removedReading = false;
     loading = mediaPeriodHolder;
     while (mediaPeriodHolder.getNext() != null) {
@@ -253,22 +274,27 @@ import com.google.android.exoplayer2.util.Assertions;
       length--;
     }
     loading.setNext(null);
+    notifyQueueUpdate();
     return removedReading;
   }
 
   /** Clears the queue. */
   public void clear() {
-    MediaPeriodHolder front = playing;
-    if (front != null) {
-      oldFrontPeriodUid = front.uid;
-      oldFrontPeriodWindowSequenceNumber = front.info.id.windowSequenceNumber;
-      removeAfter(front);
+    if (length == 0) {
+      return;
+    }
+    MediaPeriodHolder front = Assertions.checkStateNotNull(playing);
+    oldFrontPeriodUid = front.uid;
+    oldFrontPeriodWindowSequenceNumber = front.info.id.windowSequenceNumber;
+    while (front != null) {
       front.release();
+      front = front.getNext();
     }
     playing = null;
     loading = null;
     reading = null;
     length = 0;
+    notifyQueueUpdate();
   }
 
   /**
@@ -391,6 +417,20 @@ import com.google.android.exoplayer2.util.Assertions;
   }
 
   // Internal methods.
+
+  private void notifyQueueUpdate() {
+    if (analyticsCollector != null) {
+      ImmutableList.Builder<MediaPeriodId> builder = ImmutableList.builder();
+      @Nullable MediaPeriodHolder period = playing;
+      while (period != null) {
+        builder.add(period.info.id);
+        period = period.getNext();
+      }
+      @Nullable MediaPeriodId readingPeriodId = reading == null ? null : reading.info.id;
+      analyticsCollectorHandler.post(
+          () -> analyticsCollector.updateMediaPeriodQueueInfo(builder.build(), readingPeriodId));
+    }
+  }
 
   /**
    * Resolves the specified timeline period and position to a {@link MediaPeriodId} that should be

@@ -74,7 +74,9 @@ public final class MediaPeriodQueueTest {
 
   @Before
   public void setUp() {
-    mediaPeriodQueue = new MediaPeriodQueue();
+    mediaPeriodQueue =
+        new MediaPeriodQueue(
+            /* analyticsCollector= */ null, Util.createHandlerForCurrentOrMainLooper());
     mediaSourceList =
         new MediaSourceList(
             mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
