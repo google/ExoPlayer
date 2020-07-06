@@ -1565,7 +1565,7 @@ public class FragmentedMp4Extractor implements Extractor {
       output.format(format);
     }
 
-    /** Resets the current fragment, sample indices and {@code isInFragment} boolean. */
+    /** Resets the current fragment, sample indices and {@link #currentlyInFragment} boolean. */
     public void reset() {
       fragment.reset();
       currentSampleIndex = 0;
