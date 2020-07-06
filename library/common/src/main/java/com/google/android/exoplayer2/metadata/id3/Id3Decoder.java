@@ -18,9 +18,8 @@ package com.google.android.exoplayer2.metadata.id3;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
-import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.metadata.SimpleMetadataDecoder;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -32,10 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Decodes ID3 tags.
- */
-public final class Id3Decoder implements MetadataDecoder {
+/** Decodes ID3 tags. */
+public final class Id3Decoder extends SimpleMetadataDecoder {
 
   /**
    * A predicate for determining whether individual frames should be decoded.
@@ -98,10 +95,8 @@ public final class Id3Decoder implements MetadataDecoder {
 
   @Override
   @Nullable
-  public Metadata decode(MetadataInputBuffer inputBuffer) {
-    ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
-    Assertions.checkArgument(
-        buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
+  @SuppressWarnings("ByteBufferBackingArray") // Buffer validated by SimpleMetadataDecoder.decode
+  protected Metadata decode(MetadataInputBuffer inputBuffer, ByteBuffer buffer) {
     return decode(buffer.array(), buffer.limit());
   }
 
@@ -118,7 +113,7 @@ public final class Id3Decoder implements MetadataDecoder {
     List<Id3Frame> id3Frames = new ArrayList<>();
     ParsableByteArray id3Data = new ParsableByteArray(data, size);
 
-    Id3Header id3Header = decodeHeader(id3Data);
+    @Nullable Id3Header id3Header = decodeHeader(id3Data);
     if (id3Header == null) {
       return null;
     }
@@ -142,8 +137,14 @@ public final class Id3Decoder implements MetadataDecoder {
     }
 
     while (id3Data.bytesLeft() >= frameHeaderSize) {
-      Id3Frame frame = decodeFrame(id3Header.majorVersion, id3Data, unsignedIntFrameSizeHack,
-          frameHeaderSize, framePredicate);
+      @Nullable
+      Id3Frame frame =
+          decodeFrame(
+              id3Header.majorVersion,
+              id3Data,
+              unsignedIntFrameSizeHack,
+              frameHeaderSize,
+              framePredicate);
       if (frame != null) {
         id3Frames.add(frame);
       }
@@ -660,8 +661,10 @@ public final class Id3Decoder implements MetadataDecoder {
     ArrayList<Id3Frame> subFrames = new ArrayList<>();
     int limit = framePosition + frameSize;
     while (id3Data.getPosition() < limit) {
-      Id3Frame frame = decodeFrame(majorVersion, id3Data, unsignedIntFrameSizeHack,
-          frameHeaderSize, framePredicate);
+      @Nullable
+      Id3Frame frame =
+          decodeFrame(
+              majorVersion, id3Data, unsignedIntFrameSizeHack, frameHeaderSize, framePredicate);
       if (frame != null) {
         subFrames.add(frame);
       }

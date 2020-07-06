@@ -361,12 +361,15 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
     private void parseAndDiscardSamples() {
       while (sampleQueue.isReady(/* loadingFinished= */ false)) {
-        MetadataInputBuffer inputBuffer = dequeueSample();
+        @Nullable MetadataInputBuffer inputBuffer = dequeueSample();
         if (inputBuffer == null) {
           continue;
         }
         long eventTimeUs = inputBuffer.timeUs;
-        Metadata metadata = decoder.decode(inputBuffer);
+        @Nullable Metadata metadata = decoder.decode(inputBuffer);
+        if (metadata == null) {
+          continue;
+        }
         EventMessage eventMessage = (EventMessage) metadata.get(0);
         if (isPlayerEmsgEvent(eventMessage.schemeIdUri, eventMessage.value)) {
           parsePlayerEmsgEvent(eventTimeUs, eventMessage);

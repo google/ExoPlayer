@@ -129,10 +129,6 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
       if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
           inputStreamEnded = true;
-        } else if (buffer.isDecodeOnly()) {
-          // Do nothing. Note this assumes that all metadata buffers can be decoded independently.
-          // If we ever need to support a metadata format where this is not the case, we'll need to
-          // pass the buffer to the decoder and discard the output.
         } else {
           buffer.subsampleOffsetUs = subsampleOffsetUs;
           buffer.flip();

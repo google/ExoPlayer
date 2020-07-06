@@ -16,21 +16,19 @@
 package com.google.android.exoplayer2.metadata.emsg;
 
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import com.google.android.exoplayer2.metadata.SimpleMetadataDecoder;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /** Decodes data encoded by {@link EventMessageEncoder}. */
-public final class EventMessageDecoder implements MetadataDecoder {
+public final class EventMessageDecoder extends SimpleMetadataDecoder {
 
   @Override
-  public Metadata decode(MetadataInputBuffer inputBuffer) {
-    ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
-    Assertions.checkArgument(
-        buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
+  @SuppressWarnings("ByteBufferBackingArray") // Buffer validated by SimpleMetadataDecoder.decode
+  protected Metadata decode(MetadataInputBuffer inputBuffer, ByteBuffer buffer) {
     return new Metadata(decode(new ParsableByteArray(buffer.array(), buffer.limit())));
   }
 
