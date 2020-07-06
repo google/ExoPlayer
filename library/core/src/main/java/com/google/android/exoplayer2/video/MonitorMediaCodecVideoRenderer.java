@@ -82,7 +82,7 @@ public class MonitorMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
         if (dropCount == 0) return; // No drop happened, continue.
 
         String warning = "Expected to dequeue video buffer with presentation "
-                + "timestamp: " + expectedTimestampUs + ". Instead got: " + presentationTimeUs
+                + "timestamp: " + expectedTimestampUs/1000 + ". Instead got: " + presentationTimeUs/1000
                 + " (Processed buffers since last flush: " + ptsQueue.bufferCount + "), dropCount = " + dropCount;
 
         if (nextExpected == presentationTimeUs) {
@@ -107,7 +107,7 @@ public class MonitorMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
                         // Use awk to handle delta
                         // adb logcat com.canaldigital.ngp:I  *:S FPS:V |grep -v "===>" > sample.log
                         // awk '/pts/{print $0 "\tdelta = " $10-t} !/pts/{print $0} {t=$10}' sample.log >sample_with_delta.log
-                        for (int i = 0; i < ptsHistory.RECORD_CNT; i++) {
+                        for (int i = 0; i < ptsHistory.timeRecordsBackupCount; i++) {
                             sb.append(
                                     "\npts = " + times[i + ptsHistory.RECORD_CNT] +
                                             // "\t" + sdf.format(new Date(times[i + RECORD_CNT])) +
@@ -127,23 +127,40 @@ public class MonitorMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
 
     }
 
+    @Override
+    protected void onStopped() {
+        ptsHistory.end();
+        super.onStopped();
+    }
+
     private static class PtsHistory {
         public static final int RECORD_CNT = 100; //
         private int idx = 0;
         private long[] timeRecords = new long[RECORD_CNT * 2];
         private long[] timeRecordsBackup = new long[RECORD_CNT * 2];
+        int timeRecordsBackupCount = RECORD_CNT; // For last batch
         public ArrayBlockingQueue<long[]> fpsQueue = new ArrayBlockingQueue<>(1);
 
         public void record(long presentationTimeUs) {
-            timeRecords[idx] = System.currentTimeMillis();
+            timeRecords[idx] = System.nanoTime();
             timeRecords[idx + RECORD_CNT] = presentationTimeUs/1000;
             idx++;
             if (idx == RECORD_CNT) {
                 System.arraycopy(timeRecords, 0, timeRecordsBackup, 0, RECORD_CNT * 2);
+                timeRecordsBackupCount = RECORD_CNT;
                 idx = 0;
                 // The AuditorThread may experience starvation, this method may return false
                 fpsQueue.offer(timeRecordsBackup);
             }
+        }
+
+        public void end() {
+            System.arraycopy(timeRecords, 0, timeRecordsBackup, 0, RECORD_CNT * 2);
+            timeRecordsBackupCount = idx;
+            idx = 0;
+            // The AuditorThread may experience starvation, this method may return false
+            fpsQueue.offer(timeRecordsBackup);
+            Log.i("DROP-MON", "PtsHistory::end(), lastBatchCnt = " + timeRecordsBackupCount);
         }
     }
 
