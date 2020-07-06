@@ -92,6 +92,8 @@
         ongoing load should be canceled. Only supported by HLS streams so far.
         ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
     *   Remove throws clause from Renderer.stop.
+    *   Don't clear `exception` in `SimpleDecoder#flush()`
+        ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Track selection:
     *   Add `Player.getTrackSelector`.
@@ -138,6 +140,9 @@
         text lines to grid of viewport lines, and ignore `Cue.lineAnchor`.
     *   Check `CaptionManager.isEnabled()` before using it for user-specified
         font-scaling.
+    *   Recreate the decoder when handling & swallowing decode errors in
+        `TextRenderer`
+        ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.

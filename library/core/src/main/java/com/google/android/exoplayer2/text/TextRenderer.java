@@ -82,6 +82,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
+  private boolean waitingForKeyFrame;
   @ReplacementState private int decoderReplacementState;
   @Nullable private Format streamFormat;
   @Nullable private SubtitleDecoder decoder;
@@ -145,15 +146,21 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     if (decoder != null) {
       decoderReplacementState = REPLACEMENT_STATE_SIGNAL_END_OF_STREAM;
     } else {
-      decoder = decoderFactory.createDecoder(streamFormat);
+      initDecoder();
     }
   }
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) {
+    clearOutput();
     inputStreamEnded = false;
     outputStreamEnded = false;
-    resetOutputAndDecoder();
+    if (decoderReplacementState != REPLACEMENT_STATE_NONE) {
+      replaceDecoder();
+    } else {
+      releaseBuffers();
+      decoder.flush();
+    }
   }
 
   @Override
@@ -239,12 +246,16 @@ public final class TextRenderer extends BaseRenderer implements Callback {
         if (result == C.RESULT_BUFFER_READ) {
           if (nextInputBuffer.isEndOfStream()) {
             inputStreamEnded = true;
+            waitingForKeyFrame = false;
           } else {
             nextInputBuffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
             nextInputBuffer.flip();
+            waitingForKeyFrame &= !nextInputBuffer.isKeyFrame();
           }
-          decoder.queueInputBuffer(nextInputBuffer);
-          nextInputBuffer = null;
+          if (!waitingForKeyFrame) {
+            decoder.queueInputBuffer(nextInputBuffer);
+            nextInputBuffer = null;
+          }
         } else if (result == C.RESULT_NOTHING_READ) {
           return;
         }
@@ -294,9 +305,14 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     decoderReplacementState = REPLACEMENT_STATE_NONE;
   }
 
+  private void initDecoder() {
+    waitingForKeyFrame = true;
+    decoder = decoderFactory.createDecoder(streamFormat);
+  }
+
   private void replaceDecoder() {
     releaseDecoder();
-    decoder = decoderFactory.createDecoder(streamFormat);
+    initDecoder();
   }
 
   private long getNextEventTime() {
@@ -341,16 +357,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
    */
   private void handleDecoderError(SubtitleDecoderException e) {
     Log.e(TAG, "Subtitle decoding failed. streamFormat=" + streamFormat, e);
-    resetOutputAndDecoder();
-  }
-
-  private void resetOutputAndDecoder() {
     clearOutput();
-    if (decoderReplacementState != REPLACEMENT_STATE_NONE) {
-      replaceDecoder();
-    } else {
-      releaseBuffers();
-      decoder.flush();
-    }
+    replaceDecoder();
   }
 }
