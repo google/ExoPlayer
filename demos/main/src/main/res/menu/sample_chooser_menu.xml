@@ -26,6 +26,5 @@
   <item android:id="@+id/tunneling"
       android:title="@string/tunneling"
       android:checkable="true"
-      android:checked="true"
       app:showAsAction="never"/>
 </menu>

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.video.FpsMediaCodecVideoRenderer4Tunneling;
+import com.google.android.exoplayer2.video.FpsMediaCodecVideoRenderer4Tunneling2;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 import javax.annotation.Nonnull;
@@ -23,7 +23,7 @@ public class FpsDefaultRenderersFactory4Tunneling extends DefaultRenderersFactor
       Handler eventHandler,
       VideoRendererEventListener eventListener,
       long allowedVideoJoiningTimeMs) {
-    return new FpsMediaCodecVideoRenderer4Tunneling(
+    return new FpsMediaCodecVideoRenderer4Tunneling2(
         context,
         mediaCodecSelector,
         allowedVideoJoiningTimeMs,

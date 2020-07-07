@@ -11,14 +11,7 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.util.Log;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
-
 public class FpsMediaCodecVideoRenderer4Tunneling extends MediaCodecVideoRenderer {
-  final PtsHistory ptsHistory = new PtsHistory();
-  AuditorThread auditorThread = new AuditorThread(ptsHistory);
   PtsExpectedQueue ptsQueue = new PtsExpectedQueue();
 
   private static final String TAG1 = "DROP-MON";
@@ -43,13 +36,13 @@ public class FpsMediaCodecVideoRenderer4Tunneling extends MediaCodecVideoRendere
 
   @Override
   public String getName() {
-    return "MonVidRenderer";
+    return "FpsMonVidRend";
   }
 
   @Override
   protected void resetCodecStateForFlush() {
     super.resetCodecStateForFlush();
-    if (ptsQueue != null) {// We need this. It can be the following stack
+    if (ptsQueue != null) {// We need this. This might be called from super's constructor
       ptsQueue.clearTimestamps();
     }
   }
@@ -73,7 +66,6 @@ public class FpsMediaCodecVideoRenderer4Tunneling extends MediaCodecVideoRendere
   @Override
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
     super.onProcessedOutputBuffer(presentationTimeUs);
-    ptsHistory.record(presentationTimeUs);
     ptsQueue.increaseBufferCount();
 
     int dropCount = 0;
@@ -87,6 +79,8 @@ public class FpsMediaCodecVideoRenderer4Tunneling extends MediaCodecVideoRendere
 
     if (dropCount == 0) return; // No drop happened, continue.
 
+    updateDroppedBufferCounters(dropCount);
+
     String warning = "Expected to dequeue video buffer with presentation "
         + "timestamp: " + expectedTimestampUs / 1000 + ". Instead got: " + presentationTimeUs / 1000
         + " (Processed buffers since last flush: " + ptsQueue.bufferCount + "), dropCount = " + dropCount;
@@ -97,105 +91,6 @@ public class FpsMediaCodecVideoRenderer4Tunneling extends MediaCodecVideoRendere
       throw new IllegalStateException("PTS does not exist in the queue, I don't know what to do!");
     }
   }
-
-  @Override
-  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream) throws ExoPlaybackException {
-    super.onEnabled(joining, mayRenderStartOfStream);
-    auditorThread.start();
-  }
-
-  @Override
-  protected void onDisabled() {
-    Log.i(TAG1, "onDisabled()");
-    ptsHistory.dumpAll();
-    auditorThread.interrupt();
-    super.onDisabled();
-  }
-
-  @Override
-  protected void onStarted() {
-    Log.i(TAG1, "onStarted()");
-    super.onStarted();
-  }
-
-  private static class PtsHistory {
-    public static final int RECORD_CNT = 100; //
-    private int idx;
-    private long[] timeRecords = new long[RECORD_CNT * 2];
-    private long[] timeRecordsBackup = new long[RECORD_CNT * 2];
-    int timeRecordsBackupCount; // For last batch
-    public ArrayBlockingQueue<long[]> fpsQueue = new ArrayBlockingQueue<>(1);
-
-    public void record(long presentationTimeUs) {
-      timeRecords[idx] = System.nanoTime();
-      timeRecords[idx + RECORD_CNT] = presentationTimeUs / 1000;
-      idx++;
-      if (idx == RECORD_CNT) {
-        System.arraycopy(timeRecords, 0, timeRecordsBackup, 0, RECORD_CNT * 2);
-        timeRecordsBackupCount = RECORD_CNT;
-        idx = 0;
-        // The AuditorThread may experience starvation, this method may return false
-        fpsQueue.offer(timeRecordsBackup);
-      }
-    }
-
-    public void dumpAll() {
-      if (idx == 0) return;// Nothing to report
-      System.arraycopy(timeRecords, 0, timeRecordsBackup, 0, RECORD_CNT * 2);
-      timeRecordsBackupCount = idx;
-      idx = 0;
-      // The AuditorThread may experience starvation, this method may return false
-      fpsQueue.offer(timeRecordsBackup);
-      Log.i(TAG1, "PtsHistory::dumpAll(), lastBatchCnt = " + timeRecordsBackupCount);
-    }
-  }
-
-  private static class AuditorThread extends Thread {
-    final PtsHistory ptsHistory;
-
-    private AuditorThread(@Nonnull PtsHistory ptsHistory) {
-      super(AuditorThread.class.getSimpleName());
-      this.ptsHistory = ptsHistory;
-      setPriority(Thread.MIN_PRIORITY);
-    }
-
-    @Override
-    public void run() {
-      while (!isInterrupted()) {
-        long[] times = new long[0];
-        try {
-          times = ptsHistory.fpsQueue.take();
-        } catch (InterruptedException e) {
-          Log.i(TAG1, "Start quitting AuditorThread");
-          try {
-            times = ptsHistory.fpsQueue.poll(10, TimeUnit.SECONDS);
-            if (times == null) times = new long[0];
-          } catch (InterruptedException ex) {
-            // Ignore, shall not happen
-            Log.i(TAG1, "Shall not happen");
-          }
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("===>");
-        // Use awk to handle delta
-        // adb logcat com.canaldigital.ngp:I  *:S FPS:V |grep -v "===>" > sample.log
-        // awk '/pts/{print $0 "\tdelta = " $10-t} !/pts/{print $0} {t=$10}' sample.log >sample_with_delta.log
-        for (int i = 0; i < ptsHistory.timeRecordsBackupCount; i++) {
-          sb.append(
-              "\npts = " + times[i + ptsHistory.RECORD_CNT] +
-                  // "\t" + sdf.format(new Date(times[i + RECORD_CNT])) +
-                  "\tcb = " + times[i]);
-        }
-        Log.d("FPS", sb.toString());
-
-      }
-
-      Log.i(TAG1, "Quit AuditorThread safely");
-    }
-  }
-
-  ;
-
 
   private static class PtsExpectedQueue {
     private int startIndex;
