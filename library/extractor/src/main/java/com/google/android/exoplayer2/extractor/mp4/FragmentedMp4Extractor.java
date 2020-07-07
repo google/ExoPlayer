@@ -288,7 +288,7 @@ public class FragmentedMp4Extractor implements Extractor {
               /* maximumSize= */ 0,
               /* timestampsUs= */ new long[0],
               /* flags= */ new int[0],
-              /* durationUs= */ C.TIME_UNSET),
+              /* durationUs= */ 0),
           new DefaultSampleValues(
               /* sampleDescriptionIndex= */ 0, /* duration= */ 0, /* size= */ 0, /* flags= */ 0));
       trackBundles.put(0, bundle);
