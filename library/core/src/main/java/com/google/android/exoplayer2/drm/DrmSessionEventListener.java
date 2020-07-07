@@ -15,9 +15,14 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.os.Handler;
+import android.os.Looper;
+import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
+import com.google.android.exoplayer2.util.Assertions;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Listener of {@link DrmSessionManager} events. */
 public interface DrmSessionEventListener {
@@ -78,4 +83,148 @@ public interface DrmSessionEventListener {
    * @param mediaPeriodId The {@link MediaPeriodId} associated with the drm session.
    */
   default void onDrmSessionReleased(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {}
+
+  /** Dispatches events to {@link DrmSessionEventListener DrmSessionEventListeners}. */
+  class EventDispatcher {
+
+    /** The timeline window index reported with the events. */
+    public final int windowIndex;
+    /** The {@link MediaPeriodId} reported with the events. */
+    @Nullable public final MediaPeriodId mediaPeriodId;
+
+    private final CopyOnWriteArrayList<EventDispatcher.ListenerAndHandler> listenerAndHandlers;
+
+    /** Creates an event dispatcher. */
+    public EventDispatcher() {
+      this(
+          /* listenerAndHandlers= */ new CopyOnWriteArrayList<>(),
+          /* windowIndex= */ 0,
+          /* mediaPeriodId= */ null);
+    }
+
+    private EventDispatcher(
+        CopyOnWriteArrayList<EventDispatcher.ListenerAndHandler> listenerAndHandlers,
+        int windowIndex,
+        @Nullable MediaPeriodId mediaPeriodId) {
+      this.listenerAndHandlers = listenerAndHandlers;
+      this.windowIndex = windowIndex;
+      this.mediaPeriodId = mediaPeriodId;
+    }
+
+    /**
+     * Creates a view of the event dispatcher with the provided window index and media period id.
+     *
+     * @param windowIndex The timeline window index to be reported with the events.
+     * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events.
+     * @return A view of the event dispatcher with the pre-configured parameters.
+     */
+    @CheckResult
+    public EventDispatcher withParameters(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      return new EventDispatcher(listenerAndHandlers, windowIndex, mediaPeriodId);
+    }
+
+    /**
+     * Adds a listener to the event dispatcher.
+     *
+     * @param handler A handler on the which listener events will be posted.
+     * @param eventListener The listener to be added.
+     */
+    public void addEventListener(Handler handler, DrmSessionEventListener eventListener) {
+      Assertions.checkNotNull(handler);
+      Assertions.checkNotNull(eventListener);
+      listenerAndHandlers.add(new ListenerAndHandler(handler, eventListener));
+    }
+
+    /**
+     * Removes a listener from the event dispatcher.
+     *
+     * @param eventListener The listener to be removed.
+     */
+    public void removeEventListener(DrmSessionEventListener eventListener) {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        if (listenerAndHandler.listener == eventListener) {
+          listenerAndHandlers.remove(listenerAndHandler);
+        }
+      }
+    }
+
+    /** Dispatches {@link #onDrmSessionAcquired(int, MediaPeriodId)}. */
+    public void drmSessionAcquired() {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        DrmSessionEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler,
+            () -> listener.onDrmSessionAcquired(windowIndex, mediaPeriodId));
+      }
+    }
+
+    /** Dispatches {@link #onDrmKeysLoaded(int, MediaPeriodId)}. */
+    public void drmKeysLoaded() {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        DrmSessionEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler, () -> listener.onDrmKeysLoaded(windowIndex, mediaPeriodId));
+      }
+    }
+
+    /** Dispatches {@link #onDrmSessionManagerError(int, MediaPeriodId, Exception)}. */
+    public void drmSessionManagerError(Exception error) {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        DrmSessionEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler,
+            () -> listener.onDrmSessionManagerError(windowIndex, mediaPeriodId, error));
+      }
+    }
+
+    /** Dispatches {@link #onDrmKeysRestored(int, MediaPeriodId)}. */
+    public void drmKeysRestored() {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        DrmSessionEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler,
+            () -> listener.onDrmKeysRestored(windowIndex, mediaPeriodId));
+      }
+    }
+
+    /** Dispatches {@link #onDrmKeysRemoved(int, MediaPeriodId)}. */
+    public void drmKeysRemoved() {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        DrmSessionEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler,
+            () -> listener.onDrmKeysRemoved(windowIndex, mediaPeriodId));
+      }
+    }
+
+    /** Dispatches {@link #onDrmSessionReleased(int, MediaPeriodId)}. */
+    public void drmSessionReleased() {
+      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
+        DrmSessionEventListener listener = listenerAndHandler.listener;
+        postOrRun(
+            listenerAndHandler.handler,
+            () -> listener.onDrmSessionReleased(windowIndex, mediaPeriodId));
+      }
+    }
+
+    /** Dispatches {@link #onDrmSessionAcquired(int, MediaPeriodId)}. */
+    private static void postOrRun(Handler handler, Runnable runnable) {
+      if (handler.getLooper() == Looper.myLooper()) {
+        runnable.run();
+      } else {
+        handler.post(runnable);
+      }
+    }
+
+    private static final class ListenerAndHandler {
+
+      public Handler handler;
+      public DrmSessionEventListener listener;
+
+      public ListenerAndHandler(Handler handler, DrmSessionEventListener listener) {
+        this.handler = handler;
+        this.listener = listener;
+      }
+    }
+  }
 }

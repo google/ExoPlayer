@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -38,6 +37,7 @@ public abstract class BaseMediaSource implements MediaSource {
   private final ArrayList<MediaSourceCaller> mediaSourceCallers;
   private final HashSet<MediaSourceCaller> enabledMediaSourceCallers;
   private final MediaSourceEventListener.EventDispatcher eventDispatcher;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
 
   @Nullable private Looper looper;
   @Nullable private Timeline timeline;
@@ -46,6 +46,7 @@ public abstract class BaseMediaSource implements MediaSource {
     mediaSourceCallers = new ArrayList<>(/* initialCapacity= */ 1);
     enabledMediaSourceCallers = new HashSet<>(/* initialCapacity= */ 1);
     eventDispatcher = new MediaSourceEventListener.EventDispatcher();
+    drmEventDispatcher = new DrmSessionEventListener.EventDispatcher();
   }
 
   /**
@@ -127,6 +128,33 @@ public abstract class BaseMediaSource implements MediaSource {
     return eventDispatcher.withParameters(windowIndex, mediaPeriodId, mediaTimeOffsetMs);
   }
 
+  /**
+   * Returns a {@link DrmSessionEventListener.EventDispatcher} which dispatches all events to the
+   * registered listeners with the specified media period id.
+   *
+   * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
+   *     the events do not belong to a specific media period.
+   * @return An event dispatcher with pre-configured media period id.
+   */
+  protected final DrmSessionEventListener.EventDispatcher createDrmEventDispatcher(
+      @Nullable MediaPeriodId mediaPeriodId) {
+    return drmEventDispatcher.withParameters(/* windowIndex= */ 0, mediaPeriodId);
+  }
+
+  /**
+   * Returns a {@link DrmSessionEventListener.EventDispatcher} which dispatches all events to the
+   * registered listeners with the specified window index and media period id.
+   *
+   * @param windowIndex The timeline window index to be reported with the events.
+   * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
+   *     the events do not belong to a specific media period.
+   * @return An event dispatcher with pre-configured media period id and time offset.
+   */
+  protected final DrmSessionEventListener.EventDispatcher createDrmEventDispatcher(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    return drmEventDispatcher.withParameters(windowIndex, mediaPeriodId);
+  }
+
   /** Returns whether the source is enabled. */
   protected final boolean isEnabled() {
     return !enabledMediaSourceCallers.isEmpty();
@@ -134,44 +162,22 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
-    addEventListenerInternal(handler, eventListener, MediaSourceEventListener.class);
+    eventDispatcher.addEventListener(handler, eventListener);
   }
 
   @Override
   public final void removeEventListener(MediaSourceEventListener eventListener) {
-    removeEventListenerInternal(eventListener, MediaSourceEventListener.class);
+    eventDispatcher.removeEventListener(eventListener);
   }
 
   @Override
   public final void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener) {
-    addEventListenerInternal(handler, eventListener, DrmSessionEventListener.class);
+    drmEventDispatcher.addEventListener(handler, eventListener);
   }
 
   @Override
   public final void removeDrmEventListener(DrmSessionEventListener eventListener) {
-    removeEventListenerInternal(eventListener, DrmSessionEventListener.class);
-  }
-
-  /**
-   * Adds a listener to the internal {@link MediaSourceEventDispatcher} with the provided type.
-   *
-   * <p>NOTE: Read the caveats on {@link MediaSourceEventDispatcher#addEventListener(Handler,
-   * Object, Class)} when deciding what value to pass for {@code listenerClass}.
-   *
-   * @see MediaSourceEventDispatcher#addEventListener(Handler, Object, Class)
-   */
-  protected final <T> void addEventListenerInternal(
-      Handler handler, T eventListener, Class<T> listenerClass) {
-    eventDispatcher.addEventListener(handler, eventListener, listenerClass);
-  }
-
-  /**
-   * Removes a listener from the internal {@link MediaSourceEventDispatcher}.
-   *
-   * @see MediaSourceEventDispatcher#removeEventListener(Object, Class)
-   */
-  protected final <T> void removeEventListenerInternal(T eventListener, Class<T> listenerClass) {
-    eventDispatcher.removeEventListener(eventListener, listenerClass);
+    drmEventDispatcher.removeEventListener(eventListener);
   }
 
   @Override

@@ -19,7 +19,6 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
-import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 
 /** Manages a DRM session. */
 public interface DrmSessionManager {
@@ -41,7 +40,7 @@ public interface DrmSessionManager {
         @Override
         public DrmSession acquireSession(
             Looper playbackLooper,
-            @Nullable MediaSourceEventDispatcher eventDispatcher,
+            @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
             DrmInitData drmInitData) {
           return new ErrorStateDrmSession(
               new DrmSession.DrmSessionException(
@@ -83,7 +82,7 @@ public interface DrmSessionManager {
   /**
    * Returns a {@link DrmSession} that does not execute key requests, with an incremented reference
    * count. When the caller no longer needs to use the instance, it must call {@link
-   * DrmSession#release(MediaSourceEventDispatcher)} to decrement the reference count.
+   * DrmSession#release(DrmSessionEventListener.EventDispatcher)} to decrement the reference count.
    *
    * <p>Placeholder {@link DrmSession DrmSessions} may be used to configure secure decoders for
    * playback of clear content periods. This can reduce the cost of transitioning between clear and
@@ -103,18 +102,19 @@ public interface DrmSessionManager {
   /**
    * Returns a {@link DrmSession} for the specified {@link DrmInitData}, with an incremented
    * reference count. When the caller no longer needs to use the instance, it must call {@link
-   * DrmSession#release(MediaSourceEventDispatcher)} to decrement the reference count.
+   * DrmSession#release(DrmSessionEventListener.EventDispatcher)} to decrement the reference count.
    *
    * @param playbackLooper The looper associated with the media playback thread.
-   * @param eventDispatcher The {@link MediaSourceEventDispatcher} used to distribute events, and
-   *     passed on to {@link DrmSession#acquire(MediaSourceEventDispatcher)}.
+   * @param eventDispatcher The {@link DrmSessionEventListener.EventDispatcher} used to distribute
+   *     events, and passed on to {@link
+   *     DrmSession#acquire(DrmSessionEventListener.EventDispatcher)}.
    * @param drmInitData DRM initialization data. All contained {@link SchemeData}s must contain
    *     non-null {@link SchemeData#data}.
    * @return The DRM session.
    */
   DrmSession acquireSession(
       Looper playbackLooper,
-      @Nullable MediaSourceEventDispatcher eventDispatcher,
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
       DrmInitData drmInitData);
 
   /**

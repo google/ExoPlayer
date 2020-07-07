@@ -70,7 +70,8 @@ import java.util.Set;
   private final IdentityHashMap<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final Map<Object, MediaSourceHolder> mediaSourceByUid;
   private final MediaSourceListInfoRefreshListener mediaSourceListInfoListener;
-  private final MediaSourceEventListener.EventDispatcher eventDispatcher;
+  private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   private final HashMap<MediaSourceList.MediaSourceHolder, MediaSourceAndListener> childSources;
   private final Set<MediaSourceHolder> enabledMediaSourceHolders;
 
@@ -98,14 +99,13 @@ import java.util.Set;
     mediaSourceByMediaPeriod = new IdentityHashMap<>();
     mediaSourceByUid = new HashMap<>();
     mediaSourceHolders = new ArrayList<>();
-    eventDispatcher = new MediaSourceEventListener.EventDispatcher();
+    mediaSourceEventDispatcher = new MediaSourceEventListener.EventDispatcher();
+    drmEventDispatcher = new DrmSessionEventListener.EventDispatcher();
     childSources = new HashMap<>();
     enabledMediaSourceHolders = new HashSet<>();
     if (analyticsCollector != null) {
-      eventDispatcher.addEventListener(
-          analyticsCollectorHandler, analyticsCollector, MediaSourceEventListener.class);
-      eventDispatcher.addEventListener(
-          analyticsCollectorHandler, analyticsCollector, DrmSessionEventListener.class);
+      mediaSourceEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
+      drmEventDispatcher.addEventListener(analyticsCollectorHandler, analyticsCollector);
     }
   }
 
@@ -523,10 +523,12 @@ import java.util.Set;
       implements MediaSourceEventListener, DrmSessionEventListener {
 
     private final MediaSourceList.MediaSourceHolder id;
-    private EventDispatcher eventDispatcher;
+    private MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
+    private DrmSessionEventListener.EventDispatcher drmEventDispatcher;
 
     public ForwardingEventListener(MediaSourceList.MediaSourceHolder id) {
-      eventDispatcher = MediaSourceList.this.eventDispatcher;
+      mediaSourceEventDispatcher = MediaSourceList.this.mediaSourceEventDispatcher;
+      drmEventDispatcher = MediaSourceList.this.drmEventDispatcher;
       this.id = id;
     }
 
@@ -535,14 +537,14 @@ import java.util.Set;
     @Override
     public void onMediaPeriodCreated(int windowIndex, MediaSource.MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.mediaPeriodCreated();
+        mediaSourceEventDispatcher.mediaPeriodCreated();
       }
     }
 
     @Override
     public void onMediaPeriodReleased(int windowIndex, MediaSource.MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.mediaPeriodReleased();
+        mediaSourceEventDispatcher.mediaPeriodReleased();
       }
     }
 
@@ -553,7 +555,7 @@ import java.util.Set;
         LoadEventInfo loadEventData,
         MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.loadStarted(loadEventData, mediaLoadData);
+        mediaSourceEventDispatcher.loadStarted(loadEventData, mediaLoadData);
       }
     }
 
@@ -564,7 +566,7 @@ import java.util.Set;
         LoadEventInfo loadEventData,
         MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.loadCompleted(loadEventData, mediaLoadData);
+        mediaSourceEventDispatcher.loadCompleted(loadEventData, mediaLoadData);
       }
     }
 
@@ -575,7 +577,7 @@ import java.util.Set;
         LoadEventInfo loadEventData,
         MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.loadCanceled(loadEventData, mediaLoadData);
+        mediaSourceEventDispatcher.loadCanceled(loadEventData, mediaLoadData);
       }
     }
 
@@ -588,14 +590,14 @@ import java.util.Set;
         IOException error,
         boolean wasCanceled) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.loadError(loadEventData, mediaLoadData, error, wasCanceled);
+        mediaSourceEventDispatcher.loadError(loadEventData, mediaLoadData, error, wasCanceled);
       }
     }
 
     @Override
     public void onReadingStarted(int windowIndex, MediaSource.MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.readingStarted();
+        mediaSourceEventDispatcher.readingStarted();
       }
     }
 
@@ -605,7 +607,7 @@ import java.util.Set;
         @Nullable MediaSource.MediaPeriodId mediaPeriodId,
         MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.upstreamDiscarded(mediaLoadData);
+        mediaSourceEventDispatcher.upstreamDiscarded(mediaLoadData);
       }
     }
 
@@ -615,7 +617,7 @@ import java.util.Set;
         @Nullable MediaSource.MediaPeriodId mediaPeriodId,
         MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.downstreamFormatChanged(mediaLoadData);
+        mediaSourceEventDispatcher.downstreamFormatChanged(mediaLoadData);
       }
     }
 
@@ -625,8 +627,7 @@ import java.util.Set;
     public void onDrmSessionAcquired(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.dispatch(
-            DrmSessionEventListener::onDrmSessionAcquired, DrmSessionEventListener.class);
+        drmEventDispatcher.drmSessionAcquired();
       }
     }
 
@@ -634,8 +635,7 @@ import java.util.Set;
     public void onDrmKeysLoaded(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.dispatch(
-            DrmSessionEventListener::onDrmKeysLoaded, DrmSessionEventListener.class);
+        drmEventDispatcher.drmKeysLoaded();
       }
     }
 
@@ -643,10 +643,7 @@ import java.util.Set;
     public void onDrmSessionManagerError(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId, Exception error) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.dispatch(
-            (listener, innerWindowIndex, innerMediaPeriodId) ->
-                listener.onDrmSessionManagerError(innerWindowIndex, innerMediaPeriodId, error),
-            DrmSessionEventListener.class);
+        drmEventDispatcher.drmSessionManagerError(error);
       }
     }
 
@@ -654,8 +651,7 @@ import java.util.Set;
     public void onDrmKeysRestored(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.dispatch(
-            DrmSessionEventListener::onDrmKeysRestored, DrmSessionEventListener.class);
+        drmEventDispatcher.drmKeysRestored();
       }
     }
 
@@ -663,8 +659,7 @@ import java.util.Set;
     public void onDrmKeysRemoved(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.dispatch(
-            DrmSessionEventListener::onDrmKeysRemoved, DrmSessionEventListener.class);
+        drmEventDispatcher.drmKeysRemoved();
       }
     }
 
@@ -672,8 +667,7 @@ import java.util.Set;
     public void onDrmSessionReleased(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.dispatch(
-            DrmSessionEventListener::onDrmSessionReleased, DrmSessionEventListener.class);
+        drmEventDispatcher.drmSessionReleased();
       }
     }
 
@@ -689,11 +683,16 @@ import java.util.Set;
         }
       }
       int windowIndex = getWindowIndexForChildWindowIndex(id, childWindowIndex);
-      if (eventDispatcher.windowIndex != windowIndex
-          || !Util.areEqual(eventDispatcher.mediaPeriodId, mediaPeriodId)) {
-        eventDispatcher =
-            MediaSourceList.this.eventDispatcher.withParameters(
+      if (mediaSourceEventDispatcher.windowIndex != windowIndex
+          || !Util.areEqual(mediaSourceEventDispatcher.mediaPeriodId, mediaPeriodId)) {
+        mediaSourceEventDispatcher =
+            MediaSourceList.this.mediaSourceEventDispatcher.withParameters(
                 windowIndex, mediaPeriodId, /* mediaTimeOffsetMs= */ 0L);
+      }
+      if (drmEventDispatcher.windowIndex != windowIndex
+          || !Util.areEqual(drmEventDispatcher.mediaPeriodId, mediaPeriodId)) {
+        drmEventDispatcher =
+            MediaSourceList.this.drmEventDispatcher.withParameters(windowIndex, mediaPeriodId);
       }
       return true;
     }

@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
@@ -107,8 +108,9 @@ public class DecoderAudioRendererTest {
         RendererConfiguration.DEFAULT,
         new Format[] {FORMAT},
         new FakeSampleStream(
+            /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
-            /* eventDispatcher= */ null,
+            new DrmSessionEventListener.EventDispatcher(),
             FORMAT,
             ImmutableList.of(END_OF_STREAM_ITEM)),
         /* positionUs= */ 0,

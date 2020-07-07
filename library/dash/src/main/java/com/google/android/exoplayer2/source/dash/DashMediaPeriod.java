@@ -24,11 +24,13 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.EmptySampleStream;
 import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
@@ -90,7 +92,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private final PlayerEmsgHandler playerEmsgHandler;
   private final IdentityHashMap<ChunkSampleStream<DashChunkSource>, PlayerTrackEmsgHandler>
       trackEmsgHandlerBySampleStream;
-  private final EventDispatcher eventDispatcher;
+  private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
 
   @Nullable private Callback callback;
   private ChunkSampleStream<DashChunkSource>[] sampleStreams;
@@ -108,8 +111,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       DashChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
       DrmSessionManager drmSessionManager,
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
-      EventDispatcher eventDispatcher,
+      EventDispatcher mediaSourceEventDispatcher,
       long elapsedRealtimeOffsetMs,
       LoaderErrorThrower manifestLoaderErrorThrower,
       Allocator allocator,
@@ -121,8 +125,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
     this.drmSessionManager = drmSessionManager;
+    this.drmEventDispatcher = drmEventDispatcher;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
-    this.eventDispatcher = eventDispatcher;
+    this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.elapsedRealtimeOffsetMs = elapsedRealtimeOffsetMs;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.allocator = allocator;
@@ -139,7 +144,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         buildTrackGroups(drmSessionManager, period.adaptationSets, eventStreams);
     trackGroups = result.first;
     trackGroupInfos = result.second;
-    eventDispatcher.mediaPeriodCreated();
+    mediaSourceEventDispatcher.mediaPeriodCreated();
   }
 
   /**
@@ -178,7 +183,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       sampleStream.release(this);
     }
     callback = null;
-    eventDispatcher.mediaPeriodReleased();
+    mediaSourceEventDispatcher.mediaPeriodReleased();
   }
 
   // ChunkSampleStream.ReleaseCallback implementation.
@@ -316,7 +321,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Override
   public long readDiscontinuity() {
     if (!notifiedReadingStarted) {
-      eventDispatcher.readingStarted();
+      mediaSourceEventDispatcher.readingStarted();
       notifiedReadingStarted = true;
     }
     return C.TIME_UNSET;
@@ -788,8 +793,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             allocator,
             positionUs,
             drmSessionManager,
+            drmEventDispatcher,
             loadErrorHandlingPolicy,
-            eventDispatcher);
+            mediaSourceEventDispatcher);
     synchronized (this) {
       // The map is also accessed on the loading thread so synchronize access.
       trackEmsgHandlerBySampleStream.put(stream, trackPlayerEmsgHandler);

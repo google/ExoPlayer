@@ -16,10 +16,11 @@
 package com.google.android.exoplayer2.testutil;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoader;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -53,7 +54,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
 
   public FakeAdaptiveMediaPeriod(
       TrackGroupArray trackGroupArray,
-      EventDispatcher eventDispatcher,
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       Allocator allocator,
       FakeChunkSource.Factory chunkSourceFactory,
       long durationUs,
@@ -63,8 +64,9 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
         /* trackDataFactory= */ (unusedFormat, unusedMediaPeriodId) -> {
           throw new RuntimeException("unused track data");
         },
-        eventDispatcher,
+        mediaSourceEventDispatcher,
         DrmSessionManager.DUMMY,
+        new DrmSessionEventListener.EventDispatcher(),
         /* deferOnPrepared= */ false);
     this.allocator = allocator;
     this.chunkSourceFactory = chunkSourceFactory;
@@ -143,8 +145,9 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   protected final SampleStream createSampleStream(
       long positionUs,
       TrackSelection trackSelection,
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
-      EventDispatcher eventDispatcher) {
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
     FakeChunkSource chunkSource =
         chunkSourceFactory.createChunkSource(trackSelection, durationUs, transferListener);
     return new ChunkSampleStream<>(
@@ -156,8 +159,9 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
         allocator,
         positionUs,
         /* drmSessionManager= */ DrmSessionManager.getDummyDrmSessionManager(),
+        drmEventDispatcher,
         new DefaultLoadErrorHandlingPolicy(/* minimumLoadableRetryCount= */ 3),
-        eventDispatcher);
+        mediaSourceEventDispatcher);
   }
 
   @Override

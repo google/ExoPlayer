@@ -34,9 +34,9 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.CopyOnWriteMultiset;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
@@ -123,7 +123,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final boolean playClearSamplesWithoutKeys;
   private final boolean isPlaceholderSession;
   private final HashMap<String, String> keyRequestParameters;
-  private final CopyOnWriteMultiset<MediaSourceEventDispatcher> eventDispatchers;
+  private final CopyOnWriteMultiset<DrmSessionEventListener.EventDispatcher> eventDispatchers;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
   /* package */ final MediaDrmCallback callback;
@@ -271,7 +271,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public void acquire(@Nullable MediaSourceEventDispatcher eventDispatcher) {
+  public void acquire(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     Assertions.checkState(referenceCount >= 0);
     if (eventDispatcher != null) {
       eventDispatchers.add(eventDispatcher);
@@ -288,14 +288,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // If the session is already open then send the acquire event only to the provided dispatcher.
       // TODO: Add a parameter to onDrmSessionAcquired to indicate whether the session is being
       // re-used or not.
-      eventDispatcher.dispatch(
-          DrmSessionEventListener::onDrmSessionAcquired, DrmSessionEventListener.class);
+      eventDispatcher.drmSessionAcquired();
     }
     referenceCountListener.onReferenceCountIncremented(this, referenceCount);
   }
 
   @Override
-  public void release(@Nullable MediaSourceEventDispatcher eventDispatcher) {
+  public void release(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     if (--referenceCount == 0) {
       // Assigning null to various non-null variables for clean-up.
       state = STATE_RELEASED;
@@ -312,14 +311,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         mediaDrm.closeSession(sessionId);
         sessionId = null;
       }
-      dispatchEvent(DrmSessionEventListener::onDrmSessionReleased);
+      dispatchEvent(DrmSessionEventListener.EventDispatcher::drmSessionReleased);
     }
     if (eventDispatcher != null) {
       if (isOpen()) {
         // If the session is still open then send the release event only to the provided dispatcher
         // before removing it.
-        eventDispatcher.dispatch(
-            DrmSessionEventListener::onDrmSessionReleased, DrmSessionEventListener.class);
+        eventDispatcher.drmSessionReleased();
       }
       eventDispatchers.remove(eventDispatcher);
     }
@@ -345,7 +343,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     try {
       sessionId = mediaDrm.openSession();
       mediaCrypto = mediaDrm.createMediaCrypto(sessionId);
-      dispatchEvent(DrmSessionEventListener::onDrmSessionAcquired);
+      dispatchEvent(DrmSessionEventListener.EventDispatcher::drmSessionAcquired);
       state = STATE_OPENED;
       Assertions.checkNotNull(sessionId);
       return true;
@@ -409,7 +407,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             onError(new KeysExpiredException());
           } else {
             state = STATE_OPENED_WITH_KEYS;
-            dispatchEvent(DrmSessionEventListener::onDrmKeysRestored);
+            dispatchEvent(DrmSessionEventListener.EventDispatcher::drmKeysRestored);
           }
         }
         break;
@@ -479,7 +477,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       byte[] responseData = (byte[]) response;
       if (mode == DefaultDrmSessionManager.MODE_RELEASE) {
         mediaDrm.provideKeyResponse(Util.castNonNull(offlineLicenseKeySetId), responseData);
-        dispatchEvent(DrmSessionEventListener::onDrmKeysRemoved);
+        dispatchEvent(DrmSessionEventListener.EventDispatcher::drmKeysRemoved);
       } else {
         byte[] keySetId = mediaDrm.provideKeyResponse(sessionId, responseData);
         if ((mode == DefaultDrmSessionManager.MODE_DOWNLOAD
@@ -490,7 +488,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           offlineLicenseKeySetId = keySetId;
         }
         state = STATE_OPENED_WITH_KEYS;
-        dispatchEvent(DrmSessionEventListener::onDrmKeysLoaded);
+        dispatchEvent(DrmSessionEventListener.EventDispatcher::drmKeysLoaded);
       }
     } catch (Exception e) {
       onKeysError(e);
@@ -514,9 +512,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private void onError(final Exception e) {
     lastException = new DrmSessionException(e);
-    dispatchEvent(
-        (listener, windowIndex, mediaPeriodId) ->
-            listener.onDrmSessionManagerError(windowIndex, mediaPeriodId, e));
+    dispatchEvent(eventDispatcher -> eventDispatcher.drmSessionManagerError(e));
     if (state != STATE_OPENED_WITH_KEYS) {
       state = STATE_ERROR;
     }
@@ -528,10 +524,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return state == STATE_OPENED || state == STATE_OPENED_WITH_KEYS;
   }
 
-  private void dispatchEvent(
-      MediaSourceEventDispatcher.EventWithPeriodId<DrmSessionEventListener> event) {
-    for (MediaSourceEventDispatcher eventDispatcher : eventDispatchers.elementSet()) {
-      eventDispatcher.dispatch(event, DrmSessionEventListener.class);
+  private void dispatchEvent(Consumer<DrmSessionEventListener.EventDispatcher> event) {
+    for (DrmSessionEventListener.EventDispatcher eventDispatcher : eventDispatchers.elementSet()) {
+      event.accept(eventDispatcher);
     }
   }
 

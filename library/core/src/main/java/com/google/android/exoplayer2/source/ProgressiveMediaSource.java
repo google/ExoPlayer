@@ -283,6 +283,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
         dataSource,
         extractorsFactory,
         drmSessionManager,
+        createDrmEventDispatcher(id),
         loadableLoadErrorHandlingPolicy,
         createEventDispatcher(id),
         this,

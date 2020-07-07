@@ -23,10 +23,11 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
@@ -71,7 +72,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
   private final boolean[] embeddedTracksSelected;
   private final T chunkSource;
   private final SequenceableLoader.Callback<ChunkSampleStream<T>> callback;
-  private final EventDispatcher eventDispatcher;
+  private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private final Loader loader;
   private final ChunkHolder nextChunkHolder;
@@ -102,8 +103,10 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * @param positionUs The position from which to start loading media.
    * @param drmSessionManager The {@link DrmSessionManager} to obtain {@link DrmSession DrmSessions}
    *     from.
+   * @param drmEventDispatcher A dispatcher to notify of {@link DrmSessionEventListener} events.
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
-   * @param eventDispatcher A dispatcher to notify of events.
+   * @param mediaSourceEventDispatcher A dispatcher to notify of {@link MediaSourceEventListener}
+   *     events.
    */
   public ChunkSampleStream(
       int primaryTrackType,
@@ -114,14 +117,15 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       Allocator allocator,
       long positionUs,
       DrmSessionManager drmSessionManager,
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
-      EventDispatcher eventDispatcher) {
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher) {
     this.primaryTrackType = primaryTrackType;
     this.embeddedTrackTypes = embeddedTrackTypes == null ? new int[0] : embeddedTrackTypes;
     this.embeddedTrackFormats = embeddedTrackFormats == null ? new Format[0] : embeddedTrackFormats;
     this.chunkSource = chunkSource;
     this.callback = callback;
-    this.eventDispatcher = eventDispatcher;
+    this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     loader = new Loader("Loader:ChunkSampleStream");
     nextChunkHolder = new ChunkHolder();
@@ -139,7 +143,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             allocator,
             /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
             drmSessionManager,
-            eventDispatcher);
+            drmEventDispatcher);
     trackTypes[0] = primaryTrackType;
     sampleQueues[0] = primarySampleQueue;
 
@@ -149,7 +153,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
               allocator,
               /* playbackLooper= */ Assertions.checkNotNull(Looper.myLooper()),
               DrmSessionManager.getDummyDrmSessionManager(),
-              eventDispatcher);
+              drmEventDispatcher);
       embeddedSampleQueues[i] = sampleQueue;
       sampleQueues[i + 1] = sampleQueue;
       trackTypes[i + 1] = this.embeddedTrackTypes[i];
@@ -413,7 +417,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             loadDurationMs,
             loadable.bytesLoaded());
     loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
-    eventDispatcher.loadCompleted(
+    mediaSourceEventDispatcher.loadCompleted(
         loadEventInfo,
         loadable.type,
         primaryTrackType,
@@ -438,7 +442,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
             loadDurationMs,
             loadable.bytesLoaded());
     loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
-    eventDispatcher.loadCanceled(
+    mediaSourceEventDispatcher.loadCanceled(
         loadEventInfo,
         loadable.type,
         primaryTrackType,
@@ -519,7 +523,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     }
 
     boolean canceled = !loadErrorAction.isRetry();
-    eventDispatcher.loadError(
+    mediaSourceEventDispatcher.loadError(
         loadEventInfo,
         loadable.type,
         primaryTrackType,
@@ -593,7 +597,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     long elapsedRealtimeMs =
         loader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));
-    eventDispatcher.loadStarted(
+    mediaSourceEventDispatcher.loadStarted(
         new LoadEventInfo(loadable.loadTaskId, loadable.dataSpec, elapsedRealtimeMs),
         loadable.type,
         primaryTrackType,
@@ -648,7 +652,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       pendingResetPositionUs = lastSeekPositionUs;
     }
     loadingFinished = false;
-    eventDispatcher.upstreamDiscarded(primaryTrackType, firstRemovedChunk.startTimeUs, endTimeUs);
+    mediaSourceEventDispatcher.upstreamDiscarded(
+        primaryTrackType, firstRemovedChunk.startTimeUs, endTimeUs);
   }
 
   // Internal methods
@@ -701,8 +706,11 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     BaseMediaChunk currentChunk = mediaChunks.get(mediaChunkReadIndex);
     Format trackFormat = currentChunk.trackFormat;
     if (!trackFormat.equals(primaryDownstreamTrackFormat)) {
-      eventDispatcher.downstreamFormatChanged(primaryTrackType, trackFormat,
-          currentChunk.trackSelectionReason, currentChunk.trackSelectionData,
+      mediaSourceEventDispatcher.downstreamFormatChanged(
+          primaryTrackType,
+          trackFormat,
+          currentChunk.trackSelectionReason,
+          currentChunk.trackSelectionData,
           currentChunk.startTimeUs);
     }
     primaryDownstreamTrackFormat = trackFormat;
@@ -812,7 +820,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
 
     private void maybeNotifyDownstreamFormat() {
       if (!notifiedDownstreamFormat) {
-        eventDispatcher.downstreamFormatChanged(
+        mediaSourceEventDispatcher.downstreamFormatChanged(
             embeddedTrackTypes[index],
             embeddedTrackFormats[index],
             C.SELECTION_REASON_UNKNOWN,

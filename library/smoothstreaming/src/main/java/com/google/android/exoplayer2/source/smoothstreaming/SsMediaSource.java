@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.FilteringManifestParser;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -632,7 +633,8 @@ public final class SsMediaSource extends BaseMediaSource
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
-    EventDispatcher eventDispatcher = createEventDispatcher(id);
+    MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher = createEventDispatcher(id);
+    DrmSessionEventListener.EventDispatcher drmEventDispatcher = createDrmEventDispatcher(id);
     SsMediaPeriod period =
         new SsMediaPeriod(
             manifest,
@@ -640,8 +642,9 @@ public final class SsMediaSource extends BaseMediaSource
             mediaTransferListener,
             compositeSequenceableLoaderFactory,
             drmSessionManager,
+            drmEventDispatcher,
             loadErrorHandlingPolicy,
-            eventDispatcher,
+            mediaSourceEventDispatcher,
             manifestLoaderErrorThrower,
             allocator);
     mediaPeriods.add(period);

@@ -26,12 +26,12 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -59,7 +59,7 @@ public class SampleQueue implements TrackOutput {
   private final SampleExtrasHolder extrasHolder;
   private final Looper playbackLooper;
   private final DrmSessionManager drmSessionManager;
-  private final MediaSourceEventDispatcher eventDispatcher;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   @Nullable private UpstreamFormatChangedListener upstreamFormatChangeListener;
 
   @Nullable private Format downstreamFormat;
@@ -103,17 +103,17 @@ public class SampleQueue implements TrackOutput {
    * @param playbackLooper The looper associated with the media playback thread.
    * @param drmSessionManager The {@link DrmSessionManager} to obtain {@link DrmSession DrmSessions}
    *     from. The created instance does not take ownership of this {@link DrmSessionManager}.
-   * @param eventDispatcher A {@link MediaSourceEventDispatcher} to notify of events related to this
-   *     SampleQueue.
+   * @param drmEventDispatcher A {@link DrmSessionEventListener.EventDispatcher} to notify of events
+   *     related to this SampleQueue.
    */
   public SampleQueue(
       Allocator allocator,
       Looper playbackLooper,
       DrmSessionManager drmSessionManager,
-      MediaSourceEventDispatcher eventDispatcher) {
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
     this.playbackLooper = playbackLooper;
     this.drmSessionManager = drmSessionManager;
-    this.eventDispatcher = eventDispatcher;
+    this.drmEventDispatcher = drmEventDispatcher;
     sampleDataQueue = new SampleDataQueue(allocator);
     extrasHolder = new SampleExtrasHolder();
     capacity = SAMPLE_CAPACITY_INCREMENT;
@@ -691,7 +691,7 @@ public class SampleQueue implements TrackOutput {
 
   private void releaseDrmSessionReferences() {
     if (currentDrmSession != null) {
-      currentDrmSession.release(eventDispatcher);
+      currentDrmSession.release(drmEventDispatcher);
       currentDrmSession = null;
       // Clear downstream format to avoid violating the assumption that downstreamFormat.drmInitData
       // != null implies currentSession != null
@@ -826,13 +826,13 @@ public class SampleQueue implements TrackOutput {
     @Nullable DrmSession previousSession = currentDrmSession;
     currentDrmSession =
         newDrmInitData != null
-            ? drmSessionManager.acquireSession(playbackLooper, eventDispatcher, newDrmInitData)
+            ? drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newDrmInitData)
             : drmSessionManager.acquirePlaceholderSession(
                 playbackLooper, MimeTypes.getTrackType(newFormat.sampleMimeType));
     outputFormatHolder.drmSession = currentDrmSession;
 
     if (previousSession != null) {
-      previousSession.release(eventDispatcher);
+      previousSession.release(drmEventDispatcher);
     }
   }
 

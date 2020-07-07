@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -35,7 +36,6 @@ import com.google.android.exoplayer2.extractor.SeekMap.Unseekable;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.icy.IcyHeaders;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -101,7 +101,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final DataSource dataSource;
   private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
-  private final EventDispatcher eventDispatcher;
+  private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   private final Listener listener;
   private final Allocator allocator;
   @Nullable private final String customCacheKey;
@@ -145,8 +146,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param uri The {@link Uri} of the media stream.
    * @param dataSource The data source to read the media.
    * @param extractorsFactory The {@link ExtractorsFactory} to use to read the data source.
+   * @param drmSessionManager A {@link DrmSessionManager} to allow DRM interactions.
+   * @param drmEventDispatcher A dispatcher to notify of {@link DrmSessionEventListener} events.
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy}.
-   * @param eventDispatcher A dispatcher to notify of events.
+   * @param mediaSourceEventDispatcher A dispatcher to notify of {@link MediaSourceEventListener}
+   *     events.
    * @param listener A listener to notify when information about the period changes.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
    * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
@@ -164,8 +168,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       DataSource dataSource,
       ExtractorsFactory extractorsFactory,
       DrmSessionManager drmSessionManager,
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
-      EventDispatcher eventDispatcher,
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       Listener listener,
       Allocator allocator,
       @Nullable String customCacheKey,
@@ -173,8 +178,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.uri = uri;
     this.dataSource = dataSource;
     this.drmSessionManager = drmSessionManager;
+    this.drmEventDispatcher = drmEventDispatcher;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
-    this.eventDispatcher = eventDispatcher;
+    this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.listener = listener;
     this.allocator = allocator;
     this.customCacheKey = customCacheKey;
@@ -199,7 +205,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     length = C.LENGTH_UNSET;
     durationUs = C.TIME_UNSET;
     dataType = C.DATA_TYPE_MEDIA;
-    eventDispatcher.mediaPeriodCreated();
+    mediaSourceEventDispatcher.mediaPeriodCreated();
   }
 
   public void release() {
@@ -214,7 +220,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     handler.removeCallbacksAndMessages(null);
     callback = null;
     released = true;
-    eventDispatcher.mediaPeriodReleased();
+    mediaSourceEventDispatcher.mediaPeriodReleased();
   }
 
   @Override
@@ -369,7 +375,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public long readDiscontinuity() {
     if (!notifiedReadingStarted) {
-      eventDispatcher.readingStarted();
+      mediaSourceEventDispatcher.readingStarted();
       notifiedReadingStarted = true;
     }
     if (notifyDiscontinuity
@@ -510,7 +516,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean[] trackNotifiedDownstreamFormats = trackState.trackNotifiedDownstreamFormats;
     if (!trackNotifiedDownstreamFormats[track]) {
       Format trackFormat = trackState.tracks.get(track).getFormat(/* index= */ 0);
-      eventDispatcher.downstreamFormatChanged(
+      mediaSourceEventDispatcher.downstreamFormatChanged(
           MimeTypes.getTrackType(trackFormat.sampleMimeType),
           trackFormat,
           C.SELECTION_REASON_UNKNOWN,
@@ -566,7 +572,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             loadDurationMs,
             dataSource.getBytesRead());
     loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
-    eventDispatcher.loadCompleted(
+    mediaSourceEventDispatcher.loadCompleted(
         loadEventInfo,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
@@ -594,7 +600,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             loadDurationMs,
             dataSource.getBytesRead());
     loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
-    eventDispatcher.loadCanceled(
+    mediaSourceEventDispatcher.loadCanceled(
         loadEventInfo,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
@@ -657,7 +663,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     boolean wasCanceled = !loadErrorAction.isRetry();
-    eventDispatcher.loadError(
+    mediaSourceEventDispatcher.loadError(
         loadEventInfo,
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
@@ -719,7 +725,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             allocator,
             /* playbackLooper= */ handler.getLooper(),
             drmSessionManager,
-            eventDispatcher);
+            drmEventDispatcher);
     trackOutput.setUpstreamFormatChangeListener(this);
     @NullableType
     TrackId[] sampleQueueTrackIds = Arrays.copyOf(this.sampleQueueTrackIds, trackCount + 1);
@@ -824,7 +830,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         loader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(dataType));
     DataSpec dataSpec = loadable.dataSpec;
-    eventDispatcher.loadStarted(
+    mediaSourceEventDispatcher.loadStarted(
         new LoadEventInfo(loadable.loadTaskId, dataSpec, elapsedRealtimeMs),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,

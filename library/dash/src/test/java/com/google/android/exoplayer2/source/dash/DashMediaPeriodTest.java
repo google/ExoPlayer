@@ -22,10 +22,11 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerEmsgCallback;
@@ -344,6 +345,7 @@ public final class DashMediaPeriodTest {
   }
 
   private static DashMediaPeriod createDashMediaPeriod(DashManifest manifest, int periodIndex) {
+    MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
     return new DashMediaPeriod(
         /* id= */ periodIndex,
         manifest,
@@ -351,12 +353,11 @@ public final class DashMediaPeriodTest {
         mock(DashChunkSource.Factory.class),
         mock(TransferListener.class),
         DrmSessionManager.getDummyDrmSessionManager(),
+        new DrmSessionEventListener.EventDispatcher()
+            .withParameters(/* windowIndex= */ 0, mediaPeriodId),
         mock(LoadErrorHandlingPolicy.class),
-        new EventDispatcher()
-            .withParameters(
-                /* windowIndex= */ 0,
-                /* mediaPeriodId= */ new MediaPeriodId(/* periodUid= */ new Object()),
-                /* mediaTimeOffsetMs= */ 0),
+        new MediaSourceEventListener.EventDispatcher()
+            .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
         /* elapsedRealtimeOffsetMs= */ 0,
         mock(LoaderErrorThrower.class),
         mock(Allocator.class),

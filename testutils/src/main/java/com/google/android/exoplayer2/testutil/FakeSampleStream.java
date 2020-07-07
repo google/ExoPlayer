@@ -25,8 +25,9 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -126,10 +127,11 @@ public class FakeSampleStream implements SampleStream {
     }
   }
 
+  @Nullable private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
   private final Format initialFormat;
   private final List<FakeSampleStreamItem> fakeSampleStreamItems;
   private final DrmSessionManager drmSessionManager;
-  @Nullable private final EventDispatcher eventDispatcher;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
 
   private int sampleItemIndex;
   private @MonotonicNonNull Format downstreamFormat;
@@ -140,8 +142,11 @@ public class FakeSampleStream implements SampleStream {
    * Creates a fake sample stream which outputs the given {@link Format} followed by the provided
    * {@link FakeSampleStreamItem items}.
    *
+   * @param mediaSourceEventDispatcher A {@link MediaSourceEventListener.EventDispatcher} to notify
+   *     of media events.
    * @param drmSessionManager A {@link DrmSessionManager} for DRM interactions.
-   * @param eventDispatcher An {@link EventDispatcher} to notify of read events.
+   * @param drmEventDispatcher A {@link DrmSessionEventListener.EventDispatcher} to notify of DRM
+   *     events.
    * @param initialFormat The first {@link Format} to output.
    * @param fakeSampleStreamItems The {@link FakeSampleStreamItem items} to customize the return
    *     values of {@link #readData(FormatHolder, DecoderInputBuffer, boolean)}. This is assumed to
@@ -150,12 +155,14 @@ public class FakeSampleStream implements SampleStream {
    *     FakeSampleStreamItem#END_OF_STREAM_ITEM}.
    */
   public FakeSampleStream(
+      @Nullable MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
-      @Nullable EventDispatcher eventDispatcher,
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       Format initialFormat,
       List<FakeSampleStreamItem> fakeSampleStreamItems) {
+    this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.drmSessionManager = drmSessionManager;
-    this.eventDispatcher = eventDispatcher;
+    this.drmEventDispatcher = drmEventDispatcher;
     this.initialFormat = initialFormat;
     this.fakeSampleStreamItems = new ArrayList<>(fakeSampleStreamItems);
   }
@@ -268,13 +275,13 @@ public class FakeSampleStream implements SampleStream {
     Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
     currentDrmSession =
         newDrmInitData != null
-            ? drmSessionManager.acquireSession(playbackLooper, eventDispatcher, newDrmInitData)
+            ? drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newDrmInitData)
             : drmSessionManager.acquirePlaceholderSession(
                 playbackLooper, MimeTypes.getTrackType(newFormat.sampleMimeType));
     outputFormatHolder.drmSession = currentDrmSession;
 
     if (previousSession != null) {
-      previousSession.release(eventDispatcher);
+      previousSession.release(drmEventDispatcher);
     }
   }
 
@@ -308,13 +315,13 @@ public class FakeSampleStream implements SampleStream {
   /** Release this SampleStream and all underlying resources. */
   public void release() {
     if (currentDrmSession != null) {
-      currentDrmSession.release(eventDispatcher);
+      currentDrmSession.release(drmEventDispatcher);
       currentDrmSession = null;
     }
   }
 
   private void notifyEventDispatcher(Format format) {
-    if (eventDispatcher != null) {
+    if (mediaSourceEventDispatcher != null) {
       @Nullable SampleInfo sampleInfo = null;
       for (int i = sampleItemIndex; i < fakeSampleStreamItems.size(); i++) {
         sampleInfo = fakeSampleStreamItems.get(i).sampleInfo;
@@ -323,7 +330,7 @@ public class FakeSampleStream implements SampleStream {
         }
       }
       long nextSampleTimeUs = sampleInfo != null ? sampleInfo.timeUs : C.TIME_END_OF_SOURCE;
-      eventDispatcher.downstreamFormatChanged(
+      mediaSourceEventDispatcher.downstreamFormatChanged(
           C.TRACK_TYPE_UNKNOWN,
           format,
           C.SELECTION_REASON_UNKNOWN,

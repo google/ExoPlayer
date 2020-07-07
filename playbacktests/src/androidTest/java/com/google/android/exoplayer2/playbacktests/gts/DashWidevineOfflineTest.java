@@ -27,6 +27,7 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.OfflineLicenseHelper;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
@@ -34,7 +35,6 @@ import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -77,7 +77,9 @@ public final class DashWidevineOfflineTest {
     if (Util.SDK_INT >= 18) {
       offlineLicenseHelper =
           OfflineLicenseHelper.newWidevineInstance(
-              widevineLicenseUrl, httpDataSourceFactory, new MediaSourceEventDispatcher());
+              widevineLicenseUrl,
+              httpDataSourceFactory,
+              new DrmSessionEventListener.EventDispatcher());
     }
   }
 

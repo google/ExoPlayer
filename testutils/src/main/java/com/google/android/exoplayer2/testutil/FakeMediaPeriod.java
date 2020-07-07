@@ -26,11 +26,12 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -57,9 +58,10 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   private final TrackGroupArray trackGroupArray;
   private final List<SampleStream> sampleStreams;
-  private final DrmSessionManager drmSessionManager;
-  private final EventDispatcher eventDispatcher;
   private final TrackDataFactory trackDataFactory;
+  private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
+  private final DrmSessionManager drmSessionManager;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   private final long fakePreparationLoadTaskId;
 
   @Nullable private Handler playerHandler;
@@ -77,16 +79,19 @@ public class FakeMediaPeriod implements MediaPeriod {
    * @param trackGroupArray The track group array.
    * @param singleSampleTimeUs The timestamp to use for the single sample in each track, in
    *     microseconds.
-   * @param eventDispatcher A dispatcher for media source events.
+   * @param mediaSourceEventDispatcher A dispatcher for {@link MediaSourceEventListener} events.
    */
   public FakeMediaPeriod(
-      TrackGroupArray trackGroupArray, long singleSampleTimeUs, EventDispatcher eventDispatcher) {
+      TrackGroupArray trackGroupArray,
+      long singleSampleTimeUs,
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher) {
     this(
         trackGroupArray,
         TrackDataFactory.singleSampleWithTimeUs(singleSampleTimeUs),
-        eventDispatcher,
+        mediaSourceEventDispatcher,
         DrmSessionManager.DUMMY,
-        /* deferOnPrepared= */ false);
+        new DrmSessionEventListener.EventDispatcher(),
+        /* deferOnPrepared */ false);
   }
 
   /**
@@ -95,22 +100,26 @@ public class FakeMediaPeriod implements MediaPeriod {
    * @param trackGroupArray The track group array.
    * @param singleSampleTimeUs The timestamp to use for the single sample in each track, in
    *     microseconds.
-   * @param eventDispatcher A dispatcher for media source events.
+   * @param mediaSourceEventDispatcher A dispatcher for {@link MediaSourceEventListener} events.
    * @param drmSessionManager The {@link DrmSessionManager} used for DRM interactions.
+   * @param drmEventDispatcher A dispatcher for {@link DrmSessionEventListener} events.
    * @param deferOnPrepared Whether {@link Callback#onPrepared(MediaPeriod)} should be called only
-   *     after {@link #setPreparationComplete()} has been called. If {@code false}
+   *     after {@link #setPreparationComplete()} has been called. If {@code false} preparation
+   *     completes immediately.
    */
   public FakeMediaPeriod(
       TrackGroupArray trackGroupArray,
       long singleSampleTimeUs,
-      EventDispatcher eventDispatcher,
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       boolean deferOnPrepared) {
     this(
         trackGroupArray,
         TrackDataFactory.singleSampleWithTimeUs(singleSampleTimeUs),
-        eventDispatcher,
+        mediaSourceEventDispatcher,
         drmSessionManager,
+        drmEventDispatcher,
         deferOnPrepared);
   }
 
@@ -120,8 +129,9 @@ public class FakeMediaPeriod implements MediaPeriod {
    * @param trackGroupArray The track group array.
    * @param trackDataFactory A source for the underlying sample data for each track in {@code
    *     trackGroupArray}.
-   * @param eventDispatcher A dispatcher for media source events.
+   * @param mediaSourceEventDispatcher A dispatcher for media source events.
    * @param drmSessionManager The DrmSessionManager used for DRM interactions.
+   * @param drmEventDispatcher A dispatcher for {@link DrmSessionEventListener} events.
    * @param deferOnPrepared Whether {@link Callback#onPrepared(MediaPeriod)} should be called only
    *     after {@link #setPreparationComplete()} has been called. If {@code false} preparation
    *     completes immediately.
@@ -129,18 +139,20 @@ public class FakeMediaPeriod implements MediaPeriod {
   public FakeMediaPeriod(
       TrackGroupArray trackGroupArray,
       TrackDataFactory trackDataFactory,
-      EventDispatcher eventDispatcher,
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       boolean deferOnPrepared) {
     this.trackGroupArray = trackGroupArray;
+    this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.drmSessionManager = drmSessionManager;
-    this.eventDispatcher = eventDispatcher;
+    this.drmEventDispatcher = drmEventDispatcher;
     this.deferOnPrepared = deferOnPrepared;
     this.trackDataFactory = trackDataFactory;
     discontinuityPositionUs = C.TIME_UNSET;
     sampleStreams = new ArrayList<>();
     fakePreparationLoadTaskId = LoadEventInfo.getNewId();
-    eventDispatcher.mediaPeriodCreated();
+    mediaSourceEventDispatcher.mediaPeriodCreated();
   }
 
   /**
@@ -177,12 +189,12 @@ public class FakeMediaPeriod implements MediaPeriod {
     for (int i = 0; i < sampleStreams.size(); i++) {
       releaseSampleStream(sampleStreams.get(i));
     }
-    eventDispatcher.mediaPeriodReleased();
+    mediaSourceEventDispatcher.mediaPeriodReleased();
   }
 
   @Override
   public synchronized void prepare(Callback callback, long positionUs) {
-    eventDispatcher.loadStarted(
+    mediaSourceEventDispatcher.loadStarted(
         new LoadEventInfo(fakePreparationLoadTaskId, FAKE_DATA_SPEC, SystemClock.elapsedRealtime()),
         C.DATA_TYPE_MEDIA,
         C.TRACK_TYPE_UNKNOWN,
@@ -232,7 +244,13 @@ public class FakeMediaPeriod implements MediaPeriod {
         int indexInTrackGroup = selection.getIndexInTrackGroup(selection.getSelectedIndex());
         assertThat(indexInTrackGroup).isAtLeast(0);
         assertThat(indexInTrackGroup).isLessThan(trackGroup.length);
-        streams[i] = createSampleStream(positionUs, selection, drmSessionManager, eventDispatcher);
+        streams[i] =
+            createSampleStream(
+                positionUs,
+                selection,
+                mediaSourceEventDispatcher,
+                drmSessionManager,
+                drmEventDispatcher);
         sampleStreams.add(streams[i]);
         streamResetFlags[i] = true;
       }
@@ -254,7 +272,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   public long readDiscontinuity() {
     assertThat(prepared).isTrue();
     if (!notifiedReadingStarted) {
-      eventDispatcher.readingStarted();
+      mediaSourceEventDispatcher.readingStarted();
       notifiedReadingStarted = true;
     }
     long positionDiscontinuityUs = this.discontinuityPositionUs;
@@ -304,23 +322,28 @@ public class FakeMediaPeriod implements MediaPeriod {
    *
    * @param positionUs The position at which the tracks were selected, in microseconds.
    * @param selection A selection of tracks.
+   * @param mediaSourceEventDispatcher A dispatcher for {@link MediaSourceEventListener} events that
+   *     should be used by the sample stream.
    * @param drmSessionManager The DRM session manager.
-   * @param eventDispatcher A dispatcher for events that should be used by the sample stream.
+   * @param drmEventDispatcher A dispatcher for {@link DrmSessionEventListener} events that should
+   *     be used by the sample stream.
    * @return A {@link SampleStream} for this selection.
    */
   protected SampleStream createSampleStream(
       long positionUs,
       TrackSelection selection,
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
-      EventDispatcher eventDispatcher) {
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
     FakeSampleStream sampleStream =
         new FakeSampleStream(
+            mediaSourceEventDispatcher,
             drmSessionManager,
-            eventDispatcher,
+            drmEventDispatcher,
             selection.getSelectedFormat(),
             trackDataFactory.create(
                 selection.getSelectedFormat(),
-                Assertions.checkNotNull(eventDispatcher.mediaPeriodId)));
+                Assertions.checkNotNull(mediaSourceEventDispatcher.mediaPeriodId)));
     sampleStream.seekTo(positionUs);
     return sampleStream;
   }
@@ -329,7 +352,8 @@ public class FakeMediaPeriod implements MediaPeriod {
    * Seeks inside the given sample stream.
    *
    * @param sampleStream A sample stream that was created by a call to {@link
-   *     #createSampleStream(long, TrackSelection, DrmSessionManager, EventDispatcher)}.
+   *     #createSampleStream(long, TrackSelection, MediaSourceEventListener.EventDispatcher,
+   *     DrmSessionManager, DrmSessionEventListener.EventDispatcher)}.
    * @param positionUs The position to seek to, in microseconds.
    */
   protected void seekSampleStream(SampleStream sampleStream, long positionUs) {
@@ -341,7 +365,8 @@ public class FakeMediaPeriod implements MediaPeriod {
    * Releases the given sample stream.
    *
    * @param sampleStream A sample stream that was created by a call to {@link
-   *     #createSampleStream(long, TrackSelection, DrmSessionManager, EventDispatcher)}.
+   *     #createSampleStream(long, TrackSelection, MediaSourceEventListener.EventDispatcher,
+   *     DrmSessionManager, DrmSessionEventListener.EventDispatcher)}.
    */
   protected void releaseSampleStream(SampleStream sampleStream) {
     ((FakeSampleStream) sampleStream).release();
@@ -350,7 +375,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   private void finishPreparation() {
     prepared = true;
     Util.castNonNull(prepareCallback).onPrepared(this);
-    eventDispatcher.loadCompleted(
+    mediaSourceEventDispatcher.loadCompleted(
         new LoadEventInfo(
             fakePreparationLoadTaskId,
             FAKE_DATA_SPEC,
@@ -373,7 +398,8 @@ public class FakeMediaPeriod implements MediaPeriod {
 
     /**
      * Returns the list of {@link FakeSampleStreamItem}s that will be passed to {@link
-     * FakeSampleStream#FakeSampleStream(DrmSessionManager, EventDispatcher, Format, List)}.
+     * FakeSampleStream#FakeSampleStream(MediaSourceEventListener.EventDispatcher,
+     * DrmSessionManager, DrmSessionEventListener.EventDispatcher, Format, List)}.
      *
      * @param format The format of the track to provide data for.
      * @param mediaPeriodId The {@link MediaPeriodId} to provide data for.

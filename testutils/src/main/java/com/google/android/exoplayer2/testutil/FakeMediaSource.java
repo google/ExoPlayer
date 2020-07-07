@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.BaseMediaSource;
 import com.google.android.exoplayer2.source.ForwardingTimeline;
@@ -33,7 +34,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod.TrackDataFactory;
@@ -215,11 +216,19 @@ public class FakeMediaSource extends BaseMediaSource {
     int periodIndex = castNonNull(timeline).getIndexOfPeriod(id.periodUid);
     Assertions.checkArgument(periodIndex != C.INDEX_UNSET);
     Period period = timeline.getPeriod(periodIndex, new Period());
-    EventDispatcher eventDispatcher =
+    MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher =
         createEventDispatcher(period.windowIndex, id, period.getPositionInWindowMs());
+    DrmSessionEventListener.EventDispatcher drmEventDispatcher =
+        createDrmEventDispatcher(period.windowIndex, id);
     FakeMediaPeriod mediaPeriod =
         createFakeMediaPeriod(
-            id, trackGroupArray, allocator, drmSessionManager, eventDispatcher, transferListener);
+            id,
+            trackGroupArray,
+            allocator,
+            mediaSourceEventDispatcher,
+            drmSessionManager,
+            drmEventDispatcher,
+            transferListener);
     activeMediaPeriods.add(mediaPeriod);
     createdMediaPeriods.add(id);
     return mediaPeriod;
@@ -308,7 +317,10 @@ public class FakeMediaSource extends BaseMediaSource {
    * @param id The identifier of the period.
    * @param trackGroupArray The {@link TrackGroupArray} supported by the media period.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
-   * @param eventDispatcher An {@link EventDispatcher} to dispatch media source events.
+   * @param mediaSourceEventDispatcher An {@link MediaSourceEventListener.EventDispatcher} to
+   *     dispatch media source events.
+   * @param drmEventDispatcher An {@link MediaSourceEventListener.EventDispatcher} to dispatch DRM
+   *     events.
    * @param transferListener The transfer listener which should be informed of any data transfers.
    *     May be null if no listener is available.
    * @return A new {@link FakeMediaPeriod}.
@@ -318,8 +330,9 @@ public class FakeMediaSource extends BaseMediaSource {
       MediaPeriodId id,
       TrackGroupArray trackGroupArray,
       Allocator allocator,
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
-      EventDispatcher eventDispatcher,
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       @Nullable TransferListener transferListener) {
     long positionInWindowUs =
         timeline.getPeriodByUid(id.periodUid, new Period()).getPositionInWindowUs();
@@ -329,8 +342,9 @@ public class FakeMediaSource extends BaseMediaSource {
         trackDataFactory != null
             ? trackDataFactory
             : TrackDataFactory.singleSampleWithTimeUs(defaultFirstSampleTimeUs),
-        eventDispatcher,
+        mediaSourceEventDispatcher,
         drmSessionManager,
+        drmEventDispatcher,
         /* deferOnPrepared= */ false);
   }
 
@@ -347,7 +361,8 @@ public class FakeMediaSource extends BaseMediaSource {
               /* mediaStartTimeMs= */ C.TIME_UNSET,
               /* mediaEndTimeMs = */ C.TIME_UNSET);
       long elapsedRealTimeMs = SystemClock.elapsedRealtime();
-      EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+      MediaSourceEventListener.EventDispatcher eventDispatcher =
+          createEventDispatcher(/* mediaPeriodId= */ null);
       long loadTaskId = LoadEventInfo.getNewId();
       eventDispatcher.loadStarted(
           new LoadEventInfo(

@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
@@ -200,13 +201,14 @@ public final class MergingMediaPeriodTest {
 
     public FakeMediaPeriodWithSelectTracksPosition(
         TrackGroupArray trackGroupArray,
-        EventDispatcher eventDispatcher,
+        EventDispatcher mediaSourceEventDispatcher,
         TrackDataFactory trackDataFactory) {
       super(
           trackGroupArray,
           trackDataFactory,
-          eventDispatcher,
+          mediaSourceEventDispatcher,
           DrmSessionManager.DUMMY,
+          new DrmSessionEventListener.EventDispatcher(),
           /* deferOnPrepared= */ false);
       selectTracksPositionUs = C.TIME_UNSET;
     }

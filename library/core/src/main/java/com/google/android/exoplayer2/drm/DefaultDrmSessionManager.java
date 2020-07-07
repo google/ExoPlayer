@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -406,8 +405,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   /**
    * Sets the mode, which determines the role of sessions acquired from the instance. This must be
-   * called before {@link #acquireSession(Looper, MediaSourceEventDispatcher, DrmInitData)} or
-   * {@link #acquirePlaceholderSession} is called.
+   * called before {@link #acquireSession(Looper, DrmSessionEventListener.EventDispatcher,
+   * DrmInitData)} or {@link #acquirePlaceholderSession} is called.
    *
    * <p>By default, the mode is {@link #MODE_PLAYBACK} and a streaming license is requested when
    * required.
@@ -527,7 +526,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   @Override
   public DrmSession acquireSession(
       Looper playbackLooper,
-      @Nullable MediaSourceEventDispatcher eventDispatcher,
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
       DrmInitData drmInitData) {
     initPlaybackLooper(playbackLooper);
     maybeCreateMediaDrmHandler(playbackLooper);
@@ -538,10 +537,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       if (schemeDatas.isEmpty()) {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
         if (eventDispatcher != null) {
-          eventDispatcher.dispatch(
-              (listener, windowIndex, mediaPeriodId) ->
-                  listener.onDrmSessionManagerError(windowIndex, mediaPeriodId, error),
-              DrmSessionEventListener.class);
+          eventDispatcher.drmSessionManagerError(error);
         }
         return new ErrorStateDrmSession(new DrmSessionException(error));
       }
@@ -605,7 +601,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   private DefaultDrmSession createAndAcquireSessionWithRetry(
       @Nullable List<SchemeData> schemeDatas,
       boolean isPlaceholderSession,
-      @Nullable MediaSourceEventDispatcher eventDispatcher) {
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     DefaultDrmSession session =
         createAndAcquireSession(schemeDatas, isPlaceholderSession, eventDispatcher);
     if (session.getState() == DrmSession.STATE_ERROR
@@ -644,7 +640,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   private DefaultDrmSession createAndAcquireSession(
       @Nullable List<SchemeData> schemeDatas,
       boolean isPlaceholderSession,
-      @Nullable MediaSourceEventDispatcher eventDispatcher) {
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     Assertions.checkNotNull(exoMediaDrm);
     // Placeholder sessions should always play clear samples without keys.
     boolean playClearSamplesWithoutKeys = this.playClearSamplesWithoutKeys | isPlaceholderSession;

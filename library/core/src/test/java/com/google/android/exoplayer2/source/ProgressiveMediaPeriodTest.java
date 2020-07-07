@@ -22,6 +22,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
@@ -44,18 +45,18 @@ public final class ProgressiveMediaPeriodTest {
     AtomicBoolean sourceInfoRefreshCalled = new AtomicBoolean(false);
     ProgressiveMediaPeriod.Listener sourceInfoRefreshListener =
         (durationUs, isSeekable, isLive) -> sourceInfoRefreshCalled.set(true);
+    MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
     ProgressiveMediaPeriod mediaPeriod =
         new ProgressiveMediaPeriod(
             Uri.parse("asset://android_asset/mp4/sample.mp4"),
             new AssetDataSource(ApplicationProvider.getApplicationContext()),
             () -> new Extractor[] {new Mp4Extractor()},
             DrmSessionManager.DUMMY,
+            new DrmSessionEventListener.EventDispatcher()
+                .withParameters(/* windowIndex= */ 0, mediaPeriodId),
             new DefaultLoadErrorHandlingPolicy(),
             new MediaSourceEventListener.EventDispatcher()
-                .withParameters(
-                    /* windowIndex= */ 0,
-                    new MediaPeriodId(/* periodUid= */ new Object()),
-                    /* mediaTimeOffsetMs= */ 0),
+                .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
             sourceInfoRefreshListener,
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
             /* customCacheKey= */ null,
