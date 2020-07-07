@@ -272,20 +272,23 @@ public final class AdaptiveTrackSelectionTest {
     when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(500L);
     adaptiveTrackSelection =
         adaptiveTrackSelectionWithMinTimeBetweenBufferReevaluationMs(
-            trackGroup,
-            /* durationToRetainAfterDiscardMs= */ 15_000,
-            /* minTimeBetweenBufferReevaluationMs= */ 2000);
+            trackGroup, /* durationToRetainAfterDiscardMs= */ 15_000);
 
     int initialQueueSize = adaptiveTrackSelection.evaluateQueueSize(0, queue);
 
-    fakeClock.advanceTime(1999);
+    fakeClock.advanceTime(999);
     when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L);
 
-    // When bandwidth estimation is updated, we can discard chunks at the end of the queue now.
-    // However, since min duration between buffer reevaluation = 2000, we will not reevaluate
-    // queue size if time now is only 1999 ms after last buffer reevaluation.
-    int newSize = adaptiveTrackSelection.evaluateQueueSize(0, queue);
+    // When the bandwidth estimation is updated, we should be able to discard chunks from the end of
+    // the queue. However, since the duration since the last evaluation (999ms) is less than 1000ms,
+    // we will not reevaluate the queue size and should not discard chunks.
+    int newSize = adaptiveTrackSelection.evaluateQueueSize(/* playbackPositionUs= */ 0, queue);
     assertThat(newSize).isEqualTo(initialQueueSize);
+
+    // Sanity check for the comment above.
+    fakeClock.advanceTime(1);
+    newSize = adaptiveTrackSelection.evaluateQueueSize(/* playbackPositionUs= */ 0, queue);
+    assertThat(newSize).isLessThan(initialQueueSize);
   }
 
   @Test
@@ -309,9 +312,7 @@ public final class AdaptiveTrackSelectionTest {
     when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(500L);
     adaptiveTrackSelection =
         adaptiveTrackSelectionWithMinTimeBetweenBufferReevaluationMs(
-            trackGroup,
-            /* durationToRetainAfterDiscardMs= */ 15_000,
-            /* minTimeBetweenBufferReevaluationMs= */ 2000);
+            trackGroup, /* durationToRetainAfterDiscardMs= */ 15_000);
 
     int initialQueueSize = adaptiveTrackSelection.evaluateQueueSize(0, queue);
     assertThat(initialQueueSize).isEqualTo(3);
@@ -345,7 +346,6 @@ public final class AdaptiveTrackSelectionTest {
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
             /* bandwidthFraction= */ 1.0f,
             AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-            AdaptiveTrackSelection.DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
             fakeClock));
   }
 
@@ -362,14 +362,11 @@ public final class AdaptiveTrackSelectionTest {
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
             /* bandwidthFraction= */ 1.0f,
             AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-            AdaptiveTrackSelection.DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
             fakeClock));
   }
 
   private AdaptiveTrackSelection adaptiveTrackSelectionWithMinTimeBetweenBufferReevaluationMs(
-      TrackGroup trackGroup,
-      long durationToRetainAfterDiscardMs,
-      long minTimeBetweenBufferReevaluationMs) {
+      TrackGroup trackGroup, long durationToRetainAfterDiscardMs) {
     return prepareTrackSelection(
         new AdaptiveTrackSelection(
             trackGroup,
@@ -381,7 +378,6 @@ public final class AdaptiveTrackSelectionTest {
             durationToRetainAfterDiscardMs,
             /* bandwidthFraction= */ 1.0f,
             AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-            minTimeBetweenBufferReevaluationMs,
             fakeClock));
   }
 

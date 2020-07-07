@@ -94,6 +94,8 @@
     *   Remove throws clause from Renderer.stop.
     *   Don't clear `exception` in `SimpleDecoder#flush()`
         ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
+    *   Remove `AdaptiveTrackSelection.minTimeBetweenBufferReevaluationMs`
+        parameter ([#7582](https://github.com/google/ExoPlayer/issues/7582)).
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Track selection:
     *   Add `Player.getTrackSelector`.

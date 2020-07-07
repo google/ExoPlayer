@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -45,7 +47,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     private final int minDurationToRetainAfterDiscardMs;
     private final float bandwidthFraction;
     private final float bufferedFractionToLiveEdgeForQualityIncrease;
-    private final long minTimeBetweenBufferReevaluationMs;
     private final Clock clock;
 
     /** Creates an adaptive track selection factory with default parameters. */
@@ -56,7 +57,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
           DEFAULT_BANDWIDTH_FRACTION,
           DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-          DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
           Clock.DEFAULT);
     }
 
@@ -74,7 +74,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
           DEFAULT_BANDWIDTH_FRACTION,
           DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-          DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
           Clock.DEFAULT);
     }
 
@@ -104,7 +103,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           minDurationToRetainAfterDiscardMs,
           bandwidthFraction,
           DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-          DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
           Clock.DEFAULT);
     }
 
@@ -127,7 +125,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           minDurationToRetainAfterDiscardMs,
           bandwidthFraction,
           DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-          DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
           Clock.DEFAULT);
     }
 
@@ -151,10 +148,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      *     applied when the playback position is closer to the live edge than {@code
      *     minDurationForQualityIncreaseMs}, which would otherwise prevent switching to a higher
      *     quality from happening.
-     * @param minTimeBetweenBufferReevaluationMs The track selection may periodically reevaluate its
-     *     buffer and discard some chunks of lower quality to improve the playback quality if
-     *     network conditions have changed. This is the minimum duration between 2 consecutive
-     *     buffer reevaluation calls.
      * @param clock A {@link Clock}.
      */
     @SuppressWarnings("deprecation")
@@ -164,7 +157,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         int minDurationToRetainAfterDiscardMs,
         float bandwidthFraction,
         float bufferedFractionToLiveEdgeForQualityIncrease,
-        long minTimeBetweenBufferReevaluationMs,
         Clock clock) {
       this(
           /* bandwidthMeter= */ null,
@@ -173,12 +165,11 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           minDurationToRetainAfterDiscardMs,
           bandwidthFraction,
           bufferedFractionToLiveEdgeForQualityIncrease,
-          minTimeBetweenBufferReevaluationMs,
           clock);
     }
 
     /**
-     * @deprecated Use {@link #Factory(int, int, int, float, float, long, Clock)} instead. Custom
+     * @deprecated Use {@link #Factory(int, int, int, float, float, Clock)} instead. Custom
      *     bandwidth meter should be directly passed to the player in {@link
      *     SimpleExoPlayer.Builder}.
      */
@@ -190,7 +181,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         int minDurationToRetainAfterDiscardMs,
         float bandwidthFraction,
         float bufferedFractionToLiveEdgeForQualityIncrease,
-        long minTimeBetweenBufferReevaluationMs,
         Clock clock) {
       this.bandwidthMeter = bandwidthMeter;
       this.minDurationForQualityIncreaseMs = minDurationForQualityIncreaseMs;
@@ -199,7 +189,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       this.bandwidthFraction = bandwidthFraction;
       this.bufferedFractionToLiveEdgeForQualityIncrease =
           bufferedFractionToLiveEdgeForQualityIncrease;
-      this.minTimeBetweenBufferReevaluationMs = minTimeBetweenBufferReevaluationMs;
       this.clock = clock;
     }
 
@@ -278,7 +267,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
           maxDurationForQualityDecreaseMs,
           minDurationToRetainAfterDiscardMs,
           bufferedFractionToLiveEdgeForQualityIncrease,
-          minTimeBetweenBufferReevaluationMs,
           clock);
     }
   }
@@ -288,20 +276,21 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   public static final int DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS = 25_000;
   public static final float DEFAULT_BANDWIDTH_FRACTION = 0.7f;
   public static final float DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE = 0.75f;
-  public static final long DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS = 2000;
+
+  private static final long MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS = 1000;
 
   private final BandwidthProvider bandwidthProvider;
   private final long minDurationForQualityIncreaseUs;
   private final long maxDurationForQualityDecreaseUs;
   private final long minDurationToRetainAfterDiscardUs;
   private final float bufferedFractionToLiveEdgeForQualityIncrease;
-  private final long minTimeBetweenBufferReevaluationMs;
   private final Clock clock;
 
   private float playbackSpeed;
   private int selectedIndex;
   private int reason;
   private long lastBufferEvaluationMs;
+  @Nullable private MediaChunk lastBufferEvaluationMediaChunk;
 
   /**
    * @param group The {@link TrackGroup}.
@@ -321,7 +310,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
         DEFAULT_BANDWIDTH_FRACTION,
         DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-        DEFAULT_MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS,
         Clock.DEFAULT);
   }
 
@@ -349,10 +337,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    *     when the playback position is closer to the live edge than {@code
    *     minDurationForQualityIncreaseMs}, which would otherwise prevent switching to a higher
    *     quality from happening.
-   * @param minTimeBetweenBufferReevaluationMs The track selection may periodically reevaluate its
-   *     buffer and discard some chunks of lower quality to improve the playback quality if network
-   *     condition has changed. This is the minimum duration between 2 consecutive buffer
-   *     reevaluation calls.
    */
   public AdaptiveTrackSelection(
       TrackGroup group,
@@ -364,7 +348,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       long minDurationToRetainAfterDiscardMs,
       float bandwidthFraction,
       float bufferedFractionToLiveEdgeForQualityIncrease,
-      long minTimeBetweenBufferReevaluationMs,
       Clock clock) {
     this(
         group,
@@ -374,7 +357,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         maxDurationForQualityDecreaseMs,
         minDurationToRetainAfterDiscardMs,
         bufferedFractionToLiveEdgeForQualityIncrease,
-        minTimeBetweenBufferReevaluationMs,
         clock);
   }
 
@@ -386,7 +368,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       long maxDurationForQualityDecreaseMs,
       long minDurationToRetainAfterDiscardMs,
       float bufferedFractionToLiveEdgeForQualityIncrease,
-      long minTimeBetweenBufferReevaluationMs,
       Clock clock) {
     super(group, tracks);
     this.bandwidthProvider = bandwidthProvider;
@@ -395,7 +376,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this.minDurationToRetainAfterDiscardUs = minDurationToRetainAfterDiscardMs * 1000L;
     this.bufferedFractionToLiveEdgeForQualityIncrease =
         bufferedFractionToLiveEdgeForQualityIncrease;
-    this.minTimeBetweenBufferReevaluationMs = minTimeBetweenBufferReevaluationMs;
     this.clock = clock;
     playbackSpeed = 1f;
     reason = C.SELECTION_REASON_UNKNOWN;
@@ -413,9 +393,18 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         .experimental_setBandwidthAllocationCheckpoints(allocationCheckpoints);
   }
 
+  @CallSuper
   @Override
   public void enable() {
     lastBufferEvaluationMs = C.TIME_UNSET;
+    lastBufferEvaluationMediaChunk = null;
+  }
+
+  @CallSuper
+  @Override
+  public void disable() {
+    // Avoid keeping a reference to a MediaChunk in case it prevents garbage collection.
+    lastBufferEvaluationMediaChunk = null;
   }
 
   @Override
@@ -487,15 +476,15 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   @Override
   public int evaluateQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
     long nowMs = clock.elapsedRealtime();
-    if (!shouldEvaluateQueueSize(nowMs)) {
+    if (!shouldEvaluateQueueSize(nowMs, queue)) {
       return queue.size();
     }
-
     lastBufferEvaluationMs = nowMs;
+    lastBufferEvaluationMediaChunk = queue.isEmpty() ? null : Iterables.getLast(queue);
+
     if (queue.isEmpty()) {
       return 0;
     }
-
     int queueSize = queue.size();
     MediaChunk lastChunk = queue.get(queueSize - 1);
     long playoutBufferedDurationBeforeLastChunkUs =
@@ -548,11 +537,13 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    * performed.
    *
    * @param nowMs The current value of {@link Clock#elapsedRealtime()}.
+   * @param queue The queue of buffered {@link MediaChunk MediaChunks}. Must not be modified.
    * @return Whether an evaluation should be performed.
    */
-  protected boolean shouldEvaluateQueueSize(long nowMs) {
+  protected boolean shouldEvaluateQueueSize(long nowMs, List<? extends MediaChunk> queue) {
     return lastBufferEvaluationMs == C.TIME_UNSET
-        || nowMs - lastBufferEvaluationMs >= minTimeBetweenBufferReevaluationMs;
+        || nowMs - lastBufferEvaluationMs >= MIN_TIME_BETWEEN_BUFFER_REEVALUTATION_MS
+        || (!queue.isEmpty() && !Iterables.getLast(queue).equals(lastBufferEvaluationMediaChunk));
   }
 
   /**
