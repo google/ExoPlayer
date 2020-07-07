@@ -9,6 +9,7 @@ implemented.
 
 ### Design documents in RFC status ###
 
+* [Add support for partially fragmented MP4s][] (July 2020)
 * [Audio offload][] (April 2020)
 * [Sniffing order optimization][] (April 2020)
 * [Masking seek state changes][] (March 2020)
@@ -19,6 +20,7 @@ implemented.
 * [Playlist API][] (July 2019)
 * [Bandwidth estimation analysis][] (July 2019)
 
+[Add support for partially fragmented MP4s]: https://docs.google.com/document/d/1NUheADYlqIVVPT8Ch5UbV8DJHLDoxMoOD_L8mvU8tTM
 [Audio offload]: https://docs.google.com/document/d/1r6wi6OtJUaI1QU8QLrLJTZieQBFTN1fyBK4U_PoPp3g
 [Sniffing order optimization]: https://docs.google.com/document/d/1w2mKaWMxfz2Ei8-LdxqbPs1VLe_oudB-eryXXw9OvQQ
 [Masking seek state changes]: https://docs.google.com/document/d/1XeOduvYus9HfwXtOtoRC185T4PK-L4u7JRmNM46Ee4w
