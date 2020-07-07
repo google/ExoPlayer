@@ -428,30 +428,33 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       return;
     }
 
-    int previousSelectedIndex =
-        queue.isEmpty() ? selectedIndex : indexOf(Iterables.getLast(queue).trackFormat);
-    int previousReason = queue.isEmpty() ? reason : Iterables.getLast(queue).trackSelectionReason;
-    int newSelectedIndex = determineIdealSelectedIndex(nowMs);
-    if (!isBlacklisted(previousSelectedIndex, nowMs)) {
-      // Revert back to the previous selection if conditions are not suitable for switching.
-      Format currentFormat = getFormat(previousSelectedIndex);
-      Format selectedFormat = getFormat(newSelectedIndex);
+    // Stash the current selection, then make a new one.
+    int currentSelectedIndex = selectedIndex;
+    selectedIndex = determineIdealSelectedIndex(nowMs);
+    if (selectedIndex == currentSelectedIndex) {
+      return;
+    }
+
+    if (!isBlacklisted(currentSelectedIndex, nowMs)) {
+      // Revert back to the current selection if conditions are not suitable for switching.
+      Format currentFormat = getFormat(currentSelectedIndex);
+      Format selectedFormat = getFormat(selectedIndex);
       if (selectedFormat.bitrate > currentFormat.bitrate
           && bufferedDurationUs < minDurationForQualityIncreaseUs(availableDurationUs)) {
         // The selected track is a higher quality, but we have insufficient buffer to safely switch
         // up. Defer switching up for now.
-        newSelectedIndex = previousSelectedIndex;
+        selectedIndex = currentSelectedIndex;
       } else if (selectedFormat.bitrate < currentFormat.bitrate
           && bufferedDurationUs >= maxDurationForQualityDecreaseUs) {
         // The selected track is a lower quality, but we have sufficient buffer to defer switching
         // down for now.
-        newSelectedIndex = previousSelectedIndex;
+        selectedIndex = currentSelectedIndex;
       }
     }
     // If we adapted, update the trigger.
-    reason =
-        newSelectedIndex == previousSelectedIndex ? previousReason : C.SELECTION_REASON_ADAPTIVE;
-    selectedIndex = newSelectedIndex;
+    if (selectedIndex != currentSelectedIndex) {
+      reason = C.SELECTION_REASON_ADAPTIVE;
+    }
   }
 
   @Override

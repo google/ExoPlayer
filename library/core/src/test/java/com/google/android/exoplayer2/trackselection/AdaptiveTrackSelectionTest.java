@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.testutil.FakeMediaChunk;
 import com.google.android.exoplayer2.trackselection.TrackSelection.Definition;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -327,67 +326,6 @@ public final class AdaptiveTrackSelectionTest {
     // first 2 chunks
     int newSize = adaptiveTrackSelection.evaluateQueueSize(0, queue);
     assertThat(newSize).isEqualTo(2);
-  }
-
-  @Test
-  public void updateSelectedTrack_usesFormatOfLastChunkInTheQueueForSelection() {
-    Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
-    Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
-    TrackGroup trackGroup = new TrackGroup(format1, format2);
-    adaptiveTrackSelection =
-        new AdaptiveTrackSelection.Factory(
-                /* minDurationForQualityIncreaseMs= */ 10_000,
-                /* maxDurationForQualityDecreaseMs= */ 10_000,
-                /* minDurationToRetainAfterDiscardMs= */ 25_000,
-                /* bandwidthFraction= */ 1f)
-            .createAdaptiveTrackSelection(
-                trackGroup,
-                mockBandwidthMeter,
-                /* tracks= */ new int[] {0, 1},
-                /* totalFixedTrackBandwidth= */ 0);
-
-    // Make initial selection.
-    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L);
-    prepareTrackSelection(adaptiveTrackSelection);
-
-    assertThat(adaptiveTrackSelection.getSelectedFormat()).isEqualTo(format2);
-    assertThat(adaptiveTrackSelection.getSelectionReason()).isEqualTo(C.SELECTION_REASON_INITIAL);
-
-    // Ensure that track selection wants to switch down due to low bandwidth.
-    FakeMediaChunk chunk1 =
-        new FakeMediaChunk(
-            format2, /* startTimeUs= */ 0, /* endTimeUs= */ 2_000_000, C.SELECTION_REASON_INITIAL);
-    FakeMediaChunk chunk2 =
-        new FakeMediaChunk(
-            format2,
-            /* startTimeUs= */ 2_000_000,
-            /* endTimeUs= */ 4_000_000,
-            C.SELECTION_REASON_INITIAL);
-    List<FakeMediaChunk> queue = ImmutableList.of(chunk1, chunk2);
-    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(500L);
-    adaptiveTrackSelection.updateSelectedTrack(
-        /* playbackPositionUs= */ 0,
-        /* bufferedDurationUs= */ 4_000_000,
-        /* availableDurationUs= */ C.TIME_UNSET,
-        queue,
-        /* mediaChunkIterators= */ THREE_EMPTY_MEDIA_CHUNK_ITERATORS);
-
-    assertThat(adaptiveTrackSelection.getSelectedFormat()).isEqualTo(format1);
-    assertThat(adaptiveTrackSelection.getSelectionReason()).isEqualTo(C.SELECTION_REASON_ADAPTIVE);
-
-    // Assert that an improved bandwidth selects the last chunk's format and ignores the previous
-    // decision. Switching up from the previous decision wouldn't be possible yet because the
-    // buffered duration is less than minDurationForQualityIncreaseMs.
-    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(1000L);
-    adaptiveTrackSelection.updateSelectedTrack(
-        /* playbackPositionUs= */ 0,
-        /* bufferedDurationUs= */ 4_000_000,
-        /* availableDurationUs= */ C.TIME_UNSET,
-        queue,
-        /* mediaChunkIterators= */ THREE_EMPTY_MEDIA_CHUNK_ITERATORS);
-
-    assertThat(adaptiveTrackSelection.getSelectedFormat()).isEqualTo(format2);
-    assertThat(adaptiveTrackSelection.getSelectionReason()).isEqualTo(C.SELECTION_REASON_INITIAL);
   }
 
   private AdaptiveTrackSelection adaptiveTrackSelection(TrackGroup trackGroup) {
