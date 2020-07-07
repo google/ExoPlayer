@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import androidx.multidex.MultiDexApplication;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
+import com.google.android.exoplayer2.FpsDefaultRenderersFactory4Tunneling;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
@@ -90,7 +91,7 @@ public class DemoApplication extends MultiDexApplication {
                 ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
                 : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
             : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
-    return new DefaultRenderersFactory(/* context= */ this)
+    return new FpsDefaultRenderersFactory4Tunneling(/* context= */ this)
         .setExtensionRendererMode(extensionRendererMode);
   }
 

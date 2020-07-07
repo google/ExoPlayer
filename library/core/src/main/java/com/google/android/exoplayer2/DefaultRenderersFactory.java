@@ -35,7 +35,7 @@ import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
-import com.google.android.exoplayer2.video.MonitorMediaCodecVideoRenderer;
+import com.google.android.exoplayer2.video.FpsMediaCodecVideoRenderer4Tunneling;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionRenderer;
 import java.lang.annotation.Documented;
@@ -43,6 +43,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+
+import javax.annotation.Nonnull;
 
 /**
  * Default {@link RenderersFactory} implementation.
@@ -292,6 +294,27 @@ public class DefaultRenderersFactory implements RenderersFactory {
     return renderersList.toArray(new Renderer[0]);
   }
 
+  @Nonnull
+  protected Renderer buildPrimaryRenderer (
+      Context context,
+      MediaCodecSelector mediaCodecSelector,
+      boolean enableDecoderFallback,
+      Handler eventHandler,
+      VideoRendererEventListener eventListener,
+      long allowedVideoJoiningTimeMs) {
+    MediaCodecVideoRenderer videoRenderer =
+        new FpsMediaCodecVideoRenderer4Tunneling(
+            context,
+            mediaCodecSelector,
+            allowedVideoJoiningTimeMs,
+            enableDecoderFallback,
+            eventHandler,
+            eventListener,
+            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
+    videoRenderer.experimental_setMediaCodecOperationMode(videoMediaCodecOperationMode);
+    return videoRenderer;
+  }
+
   /**
    * Builds video renderers for use by the player.
    *
@@ -316,17 +339,14 @@ public class DefaultRenderersFactory implements RenderersFactory {
       VideoRendererEventListener eventListener,
       long allowedVideoJoiningTimeMs,
       ArrayList<Renderer> out) {
-    MediaCodecVideoRenderer videoRenderer =
-        new MonitorMediaCodecVideoRenderer(
+    out.add(
+        buildPrimaryRenderer(
             context,
             mediaCodecSelector,
-            allowedVideoJoiningTimeMs,
             enableDecoderFallback,
             eventHandler,
             eventListener,
-            MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
-    videoRenderer.experimental_setMediaCodecOperationMode(videoMediaCodecOperationMode);
-    out.add(videoRenderer);
+            allowedVideoJoiningTimeMs));
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
       return;
