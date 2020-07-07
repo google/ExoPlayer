@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -69,7 +68,8 @@ public abstract class BaseTrackSelection implements TrackSelection {
     for (int i = 0; i < tracks.length; i++) {
       formats[i] = group.getFormat(tracks[i]);
     }
-    Arrays.sort(formats, new DecreasingBandwidthComparator());
+    // Sort in order of decreasing bandwidth.
+    Arrays.sort(formats, (a, b) -> b.bitrate - a.bitrate);
     // Set the format indices in the same order.
     this.tracks = new int[length];
     for (int i = 0; i < length; i++) {
@@ -199,17 +199,4 @@ public abstract class BaseTrackSelection implements TrackSelection {
     BaseTrackSelection other = (BaseTrackSelection) obj;
     return group == other.group && Arrays.equals(tracks, other.tracks);
   }
-
-  /**
-   * Sorts {@link Format} objects in order of decreasing bandwidth.
-   */
-  private static final class DecreasingBandwidthComparator implements Comparator<Format> {
-
-    @Override
-    public int compare(Format a, Format b) {
-      return b.bitrate - a.bitrate;
-    }
-
-  }
-
 }
