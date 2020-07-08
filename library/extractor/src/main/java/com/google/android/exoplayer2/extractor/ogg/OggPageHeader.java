@@ -19,7 +19,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
@@ -164,8 +163,8 @@ import java.io.IOException;
       bodySize += laces[i];
     }
 
-    if (verifyReadFileLengthLegitimacy(input.getLength(), input.getPeekPosition())) {
-      endOfMandatoryFlagFile(input.getLength(), input.getPeekPosition());
+    if (OggReadCheckUtil.checkReadLengthValidity(input, bodySize)) {
+      bodySize = OggReadCheckUtil.fixFileReadLength(input);
     }
 
     return true;
@@ -198,20 +197,4 @@ import java.io.IOException;
     }
   }
 
-  /**
-   * Verify that the length of the read exceeds the file length
-   * @param fileLength source stream length
-   * @param peekPosition current read position
-   * @return true by File is incomplete
-   */
-  private boolean verifyReadFileLengthLegitimacy(long fileLength, long peekPosition) {
-    return peekPosition + bodySize > fileLength ;
-  }
-
-  /**
-   * If the container is well-formed but the file is not long, calling this method forces the end of the file to be marked
-   */
-  private void endOfMandatoryFlagFile(long fileLength, long peekPosition) {
-    bodySize = (int)(fileLength - peekPosition);
-  }
 }

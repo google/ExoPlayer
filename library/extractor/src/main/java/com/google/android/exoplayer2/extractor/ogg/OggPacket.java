@@ -149,19 +149,10 @@ import java.util.Arrays;
       }
     }
 
-    if (checkReadLengthValidity(input, size)) {
-      size = (int) (input.getLength() - input.getPosition());
+    if (OggReadCheckUtil.checkReadLengthValidity(input, size)) {
+      size = OggReadCheckUtil.fixFileReadLength(input);
     }
     return size;
   }
 
-  /**
-   * Verify the validity of the file read
-   * @param input see {@link ExtractorInput}
-   * @param readLength The length of the read required
-   * @return
-   */
-  private boolean checkReadLengthValidity(ExtractorInput input, int readLength) {
-    return input.getPosition() + readLength > input.getLength();
-  }
 }
