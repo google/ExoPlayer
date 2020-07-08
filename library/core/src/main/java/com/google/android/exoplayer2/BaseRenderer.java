@@ -36,6 +36,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private SampleStream stream;
   private Format[] streamFormats;
   private long streamOffsetUs;
+  private long startPositionUs;
   private long readingPositionUs;
   private boolean streamIsFinal;
   private boolean throwRendererExceptionIsExecuting;
@@ -89,6 +90,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
+    startPositionUs = positionUs;
     onEnabled(joining, mayRenderStartOfStream);
     replaceStream(formats, stream, offsetUs);
     onPositionReset(positionUs, joining);
@@ -146,6 +148,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void resetPosition(long positionUs) throws ExoPlaybackException {
     streamIsFinal = false;
+    startPositionUs = positionUs;
     readingPositionUs = positionUs;
     onPositionReset(positionUs, false);
   }
@@ -281,6 +284,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   // Methods to be called by subclasses.
+
+  /**
+   * Returns the position passed to the most recent call to {@link #enable} or {@link
+   * #resetPosition}.
+   */
+  protected final long getStartPositionUs() {
+    return startPositionUs;
+  }
 
   /** Returns a clear {@link FormatHolder}. */
   protected final FormatHolder getFormatHolder() {
