@@ -75,14 +75,14 @@ import java.util.Arrays;
         if ((pageHeader.type & 0x01) == 0x01 && packetArray.limit() == 0) {
           // After seeking, the first packet may be the remainder
           // part of a continued packet which has to be discarded.
-          bytesToSkip += calculatePacketSize(segmentIndex);
+          bytesToSkip += calculatePacketSize(segmentIndex, input);
           segmentIndex += segmentCount;
         }
         input.skipFully(bytesToSkip);
         currentSegmentIndex = segmentIndex;
       }
 
-      int size = calculatePacketSize(currentSegmentIndex);
+      int size = calculatePacketSize(currentSegmentIndex, input);
       int segmentIndex = currentSegmentIndex + segmentCount;
       if (size > 0) {
         if (packetArray.capacity() < packetArray.limit() + size) {
@@ -137,7 +137,7 @@ import java.util.Arrays;
    * @param startSegmentIndex the index of the first segment of the packet.
    * @return Size of the packet.
    */
-  private int calculatePacketSize(int startSegmentIndex) {
+  private int calculatePacketSize(int startSegmentIndex, ExtractorInput input) {
     segmentCount = 0;
     int size = 0;
     while (startSegmentIndex + segmentCount < pageHeader.pageSegmentCount) {
@@ -148,7 +148,20 @@ import java.util.Arrays;
         break;
       }
     }
+
+    if (checkReadLengthValidity(input, size)) {
+      size = (int) (input.getLength() - input.getPosition());
+    }
     return size;
   }
 
+  /**
+   * Verify the validity of the file read
+   * @param input see {@link ExtractorInput}
+   * @param readLength The length of the read required
+   * @return
+   */
+  private boolean checkReadLengthValidity(ExtractorInput input, int readLength) {
+    return input.getPosition() + readLength > input.getLength();
+  }
 }
