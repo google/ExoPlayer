@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.RendererCapabilities.FormatSupport;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Ints;
@@ -1503,20 +1502,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   /** @deprecated Use {@link #DefaultTrackSelector(Context)} instead. */
   @Deprecated
-  @SuppressWarnings("deprecation")
   public DefaultTrackSelector() {
-    this(new AdaptiveTrackSelection.Factory());
-  }
-
-  /**
-   * @deprecated Use {@link #DefaultTrackSelector(Context)} instead. The bandwidth meter should be
-   *     passed directly to the player in {@link
-   *     com.google.android.exoplayer2.SimpleExoPlayer.Builder}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DefaultTrackSelector(BandwidthMeter bandwidthMeter) {
-    this(new AdaptiveTrackSelection.Factory(bandwidthMeter));
+    this(Parameters.DEFAULT_WITHOUT_CONTEXT, new AdaptiveTrackSelection.Factory());
   }
 
   /** @deprecated Use {@link #DefaultTrackSelector(Context, TrackSelection.Factory)}. */

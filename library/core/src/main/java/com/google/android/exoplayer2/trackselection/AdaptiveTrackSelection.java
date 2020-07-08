@@ -19,7 +19,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
@@ -41,7 +40,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   /** Factory for {@link AdaptiveTrackSelection} instances. */
   public static class Factory implements TrackSelection.Factory {
 
-    @Nullable private final BandwidthMeter bandwidthMeter;
     private final int minDurationForQualityIncreaseMs;
     private final int maxDurationForQualityDecreaseMs;
     private final int minDurationToRetainAfterDiscardMs;
@@ -52,23 +50,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     /** Creates an adaptive track selection factory with default parameters. */
     public Factory() {
       this(
-          DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
-          DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
-          DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
-          DEFAULT_BANDWIDTH_FRACTION,
-          DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-          Clock.DEFAULT);
-    }
-
-    /**
-     * @deprecated Use {@link #Factory()} instead. Custom bandwidth meter should be directly passed
-     *     to the player in {@link SimpleExoPlayer.Builder}.
-     */
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    public Factory(BandwidthMeter bandwidthMeter) {
-      this(
-          bandwidthMeter,
           DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
           DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
           DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
@@ -98,28 +79,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         int minDurationToRetainAfterDiscardMs,
         float bandwidthFraction) {
       this(
-          minDurationForQualityIncreaseMs,
-          maxDurationForQualityDecreaseMs,
-          minDurationToRetainAfterDiscardMs,
-          bandwidthFraction,
-          DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE,
-          Clock.DEFAULT);
-    }
-
-    /**
-     * @deprecated Use {@link #Factory(int, int, int, float)} instead. Custom bandwidth meter should
-     *     be directly passed to the player in {@link SimpleExoPlayer.Builder}.
-     */
-    @Deprecated
-    @SuppressWarnings("deprecation")
-    public Factory(
-        BandwidthMeter bandwidthMeter,
-        int minDurationForQualityIncreaseMs,
-        int maxDurationForQualityDecreaseMs,
-        int minDurationToRetainAfterDiscardMs,
-        float bandwidthFraction) {
-      this(
-          bandwidthMeter,
           minDurationForQualityIncreaseMs,
           maxDurationForQualityDecreaseMs,
           minDurationToRetainAfterDiscardMs,
@@ -150,7 +109,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      *     quality from happening.
      * @param clock A {@link Clock}.
      */
-    @SuppressWarnings("deprecation")
     public Factory(
         int minDurationForQualityIncreaseMs,
         int maxDurationForQualityDecreaseMs,
@@ -158,31 +116,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         float bandwidthFraction,
         float bufferedFractionToLiveEdgeForQualityIncrease,
         Clock clock) {
-      this(
-          /* bandwidthMeter= */ null,
-          minDurationForQualityIncreaseMs,
-          maxDurationForQualityDecreaseMs,
-          minDurationToRetainAfterDiscardMs,
-          bandwidthFraction,
-          bufferedFractionToLiveEdgeForQualityIncrease,
-          clock);
-    }
-
-    /**
-     * @deprecated Use {@link #Factory(int, int, int, float, float, Clock)} instead. Custom
-     *     bandwidth meter should be directly passed to the player in {@link
-     *     SimpleExoPlayer.Builder}.
-     */
-    @Deprecated
-    public Factory(
-        @Nullable BandwidthMeter bandwidthMeter,
-        int minDurationForQualityIncreaseMs,
-        int maxDurationForQualityDecreaseMs,
-        int minDurationToRetainAfterDiscardMs,
-        float bandwidthFraction,
-        float bufferedFractionToLiveEdgeForQualityIncrease,
-        Clock clock) {
-      this.bandwidthMeter = bandwidthMeter;
       this.minDurationForQualityIncreaseMs = minDurationForQualityIncreaseMs;
       this.maxDurationForQualityDecreaseMs = maxDurationForQualityDecreaseMs;
       this.minDurationToRetainAfterDiscardMs = minDurationToRetainAfterDiscardMs;
@@ -195,9 +128,6 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     @Override
     public final @NullableType TrackSelection[] createTrackSelections(
         @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
-      if (this.bandwidthMeter != null) {
-        bandwidthMeter = this.bandwidthMeter;
-      }
       TrackSelection[] selections = new TrackSelection[definitions.length];
       int totalFixedBandwidth = 0;
       for (int i = 0; i < definitions.length; i++) {
