@@ -601,15 +601,12 @@ public class SimpleExoPlayer extends BasePlayer
             builder.pauseAtEndOfMediaItems,
             builder.clock,
             builder.looper);
-    analyticsCollector.setPlayer(player);
-    player.addListener(analyticsCollector);
     player.addListener(componentListener);
     videoDebugListeners.add(analyticsCollector);
     videoListeners.add(analyticsCollector);
     audioDebugListeners.add(analyticsCollector);
     audioListeners.add(analyticsCollector);
     addMetadataOutput(analyticsCollector);
-    bandwidthMeter.addEventListener(eventHandler, analyticsCollector);
 
     audioBecomingNoisyManager =
         new AudioBecomingNoisyManager(builder.context, eventHandler, componentListener);
@@ -1699,7 +1696,6 @@ public class SimpleExoPlayer extends BasePlayer
       Assertions.checkNotNull(priorityTaskManager).remove(C.PRIORITY_PLAYBACK);
       isPriorityTaskManagerRegistered = false;
     }
-    bandwidthMeter.removeEventListener(analyticsCollector);
     currentCues = Collections.emptyList();
     playerReleased = true;
   }

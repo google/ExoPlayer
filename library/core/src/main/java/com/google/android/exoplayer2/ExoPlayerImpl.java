@@ -75,6 +75,8 @@ import java.util.concurrent.TimeoutException;
   private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
   private final boolean useLazyPreparation;
   private final MediaSourceFactory mediaSourceFactory;
+  @Nullable private final AnalyticsCollector analyticsCollector;
+  private final BandwidthMeter bandwidthMeter;
 
   @RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
@@ -135,6 +137,8 @@ import java.util.concurrent.TimeoutException;
     this.renderers = checkNotNull(renderers);
     this.trackSelector = checkNotNull(trackSelector);
     this.mediaSourceFactory = mediaSourceFactory;
+    this.bandwidthMeter = bandwidthMeter;
+    this.analyticsCollector = analyticsCollector;
     this.useLazyPreparation = useLazyPreparation;
     this.seekParameters = seekParameters;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
@@ -161,6 +165,8 @@ import java.util.concurrent.TimeoutException;
     pendingListenerNotifications = new ArrayDeque<>();
     if (analyticsCollector != null) {
       analyticsCollector.setPlayer(this);
+      addListener(analyticsCollector);
+      bandwidthMeter.addEventListener(applicationHandler, analyticsCollector);
     }
     internalPlayer =
         new ExoPlayerImplInternal(
@@ -712,6 +718,9 @@ import java.util.concurrent.TimeoutException;
                       new RuntimeException(new TimeoutException("Player release timed out.")))));
     }
     applicationHandler.removeCallbacksAndMessages(null);
+    if (analyticsCollector != null) {
+      bandwidthMeter.removeEventListener(analyticsCollector);
+    }
     playbackInfo =
         getResetPlaybackInfo(
             /* clearPlaylist= */ false,
