@@ -92,33 +92,42 @@ public final class CssParserTest {
   @Test
   public void parseMethodSimpleInput() {
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
-    String styleBlock1 = " ::cue { color : PapayaWhip }";
-    expectedStyle.setFontColor(0xFFFFEFD5);
+    String styleBlock1 = " ::cue { color : black; background-color: PapayaWhip }";
+    expectedStyle.setFontColor(0xFF000000);
+    expectedStyle.setBackgroundColor(0xFFFFEFD5);
     assertParserProduces(styleBlock1, expectedStyle);
 
     String styleBlock2 = " ::cue { color : black }\n\n::cue { color : invalid }";
     expectedStyle = new WebvttCssStyle();
     expectedStyle.setFontColor(0xFF000000);
     assertParserProduces(styleBlock2, expectedStyle);
+
+    String styleBlock3 = "::cue {\n background-color\n:#00fFFe}";
+    expectedStyle = new WebvttCssStyle();
+    expectedStyle.setBackgroundColor(0xFF00FFFE);
+    assertParserProduces(styleBlock3, expectedStyle);
   }
 
   @Test
   public void parseMethodMultipleRulesInBlockInput() {
-    String styleBlock = "::cue {\n color\n:#00fFFe}      \n::cue {\n color\n:#00000000}\n";
+    String styleBlock =
+        "::cue {\n background-color\n:#00fFFe}      \n::cue {\n background-color\n:#00000000}\n";
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
-    expectedStyle.setFontColor(0xFF00FFFE);
+    expectedStyle.setBackgroundColor(0xFF00FFFE);
     WebvttCssStyle secondExpectedStyle = new WebvttCssStyle();
-    secondExpectedStyle.setFontColor(0x000000);
+    secondExpectedStyle.setBackgroundColor(0x000000);
     assertParserProduces(styleBlock, expectedStyle, secondExpectedStyle);
   }
 
   @Test
   public void multiplePropertiesInBlock() {
     String styleBlock =
-        "::cue(#id){text-decoration:underline; color:red; font-family:Courier; font-weight:bold}";
+        "::cue(#id){text-decoration:underline; background-color:green;"
+            + "color:red; font-family:Courier; font-weight:bold}";
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
     expectedStyle.setTargetId("id");
     expectedStyle.setUnderline(true);
+    expectedStyle.setBackgroundColor(0xFF008000);
     expectedStyle.setFontColor(0xFFFF0000);
     expectedStyle.setFontFamily("courier");
     expectedStyle.setBold(true);
@@ -128,10 +137,13 @@ public final class CssParserTest {
 
   @Test
   public void rgbaColorExpression() {
-    String styleBlock = "::cue(#rgb){color: rgba(\n10/* Ugly color */,11\t, 12\n,.1);}";
+    String styleBlock =
+        "::cue(#rgb){background-color: rgba(\n10/* Ugly color */,11\t, 12\n,.1);"
+            + "color:rgb(1,1,\n1)}";
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
     expectedStyle.setTargetId("rgb");
-    expectedStyle.setFontColor(0x190A0B0C);
+    expectedStyle.setBackgroundColor(0x190A0B0C);
+    expectedStyle.setFontColor(0xFF010101);
 
     assertParserProduces(styleBlock, expectedStyle);
   }
@@ -237,6 +249,10 @@ public final class CssParserTest {
     for (int i = 0; i < expectedStyles.length; i++) {
       WebvttCssStyle expected = expectedStyles[i];
       WebvttCssStyle actualElem = styles.get(i);
+      assertThat(actualElem.hasBackgroundColor()).isEqualTo(expected.hasBackgroundColor());
+      if (expected.hasBackgroundColor()) {
+        assertThat(actualElem.getBackgroundColor()).isEqualTo(expected.getBackgroundColor());
+      }
       assertThat(actualElem.hasFontColor()).isEqualTo(expected.hasFontColor());
       if (expected.hasFontColor()) {
         assertThat(actualElem.getFontColor()).isEqualTo(expected.getFontColor());

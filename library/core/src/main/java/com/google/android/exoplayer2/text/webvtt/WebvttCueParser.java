@@ -680,6 +680,14 @@ public final class WebvttCueParser {
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
+    if (style.hasBackgroundColor()) {
+      addOrReplaceSpan(
+          spannedText,
+          new BackgroundColorSpan(style.getBackgroundColor()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
     if (style.getFontFamily() != null) {
       addOrReplaceSpan(
           spannedText,

@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
   private static final String RULE_START = "{";
   private static final String RULE_END = "}";
   private static final String PROPERTY_COLOR = "color";
+  private static final String PROPERTY_BGCOLOR = "background-color";
   private static final String PROPERTY_FONT_FAMILY = "font-family";
   private static final String PROPERTY_FONT_WEIGHT = "font-weight";
   private static final String PROPERTY_RUBY_POSITION = "ruby-position";
@@ -190,6 +191,8 @@ import java.util.regex.Pattern;
     // At this point we have a presumably valid declaration, we need to parse it and fill the style.
     if (PROPERTY_COLOR.equals(property)) {
       style.setFontColor(ColorParser.parseCssColor(value));
+    } else if (PROPERTY_BGCOLOR.equals(property)) {
+      style.setBackgroundColor(ColorParser.parseCssColor(value));
     } else if (PROPERTY_RUBY_POSITION.equals(property)) {
       if (VALUE_OVER.equals(value)) {
         style.setRubyPosition(RubySpan.POSITION_OVER);

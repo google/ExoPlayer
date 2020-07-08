@@ -407,6 +407,9 @@ public class WebvttDecoderTest {
     assertThat(firstCueText)
         .hasForegroundColorSpanBetween(0, firstCueText.length())
         .withColor(ColorParser.parseCssColor("papayawhip"));
+    assertThat(firstCueText)
+        .hasBackgroundColorSpanBetween(0, firstCueText.length())
+        .withColor(ColorParser.parseCssColor("green"));
 
     Spanned secondCueText = getUniqueSpanTextAt(subtitle, 2_345_000);
     assertThat(secondCueText.toString()).isEqualTo("This is the second subtitle.");
@@ -421,7 +424,7 @@ public class WebvttDecoderTest {
     Spanned fourthCueText = getUniqueSpanTextAt(subtitle, 25_000_000);
     assertThat(fourthCueText.toString()).isEqualTo("You are an idiot\nYou don't have the guts");
     assertThat(fourthCueText)
-        .hasForegroundColorSpanBetween(0, "You are an idiot".length())
+        .hasBackgroundColorSpanBetween(0, "You are an idiot".length())
         .withColor(ColorParser.parseCssColor("lime"));
     assertThat(fourthCueText)
         .hasBoldSpanBetween("You are an idiot\n".length(), fourthCueText.length());
