@@ -127,6 +127,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Corresponding method: {@link #setShowShuffleButton(boolean)}
  *         <li>Default: false
  *       </ul>
+ *   <li><b>{@code show_subtitle_button}</b> - Whether the shuffle button is shown.
+ *       <ul>
+ *         <li>Corresponding method: {@link #setShowSubtitleButton(boolean)}
+ *         <li>Default: false
+ *       </ul>
  *   <li><b>{@code animation_enabled}</b> - Whether an animation is used to show and hide the
  *       playback controls.
  *       <ul>
@@ -885,32 +890,6 @@ public class StyledPlayerControlView extends FrameLayout {
   public void setShowNextButton(boolean showNextButton) {
     this.showNextButton = showNextButton;
     updateNavigation();
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setRewindIncrementMs(int rewindMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setRewindIncrementMs(rewindMs);
-      updateNavigation();
-    }
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setFastForwardIncrementMs(int fastForwardMs) {
-    if (controlDispatcher instanceof DefaultControlDispatcher) {
-      ((DefaultControlDispatcher) controlDispatcher).setFastForwardIncrementMs(fastForwardMs);
-      updateNavigation();
-    }
   }
 
   /**

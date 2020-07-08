@@ -43,7 +43,6 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
@@ -1034,28 +1033,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
   public void setShowNextButton(boolean showNextButton) {
     Assertions.checkStateNotNull(controller);
     controller.setShowNextButton(showNextButton);
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setRewindIncrementMs(int rewindMs) {
-    Assertions.checkStateNotNull(controller);
-    controller.setRewindIncrementMs(rewindMs);
-  }
-
-  /**
-   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
-   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public void setFastForwardIncrementMs(int fastForwardMs) {
-    Assertions.checkStateNotNull(controller);
-    controller.setFastForwardIncrementMs(fastForwardMs);
   }
 
   /**
