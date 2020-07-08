@@ -11,7 +11,7 @@ class OggReadCheckUtil {
    * Verify that the length of the read exceeds the file length
    * @param input {@link ExtractorInput}
    * @param readLength read length
-   * @return true by File is incomplete
+   * @return true The read length is greater than the file length
    */
   public static boolean checkReadLengthValidity(ExtractorInput input, int readLength) {
     return input.getPeekPosition() + readLength > input.getLength() ;
