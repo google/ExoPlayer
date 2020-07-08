@@ -591,9 +591,7 @@ import java.util.concurrent.TimeoutException;
       applicationHandler
           .obtainMessage(
               ExoPlayerImplInternal.MSG_PLAYBACK_INFO_CHANGED,
-              /* operationAcks */ 1,
-              /* positionDiscontinuityReason */ C.INDEX_UNSET,
-              playbackInfo)
+              new ExoPlayerImplInternal.PlaybackInfoUpdate(playbackInfo))
           .sendToTarget();
       return;
     }
