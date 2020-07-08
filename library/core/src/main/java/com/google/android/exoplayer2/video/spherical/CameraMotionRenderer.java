@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 
 /** A {@link Renderer} that parses the camera motion track. */
-public class CameraMotionRenderer extends BaseRenderer {
+public final class CameraMotionRenderer extends BaseRenderer {
 
   private static final String TAG = "CameraMotionRenderer";
   // The amount of time to read samples ahead of the current time.
@@ -73,12 +73,13 @@ public class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long offsetUs) {
     this.offsetUs = offsetUs;
   }
 
   @Override
-  protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
+  protected void onPositionReset(long positionUs, boolean joining) {
+    lastTimestampUs = Long.MIN_VALUE;
     resetListener();
   }
 
@@ -88,7 +89,7 @@ public class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
-  public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+  public void render(long positionUs, long elapsedRealtimeUs) {
     // Keep reading available samples as long as the sample time is not too far into the future.
     while (!hasReadStreamToEnd() && lastTimestampUs < positionUs + SAMPLE_WINDOW_DURATION_US) {
       buffer.clear();
@@ -99,14 +100,18 @@ public class CameraMotionRenderer extends BaseRenderer {
         return;
       }
 
-      buffer.flip();
       lastTimestampUs = buffer.timeUs;
-      if (listener != null) {
-        float[] rotation = parseMetadata(Util.castNonNull(buffer.data));
-        if (rotation != null) {
-          Util.castNonNull(listener).onCameraMotion(lastTimestampUs - offsetUs, rotation);
-        }
+      if (listener == null || buffer.isDecodeOnly()) {
+        continue;
       }
+
+      buffer.flip();
+      @Nullable float[] rotation = parseMetadata(Util.castNonNull(buffer.data));
+      if (rotation == null) {
+        continue;
+      }
+
+      Util.castNonNull(listener).onCameraMotion(lastTimestampUs - offsetUs, rotation);
     }
   }
 
@@ -135,7 +140,6 @@ public class CameraMotionRenderer extends BaseRenderer {
   }
 
   private void resetListener() {
-    lastTimestampUs = 0;
     if (listener != null) {
       listener.onCameraMotionReset();
     }
