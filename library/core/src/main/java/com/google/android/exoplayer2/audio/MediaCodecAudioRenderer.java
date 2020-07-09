@@ -631,7 +631,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       if (codec != null) {
         codec.releaseOutputBuffer(bufferIndex, false);
       }
-      decoderCounters.skippedOutputBufferCount++;
+      decoderCounters.skippedOutputBufferCount += sampleCount;
       audioSink.handleDiscontinuity();
       return true;
     }
