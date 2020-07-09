@@ -35,8 +35,8 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
-  public boolean supportsOutput(Format format) {
-    return sink.supportsOutput(format);
+  public boolean supportsFormat(Format format) {
+    return sink.supportsFormat(format);
   }
 
   @Override

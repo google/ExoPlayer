@@ -206,25 +206,25 @@ public final class DefaultAudioSinkTest {
 
   @Config(minSdk = OLDEST_SDK, maxSdk = 20)
   @Test
-  public void doesNotSupportFloatOutputBeforeApi21() {
+  public void doesNotSupportFloatPcmBeforeApi21() {
     Format floatFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build();
-    assertThat(defaultAudioSink.supportsOutput(floatFormat)).isFalse();
+    assertThat(defaultAudioSink.supportsFormat(floatFormat)).isFalse();
   }
 
   @Config(minSdk = 21, maxSdk = TARGET_SDK)
   @Test
-  public void supportsFloatOutputFromApi21() {
+  public void supportsFloatPcmFromApi21() {
     Format floatFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build();
-    assertThat(defaultAudioSink.supportsOutput(floatFormat)).isTrue();
+    assertThat(defaultAudioSink.supportsFormat(floatFormat)).isTrue();
   }
 
   @Test
-  public void audioSinkWithAacAudioCapabilitiesWithoutOffload_doesNotSupportAacOutput() {
+  public void audioSinkWithAacAudioCapabilitiesWithoutOffload_doesNotSupportAac() {
     DefaultAudioSink defaultAudioSink =
         new DefaultAudioSink(
             new AudioCapabilities(new int[] {C.ENCODING_AAC_LC}, 2), new AudioProcessor[0]);
     Format aacLcFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_AAC_LC).build();
-    assertThat(defaultAudioSink.supportsOutput(aacLcFormat)).isFalse();
+    assertThat(defaultAudioSink.supportsFormat(aacLcFormat)).isFalse();
   }
 
   private void configureDefaultAudioSink(int channelCount) throws AudioSink.ConfigurationException {

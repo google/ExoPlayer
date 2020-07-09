@@ -211,12 +211,12 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   protected abstract int supportsFormatInternal(Format format);
 
   /**
-   * Returns whether the sink supports the audio format.
+   * Returns whether the renderer's {@link AudioSink} supports a given {@link Format}.
    *
-   * @see AudioSink#supportsOutput(Format)
+   * @see AudioSink#supportsFormat(Format)
    */
-  protected final boolean supportsOutput(Format format) {
-    return audioSink.supportsOutput(format);
+  protected final boolean sinkSupportsFormat(Format format) {
+    return audioSink.supportsFormat(format);
   }
 
   @Override

@@ -184,12 +184,12 @@ public interface AudioSink {
   void setListener(Listener listener);
 
   /**
-   * Returns whether the sink supports the audio format.
+   * Returns whether the sink supports a given {@link Format}.
    *
-   * @param format The format of the audio.
-   * @return Whether the sink supports the audio format.
+   * @param format The format.
+   * @return Whether the sink supports the format.
    */
-  boolean supportsOutput(Format format);
+  boolean supportsFormat(Format format);
 
   /**
    * Returns the playback position in the stream starting at zero, in microseconds, or

@@ -1432,13 +1432,29 @@ public final class Util {
   }
 
   /**
+   * Gets a PCM {@link Format} with the specified parameters.
+   *
+   * @param pcmEncoding The {@link C.PcmEncoding}.
+   * @param channels The number of channels, or {@link Format#NO_VALUE} if unknown.
+   * @param sampleRate The sample rate in Hz, or {@link Format#NO_VALUE} if unknown.
+   * @return The PCM format.
+   */
+  public static Format getPcmFormat(@C.PcmEncoding int pcmEncoding, int channels, int sampleRate) {
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(channels)
+        .setSampleRate(sampleRate)
+        .setEncoding(pcmEncoding)
+        .build();
+  }
+
+  /**
    * Converts a sample bit depth to a corresponding PCM encoding constant.
    *
    * @param bitDepth The bit depth. Supported values are 8, 16, 24 and 32.
-   * @return The corresponding encoding. One of {@link C#ENCODING_PCM_8BIT},
-   *     {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and
-   *     {@link C#ENCODING_PCM_32BIT}. If the bit depth is unsupported then
-   *     {@link C#ENCODING_INVALID} is returned.
+   * @return The corresponding encoding. One of {@link C#ENCODING_PCM_8BIT}, {@link
+   *     C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and {@link C#ENCODING_PCM_32BIT}. If
+   *     the bit depth is unsupported then {@link C#ENCODING_INVALID} is returned.
    */
   @C.PcmEncoding
   public static int getPcmEncoding(int bitDepth) {

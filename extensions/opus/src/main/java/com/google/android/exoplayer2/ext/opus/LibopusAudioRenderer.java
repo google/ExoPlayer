@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 
 /** Decodes and renders audio using the native Opus decoder. */
 public class LibopusAudioRenderer extends DecoderAudioRenderer {
@@ -69,7 +70,8 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!supportsOutput(format.buildUpon().setEncoding(C.ENCODING_PCM_16BIT).build())) {
+    } else if (!sinkSupportsFormat(
+        Util.getPcmFormat(C.ENCODING_PCM_16BIT, format.channelCount, format.sampleRate))) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (!drmIsSupported) {
       return FORMAT_UNSUPPORTED_DRM;
@@ -99,11 +101,6 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
 
   @Override
   protected Format getOutputFormat() {
-    return new Format.Builder()
-        .setSampleMimeType(MimeTypes.AUDIO_RAW)
-        .setChannelCount(channelCount)
-        .setSampleRate(sampleRate)
-        .setEncoding(C.ENCODING_PCM_16BIT)
-        .build();
+    return Util.getPcmFormat(C.ENCODING_PCM_16BIT, channelCount, sampleRate);
   }
 }

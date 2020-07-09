@@ -85,22 +85,23 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
         || !MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
     }
-    // Compute the PCM encoding that the FLAC decoder will output.
-    @C.PcmEncoding int pcmEncoding;
+    // Compute the format that the FLAC decoder will output.
+    Format outputFormat;
     if (format.initializationData.isEmpty()) {
       // The initialization data might not be set if the format was obtained from a manifest (e.g.
       // for DASH playbacks) rather than directly from the media. In this case we assume
       // ENCODING_PCM_16BIT. If the actual encoding is different then playback will still succeed as
       // long as the AudioSink supports it, which will always be true when using DefaultAudioSink.
-      pcmEncoding = C.ENCODING_PCM_16BIT;
+      outputFormat =
+          Util.getPcmFormat(C.ENCODING_PCM_16BIT, format.channelCount, format.sampleRate);
     } else {
       int streamMetadataOffset =
           FlacConstants.STREAM_MARKER_SIZE + FlacConstants.METADATA_BLOCK_HEADER_SIZE;
       FlacStreamMetadata streamMetadata =
           new FlacStreamMetadata(format.initializationData.get(0), streamMetadataOffset);
-      pcmEncoding = Util.getPcmEncoding(streamMetadata.bitsPerSample);
+      outputFormat = getOutputFormat(streamMetadata);
     }
-    if (!supportsOutput(format.buildUpon().setEncoding(pcmEncoding).build())) {
+    if (!sinkSupportsFormat(outputFormat)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
       return FORMAT_UNSUPPORTED_DRM;
@@ -122,12 +123,13 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
 
   @Override
   protected Format getOutputFormat() {
-    Assertions.checkNotNull(streamMetadata);
-    return new Format.Builder()
-        .setSampleMimeType(MimeTypes.AUDIO_RAW)
-        .setChannelCount(streamMetadata.channels)
-        .setSampleRate(streamMetadata.sampleRate)
-        .setEncoding(Util.getPcmEncoding(streamMetadata.bitsPerSample))
-        .build();
+    return getOutputFormat(Assertions.checkNotNull(streamMetadata));
+  }
+
+  private static Format getOutputFormat(FlacStreamMetadata streamMetadata) {
+    return Util.getPcmFormat(
+        Util.getPcmEncoding(streamMetadata.bitsPerSample),
+        streamMetadata.channels,
+        streamMetadata.sampleRate);
   }
 }

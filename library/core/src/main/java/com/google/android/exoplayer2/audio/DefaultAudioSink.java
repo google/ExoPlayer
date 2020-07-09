@@ -419,7 +419,7 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public boolean supportsOutput(Format format) {
+  public boolean supportsFormat(Format format) {
     if (format.encoding == C.ENCODING_INVALID) {
       return false;
     }
@@ -473,7 +473,7 @@ public final class DefaultAudioSink implements AudioSink {
     boolean useFloatOutput =
         enableFloatOutput
             && Util.isEncodingHighResolutionPcm(inputFormat.encoding)
-            && supportsOutput(inputFormat.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build());
+            && supportsFormat(inputFormat.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build());
     AudioProcessor[] availableAudioProcessors =
         useFloatOutput ? toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
     if (processingEnabled) {

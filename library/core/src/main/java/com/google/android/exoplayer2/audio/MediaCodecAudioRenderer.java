@@ -220,17 +220,21 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     boolean formatHasDrm = format.drmInitData != null || format.exoMediaCryptoType != null;
     boolean supportsFormatDrm = supportsFormatDrm(format);
-    // In passthrough mode, if a DRM is present we need to use a passthrough decoder to
-    // decrypt the content. For passthrough of clear content we don't need a decoder at all.
+    // In passthrough mode, if the format needs decryption then we need to use a passthrough
+    // decoder. Else we don't don't need a decoder at all.
     if (supportsFormatDrm
         && usePassthrough(format)
         && (!formatHasDrm || MediaCodecUtil.getPassthroughDecoderInfo() != null)) {
       return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
     }
-    if ((MimeTypes.AUDIO_RAW.equals(format.sampleMimeType) && !audioSink.supportsOutput(format))
-        || !audioSink.supportsOutput(
-            format.buildUpon().setEncoding(C.ENCODING_PCM_16BIT).build())) {
-      // Assume the decoder outputs 16-bit PCM, unless the input is raw.
+    // If the input is PCM then it will be passed directly to the sink. Hence the sink must support
+    // the input format directly.
+    if (MimeTypes.AUDIO_RAW.equals(format.sampleMimeType) && !audioSink.supportsFormat(format)) {
+      return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
+    }
+    // For all other input formats, we expect the decoder to output 16-bit PCM.
+    if (!audioSink.supportsFormat(
+        Util.getPcmFormat(C.ENCODING_PCM_16BIT, format.channelCount, format.sampleRate))) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
     }
     List<MediaCodecInfo> decoderInfos =
@@ -446,7 +450,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               .setChannelCount(Format.NO_VALUE)
               .setEncoding(C.ENCODING_E_AC3_JOC)
               .build();
-      if (audioSink.supportsOutput(eAc3JocFormat)) {
+      if (audioSink.supportsFormat(eAc3JocFormat)) {
         return C.ENCODING_E_AC3_JOC;
       }
       // E-AC3 receivers can decode JOC streams, but in 2-D rather than 3-D, so try to fall back.
@@ -455,7 +459,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
     @C.Encoding int encoding = MimeTypes.getEncoding(mimeType, format.codecs);
     Format passthroughFormat = format.buildUpon().setEncoding(encoding).build();
-    if (audioSink.supportsOutput(passthroughFormat)) {
+    if (audioSink.supportsFormat(passthroughFormat)) {
       return encoding;
     } else {
       return C.ENCODING_INVALID;

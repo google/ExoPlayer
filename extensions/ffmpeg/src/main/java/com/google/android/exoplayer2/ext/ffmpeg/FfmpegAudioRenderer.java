@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
+import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Decodes and renders audio using FFmpeg. */
@@ -143,13 +144,12 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
 
   private boolean isOutputSupported(Format inputFormat) {
     return shouldUseFloatOutput(inputFormat)
-        || supportsOutput(inputFormat.buildUpon().setEncoding(C.ENCODING_PCM_16BIT).build());
+        || sinkSupportsFormat(inputFormat, C.ENCODING_PCM_16BIT);
   }
 
   private boolean shouldUseFloatOutput(Format inputFormat) {
     Assertions.checkNotNull(inputFormat.sampleMimeType);
-    if (!enableFloatOutput
-        || !supportsOutput(inputFormat.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build())) {
+    if (!enableFloatOutput || !sinkSupportsFormat(inputFormat, C.ENCODING_PCM_FLOAT)) {
       return false;
     }
     switch (inputFormat.sampleMimeType) {
@@ -167,4 +167,12 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
     }
   }
 
+  /**
+   * Returns whether the renderer's {@link AudioSink} supports the PCM format that will be output
+   * from the decoder for the given input format and requested output encoding.
+   */
+  private boolean sinkSupportsFormat(Format inputFormat, @C.PcmEncoding int pcmEncoding) {
+    return sinkSupportsFormat(
+        Util.getPcmFormat(pcmEncoding, inputFormat.channelCount, inputFormat.sampleRate));
+  }
 }
