@@ -147,10 +147,16 @@ public class MediaCodecAudioRendererTest {
     } while (!mediaCodecAudioRenderer.isEnded());
 
     verify(audioSink)
-        .configure(AUDIO_AAC, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
+        .configure(
+            getAudioSinkFormat(AUDIO_AAC),
+            /* specifiedBufferSize= */ 0,
+            /* outputChannels= */ null);
 
     verify(audioSink)
-        .configure(changedFormat, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
+        .configure(
+            getAudioSinkFormat(changedFormat),
+            /* specifiedBufferSize= */ 0,
+            /* outputChannels= */ null);
   }
 
   @Test
@@ -195,10 +201,16 @@ public class MediaCodecAudioRendererTest {
     } while (!mediaCodecAudioRenderer.isEnded());
 
     verify(audioSink)
-        .configure(AUDIO_AAC, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
+        .configure(
+            getAudioSinkFormat(AUDIO_AAC),
+            /* specifiedBufferSize= */ 0,
+            /* outputChannels= */ null);
 
     verify(audioSink)
-        .configure(changedFormat, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
+        .configure(
+            getAudioSinkFormat(changedFormat),
+            /* specifiedBufferSize= */ 0,
+            /* outputChannels= */ null);
   }
 
   @Test
@@ -260,5 +272,16 @@ public class MediaCodecAudioRendererTest {
     // Doesn't throw an exception because it's cleared after being thrown in the previous call to
     // render.
     exceptionThrowingRenderer.render(/* positionUs= */ 750, SystemClock.elapsedRealtime() * 1000);
+  }
+
+  private static Format getAudioSinkFormat(Format inputFormat) {
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setEncoding(C.ENCODING_PCM_16BIT)
+        .setChannelCount(inputFormat.channelCount)
+        .setSampleRate(inputFormat.sampleRate)
+        .setEncoderDelay(inputFormat.encoderDelay)
+        .setEncoderPadding(inputFormat.encoderPadding)
+        .build();
   }
 }

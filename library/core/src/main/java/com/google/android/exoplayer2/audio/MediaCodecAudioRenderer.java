@@ -398,16 +398,18 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       audioSinkInputFormat = getFormatWithEncodingForPassthrough(outputFormat);
     } else {
       MediaFormat mediaFormat = getCodec().getOutputFormat();
-      @C.Encoding int encoding;
+      @C.PcmEncoding int pcmEncoding;
       if (mediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
-        encoding = Util.getPcmEncoding(mediaFormat.getInteger(VIVO_BITS_PER_SAMPLE_KEY));
+        pcmEncoding = Util.getPcmEncoding(mediaFormat.getInteger(VIVO_BITS_PER_SAMPLE_KEY));
       } else {
-        encoding = getPcmEncoding(outputFormat);
+        pcmEncoding = getPcmEncoding(outputFormat);
       }
       audioSinkInputFormat =
-          outputFormat
-              .buildUpon()
-              .setEncoding(encoding)
+          new Format.Builder()
+              .setSampleMimeType(MimeTypes.AUDIO_RAW)
+              .setEncoding(pcmEncoding)
+              .setEncoderDelay(outputFormat.encoderDelay)
+              .setEncoderPadding(outputFormat.encoderPadding)
               .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
               .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE))
               .build();
