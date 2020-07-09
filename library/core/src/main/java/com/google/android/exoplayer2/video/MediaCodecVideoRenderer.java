@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
@@ -786,7 +787,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
         skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
-        decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
+        updateVideoFrameProcessingOffsetCounters(earlyUs);
         return true;
       }
       return false;
@@ -813,7 +814,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
       }
-      decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
+      updateVideoFrameProcessingOffsetCounters(earlyUs);
       return true;
     }
 
@@ -846,7 +847,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         dropOutputBuffer(codec, bufferIndex, presentationTimeUs);
       }
-      decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
+      updateVideoFrameProcessingOffsetCounters(earlyUs);
       return true;
     }
 
@@ -856,7 +857,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         notifyFrameMetadataListener(
             presentationTimeUs, adjustedReleaseTimeNs, format, currentMediaFormat);
         renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, adjustedReleaseTimeNs);
-        decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
+        updateVideoFrameProcessingOffsetCounters(earlyUs);
         return true;
       }
     } else {
@@ -876,7 +877,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         notifyFrameMetadataListener(
             presentationTimeUs, adjustedReleaseTimeNs, format, currentMediaFormat);
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
-        decoderCounters.addVideoFrameProcessingOffsetSample(earlyUs);
+        updateVideoFrameProcessingOffsetCounters(earlyUs);
         return true;
       }
     }
@@ -1032,8 +1033,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /**
-   * Updates decoder counters to reflect that {@code droppedBufferCount} additional buffers were
-   * dropped.
+   * Updates local counters and {@link DecoderCounters} to reflect that {@code droppedBufferCount}
+   * additional buffers were dropped.
    *
    * @param droppedBufferCount The number of additional dropped buffers.
    */
@@ -1046,6 +1047,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (maxDroppedFramesToNotify > 0 && droppedFrames >= maxDroppedFramesToNotify) {
       maybeNotifyDroppedFrames();
     }
+  }
+
+  /**
+   * Updates local counters and {@link DecoderCounters} with a new video frame processing offset.
+   *
+   * @param processingOffsetUs The video frame processing offset.
+   */
+  protected void updateVideoFrameProcessingOffsetCounters(long processingOffsetUs) {
+    decoderCounters.addVideoFrameProcessingOffset(processingOffsetUs);
+    totalVideoFrameProcessingOffsetUs += processingOffsetUs;
+    videoFrameProcessingOffsetCount++;
   }
 
   /**
@@ -1215,18 +1227,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void maybeNotifyVideoFrameProcessingOffset() {
-    Format outputFormat = getCurrentOutputFormat();
-    if (outputFormat != null) {
-      long totalOffsetDelta =
-          decoderCounters.totalVideoFrameProcessingOffsetUs - totalVideoFrameProcessingOffsetUs;
-      int countDelta =
-          decoderCounters.videoFrameProcessingOffsetCount - videoFrameProcessingOffsetCount;
-      if (countDelta != 0) {
-        eventDispatcher.reportVideoFrameProcessingOffset(
-            totalOffsetDelta, countDelta, outputFormat);
-        totalVideoFrameProcessingOffsetUs = decoderCounters.totalVideoFrameProcessingOffsetUs;
-        videoFrameProcessingOffsetCount = decoderCounters.videoFrameProcessingOffsetCount;
-      }
+    @Nullable Format outputFormat = getCurrentOutputFormat();
+    if (outputFormat != null && videoFrameProcessingOffsetCount != 0) {
+      eventDispatcher.reportVideoFrameProcessingOffset(
+          totalVideoFrameProcessingOffsetUs, videoFrameProcessingOffsetCount, outputFormat);
+      totalVideoFrameProcessingOffsetUs = 0;
+      videoFrameProcessingOffsetCount = 0;
     }
   }
 

@@ -74,19 +74,22 @@ public final class DecoderCounters {
    */
   public int droppedToKeyframeCount;
   /**
-   * The sum of video frame processing offset samples in microseconds.
+   * The sum of the video frame processing offsets in microseconds.
    *
-   * <p>Video frame processing offset measures how early a video frame was processed by a video
-   * renderer compared to the player's current position.
+   * <p>The processing offset for a video frame is the difference between the time at which the
+   * frame became available to render, and the time at which it was scheduled to be rendered. A
+   * positive value indicates the frame became available early enough, whereas a negative value
+   * indicates that the frame wasn't available until after the time at which it should have been
+   * rendered.
    *
-   * <p>Note: Use {@link #addVideoFrameProcessingOffsetSample(long)} to update this field instead of
+   * <p>Note: Use {@link #addVideoFrameProcessingOffset(long)} to update this field instead of
    * updating it directly.
    */
   public long totalVideoFrameProcessingOffsetUs;
   /**
-   * The number of video frame processing offset samples added.
+   * The number of video frame processing offsets added.
    *
-   * <p>Note: Use {@link #addVideoFrameProcessingOffsetSample(long)} to update this field instead of
+   * <p>Note: Use {@link #addVideoFrameProcessingOffset(long)} to update this field instead of
    * updating it directly.
    */
   public int videoFrameProcessingOffsetCount;
@@ -117,25 +120,24 @@ public final class DecoderCounters {
     maxConsecutiveDroppedBufferCount = Math.max(maxConsecutiveDroppedBufferCount,
         other.maxConsecutiveDroppedBufferCount);
     droppedToKeyframeCount += other.droppedToKeyframeCount;
-
-    addVideoFrameProcessingOffsetSamples(
+    addVideoFrameProcessingOffsets(
         other.totalVideoFrameProcessingOffsetUs, other.videoFrameProcessingOffsetCount);
   }
 
   /**
-   * Adds a video frame processing offset sample to {@link #totalVideoFrameProcessingOffsetUs} and
+   * Adds a video frame processing offset to {@link #totalVideoFrameProcessingOffsetUs} and
    * increases {@link #videoFrameProcessingOffsetCount} by one.
    *
-   * <p>Convenience method to ensure both fields are updated when adding a sample.
+   * <p>Convenience method to ensure both fields are updated when adding a single offset.
    *
-   * @param sampleUs The sample in microseconds.
+   * @param processingOffsetUs The video frame processing offset in microseconds.
    */
-  public void addVideoFrameProcessingOffsetSample(long sampleUs) {
-    addVideoFrameProcessingOffsetSamples(sampleUs, /* count= */ 1);
+  public void addVideoFrameProcessingOffset(long processingOffsetUs) {
+    addVideoFrameProcessingOffsets(processingOffsetUs, /* count= */ 1);
   }
 
-  private void addVideoFrameProcessingOffsetSamples(long sampleUs, int count) {
-    totalVideoFrameProcessingOffsetUs += sampleUs;
+  private void addVideoFrameProcessingOffsets(long totalProcessingOffsetUs, int count) {
+    totalVideoFrameProcessingOffsetUs += totalProcessingOffsetUs;
     videoFrameProcessingOffsetCount += count;
   }
 }
