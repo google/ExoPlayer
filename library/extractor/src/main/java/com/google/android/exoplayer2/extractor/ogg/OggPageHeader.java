@@ -163,6 +163,10 @@ import java.io.IOException;
       bodySize += laces[i];
     }
 
+    if (OggReadCheckUtil.checkReadLengthValidity(input, bodySize)) {
+      bodySize = OggReadCheckUtil.fixFileReadLength(input);
+    }
+
     return true;
   }
 
