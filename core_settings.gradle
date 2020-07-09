@@ -39,6 +39,7 @@ include modulePrefix + 'extension-ima'
 include modulePrefix + 'extension-cast'
 include modulePrefix + 'extension-cronet'
 include modulePrefix + 'extension-mediasession'
+include modulePrefix + 'extension-media2'
 include modulePrefix + 'extension-okhttp'
 include modulePrefix + 'extension-opus'
 include modulePrefix + 'extension-vp9'
@@ -65,6 +66,7 @@ project(modulePrefix + 'extension-ima').projectDir = new File(rootDir, 'extensio
 project(modulePrefix + 'extension-cast').projectDir = new File(rootDir, 'extensions/cast')
 project(modulePrefix + 'extension-cronet').projectDir = new File(rootDir, 'extensions/cronet')
 project(modulePrefix + 'extension-mediasession').projectDir = new File(rootDir, 'extensions/mediasession')
+project(modulePrefix + 'extension-media2').projectDir = new File(rootDir, 'extensions/media2')
 project(modulePrefix + 'extension-okhttp').projectDir = new File(rootDir, 'extensions/okhttp')
 project(modulePrefix + 'extension-opus').projectDir = new File(rootDir, 'extensions/opus')
 project(modulePrefix + 'extension-vp9').projectDir = new File(rootDir, 'extensions/vp9')

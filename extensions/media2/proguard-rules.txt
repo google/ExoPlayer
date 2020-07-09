@@ -1,0 +1,28 @@
+# Proguard rules specific to the media2 extension.
+
+# Constructors and methods accessed via reflection in ExoPlayerUtils.
+-dontnote com.google.android.exoplayer2.source.dash.DashMediaSource$Factory
+-keepclasseswithmembers class com.google.android.exoplayer2.source.dash.DashMediaSource$Factory {
+  public <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
+  public com.google.android.exoplayer2.source.dash.DashMediaSource$Factory setTag(java.lang.Object);
+}
+-dontnote com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory
+-keepclasseswithmembers class com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory {
+  public <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
+  public com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory setTag(java.lang.Object);
+}
+-dontnote com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory
+-keepclasseswithmembers class com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory {
+  public <init>(com.google.android.exoplayer2.upstream.DataSource$Factory);
+  public com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory setTag(java.lang.Object);
+}
+
+# Don't warn about checkerframework and Kotlin annotations
+-dontwarn org.checkerframework.**
+-dontwarn kotlin.annotations.jvm.**
+-dontwarn javax.annotation.**
+
+# Work around [internal: b/151134701]: keep non-public versionedparcelable
+# classes.
+-keep class * implements androidx.versionedparcelable.VersionedParcelable
+-keep class androidx.media2.common.MediaParcelUtils$MediaItemParcelImpl
