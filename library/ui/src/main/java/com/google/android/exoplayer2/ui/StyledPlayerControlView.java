@@ -381,6 +381,10 @@ public class StyledPlayerControlView extends FrameLayout {
   private final float buttonAlphaDisabled;
   private final String shuffleOnContentDescription;
   private final String shuffleOffContentDescription;
+  private final Drawable subtitleOnButtonDrawable;
+  private final Drawable subtitleOffButtonDrawable;
+  private final String subtitleOnContentDescription;
+  private final String subtitleOffContentDescription;
   private final Drawable fullScreenExitDrawable;
   private final Drawable fullScreenEnterDrawable;
   private final String fullScreenExitContentDescription;
@@ -437,7 +441,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private TrackNameProvider trackNameProvider;
 
   // Relating to Bottom Bar Right View
-  @Nullable private View subtitleButton;
+  @Nullable private ImageView subtitleButton;
   @Nullable private ImageView fullScreenButton;
   @Nullable private View settingsButton;
 
@@ -666,6 +670,10 @@ public class StyledPlayerControlView extends FrameLayout {
     needToHideBars = true;
 
     trackNameProvider = new DefaultTrackNameProvider(getResources());
+    subtitleOnButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_subtitle_on);
+    subtitleOffButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_subtitle_off);
+    subtitleOnContentDescription = resources.getString(R.string.exo_controls_cc_is_on);
+    subtitleOffContentDescription = resources.getString(R.string.exo_controls_cc_is_off);
     textTrackSelectionAdapter = new TextTrackSelectionAdapter();
     audioTrackSelectionAdapter = new AudioTrackSelectionAdapter();
 
@@ -2005,6 +2013,10 @@ public class StyledPlayerControlView extends FrameLayout {
                           .setRendererDisabled(rendererIndex, true);
                 }
                 checkNotNull(trackSelector).setParameters(parametersBuilder);
+                if (showSubtitleButton) {
+                  checkNotNull(subtitleButton).setImageDrawable(subtitleOffButtonDrawable);
+                  checkNotNull(subtitleButton).setContentDescription(subtitleOffContentDescription);
+                }
                 settingsWindow.dismiss();
               }
             }
@@ -2012,8 +2024,11 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void updateSettingsSubtext(String subtext) {
-      // Do nothing. Text track selection exists outside of Settings menu.
+    public void onTrackSelection(String subtext) {
+      if (showSubtitleButton) {
+        checkNotNull(subtitleButton).setImageDrawable(subtitleOnButtonDrawable);
+        checkNotNull(subtitleButton).setContentDescription(subtitleOnContentDescription);
+      }
     }
   }
 
@@ -2056,7 +2071,7 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void updateSettingsSubtext(String subtext) {
+    public void onTrackSelection(String subtext) {
       settingsAdapter.updateSubTexts(SETTINGS_AUDIO_TRACK_SELECTION_POSITION, subtext);
     }
 
@@ -2127,7 +2142,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
     public abstract void onBindViewHolderAtZeroPosition(TrackSelectionViewHolder holder);
 
-    public abstract void updateSettingsSubtext(String subtext);
+    public abstract void onTrackSelection(String subtext);
 
     @Override
     public void onBindViewHolder(TrackSelectionViewHolder holder, int position) {
@@ -2170,7 +2185,7 @@ public class StyledPlayerControlView extends FrameLayout {
                     }
                   }
                   checkNotNull(trackSelector).setParameters(parametersBuilder);
-                  updateSettingsSubtext(track.trackName);
+                  onTrackSelection(track.trackName);
                   settingsWindow.dismiss();
                 }
               }
