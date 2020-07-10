@@ -54,7 +54,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader.ImaFactory;
-import com.google.android.exoplayer2.source.MaskingMediaSource.DummyTimeline;
+import com.google.android.exoplayer2.source.MaskingMediaSource.PlaceholderTimeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
@@ -170,7 +170,7 @@ public final class ImaAdsLoaderTest {
 
   @Test
   public void start_withPlaceholderContent_initializedAdsLoader() {
-    Timeline placeholderTimeline = new DummyTimeline(MediaItem.fromUri(Uri.EMPTY));
+    Timeline placeholderTimeline = new PlaceholderTimeline(MediaItem.fromUri(Uri.EMPTY));
     setupPlayback(placeholderTimeline, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
 

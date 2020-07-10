@@ -123,7 +123,7 @@ public final class SampleQueueTest {
   private static final int[] ENCRYPTED_SAMPLE_OFFSETS = new int[] {7, 4, 3, 0};
   private static final byte[] ENCRYPTED_SAMPLE_DATA = new byte[] {1, 1, 1, 1, 1, 1, 1, 1};
 
-  private static final TrackOutput.CryptoData DUMMY_CRYPTO_DATA =
+  private static final TrackOutput.CryptoData CRYPTO_DATA =
       new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, new byte[16], 0, 0);
 
   private Allocator allocator;
@@ -1205,7 +1205,7 @@ public final class SampleQueueTest {
           sampleFlags[i],
           sampleSizes[i],
           sampleOffsets[i],
-          (sampleFlags[i] & C.BUFFER_FLAG_ENCRYPTED) != 0 ? DUMMY_CRYPTO_DATA : null);
+          (sampleFlags[i] & C.BUFFER_FLAG_ENCRYPTED) != 0 ? CRYPTO_DATA : null);
     }
   }
 
@@ -1222,7 +1222,7 @@ public final class SampleQueueTest {
         sampleFlags,
         data.length,
         /* offset= */ 0,
-        (sampleFlags & C.BUFFER_FLAG_ENCRYPTED) != 0 ? DUMMY_CRYPTO_DATA : null);
+        (sampleFlags & C.BUFFER_FLAG_ENCRYPTED) != 0 ? CRYPTO_DATA : null);
   }
 
   /**

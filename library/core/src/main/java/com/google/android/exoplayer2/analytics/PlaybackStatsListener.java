@@ -150,7 +150,7 @@ public final class PlaybackStatsListener
     // TODO: Add AnalyticsListener.onAttachedToPlayer and onDetachedFromPlayer to auto-release with
     // an actual EventTime. Should also simplify other cases where the listener needs to be released
     // separately from the player.
-    EventTime dummyEventTime =
+    sessionManager.finishAllSessions(
         new EventTime(
             SystemClock.elapsedRealtime(),
             Timeline.EMPTY,
@@ -161,8 +161,7 @@ public final class PlaybackStatsListener
             /* currentWindowIndex= */ 0,
             /* currentMediaPeriodId= */ null,
             /* currentPlaybackPositionMs= */ 0,
-            /* totalBufferedDurationMs= */ 0);
-    sessionManager.finishAllSessions(dummyEventTime);
+            /* totalBufferedDurationMs= */ 0));
   }
 
   // PlaybackSessionManager.Listener implementation.

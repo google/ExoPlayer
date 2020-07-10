@@ -500,7 +500,7 @@ public final class DownloadHelper {
         new DefaultTrackSelector(trackSelectorParameters, new DownloadTrackSelection.Factory());
     this.rendererCapabilities = rendererCapabilities;
     this.scratchSet = new SparseIntArray();
-    trackSelector.init(/* listener= */ () -> {}, new DummyBandwidthMeter());
+    trackSelector.init(/* listener= */ () -> {}, new FakeBandwidthMeter());
     callbackHandler = Util.createHandlerForCurrentOrMainLooper();
     window = new Timeline.Window();
   }
@@ -1152,7 +1152,7 @@ public final class DownloadHelper {
     }
   }
 
-  private static final class DummyBandwidthMeter implements BandwidthMeter {
+  private static final class FakeBandwidthMeter implements BandwidthMeter {
 
     @Override
     public long getBitrateEstimate() {

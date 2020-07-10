@@ -380,7 +380,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * For each renderer of type {@link C#TRACK_TYPE_NONE}, we will remove the dummy {@link
+   * For each renderer of type {@link C#TRACK_TYPE_NONE}, we will remove the {@link
    * EmptySampleStream} that was associated with it.
    */
   private void disassociateNoSampleRenderersWithEmptySampleStream(
@@ -394,7 +394,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /**
    * For each renderer of type {@link C#TRACK_TYPE_NONE} that was enabled, we will associate it with
-   * a dummy {@link EmptySampleStream}.
+   * an {@link EmptySampleStream}.
    */
   private void associateNoSampleRenderersWithEmptySampleStream(
       @NullableType SampleStream[] sampleStreams) {

@@ -28,10 +28,10 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 /* package */ final class PlaybackInfo {
 
   /**
-   * Dummy media period id used while the timeline is empty and no period id is specified. This id
-   * is used when playback infos are created with {@link #createDummy(TrackSelectorResult)}.
+   * Placeholder media period id used while the timeline is empty and no period id is specified.
+   * This id is used when playback infos are created with {@link #createDummy(TrackSelectorResult)}.
    */
-  private static final MediaPeriodId DUMMY_MEDIA_PERIOD_ID =
+  private static final MediaPeriodId PLACEHOLDER_MEDIA_PERIOD_ID =
       new MediaPeriodId(/* periodUid= */ new Object());
 
   /** The current {@link Timeline}. */
@@ -81,24 +81,24 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public volatile long positionUs;
 
   /**
-   * Creates empty dummy playback info which can be used for masking as long as no real playback
-   * info is available.
+   * Creates an empty placeholder playback info which can be used for masking as long as no real
+   * playback info is available.
    *
    * @param emptyTrackSelectorResult An empty track selector result with null entries for each
    *     renderer.
-   * @return A dummy playback info.
+   * @return A placeholder playback info.
    */
   public static PlaybackInfo createDummy(TrackSelectorResult emptyTrackSelectorResult) {
     return new PlaybackInfo(
         Timeline.EMPTY,
-        DUMMY_MEDIA_PERIOD_ID,
+        PLACEHOLDER_MEDIA_PERIOD_ID,
         /* requestedContentPositionUs= */ C.TIME_UNSET,
         Player.STATE_IDLE,
         /* playbackError= */ null,
         /* isLoading= */ false,
         TrackGroupArray.EMPTY,
         emptyTrackSelectorResult,
-        DUMMY_MEDIA_PERIOD_ID,
+        PLACEHOLDER_MEDIA_PERIOD_ID,
         /* playWhenReady= */ false,
         Player.PLAYBACK_SUPPRESSION_REASON_NONE,
         /* bufferedPositionUs= */ 0,
@@ -152,9 +152,9 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.positionUs = positionUs;
   }
 
-  /** Returns dummy period id for an empty timeline. */
+  /** Returns a placeholder period id for an empty timeline. */
   public static MediaPeriodId getDummyPeriodForEmptyTimeline() {
-    return DUMMY_MEDIA_PERIOD_ID;
+    return PLACEHOLDER_MEDIA_PERIOD_ID;
   }
 
   /**

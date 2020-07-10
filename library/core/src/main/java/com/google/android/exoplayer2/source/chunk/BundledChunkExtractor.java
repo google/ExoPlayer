@@ -41,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtractor {
 
-  private static final PositionHolder DUMMY_POSITION_HOLDER = new PositionHolder();
+  private static final PositionHolder POSITION_HOLDER = new PositionHolder();
 
   private final Extractor extractor;
   private final int primaryTrackType;
@@ -106,7 +106,7 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
 
   @Override
   public boolean read(ExtractorInput input) throws IOException {
-    int result = extractor.read(input, DUMMY_POSITION_HOLDER);
+    int result = extractor.read(input, POSITION_HOLDER);
     Assertions.checkState(result != Extractor.RESULT_SEEK);
     return result == Extractor.RESULT_CONTINUE;
   }
@@ -149,7 +149,7 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
     private final int id;
     private final int type;
     @Nullable private final Format manifestFormat;
-    private final DummyTrackOutput dummyTrackOutput;
+    private final DummyTrackOutput fakeTrackOutput;
 
     public @MonotonicNonNull Format sampleFormat;
     private @MonotonicNonNull TrackOutput trackOutput;
@@ -159,12 +159,12 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
       this.id = id;
       this.type = type;
       this.manifestFormat = manifestFormat;
-      dummyTrackOutput = new DummyTrackOutput();
+      fakeTrackOutput = new DummyTrackOutput();
     }
 
     public void bind(@Nullable TrackOutputProvider trackOutputProvider, long endTimeUs) {
       if (trackOutputProvider == null) {
-        trackOutput = dummyTrackOutput;
+        trackOutput = fakeTrackOutput;
         return;
       }
       this.endTimeUs = endTimeUs;
@@ -201,7 +201,7 @@ public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtrac
         int offset,
         @Nullable CryptoData cryptoData) {
       if (endTimeUs != C.TIME_UNSET && timeUs >= endTimeUs) {
-        trackOutput = dummyTrackOutput;
+        trackOutput = fakeTrackOutput;
       }
       castNonNull(trackOutput).sampleMetadata(timeUs, flags, size, offset, cryptoData);
     }

@@ -34,7 +34,7 @@ import java.util.UUID;
 @RequiresApi(18)
 public final class OfflineLicenseHelper {
 
-  private static final DrmInitData DUMMY_DRM_INIT_DATA = new DrmInitData();
+  private static final DrmInitData EMPTY_DRM_INIT_DATA = new DrmInitData();
 
   private final ConditionVariable conditionVariable;
   private final DefaultDrmSessionManager drmSessionManager;
@@ -202,7 +202,7 @@ public final class OfflineLicenseHelper {
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
     return blockingKeyRequest(
-        DefaultDrmSessionManager.MODE_DOWNLOAD, offlineLicenseKeySetId, DUMMY_DRM_INIT_DATA);
+        DefaultDrmSessionManager.MODE_DOWNLOAD, offlineLicenseKeySetId, EMPTY_DRM_INIT_DATA);
   }
 
   /**
@@ -215,7 +215,7 @@ public final class OfflineLicenseHelper {
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
     blockingKeyRequest(
-        DefaultDrmSessionManager.MODE_RELEASE, offlineLicenseKeySetId, DUMMY_DRM_INIT_DATA);
+        DefaultDrmSessionManager.MODE_RELEASE, offlineLicenseKeySetId, EMPTY_DRM_INIT_DATA);
   }
 
   /**
@@ -231,7 +231,7 @@ public final class OfflineLicenseHelper {
     drmSessionManager.prepare();
     DrmSession drmSession =
         openBlockingKeyRequest(
-            DefaultDrmSessionManager.MODE_QUERY, offlineLicenseKeySetId, DUMMY_DRM_INIT_DATA);
+            DefaultDrmSessionManager.MODE_QUERY, offlineLicenseKeySetId, EMPTY_DRM_INIT_DATA);
     DrmSessionException error = drmSession.getError();
     Pair<Long, Long> licenseDurationRemainingSec =
         WidevineUtil.getLicenseDurationRemainingSec(drmSession);

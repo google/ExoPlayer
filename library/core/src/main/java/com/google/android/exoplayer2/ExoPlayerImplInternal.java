@@ -983,7 +983,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       // The seek position was valid for the timeline that it was performed into, but the
       // timeline has changed or is not ready and a suitable seek position could not be resolved.
       Pair<MediaPeriodId, Long> firstPeriodAndPosition =
-          getDummyFirstMediaPeriodPosition(playbackInfo.timeline);
+          getPlaceholderFirstMediaPeriodPosition(playbackInfo.timeline);
       periodId = firstPeriodAndPosition.first;
       periodPositionUs = firstPeriodAndPosition.second;
       requestedContentPosition = C.TIME_UNSET;
@@ -1267,7 +1267,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     boolean resetTrackInfo = clearMediaSourceList;
     if (resetPosition) {
       pendingInitialSeekPosition = null;
-      Pair<MediaPeriodId, Long> firstPeriodAndPosition = getDummyFirstMediaPeriodPosition(timeline);
+      Pair<MediaPeriodId, Long> firstPeriodAndPosition =
+          getPlaceholderFirstMediaPeriodPosition(timeline);
       mediaPeriodId = firstPeriodAndPosition.first;
       startPositionUs = firstPeriodAndPosition.second;
       requestedContentPositionUs = C.TIME_UNSET;
@@ -1300,7 +1301,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
-  private Pair<MediaPeriodId, Long> getDummyFirstMediaPeriodPosition(Timeline timeline) {
+  private Pair<MediaPeriodId, Long> getPlaceholderFirstMediaPeriodPosition(Timeline timeline) {
     if (timeline.isEmpty()) {
       return Pair.create(PlaybackInfo.getDummyPeriodForEmptyTimeline(), 0L);
     }

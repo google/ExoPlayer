@@ -124,7 +124,7 @@ public abstract class Timeline {
      */
     public static final Object SINGLE_WINDOW_UID = new Object();
 
-    private static final MediaItem DUMMY_MEDIA_ITEM =
+    private static final MediaItem EMPTY_MEDIA_ITEM =
         new MediaItem.Builder()
             .setMediaId("com.google.android.exoplayer2.Timeline")
             .setUri(Uri.EMPTY)
@@ -222,7 +222,7 @@ public abstract class Timeline {
     /** Creates window. */
     public Window() {
       uid = SINGLE_WINDOW_UID;
-      mediaItem = DUMMY_MEDIA_ITEM;
+      mediaItem = EMPTY_MEDIA_ITEM;
     }
 
     /** Sets the data held by this window. */
@@ -243,7 +243,7 @@ public abstract class Timeline {
         int lastPeriodIndex,
         long positionInFirstPeriodUs) {
       this.uid = uid;
-      this.mediaItem = mediaItem != null ? mediaItem : DUMMY_MEDIA_ITEM;
+      this.mediaItem = mediaItem != null ? mediaItem : EMPTY_MEDIA_ITEM;
       this.tag =
           mediaItem != null && mediaItem.playbackProperties != null
               ? mediaItem.playbackProperties.tag

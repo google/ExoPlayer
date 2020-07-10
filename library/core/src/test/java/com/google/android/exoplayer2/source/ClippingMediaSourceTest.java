@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
-import com.google.android.exoplayer2.source.MaskingMediaSource.DummyTimeline;
+import com.google.android.exoplayer2.source.MaskingMediaSource.PlaceholderTimeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
@@ -173,7 +173,7 @@ public final class ClippingMediaSourceTest {
     // Timeline that's dynamic and not seekable. A child source might report such a timeline prior
     // to it having loaded sufficient data to establish its duration and seekability. Such timelines
     // should not result in clipping failure.
-    Timeline timeline = new DummyTimeline(MediaItem.fromUri(Uri.EMPTY));
+    Timeline timeline = new PlaceholderTimeline(MediaItem.fromUri(Uri.EMPTY));
 
     Timeline clippedTimeline =
         getClippedTimeline(

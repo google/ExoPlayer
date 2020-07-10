@@ -98,12 +98,12 @@ public interface AudioRendererEventListener {
     @Nullable private final AudioRendererEventListener listener;
 
     /**
-     * @param handler A handler for dispatching events, or null if creating a dummy instance.
-     * @param listener The listener to which events should be dispatched, or null if creating a
-     *     dummy instance.
+     * @param handler A handler for dispatching events, or null if events should not be dispatched.
+     * @param listener The listener to which events should be dispatched, or null if events should
+     *     not be dispatched.
      */
-    public EventDispatcher(@Nullable Handler handler,
-        @Nullable AudioRendererEventListener listener) {
+    public EventDispatcher(
+        @Nullable Handler handler, @Nullable AudioRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }

@@ -66,7 +66,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   private static final int PERIOD_COUNT_UNSET = -1;
-  private static final MediaItem DUMMY_MEDIA_ITEM =
+  private static final MediaItem EMPTY_MEDIA_ITEM =
       new MediaItem.Builder().setMediaId("MergingMediaSource").build();
 
   private final boolean adjustPeriodTimeOffsets;
@@ -137,7 +137,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
 
   @Override
   public MediaItem getMediaItem() {
-    return mediaSources.length > 0 ? mediaSources[0].getMediaItem() : DUMMY_MEDIA_ITEM;
+    return mediaSources.length > 0 ? mediaSources[0].getMediaItem() : EMPTY_MEDIA_ITEM;
   }
 
   @Override

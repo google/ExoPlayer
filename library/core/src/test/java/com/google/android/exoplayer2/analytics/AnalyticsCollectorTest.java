@@ -786,7 +786,7 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_TIMELINE_CHANGED))
         .containsExactly(
             WINDOW_0 /* PLAYLIST_CHANGED */,
-            window0Period1Seq0 /* SOURCE_UPDATE (concatenated timeline replaces dummy) */,
+            window0Period1Seq0 /* SOURCE_UPDATE (concatenated timeline replaces placeholder) */,
             period1Seq0 /* SOURCE_UPDATE (child sources in concatenating source moved) */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))

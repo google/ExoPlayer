@@ -93,8 +93,8 @@ public interface MediaSource {
     public final int nextAdGroupIndex;
 
     /**
-     * Creates a media period identifier for a dummy period which is not part of a buffered sequence
-     * of windows.
+     * Creates a media period identifier for a period which is not part of a buffered sequence of
+     * windows.
      *
      * @param periodUid The unique id of the timeline period.
      */
@@ -248,8 +248,8 @@ public interface MediaSource {
   void removeDrmEventListener(DrmSessionEventListener eventListener);
 
   /**
-   * Returns the initial dummy timeline that is returned immediately when the real timeline is not
-   * yet known, or null to let the player create an initial timeline.
+   * Returns the initial placeholder timeline that is returned immediately when the real timeline is
+   * not yet known, or null to let the player create an initial timeline.
    *
    * <p>The initial timeline must use the same uids for windows and periods that the real timeline
    * will use. It also must provide windows which are marked as dynamic to indicate that the window

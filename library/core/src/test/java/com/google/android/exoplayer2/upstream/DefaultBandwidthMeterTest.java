@@ -569,7 +569,7 @@ public final class DefaultBandwidthMeterTest {
     long[] bitrateEstimates = new long[SIMULATED_TRANSFER_COUNT];
     Random random = new Random(/* seed= */ 0);
     DataSource dataSource = new FakeDataSource();
-    DataSpec dataSpec = new DataSpec(Uri.parse("https://dummy.com"));
+    DataSpec dataSpec = new DataSpec(Uri.parse("https://test.com"));
     for (int i = 0; i < SIMULATED_TRANSFER_COUNT; i++) {
       bandwidthMeter.onTransferStart(dataSource, dataSpec, /* isNetwork= */ true);
       clock.advanceTime(random.nextInt(/* bound= */ 5000));

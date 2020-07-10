@@ -94,7 +94,7 @@ public class VersionTableTest {
   @Test
   public void doesTableExist_existingTable_returnsTrue() {
     String table = "TestTable";
-    databaseProvider.getWritableDatabase().execSQL("CREATE TABLE " + table + " (dummy INTEGER)");
+    databaseProvider.getWritableDatabase().execSQL("CREATE TABLE " + table + " (test INTEGER)");
     assertThat(VersionTable.tableExists(database, table)).isTrue();
   }
 }

@@ -121,7 +121,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   }
 
   // Used to identify the content "child" source for CompositeMediaSource.
-  private static final MediaPeriodId DUMMY_CONTENT_MEDIA_PERIOD_ID =
+  private static final MediaPeriodId CHILD_SOURCE_MEDIA_PERIOD_ID =
       new MediaPeriodId(/* periodUid= */ new Object());
 
   private final MediaSource contentMediaSource;
@@ -203,7 +203,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     super.prepareSourceInternal(mediaTransferListener);
     ComponentListener componentListener = new ComponentListener();
     this.componentListener = componentListener;
-    prepareChildSource(DUMMY_CONTENT_MEDIA_PERIOD_ID, contentMediaSource);
+    prepareChildSource(CHILD_SOURCE_MEDIA_PERIOD_ID, contentMediaSource);
     mainHandler.post(() -> adsLoader.start(componentListener, adViewProvider));
   }
 
@@ -284,8 +284,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   @Override
   protected MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       MediaPeriodId childId, MediaPeriodId mediaPeriodId) {
-    // The child id for the content period is just DUMMY_CONTENT_MEDIA_PERIOD_ID. That's why we need
-    // to forward the reported mediaPeriodId in this case.
+    // The child id for the content period is just CHILD_SOURCE_MEDIA_PERIOD_ID. That's why
+    // we need to forward the reported mediaPeriodId in this case.
     return childId.isAd() ? childId : mediaPeriodId;
   }
 

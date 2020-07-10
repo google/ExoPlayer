@@ -138,12 +138,12 @@ public interface VideoRendererEventListener {
     @Nullable private final VideoRendererEventListener listener;
 
     /**
-     * @param handler A handler for dispatching events, or null if creating a dummy instance.
-     * @param listener The listener to which events should be dispatched, or null if creating a
-     *     dummy instance.
+     * @param handler A handler for dispatching events, or null if events should not be dispatched.
+     * @param listener The listener to which events should be dispatched, or null if events should
+     *     not be dispatched.
      */
-    public EventDispatcher(@Nullable Handler handler,
-        @Nullable VideoRendererEventListener listener) {
+    public EventDispatcher(
+        @Nullable Handler handler, @Nullable VideoRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }

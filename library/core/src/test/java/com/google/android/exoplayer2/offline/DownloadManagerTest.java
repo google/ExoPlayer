@@ -56,7 +56,7 @@ public class DownloadManagerTest {
   private static final int APP_STOP_REASON = 1;
   /** The minimum number of times a download must be retried before failing. */
   private static final int MIN_RETRY_COUNT = 3;
-  /** Dummy value for the current time. */
+  /** Test value for the current time. */
   private static final long NOW_MS = 1234;
 
   private static final String ID1 = "id1";
@@ -68,19 +68,19 @@ public class DownloadManagerTest {
 
   private DownloadManager downloadManager;
   private TestDownloadManagerListener downloadManagerListener;
-  private DummyMainThread dummyMainThread;
+  private DummyMainThread testThread;
 
   @Before
   public void setUp() throws Exception {
     ShadowLog.stream = System.out;
-    dummyMainThread = new DummyMainThread();
+    testThread = new DummyMainThread();
     setupDownloadManager(/* maxParallelDownloads= */ 100);
   }
 
   @After
   public void tearDown() throws Exception {
     releaseDownloadManager();
-    dummyMainThread.release();
+    testThread.release();
   }
 
   @Test
@@ -728,7 +728,7 @@ public class DownloadManagerTest {
   }
 
   private void runOnMainThread(TestRunnable r) {
-    dummyMainThread.runTestOnMainThread(r);
+    testThread.runTestOnMainThread(r);
   }
 
   private FakeDownloader getDownloaderAt(int index) throws InterruptedException {

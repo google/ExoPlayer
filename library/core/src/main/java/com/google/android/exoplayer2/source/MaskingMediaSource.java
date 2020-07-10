@@ -67,7 +67,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
               initialTimeline, /* firstWindowUid= */ null, /* firstPeriodUid= */ null);
       hasRealTimeline = true;
     } else {
-      timeline = MaskingTimeline.createWithDummyTimeline(mediaSource.getMediaItem());
+      timeline = MaskingTimeline.createWithPlaceholderTimeline(mediaSource.getMediaItem());
     }
   }
 
@@ -165,7 +165,9 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
           hasRealTimeline
               ? timeline.cloneWithUpdatedTimeline(newTimeline)
               : MaskingTimeline.createWithRealTimeline(
-                  newTimeline, Window.SINGLE_WINDOW_UID, MaskingTimeline.DUMMY_EXTERNAL_PERIOD_UID);
+                  newTimeline,
+                  Window.SINGLE_WINDOW_UID,
+                  MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID);
     } else {
       // Determine first period and the start position.
       // This will be:
@@ -174,7 +176,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
       //     a non-zero initial seek position in the window.
       //  3. The default window start position if the deferred period has a prepare position of zero
       //     under the assumption that the prepare position of zero was used because it's the
-      //     default position of the DummyTimeline window. Note that this will override an
+      //     default position of the PlaceholderTimeline window. Note that this will override an
       //     intentional seek to zero for a window with a non-zero default position. This is
       //     unlikely to be a problem as a non-zero default position usually only occurs for live
       //     playbacks and seeking to zero in a live window would cause BehindLiveWindowExceptions
@@ -230,7 +232,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
 
   private Object getInternalPeriodUid(Object externalPeriodUid) {
     return timeline.replacedInternalPeriodUid != null
-            && externalPeriodUid.equals(MaskingTimeline.DUMMY_EXTERNAL_PERIOD_UID)
+            && externalPeriodUid.equals(MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID)
         ? timeline.replacedInternalPeriodUid
         : externalPeriodUid;
   }
@@ -238,7 +240,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
   private Object getExternalPeriodUid(Object internalPeriodUid) {
     return timeline.replacedInternalPeriodUid != null
             && timeline.replacedInternalPeriodUid.equals(internalPeriodUid)
-        ? MaskingTimeline.DUMMY_EXTERNAL_PERIOD_UID
+        ? MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID
         : internalPeriodUid;
   }
 
@@ -265,34 +267,36 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
 
   /**
    * Timeline used as placeholder for an unprepared media source. After preparation, a
-   * MaskingTimeline is used to keep the originally assigned dummy period ID.
+   * MaskingTimeline is used to keep the originally assigned masking period ID.
    */
   private static final class MaskingTimeline extends ForwardingTimeline {
 
-    public static final Object DUMMY_EXTERNAL_PERIOD_UID = new Object();
+    public static final Object MASKING_EXTERNAL_PERIOD_UID = new Object();
 
     @Nullable private final Object replacedInternalWindowUid;
     @Nullable private final Object replacedInternalPeriodUid;
 
     /**
-     * Returns an instance with a dummy timeline using the provided {@link MediaItem}.
+     * Returns an instance with a placeholder timeline using the provided {@link MediaItem}.
      *
      * @param mediaItem A {@link MediaItem}.
      */
-    public static MaskingTimeline createWithDummyTimeline(MediaItem mediaItem) {
+    public static MaskingTimeline createWithPlaceholderTimeline(MediaItem mediaItem) {
       return new MaskingTimeline(
-          new DummyTimeline(mediaItem), Window.SINGLE_WINDOW_UID, DUMMY_EXTERNAL_PERIOD_UID);
+          new PlaceholderTimeline(mediaItem),
+          Window.SINGLE_WINDOW_UID,
+          MASKING_EXTERNAL_PERIOD_UID);
     }
 
     /**
      * Returns an instance with a real timeline, replacing the provided period ID with the already
-     * assigned dummy period ID.
+     * assigned masking period ID.
      *
      * @param timeline The real timeline.
      * @param firstWindowUid The window UID in the timeline which will be replaced by the already
      *     assigned {@link Window#SINGLE_WINDOW_UID}.
      * @param firstPeriodUid The period UID in the timeline which will be replaced by the already
-     *     assigned {@link #DUMMY_EXTERNAL_PERIOD_UID}.
+     *     assigned {@link #MASKING_EXTERNAL_PERIOD_UID}.
      */
     public static MaskingTimeline createWithRealTimeline(
         Timeline timeline, @Nullable Object firstWindowUid, @Nullable Object firstPeriodUid) {
@@ -335,7 +339,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       timeline.getPeriod(periodIndex, period, setIds);
       if (Util.areEqual(period.uid, replacedInternalPeriodUid) && setIds) {
-        period.uid = DUMMY_EXTERNAL_PERIOD_UID;
+        period.uid = MASKING_EXTERNAL_PERIOD_UID;
       }
       return period;
     }
@@ -343,7 +347,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     @Override
     public int getIndexOfPeriod(Object uid) {
       return timeline.getIndexOfPeriod(
-          DUMMY_EXTERNAL_PERIOD_UID.equals(uid) && replacedInternalPeriodUid != null
+          MASKING_EXTERNAL_PERIOD_UID.equals(uid) && replacedInternalPeriodUid != null
               ? replacedInternalPeriodUid
               : uid);
     }
@@ -351,18 +355,18 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     @Override
     public Object getUidOfPeriod(int periodIndex) {
       Object uid = timeline.getUidOfPeriod(periodIndex);
-      return Util.areEqual(uid, replacedInternalPeriodUid) ? DUMMY_EXTERNAL_PERIOD_UID : uid;
+      return Util.areEqual(uid, replacedInternalPeriodUid) ? MASKING_EXTERNAL_PERIOD_UID : uid;
     }
   }
 
-  /** Dummy placeholder timeline with one dynamic window with a period of indeterminate duration. */
+  /** A timeline with one dynamic window with a period of indeterminate duration. */
   @VisibleForTesting
-  public static final class DummyTimeline extends Timeline {
+  public static final class PlaceholderTimeline extends Timeline {
 
     private final MediaItem mediaItem;
 
     /** Creates a new instance with the given media item. */
-    public DummyTimeline(MediaItem mediaItem) {
+    public PlaceholderTimeline(MediaItem mediaItem) {
       this.mediaItem = mediaItem;
     }
 
@@ -402,7 +406,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       return period.set(
           /* id= */ setIds ? 0 : null,
-          /* uid= */ setIds ? MaskingTimeline.DUMMY_EXTERNAL_PERIOD_UID : null,
+          /* uid= */ setIds ? MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID : null,
           /* windowIndex= */ 0,
           /* durationUs = */ C.TIME_UNSET,
           /* positionInWindowUs= */ 0);
@@ -410,12 +414,12 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
 
     @Override
     public int getIndexOfPeriod(Object uid) {
-      return uid == MaskingTimeline.DUMMY_EXTERNAL_PERIOD_UID ? 0 : C.INDEX_UNSET;
+      return uid == MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID ? 0 : C.INDEX_UNSET;
     }
 
     @Override
     public Object getUidOfPeriod(int periodIndex) {
-      return MaskingTimeline.DUMMY_EXTERNAL_PERIOD_UID;
+      return MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID;
     }
   }
 }
