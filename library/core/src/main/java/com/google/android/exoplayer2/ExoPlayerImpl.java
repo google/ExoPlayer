@@ -66,7 +66,7 @@ import java.util.concurrent.TimeoutException;
 
   private final Renderer[] renderers;
   private final TrackSelector trackSelector;
-  private final Handler applicationHandler;
+  private final PlaybackUpdateListenerImpl playbackUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
   private final Handler internalPlayerHandler;
   private final CopyOnWriteArrayList<ListenerHolder> listeners;
@@ -76,6 +76,7 @@ import java.util.concurrent.TimeoutException;
   private final boolean useLazyPreparation;
   private final MediaSourceFactory mediaSourceFactory;
   @Nullable private final AnalyticsCollector analyticsCollector;
+  private final Looper applicationLooper;
   private final BandwidthMeter bandwidthMeter;
 
   @RepeatMode private int repeatMode;
@@ -142,6 +143,7 @@ import java.util.concurrent.TimeoutException;
     this.useLazyPreparation = useLazyPreparation;
     this.seekParameters = seekParameters;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
+    this.applicationLooper = applicationLooper;
     repeatMode = Player.REPEAT_MODE_OFF;
     listeners = new CopyOnWriteArrayList<>();
     mediaSourceHolderSnapshots = new ArrayList<>();
@@ -154,19 +156,13 @@ import java.util.concurrent.TimeoutException;
     period = new Timeline.Period();
     playbackSpeed = Player.DEFAULT_PLAYBACK_SPEED;
     maskingWindowIndex = C.INDEX_UNSET;
-    applicationHandler =
-        new Handler(applicationLooper) {
-          @Override
-          public void handleMessage(Message msg) {
-            ExoPlayerImpl.this.handleEvent(msg);
-          }
-        };
+    playbackUpdateListener = new PlaybackUpdateListenerImpl(applicationLooper);
     playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
     pendingListenerNotifications = new ArrayDeque<>();
     if (analyticsCollector != null) {
       analyticsCollector.setPlayer(this);
       addListener(analyticsCollector);
-      bandwidthMeter.addEventListener(applicationHandler, analyticsCollector);
+      bandwidthMeter.addEventListener(new Handler(applicationLooper), analyticsCollector);
     }
     internalPlayer =
         new ExoPlayerImplInternal(
@@ -180,8 +176,9 @@ import java.util.concurrent.TimeoutException;
             analyticsCollector,
             seekParameters,
             pauseAtEndOfMediaItems,
-            applicationHandler,
-            clock);
+            applicationLooper,
+            clock,
+            playbackUpdateListener);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
 
@@ -251,7 +248,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public Looper getApplicationLooper() {
-    return applicationHandler.getLooper();
+    return applicationLooper;
   }
 
   @Override
@@ -588,11 +585,8 @@ import java.util.concurrent.TimeoutException;
       // general because the midroll ad preceding the seek destination must be played before the
       // content position can be played, if a different ad is playing at the moment.
       Log.w(TAG, "seekTo ignored because an ad is playing");
-      applicationHandler
-          .obtainMessage(
-              ExoPlayerImplInternal.MSG_PLAYBACK_INFO_CHANGED,
-              new ExoPlayerImplInternal.PlaybackInfoUpdate(playbackInfo))
-          .sendToTarget();
+      playbackUpdateListener.onPlaybackInfoUpdate(
+          new ExoPlayerImplInternal.PlaybackInfoUpdate(playbackInfo));
       return;
     }
     maskWindowIndexAndPositionForSeek(timeline, windowIndex, positionMs);
@@ -715,7 +709,7 @@ import java.util.concurrent.TimeoutException;
                   ExoPlaybackException.createForUnexpected(
                       new RuntimeException(new TimeoutException("Player release timed out.")))));
     }
-    applicationHandler.removeCallbacksAndMessages(null);
+    playbackUpdateListener.handler.removeCallbacksAndMessages(null);
     if (analyticsCollector != null) {
       bandwidthMeter.removeEventListener(analyticsCollector);
     }
@@ -867,20 +861,6 @@ import java.util.concurrent.TimeoutException;
   @Override
   public Timeline getCurrentTimeline() {
     return playbackInfo.timeline;
-  }
-
-  // Not private so it can be called from an inner class without going through a thunk method.
-  /* package */ void handleEvent(Message msg) {
-    switch (msg.what) {
-      case ExoPlayerImplInternal.MSG_PLAYBACK_INFO_CHANGED:
-        handlePlaybackInfo((ExoPlayerImplInternal.PlaybackInfoUpdate) msg.obj);
-        break;
-      case ExoPlayerImplInternal.MSG_PLAYBACK_SPEED_CHANGED:
-        handlePlaybackSpeed((Float) msg.obj, /* operationAck= */ msg.arg1 != 0);
-        break;
-      default:
-        throw new IllegalStateException();
-    }
   }
 
   private int getCurrentWindowIndexInternal() {
@@ -1280,6 +1260,49 @@ import java.util.concurrent.TimeoutException;
 
   private boolean shouldMaskPosition() {
     return playbackInfo.timeline.isEmpty() || pendingOperationAcks > 0;
+  }
+
+  private final class PlaybackUpdateListenerImpl
+      implements ExoPlayerImplInternal.PlaybackUpdateListener, Handler.Callback {
+    private static final int MSG_PLAYBACK_INFO_CHANGED = 0;
+    private static final int MSG_PLAYBACK_SPEED_CHANGED = 1;
+
+    private final Handler handler;
+
+    private PlaybackUpdateListenerImpl(Looper applicationLooper) {
+      handler = Util.createHandler(applicationLooper, /* callback= */ this);
+    }
+
+    @Override
+    public void onPlaybackInfoUpdate(ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfo) {
+      handler.obtainMessage(MSG_PLAYBACK_INFO_CHANGED, playbackInfo).sendToTarget();
+    }
+
+    @Override
+    public void onPlaybackSpeedChange(float playbackSpeed, boolean acknowledgeCommand) {
+      handler
+          .obtainMessage(
+              MSG_PLAYBACK_SPEED_CHANGED,
+              /* arg1= */ acknowledgeCommand ? 1 : 0,
+              /* arg2= */ 0,
+              /* obj= */ playbackSpeed)
+          .sendToTarget();
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+      switch (msg.what) {
+        case MSG_PLAYBACK_INFO_CHANGED:
+          handlePlaybackInfo((ExoPlayerImplInternal.PlaybackInfoUpdate) msg.obj);
+          break;
+        case MSG_PLAYBACK_SPEED_CHANGED:
+          handlePlaybackSpeed((Float) msg.obj, /* operationAck= */ msg.arg1 != 0);
+          break;
+        default:
+          throw new IllegalStateException();
+      }
+      return true;
+    }
   }
 
   private static final class PlaybackInfoUpdate implements Runnable {

@@ -63,9 +63,57 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private static final String TAG = "ExoPlayerImplInternal";
 
-  // External messages
-  public static final int MSG_PLAYBACK_INFO_CHANGED = 0;
-  public static final int MSG_PLAYBACK_SPEED_CHANGED = 1;
+  public static final class PlaybackInfoUpdate {
+
+    private boolean hasPendingChange;
+
+    public PlaybackInfo playbackInfo;
+    public int operationAcks;
+    public boolean positionDiscontinuity;
+    @DiscontinuityReason public int discontinuityReason;
+    public boolean hasPlayWhenReadyChangeReason;
+    @PlayWhenReadyChangeReason public int playWhenReadyChangeReason;
+
+    public PlaybackInfoUpdate(PlaybackInfo playbackInfo) {
+      this.playbackInfo = playbackInfo;
+    }
+
+    public void incrementPendingOperationAcks(int operationAcks) {
+      hasPendingChange |= operationAcks > 0;
+      this.operationAcks += operationAcks;
+    }
+
+    public void setPlaybackInfo(PlaybackInfo playbackInfo) {
+      hasPendingChange |= this.playbackInfo != playbackInfo;
+      this.playbackInfo = playbackInfo;
+    }
+
+    public void setPositionDiscontinuity(@DiscontinuityReason int discontinuityReason) {
+      if (positionDiscontinuity
+          && this.discontinuityReason != Player.DISCONTINUITY_REASON_INTERNAL) {
+        // We always prefer non-internal discontinuity reasons. We also assume that we won't report
+        // more than one non-internal discontinuity per message iteration.
+        Assertions.checkArgument(discontinuityReason == Player.DISCONTINUITY_REASON_INTERNAL);
+        return;
+      }
+      hasPendingChange = true;
+      positionDiscontinuity = true;
+      this.discontinuityReason = discontinuityReason;
+    }
+
+    public void setPlayWhenReadyChangeReason(
+        @PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
+      hasPendingChange = true;
+      this.hasPlayWhenReadyChangeReason = true;
+      this.playWhenReadyChangeReason = playWhenReadyChangeReason;
+    }
+  }
+
+  public interface PlaybackUpdateListener {
+    void onPlaybackInfoUpdate(ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfo);
+
+    void onPlaybackSpeedChange(float playbackSpeed, boolean acknowledgeCommand);
+  }
 
   // Internal messages
   private static final int MSG_PREPARE = 0;
@@ -113,7 +161,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private final BandwidthMeter bandwidthMeter;
   private final HandlerWrapper handler;
   private final HandlerThread internalPlaybackThread;
-  private final Handler eventHandler;
   private final Timeline.Window window;
   private final Timeline.Period period;
   private final long backBufferDurationUs;
@@ -121,6 +168,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private final DefaultMediaClock mediaClock;
   private final ArrayList<PendingMessageInfo> pendingMessages;
   private final Clock clock;
+  private final PlaybackUpdateListener playbackUpdateListener;
   private final MediaPeriodQueue queue;
   private final MediaSourceList mediaSourceList;
 
@@ -160,8 +208,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
       @Nullable AnalyticsCollector analyticsCollector,
       SeekParameters seekParameters,
       boolean pauseAtEndOfWindow,
-      Handler eventHandler,
-      Clock clock) {
+      Looper applicationLooper,
+      Clock clock,
+      PlaybackUpdateListener playbackUpdateListener) {
+    this.playbackUpdateListener = playbackUpdateListener;
     this.renderers = renderers;
     this.trackSelector = trackSelector;
     this.emptyTrackSelectorResult = emptyTrackSelectorResult;
@@ -171,9 +221,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.shuffleModeEnabled = shuffleModeEnabled;
     this.seekParameters = seekParameters;
     this.pauseAtEndOfWindow = pauseAtEndOfWindow;
-    this.eventHandler = eventHandler;
     this.clock = clock;
-    this.queue = new MediaPeriodQueue(analyticsCollector, eventHandler);
 
     backBufferDurationUs = loadControl.getBackBufferDurationUs();
     retainBackBufferFromKeyframe = loadControl.retainBackBufferFromKeyframe();
@@ -191,13 +239,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
     period = new Timeline.Period();
     trackSelector.init(/* listener= */ this, bandwidthMeter);
 
+    deliverPendingMessageAtStartPositionRequired = true;
+
+    Handler eventHandler = new Handler(applicationLooper);
+    queue = new MediaPeriodQueue(analyticsCollector, eventHandler);
+    mediaSourceList = new MediaSourceList(/* listener= */ this, analyticsCollector, eventHandler);
+
     // Note: The documentation for Process.THREAD_PRIORITY_AUDIO that states "Applications can
     // not normally change to this priority" is incorrect.
     internalPlaybackThread = new HandlerThread("ExoPlayer:Playback", Process.THREAD_PRIORITY_AUDIO);
     internalPlaybackThread.start();
     handler = clock.createHandler(internalPlaybackThread.getLooper(), this);
-    deliverPendingMessageAtStartPositionRequired = true;
-    mediaSourceList = new MediaSourceList(/* listener= */ this, analyticsCollector, eventHandler);
   }
 
   public void experimental_setReleaseTimeoutMs(long releaseTimeoutMs) {
@@ -571,7 +623,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void maybeNotifyPlaybackInfoChanged() {
     playbackInfoUpdate.setPlaybackInfo(playbackInfo);
     if (playbackInfoUpdate.hasPendingChange) {
-      eventHandler.obtainMessage(MSG_PLAYBACK_INFO_CHANGED, playbackInfoUpdate).sendToTarget();
+      playbackUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
       playbackInfoUpdate = new PlaybackInfoUpdate(playbackInfo);
     }
   }
@@ -1938,9 +1990,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void handlePlaybackSpeed(float playbackSpeed, boolean acknowledgeCommand)
       throws ExoPlaybackException {
-    eventHandler
-        .obtainMessage(MSG_PLAYBACK_SPEED_CHANGED, acknowledgeCommand ? 1 : 0, 0, playbackSpeed)
-        .sendToTarget();
+    playbackUpdateListener.onPlaybackSpeedChange(playbackSpeed, acknowledgeCommand);
     updateTrackSelectionPlaybackSpeed(playbackSpeed);
     for (Renderer renderer : renderers) {
       if (renderer != null) {
@@ -2648,52 +2698,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
       this.toIndex = toIndex;
       this.newFromIndex = newFromIndex;
       this.shuffleOrder = shuffleOrder;
-    }
-  }
-
-  /* package */ static final class PlaybackInfoUpdate {
-
-    private boolean hasPendingChange;
-
-    public PlaybackInfo playbackInfo;
-    public int operationAcks;
-    public boolean positionDiscontinuity;
-    @DiscontinuityReason public int discontinuityReason;
-    public boolean hasPlayWhenReadyChangeReason;
-    @PlayWhenReadyChangeReason public int playWhenReadyChangeReason;
-
-    public PlaybackInfoUpdate(PlaybackInfo playbackInfo) {
-      this.playbackInfo = playbackInfo;
-    }
-
-    public void incrementPendingOperationAcks(int operationAcks) {
-      hasPendingChange |= operationAcks > 0;
-      this.operationAcks += operationAcks;
-    }
-
-    public void setPlaybackInfo(PlaybackInfo playbackInfo) {
-      hasPendingChange |= this.playbackInfo != playbackInfo;
-      this.playbackInfo = playbackInfo;
-    }
-
-    public void setPositionDiscontinuity(@DiscontinuityReason int discontinuityReason) {
-      if (positionDiscontinuity
-          && this.discontinuityReason != Player.DISCONTINUITY_REASON_INTERNAL) {
-        // We always prefer non-internal discontinuity reasons. We also assume that we won't report
-        // more than one non-internal discontinuity per message iteration.
-        Assertions.checkArgument(discontinuityReason == Player.DISCONTINUITY_REASON_INTERNAL);
-        return;
-      }
-      hasPendingChange = true;
-      positionDiscontinuity = true;
-      this.discontinuityReason = discontinuityReason;
-    }
-
-    public void setPlayWhenReadyChangeReason(
-        @PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
-      hasPendingChange = true;
-      this.hasPlayWhenReadyChangeReason = true;
-      this.playWhenReadyChangeReason = playWhenReadyChangeReason;
     }
   }
 }
