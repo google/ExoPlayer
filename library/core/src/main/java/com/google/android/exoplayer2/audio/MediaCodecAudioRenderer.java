@@ -625,7 +625,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (codecPassthroughFormat != null
         && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
-      codec.releaseOutputBuffer(bufferIndex, false);
+      Assertions.checkNotNull(codec).releaseOutputBuffer(bufferIndex, false);
       return true;
     }
 
@@ -650,7 +650,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       if (codec != null) {
         codec.releaseOutputBuffer(bufferIndex, false);
       }
-      decoderCounters.renderedOutputBufferCount++;
+      decoderCounters.renderedOutputBufferCount += sampleCount;
       return true;
     }
 
