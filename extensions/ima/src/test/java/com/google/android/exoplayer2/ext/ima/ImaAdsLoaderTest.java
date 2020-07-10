@@ -42,6 +42,7 @@ import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
+import com.google.ads.interactivemedia.v3.api.FriendlyObstruction;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
@@ -108,6 +109,7 @@ public final class ImaAdsLoaderTest {
   @Mock private AdsRequest mockAdsRequest;
   @Mock private AdsManagerLoadedEvent mockAdsManagerLoadedEvent;
   @Mock private com.google.ads.interactivemedia.v3.api.AdsLoader mockAdsLoader;
+  @Mock private FriendlyObstruction mockFriendlyObstruction;
   @Mock private ImaFactory mockImaFactory;
   @Mock private AdPodInfo mockAdPodInfo;
   @Mock private Ad mockPrerollSingleAd;
@@ -162,8 +164,8 @@ public final class ImaAdsLoaderTest {
     setupPlayback(CONTENT_TIMELINE, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
 
-    verify(mockAdDisplayContainer, atLeastOnce()).setAdContainer(adViewGroup);
-    verify(mockAdDisplayContainer, atLeastOnce()).registerVideoControlsOverlay(adOverlayView);
+    verify(mockImaFactory, atLeastOnce()).createAdDisplayContainer(adViewGroup, videoAdPlayer);
+    verify(mockAdDisplayContainer).registerFriendlyObstruction(mockFriendlyObstruction);
   }
 
   @Test
@@ -637,8 +639,8 @@ public final class ImaAdsLoaderTest {
     imaAdsLoader.stop();
 
     InOrder inOrder = inOrder(mockAdDisplayContainer);
-    inOrder.verify(mockAdDisplayContainer).registerVideoControlsOverlay(adOverlayView);
-    inOrder.verify(mockAdDisplayContainer).unregisterAllVideoControlsOverlays();
+    inOrder.verify(mockAdDisplayContainer).registerFriendlyObstruction(mockFriendlyObstruction);
+    inOrder.verify(mockAdDisplayContainer).unregisterAllFriendlyObstructions();
   }
 
   @Test
@@ -758,16 +760,16 @@ public final class ImaAdsLoaderTest {
 
     doAnswer(
             invocation -> {
-              videoAdPlayer = invocation.getArgument(0);
-              return null;
+              videoAdPlayer = invocation.getArgument(1);
+              return mockAdDisplayContainer;
             })
-        .when(mockAdDisplayContainer)
-        .setPlayer(any());
-
-    when(mockImaFactory.createAdDisplayContainer()).thenReturn(mockAdDisplayContainer);
+        .when(mockImaFactory)
+        .createAdDisplayContainer(any(), any());
     when(mockImaFactory.createAdsRenderingSettings()).thenReturn(mockAdsRenderingSettings);
     when(mockImaFactory.createAdsRequest()).thenReturn(mockAdsRequest);
     when(mockImaFactory.createAdsLoader(any(), any(), any())).thenReturn(mockAdsLoader);
+    when(mockImaFactory.createFriendlyObstruction(any(), any(), any()))
+        .thenReturn(mockFriendlyObstruction);
 
     when(mockAdPodInfo.getPodIndex()).thenReturn(0);
     when(mockAdPodInfo.getTotalAds()).thenReturn(1);

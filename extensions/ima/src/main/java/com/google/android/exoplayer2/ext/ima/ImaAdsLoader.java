@@ -40,11 +40,14 @@ import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
 import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventType;
 import com.google.ads.interactivemedia.v3.api.AdPodInfo;
+import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsLoader.AdsLoadedListener;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
+import com.google.ads.interactivemedia.v3.api.FriendlyObstruction;
+import com.google.ads.interactivemedia.v3.api.FriendlyObstructionPurpose;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.UiElement;
@@ -58,7 +61,6 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
-import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -77,19 +79,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * {@link AdsLoader} using the IMA SDK. All methods must be called on the main thread.
+ * {@link com.google.android.exoplayer2.source.ads.AdsLoader} using the IMA SDK. All methods must be
+ * called on the main thread.
  *
  * <p>The player instance that will play the loaded ads must be set before playback using {@link
  * #setPlayer(Player)}. If the ads loader is no longer required, it must be released by calling
  * {@link #release()}.
  *
- * <p>The IMA SDK can take into account video control overlay views when calculating ad viewability.
- * For more details see {@link AdDisplayContainer#registerVideoControlsOverlay(View)} and {@link
- * AdViewProvider#getAdOverlayViews()}.
+ * <p>The IMA SDK can report obstructions to the ad view for accurate viewability measurement. This
+ * means that any overlay views that obstruct the ad overlay but are essential for playback need to
+ * be registered via the {@link AdViewProvider} passed to the {@link
+ * com.google.android.exoplayer2.source.ads.AdsMediaSource}. See the <a
+ * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/omsdk">
+ * IMA SDK Open Measurement documentation</a> for more information.
  */
-public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
+public final class ImaAdsLoader
+    implements Player.EventListener, com.google.android.exoplayer2.source.ads.AdsLoader {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
@@ -329,7 +337,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
    * Interval at which ad progress updates are provided to the IMA SDK, in milliseconds. 100 ms is
    * the interval recommended by the IMA documentation.
    *
-   * @see com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback
+   * @see VideoAdPlayer.VideoAdPlayerCallback
    */
   private static final int AD_PROGRESS_UPDATE_INTERVAL_MS = 100;
 
@@ -370,6 +378,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
    */
   private static final int IMA_AD_STATE_PAUSED = 2;
 
+  private final Context context;
   @Nullable private final Uri adTagUri;
   @Nullable private final String adsResponse;
   private final long adPreloadTimeoutMs;
@@ -381,15 +390,16 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
   @Nullable private final Set<UiElement> adUiElements;
   @Nullable private final AdEventListener adEventListener;
   private final ImaFactory imaFactory;
+  private final ImaSdkSettings imaSdkSettings;
   private final Timeline.Period period;
   private final Handler handler;
   private final ComponentListener componentListener;
   private final List<VideoAdPlayer.VideoAdPlayerCallback> adCallbacks;
-  private final AdDisplayContainer adDisplayContainer;
-  private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
   private final Runnable updateAdProgressRunnable;
   private final Map<AdMediaInfo, AdInfo> adInfoByAdMediaInfo;
 
+  private @MonotonicNonNull AdDisplayContainer adDisplayContainer;
+  private @MonotonicNonNull AdsLoader adsLoader;
   private boolean wasSetPlayerCalled;
   @Nullable private Player nextPlayer;
   @Nullable private Object pendingAdRequestContext;
@@ -418,10 +428,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
   @Nullable private AdMediaInfo imaAdMediaInfo;
   /** The current ad info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */
   @Nullable private AdInfo imaAdInfo;
-  /**
-   * Whether {@link com.google.ads.interactivemedia.v3.api.AdsLoader#contentComplete()} has been
-   * called since starting ad playback.
-   */
+  /** Whether IMA has been notified that playback of content has finished. */
   private boolean sentContentComplete;
 
   // Fields tracking the player/loader state.
@@ -508,6 +515,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
       @Nullable AdEventListener adEventListener,
       ImaFactory imaFactory) {
     checkArgument(adTagUri != null || adsResponse != null);
+    this.context = context.getApplicationContext();
     this.adTagUri = adTagUri;
     this.adsResponse = adsResponse;
     this.adPreloadTimeoutMs = adPreloadTimeoutMs;
@@ -527,17 +535,11 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     }
     imaSdkSettings.setPlayerType(IMA_SDK_SETTINGS_PLAYER_TYPE);
     imaSdkSettings.setPlayerVersion(IMA_SDK_SETTINGS_PLAYER_VERSION);
+    this.imaSdkSettings = imaSdkSettings;
     period = new Timeline.Period();
     handler = Util.createHandler(getImaLooper(), /* callback= */ null);
     componentListener = new ComponentListener();
     adCallbacks = new ArrayList<>(/* initialCapacity= */ 1);
-    adDisplayContainer = imaFactory.createAdDisplayContainer();
-    adDisplayContainer.setPlayer(/* videoAdPlayer= */ componentListener);
-    adsLoader =
-        imaFactory.createAdsLoader(
-            context.getApplicationContext(), imaSdkSettings, adDisplayContainer);
-    adsLoader.addAdErrorListener(componentListener);
-    adsLoader.addAdsLoadedListener(componentListener);
     updateAdProgressRunnable = this::updateAdProgress;
     adInfoByAdMediaInfo = new HashMap<>();
     supportedMimeTypes = Collections.emptyList();
@@ -553,23 +555,26 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
   }
 
   /**
-   * Returns the underlying {@code com.google.ads.interactivemedia.v3.api.AdsLoader} wrapped by this
-   * instance.
+   * Returns the underlying {@link AdsLoader} wrapped by this instance, or {@code null} if ads have
+   * not been requested yet.
    */
-  public com.google.ads.interactivemedia.v3.api.AdsLoader getAdsLoader() {
+  @Nullable
+  public AdsLoader getAdsLoader() {
     return adsLoader;
   }
 
   /**
-   * Returns the {@link AdDisplayContainer} used by this loader.
+   * Returns the {@link AdDisplayContainer} used by this loader, or {@code null} if ads have not
+   * been requested yet.
    *
    * <p>Note: any video controls overlays registered via {@link
-   * AdDisplayContainer#registerVideoControlsOverlay(View)} will be unregistered automatically when
-   * the media source detaches from this instance. It is therefore necessary to re-register views
-   * each time the ads loader is reused. Alternatively, provide overlay views via the {@link
-   * AdsLoader.AdViewProvider} when creating the media source to benefit from automatic
-   * registration.
+   * AdDisplayContainer#registerFriendlyObstruction(FriendlyObstruction)} will be unregistered
+   * automatically when the media source detaches from this instance. It is therefore necessary to
+   * re-register views each time the ads loader is reused. Alternatively, provide overlay views via
+   * the {@link com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider} when creating the
+   * media source to benefit from automatic registration.
    */
+  @Nullable
   public AdDisplayContainer getAdDisplayContainer() {
     return adDisplayContainer;
   }
@@ -588,7 +593,11 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
       // Ads have already been requested.
       return;
     }
-    adDisplayContainer.setAdContainer(adViewGroup);
+    adDisplayContainer =
+        imaFactory.createAdDisplayContainer(adViewGroup, /* player= */ componentListener);
+    adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings, adDisplayContainer);
+    adsLoader.addAdErrorListener(componentListener);
+    adsLoader.addAdsLoadedListener(componentListener);
     AdsRequest request = imaFactory.createAdsRequest();
     if (adTagUri != null) {
       request.setAdTagUrl(adTagUri.toString());
@@ -604,7 +613,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     adsLoader.requestAds(request);
   }
 
-  // AdsLoader implementation.
+  // com.google.android.exoplayer2.source.ads.AdsLoader implementation.
 
   @Override
   public void setPlayer(@Nullable Player player) {
@@ -650,12 +659,6 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     lastVolumePercent = 0;
     lastAdProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     lastContentProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
-    ViewGroup adViewGroup = adViewProvider.getAdViewGroup();
-    adDisplayContainer.setAdContainer(adViewGroup);
-    View[] adOverlayViews = adViewProvider.getAdOverlayViews();
-    for (View view : adOverlayViews) {
-      adDisplayContainer.registerVideoControlsOverlay(view);
-    }
     maybeNotifyPendingAdLoadError();
     if (hasAdPlaybackState) {
       // Pass the ad playback state to the player, and resume ads if necessary.
@@ -668,7 +671,16 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
       updateAdPlaybackState();
     } else {
       // Ads haven't loaded yet, so request them.
-      requestAds(adViewGroup);
+      requestAds(adViewProvider.getAdViewGroup());
+    }
+    if (adDisplayContainer != null) {
+      for (OverlayInfo overlayInfo : adViewProvider.getAdOverlayInfos()) {
+        adDisplayContainer.registerFriendlyObstruction(
+            imaFactory.createFriendlyObstruction(
+                overlayInfo.view,
+                getFriendlyObstructionPurpose(overlayInfo.purpose),
+                overlayInfo.reasonDetail));
+      }
     }
   }
 
@@ -687,7 +699,9 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     lastVolumePercent = getPlayerVolumePercent();
     lastAdProgress = getAdVideoProgressUpdate();
     lastContentProgress = getContentVideoProgressUpdate();
-    adDisplayContainer.unregisterAllVideoControlsOverlays();
+    if (adDisplayContainer != null) {
+      adDisplayContainer.unregisterAllFriendlyObstructions();
+    }
     player.removeListener(this);
     this.player = null;
     eventListener = null;
@@ -697,8 +711,10 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
   public void release() {
     pendingAdRequestContext = null;
     destroyAdsManager();
-    adsLoader.removeAdsLoadedListener(componentListener);
-    adsLoader.removeAdErrorListener(componentListener);
+    if (adsLoader != null) {
+      adsLoader.removeAdsLoadedListener(componentListener);
+      adsLoader.removeAdErrorListener(componentListener);
+    }
     imaPausedContent = false;
     imaAdState = IMA_AD_STATE_NONE;
     imaAdMediaInfo = null;
@@ -1356,7 +1372,9 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
   }
 
   private void sendContentComplete() {
-    adsLoader.contentComplete();
+    for (int i = 0; i < adCallbacks.size(); i++) {
+      adCallbacks.get(i).onContentComplete();
+    }
     sentContentComplete = true;
     if (DEBUG) {
       Log.d(TAG, "adsLoader.contentComplete");
@@ -1442,6 +1460,21 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     return "AdMediaInfo[" + adMediaInfo.getUrl() + (adInfo != null ? ", " + adInfo : "") + "]";
   }
 
+  private static FriendlyObstructionPurpose getFriendlyObstructionPurpose(
+      @OverlayInfo.Purpose int purpose) {
+    switch (purpose) {
+      case OverlayInfo.PURPOSE_CONTROLS:
+        return FriendlyObstructionPurpose.VIDEO_CONTROLS;
+      case OverlayInfo.PURPOSE_CLOSE_AD:
+        return FriendlyObstructionPurpose.CLOSE_AD;
+      case OverlayInfo.PURPOSE_NOT_VISIBLE:
+        return FriendlyObstructionPurpose.NOT_VISIBLE;
+      case OverlayInfo.PURPOSE_OTHER:
+      default:
+        return FriendlyObstructionPurpose.OTHER;
+    }
+  }
+
   private static DataSpec getAdsDataSpec(@Nullable Uri adTagUri) {
     return new DataSpec(adTagUri != null ? adTagUri : Uri.EMPTY);
   }
@@ -1495,16 +1528,30 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
   /** Factory for objects provided by the IMA SDK. */
   @VisibleForTesting
   /* package */ interface ImaFactory {
-    /** @see ImaSdkSettings */
+    /** Creates {@link ImaSdkSettings} for configuring the IMA SDK. */
     ImaSdkSettings createImaSdkSettings();
-    /** @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdsRenderingSettings() */
+    /**
+     * Creates {@link AdsRenderingSettings} for giving the {@link AdsManager} parameters that
+     * control rendering of ads.
+     */
     AdsRenderingSettings createAdsRenderingSettings();
-    /** @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdDisplayContainer() */
-    AdDisplayContainer createAdDisplayContainer();
-    /** @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdsRequest() */
+    /**
+     * Creates an {@link AdDisplayContainer} to hold the player for video ads, a container for
+     * non-linear ads, and slots for companion ads.
+     */
+    AdDisplayContainer createAdDisplayContainer(ViewGroup container, VideoAdPlayer player);
+    /**
+     * Creates a {@link FriendlyObstruction} to describe an obstruction considered "friendly" for
+     * viewability measurement purposes.
+     */
+    FriendlyObstruction createFriendlyObstruction(
+        View view,
+        FriendlyObstructionPurpose friendlyObstructionPurpose,
+        @Nullable String reasonDetail);
+    /** Creates an {@link AdsRequest} to contain the data used to request ads. */
     AdsRequest createAdsRequest();
-    /** @see ImaSdkFactory#createAdsLoader(Context, ImaSdkSettings, AdDisplayContainer) */
-    com.google.ads.interactivemedia.v3.api.AdsLoader createAdsLoader(
+    /** Creates an {@link AdsLoader} for requesting ads using the specified settings. */
+    AdsLoader createAdsLoader(
         Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer);
   }
 
@@ -1515,7 +1562,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
           AdErrorListener,
           VideoAdPlayer {
 
-    // com.google.ads.interactivemedia.v3.api.AdsLoader.AdsLoadedListener implementation.
+    // AdsLoader.AdsLoadedListener implementation.
 
     @Override
     public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
@@ -1724,8 +1771,20 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     }
 
     @Override
-    public AdDisplayContainer createAdDisplayContainer() {
-      return ImaSdkFactory.getInstance().createAdDisplayContainer();
+    public AdDisplayContainer createAdDisplayContainer(ViewGroup container, VideoAdPlayer player) {
+      return ImaSdkFactory.createAdDisplayContainer(container, player);
+    }
+
+    // The reasonDetail parameter to createFriendlyObstruction is annotated @Nullable but the
+    // annotation is not kept in the obfuscated dependency.
+    @SuppressWarnings("nullness:argument.type.incompatible")
+    @Override
+    public FriendlyObstruction createFriendlyObstruction(
+        View view,
+        FriendlyObstructionPurpose friendlyObstructionPurpose,
+        @Nullable String reasonDetail) {
+      return ImaSdkFactory.getInstance()
+          .createFriendlyObstruction(view, friendlyObstructionPurpose, reasonDetail);
     }
 
     @Override
@@ -1734,7 +1793,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     }
 
     @Override
-    public com.google.ads.interactivemedia.v3.api.AdsLoader createAdsLoader(
+    public AdsLoader createAdsLoader(
         Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer) {
       return ImaSdkFactory.getInstance()
           .createAdsLoader(context, imaSdkSettings, adDisplayContainer);

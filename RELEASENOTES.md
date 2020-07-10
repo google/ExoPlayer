@@ -239,9 +239,13 @@
     `androidx.media2.session.MediaSession`.
 *   Cast extension: Implement playlist API and deprecate the old queue
     manipulation API.
-*   IMA extension: Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the
-    media load timeout
-    ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
+*   IMA extension:
+    *   Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the
+        media load timeout
+        ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
+    *   Migrate to new 'friendly obstruction' IMA SDK APIs, and allow apps to
+        register a purpose and detail reason for overlay views via
+        `AdsLoader.AdViewProvider`.
 *   Demo app: Retain previous position in list of samples.
 *   Add Guava dependency.
 
