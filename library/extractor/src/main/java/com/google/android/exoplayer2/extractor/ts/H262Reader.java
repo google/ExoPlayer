@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -22,7 +25,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -118,7 +120,7 @@ public final class H262Reader implements ElementaryStreamReader {
 
   @Override
   public void consume(ParsableByteArray data) {
-    Assertions.checkStateNotNull(output); // Asserts that createTracks has been called.
+    checkStateNotNull(output); // Asserts that createTracks has been called.
     int offset = data.getPosition();
     int limit = data.limit();
     byte[] dataArray = data.data;
@@ -156,7 +158,7 @@ public final class H262Reader implements ElementaryStreamReader {
         int bytesAlreadyPassed = lengthToStartCode < 0 ? -lengthToStartCode : 0;
         if (csdBuffer.onStartCode(startCodeValue, bytesAlreadyPassed)) {
           // The csd data is complete, so we can decode and output the media format.
-          Pair<Format, Long> result = parseCsdBuffer(csdBuffer, formatId);
+          Pair<Format, Long> result = parseCsdBuffer(csdBuffer, checkNotNull(formatId));
           output.format(result.first);
           frameDurationUs = result.second;
           hasOutputFormat = true;
@@ -215,11 +217,11 @@ public final class H262Reader implements ElementaryStreamReader {
    * Parses the {@link Format} and frame duration from a csd buffer.
    *
    * @param csdBuffer The csd buffer.
-   * @param formatId The id for the generated format. May be null.
+   * @param formatId The id for the generated format.
    * @return A pair consisting of the {@link Format} and the frame duration in microseconds, or 0 if
    *     the duration could not be determined.
    */
-  private static Pair<Format, Long> parseCsdBuffer(CsdBuffer csdBuffer, @Nullable String formatId) {
+  private static Pair<Format, Long> parseCsdBuffer(CsdBuffer csdBuffer, String formatId) {
     byte[] csdData = Arrays.copyOf(csdBuffer.data, csdBuffer.length);
 
     int firstByte = csdData[4] & 0xFF;

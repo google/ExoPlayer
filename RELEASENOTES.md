@@ -212,6 +212,9 @@
         headers mime type in `DefaultExtractorsFactory`.
     *   Add support for partially fragmented MP4s
         ([#7308](https://github.com/google/ExoPlayer/issues/7308)).
+    *   Add support for MPEG-4 Part 2 and H.263 in MPEG-TS
+        ([#1603](https://github.com/google/ExoPlayer/issues/1603),
+        [#5107](https://github.com/google/ExoPlayer/issues/5107)).
 *   Testing
     *   Add `TestExoPlayer`, a utility class with APIs to create
         `SimpleExoPlayer` instances with fake components for testing.

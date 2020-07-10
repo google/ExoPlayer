@@ -61,6 +61,11 @@ public final class TsExtractorTest {
   }
 
   @Test
+  public void sampleWithH263() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h263.ts", simulationConfig);
+  }
+
+  @Test
   public void sampleWithH264AndMpegAudio() throws Exception {
     ExtractorAsserts.assertBehavior(
         TsExtractor::new, "ts/sample_h264_mpeg_audio.ts", simulationConfig);

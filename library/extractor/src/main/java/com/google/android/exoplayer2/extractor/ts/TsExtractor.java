@@ -90,6 +90,7 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_E_AC3 = 0x87;
   public static final int TS_STREAM_TYPE_AC4 = 0xAC; // DVB/ATSC AC-4 Descriptor
   public static final int TS_STREAM_TYPE_H262 = 0x02;
+  public static final int TS_STREAM_TYPE_H263 = 0x10; // MPEG-4 Part 2 and H.263
   public static final int TS_STREAM_TYPE_H264 = 0x1B;
   public static final int TS_STREAM_TYPE_H265 = 0x24;
   public static final int TS_STREAM_TYPE_ID3 = 0x15;
