@@ -177,6 +177,7 @@ public final class C {
     ENCODING_AAC_HE_V2,
     ENCODING_AAC_XHE,
     ENCODING_AAC_ELD,
+    ENCODING_AAC_ER_BSAC,
     ENCODING_AC3,
     ENCODING_E_AC3,
     ENCODING_E_AC3_JOC,
@@ -232,6 +233,8 @@ public final class C {
   public static final int ENCODING_AAC_XHE = AudioFormat.ENCODING_AAC_XHE;
   /** @see AudioFormat#ENCODING_AAC_ELD */
   public static final int ENCODING_AAC_ELD = AudioFormat.ENCODING_AAC_ELD;
+  /** AAC Error Resilient Bit-Sliced Arithmetic Coding. */
+  public static final int ENCODING_AAC_ER_BSAC = 0x40000000;
   /** @see AudioFormat#ENCODING_AC3 */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
   /** @see AudioFormat#ENCODING_E_AC3 */
