@@ -1,5 +1,13 @@
 # Release notes #
 
+### 2.11.8 (2020-08-25) ###
+
+*   MP4: Add support for `piff` and `isml` brands
+    ([#7584](https://github.com/google/ExoPlayer/issues/7584)).
+*   FMP4: Fix `saiz` and `senc` sample count checks, resolving a "length
+    mismatch" `ParserException` when playing certain protected FMP4 streams
+    ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
+
 ### 2.11.7 (2020-06-29) ###
 
 *   IMA extension: Fix the way postroll "content complete" notifications are

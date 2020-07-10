@@ -798,8 +798,12 @@ public class FragmentedMp4Extractor implements Extractor {
     int defaultSampleInfoSize = saiz.readUnsignedByte();
 
     int sampleCount = saiz.readUnsignedIntToInt();
-    if (sampleCount != out.sampleCount) {
-      throw new ParserException("Length mismatch: " + sampleCount + ", " + out.sampleCount);
+    if (sampleCount > out.sampleCount) {
+      throw new ParserException(
+          "Saiz sample count "
+              + sampleCount
+              + " is greater than fragment sample count"
+              + out.sampleCount);
     }
 
     int totalSize = 0;
@@ -815,7 +819,10 @@ public class FragmentedMp4Extractor implements Extractor {
       totalSize += defaultSampleInfoSize * sampleCount;
       Arrays.fill(out.sampleHasSubsampleEncryptionTable, 0, sampleCount, subsampleEncryption);
     }
-    out.initEncryptionData(totalSize);
+    Arrays.fill(out.sampleHasSubsampleEncryptionTable, sampleCount, out.sampleCount, false);
+    if (totalSize > 0) {
+      out.initEncryptionData(totalSize);
+    }
   }
 
   /**
@@ -1055,8 +1062,16 @@ public class FragmentedMp4Extractor implements Extractor {
 
     boolean subsampleEncryption = (flags & 0x02 /* use_subsample_encryption */) != 0;
     int sampleCount = senc.readUnsignedIntToInt();
-    if (sampleCount != out.sampleCount) {
-      throw new ParserException("Length mismatch: " + sampleCount + ", " + out.sampleCount);
+    if (sampleCount == 0) {
+      // Samples are unencrypted.
+      Arrays.fill(out.sampleHasSubsampleEncryptionTable, 0, out.sampleCount, false);
+      return;
+    } else if (sampleCount != out.sampleCount) {
+      throw new ParserException(
+          "Senc sample count "
+              + sampleCount
+              + " is different from fragment sample count"
+              + out.sampleCount);
     }
 
     Arrays.fill(out.sampleHasSubsampleEncryptionTable, 0, sampleCount, subsampleEncryption);
