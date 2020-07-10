@@ -440,26 +440,28 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   @Override
   public final void prepare() {
-    if (prepareCallsCount++ == 0) {
-      Assertions.checkState(exoMediaDrm == null);
-      exoMediaDrm = exoMediaDrmProvider.acquireExoMediaDrm(uuid);
-      exoMediaDrm.setOnEventListener(new MediaDrmEventListener());
+    if (prepareCallsCount++ != 0) {
+      return;
     }
+    Assertions.checkState(exoMediaDrm == null);
+    exoMediaDrm = exoMediaDrmProvider.acquireExoMediaDrm(uuid);
+    exoMediaDrm.setOnEventListener(new MediaDrmEventListener());
   }
 
   @Override
   public final void release() {
-    if (--prepareCallsCount == 0) {
-      // Make a local copy, because sessions are removed from this.sessions during release (via
-      // callback).
-      List<DefaultDrmSession> sessions = new ArrayList<>(this.sessions);
-      for (int i = 0; i < sessions.size(); i++) {
-        // Release all the keepalive acquisitions.
-        sessions.get(i).release(/* eventDispatcher= */ null);
-      }
-      Assertions.checkNotNull(exoMediaDrm).release();
-      exoMediaDrm = null;
+    if (--prepareCallsCount != 0) {
+      return;
     }
+    // Make a local copy, because sessions are removed from this.sessions during release (via
+    // callback).
+    List<DefaultDrmSession> sessions = new ArrayList<>(this.sessions);
+    for (int i = 0; i < sessions.size(); i++) {
+      // Release all the keepalive acquisitions.
+      sessions.get(i).release(/* eventDispatcher= */ null);
+    }
+    Assertions.checkNotNull(exoMediaDrm).release();
+    exoMediaDrm = null;
   }
 
   @Override

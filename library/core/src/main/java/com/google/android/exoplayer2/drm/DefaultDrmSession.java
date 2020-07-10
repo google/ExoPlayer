@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.annotation.SuppressLint;
 import android.media.NotProvisionedException;
 import android.os.Handler;
@@ -272,12 +274,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void acquire(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
-    Assertions.checkState(referenceCount >= 0);
+    checkState(referenceCount >= 0);
     if (eventDispatcher != null) {
       eventDispatchers.add(eventDispatcher);
     }
     if (++referenceCount == 1) {
-      Assertions.checkState(state == STATE_OPENING);
+      checkState(state == STATE_OPENING);
       requestHandlerThread = new HandlerThread("ExoPlayer:DrmRequestHandler");
       requestHandlerThread.start();
       requestHandler = new RequestHandler(requestHandlerThread.getLooper());
@@ -295,6 +297,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   public void release(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
+    checkState(referenceCount > 0);
     if (--referenceCount == 0) {
       // Assigning null to various non-null variables for clean-up.
       state = STATE_RELEASED;
