@@ -7,6 +7,9 @@
 *   FMP4: Fix `saiz` and `senc` sample count checks, resolving a "length
     mismatch" `ParserException` when playing certain protected FMP4 streams
     ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
+*   IMA extension: Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the
+    media load timeout
+    ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
 
 ### 2.11.7 (2020-06-29) ###
 
