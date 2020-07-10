@@ -379,13 +379,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   private final class AdPrepareErrorListener implements MaskingMediaPeriod.PrepareErrorListener {
 
     private final Uri adUri;
-    private final int adGroupIndex;
-    private final int adIndexInAdGroup;
 
-    public AdPrepareErrorListener(Uri adUri, int adGroupIndex, int adIndexInAdGroup) {
+    public AdPrepareErrorListener(Uri adUri) {
       this.adUri = adUri;
-      this.adGroupIndex = adGroupIndex;
-      this.adIndexInAdGroup = adIndexInAdGroup;
     }
 
     @Override
@@ -400,7 +396,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
               AdLoadException.createForAd(exception),
               /* wasCanceled= */ true);
       mainHandler.post(
-          () -> adsLoader.handlePrepareError(adGroupIndex, adIndexInAdGroup, exception));
+          () ->
+              adsLoader.handlePrepareError(
+                  mediaPeriodId.adGroupIndex, mediaPeriodId.adIndexInAdGroup, exception));
     }
   }
 
@@ -420,8 +418,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
         Uri adUri, MediaPeriodId id, Allocator allocator, long startPositionUs) {
       MaskingMediaPeriod maskingMediaPeriod =
           new MaskingMediaPeriod(adMediaSource, id, allocator, startPositionUs);
-      maskingMediaPeriod.setPrepareErrorListener(
-          new AdPrepareErrorListener(adUri, id.adGroupIndex, id.adIndexInAdGroup));
+      maskingMediaPeriod.setPrepareErrorListener(new AdPrepareErrorListener(adUri));
       activeMediaPeriods.add(maskingMediaPeriod);
       if (timeline != null) {
         Object periodUid = timeline.getUidOfPeriod(/* periodIndex= */ 0);
