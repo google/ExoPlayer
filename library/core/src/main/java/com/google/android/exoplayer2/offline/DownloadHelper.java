@@ -429,7 +429,7 @@ public final class DownloadHelper {
   }
 
   /**
-   * Equivalent to {@link #createMediaSource(DownloadRequest, Factory, DrmSessionManager)
+   * Equivalent to {@link #createMediaSource(DownloadRequest, DataSource.Factory, DrmSessionManager)
    * createMediaSource(downloadRequest, dataSourceFactory, null)}.
    */
   public static MediaSource createMediaSource(

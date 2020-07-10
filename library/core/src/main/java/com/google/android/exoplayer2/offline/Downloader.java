@@ -31,7 +31,7 @@ public interface Downloader {
      *
      * <p>May be called directly from {@link #download}, or from any other thread used by the
      * downloader. In all cases, {@link #download} is guaranteed not to return until after the last
-     * call to {@link #onProgress} has finished executing.
+     * call to this method has finished executing.
      *
      * @param contentLength The length of the content in bytes, or {@link C#LENGTH_UNSET} if
      *     unknown.

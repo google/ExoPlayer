@@ -32,9 +32,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class BatchBufferTest {
 
-  /** Bigger than {@link BatchBuffer#BATCH_SIZE_BYTES} */
+  /** Bigger than {@code BatchBuffer.BATCH_SIZE_BYTES} */
   private static final int BUFFER_SIZE_LARGER_THAN_BATCH_SIZE_BYTES = 100 * 1000 * 1000;
-  /** Smaller than {@link BatchBuffer#BATCH_SIZE_BYTES} */
+  /** Smaller than {@code BatchBuffer.BATCH_SIZE_BYTES} */
   private static final int BUFFER_SIZE_MUCH_SMALLER_THAN_BATCH_SIZE_BYTES = 100;
 
   private static final byte[] TEST_ACCESS_UNIT =
