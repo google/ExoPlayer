@@ -715,16 +715,17 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     TrackFragment fragment = trackBundle.fragment;
-    long decodeTime = fragment.nextFragmentDecodeTime;
+    long fragmentDecodeTime = fragment.nextFragmentDecodeTime;
     trackBundle.reset();
     trackBundle.currentlyInFragment = true;
-
     @Nullable LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
     if (tfdtAtom != null && (flags & FLAG_WORKAROUND_IGNORE_TFDT_BOX) == 0) {
-      decodeTime = parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
+      fragment.nextFragmentDecodeTime = parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
+    } else {
+      fragment.nextFragmentDecodeTime = fragmentDecodeTime;
     }
 
-    parseTruns(traf, trackBundle, decodeTime, flags);
+    parseTruns(traf, trackBundle, flags);
 
     @Nullable
     TrackEncryptionBox encryptionBox =
@@ -762,8 +763,7 @@ public class FragmentedMp4Extractor implements Extractor {
     }
   }
 
-  private static void parseTruns(
-      ContainerAtom traf, TrackBundle trackBundle, long decodeTime, @Flags int flags)
+  private static void parseTruns(ContainerAtom traf, TrackBundle trackBundle, @Flags int flags)
       throws ParserException {
     int trunCount = 0;
     int totalSampleCount = 0;
@@ -791,8 +791,8 @@ public class FragmentedMp4Extractor implements Extractor {
     for (int i = 0; i < leafChildrenSize; i++) {
       LeafAtom trun = leafChildren.get(i);
       if (trun.type == Atom.TYPE_trun) {
-        trunStartPosition = parseTrun(trackBundle, trunIndex++, decodeTime, flags, trun.data,
-            trunStartPosition);
+        trunStartPosition =
+            parseTrun(trackBundle, trunIndex++, flags, trun.data, trunStartPosition);
       }
     }
   }
@@ -940,7 +940,6 @@ public class FragmentedMp4Extractor implements Extractor {
    * @param trackBundle The {@link TrackBundle} that contains the {@link TrackFragment} into which
    *     parsed data should be placed.
    * @param index Index of the track run in the fragment.
-   * @param decodeTime The decode time of the first sample in the fragment run.
    * @param flags Flags to allow any required workaround to be executed.
    * @param trun The trun atom to decode.
    * @return The starting position of samples for the next run.
@@ -948,7 +947,6 @@ public class FragmentedMp4Extractor implements Extractor {
   private static int parseTrun(
       TrackBundle trackBundle,
       int index,
-      long decodeTime,
       @Flags int flags,
       ParsableByteArray trun,
       int trackRunStart)
@@ -1002,7 +1000,7 @@ public class FragmentedMp4Extractor implements Extractor {
 
     int trackRunEnd = trackRunStart + fragment.trunLength[index];
     long timescale = track.timescale;
-    long cumulativeTime = index > 0 ? fragment.nextFragmentDecodeTime : decodeTime;
+    long cumulativeTime = fragment.nextFragmentDecodeTime;
     for (int i = trackRunStart; i < trackRunEnd; i++) {
       // Use trun values if present, otherwise tfhd, otherwise trex.
       int sampleDuration =
