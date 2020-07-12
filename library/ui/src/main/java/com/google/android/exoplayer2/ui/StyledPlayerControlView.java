@@ -1982,6 +1982,18 @@ public class StyledPlayerControlView extends FrameLayout {
         List<Integer> rendererIndices,
         List<TrackInfo> trackInfos,
         MappedTrackInfo mappedTrackInfo) {
+      boolean subtitleIsOn = false;
+      for (int i = 0; i < trackInfos.size(); i++) {
+        if (trackInfos.get(i).selected) {
+          subtitleIsOn = true;
+          break;
+        }
+      }
+      checkNotNull(subtitleButton)
+          .setImageDrawable(subtitleIsOn ? subtitleOnButtonDrawable : subtitleOffButtonDrawable);
+      checkNotNull(subtitleButton)
+          .setContentDescription(
+              subtitleIsOn ? subtitleOnContentDescription : subtitleOffContentDescription);
       this.rendererIndices = rendererIndices;
       this.tracks = trackInfos;
       this.mappedTrackInfo = mappedTrackInfo;
@@ -2013,10 +2025,6 @@ public class StyledPlayerControlView extends FrameLayout {
                           .setRendererDisabled(rendererIndex, true);
                 }
                 checkNotNull(trackSelector).setParameters(parametersBuilder);
-                if (showSubtitleButton) {
-                  checkNotNull(subtitleButton).setImageDrawable(subtitleOffButtonDrawable);
-                  checkNotNull(subtitleButton).setContentDescription(subtitleOffContentDescription);
-                }
                 settingsWindow.dismiss();
               }
             }
@@ -2024,11 +2032,17 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void onTrackSelection(String subtext) {
-      if (showSubtitleButton) {
-        checkNotNull(subtitleButton).setImageDrawable(subtitleOnButtonDrawable);
-        checkNotNull(subtitleButton).setContentDescription(subtitleOnContentDescription);
+    public void onBindViewHolder(TrackSelectionViewHolder holder, int position) {
+      super.onBindViewHolder(holder, position);
+      if (position > 0) {
+        TrackInfo track = tracks.get(position - 1);
+        holder.checkView.setVisibility(track.selected ? VISIBLE : INVISIBLE);
       }
+    }
+
+    @Override
+    public void onTrackSelection(String subtext) {
+      // No-op
     }
   }
 
@@ -2102,8 +2116,8 @@ public class StyledPlayerControlView extends FrameLayout {
             SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
             getResources().getString(R.string.exo_track_selection_auto));
       } else {
-        for (int i = 0; i < tracks.size(); i++) {
-          TrackInfo track = tracks.get(i);
+        for (int i = 0; i < trackInfos.size(); i++) {
+          TrackInfo track = trackInfos.get(i);
           if (track.selected) {
             settingsAdapter.updateSubTexts(
                 SETTINGS_AUDIO_TRACK_SELECTION_POSITION, track.trackName);
