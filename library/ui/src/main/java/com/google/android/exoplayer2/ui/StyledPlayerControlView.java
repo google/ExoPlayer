@@ -1475,7 +1475,7 @@ public class StyledPlayerControlView extends FrameLayout {
     settingsWindow.setHeight(height);
   }
 
-  private void displaySettingsWindow(RecyclerView.Adapter adapter) {
+  private void displaySettingsWindow(RecyclerView.Adapter<?> adapter) {
     settingsView.setAdapter(adapter);
 
     updateSettingsWindowSize();
