@@ -31,11 +31,14 @@ import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Charsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link SubtitleView.Output} that uses a {@link WebView} to render subtitles.
@@ -50,6 +53,8 @@ import java.util.List;
    * one line-height. Most browsers default 'normal' (CSS default) to 1.2 for most font families.
    */
   private static final float CSS_LINE_HEIGHT = 1.2f;
+
+  private static final String DEFAULT_BACKGROUND_CSS_CLASS = "default_bg";
 
   /**
    * A {@link CanvasSubtitleOutput} used for displaying bitmap cues.
@@ -162,7 +167,7 @@ import java.util.List;
     StringBuilder html = new StringBuilder();
     html.append(
         Util.formatInvariant(
-            "<html><body><div style='"
+            "<body><div style='"
                 + "-webkit-user-select:none;"
                 + "position:fixed;"
                 + "top:0;"
@@ -179,8 +184,10 @@ import java.util.List;
             CSS_LINE_HEIGHT,
             convertCaptionStyleToCssTextShadow(style)));
 
-    String backgroundColorCss = HtmlUtils.toCssRgba(style.backgroundColor);
-
+    Map<String, String> cssRuleSets = new HashMap<>();
+    cssRuleSets.put(
+        HtmlUtils.cssAllClassDescendantsSelector(DEFAULT_BACKGROUND_CSS_CLASS),
+        Util.formatInvariant("background-color:%s;", HtmlUtils.toCssRgba(style.backgroundColor)));
     for (int i = 0; i < textCues.size(); i++) {
       Cue cue = textCues.get(i);
       float positionPercent = (cue.position != Cue.DIMEN_UNSET) ? (cue.position * 100) : 50;
@@ -255,6 +262,18 @@ import java.util.List;
         verticalTranslatePercent = lineAnchorTranslatePercent;
       }
 
+      SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+          SpannedToHtmlConverter.convert(
+              cue.text, getContext().getResources().getDisplayMetrics().density);
+      for (String cssSelector : cssRuleSets.keySet()) {
+        @Nullable
+        String previousCssDeclarationBlock =
+            cssRuleSets.put(cssSelector, cssRuleSets.get(cssSelector));
+        Assertions.checkState(
+            previousCssDeclarationBlock == null
+                || previousCssDeclarationBlock.equals(cssRuleSets.get(cssSelector)));
+      }
+
       html.append(
               Util.formatInvariant(
                   "<div style='"
@@ -280,15 +299,20 @@ import java.util.List;
                   windowCssColor,
                   horizontalTranslatePercent,
                   verticalTranslatePercent))
-          .append(Util.formatInvariant("<span style='background-color:%s;'>", backgroundColorCss))
-          .append(
-              SpannedToHtmlConverter.convert(
-                  cue.text, getContext().getResources().getDisplayMetrics().density))
+          .append(Util.formatInvariant("<span class='%s'>", DEFAULT_BACKGROUND_CSS_CLASS))
+          .append(htmlAndCss.html)
           .append("</span>")
           .append("</div>");
     }
-
     html.append("</div></body></html>");
+
+    StringBuilder htmlHead = new StringBuilder();
+    htmlHead.append("<html><head><style>");
+    for (String cssSelector : cssRuleSets.keySet()) {
+      htmlHead.append(cssSelector).append("{").append(cssRuleSets.get(cssSelector)).append("}");
+    }
+    htmlHead.append("</style></head>");
+    html.insert(0, htmlHead.toString());
 
     webView.loadData(
         Base64.encodeToString(html.toString().getBytes(Charsets.UTF_8), Base64.NO_PADDING),

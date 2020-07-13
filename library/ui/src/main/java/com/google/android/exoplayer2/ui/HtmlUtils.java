@@ -32,4 +32,12 @@ import com.google.android.exoplayer2.util.Util;
         "rgba(%d,%d,%d,%.3f)",
         Color.red(color), Color.green(color), Color.blue(color), Color.alpha(color) / 255.0);
   }
+
+  /**
+   * Returns a CSS selector that selects all elements with {@code class=className} and all their
+   * descendants.
+   */
+  public static String cssAllClassDescendantsSelector(String className) {
+    return "." + className + ",." + className + " *";
+  }
 }
