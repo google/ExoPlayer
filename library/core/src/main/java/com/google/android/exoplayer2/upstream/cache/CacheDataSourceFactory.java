@@ -45,7 +45,6 @@ public final class CacheDataSourceFactory implements DataSource.Factory {
   }
 
   /** @see CacheDataSource#CacheDataSource(Cache, DataSource, int) */
-  @SuppressWarnings("deprecation")
   public CacheDataSourceFactory(
       Cache cache, DataSource.Factory upstreamFactory, @CacheDataSource.Flags int flags) {
     this(

@@ -919,6 +919,7 @@ public final class DownloadHelper {
         return DownloadRequest.TYPE_HLS;
       case C.TYPE_SS:
         return DownloadRequest.TYPE_SS;
+      case C.TYPE_OTHER:
       default:
         return DownloadRequest.TYPE_PROGRESSIVE;
     }

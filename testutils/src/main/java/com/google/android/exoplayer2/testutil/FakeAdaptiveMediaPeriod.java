@@ -184,7 +184,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   }
 
   // We won't assign the array to a variable that erases the generic type, and then write into it.
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings({"unchecked"})
   private static ChunkSampleStream<FakeChunkSource>[] newSampleStreamArray(int length) {
     return new ChunkSampleStream[length];
   }

@@ -266,7 +266,6 @@ public final class SinglePeriodTimeline extends Timeline {
   }
 
   // Provide backwards compatibility.
-  @SuppressWarnings("deprecation")
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     Assertions.checkIndex(windowIndex, 0, 1);

@@ -67,10 +67,6 @@ public class DownloadHelperTest {
 
   private static final Format VIDEO_FORMAT_LOW = createVideoFormat(/* bitrate= */ 200_000);
   private static final Format VIDEO_FORMAT_HIGH = createVideoFormat(/* bitrate= */ 800_000);
-  private static Format audioFormatUs;
-  private static Format audioFormatZh;
-  private static Format textFormatUs;
-  private static Format textFormatZh;
 
   private static final TrackGroup TRACK_GROUP_VIDEO_BOTH =
       new TrackGroup(VIDEO_FORMAT_LOW, VIDEO_FORMAT_HIGH);
@@ -79,35 +75,31 @@ public class DownloadHelperTest {
   private static TrackGroup trackGroupAudioZh;
   private static TrackGroup trackGroupTextUs;
   private static TrackGroup trackGroupTextZh;
-
-  private static TrackGroupArray trackGroupArrayAll;
-  private static TrackGroupArray trackGroupArraySingle;
   private static TrackGroupArray[] trackGroupArrays;
-
   private static MediaItem testMediaItem;
 
   private DownloadHelper downloadHelper;
 
   @BeforeClass
   public static void staticSetUp() {
-    audioFormatUs = createAudioFormat(/* language= */ "US");
-    audioFormatZh = createAudioFormat(/* language= */ "ZH");
-    textFormatUs = createTextFormat(/* language= */ "US");
-    textFormatZh = createTextFormat(/* language= */ "ZH");
+    Format audioFormatUs = createAudioFormat(/* language= */ "US");
+    Format audioFormatZh = createAudioFormat(/* language= */ "ZH");
+    Format textFormatUs = createTextFormat(/* language= */ "US");
+    Format textFormatZh = createTextFormat(/* language= */ "ZH");
 
     trackGroupAudioUs = new TrackGroup(audioFormatUs);
     trackGroupAudioZh = new TrackGroup(audioFormatZh);
     trackGroupTextUs = new TrackGroup(textFormatUs);
     trackGroupTextZh = new TrackGroup(textFormatZh);
 
-    trackGroupArrayAll =
+    TrackGroupArray trackGroupArrayAll =
         new TrackGroupArray(
             TRACK_GROUP_VIDEO_BOTH,
             trackGroupAudioUs,
             trackGroupAudioZh,
             trackGroupTextUs,
             trackGroupTextZh);
-    trackGroupArraySingle =
+    TrackGroupArray trackGroupArraySingle =
         new TrackGroupArray(TRACK_GROUP_VIDEO_SINGLE, trackGroupAudioUs);
     trackGroupArrays =
         new TrackGroupArray[] {trackGroupArrayAll, trackGroupArraySingle};

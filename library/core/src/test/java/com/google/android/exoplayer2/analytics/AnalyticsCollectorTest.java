@@ -1631,7 +1631,6 @@ public final class AnalyticsCollectorTest {
       reportedEvents.add(new ReportedEvent(EVENT_SEEK_PROCESSED, eventTime));
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {
       reportedEvents.add(new ReportedEvent(EVENT_PLAYBACK_SPEED_CHANGED, eventTime));

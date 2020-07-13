@@ -102,7 +102,6 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
    * @param numInputBuffers Number of input buffers.
    * @param numOutputBuffers Number of output buffers.
    */
-  @SuppressWarnings("deprecation")
   public LibvpxVideoRenderer(
       long allowedJoiningTimeMs,
       @Nullable Handler eventHandler,

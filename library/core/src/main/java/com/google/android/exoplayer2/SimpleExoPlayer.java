@@ -497,7 +497,6 @@ public class SimpleExoPlayer extends BasePlayer
   private final CopyOnWriteArraySet<DeviceListener> deviceListeners;
   private final CopyOnWriteArraySet<VideoRendererEventListener> videoDebugListeners;
   private final CopyOnWriteArraySet<AudioRendererEventListener> audioDebugListeners;
-  private final BandwidthMeter bandwidthMeter;
   private final AnalyticsCollector analyticsCollector;
   private final AudioBecomingNoisyManager audioBecomingNoisyManager;
   private final AudioFocusManager audioFocusManager;
@@ -559,7 +558,6 @@ public class SimpleExoPlayer extends BasePlayer
 
   /** @param builder The {@link Builder} to obtain all construction parameters. */
   protected SimpleExoPlayer(Builder builder) {
-    bandwidthMeter = builder.bandwidthMeter;
     analyticsCollector = builder.analyticsCollector;
     priorityTaskManager = builder.priorityTaskManager;
     audioAttributes = builder.audioAttributes;
@@ -594,7 +592,7 @@ public class SimpleExoPlayer extends BasePlayer
             builder.trackSelector,
             builder.mediaSourceFactory,
             builder.loadControl,
-            bandwidthMeter,
+            builder.bandwidthMeter,
             analyticsCollector,
             builder.useLazyPreparation,
             builder.seekParameters,
@@ -1030,7 +1028,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
-  @SuppressWarnings("deprecation")
   @Deprecated
   @RequiresApi(23)
   public void setPlaybackParams(@Nullable PlaybackParams params) {
