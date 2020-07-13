@@ -50,7 +50,6 @@ import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamI
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -82,11 +81,8 @@ public class MediaCodecVideoRendererTest {
   @Before
   public void setUp() throws Exception {
     MediaCodecSelector mediaCodecSelector =
-        new MediaCodecSelector() {
-          @Override
-          public List<MediaCodecInfo> getDecoderInfos(
-              String mimeType, boolean requiresSecureDecoder, boolean requiresTunnelingDecoder) {
-            return Collections.singletonList(
+        (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) ->
+            Collections.singletonList(
                 MediaCodecInfo.newInstance(
                     /* name= */ "name",
                     /* mimeType= */ mimeType,
@@ -97,8 +93,6 @@ public class MediaCodecVideoRendererTest {
                     /* vendor= */ false,
                     /* forceDisableAdaptive= */ false,
                     /* forceSecure= */ false));
-          }
-        };
 
     mediaCodecVideoRenderer =
         new MediaCodecVideoRenderer(

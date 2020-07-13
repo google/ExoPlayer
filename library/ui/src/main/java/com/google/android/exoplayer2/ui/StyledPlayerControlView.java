@@ -558,7 +558,7 @@ public class StyledPlayerControlView extends FrameLayout {
     }
     fullScreenButton = findViewById(R.id.exo_fullscreen);
     if (fullScreenButton != null) {
-      fullScreenButton.setOnClickListener(fullScreenModeChangedListener);
+      fullScreenButton.setOnClickListener(this::onFullScreenButtonClicked);
     }
     settingsButton = findViewById(R.id.exo_settings);
     if (settingsButton != null) {
@@ -648,7 +648,7 @@ public class StyledPlayerControlView extends FrameLayout {
     String normalSpeed = resources.getString(R.string.exo_controls_playback_speed_normal);
     selectedPlaybackSpeedIndex = playbackSpeedTextList.indexOf(normalSpeed);
 
-    playbackSpeedMultBy100List = new ArrayList<Integer>();
+    playbackSpeedMultBy100List = new ArrayList<>();
     int[] speeds = resources.getIntArray(R.array.exo_speed_multiplied_by_100);
     for (int speed : speeds) {
       playbackSpeedMultBy100List.add(speed);
@@ -699,34 +699,7 @@ public class StyledPlayerControlView extends FrameLayout {
     shuffleOffContentDescription =
         resources.getString(R.string.exo_controls_shuffle_off_description);
 
-    addOnLayoutChangeListener(
-        new OnLayoutChangeListener() {
-          @Override
-          public void onLayoutChange(
-              View v,
-              int left,
-              int top,
-              int right,
-              int bottom,
-              int oldLeft,
-              int oldTop,
-              int oldRight,
-              int oldBottom) {
-            int width = right - left;
-            int height = bottom - top;
-            int oldWidth = oldRight - oldLeft;
-            int oldHeight = oldBottom - oldTop;
-
-            if ((width != oldWidth || height != oldHeight) && settingsWindow.isShowing()) {
-              updateSettingsWindowSize();
-
-              int xoff = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
-              int yoff = -settingsWindow.getHeight() - settingsWindowMargin;
-
-              settingsWindow.update(v, xoff, yoff, -1, -1);
-            }
-          }
-        });
+    addOnLayoutChangeListener(this::onLayoutChange);
   }
 
   @SuppressWarnings("ResourceType")
@@ -1545,29 +1518,47 @@ public class StyledPlayerControlView extends FrameLayout {
     return controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
   }
 
-  private final OnClickListener fullScreenModeChangedListener =
-      new OnClickListener() {
+  private void onFullScreenButtonClicked(View v) {
+    if (onFullScreenModeChangedListener == null || fullScreenButton == null) {
+      return;
+    }
 
-        @Override
-        public void onClick(View v) {
-          if (onFullScreenModeChangedListener == null || fullScreenButton == null) {
-            return;
-          }
+    isFullScreen = !isFullScreen;
+    if (isFullScreen) {
+      fullScreenButton.setImageDrawable(fullScreenExitDrawable);
+      fullScreenButton.setContentDescription(fullScreenExitContentDescription);
+    } else {
+      fullScreenButton.setImageDrawable(fullScreenEnterDrawable);
+      fullScreenButton.setContentDescription(fullScreenEnterContentDescription);
+    }
 
-          isFullScreen = !isFullScreen;
-          if (isFullScreen) {
-            fullScreenButton.setImageDrawable(fullScreenExitDrawable);
-            fullScreenButton.setContentDescription(fullScreenExitContentDescription);
-          } else {
-            fullScreenButton.setImageDrawable(fullScreenEnterDrawable);
-            fullScreenButton.setContentDescription(fullScreenEnterContentDescription);
-          }
+    if (onFullScreenModeChangedListener != null) {
+      onFullScreenModeChangedListener.onFullScreenModeChanged(isFullScreen);
+    }
+  }
 
-          if (onFullScreenModeChangedListener != null) {
-            onFullScreenModeChangedListener.onFullScreenModeChanged(isFullScreen);
-          }
-        }
-      };
+  private void onLayoutChange(
+      View v,
+      int left,
+      int top,
+      int right,
+      int bottom,
+      int oldLeft,
+      int oldTop,
+      int oldRight,
+      int oldBottom) {
+    int width = right - left;
+    int height = bottom - top;
+    int oldWidth = oldRight - oldLeft;
+    int oldHeight = oldBottom - oldTop;
+
+    if ((width != oldWidth || height != oldHeight) && settingsWindow.isShowing()) {
+      updateSettingsWindowSize();
+      int xOffset = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
+      int yOffset = -settingsWindow.getHeight() - settingsWindowMargin;
+      settingsWindow.update(v, xOffset, yOffset, -1, -1);
+    }
+  }
 
   @Override
   public void onAttachedToWindow() {
@@ -1868,25 +1859,22 @@ public class StyledPlayerControlView extends FrameLayout {
         iconView = itemView.findViewById(R.id.exo_icon);
 
         itemView.setOnClickListener(
-            new OnClickListener() {
-              @Override
-              public void onClick(View v) {
-                int position = SettingsViewHolder.this.getAdapterPosition();
-                if (position == RecyclerView.NO_POSITION) {
-                  return;
-                }
+            v -> {
+              int position = SettingsViewHolder.this.getAdapterPosition();
+              if (position == RecyclerView.NO_POSITION) {
+                return;
+              }
 
-                if (position == SETTINGS_PLAYBACK_SPEED_POSITION) {
-                  subSettingsAdapter.setTexts(playbackSpeedTextList);
-                  subSettingsAdapter.setCheckPosition(selectedPlaybackSpeedIndex);
-                  selectedMainSettingsPosition = SETTINGS_PLAYBACK_SPEED_POSITION;
-                  displaySettingsWindow(subSettingsAdapter);
-                } else if (position == SETTINGS_AUDIO_TRACK_SELECTION_POSITION) {
-                  selectedMainSettingsPosition = SETTINGS_AUDIO_TRACK_SELECTION_POSITION;
-                  displaySettingsWindow(audioTrackSelectionAdapter);
-                } else {
-                  settingsWindow.dismiss();
-                }
+              if (position == SETTINGS_PLAYBACK_SPEED_POSITION) {
+                subSettingsAdapter.setTexts(playbackSpeedTextList);
+                subSettingsAdapter.setCheckPosition(selectedPlaybackSpeedIndex);
+                selectedMainSettingsPosition = SETTINGS_PLAYBACK_SPEED_POSITION;
+                displaySettingsWindow(subSettingsAdapter);
+              } else if (position == SETTINGS_AUDIO_TRACK_SELECTION_POSITION) {
+                selectedMainSettingsPosition = SETTINGS_AUDIO_TRACK_SELECTION_POSITION;
+                displaySettingsWindow(audioTrackSelectionAdapter);
+              } else {
+                settingsWindow.dismiss();
               }
             });
       }
@@ -1938,22 +1926,19 @@ public class StyledPlayerControlView extends FrameLayout {
         checkView = itemView.findViewById(R.id.exo_check);
 
         itemView.setOnClickListener(
-            new OnClickListener() {
-              @Override
-              public void onClick(View v) {
-                int position = SubSettingsViewHolder.this.getAdapterPosition();
-                if (position == RecyclerView.NO_POSITION) {
-                  return;
-                }
-
-                if (selectedMainSettingsPosition == SETTINGS_PLAYBACK_SPEED_POSITION) {
-                  if (position != selectedPlaybackSpeedIndex) {
-                    float speed = playbackSpeedMultBy100List.get(position) / 100.0f;
-                    setPlaybackSpeed(speed);
-                  }
-                }
-                settingsWindow.dismiss();
+            v -> {
+              int position = SubSettingsViewHolder.this.getAdapterPosition();
+              if (position == RecyclerView.NO_POSITION) {
+                return;
               }
+
+              if (selectedMainSettingsPosition == SETTINGS_PLAYBACK_SPEED_POSITION) {
+                if (position != selectedPlaybackSpeedIndex) {
+                  float speed = playbackSpeedMultBy100List.get(position) / 100.0f;
+                  setPlaybackSpeed(speed);
+                }
+              }
+              settingsWindow.dismiss();
             });
       }
     }
@@ -2012,21 +1997,18 @@ public class StyledPlayerControlView extends FrameLayout {
       }
       holder.checkView.setVisibility(isTrackSelectionOff ? VISIBLE : INVISIBLE);
       holder.itemView.setOnClickListener(
-          new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-              if (trackSelector != null) {
-                ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
-                for (int i = 0; i < rendererIndices.size(); i++) {
-                  int rendererIndex = rendererIndices.get(i);
-                  parametersBuilder =
-                      parametersBuilder
-                          .clearSelectionOverrides(rendererIndex)
-                          .setRendererDisabled(rendererIndex, true);
-                }
-                checkNotNull(trackSelector).setParameters(parametersBuilder);
-                settingsWindow.dismiss();
+          v -> {
+            if (trackSelector != null) {
+              ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
+              for (int i = 0; i < rendererIndices.size(); i++) {
+                int rendererIndex = rendererIndices.get(i);
+                parametersBuilder =
+                    parametersBuilder
+                        .clearSelectionOverrides(rendererIndex)
+                        .setRendererDisabled(rendererIndex, true);
               }
+              checkNotNull(trackSelector).setParameters(parametersBuilder);
+              settingsWindow.dismiss();
             }
           });
     }
@@ -2065,22 +2047,19 @@ public class StyledPlayerControlView extends FrameLayout {
       }
       holder.checkView.setVisibility(hasSelectionOverride ? INVISIBLE : VISIBLE);
       holder.itemView.setOnClickListener(
-          new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-              if (trackSelector != null) {
-                ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
-                for (int i = 0; i < rendererIndices.size(); i++) {
-                  int rendererIndex = rendererIndices.get(i);
-                  parametersBuilder = parametersBuilder.clearSelectionOverrides(rendererIndex);
-                }
-                checkNotNull(trackSelector).setParameters(parametersBuilder);
+          v -> {
+            if (trackSelector != null) {
+              ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
+              for (int i = 0; i < rendererIndices.size(); i++) {
+                int rendererIndex = rendererIndices.get(i);
+                parametersBuilder = parametersBuilder.clearSelectionOverrides(rendererIndex);
               }
-              settingsAdapter.updateSubTexts(
-                  SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
-                  getResources().getString(R.string.exo_track_selection_auto));
-              settingsWindow.dismiss();
+              checkNotNull(trackSelector).setParameters(parametersBuilder);
             }
+            settingsAdapter.updateSubTexts(
+                SETTINGS_AUDIO_TRACK_SELECTION_POSITION,
+                getResources().getString(R.string.exo_track_selection_auto));
+            settingsWindow.dismiss();
           });
     }
 
@@ -2176,32 +2155,29 @@ public class StyledPlayerControlView extends FrameLayout {
         holder.textView.setText(track.trackName);
         holder.checkView.setVisibility(explicitlySelected ? VISIBLE : INVISIBLE);
         holder.itemView.setOnClickListener(
-            new OnClickListener() {
-              @Override
-              public void onClick(View v) {
-                if (mappedTrackInfo != null && trackSelector != null) {
-                  ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
-                  for (int i = 0; i < rendererIndices.size(); i++) {
-                    int rendererIndex = rendererIndices.get(i);
-                    if (rendererIndex == track.rendererIndex) {
-                      parametersBuilder =
-                          parametersBuilder
-                              .setSelectionOverride(
-                                  rendererIndex,
-                                  checkNotNull(mappedTrackInfo).getTrackGroups(rendererIndex),
-                                  new SelectionOverride(track.groupIndex, track.trackIndex))
-                              .setRendererDisabled(rendererIndex, false);
-                    } else {
-                      parametersBuilder =
-                          parametersBuilder
-                              .clearSelectionOverrides(rendererIndex)
-                              .setRendererDisabled(rendererIndex, true);
-                    }
+            v -> {
+              if (mappedTrackInfo != null && trackSelector != null) {
+                ParametersBuilder parametersBuilder = trackSelector.getParameters().buildUpon();
+                for (int i = 0; i < rendererIndices.size(); i++) {
+                  int rendererIndex = rendererIndices.get(i);
+                  if (rendererIndex == track.rendererIndex) {
+                    parametersBuilder =
+                        parametersBuilder
+                            .setSelectionOverride(
+                                rendererIndex,
+                                checkNotNull(mappedTrackInfo).getTrackGroups(rendererIndex),
+                                new SelectionOverride(track.groupIndex, track.trackIndex))
+                            .setRendererDisabled(rendererIndex, false);
+                  } else {
+                    parametersBuilder =
+                        parametersBuilder
+                            .clearSelectionOverrides(rendererIndex)
+                            .setRendererDisabled(rendererIndex, true);
                   }
-                  checkNotNull(trackSelector).setParameters(parametersBuilder);
-                  onTrackSelection(track.trackName);
-                  settingsWindow.dismiss();
                 }
+                checkNotNull(trackSelector).setParameters(parametersBuilder);
+                onTrackSelection(track.trackName);
+                settingsWindow.dismiss();
               }
             });
       }

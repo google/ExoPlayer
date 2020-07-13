@@ -149,19 +149,19 @@ public final class SessionPlayerConnector extends SessionPlayer {
   @Override
   public ListenableFuture<PlayerResult> play() {
     return playerCommandQueue.addCommand(
-        PlayerCommandQueue.COMMAND_CODE_PLAYER_PLAY, /* command= */ () -> player.play());
+        PlayerCommandQueue.COMMAND_CODE_PLAYER_PLAY, /* command= */ player::play);
   }
 
   @Override
   public ListenableFuture<PlayerResult> pause() {
     return playerCommandQueue.addCommand(
-        PlayerCommandQueue.COMMAND_CODE_PLAYER_PAUSE, /* command= */ () -> player.pause());
+        PlayerCommandQueue.COMMAND_CODE_PLAYER_PAUSE, /* command= */ player::pause);
   }
 
   @Override
   public ListenableFuture<PlayerResult> prepare() {
     return playerCommandQueue.addCommand(
-        PlayerCommandQueue.COMMAND_CODE_PLAYER_PREPARE, /* command= */ () -> player.prepare());
+        PlayerCommandQueue.COMMAND_CODE_PLAYER_PREPARE, /* command= */ player::prepare);
   }
 
   @Override

@@ -1913,9 +1913,7 @@ public final class ExoPlayerTest {
             .waitForTimelineChanged()
             .pause()
             .sendMessage(
-                (messageType, payload) -> {
-                  counter.getAndIncrement();
-                },
+                (messageType, payload) -> counter.getAndIncrement(),
                 /* windowIndex= */ 0,
                 /* positionMs= */ 2000,
                 /* deleteAfterDelivery= */ false)

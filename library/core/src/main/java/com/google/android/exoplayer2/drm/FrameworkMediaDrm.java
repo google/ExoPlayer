@@ -156,9 +156,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     mediaDrm.setOnExpirationUpdateListener(
         listener == null
             ? null
-            : (mediaDrm, sessionId, expirationTimeMs) -> {
-              listener.onExpirationUpdate(FrameworkMediaDrm.this, sessionId, expirationTimeMs);
-            },
+            : (mediaDrm, sessionId, expirationTimeMs) ->
+                listener.onExpirationUpdate(FrameworkMediaDrm.this, sessionId, expirationTimeMs),
         /* handler= */ null);
   }
 

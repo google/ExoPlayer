@@ -771,9 +771,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         keepaliveSessions.add(session);
         Assertions.checkNotNull(sessionReleasingHandler)
             .postAtTime(
-                () -> {
-                  session.release(/* eventDispatcher= */ null);
-                },
+                () -> session.release(/* eventDispatcher= */ null),
                 session,
                 /* uptimeMillis= */ SystemClock.uptimeMillis() + sessionKeepaliveMs);
       } else if (newReferenceCount == 0) {

@@ -1146,17 +1146,16 @@ public class SessionPlayerConnectorTest {
     assertPlayerResultSuccess(sessionPlayerConnector.prepare());
     InstrumentationRegistry.getInstrumentation()
         .runOnMainSync(
-            () -> {
-              simpleExoPlayer.addListener(
-                  new Player.EventListener() {
-                    @Override
-                    public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
-                      if (playWhenReady) {
-                        simpleExoPlayer.setPlayWhenReady(false);
+            () ->
+                simpleExoPlayer.addListener(
+                    new Player.EventListener() {
+                      @Override
+                      public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+                        if (playWhenReady) {
+                          simpleExoPlayer.setPlayWhenReady(false);
+                        }
                       }
-                    }
-                  });
-            });
+                    }));
 
     assertPlayerResultSuccess(sessionPlayerConnector.play());
     assertThat(

@@ -711,19 +711,13 @@ public class DownloadManagerTest {
 
   private List<Download> postGetCurrentDownloads() {
     AtomicReference<List<Download>> currentDownloadsReference = new AtomicReference<>();
-    runOnMainThread(
-        () -> {
-          currentDownloadsReference.set(downloadManager.getCurrentDownloads());
-        });
+    runOnMainThread(() -> currentDownloadsReference.set(downloadManager.getCurrentDownloads()));
     return currentDownloadsReference.get();
   }
 
   private DownloadIndex postGetDownloadIndex() {
     AtomicReference<DownloadIndex> downloadIndexReference = new AtomicReference<>();
-    runOnMainThread(
-        () -> {
-          downloadIndexReference.set(downloadManager.getDownloadIndex());
-        });
+    runOnMainThread(() -> downloadIndexReference.set(downloadManager.getDownloadIndex()));
     return downloadIndexReference.get();
   }
 
