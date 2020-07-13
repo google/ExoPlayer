@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.ffmpeg;
 
+import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
+import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
+import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_UNSUPPORTED;
+
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -22,6 +26,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
+import com.google.android.exoplayer2.audio.AudioSink.SinkFormatSupport;
 import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -40,8 +45,6 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
   private static final int NUM_BUFFERS = 16;
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
-
-  private final boolean enableFloatOutput;
 
   private @MonotonicNonNull FfmpegAudioDecoder decoder;
 
@@ -64,8 +67,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
     this(
         eventHandler,
         eventListener,
-        new DefaultAudioSink(/* audioCapabilities= */ null, audioProcessors),
-        /* enableFloatOutput= */ false);
+        new DefaultAudioSink(/* audioCapabilities= */ null, audioProcessors));
   }
 
   /**
@@ -75,21 +77,15 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
    *     null if delivery of events is not required.
    * @param eventListener A listener of events. May be null if delivery of events is not required.
    * @param audioSink The sink to which audio will be output.
-   * @param enableFloatOutput Whether to enable 32-bit float audio format, if supported on the
-   *     device/build and if the input format may have bit depth higher than 16-bit. When using
-   *     32-bit float output, any audio processing will be disabled, including playback speed/pitch
-   *     adjustment.
    */
   public FfmpegAudioRenderer(
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
-      AudioSink audioSink,
-      boolean enableFloatOutput) {
+      AudioSink audioSink) {
     super(
         eventHandler,
         eventListener,
         audioSink);
-    this.enableFloatOutput = enableFloatOutput;
   }
 
   @Override
@@ -103,7 +99,9 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
     String mimeType = Assertions.checkNotNull(format.sampleMimeType);
     if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(mimeType)) {
       return FORMAT_UNSUPPORTED_TYPE;
-    } else if (!FfmpegLibrary.supportsFormat(mimeType) || !isOutputSupported(format)) {
+    } else if (!FfmpegLibrary.supportsFormat(mimeType)
+        || (!sinkSupportsFormat(format, C.ENCODING_PCM_16BIT)
+            && !sinkSupportsFormat(format, C.ENCODING_PCM_FLOAT))) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
       return FORMAT_UNSUPPORTED_DRM;
@@ -126,7 +124,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     decoder =
         new FfmpegAudioDecoder(
-            format, NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, shouldUseFloatOutput(format));
+            format, NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, shouldOutputFloat(format));
     TraceUtil.endSection();
     return decoder;
   }
@@ -142,31 +140,6 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
         .build();
   }
 
-  private boolean isOutputSupported(Format inputFormat) {
-    return shouldUseFloatOutput(inputFormat)
-        || sinkSupportsFormat(inputFormat, C.ENCODING_PCM_16BIT);
-  }
-
-  private boolean shouldUseFloatOutput(Format inputFormat) {
-    Assertions.checkNotNull(inputFormat.sampleMimeType);
-    if (!enableFloatOutput || !sinkSupportsFormat(inputFormat, C.ENCODING_PCM_FLOAT)) {
-      return false;
-    }
-    switch (inputFormat.sampleMimeType) {
-      case MimeTypes.AUDIO_RAW:
-        // For raw audio, output in 32-bit float encoding if the bit depth is > 16-bit.
-        return inputFormat.encoding == C.ENCODING_PCM_24BIT
-            || inputFormat.encoding == C.ENCODING_PCM_32BIT
-            || inputFormat.encoding == C.ENCODING_PCM_FLOAT;
-      case MimeTypes.AUDIO_AC3:
-        // AC-3 is always 16-bit, so there is no point outputting in 32-bit float encoding.
-        return false;
-      default:
-        // For all other formats, assume that it's worth using 32-bit float encoding.
-        return true;
-    }
-  }
-
   /**
    * Returns whether the renderer's {@link AudioSink} supports the PCM format that will be output
    * from the decoder for the given input format and requested output encoding.
@@ -174,5 +147,29 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
   private boolean sinkSupportsFormat(Format inputFormat, @C.PcmEncoding int pcmEncoding) {
     return sinkSupportsFormat(
         Util.getPcmFormat(pcmEncoding, inputFormat.channelCount, inputFormat.sampleRate));
+  }
+
+  private boolean shouldOutputFloat(Format inputFormat) {
+    if (!sinkSupportsFormat(inputFormat, C.ENCODING_PCM_16BIT)) {
+      // We have no choice because the sink doesn't support 16-bit integer PCM.
+      return true;
+    }
+
+    @SinkFormatSupport
+    int formatSupport =
+        getSinkFormatSupport(
+            Util.getPcmFormat(
+                C.ENCODING_PCM_FLOAT, inputFormat.channelCount, inputFormat.sampleRate));
+    switch (formatSupport) {
+      case SINK_FORMAT_SUPPORTED_DIRECTLY:
+        // AC-3 is always 16-bit, so there's no point using floating point. Assume that it's worth
+        // using for all other formats.
+        return !MimeTypes.AUDIO_AC3.equals(inputFormat.sampleMimeType);
+      case SINK_FORMAT_UNSUPPORTED:
+      case SINK_FORMAT_SUPPORTED_WITH_TRANSCODING:
+      default:
+        // Always prefer 16-bit PCM if the sink does not provide direct support for floating point.
+        return false;
+    }
   }
 }

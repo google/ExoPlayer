@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.audio.AudioSink.SinkFormatSupport;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
@@ -217,6 +218,17 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
    */
   protected final boolean sinkSupportsFormat(Format format) {
     return audioSink.supportsFormat(format);
+  }
+
+  /**
+   * Returns the level of support that the renderer's {@link AudioSink} provides for a given {@link
+   * Format}.
+   *
+   * @see AudioSink#getFormatSupport(Format) (Format)
+   */
+  @SinkFormatSupport
+  protected final int getSinkFormatSupport(Format format) {
+    return audioSink.getFormatSupport(format);
   }
 
   @Override

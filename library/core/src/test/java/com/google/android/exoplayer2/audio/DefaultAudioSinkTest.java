@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
+import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
 import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.annotation.Config.OLDEST_SDK;
 import static org.robolectric.annotation.Config.TARGET_SDK;
@@ -204,16 +206,46 @@ public final class DefaultAudioSinkTest {
         .isEqualTo(8 * C.MICROS_PER_SECOND);
   }
 
+  @Test
+  public void floatPcmNeedsTranscodingIfFloatOutputDisabled() {
+    defaultAudioSink =
+        new DefaultAudioSink(
+            AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES,
+            new AudioProcessor[0],
+            /* enableFloatOutput= */ false);
+    Format floatFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build();
+    assertThat(defaultAudioSink.getFormatSupport(floatFormat))
+        .isEqualTo(SINK_FORMAT_SUPPORTED_WITH_TRANSCODING);
+  }
+
   @Config(minSdk = OLDEST_SDK, maxSdk = 20)
   @Test
-  public void doesNotSupportFloatPcmBeforeApi21() {
+  public void floatPcmNeedsTranscodingIfFloatOutputEnabledBeforeApi21() {
+    defaultAudioSink =
+        new DefaultAudioSink(
+            AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES,
+            new AudioProcessor[0],
+            /* enableFloatOutput= */ true);
     Format floatFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build();
-    assertThat(defaultAudioSink.supportsFormat(floatFormat)).isFalse();
+    assertThat(defaultAudioSink.getFormatSupport(floatFormat))
+        .isEqualTo(SINK_FORMAT_SUPPORTED_WITH_TRANSCODING);
   }
 
   @Config(minSdk = 21, maxSdk = TARGET_SDK)
   @Test
-  public void supportsFloatPcmFromApi21() {
+  public void floatOutputSupportedIfFloatOutputEnabledFromApi21() {
+    defaultAudioSink =
+        new DefaultAudioSink(
+            AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES,
+            new AudioProcessor[0],
+            /* enableFloatOutput= */ true);
+    Format floatFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build();
+    assertThat(defaultAudioSink.getFormatSupport(floatFormat))
+        .isEqualTo(SINK_FORMAT_SUPPORTED_DIRECTLY);
+  }
+
+  @Test
+  public void supportsFloatPcm() {
     Format floatFormat = STEREO_44_1_FORMAT.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build();
     assertThat(defaultAudioSink.supportsFormat(floatFormat)).isTrue();
   }

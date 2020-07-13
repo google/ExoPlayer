@@ -40,6 +40,12 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
+  @SinkFormatSupport
+  public int getFormatSupport(Format format) {
+    return sink.getFormatSupport(format);
+  }
+
+  @Override
   public long getCurrentPositionUs(boolean sourceEnded) {
     return sink.getCurrentPositionUs(sourceEnded);
   }

@@ -380,7 +380,7 @@ public final class DefaultAudioSink implements AudioSink {
       boolean enableOffload) {
     this.audioCapabilities = audioCapabilities;
     this.audioProcessorChain = Assertions.checkNotNull(audioProcessorChain);
-    this.enableFloatOutput = enableFloatOutput;
+    this.enableFloatOutput = Util.SDK_INT >= 21 && enableFloatOutput;
     this.enableOffload = Util.SDK_INT >= 29 && enableOffload;
     releasingConditionVariable = new ConditionVariable(true);
     audioTrackPositionTracker = new AudioTrackPositionTracker(new PositionTrackerListener());
@@ -420,15 +420,23 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public boolean supportsFormat(Format format) {
+    return getFormatSupport(format) != SINK_FORMAT_UNSUPPORTED;
+  }
+
+  @Override
+  @SinkFormatSupport
+  public int getFormatSupport(Format format) {
     if (format.encoding == C.ENCODING_INVALID) {
-      return false;
+      return SINK_FORMAT_UNSUPPORTED;
     }
     if (Util.isEncodingLinearPcm(format.encoding)) {
-      // AudioTrack supports 16-bit integer PCM output in all platform API versions, and float
-      // output from platform API version 21 only. Other integer PCM encodings are resampled by this
-      // sink to 16-bit PCM. We assume that the audio framework will downsample any number of
-      // channels to the output device's required number of channels.
-      return format.encoding != C.ENCODING_PCM_FLOAT || Util.SDK_INT >= 21;
+      if (format.encoding == C.ENCODING_PCM_16BIT
+          || (enableFloatOutput && format.encoding == C.ENCODING_PCM_FLOAT)) {
+        return SINK_FORMAT_SUPPORTED_DIRECTLY;
+      }
+      // We can resample all linear PCM encodings to 16-bit integer PCM, which AudioTrack is
+      // guaranteed to support.
+      return SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
     }
     if (enableOffload
         && isOffloadedPlaybackSupported(
@@ -438,9 +446,12 @@ public final class DefaultAudioSink implements AudioSink {
             audioAttributes,
             format.encoderDelay,
             format.encoderPadding)) {
-      return true;
+      return SINK_FORMAT_SUPPORTED_DIRECTLY;
     }
-    return isPassthroughPlaybackSupported(format);
+    if (isPassthroughPlaybackSupported(format)) {
+      return SINK_FORMAT_SUPPORTED_DIRECTLY;
+    }
+    return SINK_FORMAT_UNSUPPORTED;
   }
 
   @Override
@@ -471,9 +482,7 @@ public final class DefaultAudioSink implements AudioSink {
     int channelCount = inputFormat.channelCount;
     @C.Encoding int encoding = inputFormat.encoding;
     boolean useFloatOutput =
-        enableFloatOutput
-            && Util.isEncodingHighResolutionPcm(inputFormat.encoding)
-            && supportsFormat(inputFormat.buildUpon().setEncoding(C.ENCODING_PCM_FLOAT).build());
+        enableFloatOutput && Util.isEncodingHighResolutionPcm(inputFormat.encoding);
     AudioProcessor[] availableAudioProcessors =
         useFloatOutput ? toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
     if (processingEnabled) {
