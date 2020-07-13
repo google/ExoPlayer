@@ -33,13 +33,13 @@
    <Role schemeIdUri="urn:mpeg:DASH:role:2011" value="main"/>
    <Representation id="140" codecs="mp4a.40.2" audioSamplingRate="48000" startWithSAP="1" bandwidth="144000">
     <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
-    <BaseURL>http://www.dummy.url/</BaseURL>
+    <BaseURL>http://www.test.url/</BaseURL>
    </Representation>
   </AdaptationSet>
   <AdaptationSet id="1" mimeType="video/mp4" subsegmentAlignment="true">
    <Role schemeIdUri="urn:mpeg:DASH:role:2011" value="main"/>
    <Representation id="133" codecs="avc1.4d4015" width="426" height="240" startWithSAP="1" maxPlayoutRate="1" bandwidth="258000" frameRate="30">
-    <BaseURL>http://www.dummy.url/</BaseURL>
+    <BaseURL>http://www.test.url/</BaseURL>
    </Representation>
   </AdaptationSet>
  </Period>

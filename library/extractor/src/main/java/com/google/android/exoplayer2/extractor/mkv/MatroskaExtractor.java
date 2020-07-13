@@ -246,8 +246,8 @@ public class MatroskaExtractor implements Extractor {
    * <p>The display time of each subtitle is passed as {@code timeUs} to {@link
    * TrackOutput#sampleMetadata}. The start and end timecodes in this template are relative to
    * {@code timeUs}. Hence the start timecode is always zero. The 12 byte end timecode starting at
-   * {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be replaced with
-   * the duration of the subtitle.
+   * {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a placeholder value, and must be replaced
+   * with the duration of the subtitle.
    *
    * <p>Equivalent to the UTF-8 string: "1\n00:00:00,000 --> 00:00:00,000\n".
    */
@@ -281,8 +281,8 @@ public class MatroskaExtractor implements Extractor {
    * <p>The display time of each subtitle is passed as {@code timeUs} to {@link
    * TrackOutput#sampleMetadata}. The start and end timecodes in this template are relative to
    * {@code timeUs}. Hence the start timecode is always zero. The 12 byte end timecode starting at
-   * {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a dummy value, and must be replaced with
-   * the duration of the subtitle.
+   * {@link #SUBRIP_PREFIX_END_TIMECODE_OFFSET} is set to a placeholder value, and must be replaced
+   * with the duration of the subtitle.
    *
    * <p>Equivalent to the UTF-8 string: "Dialogue: 0:00:00:00,0:00:00:00,".
    */

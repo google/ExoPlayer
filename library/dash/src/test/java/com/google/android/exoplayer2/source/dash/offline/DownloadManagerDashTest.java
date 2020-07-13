@@ -72,12 +72,12 @@ public class DownloadManagerDashTest {
   private StreamKey fakeStreamKey2;
   private TestDownloadManagerListener downloadManagerListener;
   private DefaultDownloadIndex downloadIndex;
-  private DummyMainThread dummyMainThread;
+  private DummyMainThread testThread;
 
   @Before
   public void setUp() throws Exception {
     ShadowLog.stream = System.out;
-    dummyMainThread = new DummyMainThread();
+    testThread = new DummyMainThread();
     Context context = ApplicationProvider.getApplicationContext();
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
     File cacheFolder = new File(tempFolder, "cache");
@@ -105,7 +105,7 @@ public class DownloadManagerDashTest {
   public void tearDown() {
     runOnMainThread(() -> downloadManager.release());
     Util.recursiveDelete(tempFolder);
-    dummyMainThread.release();
+    testThread.release();
   }
 
   // Disabled due to flakiness.
@@ -144,7 +144,7 @@ public class DownloadManagerDashTest {
     // Revert fakeDataSet to normal.
     fakeDataSet.setData(TEST_MPD_URI, TEST_MPD);
 
-    dummyMainThread.runOnMainThread(this::createDownloadManager);
+    testThread.runOnMainThread(this::createDownloadManager);
 
     // Block on the test thread.
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();
@@ -252,6 +252,6 @@ public class DownloadManagerDashTest {
   }
 
   private void runOnMainThread(TestRunnable r) {
-    dummyMainThread.runTestOnMainThread(r);
+    testThread.runTestOnMainThread(r);
   }
 }

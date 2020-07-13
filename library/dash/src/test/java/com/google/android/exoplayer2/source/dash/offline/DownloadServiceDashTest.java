@@ -72,11 +72,11 @@ public class DownloadServiceDashTest {
   private DownloadService dashDownloadService;
   private ConditionVariable pauseDownloadCondition;
   private TestDownloadManagerListener downloadManagerListener;
-  private DummyMainThread dummyMainThread;
+  private DummyMainThread testThread;
 
   @Before
   public void setUp() throws IOException {
-    dummyMainThread = new DummyMainThread();
+    testThread = new DummyMainThread();
     context = ApplicationProvider.getApplicationContext();
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
     cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
@@ -109,7 +109,7 @@ public class DownloadServiceDashTest {
     fakeStreamKey1 = new StreamKey(0, 0, 0);
     fakeStreamKey2 = new StreamKey(0, 1, 0);
 
-    dummyMainThread.runTestOnMainThread(
+    testThread.runTestOnMainThread(
         () -> {
           DefaultDownloadIndex downloadIndex =
               new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
@@ -148,9 +148,9 @@ public class DownloadServiceDashTest {
 
   @After
   public void tearDown() {
-    dummyMainThread.runOnMainThread(() -> dashDownloadService.onDestroy());
+    testThread.runOnMainThread(() -> dashDownloadService.onDestroy());
     Util.recursiveDelete(tempFolder);
-    dummyMainThread.release();
+    testThread.release();
   }
 
   @Ignore // b/78877092
@@ -192,7 +192,7 @@ public class DownloadServiceDashTest {
   }
 
   private void removeAll() {
-    dummyMainThread.runOnMainThread(
+    testThread.runOnMainThread(
         () -> {
           Intent startIntent =
               DownloadService.buildRemoveDownloadIntent(
@@ -212,7 +212,7 @@ public class DownloadServiceDashTest {
             keysList,
             /* customCacheKey= */ null,
             null);
-    dummyMainThread.runOnMainThread(
+    testThread.runOnMainThread(
         () -> {
           Intent startIntent =
               DownloadService.buildAddDownloadIntent(

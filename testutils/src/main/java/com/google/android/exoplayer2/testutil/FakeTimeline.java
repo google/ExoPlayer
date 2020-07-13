@@ -52,8 +52,7 @@ public final class FakeTimeline extends Timeline {
     public final AdPlaybackState adPlaybackState;
 
     /**
-     * Creates a window definition that corresponds to a dummy placeholder timeline using the given
-     * tag.
+     * Creates a window definition that corresponds to a placeholder timeline using the given tag.
      *
      * @param tag The tag to use in the timeline.
      */

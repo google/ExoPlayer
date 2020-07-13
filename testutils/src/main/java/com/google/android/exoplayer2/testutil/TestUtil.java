@@ -198,17 +198,17 @@ public class TestUtil {
     return ImmutableList.copyOf(Bytes.asList(createByteArray(bytes)));
   }
 
-  /** Writes one byte long dummy test data to the file and returns it. */
+  /** Writes one byte long test data to the file and returns it. */
   public static File createTestFile(File directory, String name) throws IOException {
     return createTestFile(directory, name, /* length= */ 1);
   }
 
-  /** Writes dummy test data with the specified length to the file and returns it. */
+  /** Writes test data with the specified length to the file and returns it. */
   public static File createTestFile(File directory, String name, long length) throws IOException {
     return createTestFile(new File(directory, name), length);
   }
 
-  /** Writes dummy test data with the specified length to the file and returns it. */
+  /** Writes test data with the specified length to the file and returns it. */
   public static File createTestFile(File file, long length) throws IOException {
     FileOutputStream output = new FileOutputStream(file);
     for (long i = 0; i < length; i++) {

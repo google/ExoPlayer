@@ -23,9 +23,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
 
-/**
- * A dummy {@link TrackOutput} implementation.
- */
+/** A fake {@link TrackOutput} implementation. */
 public final class DummyTrackOutput implements TrackOutput {
 
   // Even though read data is discarded, data source implementations could be making use of the

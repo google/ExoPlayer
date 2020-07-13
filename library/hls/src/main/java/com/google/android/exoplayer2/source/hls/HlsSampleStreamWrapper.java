@@ -941,7 +941,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     if (trackOutput == null) {
       if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
+        return createFakeTrackOutput(id, type);
       } else {
         // The relevant SampleQueue hasn't been constructed yet - so construct it.
         trackOutput = createSampleQueue(id, type);
@@ -985,7 +985,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     return sampleQueueTrackIds[sampleQueueIndex] == id
         ? sampleQueues[sampleQueueIndex]
-        : createDummyTrackOutput(id, type);
+        : createFakeTrackOutput(id, type);
   }
 
   private SampleQueue createSampleQueue(int id, int type) {
@@ -1459,7 +1459,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return true;
   }
 
-  private static DummyTrackOutput createDummyTrackOutput(int id, int type) {
+  private static DummyTrackOutput createFakeTrackOutput(int id, int type) {
     Log.w(TAG, "Unmapped track with id " + id + " of type " + type);
     return new DummyTrackOutput();
   }

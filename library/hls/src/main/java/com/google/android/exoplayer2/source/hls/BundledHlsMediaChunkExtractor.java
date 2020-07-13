@@ -37,7 +37,7 @@ import java.io.IOException;
  */
 public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtractor {
 
-  private static final PositionHolder DUMMY_POSITION_HOLDER = new PositionHolder();
+  private static final PositionHolder POSITION_HOLDER = new PositionHolder();
 
   @VisibleForTesting /* package */ final Extractor extractor;
   private final Format masterPlaylistFormat;
@@ -64,7 +64,7 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
 
   @Override
   public boolean read(ExtractorInput extractorInput) throws IOException {
-    return extractor.read(extractorInput, DUMMY_POSITION_HOLDER) == Extractor.RESULT_CONTINUE;
+    return extractor.read(extractorInput, POSITION_HOLDER) == Extractor.RESULT_CONTINUE;
   }
 
   @Override
