@@ -421,6 +421,7 @@ import java.util.List;
     listener.onShuffleModeChanged(Utils.getShuffleMode(shuffleModeEnabled));
   }
 
+  @SuppressWarnings("deprecation")
   private void handlePlaybackParametersChanged(PlaybackParameters playbackParameters) {
     listener.onPlaybackSpeedChanged(playbackParameters.speed);
   }

@@ -229,6 +229,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   }
 
   /** @deprecated Use {@link Factory} instead. */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public SingleSampleMediaSource(
       Uri uri,

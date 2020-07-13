@@ -302,6 +302,7 @@ public interface AudioSink {
    * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
    *     instead.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   void setPlaybackParameters(PlaybackParameters playbackParameters);
 

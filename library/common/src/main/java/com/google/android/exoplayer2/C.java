@@ -564,6 +564,7 @@ public final class C {
   // )
 
   /** @deprecated Use {@code Renderer.VideoScalingMode}. */
+  @SuppressWarnings("deprecation")
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})

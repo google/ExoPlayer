@@ -86,6 +86,7 @@ public final class DefaultAudioSink implements AudioSink {
      * @deprecated Use {@link #applyPlaybackSpeed(float)} and {@link
      *     #applySkipSilenceEnabled(boolean)} instead.
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     PlaybackParameters applyPlaybackParameters(PlaybackParameters playbackParameters);
 

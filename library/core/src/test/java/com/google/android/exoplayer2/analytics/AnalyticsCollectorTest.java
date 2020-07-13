@@ -1603,6 +1603,7 @@ public final class AnalyticsCollectorTest {
       assertThat(reportedEvents).isEmpty();
     }
 
+    @SuppressWarnings("deprecation") // Testing deprecated behaviour.
     @Override
     public void onPlayerStateChanged(
         EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {
@@ -1626,6 +1627,7 @@ public final class AnalyticsCollectorTest {
       reportedEvents.add(new ReportedEvent(EVENT_SEEK_STARTED, eventTime));
     }
 
+    @SuppressWarnings("deprecation") // Testing deprecated behaviour.
     @Override
     public void onSeekProcessed(EventTime eventTime) {
       reportedEvents.add(new ReportedEvent(EVENT_SEEK_PROCESSED, eventTime));

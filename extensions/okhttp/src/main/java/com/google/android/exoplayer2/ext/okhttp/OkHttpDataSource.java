@@ -119,6 +119,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
    * @deprecated Use {@link #OkHttpDataSource(Call.Factory, String)} and {@link
    *     #setContentTypePredicate(Predicate)}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public OkHttpDataSource(
       Call.Factory callFactory,

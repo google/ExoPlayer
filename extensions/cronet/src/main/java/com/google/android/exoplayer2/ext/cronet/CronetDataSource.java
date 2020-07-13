@@ -243,6 +243,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor)} and {@link
    *     #setContentTypePredicate(Predicate)}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public CronetDataSource(
       CronetEngine cronetEngine,
@@ -276,6 +277,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor, int, int, boolean,
    *     RequestProperties)} and {@link #setContentTypePredicate(Predicate)}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public CronetDataSource(
       CronetEngine cronetEngine,

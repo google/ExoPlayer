@@ -971,6 +971,8 @@ public class PlayerNotificationManager {
     }
   }
 
+  // We're calling a deprecated listener method that we still want to notify.
+  @SuppressWarnings("deprecation")
   private void startOrUpdateNotification(Player player, @Nullable Bitmap bitmap) {
     boolean ongoing = getOngoing(player);
     builder = createNotification(player, builder, ongoing, bitmap);
@@ -993,6 +995,8 @@ public class PlayerNotificationManager {
     }
   }
 
+  // We're calling a deprecated listener method that we still want to notify.
+  @SuppressWarnings("deprecation")
   private void stopNotification(boolean dismissedByUser) {
     if (isNotificationStarted) {
       isNotificationStarted = false;

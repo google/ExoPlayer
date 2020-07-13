@@ -1213,6 +1213,8 @@ public final class Format implements Parcelable {
     return new Builder().setId(id).setSampleMimeType(sampleMimeType).build();
   }
 
+  // Some fields are deprecated but they're still assigned below.
+  @SuppressWarnings("deprecation")
   /* package */ Format(
       @Nullable String id,
       @Nullable String label,
@@ -1298,7 +1300,8 @@ public final class Format implements Parcelable {
     this.exoMediaCryptoType = exoMediaCryptoType;
   }
 
-  @SuppressWarnings("ResourceType")
+  // Some fields are deprecated but they're still assigned below.
+  @SuppressWarnings({"ResourceType", "deprecation"})
   /* package */ Format(Parcel in) {
     id = in.readString();
     label = in.readString();

@@ -134,6 +134,7 @@ public final class SimpleCache implements Cache {
    * @deprecated Use a constructor that takes a {@link DatabaseProvider} for improved performance.
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   public SimpleCache(File cacheDir, CacheEvictor evictor) {
     this(cacheDir, evictor, null, false);
   }
