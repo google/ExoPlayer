@@ -595,11 +595,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     SampleQueue sampleQueue = sampleQueues[sampleQueueIndex];
-    if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
-      return sampleQueue.advanceToEnd();
-    } else {
-      return sampleQueue.advanceTo(positionUs);
-    }
+    int skipCount = sampleQueue.getSkipCount(positionUs, loadingFinished);
+    sampleQueue.skip(skipCount);
+    return skipCount;
   }
 
   // SequenceableLoader implementation

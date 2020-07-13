@@ -499,12 +499,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     maybeNotifyDownstreamFormat(track);
     SampleQueue sampleQueue = sampleQueues[track];
-    int skipCount;
-    if (loadingFinished && positionUs > sampleQueue.getLargestQueuedTimestampUs()) {
-      skipCount = sampleQueue.advanceToEnd();
-    } else {
-      skipCount = sampleQueue.advanceTo(positionUs);
-    }
+    int skipCount = sampleQueue.getSkipCount(positionUs, loadingFinished);
+    sampleQueue.skip(skipCount);
     if (skipCount == 0) {
       maybeStartDeferredRetry(track);
     }

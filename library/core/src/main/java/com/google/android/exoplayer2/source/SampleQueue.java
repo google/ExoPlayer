@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import android.os.Looper;
 import android.util.Log;
 import androidx.annotation.CallSuper;
@@ -402,34 +404,39 @@ public class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Advances the read position to the keyframe before or at the specified time.
+   * Returns the number of samples that need to be {@link #skip(int) skipped} to advance the read
+   * position to the keyframe before or at the specified time.
    *
    * @param timeUs The time to advance to.
-   * @return The number of samples that were skipped, which may be equal to 0.
+   * @param allowEndOfQueue Whether the end of the queue is considered a keyframe when {@code
+   *     timeUs} is larger than the largest queued timestamp.
+   * @return The number of samples that need to be skipped, which may be equal to 0.
    */
-  public final synchronized int advanceTo(long timeUs) {
+  public final synchronized int getSkipCount(long timeUs, boolean allowEndOfQueue) {
     int relativeReadIndex = getRelativeIndex(readPosition);
     if (!hasNextSample() || timeUs < timesUs[relativeReadIndex]) {
       return 0;
+    }
+    if (timeUs > largestQueuedTimestampUs && allowEndOfQueue) {
+      return length - readPosition;
     }
     int offset =
         findSampleBefore(relativeReadIndex, length - readPosition, timeUs, /* keyframe= */ true);
     if (offset == -1) {
       return 0;
     }
-    readPosition += offset;
     return offset;
   }
 
   /**
-   * Advances the read position to the end of the queue.
+   * Advances the read position by the specified number of samples.
    *
-   * @return The number of samples that were skipped.
+   * @param count The number of samples to advance the read position by. Must be at least 0 and at
+   *     most {@link #getWriteIndex()} - {@link #getReadIndex()}.
    */
-  public final synchronized int advanceToEnd() {
-    int skipCount = length - readPosition;
-    readPosition = length;
-    return skipCount;
+  public final synchronized void skip(int count) {
+    checkArgument(count >= 0 && readPosition + count <= length);
+    readPosition += count;
   }
 
   /**
@@ -788,7 +795,7 @@ public class SampleQueue implements TrackOutput {
 
   private long discardUpstreamSampleMetadata(int discardFromIndex) {
     int discardCount = getWriteIndex() - discardFromIndex;
-    Assertions.checkArgument(0 <= discardCount && discardCount <= (length - readPosition));
+    checkArgument(0 <= discardCount && discardCount <= (length - readPosition));
     length -= discardCount;
     largestQueuedTimestampUs = Math.max(largestDiscardedTimestampUs, getLargestTimestamp(length));
     isLastSampleQueued = discardCount == 0 && isLastSampleQueued;

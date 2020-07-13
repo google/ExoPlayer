@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.C.RESULT_BUFFER_READ;
 import static com.google.android.exoplayer2.C.RESULT_FORMAT_READ;
 import static com.google.android.exoplayer2.C.RESULT_NOTHING_READ;
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Long.MAX_VALUE;
 import static java.lang.Long.MIN_VALUE;
 import static java.util.Arrays.copyOfRange;
 import static org.junit.Assert.assertArrayEquals;
@@ -590,9 +591,10 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void advanceToEnd() {
+  public void skipToEnd() {
     writeTestData();
-    sampleQueue.advanceToEnd();
+    sampleQueue.skip(
+        sampleQueue.getSkipCount(/* timeUs= */ MAX_VALUE, /* allowEndOfQueue= */ true));
     assertAllocationCount(10);
     sampleQueue.discardToRead();
     assertAllocationCount(0);
@@ -604,10 +606,11 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void advanceToEndRetainsUnassignedData() {
+  public void skipToEndRetainsUnassignedData() {
     sampleQueue.format(FORMAT_1);
     sampleQueue.sampleData(new ParsableByteArray(DATA), ALLOCATION_SIZE);
-    sampleQueue.advanceToEnd();
+    sampleQueue.skip(
+        sampleQueue.getSkipCount(/* timeUs= */ MAX_VALUE, /* allowEndOfQueue= */ true));
     assertAllocationCount(1);
     sampleQueue.discardToRead();
     // Skipping shouldn't discard data that may belong to a sample whose metadata has yet to be
@@ -635,41 +638,47 @@ public final class SampleQueueTest {
   }
 
   @Test
-  public void advanceToBeforeBuffer() {
+  public void skipToBeforeBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0] - 1);
+    int skipCount =
+        sampleQueue.getSkipCount(SAMPLE_TIMESTAMPS[0] - 1, /* allowEndOfQueue= */ false);
     // Should have no effect (we're already at the first frame).
     assertThat(skipCount).isEqualTo(0);
+    sampleQueue.skip(skipCount);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
-  public void advanceToStartOfBuffer() {
+  public void skipToStartOfBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(SAMPLE_TIMESTAMPS[0]);
+    int skipCount = sampleQueue.getSkipCount(SAMPLE_TIMESTAMPS[0], /* allowEndOfQueue= */ false);
     // Should have no effect (we're already at the first frame).
     assertThat(skipCount).isEqualTo(0);
+    sampleQueue.skip(skipCount);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
-  public void advanceToEndOfBuffer() {
+  public void skipToEndOfBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP);
+    int skipCount = sampleQueue.getSkipCount(LAST_SAMPLE_TIMESTAMP, /* allowEndOfQueue= */ false);
     // Should advance to 2nd keyframe (the 4th frame).
     assertThat(skipCount).isEqualTo(4);
+    sampleQueue.skip(skipCount);
     assertReadTestData(/* startFormat= */ null, DATA_SECOND_KEYFRAME_INDEX);
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
-  public void advanceToAfterBuffer() {
+  public void skipToAfterBuffer() {
     writeTestData();
-    int skipCount = sampleQueue.advanceTo(LAST_SAMPLE_TIMESTAMP + 1);
+    int skipCount =
+        sampleQueue.getSkipCount(LAST_SAMPLE_TIMESTAMP + 1, /* allowEndOfQueue= */ false);
     // Should advance to 2nd keyframe (the 4th frame).
     assertThat(skipCount).isEqualTo(4);
+    sampleQueue.skip(skipCount);
     assertReadTestData(/* startFormat= */ null, DATA_SECOND_KEYFRAME_INDEX);
     assertNoSamplesToRead(FORMAT_2);
   }
