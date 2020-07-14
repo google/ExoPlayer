@@ -97,7 +97,7 @@ public final class SinglePeriodTimelineTest {
             /* isDynamic= */ false,
             /* isLive= */ false,
             /* manifest= */ null,
-            /* tag= */ (Object) null);
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(null).build());
 
     assertThat(timeline.getWindow(/* windowIndex= */ 0, window).tag).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).id).isNull();
@@ -117,7 +117,7 @@ public final class SinglePeriodTimelineTest {
             /* isDynamic= */ false,
             /* isLive= */ false,
             /* manifest= */ null,
-            tag);
+            new MediaItem.Builder().setUri(Uri.EMPTY).setTag(tag).build());
 
     assertThat(timeline.getWindow(/* windowIndex= */ 0, window).tag).isEqualTo(tag);
   }
