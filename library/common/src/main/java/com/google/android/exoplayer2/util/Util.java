@@ -585,7 +585,7 @@ public final class Util {
       mainLanguage = replacedLanguage;
     }
     if ("no".equals(mainLanguage) || "i".equals(mainLanguage) || "zh".equals(mainLanguage)) {
-      normalizedTag = maybeReplaceGrandfatheredLanguageTags(normalizedTag);
+      normalizedTag = maybeReplaceLegacyLanguageTags(normalizedTag);
     }
     return normalizedTag;
   }
@@ -2347,11 +2347,11 @@ public final class Util {
             .isCleartextTrafficPermitted(checkNotNull(uri.getHost()));
   }
 
-  private static String maybeReplaceGrandfatheredLanguageTags(String languageTag) {
-    for (int i = 0; i < isoGrandfatheredTagReplacements.length; i += 2) {
-      if (languageTag.startsWith(isoGrandfatheredTagReplacements[i])) {
-        return isoGrandfatheredTagReplacements[i + 1]
-            + languageTag.substring(/* beginIndex= */ isoGrandfatheredTagReplacements[i].length());
+  private static String maybeReplaceLegacyLanguageTags(String languageTag) {
+    for (int i = 0; i < isoLegacyTagReplacements.length; i += 2) {
+      if (languageTag.startsWith(isoLegacyTagReplacements[i])) {
+        return isoLegacyTagReplacements[i + 1]
+            + languageTag.substring(/* beginIndex= */ isoLegacyTagReplacements[i].length());
       }
     }
     return languageTag;
@@ -2411,9 +2411,9 @@ public final class Util {
         "hsn", "zh-hsn"
       };
 
-  // "Grandfathered tags", replaced by modern equivalents (including macrolanguage)
+  // Legacy ("grandfathered") tags, replaced by modern equivalents (including macrolanguage)
   // See https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry.
-  private static final String[] isoGrandfatheredTagReplacements =
+  private static final String[] isoLegacyTagReplacements =
       new String[] {
         "i-lux", "lb",
         "i-hak", "zh-hak",
