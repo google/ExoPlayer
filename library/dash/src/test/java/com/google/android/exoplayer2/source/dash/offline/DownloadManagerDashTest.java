@@ -241,7 +241,8 @@ public class DownloadManagerDashTest {
               new DefaultDownloaderFactory(
                   new CacheDataSource.Factory()
                       .setCache(cache)
-                      .setUpstreamDataSourceFactory(fakeDataSourceFactory));
+                      .setUpstreamDataSourceFactory(fakeDataSourceFactory),
+                  /* executor= */ Runnable::run);
           downloadManager =
               new DownloadManager(
                   ApplicationProvider.getApplicationContext(), downloadIndex, downloaderFactory);

@@ -117,7 +117,8 @@ public class DownloadServiceDashTest {
               new DefaultDownloaderFactory(
                   new CacheDataSource.Factory()
                       .setCache(cache)
-                      .setUpstreamDataSourceFactory(fakeDataSourceFactory));
+                      .setUpstreamDataSourceFactory(fakeDataSourceFactory),
+                  /* executor= */ Runnable::run);
           final DownloadManager dashDownloadManager =
               new DownloadManager(
                   ApplicationProvider.getApplicationContext(), downloadIndex, downloaderFactory);

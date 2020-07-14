@@ -42,7 +42,8 @@ public final class SsDownloaderTest {
         new CacheDataSource.Factory()
             .setCache(Mockito.mock(Cache.class))
             .setUpstreamDataSourceFactory(DummyDataSource.FACTORY);
-    DownloaderFactory factory = new DefaultDownloaderFactory(cacheDataSourceFactory);
+    DownloaderFactory factory =
+        new DefaultDownloaderFactory(cacheDataSourceFactory, /* executor= */ Runnable::run);
 
     Downloader downloader =
         factory.createDownloader(
