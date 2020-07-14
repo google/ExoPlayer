@@ -254,7 +254,7 @@ public final class AdaptiveTrackSelectionTest {
     int newSize = adaptiveTrackSelection.evaluateQueueSize(/* playbackPositionUs= */ 0, queue);
     assertThat(newSize).isEqualTo(initialQueueSize);
 
-    // Sanity check for the comment above.
+    // Verify that the comment above is correct.
     fakeClock.advanceTime(1);
     newSize = adaptiveTrackSelection.evaluateQueueSize(/* playbackPositionUs= */ 0, queue);
     assertThat(newSize).isLessThan(initialQueueSize);
