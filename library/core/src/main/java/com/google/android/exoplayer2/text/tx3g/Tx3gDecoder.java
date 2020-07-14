@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.text.tx3g;
 
+import static com.google.android.exoplayer2.text.Cue.ANCHOR_TYPE_START;
+import static com.google.android.exoplayer2.text.Cue.LINE_TYPE_FRACTION;
+
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
@@ -150,15 +153,11 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
       parsableByteArray.setPosition(position + atomSize);
     }
     return new Tx3gSubtitle(
-        new Cue(
-            cueText,
-            /* textAlignment= */ null,
-            verticalPlacement,
-            Cue.LINE_TYPE_FRACTION,
-            Cue.ANCHOR_TYPE_START,
-            Cue.DIMEN_UNSET,
-            Cue.TYPE_UNSET,
-            Cue.DIMEN_UNSET));
+        new Cue.Builder()
+            .setText(cueText)
+            .setLine(verticalPlacement, LINE_TYPE_FRACTION)
+            .setLineAnchor(ANCHOR_TYPE_START)
+            .build());
   }
 
   private static String readSubtitleText(ParsableByteArray parsableByteArray)

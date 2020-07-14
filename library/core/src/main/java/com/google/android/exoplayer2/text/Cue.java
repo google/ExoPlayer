@@ -34,7 +34,7 @@ import java.lang.annotation.RetentionPolicy;
 public final class Cue {
 
   /** The empty cue. */
-  public static final Cue EMPTY = new Cue("");
+  public static final Cue EMPTY = new Cue.Builder().setText("").build();
 
   /** An unset position, width or size. */
   // Note: We deliberately don't use Float.MIN_VALUE because it's positive & very close to zero.
@@ -276,6 +276,7 @@ public final class Cue {
    * @param text See {@link #text}.
    * @deprecated Use {@link Builder}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public Cue(CharSequence text) {
     this(
@@ -302,6 +303,7 @@ public final class Cue {
    * @param size See {@link #size}.
    * @deprecated Use {@link Builder}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public Cue(
       CharSequence text,
@@ -340,6 +342,7 @@ public final class Cue {
    * @param textSize See {@link #textSize}.
    * @deprecated Use {@link Builder}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public Cue(
       CharSequence text,

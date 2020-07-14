@@ -173,61 +173,54 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
    * @return Built cue
    */
   private Cue buildCue(Spanned text, @Nullable String alignmentTag) {
+    Cue.Builder cue = new Cue.Builder().setText(text);
     if (alignmentTag == null) {
-      return new Cue(text);
+      return cue.build();
     }
 
     // Horizontal alignment.
-    @Cue.AnchorType int positionAnchor;
     switch (alignmentTag) {
       case ALIGN_BOTTOM_LEFT:
       case ALIGN_MID_LEFT:
       case ALIGN_TOP_LEFT:
-        positionAnchor = Cue.ANCHOR_TYPE_START;
+        cue.setPositionAnchor(Cue.ANCHOR_TYPE_START);
         break;
       case ALIGN_BOTTOM_RIGHT:
       case ALIGN_MID_RIGHT:
       case ALIGN_TOP_RIGHT:
-        positionAnchor = Cue.ANCHOR_TYPE_END;
+        cue.setPositionAnchor(Cue.ANCHOR_TYPE_END);
         break;
       case ALIGN_BOTTOM_MID:
       case ALIGN_MID_MID:
       case ALIGN_TOP_MID:
       default:
-        positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
+        cue.setPositionAnchor(Cue.ANCHOR_TYPE_MIDDLE);
         break;
     }
 
     // Vertical alignment.
-    @Cue.AnchorType int lineAnchor;
     switch (alignmentTag) {
       case ALIGN_BOTTOM_LEFT:
       case ALIGN_BOTTOM_MID:
       case ALIGN_BOTTOM_RIGHT:
-        lineAnchor = Cue.ANCHOR_TYPE_END;
+        cue.setLineAnchor(Cue.ANCHOR_TYPE_END);
         break;
       case ALIGN_TOP_LEFT:
       case ALIGN_TOP_MID:
       case ALIGN_TOP_RIGHT:
-        lineAnchor = Cue.ANCHOR_TYPE_START;
+        cue.setLineAnchor(Cue.ANCHOR_TYPE_START);
         break;
       case ALIGN_MID_LEFT:
       case ALIGN_MID_MID:
       case ALIGN_MID_RIGHT:
       default:
-        lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
+        cue.setLineAnchor(Cue.ANCHOR_TYPE_MIDDLE);
         break;
     }
 
-    return new Cue(
-        text,
-        /* textAlignment= */ null,
-        getFractionalPositionForAnchorType(lineAnchor),
-        Cue.LINE_TYPE_FRACTION,
-        lineAnchor,
-        getFractionalPositionForAnchorType(positionAnchor),
-        positionAnchor,
-        Cue.DIMEN_UNSET);
+    return cue.setPosition(getFractionalPositionForAnchorType(cue.getPositionAnchor()))
+        .setLine(getFractionalPositionForAnchorType(cue.getLineAnchor()), Cue.LINE_TYPE_FRACTION)
+        .build();
   }
 
   private static long parseTimecode(Matcher matcher, int groupOffset) {
