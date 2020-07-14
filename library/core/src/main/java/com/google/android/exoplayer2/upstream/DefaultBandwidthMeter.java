@@ -25,9 +25,9 @@ import android.os.Looper;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener.EventDispatcher;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.EventDispatcher;
 import com.google.android.exoplayer2.util.SlidingPercentile;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.ref.WeakReference;
@@ -256,7 +256,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   @Nullable private final Context context;
   private final SparseArray<Long> initialBitrateEstimates;
-  private final EventDispatcher<EventListener> eventDispatcher;
+  private final EventDispatcher eventDispatcher;
   private final SlidingPercentile slidingPercentile;
   private final Clock clock;
 
@@ -292,7 +292,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       boolean resetOnNetworkTypeChange) {
     this.context = context == null ? null : context.getApplicationContext();
     this.initialBitrateEstimates = initialBitrateEstimates;
-    this.eventDispatcher = new EventDispatcher<>();
+    this.eventDispatcher = new EventDispatcher();
     this.slidingPercentile = new SlidingPercentile(maxWeight);
     this.clock = clock;
     // Set the initial network type and bitrate estimate
@@ -427,8 +427,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       return;
     }
     lastReportedBitrateEstimate = bitrateEstimate;
-    eventDispatcher.dispatch(
-        listener -> listener.onBandwidthSample(elapsedMs, bytesTransferred, bitrateEstimate));
+    eventDispatcher.bandwidthSample(elapsedMs, bytesTransferred, bitrateEstimate);
   }
 
   private long getInitialBitrateEstimateForNetworkType(@C.NetworkType int networkType) {
