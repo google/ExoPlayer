@@ -471,6 +471,15 @@ public interface Player {
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
     /**
+     * Called when playback transitions to a different media item.
+     *
+     * @param mediaItem The {@link MediaItem}. May be null if the timeline becomes empty.
+     * @param reason The reason for the transition.
+     */
+    default void onMediaItemTransition(
+        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
+
+    /**
      * Called when the available or selected tracks change.
      *
      * @param trackGroups The available tracks. Never null, but may be of length zero.
@@ -765,6 +774,32 @@ public interface Player {
   int TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED = 0;
   /** Timeline changed as a result of a dynamic update introduced by the played media. */
   int TIMELINE_CHANGE_REASON_SOURCE_UPDATE = 1;
+
+  /** Reasons for media item transitions. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    MEDIA_ITEM_TRANSITION_REASON_REPEAT,
+    MEDIA_ITEM_TRANSITION_REASON_AUTO,
+    MEDIA_ITEM_TRANSITION_REASON_SEEK,
+    MEDIA_ITEM_TRANSITION_REASON_SKIP,
+    MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
+  })
+  @interface MediaItemTransitionReason {}
+  /** The media item has been repeated. */
+  int MEDIA_ITEM_TRANSITION_REASON_REPEAT = 0;
+  /** Playback has automatically transitioned to the next media item. */
+  int MEDIA_ITEM_TRANSITION_REASON_AUTO = 1;
+  /** A seek to another media item has occurred. */
+  int MEDIA_ITEM_TRANSITION_REASON_SEEK = 2;
+  /** Playback skipped to a new media item (for example after failure). */
+  int MEDIA_ITEM_TRANSITION_REASON_SKIP = 3;
+  /**
+   * The current media item has changed because of a modification of the timeline. This can either
+   * be if the period previously being played has been removed, or when the timeline becomes
+   * non-empty after being empty.
+   */
+  int MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED = 4;
 
   /** The default playback speed. */
   float DEFAULT_PLAYBACK_SPEED = 1.0f;

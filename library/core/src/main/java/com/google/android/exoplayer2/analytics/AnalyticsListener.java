@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -206,6 +207,18 @@ public interface AnalyticsListener {
    * @param reason The reason for the timeline change.
    */
   default void onTimelineChanged(EventTime eventTime, @TimelineChangeReason int reason) {}
+
+  /**
+   * Called when playback transitions to a different media item.
+   *
+   * @param eventTime The event time.
+   * @param mediaItem The media item.
+   * @param reason The reason for the media item transition.
+   */
+  default void onMediaItemTransition(
+      EventTime eventTime,
+      @Nullable MediaItem mediaItem,
+      @Player.MediaItemTransitionReason int reason) {}
 
   /**
    * Called when a position discontinuity occurred.

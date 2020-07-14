@@ -990,6 +990,22 @@ import java.util.concurrent.TimeoutException;
     // Assign playback info immediately such that all getters return the right values.
     PlaybackInfo previousPlaybackInfo = this.playbackInfo;
     this.playbackInfo = playbackInfo;
+
+    Pair<Boolean, Integer> mediaItemTransitionInfo =
+        evaluateMediaItemTransitionReason(
+            playbackInfo,
+            previousPlaybackInfo,
+            positionDiscontinuity,
+            positionDiscontinuityReason,
+            !previousPlaybackInfo.timeline.equals(playbackInfo.timeline));
+    boolean mediaItemTransitioned = mediaItemTransitionInfo.first;
+    int mediaItemTransitionReason = mediaItemTransitionInfo.second;
+    @Nullable MediaItem newMediaItem = null;
+    if (mediaItemTransitioned && !playbackInfo.timeline.isEmpty()) {
+      int windowIndex =
+          playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period).windowIndex;
+      newMediaItem = playbackInfo.timeline.getWindow(windowIndex, window).mediaItem;
+    }
     notifyListeners(
         new PlaybackInfoUpdate(
             playbackInfo,
@@ -999,8 +1015,56 @@ import java.util.concurrent.TimeoutException;
             positionDiscontinuity,
             positionDiscontinuityReason,
             timelineChangeReason,
+            mediaItemTransitioned,
+            mediaItemTransitionReason,
+            newMediaItem,
             playWhenReadyChangeReason,
             seekProcessed));
+  }
+
+  private Pair<Boolean, Integer> evaluateMediaItemTransitionReason(
+      PlaybackInfo playbackInfo,
+      PlaybackInfo oldPlaybackInfo,
+      boolean positionDiscontinuity,
+      int positionDiscontinuityReason,
+      boolean timelineChanged) {
+
+    Timeline oldTimeline = oldPlaybackInfo.timeline;
+    Timeline newTimeline = playbackInfo.timeline;
+    if (newTimeline.isEmpty() && oldTimeline.isEmpty()) {
+      return new Pair<>(/* isTransitioning */ false, /* mediaItemTransitionReason */ C.INDEX_UNSET);
+    } else if (newTimeline.isEmpty() != oldTimeline.isEmpty()) {
+      return new Pair<>(/* isTransitioning */ true, MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    }
+
+    int oldWindowIndex =
+        oldTimeline.getPeriodByUid(oldPlaybackInfo.periodId.periodUid, period).windowIndex;
+    Object oldWindowUid = oldTimeline.getWindow(oldWindowIndex, window).uid;
+    int newWindowIndex =
+        newTimeline.getPeriodByUid(playbackInfo.periodId.periodUid, period).windowIndex;
+    Object newWindowUid = newTimeline.getWindow(newWindowIndex, window).uid;
+    int firstPeriodIndexInNewWindow = window.firstPeriodIndex;
+    if (!oldWindowUid.equals(newWindowUid)) {
+      @Player.MediaItemTransitionReason int transitionReason;
+      if (positionDiscontinuity
+          && positionDiscontinuityReason == DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+        transitionReason = MEDIA_ITEM_TRANSITION_REASON_AUTO;
+      } else if (positionDiscontinuity
+          && positionDiscontinuityReason == DISCONTINUITY_REASON_SEEK) {
+        transitionReason = MEDIA_ITEM_TRANSITION_REASON_SEEK;
+      } else if (timelineChanged) {
+        transitionReason = MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
+      } else {
+        transitionReason = MEDIA_ITEM_TRANSITION_REASON_SKIP;
+      }
+      return new Pair<>(/* isTransitioning */ true, transitionReason);
+    } else if (positionDiscontinuity
+        && positionDiscontinuityReason == DISCONTINUITY_REASON_PERIOD_TRANSITION
+        && newTimeline.getIndexOfPeriod(playbackInfo.periodId.periodUid)
+            == firstPeriodIndexInNewWindow) {
+      return new Pair<>(/* isTransitioning */ true, MEDIA_ITEM_TRANSITION_REASON_REPEAT);
+    }
+    return new Pair<>(/* isTransitioning */ false, /* mediaItemTransitionReason */ C.INDEX_UNSET);
   }
 
   private void setMediaSourcesInternal(
@@ -1388,16 +1452,19 @@ import java.util.concurrent.TimeoutException;
     private final boolean positionDiscontinuity;
     @DiscontinuityReason private final int positionDiscontinuityReason;
     @TimelineChangeReason private final int timelineChangeReason;
+    private final boolean mediaItemTransitioned;
+    private final int mediaItemTransitionReason;
+    @Nullable private final MediaItem mediaItem;
     @PlayWhenReadyChangeReason private final int playWhenReadyChangeReason;
     private final boolean seekProcessed;
     private final boolean playbackStateChanged;
     private final boolean playbackErrorChanged;
-    private final boolean timelineChanged;
     private final boolean isLoadingChanged;
+    private final boolean timelineChanged;
     private final boolean trackSelectorResultChanged;
-    private final boolean isPlayingChanged;
     private final boolean playWhenReadyChanged;
     private final boolean playbackSuppressionReasonChanged;
+    private final boolean isPlayingChanged;
 
     public PlaybackInfoUpdate(
         PlaybackInfo playbackInfo,
@@ -1407,6 +1474,9 @@ import java.util.concurrent.TimeoutException;
         boolean positionDiscontinuity,
         @DiscontinuityReason int positionDiscontinuityReason,
         @TimelineChangeReason int timelineChangeReason,
+        boolean mediaItemTransitioned,
+        @MediaItemTransitionReason int mediaItemTransitionReason,
+        @Nullable MediaItem mediaItem,
         @PlayWhenReadyChangeReason int playWhenReadyChangeReason,
         boolean seekProcessed) {
       this.playbackInfo = playbackInfo;
@@ -1415,6 +1485,9 @@ import java.util.concurrent.TimeoutException;
       this.positionDiscontinuity = positionDiscontinuity;
       this.positionDiscontinuityReason = positionDiscontinuityReason;
       this.timelineChangeReason = timelineChangeReason;
+      this.mediaItemTransitioned = mediaItemTransitioned;
+      this.mediaItemTransitionReason = mediaItemTransitionReason;
+      this.mediaItem = mediaItem;
       this.playWhenReadyChangeReason = playWhenReadyChangeReason;
       this.seekProcessed = seekProcessed;
       playbackStateChanged = previousPlaybackInfo.playbackState != playbackInfo.playbackState;
@@ -1443,6 +1516,11 @@ import java.util.concurrent.TimeoutException;
         invokeAll(
             listenerSnapshot,
             listener -> listener.onPositionDiscontinuity(positionDiscontinuityReason));
+      }
+      if (mediaItemTransitioned) {
+        invokeAll(
+            listenerSnapshot,
+            listener -> listener.onMediaItemTransition(mediaItem, mediaItemTransitionReason));
       }
       if (playbackErrorChanged) {
         invokeAll(listenerSnapshot, listener -> listener.onPlayerError(playbackInfo.playbackError));

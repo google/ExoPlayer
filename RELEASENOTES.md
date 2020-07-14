@@ -31,9 +31,10 @@
     *   Add `play` and `pause` methods to `Player`.
     *   Add `Player.getCurrentLiveOffset` to conveniently return the live
         offset.
-    *   Add `Player.onPlayWhenReadyChanged` with reasons.
-    *   Add `Player.onPlaybackStateChanged` and deprecate
-        `Player.onPlayerStateChanged`.
+    *   Add `Player.EventListener.onPlayWhenReadyChanged` with reasons.
+    *   Add `Player.EventListener.onPlaybackStateChanged` and deprecate
+        `Player.EventListener.onPlayerStateChanged`.
+    *   Add `Player.EventListener.onMediaItemTransition` with reasons.
     *   Add `Player.setAudioSessionId` to set the session ID attached to the
         `AudioTrack`.
     *   Deprecate and rename `getPlaybackError` to `getPlayerError` for
@@ -242,9 +243,8 @@
 *   Cast extension: Implement playlist API and deprecate the old queue
     manipulation API.
 *   IMA extension:
-    *   Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the
-        media load timeout
-        ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
+    *   Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the media load
+        timeout ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
     *   Migrate to new 'friendly obstruction' IMA SDK APIs, and allow apps to
         register a purpose and detail reason for overlay views via
         `AdsLoader.AdViewProvider`.

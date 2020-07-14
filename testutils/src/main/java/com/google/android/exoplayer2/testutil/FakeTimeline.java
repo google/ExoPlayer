@@ -166,10 +166,53 @@ public final class FakeTimeline extends Timeline {
         long defaultPositionUs,
         long windowOffsetInFirstPeriodUs,
         AdPlaybackState adPlaybackState) {
+      this(
+          periodCount,
+          id,
+          isSeekable,
+          isDynamic,
+          isLive,
+          isPlaceholder,
+          durationUs,
+          defaultPositionUs,
+          windowOffsetInFirstPeriodUs,
+          adPlaybackState,
+          FAKE_MEDIA_ITEM.buildUpon().setTag(id).build());
+    }
+
+    /**
+     * Creates a window definition with ad groups and a custom media item.
+     *
+     * @param periodCount The number of periods in the window. Each period get an equal slice of the
+     *     total window duration.
+     * @param id The UID of the window.
+     * @param isSeekable Whether the window is seekable.
+     * @param isDynamic Whether the window is dynamic.
+     * @param isLive Whether the window is live.
+     * @param isPlaceholder Whether the window is a placeholder.
+     * @param durationUs The duration of the window in microseconds.
+     * @param defaultPositionUs The default position of the window in microseconds.
+     * @param windowOffsetInFirstPeriodUs The offset of the window in the first period, in
+     *     microseconds.
+     * @param adPlaybackState The ad playback state.
+     * @param mediaItem The media item to include in the timeline.
+     */
+    public TimelineWindowDefinition(
+        int periodCount,
+        Object id,
+        boolean isSeekable,
+        boolean isDynamic,
+        boolean isLive,
+        boolean isPlaceholder,
+        long durationUs,
+        long defaultPositionUs,
+        long windowOffsetInFirstPeriodUs,
+        AdPlaybackState adPlaybackState,
+        MediaItem mediaItem) {
       Assertions.checkArgument(durationUs != C.TIME_UNSET || periodCount == 1);
       this.periodCount = periodCount;
       this.id = id;
-      this.mediaItem = FAKE_MEDIA_ITEM.buildUpon().setTag(id).build();
+      this.mediaItem = mediaItem;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
       this.isLive = isLive;

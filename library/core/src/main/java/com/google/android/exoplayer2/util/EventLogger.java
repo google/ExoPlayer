@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
@@ -194,6 +195,19 @@ public class EventLogger implements AnalyticsListener {
       logd("  ...");
     }
     logd("]");
+  }
+
+  @Override
+  public void onMediaItemTransition(
+      EventTime eventTime, @Nullable MediaItem mediaItem, int reason) {
+    logd(
+        "mediaItem ["
+            + getEventTimeString(eventTime)
+            + ", "
+            + (mediaItem == null ? "null" : "mediaId=" + mediaItem.mediaId)
+            + ", reason="
+            + getMediaItemTransitionReasonString(reason)
+            + "]");
   }
 
   @Override
@@ -643,6 +657,24 @@ public class EventLogger implements AnalyticsListener {
         return "SOURCE_UPDATE";
       case Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED:
         return "PLAYLIST_CHANGED";
+      default:
+        return "?";
+    }
+  }
+
+  private static String getMediaItemTransitionReasonString(
+      @Player.MediaItemTransitionReason int reason) {
+    switch (reason) {
+      case Player.MEDIA_ITEM_TRANSITION_REASON_AUTO:
+        return "AUTO";
+      case Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED:
+        return "PLAYLIST_CHANGED";
+      case Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT:
+        return "REPEAT";
+      case Player.MEDIA_ITEM_TRANSITION_REASON_SEEK:
+        return "SEEK";
+      case Player.MEDIA_ITEM_TRANSITION_REASON_SKIP:
+        return "SKIP";
       default:
         return "?";
     }

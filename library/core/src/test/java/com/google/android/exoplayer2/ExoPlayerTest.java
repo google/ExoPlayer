@@ -7886,6 +7886,329 @@ public final class ExoPlayerTest {
     assertThat(initialMediaItems).containsExactlyElementsIn(currentMediaItems);
   }
 
+  @Test
+  public void setMediaSources_notifiesMediaItemTransition() throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    SilenceMediaSource mediaSource = factory.setTag("1").createMediaSource();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(mediaSource.getMediaItem());
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+  }
+
+  @Test
+  public void setMediaSources_replaceWithSameMediaItem_notifiesMediaItemTransition()
+      throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    SilenceMediaSource mediaSource = factory.setTag("1").createMediaSource();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .waitForPlaybackState(Player.STATE_READY)
+            .setMediaSources(mediaSource)
+            .waitForPlaybackState(Player.STATE_READY)
+            .build();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
+        mediaSource.getMediaItem(), mediaSource.getMediaItem());
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+  }
+
+  @Test
+  public void automaticWindowTransition_notifiesMediaItemTransition() throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
+    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource1, mediaSource2)
+            .build()
+            .start()
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
+        mediaSource1.getMediaItem(), mediaSource2.getMediaItem());
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+        Player.MEDIA_ITEM_TRANSITION_REASON_AUTO);
+  }
+
+  @Test
+  public void clearMediaItem_notifiesMediaItemTransition() throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
+    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .waitForPlaybackState(Player.STATE_READY)
+            .playUntilPosition(/* windowIndex= */ 1, /* positionMs= */ 2000)
+            .clearMediaItems()
+            .build();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource1, mediaSource2)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
+        mediaSource1.getMediaItem(), mediaSource2.getMediaItem(), null);
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+        Player.MEDIA_ITEM_TRANSITION_REASON_AUTO,
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+  }
+
+  @Test
+  public void seekTo_otherWindow_notifiesMediaItemTransition() throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
+    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .waitForPlaybackState(Player.STATE_READY)
+            .seek(/* windowIndex= */ 1, /* positionMs= */ 2000)
+            .build();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource1, mediaSource2)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
+        mediaSource1.getMediaItem(), mediaSource2.getMediaItem());
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+        Player.MEDIA_ITEM_TRANSITION_REASON_SEEK);
+  }
+
+  @Test
+  public void seekTo_sameWindow_doesNotNotifyMediaItemTransition() throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
+    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
+            .seek(/* windowIndex= */ 0, /* positionMs= */ 20_000)
+            .stop()
+            .build();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource1, mediaSource2)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(mediaSource1.getMediaItem());
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+  }
+
+  @Test
+  public void repeat_notifiesMediaItemTransition() throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
+    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+                  }
+                })
+            .play()
+            .waitForPositionDiscontinuity()
+            .waitForPositionDiscontinuity()
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.setRepeatMode(Player.REPEAT_MODE_OFF);
+                  }
+                })
+            .build();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource1, mediaSource2)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(
+        mediaSource1.getMediaItem(),
+        mediaSource1.getMediaItem(),
+        mediaSource1.getMediaItem(),
+        mediaSource2.getMediaItem());
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+        Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT,
+        Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT,
+        Player.MEDIA_ITEM_TRANSITION_REASON_AUTO);
+  }
+
+  @Test
+  public void stop_withReset_notifiesMediaItemTransition() throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
+    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
+            .stop(/* reset= */ true)
+            .build();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource1, mediaSource2)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(mediaSource1.getMediaItem(), null);
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED,
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+  }
+
+  @Test
+  public void stop_withoutReset_doesNotNotifyMediaItemTransition() throws Exception {
+    SilenceMediaSource.Factory factory =
+        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
+    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
+            .stop(/* reset= */ false)
+            .build();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource1, mediaSource2)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(mediaSource1.getMediaItem());
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+  }
+
+  @Test
+  public void timelineRefresh_withModifiedMediaItem_doesNotNotifyMediaItemTransition()
+      throws Exception {
+    MediaItem initialMediaItem = FakeTimeline.FAKE_MEDIA_ITEM.buildUpon().setTag(0).build();
+    TimelineWindowDefinition initialWindow =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 0,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs= */ 10_000_000,
+            /* defaultPositionUs= */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            initialMediaItem);
+    TimelineWindowDefinition secondWindow =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 0,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs= */ 10_000_000,
+            /* defaultPositionUs= */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            initialMediaItem.buildUpon().setTag(1).build());
+    FakeTimeline timeline = new FakeTimeline(initialWindow);
+    FakeTimeline newTimeline = new FakeTimeline(secondWindow);
+    FakeMediaSource mediaSource = new FakeMediaSource(timeline);
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .waitForPlaybackState(Player.STATE_READY)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 2000)
+            .waitForPlayWhenReady(false)
+            .executeRunnable(
+                () -> {
+                  mediaSource.setNewSourceInfo(newTimeline);
+                })
+            .play()
+            .build();
+
+    ExoPlayerTestRunner exoPlayerTestRunner =
+        new ExoPlayerTestRunner.Builder(context)
+            .setMediaSources(mediaSource)
+            .setActionSchedule(actionSchedule)
+            .build()
+            .start()
+            .blockUntilActionScheduleFinished(TIMEOUT_MS)
+            .blockUntilEnded(TIMEOUT_MS);
+
+    exoPlayerTestRunner.assertTimelinesSame(placeholderTimeline, timeline, newTimeline);
+    exoPlayerTestRunner.assertMediaItemsTransitionReasonsEqual(
+        Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
+    exoPlayerTestRunner.assertMediaItemsTransitionedSame(initialMediaItem);
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
