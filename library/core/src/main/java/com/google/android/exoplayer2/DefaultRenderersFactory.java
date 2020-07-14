@@ -23,6 +23,7 @@ import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink.DefaultAudioProcessorChain;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
@@ -452,10 +453,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
             enableDecoderFallback,
             eventHandler,
             eventListener,
-            new DefaultAudioSink(
+            buildAudioSink(
                 AudioCapabilities.getCapabilities(context),
-                new DefaultAudioProcessorChain(audioProcessors),
-                /* enableFloatOutput= */ false,
+                audioProcessors,
                 enableOffload));
     audioRenderer.experimental_setMediaCodecOperationMode(audioMediaCodecOperationMode);
     out.add(audioRenderer);
@@ -531,6 +531,17 @@ public class DefaultRenderersFactory implements RenderersFactory {
       // The extension is present, but instantiation failed.
       throw new RuntimeException("Error instantiating FFmpeg extension", e);
     }
+  }
+
+  protected AudioSink buildAudioSink(
+      AudioCapabilities audioCapabilities,
+      AudioProcessor[] audioProcessors,
+      boolean enableOffload) {
+    return new DefaultAudioSink(
+        audioCapabilities,
+        new DefaultAudioProcessorChain(audioProcessors),
+        /* enableFloatOutput= */ false,
+        enableOffload);
   }
 
   /**
