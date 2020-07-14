@@ -421,7 +421,7 @@ public final class AnalyticsCollectorTest {
     assertThat(loadingEvents).hasSize(4);
     assertThat(loadingEvents).containsAtLeast(period0, period0).inOrder();
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
-        .containsExactly(period0, period1)
+        .containsExactly(period0, period1, period1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(
@@ -887,7 +887,7 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
-        .containsExactly(period0Seq0, period0Seq1)
+        .containsExactly(period0Seq0, period0Seq1, period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(WINDOW_0 /* manifest */, period0Seq0 /* media */, period1Seq1 /* media */)

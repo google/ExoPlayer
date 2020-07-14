@@ -72,6 +72,7 @@ public class FakeMediaPeriod implements MediaPeriod {
   private boolean prepared;
   private long seekOffsetUs;
   private long discontinuityPositionUs;
+  private long bufferedPositionUs;
 
   /**
    * Constructs a FakeMediaPeriod with a single sample for each track in {@code trackGroupArray}.
@@ -149,6 +150,7 @@ public class FakeMediaPeriod implements MediaPeriod {
     this.drmEventDispatcher = drmEventDispatcher;
     this.deferOnPrepared = deferOnPrepared;
     this.trackDataFactory = trackDataFactory;
+    this.bufferedPositionUs = C.TIME_END_OF_SOURCE;
     discontinuityPositionUs = C.TIME_UNSET;
     sampleStreams = new ArrayList<>();
     fakePreparationLoadTaskId = LoadEventInfo.getNewId();
@@ -283,7 +285,11 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public long getBufferedPositionUs() {
     assertThat(prepared).isTrue();
-    return C.TIME_END_OF_SOURCE;
+    return bufferedPositionUs;
+  }
+
+  public void setBufferedPositionUs(long bufferedPositionUs) {
+    this.bufferedPositionUs = bufferedPositionUs;
   }
 
   @Override
@@ -292,6 +298,9 @@ public class FakeMediaPeriod implements MediaPeriod {
     long seekPositionUs = positionUs + seekOffsetUs;
     for (SampleStream sampleStream : sampleStreams) {
       seekSampleStream(sampleStream, seekPositionUs);
+    }
+    if (bufferedPositionUs != C.TIME_END_OF_SOURCE && seekPositionUs > bufferedPositionUs) {
+      bufferedPositionUs = seekPositionUs;
     }
     return seekPositionUs;
   }
