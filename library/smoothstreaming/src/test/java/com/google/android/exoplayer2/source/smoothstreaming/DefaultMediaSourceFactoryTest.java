@@ -59,7 +59,7 @@ public class DefaultMediaSourceFactoryTest {
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
-    assertThat(mediaSource.getTag()).isEqualTo(tag);
+    assertThat(mediaSource.getMediaItem().playbackProperties.tag).isEqualTo(tag);
   }
 
   @Test

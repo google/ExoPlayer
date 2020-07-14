@@ -43,6 +43,17 @@ public final class DefaultMediaSourceFactoryTest {
   private static final String URI_TEXT = "http://exoplayer.dev/text";
 
   @Test
+  public void createMediaSource_fromMediaItem_returnsSameMediaItemInstance() {
+    DefaultMediaSourceFactory defaultMediaSourceFactory =
+        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA).build();
+
+    MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
+
+    assertThat(mediaSource.getMediaItem()).isSameInstanceAs(mediaItem);
+  }
+
+  @Test
   public void createMediaSource_withoutMimeType_progressiveSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
@@ -54,7 +65,8 @@ public final class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void createMediaSource_withTag_tagInSource() {
+  @SuppressWarnings("deprecation") // Testing deprecated MediaSource.getTag() still works.
+  public void createMediaSource_withTag_tagInSource_deprecated() {
     Object tag = new Object();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
@@ -109,7 +121,8 @@ public final class DefaultMediaSourceFactoryTest {
   }
 
   @Test
-  public void createMediaSource_withSubtitle_hasTag() {
+  @SuppressWarnings("deprecation") // Testing deprecated MediaSource.getTag() still works.
+  public void createMediaSource_withSubtitle_hasTag_deprecated() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
     Object tag = new Object();
