@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Test;
@@ -50,7 +51,11 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   public void getExclusionDurationMsFor_responseCode404() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(
-            404, "Not Found", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
+            404,
+            "Not Found",
+            Collections.emptyMap(),
+            new DataSpec(Uri.EMPTY),
+            /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
     assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
         .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
@@ -59,7 +64,11 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   public void getExclusionDurationMsFor_responseCode410() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(
-            410, "Gone", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
+            410,
+            "Gone",
+            Collections.emptyMap(),
+            new DataSpec(Uri.EMPTY),
+            /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
     assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
         .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
@@ -68,7 +77,11 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   public void getExclusionDurationMsFor_dontExcludeUnexpectedHttpCodes() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(
-            500, "Internal Server Error", Collections.emptyMap(), new DataSpec(Uri.EMPTY));
+            500,
+            "Internal Server Error",
+            Collections.emptyMap(),
+            new DataSpec(Uri.EMPTY),
+            /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
     assertThat(getDefaultPolicyExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
