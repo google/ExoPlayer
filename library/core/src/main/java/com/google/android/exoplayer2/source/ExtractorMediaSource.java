@@ -197,7 +197,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
     }
 
     /**
-     * @deprecated Use {@link #createMediaSource(Uri)} and {@link #addEventListener(Handler,
+     * @deprecated Use {@link #createMediaSource(MediaItem)} and {@link #addEventListener(Handler,
      *     MediaSourceEventListener)} instead.
      */
     @Deprecated

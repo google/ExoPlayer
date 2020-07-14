@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
@@ -164,12 +165,12 @@ public final class MainActivity extends Activity {
       mediaSource =
           new DashMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManager(drmSessionManager)
-              .createMediaSource(uri);
+              .createMediaSource(MediaItem.fromUri(uri));
     } else if (type == C.TYPE_OTHER) {
       mediaSource =
           new ProgressiveMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManager(drmSessionManager)
-              .createMediaSource(uri);
+              .createMediaSource(MediaItem.fromUri(uri));
     } else {
       throw new IllegalStateException();
     }

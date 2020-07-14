@@ -25,6 +25,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioSink;
@@ -109,7 +110,7 @@ public class FlacPlaybackTest {
           new ProgressiveMediaSource.Factory(
                   new DefaultDataSourceFactory(context, "ExoPlayerExtFlacTest"),
                   MatroskaExtractor.FACTORY)
-              .createMediaSource(uri);
+              .createMediaSource(MediaItem.fromUri(uri));
       player.setMediaSource(mediaSource);
       player.prepare();
       player.play();

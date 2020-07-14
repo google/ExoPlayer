@@ -100,7 +100,8 @@ public final class AdsMediaSourceTest {
     contentMediaSource = new FakeMediaSource(/* timeline= */ null);
     prerollAdMediaSource = new FakeMediaSource(/* timeline= */ null);
     MediaSourceFactory adMediaSourceFactory = mock(MediaSourceFactory.class);
-    when(adMediaSourceFactory.createMediaSource(any(Uri.class))).thenReturn(prerollAdMediaSource);
+    when(adMediaSourceFactory.createMediaSource(any(MediaItem.class)))
+        .thenReturn(prerollAdMediaSource);
 
     // Prepare the AdsMediaSource and capture its ads loader listener.
     AdsLoader mockAdsLoader = mock(AdsLoader.class);

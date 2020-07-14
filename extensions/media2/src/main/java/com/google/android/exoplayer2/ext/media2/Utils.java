@@ -80,8 +80,11 @@ import com.google.android.exoplayer2.util.Util;
       dataSourceFactory =
           DataSourceCallbackDataSource.getFactory(callbackMediaItem.getDataSourceCallback());
       return new ProgressiveMediaSource.Factory(dataSourceFactory, sExtractorsFactory)
-          .setTag(mediaItem)
-          .createMediaSource(Uri.EMPTY);
+          .createMediaSource(
+              new com.google.android.exoplayer2.MediaItem.Builder()
+                  .setUri(Uri.EMPTY)
+                  .setTag(mediaItem)
+                  .build());
     } else {
       throw new IllegalStateException();
     }
@@ -185,13 +188,16 @@ import com.google.android.exoplayer2.util.Util;
         MediaSourceFactory mediaSourceFactory =
             factoryClazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory);
         factoryClazz.getMethod("setTag", Object.class).invoke(mediaSourceFactory, tag);
-        return mediaSourceFactory.createMediaSource(uri);
+        return mediaSourceFactory.createMediaSource(
+            com.google.android.exoplayer2.MediaItem.fromUri(uri));
       }
       // LINT.ThenChange(../../../../../../../../../proguard-rules.txt)
     } catch (Exception e) {
       // Expected if the app was built without the corresponding module.
     }
-    return new ProgressiveMediaSource.Factory(dataSourceFactory).setTag(tag).createMediaSource(uri);
+    return new ProgressiveMediaSource.Factory(dataSourceFactory)
+        .createMediaSource(
+            new com.google.android.exoplayer2.MediaItem.Builder().setUri(uri).setTag(tag).build());
   }
 
   private Utils() {

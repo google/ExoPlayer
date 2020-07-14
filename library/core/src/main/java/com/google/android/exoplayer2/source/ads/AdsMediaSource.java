@@ -224,7 +224,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       AdMediaSourceHolder adMediaSourceHolder =
           adMediaSourceHolders[adGroupIndex][adIndexInAdGroup];
       if (adMediaSourceHolder == null) {
-        MediaSource adMediaSource = adMediaSourceFactory.createMediaSource(adUri);
+        MediaSource adMediaSource =
+            adMediaSourceFactory.createMediaSource(MediaItem.fromUri(adUri));
         adMediaSourceHolder = new AdMediaSourceHolder(adMediaSource);
         adMediaSourceHolders[adGroupIndex][adIndexInAdGroup] = adMediaSourceHolder;
         prepareChildSource(id, adMediaSource);

@@ -301,7 +301,7 @@ public final class SsMediaSource extends BaseMediaSource
     }
 
     /**
-     * @deprecated Use {@link #createMediaSource(Uri)} and {@link #addEventListener(Handler,
+     * @deprecated Use {@link #createMediaSource(MediaItem)} and {@link #addEventListener(Handler,
      *     MediaSourceEventListener)} instead.
      */
     @SuppressWarnings("deprecation")
