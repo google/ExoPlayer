@@ -52,10 +52,10 @@ public class OfflineLicenseHelperTest {
             new ExoMediaDrm.KeyRequest(/* data= */ new byte[0], /* licenseServerUrl= */ ""));
     offlineLicenseHelper =
         new OfflineLicenseHelper(
-            C.WIDEVINE_UUID,
-            new ExoMediaDrm.AppManagedProvider(mediaDrm),
-            mediaDrmCallback,
-            /* optionalKeyRequestParameters= */ null,
+            new DefaultDrmSessionManager.Builder()
+                .setUuidAndExoMediaDrmProvider(
+                    C.WIDEVINE_UUID, new ExoMediaDrm.AppManagedProvider(mediaDrm))
+                .build(mediaDrmCallback),
             new DrmSessionEventListener.EventDispatcher());
   }
 
