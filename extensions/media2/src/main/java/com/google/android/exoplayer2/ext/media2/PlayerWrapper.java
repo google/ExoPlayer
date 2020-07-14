@@ -320,12 +320,12 @@ import java.util.List;
   }
 
   public boolean setPlaybackSpeed(float playbackSpeed) {
-    player.setPlaybackParameters(new PlaybackParameters(playbackSpeed));
+    player.setPlaybackSpeed(playbackSpeed);
     return true;
   }
 
   public float getPlaybackSpeed() {
-    return player.getPlaybackParameters().speed;
+    return player.getPlaybackSpeed();
   }
 
   public void reset() {

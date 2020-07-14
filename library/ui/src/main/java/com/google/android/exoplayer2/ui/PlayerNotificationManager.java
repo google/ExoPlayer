@@ -923,7 +923,7 @@ public class PlayerNotificationManager {
    *   <li>The media is not {@link Player#isCurrentWindowDynamic() dynamically changing its
    *       duration} (like for example a live stream).
    *   <li>The media is not {@link Player#isPlayingAd() interrupted by an ad}.
-   *   <li>The media is played at {@link Player#getPlaybackParameters() regular speed}.
+   *   <li>The media is played at {@link Player#getPlaybackSpeed() regular speed}.
    *   <li>The device is running at least API 21 (Lollipop).
    * </ul>
    *
@@ -1086,7 +1086,7 @@ public class PlayerNotificationManager {
         && player.isPlaying()
         && !player.isPlayingAd()
         && !player.isCurrentWindowDynamic()
-        && player.getPlaybackParameters().speed == 1f) {
+        && player.getPlaybackSpeed() == 1f) {
       builder
           .setWhen(System.currentTimeMillis() - player.getContentPosition())
           .setShowWhen(true)
