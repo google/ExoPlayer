@@ -89,10 +89,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public boolean sampleEncryptionDataNeedsFill;
   /**
-   * The duration of all samples defined in fragments up to and including this one. Samples defined
-   * in the moov box are not included.
+   * The duration of all the samples defined in the fragments up to and including this one, plus the
+   * duration of the samples defined in the moov atom if {@link #nextFragmentDecodeTimeIncludesMoov}
+   * is {@code true}.
    */
   public long nextFragmentDecodeTime;
+  /**
+   * Whether {@link #nextFragmentDecodeTime} includes the duration of the samples referred to by the
+   * moov atom.
+   */
+  public boolean nextFragmentDecodeTimeIncludesMoov;
 
   public TrackFragment() {
     trunDataPosition = new long[0];
@@ -115,6 +121,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void reset() {
     trunCount = 0;
     nextFragmentDecodeTime = 0;
+    nextFragmentDecodeTimeIncludesMoov = false;
     definesEncryptionData = false;
     sampleEncryptionDataNeedsFill = false;
     trackEncryptionBox = null;

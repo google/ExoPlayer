@@ -716,13 +716,16 @@ public class FragmentedMp4Extractor implements Extractor {
 
     TrackFragment fragment = trackBundle.fragment;
     long fragmentDecodeTime = fragment.nextFragmentDecodeTime;
+    boolean fragmentDecodeTimeIncludesMoov = fragment.nextFragmentDecodeTimeIncludesMoov;
     trackBundle.reset();
     trackBundle.currentlyInFragment = true;
     @Nullable LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
     if (tfdtAtom != null && (flags & FLAG_WORKAROUND_IGNORE_TFDT_BOX) == 0) {
       fragment.nextFragmentDecodeTime = parseTfdt(traf.getLeafAtomOfType(Atom.TYPE_tfdt).data);
+      fragment.nextFragmentDecodeTimeIncludesMoov = true;
     } else {
       fragment.nextFragmentDecodeTime = fragmentDecodeTime;
+      fragment.nextFragmentDecodeTimeIncludesMoov = fragmentDecodeTimeIncludesMoov;
     }
 
     parseTruns(traf, trackBundle, flags);
@@ -1023,7 +1026,9 @@ public class FragmentedMp4Extractor implements Extractor {
       }
       sampleDecodingTimeUsTable[i] =
           Util.scaleLargeTimestamp(cumulativeTime, C.MICROS_PER_SECOND, timescale) - edtsOffsetUs;
-      sampleDecodingTimeUsTable[i] += trackBundle.moovSampleTable.durationUs;
+      if (!fragment.nextFragmentDecodeTimeIncludesMoov) {
+        sampleDecodingTimeUsTable[i] += trackBundle.moovSampleTable.durationUs;
+      }
       sampleSizeTable[i] = sampleSize;
       sampleIsSyncFrameTable[i] = ((sampleFlags >> 16) & 0x1) == 0
           && (!workaroundEveryVideoFrameIsSyncFrame || i == 0);
