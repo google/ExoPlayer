@@ -35,6 +35,7 @@ dependencies {
     androidTestImplementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     androidTestImplementation 'androidx.test:rules:' + androidxTestRulesVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation 'com.google.guava:guava:' + guavaVersion
     androidTestCompileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'com.google.guava:guava:' + guavaVersion

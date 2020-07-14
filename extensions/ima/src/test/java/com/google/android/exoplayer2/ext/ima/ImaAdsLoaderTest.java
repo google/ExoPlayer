@@ -116,7 +116,6 @@ public final class ImaAdsLoaderTest {
   @Mock private AdEvent mockPostrollFetchErrorAdEvent;
 
   private ViewGroup adViewGroup;
-  private View adOverlayView;
   private AdsLoader.AdViewProvider adViewProvider;
   private AdEvent.AdEventListener adEventListener;
   private ContentProgressProvider contentProgressProvider;
@@ -129,7 +128,7 @@ public final class ImaAdsLoaderTest {
   public void setUp() {
     setupMocks();
     adViewGroup = new FrameLayout(ApplicationProvider.getApplicationContext());
-    adOverlayView = new View(ApplicationProvider.getApplicationContext());
+    View adOverlayView = new View(ApplicationProvider.getApplicationContext());
     adViewProvider =
         new AdsLoader.AdViewProvider() {
           @Override
@@ -138,8 +137,9 @@ public final class ImaAdsLoaderTest {
           }
 
           @Override
-          public View[] getAdOverlayViews() {
-            return new View[] {adOverlayView};
+          public ImmutableList<AdsLoader.OverlayInfo> getAdOverlayInfos() {
+            return ImmutableList.of(
+                new AdsLoader.OverlayInfo(adOverlayView, AdsLoader.OverlayInfo.PURPOSE_CLOSE_AD));
           }
         };
   }
