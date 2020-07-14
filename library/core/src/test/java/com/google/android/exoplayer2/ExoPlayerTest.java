@@ -2443,7 +2443,7 @@ public final class ExoPlayerTest {
         .start()
         .blockUntilActionScheduleFinished(TIMEOUT_MS)
         .blockUntilEnded(TIMEOUT_MS);
-    assertThat(Collections.frequency(rendererMessages, C.MSG_SET_SURFACE)).isEqualTo(2);
+    assertThat(Collections.frequency(rendererMessages, Renderer.MSG_SET_SURFACE)).isEqualTo(2);
   }
 
   @Test

@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.util.Util;
  * android.media.AudioTrack}.
  *
  * <p>To set the audio attributes, create an instance using the {@link Builder} and either pass it
- * to the player or send a message of type {@link C#MSG_SET_AUDIO_ATTRIBUTES} to the audio
+ * to the player or send a message of type {@code Renderer#MSG_SET_AUDIO_ATTRIBUTES} to the audio
  * renderers.
  *
  * <p>This class is based on {@link android.media.AudioAttributes}, but can be used on all supported

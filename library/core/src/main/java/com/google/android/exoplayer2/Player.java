@@ -311,9 +311,9 @@ public interface Player {
 
     /**
      * Sets the video decoder output buffer renderer. This is intended for use only with extension
-     * renderers that accept {@link C#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. For most use
-     * cases, an output surface or view should be passed via {@link #setVideoSurface(Surface)} or
-     * {@link #setVideoSurfaceView(SurfaceView)} instead.
+     * renderers that accept {@link Renderer#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. For most
+     * use cases, an output surface or view should be passed via {@link #setVideoSurface(Surface)}
+     * or {@link #setVideoSurfaceView(SurfaceView)} instead.
      *
      * @param videoDecoderOutputBufferRenderer The video decoder output buffer renderer, or {@code
      *     null} to clear the output buffer renderer.
