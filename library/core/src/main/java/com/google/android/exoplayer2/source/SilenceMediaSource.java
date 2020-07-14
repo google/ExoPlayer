@@ -55,7 +55,8 @@ public final class SilenceMediaSource extends BaseMediaSource {
     /**
      * Sets a tag for the media source which will be published in the {@link
      * com.google.android.exoplayer2.Timeline} of the source as {@link
-     * com.google.android.exoplayer2.Timeline.Window#tag}.
+     * com.google.android.exoplayer2.MediaItem.PlaybackProperties#tag
+     * Window#mediaItem.playbackProperties.tag}.
      *
      * @param tag A tag for the media source.
      * @return This factory, for convenience.

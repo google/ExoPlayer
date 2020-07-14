@@ -89,6 +89,7 @@ public final class SinglePeriodTimelineTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Testing deprecated Window.tag is still populated correctly.
   public void setNullTag_returnsNullTag_butUsesDefaultUid() {
     SinglePeriodTimeline timeline =
         new SinglePeriodTimeline(
@@ -100,6 +101,8 @@ public final class SinglePeriodTimelineTest {
             new MediaItem.Builder().setUri(Uri.EMPTY).setTag(null).build());
 
     assertThat(timeline.getWindow(/* windowIndex= */ 0, window).tag).isNull();
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, window).mediaItem.playbackProperties.tag)
+        .isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).id).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).id).isNull();
     assertThat(timeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ false).uid).isNull();
@@ -108,6 +111,7 @@ public final class SinglePeriodTimelineTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Testing deprecated Window.tag is still populated correctly.
   public void getWindow_setsTag() {
     Object tag = new Object();
     SinglePeriodTimeline timeline =
