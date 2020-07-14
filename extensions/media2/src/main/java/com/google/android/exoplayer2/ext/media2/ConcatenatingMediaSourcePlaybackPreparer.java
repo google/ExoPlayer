@@ -42,6 +42,7 @@ public final class ConcatenatingMediaSourcePlaybackPreparer implements PlaybackP
 
   @Override
   public void preparePlayback() {
-    exoPlayer.prepare(concatenatingMediaSource);
+    exoPlayer.setMediaSource(concatenatingMediaSource);
+    exoPlayer.prepare();
   }
 }

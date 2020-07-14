@@ -95,7 +95,8 @@ public class OpusPlaybackTest {
                   new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"),
                   MatroskaExtractor.FACTORY)
               .createMediaSource(MediaItem.fromUri(uri));
-      player.prepare(mediaSource);
+      player.setMediaSource(mediaSource);
+      player.prepare();
       player.play();
       Looper.loop();
     }

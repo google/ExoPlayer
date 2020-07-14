@@ -3526,6 +3526,7 @@ public final class ExoPlayerTest {
     assertArrayEquals(new long[] {5_000}, currentPlaybackPositions);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void seekTo_windowIndexIsReset_deprecated() throws Exception {
     FakeTimeline fakeTimeline = new FakeTimeline(/* windowCount= */ 1);
@@ -3542,7 +3543,6 @@ public final class ExoPlayerTest {
                 new PlayerRunnable() {
                   @Override
                   public void run(SimpleExoPlayer player) {
-                    //noinspection deprecation
                     player.prepare(mediaSource);
                     player.seekTo(/* positionMs= */ 5000);
                   }

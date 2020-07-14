@@ -128,7 +128,8 @@ public class VpxPlaybackTest {
           .setType(C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
           .setPayload(new VideoDecoderGLSurfaceView(context).getVideoDecoderOutputBufferRenderer())
           .send();
-      player.prepare(mediaSource);
+      player.setMediaSource(mediaSource);
+      player.prepare();
       player.play();
       Looper.loop();
     }
