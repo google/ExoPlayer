@@ -140,6 +140,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
 
     mediaCodecVideoRenderer.start();
@@ -171,6 +172,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     mediaCodecVideoRenderer.setCurrentStreamFinal();
     mediaCodecVideoRenderer.start();
@@ -212,6 +214,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -256,6 +259,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
 
     mediaCodecVideoRenderer.start();
@@ -291,6 +295,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -317,6 +322,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -342,6 +348,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     mediaCodecVideoRenderer.start();
     for (int i = 0; i < 10; i++) {
@@ -352,7 +359,7 @@ public class MediaCodecVideoRendererTest {
   }
 
   @Test
-  public void replaceStream_whenStarted_rendersFirstFrameOfNewStream() throws Exception {
+  public void replaceStream_rendersFirstFrameOnlyAfterStartPosition() throws Exception {
     FakeSampleStream fakeSampleStream1 =
         new FakeSampleStream(
             /* mediaSourceEventDispatcher= */ null,
@@ -369,7 +376,7 @@ public class MediaCodecVideoRendererTest {
             new DrmSessionEventListener.EventDispatcher(),
             /* initialFormat= */ VIDEO_H264,
             ImmutableList.of(
-                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME),
+                oneByteSample(/* timeUs= */ 1_000_000, C.BUFFER_FLAG_KEY_FRAME),
                 FakeSampleStreamItem.END_OF_STREAM_ITEM));
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -378,67 +385,30 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
-    mediaCodecVideoRenderer.start();
 
     boolean replacedStream = false;
-    for (int i = 0; i <= 10; i++) {
+    // Render until just before the start position of the second stream
+    for (int i = 0; i < 5; i++) {
       mediaCodecVideoRenderer.render(
           /* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && mediaCodecVideoRenderer.hasReadStreamToEnd()) {
         mediaCodecVideoRenderer.replaceStream(
-            new Format[] {VIDEO_H264}, fakeSampleStream2, /* offsetUs= */ 100);
+            new Format[] {VIDEO_H264},
+            fakeSampleStream2,
+            /* startPositionUs= */ 50,
+            /* offsetUs= */ 100);
         replacedStream = true;
       }
     }
 
-    verify(eventListener, times(2)).onRenderedFirstFrame(any());
-  }
-
-  @Test
-  public void replaceStream_whenNotStarted_doesNotRenderFirstFrameOfNewStream() throws Exception {
-    FakeSampleStream fakeSampleStream1 =
-        new FakeSampleStream(
-            /* mediaSourceEventDispatcher= */ null,
-            DrmSessionManager.DUMMY,
-            new DrmSessionEventListener.EventDispatcher(),
-            /* initialFormat= */ VIDEO_H264,
-            ImmutableList.of(
-                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME),
-                FakeSampleStreamItem.END_OF_STREAM_ITEM));
-    FakeSampleStream fakeSampleStream2 =
-        new FakeSampleStream(
-            /* mediaSourceEventDispatcher= */ null,
-            DrmSessionManager.DUMMY,
-            new DrmSessionEventListener.EventDispatcher(),
-            /* initialFormat= */ VIDEO_H264,
-            ImmutableList.of(
-                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME),
-                FakeSampleStreamItem.END_OF_STREAM_ITEM));
-    mediaCodecVideoRenderer.enable(
-        RendererConfiguration.DEFAULT,
-        new Format[] {VIDEO_H264},
-        fakeSampleStream1,
-        /* positionUs= */ 0,
-        /* joining= */ false,
-        /* mayRenderStartOfStream= */ true,
-        /* offsetUs */ 0);
-
-    boolean replacedStream = false;
-    for (int i = 0; i < 10; i++) {
-      mediaCodecVideoRenderer.render(
-          /* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
-      if (!replacedStream && mediaCodecVideoRenderer.hasReadStreamToEnd()) {
-        mediaCodecVideoRenderer.replaceStream(
-            new Format[] {VIDEO_H264}, fakeSampleStream2, /* offsetUs= */ 100);
-        replacedStream = true;
-      }
-    }
-
+    // Expect only the first frame of the first stream to have been rendered.
     verify(eventListener).onRenderedFirstFrame(any());
 
-    // Render to streamOffsetUs and verify the new first frame gets rendered.
-    mediaCodecVideoRenderer.render(/* positionUs= */ 100, SystemClock.elapsedRealtime() * 1000);
+    // Render to the start position of the stream and verify the new first frame gets rendered (even
+    // though its sampleTimeUs is far in the future).
+    mediaCodecVideoRenderer.render(/* positionUs= */ 50, SystemClock.elapsedRealtime() * 1000);
 
     verify(eventListener, times(2)).onRenderedFirstFrame(any());
   }
@@ -473,6 +443,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
 
     mediaCodecVideoRenderer.setCurrentStreamFinal();

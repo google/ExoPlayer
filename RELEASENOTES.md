@@ -96,6 +96,8 @@
         ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
     *   Remove `AdaptiveTrackSelection.minTimeBetweenBufferReevaluationMs`
         parameter ([#7582](https://github.com/google/ExoPlayer/issues/7582)).
+    *   Distinguish between `offsetUs` and `startPositionUs` when passing new
+        `SampleStreams` to `Renderers`.
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Track selection:
     *   Add `Player.getTrackSelector`.

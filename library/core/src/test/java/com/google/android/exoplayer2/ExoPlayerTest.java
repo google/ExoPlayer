@@ -7245,7 +7245,7 @@ public final class ExoPlayerTest {
     FakeRenderer audioRenderer =
         new FakeRenderer(C.TRACK_TYPE_AUDIO) {
           @Override
-          protected void onStreamChanged(Format[] formats, long offsetUs)
+          protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
               throws ExoPlaybackException {
             // Fail when changing streams. This will happen during the period transition.
             throw createRendererException(
@@ -7758,7 +7758,7 @@ public final class ExoPlayerTest {
           boolean pendingFirstBufferTime = false;
 
           @Override
-          protected void onStreamChanged(Format[] formats, long offsetUs) {
+          protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
             rendererStreamOffsetsUs.add(offsetUs);
             pendingFirstBufferTime = true;
           }

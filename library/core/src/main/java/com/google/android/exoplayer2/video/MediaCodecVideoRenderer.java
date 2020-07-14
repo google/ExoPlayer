@@ -774,8 +774,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       initialPositionUs = positionUs;
     }
 
-    long outputStreamOffsetUs = getOutputStreamOffsetUs();
-    long presentationTimeUs = bufferPresentationTimeUs - outputStreamOffsetUs;
+    long presentationTimeUs = bufferPresentationTimeUs - getOutputStreamOffsetUs();
 
     if (isDecodeOnlyBuffer && !isLastBuffer) {
       skipOutputBuffer(codec, bufferIndex, presentationTimeUs);
@@ -803,7 +802,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // Don't force output until we joined and the position reached the current stream.
     boolean forceRenderOutputBuffer =
         joiningDeadlineMs == C.TIME_UNSET
-            && positionUs >= outputStreamOffsetUs
+            && positionUs >= getOutputStreamStartPositionUs()
             && (shouldRenderFirstFrame
                 || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
     if (forceRenderOutputBuffer) {

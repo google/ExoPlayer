@@ -36,7 +36,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private SampleStream stream;
   private Format[] streamFormats;
   private long streamOffsetUs;
-  private long startPositionUs;
+  private long lastResetPositionUs;
   private long readingPositionUs;
   private boolean streamIsFinal;
   private boolean throwRendererExceptionIsExecuting;
@@ -85,14 +85,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       long positionUs,
       boolean joining,
       boolean mayRenderStartOfStream,
+      long startPositionUs,
       long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
-    startPositionUs = positionUs;
+    lastResetPositionUs = positionUs;
     onEnabled(joining, mayRenderStartOfStream);
-    replaceStream(formats, stream, offsetUs);
+    replaceStream(formats, stream, startPositionUs, offsetUs);
     onPositionReset(positionUs, joining);
   }
 
@@ -104,14 +105,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void replaceStream(Format[] formats, SampleStream stream, long offsetUs)
+  public final void replaceStream(
+      Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
-    readingPositionUs = offsetUs;
+    readingPositionUs = startPositionUs;
     streamFormats = formats;
     streamOffsetUs = offsetUs;
-    onStreamChanged(formats, offsetUs);
+    onStreamChanged(formats, startPositionUs, offsetUs);
   }
 
   @Override
@@ -148,7 +150,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void resetPosition(long positionUs) throws ExoPlaybackException {
     streamIsFinal = false;
-    startPositionUs = positionUs;
+    lastResetPositionUs = positionUs;
     readingPositionUs = positionUs;
     onPositionReset(positionUs, false);
   }
@@ -218,24 +220,26 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * <p>The default implementation is a no-op.
    *
    * @param formats The enabled formats.
+   * @param startPositionUs The start position of the new stream in renderer time (microseconds).
    * @param offsetUs The offset that will be added to the timestamps of buffers read via {@link
    *     #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input buffers have
    *     monotonically increasing timestamps.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 
   /**
-   * Called when the position is reset. This occurs when the renderer is enabled after
-   * {@link #onStreamChanged(Format[], long)} has been called, and also when a position
-   * discontinuity is encountered.
-   * <p>
-   * After a position reset, the renderer's {@link SampleStream} is guaranteed to provide samples
+   * Called when the position is reset. This occurs when the renderer is enabled after {@link
+   * #onStreamChanged(Format[], long, long)} has been called, and also when a position discontinuity
+   * is encountered.
+   *
+   * <p>After a position reset, the renderer's {@link SampleStream} is guaranteed to provide samples
    * starting from a key frame.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param positionUs The new playback position in microseconds.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
@@ -289,8 +293,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * Returns the position passed to the most recent call to {@link #enable} or {@link
    * #resetPosition}.
    */
-  protected final long getStartPositionUs() {
-    return startPositionUs;
+  protected final long getLastResetPositionUs() {
+    return lastResetPositionUs;
   }
 
   /** Returns a clear {@link FormatHolder}. */

@@ -292,6 +292,7 @@ public interface Renderer extends PlayerMessage.Target {
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @param mayRenderStartOfStream Whether this renderer is allowed to render the start of the
    *     stream even if the state is not {@link #STATE_STARTED} yet.
+   * @param startPositionUs The start position of the stream in renderer time (microseconds).
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
    *     they are rendered.
    * @throws ExoPlaybackException If an error occurs.
@@ -303,6 +304,7 @@ public interface Renderer extends PlayerMessage.Target {
       long positionUs,
       boolean joining,
       boolean mayRenderStartOfStream,
+      long startPositionUs,
       long offsetUs)
       throws ExoPlaybackException;
 
@@ -319,17 +321,18 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Replaces the {@link SampleStream} from which samples will be consumed.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @param formats The enabled formats.
    * @param stream The {@link SampleStream} from which the renderer should consume.
+   * @param startPositionUs The start position of the new stream in renderer time (microseconds).
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
    *     they are rendered.
    * @throws ExoPlaybackException If an error occurs.
    */
-  void replaceStream(Format[] formats, SampleStream stream, long offsetUs)
+  void replaceStream(Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
       throws ExoPlaybackException;
 
   /** Returns the {@link SampleStream} being consumed, or null if the renderer is disabled. */
@@ -345,7 +348,7 @@ public interface Renderer extends PlayerMessage.Target {
   boolean hasReadStreamToEnd();
 
   /**
-   * Returns the playback position up to which the renderer has read samples from the current {@link
+   * Returns the renderer time up to which the renderer has read samples from the current {@link
    * SampleStream}, in microseconds, or {@link C#TIME_END_OF_SOURCE} if the renderer has read the
    * current {@link SampleStream} to the end.
    *
@@ -418,8 +421,8 @@ public interface Renderer extends PlayerMessage.Target {
    * <p>The renderer may also render the very start of the media at the current position (e.g. the
    * first frame of a video stream) while still in the {@link #STATE_ENABLED} state, unless it's the
    * initial start of the media after calling {@link #enable(RendererConfiguration, Format[],
-   * SampleStream, long, boolean, boolean, long)} with {@code mayRenderStartOfStream} set to {@code
-   * false}.
+   * SampleStream, long, boolean, boolean, long, long)} with {@code mayRenderStartOfStream} set to
+   * {@code false}.
    *
    * <p>This method should return quickly, and should not block if the renderer is unable to make
    * useful progress.
