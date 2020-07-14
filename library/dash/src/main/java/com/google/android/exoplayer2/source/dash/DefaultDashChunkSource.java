@@ -442,6 +442,16 @@ public class DefaultDashChunkSource implements DashChunkSource {
         && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), exclusionDurationMs);
   }
 
+  @Override
+  public void release() {
+    for (RepresentationHolder representationHolder : representationHolders) {
+      @Nullable ChunkExtractor chunkExtractor = representationHolder.chunkExtractor;
+      if (chunkExtractor != null) {
+        chunkExtractor.release();
+      }
+    }
+  }
+
   // Internal methods.
 
   private long getSegmentNum(

@@ -271,6 +271,13 @@ public class DefaultSsChunkSource implements SsChunkSource {
         && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), exclusionDurationMs);
   }
 
+  @Override
+  public void release() {
+    for (ChunkExtractor chunkExtractor : chunkExtractors) {
+      chunkExtractor.release();
+    }
+  }
+
   // Private methods.
 
   private static MediaChunk newMediaChunk(

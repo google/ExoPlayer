@@ -74,6 +74,9 @@ public interface ChunkExtractor {
    */
   void init(@Nullable TrackOutputProvider trackOutputProvider, long startTimeUs, long endTimeUs);
 
+  /** Releases any held resources. */
+  void release();
+
   /**
    * Reads from the given {@link ExtractorInput}.
    *

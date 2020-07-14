@@ -104,4 +104,7 @@ public interface ChunkSource {
    *     chunk.
    */
   boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs);
+
+  /** Releases any held resources. */
+  void release();
 }

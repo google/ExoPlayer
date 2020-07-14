@@ -355,6 +355,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
       embeddedSampleQueue.release();
     }
+    chunkSource.release();
     if (releaseCallback != null) {
       releaseCallback.onSampleStreamReleased(this);
     }

@@ -150,4 +150,8 @@ public final class FakeChunkSource implements ChunkSource {
     return false;
   }
 
+  @Override
+  public void release() {
+    // Do nothing.
+  }
 }
