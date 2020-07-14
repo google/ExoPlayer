@@ -270,7 +270,7 @@ public final class DownloadHelper {
         dataSourceFactory,
         renderersFactory,
         /* drmSessionManager= */ null,
-        DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT);
+        DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT);
   }
 
   /**

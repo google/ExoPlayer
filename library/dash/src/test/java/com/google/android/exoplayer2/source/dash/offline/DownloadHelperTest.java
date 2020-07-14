@@ -39,7 +39,7 @@ public final class DownloadHelperTest {
         new FakeDataSource.Factory());
     DownloadHelper.forMediaItem(
         new MediaItem.Builder().setUri("http://uri").setMimeType(MimeTypes.APPLICATION_MPD).build(),
-        DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT,
+        DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT,
         (handler, videoListener, audioListener, text, metadata) -> new Renderer[0],
         new FakeDataSource.Factory(),
         /* drmSessionManager= */ DrmSessionManager.getDummyDrmSessionManager());

@@ -121,7 +121,7 @@ public class DownloadHelperTest {
         new DownloadHelper(
             testMediaItem,
             new TestMediaSource(),
-            DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT,
+            DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT,
             DownloadHelper.getRendererCapabilities(renderersFactory));
   }
 
