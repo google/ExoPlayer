@@ -326,6 +326,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
    *     Default is false.
    * @deprecated Use {@link Builder} instead.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultDrmSessionManager(
       UUID uuid,

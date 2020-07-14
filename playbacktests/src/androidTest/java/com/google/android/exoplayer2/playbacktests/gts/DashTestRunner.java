@@ -262,29 +262,29 @@ import java.util.List;
       if (widevineLicenseUrl == null) {
         return DrmSessionManager.getDummyDrmSessionManager();
       }
-      try {
-        MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
-            new DefaultHttpDataSourceFactory(userAgent));
-        FrameworkMediaDrm frameworkMediaDrm = FrameworkMediaDrm.newInstance(WIDEVINE_UUID);
-        DefaultDrmSessionManager drmSessionManager =
-            new DefaultDrmSessionManager(
-                C.WIDEVINE_UUID,
-                frameworkMediaDrm,
-                drmCallback,
-                /* keyRequestParameters= */ null,
-                /* multiSession= */ false,
-                DefaultDrmSessionManager.INITIAL_DRM_REQUEST_RETRY_COUNT);
-        if (!useL1Widevine) {
-          frameworkMediaDrm.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
-        }
-        if (offlineLicenseKeySetId != null) {
-          drmSessionManager.setMode(DefaultDrmSessionManager.MODE_PLAYBACK,
-              offlineLicenseKeySetId);
-        }
-        return drmSessionManager;
-      } catch (UnsupportedDrmException e) {
-        throw new IllegalStateException(e);
+      MediaDrmCallback drmCallback =
+          new HttpMediaDrmCallback(widevineLicenseUrl, new DefaultHttpDataSourceFactory(userAgent));
+      DefaultDrmSessionManager drmSessionManager =
+          new DefaultDrmSessionManager.Builder()
+              .setUuidAndExoMediaDrmProvider(
+                  C.WIDEVINE_UUID,
+                  uuid -> {
+                    try {
+                      FrameworkMediaDrm drm = FrameworkMediaDrm.newInstance(WIDEVINE_UUID);
+                      if (!useL1Widevine) {
+                        drm.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
+                      }
+                      return drm;
+                    } catch (UnsupportedDrmException e) {
+                      throw new IllegalStateException(e);
+                    }
+                  })
+              .build(drmCallback);
+
+      if (offlineLicenseKeySetId != null) {
+        drmSessionManager.setMode(DefaultDrmSessionManager.MODE_PLAYBACK, offlineLicenseKeySetId);
       }
+      return drmSessionManager;
     }
 
     @Override
