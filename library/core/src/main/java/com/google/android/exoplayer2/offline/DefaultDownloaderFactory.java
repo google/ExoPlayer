@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.offline;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.lang.reflect.Constructor;
@@ -107,7 +108,12 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     switch (request.type) {
       case DownloadRequest.TYPE_PROGRESSIVE:
         return new ProgressiveDownloader(
-            request.uri, request.customCacheKey, cacheDataSourceFactory, executor);
+            new MediaItem.Builder()
+                .setUri(request.uri)
+                .setCustomCacheKey(request.customCacheKey)
+                .build(),
+            cacheDataSourceFactory,
+            executor);
       case DownloadRequest.TYPE_DASH:
         return createDownloader(request, DASH_DOWNLOADER_CONSTRUCTOR);
       case DownloadRequest.TYPE_HLS:
