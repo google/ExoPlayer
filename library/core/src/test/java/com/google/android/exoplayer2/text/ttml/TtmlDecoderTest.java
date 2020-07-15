@@ -304,16 +304,16 @@ public final class TtmlDecoderTest {
     // assertEquals(1f, cue.size);
 
     cue = getOnlyCueAtTimeUs(subtitle, 21_000_000);
-    assertThat(cue.text.toString()).isEqualTo("She first said this");
+    assertThat(cue.text.toString()).isEqualTo("They first said this");
     assertThat(cue.position).isEqualTo(45f / 100f);
     assertThat(cue.line).isEqualTo(45f / 100f);
     assertThat(cue.size).isEqualTo(35f / 100f);
 
     cue = getOnlyCueAtTimeUs(subtitle, 25_000_000);
-    assertThat(cue.text.toString()).isEqualTo("She first said this\nThen this");
+    assertThat(cue.text.toString()).isEqualTo("They first said this\nThen this");
 
     cue = getOnlyCueAtTimeUs(subtitle, 29_000_000);
-    assertThat(cue.text.toString()).isEqualTo("She first said this\nThen this\nFinally this");
+    assertThat(cue.text.toString()).isEqualTo("They first said this\nThen this\nFinally this");
     assertThat(cue.position).isEqualTo(45f / 100f);
     assertThat(cue.line).isEqualTo(45f / 100f);
   }

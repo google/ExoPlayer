@@ -21,7 +21,7 @@
             <p begin="1s" end="4s" region="region4">amet</p>
         </div>
         <div region="ultimate">
-            <p begin="21s" end="34s">She first said this</p>
+            <p begin="21s" end="34s">They first said this</p>
             <p begin="25s" end="34s">Then this</p>
             <p begin="29s" end="34s">Finally this</p>
         </div>
