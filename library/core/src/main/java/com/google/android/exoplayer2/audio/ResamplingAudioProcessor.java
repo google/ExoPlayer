@@ -116,7 +116,7 @@ import java.nio.ByteBuffer;
         // 32 bit floating point -> 16 bit resampling. Floating point values are in the range
         // [-1.0, 1.0], so need to be scaled by Short.MAX_VALUE.
         for (int i = position; i < limit; i += 4) {
-          // Clamp to avoid integer overflow if the floating point values exceed their allowed range
+          // Clamp to avoid integer overflow if the floating point values exceed their nominal range
           // [Internal ref: b/161204847].
           float floatValue =
               Util.constrainValue(inputBuffer.getFloat(i), /* min= */ -1, /* max= */ 1);
