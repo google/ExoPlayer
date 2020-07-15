@@ -140,11 +140,9 @@ public interface AudioRendererEventListener {
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioSinkUnderrun(int, long, long)}.
-     */
-    public void audioTrackUnderrun(final int bufferSize, final long bufferSizeMs,
-        final long elapsedSinceLastFeedMs) {
+    /** Invokes {@link AudioRendererEventListener#onAudioSinkUnderrun(int, long, long)}. */
+    public void underrun(
+        final int bufferSize, final long bufferSizeMs, final long elapsedSinceLastFeedMs) {
       if (handler != null) {
         handler.post(
             () ->

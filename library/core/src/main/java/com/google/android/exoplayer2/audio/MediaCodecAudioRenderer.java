@@ -22,6 +22,7 @@ import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
+import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -481,19 +482,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
-  protected void onAudioTrackPositionDiscontinuity() {
-    // Do nothing.
-  }
-
-  /** See {@link AudioSink.Listener#onUnderrun(int, long, long)}. */
-  protected void onAudioTrackUnderrun(
-      int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    // Do nothing.
-  }
-
-  /** See {@link AudioSink.Listener#onSkipSilenceEnabledChanged(boolean)}. */
-  protected void onAudioTrackSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
-    // Do nothing.
+  @CallSuper
+  protected void onPositionDiscontinuity() {
+    // We are out of sync so allow currentPositionUs to jump backwards.
+    allowPositionDiscontinuity = true;
   }
 
   @Override
@@ -860,21 +852,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
     @Override
     public void onPositionDiscontinuity() {
-      onAudioTrackPositionDiscontinuity();
-      // We are out of sync so allow currentPositionUs to jump backwards.
-      MediaCodecAudioRenderer.this.allowPositionDiscontinuity = true;
+      MediaCodecAudioRenderer.this.onPositionDiscontinuity();
     }
 
     @Override
     public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-      eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
-      onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+      eventDispatcher.underrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
     }
 
     @Override
     public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
       eventDispatcher.skipSilenceEnabledChanged(skipSilenceEnabled);
-      onAudioTrackSkipSilenceEnabledChanged(skipSilenceEnabled);
     }
 
     @Override
