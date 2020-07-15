@@ -468,17 +468,7 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   public void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException {
-    if (Util.SDK_INT < 21 && inputFormat.channelCount == 8 && outputChannels == null) {
-      // AudioTrack doesn't support 8 channel output before Android L. Discard the last two (side)
-      // channels to give a 6 channel stream that is supported.
-      outputChannels = new int[6];
-      for (int i = 0; i < outputChannels.length; i++) {
-        outputChannels[i] = i;
-      }
-    }
-
     boolean isInputPcm = Util.isEncodingLinearPcm(inputFormat.encoding);
-    boolean processingEnabled = isInputPcm;
     int sampleRate = inputFormat.sampleRate;
     int channelCount = inputFormat.channelCount;
     @C.Encoding int encoding = inputFormat.encoding;
@@ -486,10 +476,20 @@ public final class DefaultAudioSink implements AudioSink {
         enableFloatOutput && Util.isEncodingHighResolutionPcm(inputFormat.encoding);
     AudioProcessor[] availableAudioProcessors =
         useFloatOutput ? toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
-    if (processingEnabled) {
+    if (isInputPcm) {
       trimmingAudioProcessor.setTrimFrameCount(
           inputFormat.encoderDelay, inputFormat.encoderPadding);
+
+      if (Util.SDK_INT < 21 && inputFormat.channelCount == 8 && outputChannels == null) {
+        // AudioTrack doesn't support 8 channel output before Android L. Discard the last two (side)
+        // channels to give a 6 channel stream that is supported.
+        outputChannels = new int[6];
+        for (int i = 0; i < outputChannels.length; i++) {
+          outputChannels[i] = i;
+        }
+      }
       channelMappingAudioProcessor.setChannelMap(outputChannels);
+
       AudioProcessor.AudioFormat outputFormat =
           new AudioProcessor.AudioFormat(sampleRate, channelCount, encoding);
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
@@ -518,7 +518,7 @@ public final class DefaultAudioSink implements AudioSink {
             : C.LENGTH_UNSET;
     int outputPcmFrameSize =
         isInputPcm ? Util.getPcmFrameSize(encoding, channelCount) : C.LENGTH_UNSET;
-    boolean canApplyPlaybackParameters = processingEnabled && !useFloatOutput;
+    boolean canApplyPlaybackParameters = isInputPcm && !useFloatOutput;
     boolean useOffload =
         enableOffload
             && !isInputPcm
@@ -540,7 +540,6 @@ public final class DefaultAudioSink implements AudioSink {
             outputChannelConfig,
             encoding,
             specifiedBufferSize,
-            processingEnabled,
             canApplyPlaybackParameters,
             availableAudioProcessors,
             inputFormat.encoderDelay,
@@ -900,8 +899,7 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean drainToEndOfStream() throws WriteException {
     boolean audioProcessorNeedsEndOfStream = false;
     if (drainingAudioProcessorIndex == C.INDEX_UNSET) {
-      drainingAudioProcessorIndex =
-          configuration.processingEnabled ? 0 : activeAudioProcessors.length;
+      drainingAudioProcessorIndex = configuration.isInputPcm ? 0 : activeAudioProcessors.length;
       audioProcessorNeedsEndOfStream = true;
     }
     while (drainingAudioProcessorIndex < activeAudioProcessors.length) {
@@ -1622,7 +1620,6 @@ public final class DefaultAudioSink implements AudioSink {
     public final int outputChannelConfig;
     @C.Encoding public final int outputEncoding;
     public final int bufferSize;
-    public final boolean processingEnabled;
     public final boolean canApplyPlaybackParameters;
     public final AudioProcessor[] availableAudioProcessors;
     public int trimStartFrames;
@@ -1638,7 +1635,6 @@ public final class DefaultAudioSink implements AudioSink {
         int outputChannelConfig,
         int outputEncoding,
         int specifiedBufferSize,
-        boolean processingEnabled,
         boolean canApplyPlaybackParameters,
         AudioProcessor[] availableAudioProcessors,
         int trimStartFrames,
@@ -1651,7 +1647,6 @@ public final class DefaultAudioSink implements AudioSink {
       this.outputSampleRate = outputSampleRate;
       this.outputChannelConfig = outputChannelConfig;
       this.outputEncoding = outputEncoding;
-      this.processingEnabled = processingEnabled;
       this.canApplyPlaybackParameters = canApplyPlaybackParameters;
       this.availableAudioProcessors = availableAudioProcessors;
       this.trimStartFrames = trimStartFrames;
