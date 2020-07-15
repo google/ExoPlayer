@@ -1627,19 +1627,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
             || !shouldPlayWhenReady());
   }
 
-  private void maybeThrowSourceInfoRefreshError() throws IOException {
-    MediaPeriodHolder loadingPeriodHolder = queue.getLoadingPeriod();
-    if (loadingPeriodHolder != null) {
-      // Defer throwing until we read all available media periods.
-      for (Renderer renderer : renderers) {
-        if (isRendererEnabled(renderer) && !renderer.hasReadStreamToEnd()) {
-          return;
-        }
-      }
-    }
-    mediaSourceList.maybeThrowSourceInfoRefreshError();
-  }
-
   private void handleMediaSourceListInfoRefreshed(Timeline timeline) throws ExoPlaybackException {
     PositionUpdateForPlaylistChange positionUpdate =
         resolvePositionForPlaylistChange(
@@ -1733,8 +1720,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void updatePeriods() throws ExoPlaybackException, IOException {
     if (playbackInfo.timeline.isEmpty() || !mediaSourceList.isPrepared()) {
-      // We're waiting to get information about periods.
-      mediaSourceList.maybeThrowSourceInfoRefreshError();
+      // No periods available.
       return;
     }
     maybeUpdateLoadingPeriod();
@@ -1743,13 +1729,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
     maybeUpdatePlayingPeriod();
   }
 
-  private void maybeUpdateLoadingPeriod() throws ExoPlaybackException, IOException {
+  private void maybeUpdateLoadingPeriod() throws ExoPlaybackException {
     queue.reevaluateBuffer(rendererPositionUs);
     if (queue.shouldLoadNextMediaPeriod()) {
+      @Nullable
       MediaPeriodInfo info = queue.getNextMediaPeriodInfo(rendererPositionUs, playbackInfo);
-      if (info == null) {
-        maybeThrowSourceInfoRefreshError();
-      } else {
+      if (info != null) {
         MediaPeriodHolder mediaPeriodHolder =
             queue.enqueueNextMediaPeriodHolder(
                 rendererCapabilities,

@@ -575,6 +575,7 @@ import com.google.common.collect.ImmutableList;
   /**
    * Returns the first {@link MediaPeriodInfo} to play, based on the specified playback position.
    */
+  @Nullable
   private MediaPeriodInfo getFirstMediaPeriodInfo(PlaybackInfo playbackInfo) {
     return getMediaPeriodInfo(
         playbackInfo.timeline,
@@ -729,6 +730,7 @@ import com.google.common.collect.ImmutableList;
     }
   }
 
+  @Nullable
   private MediaPeriodInfo getMediaPeriodInfo(
       Timeline timeline, MediaPeriodId id, long requestedContentPositionUs, long startPositionUs) {
     timeline.getPeriodByUid(id.periodUid, period);

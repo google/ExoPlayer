@@ -342,13 +342,6 @@ import java.util.Set;
     isPrepared = false;
   }
 
-  /** Throws any pending error encountered while loading or refreshing. */
-  public void maybeThrowSourceInfoRefreshError() throws IOException {
-    for (MediaSourceAndListener childSource : childSources.values()) {
-      childSource.mediaSource.maybeThrowSourceInfoRefreshError();
-    }
-  }
-
   /** Creates a timeline reflecting the current state of the playlist. */
   public Timeline createTimeline() {
     if (mediaSourceHolders.isEmpty()) {
