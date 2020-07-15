@@ -1889,8 +1889,17 @@ public final class ExoPlayerTest {
     AnalyticsListener listener =
         new AnalyticsListener() {
           @Override
-          public void onPlayerStateChanged(
-              EventTime eventTime, boolean playWhenReady, int playbackState) {
+          public void onPlaybackStateChanged(EventTime eventTime, @Player.State int state) {
+            if (eventTime.mediaPeriodId != null) {
+              reportedWindowSequenceNumbers.add(eventTime.mediaPeriodId.windowSequenceNumber);
+            }
+          }
+
+          @Override
+          public void onPlayWhenReadyChanged(
+              EventTime eventTime,
+              boolean playWhenReady,
+              @Player.PlayWhenReadyChangeReason int reason) {
             if (eventTime.mediaPeriodId != null) {
               reportedWindowSequenceNumbers.add(eventTime.mediaPeriodId.windowSequenceNumber);
             }

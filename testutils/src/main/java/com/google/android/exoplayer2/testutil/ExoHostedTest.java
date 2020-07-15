@@ -39,7 +39,6 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.HandlerWrapper;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -74,7 +73,6 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   private @MonotonicNonNull ExoPlaybackException playerError;
   private boolean playerWasPrepared;
 
-  private boolean playing;
   private long totalPlayingTimeMs;
   private long lastPlayingStartTimeMs;
   private long sourceDurationMs;
@@ -186,21 +184,21 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   // AnalyticsListener
 
   @Override
-  public final void onPlayerStateChanged(
-      EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {
-    Log.d(tag, "state [" + playWhenReady + ", " + playbackState + "]");
+  public final void onPlaybackStateChanged(EventTime eventTime, @Player.State int playbackState) {
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED
         || (playbackState == Player.STATE_IDLE && playerWasPrepared)) {
       stopTest();
     }
-    boolean playing = playWhenReady && playbackState == Player.STATE_READY;
-    if (!this.playing && playing) {
+  }
+
+  @Override
+  public void onIsPlayingChanged(EventTime eventTime, boolean playing) {
+    if (playing) {
       lastPlayingStartTimeMs = SystemClock.elapsedRealtime();
-    } else if (this.playing && !playing) {
+    } else {
       totalPlayingTimeMs += SystemClock.elapsedRealtime() - lastPlayingStartTimeMs;
     }
-    this.playing = playing;
   }
 
   @Override
