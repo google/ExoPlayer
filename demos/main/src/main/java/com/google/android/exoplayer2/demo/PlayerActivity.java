@@ -52,8 +52,8 @@ import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
-import com.google.android.exoplayer2.ui.PlayerControlView;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerControlView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
@@ -69,7 +69,7 @@ import java.util.List;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
-    implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
+    implements OnClickListener, PlaybackPreparer, StyledPlayerControlView.VisibilityListener {
 
   // Saved instance state keys.
 
@@ -85,7 +85,7 @@ public class PlayerActivity extends AppCompatActivity
     DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
   }
 
-  private PlayerView playerView;
+  private StyledPlayerView playerView;
   private LinearLayout debugRootView;
   private Button selectTracksButton;
   private TextView debugTextView;
