@@ -25,7 +25,6 @@ import androidx.media2.common.SessionPlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -421,9 +420,8 @@ import java.util.List;
     listener.onShuffleModeChanged(Utils.getShuffleMode(shuffleModeEnabled));
   }
 
-  @SuppressWarnings("deprecation")
-  private void handlePlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    listener.onPlaybackSpeedChanged(playbackParameters.speed);
+  private void handlePlaybackSpeedChanged(float playbackSpeed) {
+    listener.onPlaybackSpeedChanged(playbackSpeed);
   }
 
   private void handleTimelineChanged() {
@@ -508,8 +506,8 @@ import java.util.List;
     }
 
     @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      handlePlaybackParametersChanged(playbackParameters);
+    public void onPlaybackSpeedChanged(float playbackSpeed) {
+      handlePlaybackSpeedChanged(playbackSpeed);
     }
 
     @Override
