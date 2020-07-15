@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.common.base.Objects;
 import java.io.IOException;
 
 /**
@@ -154,6 +155,42 @@ public interface AnalyticsListener {
       this.currentMediaPeriodId = currentMediaPeriodId;
       this.currentPlaybackPositionMs = currentPlaybackPositionMs;
       this.totalBufferedDurationMs = totalBufferedDurationMs;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      EventTime eventTime = (EventTime) o;
+      return realtimeMs == eventTime.realtimeMs
+          && windowIndex == eventTime.windowIndex
+          && eventPlaybackPositionMs == eventTime.eventPlaybackPositionMs
+          && currentWindowIndex == eventTime.currentWindowIndex
+          && currentPlaybackPositionMs == eventTime.currentPlaybackPositionMs
+          && totalBufferedDurationMs == eventTime.totalBufferedDurationMs
+          && Objects.equal(timeline, eventTime.timeline)
+          && Objects.equal(mediaPeriodId, eventTime.mediaPeriodId)
+          && Objects.equal(currentTimeline, eventTime.currentTimeline)
+          && Objects.equal(currentMediaPeriodId, eventTime.currentMediaPeriodId);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(
+          realtimeMs,
+          timeline,
+          windowIndex,
+          mediaPeriodId,
+          eventPlaybackPositionMs,
+          currentTimeline,
+          currentWindowIndex,
+          currentMediaPeriodId,
+          currentPlaybackPositionMs,
+          totalBufferedDurationMs);
     }
   }
 

@@ -284,8 +284,7 @@ public final class PlaybackStatsListener
 
   @Override
   public void onTimelineChanged(EventTime eventTime, @Player.TimelineChangeReason int reason) {
-    sessionManager.handleTimelineUpdate(eventTime);
-    maybeAddSession(eventTime);
+    sessionManager.updateSessionsWithTimelineChange(eventTime);
     for (String session : playbackStatsTrackers.keySet()) {
       if (sessionManager.belongsToSession(eventTime, session)) {
         playbackStatsTrackers.get(session).onPositionDiscontinuity(eventTime, /* isSeek= */ false);
@@ -295,8 +294,10 @@ public final class PlaybackStatsListener
 
   @Override
   public void onPositionDiscontinuity(EventTime eventTime, @Player.DiscontinuityReason int reason) {
-    sessionManager.handlePositionDiscontinuity(eventTime, reason);
-    maybeAddSession(eventTime);
+    boolean isCompletelyIdle = eventTime.timeline.isEmpty() && playbackState == Player.STATE_IDLE;
+    if (!isCompletelyIdle) {
+      sessionManager.updateSessionsWithDiscontinuity(eventTime, reason);
+    }
     if (reason == Player.DISCONTINUITY_REASON_SEEK) {
       onSeekStartedCalled = false;
     }
