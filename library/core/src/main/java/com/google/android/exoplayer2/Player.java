@@ -795,9 +795,9 @@ public interface Player {
   /** Playback skipped to a new media item (for example after failure). */
   int MEDIA_ITEM_TRANSITION_REASON_SKIP = 3;
   /**
-   * The current media item has changed because of a modification of the timeline. This can either
-   * be if the period previously being played has been removed, or when the timeline becomes
-   * non-empty after being empty.
+   * The current media item has changed because of a change in the playlist. This can either be if
+   * the media item previously being played has been removed, or when the playlist becomes non-empty
+   * after being empty.
    */
   int MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED = 4;
 
