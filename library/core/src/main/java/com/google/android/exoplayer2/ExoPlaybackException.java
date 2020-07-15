@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import android.os.SystemClock;
 import android.text.TextUtils;
+import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.RendererCapabilities.FormatSupport;
@@ -92,6 +93,12 @@ public final class ExoPlaybackException extends Exception {
 
   /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
   public final long timestampMs;
+
+  /**
+   * The {@link MediaSource.MediaPeriodId} of the media associated with this error, or null if
+   * undetermined.
+   */
+  @Nullable public final MediaSource.MediaPeriodId mediaPeriodId;
 
   @Nullable private final Throwable cause;
 
@@ -192,7 +199,7 @@ public final class ExoPlaybackException extends Exception {
       int rendererIndex,
       @Nullable Format rendererFormat,
       @FormatSupport int rendererFormatSupport) {
-    super(
+    this(
         deriveMessage(
             type,
             customMessage,
@@ -200,14 +207,35 @@ public final class ExoPlaybackException extends Exception {
             rendererIndex,
             rendererFormat,
             rendererFormatSupport),
-        cause);
+        cause,
+        type,
+        rendererName,
+        rendererIndex,
+        rendererFormat,
+        rendererFormatSupport,
+        /* mediaPeriodId= */ null,
+        /* timestampMs= */ SystemClock.elapsedRealtime());
+  }
+
+  private ExoPlaybackException(
+      @Nullable String message,
+      @Nullable Throwable cause,
+      @Type int type,
+      @Nullable String rendererName,
+      int rendererIndex,
+      @Nullable Format rendererFormat,
+      @FormatSupport int rendererFormatSupport,
+      @Nullable MediaSource.MediaPeriodId mediaPeriodId,
+      long timestampMs) {
+    super(message, cause);
     this.type = type;
     this.cause = cause;
     this.rendererName = rendererName;
     this.rendererIndex = rendererIndex;
     this.rendererFormat = rendererFormat;
     this.rendererFormatSupport = rendererFormatSupport;
-    timestampMs = SystemClock.elapsedRealtime();
+    this.mediaPeriodId = mediaPeriodId;
+    this.timestampMs = timestampMs;
   }
 
   /**
@@ -248,6 +276,27 @@ public final class ExoPlaybackException extends Exception {
   public OutOfMemoryError getOutOfMemoryError() {
     Assertions.checkState(type == TYPE_OUT_OF_MEMORY);
     return (OutOfMemoryError) Assertions.checkNotNull(cause);
+  }
+
+  /**
+   * Returns a copy of this exception with the provided {@link MediaSource.MediaPeriodId}.
+   *
+   * @param mediaPeriodId The {@link MediaSource.MediaPeriodId}.
+   * @return The copied exception.
+   */
+  @CheckResult
+  /* package= */ ExoPlaybackException copyWithMediaPeriodId(
+      @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
+    return new ExoPlaybackException(
+        getMessage(),
+        cause,
+        type,
+        rendererName,
+        rendererIndex,
+        rendererFormat,
+        rendererFormatSupport,
+        mediaPeriodId,
+        timestampMs);
   }
 
   @Nullable

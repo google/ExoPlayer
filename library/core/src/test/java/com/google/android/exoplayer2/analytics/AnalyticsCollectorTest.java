@@ -53,6 +53,7 @@ import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.FakeAudioRenderer;
 import com.google.android.exoplayer2.testutil.FakeExoMediaDrm;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
+import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
@@ -1450,6 +1451,111 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period0);
   }
 
+  @Test
+  public void onPlayerError_thrownDuringRendererEnableAtPeriodTransition_isReportedForNewPeriod()
+      throws Exception {
+    FakeMediaSource source0 =
+        new FakeMediaSource(
+            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT);
+    FakeMediaSource source1 =
+        new FakeMediaSource(
+            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.AUDIO_FORMAT);
+    RenderersFactory renderersFactory =
+        (eventHandler, videoListener, audioListener, textOutput, metadataOutput) ->
+            new Renderer[] {
+              new FakeRenderer(C.TRACK_TYPE_VIDEO),
+              new FakeRenderer(C.TRACK_TYPE_AUDIO) {
+                @Override
+                protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
+                    throws ExoPlaybackException {
+                  // Fail when enabling the renderer. This will happen during the period transition.
+                  throw createRendererException(
+                      new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                }
+              }
+            };
+
+    TestAnalyticsListener listener =
+        runAnalyticsTest(
+            new ConcatenatingMediaSource(source0, source1),
+            /* actionSchedule= */ null,
+            renderersFactory);
+
+    populateEventIds(listener.lastReportedTimeline);
+    assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period1);
+  }
+
+  @Test
+  public void onPlayerError_thrownDuringRenderAtPeriodTransition_isReportedForNewPeriod()
+      throws Exception {
+    FakeMediaSource source0 =
+        new FakeMediaSource(
+            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT);
+    FakeMediaSource source1 =
+        new FakeMediaSource(
+            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.AUDIO_FORMAT);
+    RenderersFactory renderersFactory =
+        (eventHandler, videoListener, audioListener, textOutput, metadataOutput) ->
+            new Renderer[] {
+              new FakeRenderer(C.TRACK_TYPE_VIDEO),
+              new FakeRenderer(C.TRACK_TYPE_AUDIO) {
+                @Override
+                public void render(long positionUs, long realtimeUs) throws ExoPlaybackException {
+                  // Fail when rendering the audio stream. This will happen during the period
+                  // transition.
+                  throw createRendererException(
+                      new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                }
+              }
+            };
+
+    TestAnalyticsListener listener =
+        runAnalyticsTest(
+            new ConcatenatingMediaSource(source0, source1),
+            /* actionSchedule= */ null,
+            renderersFactory);
+
+    populateEventIds(listener.lastReportedTimeline);
+    assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period1);
+  }
+
+  @Test
+  public void
+      onPlayerError_thrownDuringRendererReplaceStreamAtPeriodTransition_isReportedForNewPeriod()
+          throws Exception {
+    FakeMediaSource source =
+        new FakeMediaSource(
+            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.AUDIO_FORMAT);
+    RenderersFactory renderersFactory =
+        (eventHandler, videoListener, audioListener, textOutput, metadataOutput) ->
+            new Renderer[] {
+              new FakeRenderer(C.TRACK_TYPE_AUDIO) {
+                private int streamChangeCount = 0;
+
+                @Override
+                protected void onStreamChanged(
+                    Format[] formats, long startPositionUs, long offsetUs)
+                    throws ExoPlaybackException {
+                  // Fail when changing streams for the second time. This will happen during the
+                  // period transition (as the first time is when enabling the stream initially).
+                  if (++streamChangeCount == 2) {
+                    throw createRendererException(
+                        new IllegalStateException(), ExoPlayerTestRunner.AUDIO_FORMAT);
+                  }
+                }
+              }
+            };
+
+    TestAnalyticsListener listener =
+        runAnalyticsTest(
+            new ConcatenatingMediaSource(source, source),
+            /* actionSchedule= */ null,
+            renderersFactory);
+
+    populateEventIds(listener.lastReportedTimeline);
+    assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period1);
+  }
+
   private void populateEventIds(Timeline timeline) {
     period0 =
         new EventWindowAndPeriodId(
@@ -1508,6 +1614,14 @@ public final class AnalyticsCollectorTest {
               new FakeVideoRenderer(eventHandler, videoRendererEventListener),
               new FakeAudioRenderer(eventHandler, audioRendererEventListener)
             };
+    return runAnalyticsTest(mediaSource, actionSchedule, renderersFactory);
+  }
+
+  private static TestAnalyticsListener runAnalyticsTest(
+      MediaSource mediaSource,
+      @Nullable ActionSchedule actionSchedule,
+      RenderersFactory renderersFactory)
+      throws Exception {
     TestAnalyticsListener listener = new TestAnalyticsListener();
     try {
       new ExoPlayerTestRunner.Builder(ApplicationProvider.getApplicationContext())

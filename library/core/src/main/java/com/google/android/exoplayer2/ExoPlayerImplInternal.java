@@ -528,6 +528,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
       maybeNotifyPlaybackInfoChanged();
     } catch (ExoPlaybackException e) {
+      if (e.type == ExoPlaybackException.TYPE_RENDERER) {
+        @Nullable MediaPeriodHolder readingPeriod = queue.getReadingPeriod();
+        if (readingPeriod != null) {
+          // We can assume that all renderer errors happen in the context of the reading period. See
+          // [internal: b/150584930#comment4] for exceptions that aren't covered by this assumption.
+          e = e.copyWithMediaPeriodId(readingPeriod.info.id);
+        }
+      }
       Log.e(TAG, "Playback error", e);
       stopInternal(
           /* forceResetRenderers= */ true,
@@ -537,6 +545,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
       maybeNotifyPlaybackInfoChanged();
     } catch (IOException e) {
       ExoPlaybackException error = ExoPlaybackException.createForSource(e);
+      @Nullable MediaPeriodHolder playingPeriod = queue.getPlayingPeriod();
+      if (playingPeriod != null) {
+        // We ensure that all IOException throwing methods are only executed for the playing period.
+        error = error.copyWithMediaPeriodId(playingPeriod.info.id);
+      }
       Log.e(TAG, "Playback error", error);
       stopInternal(
           /* forceResetRenderers= */ false,
