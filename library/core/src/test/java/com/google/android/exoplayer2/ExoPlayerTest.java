@@ -35,7 +35,6 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Looper;
 import android.view.Surface;
-import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -8326,8 +8325,8 @@ public final class ExoPlayerTest {
     }
 
     @Override
-    public View[] getAdOverlayViews() {
-      return new View[0];
+    public ImmutableList<AdsLoader.OverlayInfo> getAdOverlayInfos() {
+      return ImmutableList.of();
     }
   }
 }

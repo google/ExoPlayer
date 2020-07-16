@@ -19,13 +19,13 @@ import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
-import android.net.Uri;
 import android.view.Surface;
 import android.widget.FrameLayout;
 import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -308,11 +308,10 @@ import java.util.List;
           this.dataSourceFactory != null
               ? this.dataSourceFactory
               : new DefaultDataSourceFactory(host, userAgent);
-      Uri manifestUri = Uri.parse(manifestUrl);
       return new DashMediaSource.Factory(dataSourceFactory)
           .setDrmSessionManager(drmSessionManager)
           .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(MIN_LOADABLE_RETRY_COUNT))
-          .createMediaSource(manifestUri);
+          .createMediaSource(MediaItem.fromUri(manifestUrl));
     }
 
     @Override

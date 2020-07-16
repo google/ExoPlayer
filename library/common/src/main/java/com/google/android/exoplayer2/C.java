@@ -579,7 +579,9 @@ public final class C {
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
       MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
   /** @deprecated Use {@code Renderer.VIDEO_SCALING_MODE_DEFAULT}. */
-  @Deprecated public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
+  @SuppressWarnings("deprecation")
+  @Deprecated
+  public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
   /**
    * Track selection flags. Possible flag values are {@link #SELECTION_FLAG_DEFAULT}, {@link
