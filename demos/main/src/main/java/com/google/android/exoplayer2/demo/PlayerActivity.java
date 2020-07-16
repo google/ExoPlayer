@@ -85,14 +85,14 @@ public class PlayerActivity extends AppCompatActivity
     DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
   }
 
-  private StyledPlayerView playerView;
-  private LinearLayout debugRootView;
-  private Button selectTracksButton;
-  private TextView debugTextView;
-  private boolean isShowingTrackSelectionDialog;
+  protected StyledPlayerView playerView;
+  protected LinearLayout debugRootView;
+  protected TextView debugTextView;
+  protected SimpleExoPlayer player;
 
+  private boolean isShowingTrackSelectionDialog;
+  private Button selectTracksButton;
   private DataSource.Factory dataSourceFactory;
-  private SimpleExoPlayer player;
   private List<MediaItem> mediaItems;
   private DefaultTrackSelector trackSelector;
   private DefaultTrackSelector.Parameters trackSelectorParameters;
@@ -122,7 +122,7 @@ public class PlayerActivity extends AppCompatActivity
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
     }
 
-    setContentView(R.layout.player_activity);
+    setContentView();
     debugRootView = findViewById(R.id.controls_root);
     debugTextView = findViewById(R.id.debug_text_view);
     selectTracksButton = findViewById(R.id.select_tracks_button);
@@ -292,7 +292,11 @@ public class PlayerActivity extends AppCompatActivity
 
   // Internal methods
 
-  private void initializePlayer() {
+  protected void setContentView() {
+    setContentView(R.layout.player_activity);
+  }
+
+  protected void initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();
 
@@ -393,7 +397,7 @@ public class PlayerActivity extends AppCompatActivity
     return mediaItems;
   }
 
-  private void releasePlayer() {
+  protected void releasePlayer() {
     if (player != null) {
       updateTrackSelectorParameters();
       updateStartPosition();
@@ -432,14 +436,14 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
-  private void clearStartPosition() {
+  protected void clearStartPosition() {
     startAutoPlay = true;
     startWindow = C.INDEX_UNSET;
     startPosition = C.TIME_UNSET;
   }
 
   /** Returns a new DataSource factory. */
-  private DataSource.Factory buildDataSourceFactory() {
+  protected DataSource.Factory buildDataSourceFactory() {
     return ((DemoApplication) getApplication()).buildDataSourceFactory();
   }
 
