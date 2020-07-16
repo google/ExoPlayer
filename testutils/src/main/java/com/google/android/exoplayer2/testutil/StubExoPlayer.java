@@ -351,7 +351,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void stop(boolean resetStateAndPosition) {
+  public void stop(boolean reset) {
     throw new UnsupportedOperationException();
   }
 

@@ -1193,19 +1193,21 @@ public interface Player {
    * player instance can still be used, and {@link #release()} must still be called on the player if
    * it's no longer required.
    *
-   * <p>Calling this method does not reset the playback position.
+   * <p>Calling this method does not clear the playlist, reset the playback position or the playback
+   * error.
    */
   void stop();
 
   /**
-   * Stops playback and optionally resets the player. Use {@link #pause()} rather than this method
-   * if the intention is to pause playback.
+   * Stops playback and optionally clears the playlist and resets the position and playback error.
+   * Use {@link #pause()} rather than this method if the intention is to pause playback.
    *
    * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
    * player instance can still be used, and {@link #release()} must still be called on the player if
    * it's no longer required.
    *
-   * @param reset Whether the player should be reset.
+   * @param reset Whether the playlist should be cleared and whether the playback position and
+   *     playback error should be reset.
    */
   void stop(boolean reset);
 

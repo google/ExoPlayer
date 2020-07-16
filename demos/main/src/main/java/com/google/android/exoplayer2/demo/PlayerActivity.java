@@ -394,6 +394,7 @@ public class PlayerActivity extends AppCompatActivity
     if (!hasAds) {
       releaseAdsLoader();
     }
+    mediaItems.add(0, MediaItem.fromUri("https://html5demos.com/assets/dizzy.mp4"));
     return mediaItems;
   }
 
