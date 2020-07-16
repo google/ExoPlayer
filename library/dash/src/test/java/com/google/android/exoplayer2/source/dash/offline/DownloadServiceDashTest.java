@@ -79,7 +79,8 @@ public class DownloadServiceDashTest {
     testThread = new DummyMainThread();
     context = ApplicationProvider.getApplicationContext();
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
-    cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    cache =
+        new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
 
     Runnable pauseAction =
         () -> {

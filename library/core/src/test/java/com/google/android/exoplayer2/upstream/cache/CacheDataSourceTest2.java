@@ -156,7 +156,11 @@ public final class CacheDataSourceTest2 {
   private static CacheDataSource buildCacheDataSource(Context context, DataSource upstreamSource,
       boolean useAesEncryption) throws CacheException {
     File cacheDir = context.getExternalCacheDir();
-    Cache cache = new SimpleCache(new File(cacheDir, EXO_CACHE_DIR), new NoOpCacheEvictor());
+    Cache cache =
+        new SimpleCache(
+            new File(cacheDir, EXO_CACHE_DIR),
+            new NoOpCacheEvictor(),
+            TestUtil.getInMemoryDatabaseProvider());
     emptyCache(cache);
 
     // Source and cipher

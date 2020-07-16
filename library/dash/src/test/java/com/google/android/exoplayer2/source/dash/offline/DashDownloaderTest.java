@@ -70,7 +70,8 @@ public class DashDownloaderTest {
     MockitoAnnotations.initMocks(this);
     tempFolder =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
-    cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    cache =
+        new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
     progressListener = new ProgressListener();
   }
 

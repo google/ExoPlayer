@@ -82,7 +82,9 @@ public class DownloadManagerDashTest {
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
     File cacheFolder = new File(tempFolder, "cache");
     cacheFolder.mkdir();
-    cache = new SimpleCache(cacheFolder, new NoOpCacheEvictor());
+    cache =
+        new SimpleCache(
+            cacheFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
     MockitoAnnotations.initMocks(this);
     fakeDataSet =
         new FakeDataSet()
