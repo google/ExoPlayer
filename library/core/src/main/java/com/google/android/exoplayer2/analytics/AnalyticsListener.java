@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -273,9 +272,8 @@ public interface AnalyticsListener {
   default void onSeekStarted(EventTime eventTime) {}
 
   /**
-   * @deprecated Seeks are processed without delay. Listen to {@link
-   *     #onPositionDiscontinuity(EventTime, int)} with reason {@link
-   *     Player#DISCONTINUITY_REASON_SEEK} instead.
+   * @deprecated Seeks are processed without delay. Use {@link #onPositionDiscontinuity(EventTime,
+   *     int)} with reason {@link Player#DISCONTINUITY_REASON_SEEK} instead.
    */
   @Deprecated
   default void onSeekProcessed(EventTime eventTime) {}
@@ -443,17 +441,6 @@ public interface AnalyticsListener {
       EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {}
 
   /**
-   * Called when the output surface size changed.
-   *
-   * @param eventTime The event time.
-   * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if the
-   *     video is not rendered onto a surface.
-   * @param height The surface height in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
-   *     the video is not rendered onto a surface.
-   */
-  default void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {}
-
-  /**
    * Called when there is {@link Metadata} associated with the current playback time.
    *
    * @param eventTime The event time.
@@ -461,49 +448,77 @@ public interface AnalyticsListener {
    */
   default void onMetadata(EventTime eventTime, Metadata metadata) {}
 
-  /**
-   * Called when an audio or video decoder has been enabled.
-   *
-   * @param eventTime The event time.
-   * @param trackType The track type of the enabled decoder. Either {@link C#TRACK_TYPE_AUDIO} or
-   *     {@link C#TRACK_TYPE_VIDEO}.
-   * @param decoderCounters The accumulated event counters associated with this decoder.
-   */
+  /** @deprecated Use {@link #onAudioEnabled} and {@link #onVideoEnabled} instead. */
+  @Deprecated
   default void onDecoderEnabled(
       EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
 
   /**
-   * Called when an audio or video decoder has been initialized.
-   *
-   * @param eventTime The event time.
-   * @param trackType The track type of the initialized decoder. Either {@link C#TRACK_TYPE_AUDIO}
-   *     or {@link C#TRACK_TYPE_VIDEO}.
-   * @param decoderName The decoder that was created.
-   * @param initializationDurationMs Time taken to initialize the decoder, in milliseconds.
+   * @deprecated Use {@link #onAudioDecoderInitialized} and {@link #onVideoDecoderInitialized}
+   *     instead.
    */
+  @Deprecated
   default void onDecoderInitialized(
       EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
 
   /**
-   * Called when an audio or video decoder input format changed.
-   *
-   * @param eventTime The event time.
-   * @param trackType The track type of the decoder whose format changed. Either {@link
-   *     C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}.
-   * @param format The new input format for the decoder.
+   * @deprecated Use {@link #onAudioInputFormatChanged} and {@link #onVideoInputFormatChanged}
+   *     instead.
    */
+  @Deprecated
   default void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
 
-  /**
-   * Called when an audio or video decoder has been disabled.
-   *
-   * @param eventTime The event time.
-   * @param trackType The track type of the disabled decoder. Either {@link C#TRACK_TYPE_AUDIO} or
-   *     {@link C#TRACK_TYPE_VIDEO}.
-   * @param decoderCounters The accumulated event counters associated with this decoder.
-   */
+  /** @deprecated Use {@link #onAudioDisabled} and {@link #onVideoDisabled} instead. */
+  @Deprecated
   default void onDecoderDisabled(
       EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
+
+  /**
+   * Called when an audio renderer is enabled.
+   *
+   * @param eventTime The event time.
+   * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
+   *     remains enabled.
+   */
+  default void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {}
+
+  /**
+   * Called when an audio renderer creates a decoder.
+   *
+   * @param eventTime The event time.
+   * @param decoderName The decoder that was created.
+   * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
+   */
+  default void onAudioDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {}
+
+  /**
+   * Called when the format of the media being consumed by an audio renderer changes.
+   *
+   * @param eventTime The event time.
+   * @param format The new format.
+   */
+  default void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
+
+  /**
+   * Called when an audio underrun occurs.
+   *
+   * @param eventTime The event time.
+   * @param bufferSize The size of the audio output buffer, in bytes.
+   * @param bufferSizeMs The size of the audio output buffer, in milliseconds, if it contains PCM
+   *     encoded audio. {@link C#TIME_UNSET} if the output buffer contains non-PCM encoded audio.
+   * @param elapsedSinceLastFeedMs The time since audio was last written to the output buffer.
+   */
+  default void onAudioUnderrun(
+      EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
+
+  /**
+   * Called when an audio renderer is disabled.
+   *
+   * @param eventTime The event time.
+   * @param counters {@link DecoderCounters} that were updated by the renderer.
+   */
+  default void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {}
 
   /**
    * Called when the audio session id is set.
@@ -522,6 +537,14 @@ public interface AnalyticsListener {
   default void onAudioAttributesChanged(EventTime eventTime, AudioAttributes audioAttributes) {}
 
   /**
+   * Called when skipping silences is enabled or disabled in the audio stream.
+   *
+   * @param eventTime The event time.
+   * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+   */
+  default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+
+  /**
    * Called when the volume changes.
    *
    * @param eventTime The event time.
@@ -530,25 +553,31 @@ public interface AnalyticsListener {
   default void onVolumeChanged(EventTime eventTime, float volume) {}
 
   /**
-   * Called when an audio underrun occurred.
+   * Called when a video renderer is enabled.
    *
    * @param eventTime The event time.
-   * @param bufferSize The size of the {@link AudioSink}'s buffer, in bytes.
-   * @param bufferSizeMs The size of the {@link AudioSink}'s buffer, in milliseconds, if it is
-   *     configured for PCM output. {@link C#TIME_UNSET} if it is configured for passthrough output,
-   *     as the buffered media can have a variable bitrate so the duration may be unknown.
-   * @param elapsedSinceLastFeedMs The time since the {@link AudioSink} was last fed data.
+   * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
+   *     remains enabled.
    */
-  default void onAudioUnderrun(
-      EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
+  default void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {}
 
   /**
-   * Called when skipping silences is enabled or disabled in the audio stream.
+   * Called when a video renderer creates a decoder.
    *
    * @param eventTime The event time.
-   * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+   * @param decoderName The decoder that was created.
+   * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
    */
-  default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+  default void onVideoDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {}
+
+  /**
+   * Called when the format of the media being consumed by a video renderer changes.
+   *
+   * @param eventTime The event time.
+   * @param format The new format.
+   */
+  default void onVideoInputFormatChanged(EventTime eventTime, Format format) {}
 
   /**
    * Called after video frames have been dropped.
@@ -560,6 +589,14 @@ public interface AnalyticsListener {
    *     (whichever was more recent), and not from when the first of the reported drops occurred.
    */
   default void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
+
+  /**
+   * Called when a video renderer is disabled.
+   *
+   * @param eventTime The event time.
+   * @param counters {@link DecoderCounters} that were updated by the renderer.
+   */
+  default void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {}
 
   /**
    * Called when there is an update to the video frame processing offset reported by a video
@@ -579,6 +616,16 @@ public interface AnalyticsListener {
    */
   default void onVideoFrameProcessingOffset(
       EventTime eventTime, long totalProcessingOffsetUs, int frameCount, Format format) {}
+
+  /**
+   * Called when a frame is rendered for the first time since setting the surface, or since the
+   * renderer was reset, or since the stream being rendered was changed.
+   *
+   * @param eventTime The event time.
+   * @param surface The {@link Surface} to which a frame has been rendered, or {@code null} if the
+   *     renderer renders to something that isn't a {@link Surface}.
+   */
+  default void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
@@ -601,14 +648,15 @@ public interface AnalyticsListener {
       float pixelWidthHeightRatio) {}
 
   /**
-   * Called when a frame is rendered for the first time since setting the surface, and when a frame
-   * is rendered for the first time since the renderer was reset.
+   * Called when the output surface size changed.
    *
    * @param eventTime The event time.
-   * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
-   *     the renderer renders to something that isn't a {@link Surface}.
+   * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if the
+   *     video is not rendered onto a surface.
+   * @param height The surface height in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
+   *     the video is not rendered onto a surface.
    */
-  default void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {}
+  default void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {}
 
   /**
    * Called each time a drm session is acquired.

@@ -114,8 +114,8 @@ public interface VideoRendererEventListener {
       int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {}
 
   /**
-   * Called when a frame is rendered for the first time since setting the surface, and when a frame
-   * is rendered for the first time since the renderer was reset.
+   * Called when a frame is rendered for the first time since setting the surface, or since the
+   * renderer was reset, or since the stream being rendered was changed.
    *
    * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
    *     the renderer renders to something that isn't a {@link Surface}.

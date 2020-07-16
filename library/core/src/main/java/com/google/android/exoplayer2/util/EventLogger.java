@@ -301,8 +301,34 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onDecoderEnabled(EventTime eventTime, int trackType, DecoderCounters counters) {
-    logd(eventTime, "decoderEnabled", Util.getTrackTypeString(trackType));
+  public void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {
+    logd(eventTime, "audioEnabled");
+  }
+
+  @Override
+  public void onAudioDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {
+    logd(eventTime, "audioDecoderInitialized", decoderName);
+  }
+
+  @Override
+  public void onAudioInputFormatChanged(EventTime eventTime, Format format) {
+    logd(eventTime, "audioInputFormat", Format.toLogString(format));
+  }
+
+  @Override
+  public void onAudioUnderrun(
+      EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+    loge(
+        eventTime,
+        "audioTrackUnderrun",
+        bufferSize + ", " + bufferSizeMs + ", " + elapsedSinceLastFeedMs + "]",
+        /* throwable= */ null);
+  }
+
+  @Override
+  public void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {
+    logd(eventTime, "audioDisabled");
   }
 
   @Override
@@ -335,37 +361,34 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onDecoderInitialized(
-      EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {
-    logd(eventTime, "decoderInitialized", Util.getTrackTypeString(trackType) + ", " + decoderName);
+  public void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {
+    logd(eventTime, "videoEnabled");
   }
 
   @Override
-  public void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {
-    logd(
-        eventTime,
-        "decoderInputFormat",
-        Util.getTrackTypeString(trackType) + ", " + Format.toLogString(format));
+  public void onVideoDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {
+    logd(eventTime, "videoDecoderInitialized", decoderName);
   }
 
   @Override
-  public void onDecoderDisabled(EventTime eventTime, int trackType, DecoderCounters counters) {
-    logd(eventTime, "decoderDisabled", Util.getTrackTypeString(trackType));
-  }
-
-  @Override
-  public void onAudioUnderrun(
-      EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    loge(
-        eventTime,
-        "audioTrackUnderrun",
-        bufferSize + ", " + bufferSizeMs + ", " + elapsedSinceLastFeedMs + "]",
-        null);
+  public void onVideoInputFormatChanged(EventTime eventTime, Format format) {
+    logd(eventTime, "videoInputFormat", Format.toLogString(format));
   }
 
   @Override
   public void onDroppedVideoFrames(EventTime eventTime, int count, long elapsedMs) {
     logd(eventTime, "droppedFrames", Integer.toString(count));
+  }
+
+  @Override
+  public void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {
+    logd(eventTime, "videoDisabled");
+  }
+
+  @Override
+  public void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {
+    logd(eventTime, "renderedFirstFrame", String.valueOf(surface));
   }
 
   @Override
@@ -376,11 +399,6 @@ public class EventLogger implements AnalyticsListener {
       int unappliedRotationDegrees,
       float pixelWidthHeightRatio) {
     logd(eventTime, "videoSize", width + ", " + height);
-  }
-
-  @Override
-  public void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {
-    logd(eventTime, "renderedFirstFrame", String.valueOf(surface));
   }
 
   @Override

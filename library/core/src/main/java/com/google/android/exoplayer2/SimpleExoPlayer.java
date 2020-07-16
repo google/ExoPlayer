@@ -2224,10 +2224,9 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onAudioSinkUnderrun(
-        int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
+    public void onAudioUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
       for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioSinkUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+        audioDebugListener.onAudioUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
       }
     }
 

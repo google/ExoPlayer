@@ -107,18 +107,26 @@ public final class AnalyticsCollectorTest {
   private static final int EVENT_DECODER_INIT = 25;
   private static final int EVENT_DECODER_FORMAT_CHANGED = 26;
   private static final int EVENT_DECODER_DISABLED = 27;
-  private static final int EVENT_AUDIO_SESSION_ID = 28;
-  private static final int EVENT_AUDIO_UNDERRUN = 29;
-  private static final int EVENT_DROPPED_VIDEO_FRAMES = 30;
-  private static final int EVENT_VIDEO_SIZE_CHANGED = 31;
-  private static final int EVENT_RENDERED_FIRST_FRAME = 32;
-  private static final int EVENT_DRM_KEYS_LOADED = 33;
-  private static final int EVENT_DRM_ERROR = 34;
-  private static final int EVENT_DRM_KEYS_RESTORED = 35;
-  private static final int EVENT_DRM_KEYS_REMOVED = 36;
-  private static final int EVENT_DRM_SESSION_ACQUIRED = 37;
-  private static final int EVENT_DRM_SESSION_RELEASED = 38;
-  private static final int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 39;
+  private static final int EVENT_AUDIO_ENABLED = 28;
+  private static final int EVENT_AUDIO_DECODER_INIT = 29;
+  private static final int EVENT_AUDIO_INPUT_FORMAT_CHANGED = 30;
+  private static final int EVENT_AUDIO_DISABLED = 31;
+  private static final int EVENT_AUDIO_SESSION_ID = 32;
+  private static final int EVENT_AUDIO_UNDERRUN = 33;
+  private static final int EVENT_VIDEO_ENABLED = 34;
+  private static final int EVENT_VIDEO_DECODER_INIT = 35;
+  private static final int EVENT_VIDEO_INPUT_FORMAT_CHANGED = 36;
+  private static final int EVENT_DROPPED_FRAMES = 37;
+  private static final int EVENT_VIDEO_DISABLED = 38;
+  private static final int EVENT_RENDERED_FIRST_FRAME = 39;
+  private static final int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 40;
+  private static final int EVENT_VIDEO_SIZE_CHANGED = 41;
+  private static final int EVENT_DRM_KEYS_LOADED = 42;
+  private static final int EVENT_DRM_ERROR = 43;
+  private static final int EVENT_DRM_KEYS_RESTORED = 44;
+  private static final int EVENT_DRM_KEYS_REMOVED = 45;
+  private static final int EVENT_DRM_SESSION_ACQUIRED = 46;
+  private static final int EVENT_DRM_SESSION_RELEASED = 47;
 
   private static final UUID DRM_SCHEME_UUID =
       UUID.nameUUIDFromBytes(TestUtil.createByteArray(7, 8, 9));
@@ -222,8 +230,14 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
         .containsExactly(period0 /* audio */, period0 /* video */)
         .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_ENABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_AUDIO_DECODER_INIT)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET)).containsExactly(period0);
@@ -298,8 +312,22 @@ public final class AnalyticsCollectorTest {
         .containsExactly(
             period0 /* audio */, period0 /* video */, period1 /* audio */, period1 /* video */)
         .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_ENABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_AUDIO_DECODER_INIT))
+        .containsExactly(period0, period1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED))
+        .containsExactly(period0, period1)
+        .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period1);
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT))
+        .containsExactly(period0, period1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
+        .containsExactly(period0, period1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
         .containsExactly(period0, period1)
         .inOrder();
@@ -369,9 +397,16 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
         .containsExactly(period0 /* video */, period1 /* audio */)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0 /* video */);
+    assertThat(listener.getEvents(EVENT_AUDIO_ENABLED)).containsExactly(period1);
+    assertThat(listener.getEvents(EVENT_AUDIO_DECODER_INIT)).containsExactly(period1);
+    assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period1);
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_FRAME_PROCESSING_OFFSET)).containsExactly(period0);
@@ -460,9 +495,21 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED))
         .containsExactly(period0 /* video */, period0 /* audio */)
         .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_ENABLED)).containsExactly(period0, period1).inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_DECODER_INIT))
+        .containsExactly(period0, period1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED))
+        .containsExactly(period0, period1)
+        .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID))
         .containsExactly(period0, period1)
         .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_DISABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME)).containsExactly(period0);
     listener.assertNoMoreEvents();
@@ -555,10 +602,28 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period0, period1Seq1, period1Seq1, period1Seq2, period1Seq2)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0, period0);
+    assertThat(listener.getEvents(EVENT_AUDIO_ENABLED))
+        .containsExactly(period1, period1Seq2)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_DECODER_INIT))
+        .containsExactly(period1Seq1, period1Seq2)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED))
+        .containsExactly(period1Seq1, period1Seq2)
+        .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID))
         .containsExactly(period1Seq1, period1Seq2)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES))
+    assertThat(listener.getEvents(EVENT_AUDIO_DISABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0, period0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT))
+        .containsExactly(period0, period1Seq1, period1Seq2)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
+        .containsExactly(period0, period1Seq1, period1Seq2)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES))
         .containsExactly(period0, period1Seq2)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
@@ -658,7 +723,17 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period0Seq0, period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0Seq0);
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0Seq1);
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED))
+        .containsExactly(period0Seq0, period0Seq1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT))
+        .containsExactly(period0Seq0, period0Seq1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
+        .containsExactly(period0Seq0, period0Seq1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0Seq0);
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES)).containsExactly(period0Seq1);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
         .containsExactly(period0Seq0, period0Seq1)
         .inOrder();
@@ -736,7 +811,13 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
         .containsExactly(period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(period0Seq0);
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0Seq0);
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0Seq0, period0Seq0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT))
+        .containsExactly(period0Seq0, period0Seq0);
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
+        .containsExactly(period0Seq0, period0Seq0);
+    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0Seq0);
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES)).containsExactly(period0Seq0);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
         .containsExactly(period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_RENDERED_FIRST_FRAME))
@@ -822,7 +903,17 @@ public final class AnalyticsCollectorTest {
         .containsExactly(window0Period1Seq0, window1Period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(window0Period1Seq0);
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES))
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED))
+        .containsExactly(window0Period1Seq0, window0Period1Seq0)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT))
+        .containsExactly(window0Period1Seq0, window1Period0Seq1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
+        .containsExactly(window0Period1Seq0, window1Period0Seq1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(window0Period1Seq0);
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES))
         .containsExactly(window0Period1Seq0, period1Seq0)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
@@ -917,7 +1008,17 @@ public final class AnalyticsCollectorTest {
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED))
         .containsExactly(period0Seq0, period0Seq0);
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0Seq1);
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED))
+        .containsExactly(period0Seq0, period0Seq1, period0Seq1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT))
+        .containsExactly(period0Seq0, period0Seq1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
+        .containsExactly(period0Seq0, period0Seq1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0Seq0, period0Seq0);
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES)).containsExactly(period0Seq1);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
         .containsExactly(period0Seq0, period0Seq1)
         .inOrder();
@@ -1177,7 +1278,26 @@ public final class AnalyticsCollectorTest {
             postrollAd,
             contentAfterPostroll)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES))
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(prerollAd);
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT))
+        .containsExactly(
+            prerollAd,
+            contentAfterPreroll,
+            midrollAd,
+            contentAfterMidroll,
+            postrollAd,
+            contentAfterPostroll)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
+        .containsExactly(
+            prerollAd,
+            contentAfterPreroll,
+            midrollAd,
+            contentAfterMidroll,
+            postrollAd,
+            contentAfterPostroll)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES))
         .containsExactly(contentAfterPreroll, contentAfterMidroll, contentAfterPostroll)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
@@ -1344,7 +1464,17 @@ public final class AnalyticsCollectorTest {
         .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED)).containsExactly(contentBeforeMidroll);
-    assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(contentAfterMidroll);
+    assertThat(listener.getEvents(EVENT_VIDEO_ENABLED))
+        .containsExactly(contentBeforeMidroll, midrollAd)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT))
+        .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
+        .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(contentBeforeMidroll);
+    assertThat(listener.getEvents(EVENT_DROPPED_FRAMES)).containsExactly(contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_VIDEO_SIZE_CHANGED))
         .containsExactly(contentBeforeMidroll, midrollAd, contentAfterMidroll)
         .inOrder();
@@ -1847,27 +1977,52 @@ public final class AnalyticsCollectorTest {
       reportedEvents.add(new ReportedEvent(EVENT_METADATA, eventTime));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onDecoderEnabled(
         EventTime eventTime, int trackType, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_DECODER_ENABLED, eventTime));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onDecoderInitialized(
         EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {
       reportedEvents.add(new ReportedEvent(EVENT_DECODER_INIT, eventTime));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {
       reportedEvents.add(new ReportedEvent(EVENT_DECODER_FORMAT_CHANGED, eventTime));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onDecoderDisabled(
         EventTime eventTime, int trackType, DecoderCounters decoderCounters) {
       reportedEvents.add(new ReportedEvent(EVENT_DECODER_DISABLED, eventTime));
+    }
+
+    @Override
+    public void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {
+      reportedEvents.add(new ReportedEvent(EVENT_AUDIO_ENABLED, eventTime));
+    }
+
+    @Override
+    public void onAudioDecoderInitialized(
+        EventTime eventTime, String decoderName, long initializationDurationMs) {
+      reportedEvents.add(new ReportedEvent(EVENT_AUDIO_DECODER_INIT, eventTime));
+    }
+
+    @Override
+    public void onAudioInputFormatChanged(EventTime eventTime, Format format) {
+      reportedEvents.add(new ReportedEvent(EVENT_AUDIO_INPUT_FORMAT_CHANGED, eventTime));
+    }
+
+    @Override
+    public void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {
+      reportedEvents.add(new ReportedEvent(EVENT_AUDIO_DISABLED, eventTime));
     }
 
     @Override
@@ -1882,8 +2037,40 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
+    public void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {
+      reportedEvents.add(new ReportedEvent(EVENT_VIDEO_ENABLED, eventTime));
+    }
+
+    @Override
+    public void onVideoDecoderInitialized(
+        EventTime eventTime, String decoderName, long initializationDurationMs) {
+      reportedEvents.add(new ReportedEvent(EVENT_VIDEO_DECODER_INIT, eventTime));
+    }
+
+    @Override
+    public void onVideoInputFormatChanged(EventTime eventTime, Format format) {
+      reportedEvents.add(new ReportedEvent(EVENT_VIDEO_INPUT_FORMAT_CHANGED, eventTime));
+    }
+
+    @Override
     public void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {
-      reportedEvents.add(new ReportedEvent(EVENT_DROPPED_VIDEO_FRAMES, eventTime));
+      reportedEvents.add(new ReportedEvent(EVENT_DROPPED_FRAMES, eventTime));
+    }
+
+    @Override
+    public void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {
+      reportedEvents.add(new ReportedEvent(EVENT_VIDEO_DISABLED, eventTime));
+    }
+
+    @Override
+    public void onVideoFrameProcessingOffset(
+        EventTime eventTime, long totalProcessingOffsetUs, int frameCount, Format format) {
+      reportedEvents.add(new ReportedEvent(EVENT_VIDEO_FRAME_PROCESSING_OFFSET, eventTime));
+    }
+
+    @Override
+    public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {
+      reportedEvents.add(new ReportedEvent(EVENT_RENDERED_FIRST_FRAME, eventTime));
     }
 
     @Override
@@ -1894,11 +2081,6 @@ public final class AnalyticsCollectorTest {
         int unappliedRotationDegrees,
         float pixelWidthHeightRatio) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_SIZE_CHANGED, eventTime));
-    }
-
-    @Override
-    public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {
-      reportedEvents.add(new ReportedEvent(EVENT_RENDERED_FIRST_FRAME, eventTime));
     }
 
     @Override
@@ -1929,12 +2111,6 @@ public final class AnalyticsCollectorTest {
     @Override
     public void onDrmSessionReleased(EventTime eventTime) {
       reportedEvents.add(new ReportedEvent(EVENT_DRM_SESSION_RELEASED, eventTime));
-    }
-
-    @Override
-    public void onVideoFrameProcessingOffset(
-        EventTime eventTime, long totalProcessingOffsetUs, int frameCount, Format format) {
-      reportedEvents.add(new ReportedEvent(EVENT_VIDEO_FRAME_PROCESSING_OFFSET, eventTime));
     }
 
     private static final class ReportedEvent {

@@ -22,7 +22,6 @@ import android.os.SystemClock;
 import android.view.Surface;
 import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -209,13 +208,13 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   }
 
   @Override
-  public void onDecoderDisabled(
-      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {
-    if (trackType == C.TRACK_TYPE_AUDIO) {
-      audioDecoderCounters.merge(decoderCounters);
-    } else if (trackType == C.TRACK_TYPE_VIDEO) {
-      videoDecoderCounters.merge(decoderCounters);
-    }
+  public void onAudioDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
+    audioDecoderCounters.merge(decoderCounters);
+  }
+
+  @Override
+  public void onVideoDisabled(EventTime eventTime, DecoderCounters decoderCounters) {
+    videoDecoderCounters.merge(decoderCounters);
   }
 
   // Internal logic

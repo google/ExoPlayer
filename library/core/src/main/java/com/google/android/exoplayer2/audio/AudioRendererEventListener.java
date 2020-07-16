@@ -66,16 +66,14 @@ public interface AudioRendererEventListener {
   default void onAudioInputFormatChanged(Format format) {}
 
   /**
-   * Called when an {@link AudioSink} underrun occurs.
+   * Called when an audio underrun occurs.
    *
-   * @param bufferSize The size of the {@link AudioSink}'s buffer, in bytes.
-   * @param bufferSizeMs The size of the {@link AudioSink}'s buffer, in milliseconds, if it is
-   *     configured for PCM output. {@link C#TIME_UNSET} if it is configured for passthrough output,
-   *     as the buffered media can have a variable bitrate so the duration may be unknown.
-   * @param elapsedSinceLastFeedMs The time since the {@link AudioSink} was last fed data.
+   * @param bufferSize The size of the audio output buffer, in bytes.
+   * @param bufferSizeMs The size of the audio output buffer, in milliseconds, if it contains PCM
+   *     encoded audio. {@link C#TIME_UNSET} if the output buffer contains non-PCM encoded audio.
+   * @param elapsedSinceLastFeedMs The time since audio was last written to the output buffer.
    */
-  default void onAudioSinkUnderrun(
-      int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
+  default void onAudioUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
 
   /**
    * Called when the renderer is disabled.
@@ -140,14 +138,14 @@ public interface AudioRendererEventListener {
       }
     }
 
-    /** Invokes {@link AudioRendererEventListener#onAudioSinkUnderrun(int, long, long)}. */
+    /** Invokes {@link AudioRendererEventListener#onAudioUnderrun(int, long, long)}. */
     public void underrun(
         final int bufferSize, final long bufferSizeMs, final long elapsedSinceLastFeedMs) {
       if (handler != null) {
         handler.post(
             () ->
                 castNonNull(listener)
-                    .onAudioSinkUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs));
+                    .onAudioUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs));
       }
     }
 
