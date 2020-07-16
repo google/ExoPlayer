@@ -1055,7 +1055,8 @@ import java.util.concurrent.TimeoutException;
       } else if (timelineChanged) {
         transitionReason = MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED;
       } else {
-        transitionReason = MEDIA_ITEM_TRANSITION_REASON_SKIP;
+        // A change in window uid must be justified by one of the reasons above.
+        throw new IllegalStateException();
       }
       return new Pair<>(/* isTransitioning */ true, transitionReason);
     } else if (positionDiscontinuity
