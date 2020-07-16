@@ -365,14 +365,15 @@ public final class DefaultAudioSink implements AudioSink {
    *     parameters adjustments. The instance passed in must not be reused in other sinks.
    * @param enableFloatOutput Whether to enable 32-bit float output. Where possible, 32-bit float
    *     output will be used if the input is 32-bit float, and also if the input is high resolution
-   *     (24-bit or 32-bit) integer PCM. Audio processing (for example, speed adjustment) will not
-   *     be available when float output is in use.
-   * @param enableOffload Whether audio offloading is enabled. If an audio format can be both played
+   *     (24-bit or 32-bit) integer PCM. Float output is supported from API level 21. Audio
+   *     processing (for example, speed adjustment) will not be available when float output is in
+   *     use.
+   * @param enableOffload Whether to enable audio offload. If an audio format can be both played
    *     with offload and encoded audio passthrough, it will be played in offload. Audio offload is
-   *     supported starting with API 29 ({@link android.os.Build.VERSION_CODES#Q}). Most Android
-   *     devices can only support one offload {@link android.media.AudioTrack} at a time and can
-   *     invalidate it at any time. Thus an app can never be guaranteed that it will be able to play
-   *     in offload.
+   *     supported from API level 29. Most Android devices can only support one offload {@link
+   *     android.media.AudioTrack} at a time and can invalidate it at any time. Thus an app can
+   *     never be guaranteed that it will be able to play in offload. Audio processing (for example,
+   *     speed adjustment) will not be available when offload is in use.
    */
   public DefaultAudioSink(
       @Nullable AudioCapabilities audioCapabilities,
