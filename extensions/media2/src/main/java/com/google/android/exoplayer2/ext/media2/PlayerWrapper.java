@@ -305,11 +305,10 @@ import java.util.List;
     }
   }
 
-  public boolean setAudioAttributes(AudioAttributesCompat audioAttributes) {
+  public void setAudioAttributes(AudioAttributesCompat audioAttributes) {
     Player.AudioComponent audioComponent = Assertions.checkStateNotNull(player.getAudioComponent());
     audioComponent.setAudioAttributes(
         Utils.getAudioAttributes(audioAttributes), /* handleAudioFocus= */ true);
-    return true;
   }
 
   public AudioAttributesCompat getAudioAttributes() {
@@ -318,9 +317,8 @@ import java.util.List;
         audioComponent != null ? audioComponent.getAudioAttributes() : AudioAttributes.DEFAULT);
   }
 
-  public boolean setPlaybackSpeed(float playbackSpeed) {
+  public void setPlaybackSpeed(float playbackSpeed) {
     player.setPlaybackSpeed(playbackSpeed);
-    return true;
   }
 
   public float getPlaybackSpeed() {

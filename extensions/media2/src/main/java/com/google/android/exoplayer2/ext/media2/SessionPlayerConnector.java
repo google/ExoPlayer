@@ -178,14 +178,20 @@ public final class SessionPlayerConnector extends SessionPlayer {
     Assertions.checkArgument(playbackSpeed > 0f);
     return playerCommandQueue.addCommand(
         PlayerCommandQueue.COMMAND_CODE_PLAYER_SET_SPEED,
-        /* command= */ () -> player.setPlaybackSpeed(playbackSpeed));
+        /* command= */ () -> {
+          player.setPlaybackSpeed(playbackSpeed);
+          return true;
+        });
   }
 
   @Override
   public ListenableFuture<PlayerResult> setAudioAttributes(AudioAttributesCompat attr) {
     return playerCommandQueue.addCommand(
         PlayerCommandQueue.COMMAND_CODE_PLAYER_SET_AUDIO_ATTRIBUTES,
-        /* command= */ () -> player.setAudioAttributes(Assertions.checkNotNull(attr)));
+        /* command= */ () -> {
+          player.setAudioAttributes(Assertions.checkNotNull(attr));
+          return true;
+        });
   }
 
   @Override
