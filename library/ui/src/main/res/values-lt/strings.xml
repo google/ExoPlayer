@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Kartoti viską</string>
   <string name="exo_controls_shuffle_on_description">Maišymas įjungtas</string>
   <string name="exo_controls_shuffle_off_description">Maišymas išjungtas</string>
-  <string name="exo_controls_fullscreen_description">Viso ekrano režimas</string>
   <string name="exo_controls_vr_description">VR režimas</string>
   <string name="exo_download_description">Atsisiųsti</string>
   <string name="exo_download_notification_channel_name">Atsisiuntimai</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Subtitrai</string>
   <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Garso takelis</string>
+  <string name="exo_controls_playback_speed">Atkūrimo sparta</string>
+  <string name="exo_controls_playback_speed_normal">Įprasta</string>
+  <string name="exo_controls_overflow_left_button_description">Atgal į ankstesnių mygtukų sąr.</string>
+  <string name="exo_controls_overflow_right_button_description">Žr. daugiau mygtukų</string>
+  <string name="exo_controls_seek_bar_description">Atkūrimo eiga</string>
+  <string name="exo_controls_settings_description">Nustatymai</string>
+  <string name="exo_controls_cc_is_on">Palieskite, kad paslėptumėte subtitrus</string>
+  <string name="exo_controls_cc_is_off">Palieskite, kad rodytumėte subtitrus</string>
+  <string name="exo_controls_rewind_desc_holder">Atsukti %d sek.</string>
+  <string name="exo_controls_ffwd_desc_holder">Prasukti %d sek.</string>
+  <string name="exo_controls_fullscreen_enter_description">Įjungti viso ekrano režimą</string>
+  <string name="exo_controls_fullscreen_exit_description">Išjungti viso ekrano režimą</string>
 </resources>

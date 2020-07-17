@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Ponovi sve</string>
   <string name="exo_controls_shuffle_on_description">Nasumična reproduk. uključena</string>
   <string name="exo_controls_shuffle_off_description">Nasumična reproduk. isključena</string>
-  <string name="exo_controls_fullscreen_description">Prikaz na cijelom zaslonu</string>
   <string name="exo_controls_vr_description">VR način</string>
   <string name="exo_download_description">Preuzmi</string>
   <string name="exo_download_notification_channel_name">Preuzimanja</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Verzija s titlovima</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Zvučni zapis</string>
+  <string name="exo_controls_playback_speed">Brzina reprodukcije</string>
+  <string name="exo_controls_playback_speed_normal">Obično</string>
+  <string name="exo_controls_overflow_left_button_description">Natrag na prethodni popis gumba</string>
+  <string name="exo_controls_overflow_right_button_description">Pogledajte više gumba</string>
+  <string name="exo_controls_seek_bar_description">Napredak reprodukcije</string>
+  <string name="exo_controls_settings_description">Postavke</string>
+  <string name="exo_controls_cc_is_on">Dodirnite za sakrivanje titlova</string>
+  <string name="exo_controls_cc_is_off">Dodirnite za prikazivanje titlova</string>
+  <string name="exo_controls_rewind_desc_holder">Premotavanje %d s unatrag</string>
+  <string name="exo_controls_ffwd_desc_holder">Premotavanje %d s unaprijed</string>
+  <string name="exo_controls_fullscreen_enter_description">Otvaranje prikaza na cijelom zaslonu</string>
+  <string name="exo_controls_fullscreen_exit_description">Zatvaranje prikaza na cijelom zaslonu</string>
 </resources>

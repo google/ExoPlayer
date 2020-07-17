@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Alle wiederholen</string>
   <string name="exo_controls_shuffle_on_description">Zufallsmix an</string>
   <string name="exo_controls_shuffle_off_description">Zufallsmix aus</string>
-  <string name="exo_controls_fullscreen_description">Vollbildmodus</string>
   <string name="exo_controls_vr_description">VR-Modus</string>
   <string name="exo_download_description">Herunterladen</string>
   <string name="exo_download_notification_channel_name">Downloads</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Untertitel</string>
   <string name="exo_track_bitrate">%1$.2f Mbit/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Audiotitel</string>
+  <string name="exo_controls_playback_speed">Wiedergabegeschwindigkeit</string>
+  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <string name="exo_controls_overflow_left_button_description">Zurück zur vorherigen Schaltflächenliste</string>
+  <string name="exo_controls_overflow_right_button_description">Weitere Schaltflächen zeigen</string>
+  <string name="exo_controls_seek_bar_description">Wiedergabefortschritt</string>
+  <string name="exo_controls_settings_description">Einstellungen</string>
+  <string name="exo_controls_cc_is_on">Zum Ausblenden von Untertiteln tippen</string>
+  <string name="exo_controls_cc_is_off">Zum Einblenden von Untertiteln tippen</string>
+  <string name="exo_controls_rewind_desc_holder">%d Sekunden zurückspulen</string>
+  <string name="exo_controls_ffwd_desc_holder">%d Sekunden vorspulen</string>
+  <string name="exo_controls_fullscreen_enter_description">Vollbild aktivieren</string>
+  <string name="exo_controls_fullscreen_exit_description">Vollbild beenden</string>
 </resources>

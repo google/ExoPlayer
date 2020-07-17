@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Repeteix tot</string>
   <string name="exo_controls_shuffle_on_description">Activa reproducció aleatòria</string>
   <string name="exo_controls_shuffle_off_description">Desactiva reproducció aleatòria</string>
-  <string name="exo_controls_fullscreen_description">Mode de pantalla completa</string>
   <string name="exo_controls_vr_description">Mode RV</string>
   <string name="exo_download_description">Baixa</string>
   <string name="exo_download_notification_channel_name">Baixades</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Subtítols</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Pista d\'àudio</string>
+  <string name="exo_controls_playback_speed">Velocitat de reproducció</string>
+  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <string name="exo_controls_overflow_left_button_description">Torna a llista de botons anterior</string>
+  <string name="exo_controls_overflow_right_button_description">Mostra més botons</string>
+  <string name="exo_controls_seek_bar_description">Progrés de la reproducció</string>
+  <string name="exo_controls_settings_description">Configuració</string>
+  <string name="exo_controls_cc_is_on">Toca per amagar els subtítols</string>
+  <string name="exo_controls_cc_is_off">Toca per mostrar els subtítols</string>
+  <string name="exo_controls_rewind_desc_holder">Rebobina %d segons</string>
+  <string name="exo_controls_ffwd_desc_holder">Avança ràpidament %d segons</string>
+  <string name="exo_controls_fullscreen_enter_description">Entra a la pantalla completa</string>
+  <string name="exo_controls_fullscreen_exit_description">Surt de la pantalla completa</string>
 </resources>

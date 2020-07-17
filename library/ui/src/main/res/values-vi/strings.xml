@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Lặp lại tất cả</string>
   <string name="exo_controls_shuffle_on_description">Chế độ trộn bài đang bật</string>
   <string name="exo_controls_shuffle_off_description">Chế độ trộn bài đang tắt</string>
-  <string name="exo_controls_fullscreen_description">Chế độ toàn màn hình</string>
   <string name="exo_controls_vr_description">Chế độ thực tế ảo</string>
   <string name="exo_download_description">Tải xuống</string>
   <string name="exo_download_notification_channel_name">Tài nguyên đã tải xuống</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Phụ đề</string>
   <string name="exo_track_bitrate">%1$.2f Mb/giây</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Bản âm thanh</string>
+  <string name="exo_controls_playback_speed">Tốc độ phát</string>
+  <string name="exo_controls_playback_speed_normal">Bình thường</string>
+  <string name="exo_controls_overflow_left_button_description">Quay lại danh sách nút trước đó</string>
+  <string name="exo_controls_overflow_right_button_description">Xem các nút khác</string>
+  <string name="exo_controls_seek_bar_description">Tiến trình phát</string>
+  <string name="exo_controls_settings_description">Cài đặt</string>
+  <string name="exo_controls_cc_is_on">Nhấn để ẩn phụ đề</string>
+  <string name="exo_controls_cc_is_off">Nhấn để hiển thị phụ đề</string>
+  <string name="exo_controls_rewind_desc_holder">Tua lại %d giây</string>
+  <string name="exo_controls_ffwd_desc_holder">Tua nhanh %d giây</string>
+  <string name="exo_controls_fullscreen_enter_description">Chuyển sang chế độ toàn màn hình</string>
+  <string name="exo_controls_fullscreen_exit_description">Thoát khỏi chế độ toàn màn hình</string>
 </resources>

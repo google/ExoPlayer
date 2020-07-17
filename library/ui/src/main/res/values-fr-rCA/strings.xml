@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Tout lire en boucle</string>
   <string name="exo_controls_shuffle_on_description">Lecture aléatoire activée</string>
   <string name="exo_controls_shuffle_off_description">Lecture aléatoire désactivée</string>
-  <string name="exo_controls_fullscreen_description">Mode Plein écran</string>
   <string name="exo_controls_vr_description">Mode RV</string>
   <string name="exo_download_description">Télécharger</string>
   <string name="exo_download_notification_channel_name">Téléchargements</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Sous-titres codés</string>
   <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Piste audio</string>
+  <string name="exo_controls_playback_speed">Vitesse de lecture</string>
+  <string name="exo_controls_playback_speed_normal">Normale</string>
+  <string name="exo_controls_overflow_left_button_description">Retour à liste de boutons précéd.</string>
+  <string name="exo_controls_overflow_right_button_description">Afficher plus de boutons</string>
+  <string name="exo_controls_seek_bar_description">Progression de la lecture</string>
+  <string name="exo_controls_settings_description">Paramètres</string>
+  <string name="exo_controls_cc_is_on">Touchez pour masquer les sous-titres</string>
+  <string name="exo_controls_cc_is_off">Touchez pour afficher les sous-titres</string>
+  <string name="exo_controls_rewind_desc_holder">Reculez de %d seconde</string>
+  <string name="exo_controls_ffwd_desc_holder">Avancez rapidement de %d secondes</string>
+  <string name="exo_controls_fullscreen_enter_description">Activez le mode plein écran</string>
+  <string name="exo_controls_fullscreen_exit_description">Quittez le mode plein écran</string>
 </resources>

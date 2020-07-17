@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Hamısı təkrarlansın</string>
   <string name="exo_controls_shuffle_on_description">Qarışdırma aktivdir</string>
   <string name="exo_controls_shuffle_off_description">Qarışdırma deaktivdir</string>
-  <string name="exo_controls_fullscreen_description">Tam ekran rejimi</string>
   <string name="exo_controls_vr_description">VR rejimi</string>
   <string name="exo_download_description">Endirin</string>
   <string name="exo_download_notification_channel_name">Endirmələr</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Nüsxəni alan</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Audio trek</string>
+  <string name="exo_controls_playback_speed">Oxutma sürəti</string>
+  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <string name="exo_controls_overflow_left_button_description">Əvvəlki düymə siyahısına geri</string>
+  <string name="exo_controls_overflow_right_button_description">Daha çox düyməyə baxın</string>
+  <string name="exo_controls_seek_bar_description">Oxutmanın gedişatı</string>
+  <string name="exo_controls_settings_description">Ayarlar</string>
+  <string name="exo_controls_cc_is_on">Altyazıları gizlətmək üçün toxunun</string>
+  <string name="exo_controls_cc_is_off">Altyazıları göstərmək üçün toxunun</string>
+  <string name="exo_controls_rewind_desc_holder">%d saniyə geri keçin</string>
+  <string name="exo_controls_ffwd_desc_holder">%d saniyə irəli keçin</string>
+  <string name="exo_controls_fullscreen_enter_description">Tam ekrana daxil olun</string>
+  <string name="exo_controls_fullscreen_exit_description">Tam ekrandan çıxın</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">លេង​ឡើងវិញ​ទាំងអស់</string>
   <string name="exo_controls_shuffle_on_description">បើក​ការ​ច្របល់</string>
   <string name="exo_controls_shuffle_off_description">បិទ​ការ​ច្របល់</string>
-  <string name="exo_controls_fullscreen_description">មុខងារពេញ​អេក្រង់</string>
   <string name="exo_controls_vr_description">មុខងារ VR</string>
   <string name="exo_download_description">ទាញយក</string>
   <string name="exo_download_notification_channel_name">ទាញយក</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">អក្សររត់</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">ភ្លេង</string>
+  <string name="exo_controls_playback_speed">ល្បឿន​ចាក់</string>
+  <string name="exo_controls_playback_speed_normal">ធម្មតា</string>
+  <string name="exo_controls_overflow_left_button_description">ត្រឡប់ទៅ​បញ្ជី​ប៊ូតុង​មុនវិញ</string>
+  <string name="exo_controls_overflow_right_button_description">មើលប៊ូតុងច្រើនទៀត</string>
+  <string name="exo_controls_seek_bar_description">ការចាក់​កំពុង​ដំណើរការ</string>
+  <string name="exo_controls_settings_description">ការកំណត់</string>
+  <string name="exo_controls_cc_is_on">ចុច ដើម្បី​លាក់អក្សររត់</string>
+  <string name="exo_controls_cc_is_off">ចុច ដើម្បី​បង្ហាញអក្សររត់</string>
+  <string name="exo_controls_rewind_desc_holder">ខា​ថយក្រោយ %d វិនាទី</string>
+  <string name="exo_controls_ffwd_desc_holder">ខា​ទៅមុខ %d វិនាទី</string>
+  <string name="exo_controls_fullscreen_enter_description">ចូលអេក្រង់ពេញ</string>
+  <string name="exo_controls_fullscreen_exit_description">ចាកចេញពីអេក្រង់ពេញ</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">سبھی کو دہرائیں</string>
   <string name="exo_controls_shuffle_on_description">شفل آن</string>
   <string name="exo_controls_shuffle_off_description">شفل آف</string>
-  <string name="exo_controls_fullscreen_description">پوری اسکرین والی وضع</string>
   <string name="exo_controls_vr_description">VR موڈ</string>
   <string name="exo_download_description">ڈاؤن لوڈ کریں</string>
   <string name="exo_download_notification_channel_name">ڈاؤن لوڈز</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">سب ٹائٹلز</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s، %2$s</string>
+  <string name="exo_controls_audio_track">آڈیو ٹریک</string>
+  <string name="exo_controls_playback_speed">پلے بیک کی رفتار</string>
+  <string name="exo_controls_playback_speed_normal">عام</string>
+  <string name="exo_controls_overflow_left_button_description">بٹنز کی پچھلی فہرست پر واپس جائیں</string>
+  <string name="exo_controls_overflow_right_button_description">مزید بٹنز دیکھیں</string>
+  <string name="exo_controls_seek_bar_description">پلے بیک کی پیش رفت</string>
+  <string name="exo_controls_settings_description">ترتیبات</string>
+  <string name="exo_controls_cc_is_on">سب ٹائٹلز کو چھپانے کے لیے تھپتھپائیں</string>
+  <string name="exo_controls_cc_is_off">سب ٹائٹلز کو دکھانے کے لیے تھپتھپائیں</string>
+  <string name="exo_controls_rewind_desc_holder">%d سیکنڈز ریوائنڈ کریں</string>
+  <string name="exo_controls_ffwd_desc_holder">تیزی سے %d سیکنڈز فارورڈ کریں</string>
+  <string name="exo_controls_fullscreen_enter_description">پوری اسکرین میں داخل ہوں</string>
+  <string name="exo_controls_fullscreen_exit_description">پوری اسکرین سے باہر نکلیں</string>
 </resources>

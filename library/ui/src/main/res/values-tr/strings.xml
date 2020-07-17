@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Tümünü tekrarla</string>
   <string name="exo_controls_shuffle_on_description">Karıştırma açık</string>
   <string name="exo_controls_shuffle_off_description">Karıştırma kapalı</string>
-  <string name="exo_controls_fullscreen_description">Tam ekran modu</string>
   <string name="exo_controls_vr_description">VR modu</string>
   <string name="exo_download_description">İndir</string>
   <string name="exo_download_notification_channel_name">İndirilenler</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Altyazı</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Ses parçası</string>
+  <string name="exo_controls_playback_speed">Çalma hızı</string>
+  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <string name="exo_controls_overflow_left_button_description">Önceki düğme listesine dön</string>
+  <string name="exo_controls_overflow_right_button_description">Diğer düğmeleri göster</string>
+  <string name="exo_controls_seek_bar_description">Çalma ilerleme durumu</string>
+  <string name="exo_controls_settings_description">Ayarlar</string>
+  <string name="exo_controls_cc_is_on">Altyazıları gizlemek için dokunun</string>
+  <string name="exo_controls_cc_is_off">Altyazıları göstermek için dokunun</string>
+  <string name="exo_controls_rewind_desc_holder">%d saniye geri sar</string>
+  <string name="exo_controls_ffwd_desc_holder">%d saniye ileri sar</string>
+  <string name="exo_controls_fullscreen_enter_description">Tam ekrana geç</string>
+  <string name="exo_controls_fullscreen_exit_description">Tam ekrandan çık</string>
 </resources>

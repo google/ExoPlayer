@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">ሁሉንም ድገም</string>
   <string name="exo_controls_shuffle_on_description">መበወዝ በርቷል</string>
   <string name="exo_controls_shuffle_off_description">መበወዝ ጠፍቷል</string>
-  <string name="exo_controls_fullscreen_description">የሙሉ ማያ ሁነታ</string>
   <string name="exo_controls_vr_description">የቪአር ሁነታ</string>
   <string name="exo_download_description">አውርድ</string>
   <string name="exo_download_notification_channel_name">የወረዱ</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">የተዘጉ የመግለጫ ጽሑፎች</string>
   <string name="exo_track_bitrate">%1$.2f ሜብስ</string>
   <string name="exo_item_list">%1$s፣ %2$s</string>
+  <string name="exo_controls_audio_track">ኦዲዮ ትራክ</string>
+  <string name="exo_controls_playback_speed">የመልሶ ማጫወት ፍጥነት</string>
+  <string name="exo_controls_playback_speed_normal">መደበኛ</string>
+  <string name="exo_controls_overflow_left_button_description">ወደ ቀዳሚው የአዝራር ዝርዝር ተመለስ</string>
+  <string name="exo_controls_overflow_right_button_description">ተጨማሪ አዝራሮችን ይመልከቱ</string>
+  <string name="exo_controls_seek_bar_description">የመልሶ ማጫወት ሂደት</string>
+  <string name="exo_controls_settings_description">ቅንብሮች</string>
+  <string name="exo_controls_cc_is_on">የግርጌ ጽሑፎችን ለመደበቅ መታ ያድርጉ</string>
+  <string name="exo_controls_cc_is_off">የግርጌ ጽሑፎችን ለማሳየት መታ ያድርጉ</string>
+  <string name="exo_controls_rewind_desc_holder">በ%d ሰከንዶች ወደኋላ መልስ</string>
+  <string name="exo_controls_ffwd_desc_holder">በ%d ሰከንዶች ወደፊት አሳልፍ</string>
+  <string name="exo_controls_fullscreen_enter_description">ወደ ሙሉ ማያ ገጽ ግባ</string>
+  <string name="exo_controls_fullscreen_exit_description">ከሙሉ ማያገጽ ውጣ</string>
 </resources>

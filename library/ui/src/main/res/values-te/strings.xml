@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">అన్నింటినీ పునరావృతం చేయండి</string>
   <string name="exo_controls_shuffle_on_description">షఫుల్‌ను ఆన్ చేస్తుంది</string>
   <string name="exo_controls_shuffle_off_description">షఫుల్‌ను ఆఫ్ చేస్తుంది</string>
-  <string name="exo_controls_fullscreen_description">పూర్తి స్క్రీన్ మోడ్</string>
   <string name="exo_controls_vr_description">వర్చువల్ రియాలిటీ మోడ్</string>
   <string name="exo_download_description">డౌన్‌లోడ్ చేయి</string>
   <string name="exo_download_notification_channel_name">డౌన్‌లోడ్‌లు</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">ఆడియో ట్రాక్</string>
+  <string name="exo_controls_playback_speed">ప్లేబ్యాక్ వేగం</string>
+  <string name="exo_controls_playback_speed_normal">సాధారణం</string>
+  <string name="exo_controls_overflow_left_button_description">మునుపటి బటన్ జాబితాకు వెళ్తుంది</string>
+  <string name="exo_controls_overflow_right_button_description">మరిన్ని బటన్‌లను చూడండి</string>
+  <string name="exo_controls_seek_bar_description">ప్లేబ్యాక్ ప్రోగ్రెస్</string>
+  <string name="exo_controls_settings_description">సెట్టింగ్‌లు</string>
+  <string name="exo_controls_cc_is_on">సబ్‌టైటిల్స్‌ను దాచడానికి ట్యాప్ చేయండి</string>
+  <string name="exo_controls_cc_is_off">సబ్‌టైటిల్స్‌ను చూపడానికి ట్యాప్ చేయండి</string>
+  <string name="exo_controls_rewind_desc_holder">%d సెకన్లు రివైండ్ చేయండి</string>
+  <string name="exo_controls_ffwd_desc_holder">%d సెకన్లు వేగంగా ఫార్వార్డ్ చేయండి</string>
+  <string name="exo_controls_fullscreen_enter_description">ఫుల్ స్క్రీన్‌లోకి ప్రవేశించు</string>
+  <string name="exo_controls_fullscreen_exit_description">ఫుల్ స్క్రీన్ నుండి నిష్క్రమించు</string>
 </resources>

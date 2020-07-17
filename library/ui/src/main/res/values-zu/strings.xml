@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Phinda konke</string>
   <string name="exo_controls_shuffle_on_description">Ukushova kuvuliwe</string>
   <string name="exo_controls_shuffle_off_description">Ukushova kuvaliwe</string>
-  <string name="exo_controls_fullscreen_description">Imodi yesikrini esigcwele</string>
   <string name="exo_controls_vr_description">Inqubo ye-VR</string>
   <string name="exo_download_description">Landa</string>
   <string name="exo_download_notification_channel_name">Ukulandwa</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Ithrekhi yomsindo</string>
+  <string name="exo_controls_playback_speed">Isivinini sokudlala</string>
+  <string name="exo_controls_playback_speed_normal">Ivamile</string>
+  <string name="exo_controls_overflow_left_button_description">Buyela emuva kuhlu lwenkinobho yangaphambilini</string>
+  <string name="exo_controls_overflow_right_button_description">Bona izinkinobho eziningi</string>
+  <string name="exo_controls_seek_bar_description">Inqubekela phambili yokudlala</string>
+  <string name="exo_controls_settings_description">Amasethingi</string>
+  <string name="exo_controls_cc_is_on">Thepha ukuze ufihle imibhalo engezansi</string>
+  <string name="exo_controls_cc_is_off">Thepha ukuze ubonise imibhalo engezansi</string>
+  <string name="exo_controls_rewind_desc_holder">Hlehlisa ngamasekhondi angu-%d</string>
+  <string name="exo_controls_ffwd_desc_holder">Dlulisela phambili ngamasekhondi angu-%d</string>
+  <string name="exo_controls_fullscreen_enter_description">Faka isikrini esigcwele</string>
+  <string name="exo_controls_fullscreen_exit_description">Phuma kusikrini esigcwele</string>
 </resources>

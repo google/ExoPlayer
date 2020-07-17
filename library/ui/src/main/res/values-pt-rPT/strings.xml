@@ -18,7 +18,7 @@
   <string name="exo_controls_hide">Ocultar controlos do leitor</string>
   <string name="exo_controls_previous_description">Faixa anterior</string>
   <string name="exo_controls_next_description">Faixa seguinte</string>
-  <string name="exo_controls_pause_description">Colocar em pausa</string>
+  <string name="exo_controls_pause_description">Pausar</string>
   <string name="exo_controls_play_description">Reproduzir</string>
   <string name="exo_controls_stop_description">Parar</string>
   <string name="exo_controls_rewind_description">Recuar</string>
@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Repetir tudo</string>
   <string name="exo_controls_shuffle_on_description">Reprodução aleatória ativada</string>
   <string name="exo_controls_shuffle_off_description">Reprodução aleatória desativ.</string>
-  <string name="exo_controls_fullscreen_description">Modo de ecrã inteiro</string>
   <string name="exo_controls_vr_description">Modo de RV</string>
   <string name="exo_download_description">Transferir</string>
   <string name="exo_download_notification_channel_name">Transferências</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Legendas</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Faixa de áudio</string>
+  <string name="exo_controls_playback_speed">Velocidade de reprodução</string>
+  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <string name="exo_controls_overflow_left_button_description">Voltar à lista de botões anter.</string>
+  <string name="exo_controls_overflow_right_button_description">Ver mais botões</string>
+  <string name="exo_controls_seek_bar_description">Progresso da reprodução</string>
+  <string name="exo_controls_settings_description">Definições</string>
+  <string name="exo_controls_cc_is_on">Tocar para ocultar as legendas</string>
+  <string name="exo_controls_cc_is_off">Tocar para mostrar as legendas</string>
+  <string name="exo_controls_rewind_desc_holder">Retroceder %d segundos</string>
+  <string name="exo_controls_ffwd_desc_holder">Avançar %d segundos</string>
+  <string name="exo_controls_fullscreen_enter_description">Mudar para ecrã inteiro</string>
+  <string name="exo_controls_fullscreen_exit_description">Sair do ecrã inteiro</string>
 </resources>

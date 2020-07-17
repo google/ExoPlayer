@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Επανάληψη όλων</string>
   <string name="exo_controls_shuffle_on_description">Τυχαία αναπαραγωγή: Ενεργή</string>
   <string name="exo_controls_shuffle_off_description">Τυχαία αναπαραγωγή: Ανενεργή</string>
-  <string name="exo_controls_fullscreen_description">Λειτουργία πλήρους οθόνης</string>
   <string name="exo_controls_vr_description">Λειτουργία VR mode</string>
   <string name="exo_download_description">Λήψη</string>
   <string name="exo_download_notification_channel_name">Λήψεις</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Υπότιτλοι</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Κομμάτι ήχου</string>
+  <string name="exo_controls_playback_speed">Ταχύτητα αναπαραγωγής</string>
+  <string name="exo_controls_playback_speed_normal">Κανονική</string>
+  <string name="exo_controls_overflow_left_button_description">Επιστρ. σε προηγ. λίστα κουμπιών</string>
+  <string name="exo_controls_overflow_right_button_description">Εμφάνιση περισσότερων κουμπιών</string>
+  <string name="exo_controls_seek_bar_description">Πρόοδος αναπαραγωγής</string>
+  <string name="exo_controls_settings_description">Ρυθμίσεις</string>
+  <string name="exo_controls_cc_is_on">Πατήστε για απόκρυψη υποτίτλων</string>
+  <string name="exo_controls_cc_is_off">Πατήστε για εμφάνιση υποτίτλων</string>
+  <string name="exo_controls_rewind_desc_holder">Μετάβαση προς τα πίσω κατά %d δευτερόλεπτα</string>
+  <string name="exo_controls_ffwd_desc_holder">Γρήγορη προώθηση κατά %d δευτερόλεπτα</string>
+  <string name="exo_controls_fullscreen_enter_description">Πλήρης οθόνη</string>
+  <string name="exo_controls_fullscreen_exit_description">Έξοδος από πλήρη οθόνη</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">ಎಲ್ಲವನ್ನು ಪುನರಾವರ್ತಿಸಿ</string>
   <string name="exo_controls_shuffle_on_description">ಶಫಲ್ ಆನ್ ಆಗಿದೆ</string>
   <string name="exo_controls_shuffle_off_description">ಶಫಲ್ ಆಫ್ ಆಗಿದೆ</string>
-  <string name="exo_controls_fullscreen_description">ಪೂರ್ಣ ಪರದೆ ಮೋಡ್</string>
   <string name="exo_controls_vr_description">VR ಮೋಡ್</string>
   <string name="exo_download_description">ಡೌನ್‌ಲೋಡ್‌</string>
   <string name="exo_download_notification_channel_name">ಡೌನ್‌ಲೋಡ್‌ಗಳು</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">ಆಡಿಯೊ ಟ್ರ್ಯಾಕ್</string>
+  <string name="exo_controls_playback_speed">ಪ್ಲೇಬ್ಯಾಕ್ ವೇಗ</string>
+  <string name="exo_controls_playback_speed_normal">ಸಾಮಾನ್ಯ</string>
+  <string name="exo_controls_overflow_left_button_description">ಹಿಂದಿನ ಬಟನ್ ಪಟ್ಟಿಗೆ ಹಿಂತಿರುಗಿ</string>
+  <string name="exo_controls_overflow_right_button_description">ಇನ್ನಷ್ಟು ಬಟನ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಿ</string>
+  <string name="exo_controls_seek_bar_description">ಪ್ಲೇಬ್ಯಾಕ್ ಪ್ರಗತಿಯಲ್ಲಿದೆ</string>
+  <string name="exo_controls_settings_description">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+  <string name="exo_controls_cc_is_on">ಉಪಶೀರ್ಷಿಕೆಗಳನ್ನು ಮರೆಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
+  <string name="exo_controls_cc_is_off">ಉಪಶೀರ್ಷಿಕೆಗಳನ್ನು ತೋರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ</string>
+  <string name="exo_controls_rewind_desc_holder">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ರಿವೈಂಡ್ ಮಾಡಿ</string>
+  <string name="exo_controls_ffwd_desc_holder">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ಫಾಸ್ಟ್ ಫಾರ್ವರ್ಡ್ ಮಾಡಿ</string>
+  <string name="exo_controls_fullscreen_enter_description">ಫುಲ್‌ಸ್ಕ್ರೀನ್‌ಗೆ ಪ್ರವೇಶಿಸಿ</string>
+  <string name="exo_controls_fullscreen_exit_description">ಫುಲ್‌ಸ್ಕ್ರೀನ್‌ನಿಂದ ನಿರ್ಗಮಿಸಿ</string>
 </resources>

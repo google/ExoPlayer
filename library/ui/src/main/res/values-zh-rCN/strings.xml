@@ -16,8 +16,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="exo_controls_show">显示播放器控件</string>
   <string name="exo_controls_hide">隐藏播放器控件</string>
-  <string name="exo_controls_previous_description">上一曲</string>
-  <string name="exo_controls_next_description">下一曲</string>
+  <string name="exo_controls_previous_description">上一首</string>
+  <string name="exo_controls_next_description">下一首</string>
   <string name="exo_controls_pause_description">暂停</string>
   <string name="exo_controls_play_description">播放</string>
   <string name="exo_controls_stop_description">停止</string>
@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">全部重复播放</string>
   <string name="exo_controls_shuffle_on_description">随机播放功能已开启</string>
   <string name="exo_controls_shuffle_off_description">随机播放功能已关闭</string>
-  <string name="exo_controls_fullscreen_description">全屏模式</string>
   <string name="exo_controls_vr_description">VR 模式</string>
   <string name="exo_download_description">下载</string>
   <string name="exo_download_notification_channel_name">下载内容</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">字幕</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s，%2$s</string>
+  <string name="exo_controls_audio_track">音轨</string>
+  <string name="exo_controls_playback_speed">播放速度</string>
+  <string name="exo_controls_playback_speed_normal">正常</string>
+  <string name="exo_controls_overflow_left_button_description">返回上一个按钮列表</string>
+  <string name="exo_controls_overflow_right_button_description">查看更多按钮</string>
+  <string name="exo_controls_seek_bar_description">播放进度</string>
+  <string name="exo_controls_settings_description">设置</string>
+  <string name="exo_controls_cc_is_on">点按即可隐藏字幕</string>
+  <string name="exo_controls_cc_is_off">点按即可显示字幕</string>
+  <string name="exo_controls_rewind_desc_holder">快退 %d 秒</string>
+  <string name="exo_controls_ffwd_desc_holder">快进 %d 秒</string>
+  <string name="exo_controls_fullscreen_enter_description">进入全屏模式</string>
+  <string name="exo_controls_fullscreen_exit_description">退出全屏模式</string>
 </resources>

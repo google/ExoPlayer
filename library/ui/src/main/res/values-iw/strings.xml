@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">חזור על הכול</string>
   <string name="exo_controls_shuffle_on_description">ההשמעה האקראית מופעלת</string>
   <string name="exo_controls_shuffle_off_description">ההשמעה האקראית מושבתת</string>
-  <string name="exo_controls_fullscreen_description">מצב מסך מלא</string>
   <string name="exo_controls_vr_description">מצב VR</string>
   <string name="exo_download_description">הורדה</string>
   <string name="exo_download_notification_channel_name">הורדות</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">כתוביות</string>
   <string name="exo_track_bitrate">%1$.2f מגה סיביות לשנייה</string>
   <string name="exo_item_list">%1$s‏, %2$s</string>
+  <string name="exo_controls_audio_track">טראק של אודיו</string>
+  <string name="exo_controls_playback_speed">מהירות הפעלה</string>
+  <string name="exo_controls_playback_speed_normal">רגילה</string>
+  <string name="exo_controls_overflow_left_button_description">חזרה לרשימת הלחצנים הקודמת</string>
+  <string name="exo_controls_overflow_right_button_description">הצגת לחצנים נוספים</string>
+  <string name="exo_controls_seek_bar_description">התקדמות ההפעלה</string>
+  <string name="exo_controls_settings_description">הגדרות</string>
+  <string name="exo_controls_cc_is_on">יש להקיש כדי להסתיר את הכתוביות</string>
+  <string name="exo_controls_cc_is_off">יש להקיש כדי להציג את הכתוביות</string>
+  <string name="exo_controls_rewind_desc_holder">הרצה %d שניות אחורה</string>
+  <string name="exo_controls_ffwd_desc_holder">הרצה %d שניות קדימה</string>
+  <string name="exo_controls_fullscreen_enter_description">כניסה למסך מלא</string>
+  <string name="exo_controls_fullscreen_exit_description">יציאה ממסך מלא</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Korda kõiki</string>
   <string name="exo_controls_shuffle_on_description">Lülita juh. järj. esit. sisse</string>
   <string name="exo_controls_shuffle_off_description">Lülita juh. järj. esit. välja</string>
-  <string name="exo_controls_fullscreen_description">Täisekraani režiim</string>
   <string name="exo_controls_vr_description">VR-režiim</string>
   <string name="exo_download_description">Allalaadimine</string>
   <string name="exo_download_notification_channel_name">Allalaadimised</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Subtiitrid</string>
   <string name="exo_track_bitrate">%1$.2f Mbit/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Heliriba</string>
+  <string name="exo_controls_playback_speed">Taasesituskiirus</string>
+  <string name="exo_controls_playback_speed_normal">Tavaline</string>
+  <string name="exo_controls_overflow_left_button_description">Tagasi eelmise nupuloendi juurde</string>
+  <string name="exo_controls_overflow_right_button_description">Kuva rohkem nuppe</string>
+  <string name="exo_controls_seek_bar_description">Taasesitus on pooleli</string>
+  <string name="exo_controls_settings_description">Seaded</string>
+  <string name="exo_controls_cc_is_on">Puudutage subtiitrite peitmiseks</string>
+  <string name="exo_controls_cc_is_off">Puudutage subtiitrite kuvamiseks</string>
+  <string name="exo_controls_rewind_desc_holder">Keri %d sekundit tagasi</string>
+  <string name="exo_controls_ffwd_desc_holder">Keri %d sekundit edasi</string>
+  <string name="exo_controls_fullscreen_enter_description">Avamine täisekraanil</string>
+  <string name="exo_controls_fullscreen_exit_description">Väljumine täisekraanilt</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Ripeti tutto</string>
   <string name="exo_controls_shuffle_on_description">Attiva riproduzione casuale</string>
   <string name="exo_controls_shuffle_off_description">Disattiva riproduzione casuale</string>
-  <string name="exo_controls_fullscreen_description">Modalità a schermo intero</string>
   <string name="exo_controls_vr_description">Modalità VR</string>
   <string name="exo_download_description">Scarica</string>
   <string name="exo_download_notification_channel_name">Download</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Sottotitoli</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Traccia audio</string>
+  <string name="exo_controls_playback_speed">Velocità di riproduzione</string>
+  <string name="exo_controls_playback_speed_normal">Normale</string>
+  <string name="exo_controls_overflow_left_button_description">Torna a elenco pulsanti preced.</string>
+  <string name="exo_controls_overflow_right_button_description">Visualizza altri pulsanti</string>
+  <string name="exo_controls_seek_bar_description">Avanzamento della riproduzione</string>
+  <string name="exo_controls_settings_description">Impostazioni</string>
+  <string name="exo_controls_cc_is_on">Tocca per nascondere i sottotitoli</string>
+  <string name="exo_controls_cc_is_off">Tocca per mostrare i sottotitoli</string>
+  <string name="exo_controls_rewind_desc_holder">Indietro di %d secondi</string>
+  <string name="exo_controls_ffwd_desc_holder">Avanti veloce di %d secondi</string>
+  <string name="exo_controls_fullscreen_enter_description">Attiva schermo intero</string>
+  <string name="exo_controls_fullscreen_exit_description">Esci da schermo intero</string>
 </resources>

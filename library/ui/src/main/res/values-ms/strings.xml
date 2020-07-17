@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Ulang semua</string>
   <string name="exo_controls_shuffle_on_description">Hidupkan rombak</string>
   <string name="exo_controls_shuffle_off_description">Matikan rombak</string>
-  <string name="exo_controls_fullscreen_description">Mod skrin penuh</string>
   <string name="exo_controls_vr_description">Mod VR</string>
   <string name="exo_download_description">Muat turun</string>
   <string name="exo_download_notification_channel_name">Muat turun</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">SK</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Runut audio</string>
+  <string name="exo_controls_playback_speed">Kelajuan main balik</string>
+  <string name="exo_controls_playback_speed_normal">Biasa</string>
+  <string name="exo_controls_overflow_left_button_description">Kembali ke senarai butang terdahulu</string>
+  <string name="exo_controls_overflow_right_button_description">Lihat lagi butang</string>
+  <string name="exo_controls_seek_bar_description">Kemajuan main balik</string>
+  <string name="exo_controls_settings_description">Tetapan</string>
+  <string name="exo_controls_cc_is_on">Ketik untuk sembunyikan sari kata</string>
+  <string name="exo_controls_cc_is_off">Ketik untuk menunjukkan sari kata</string>
+  <string name="exo_controls_rewind_desc_holder">Mandir %d saat</string>
+  <string name="exo_controls_ffwd_desc_holder">Mundar laju %d saat</string>
+  <string name="exo_controls_fullscreen_enter_description">Masuk ke skrin penuh</string>
+  <string name="exo_controls_fullscreen_exit_description">Keluar dari skrin penuh</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">全曲をリピート</string>
   <string name="exo_controls_shuffle_on_description">シャッフル ON</string>
   <string name="exo_controls_shuffle_off_description">シャッフル OFF</string>
-  <string name="exo_controls_fullscreen_description">全画面モード</string>
   <string name="exo_controls_vr_description">VR モード</string>
   <string name="exo_download_description">ダウンロード</string>
   <string name="exo_download_notification_channel_name">ダウンロード</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">字幕</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s、%2$s</string>
+  <string name="exo_controls_audio_track">音声トラック</string>
+  <string name="exo_controls_playback_speed">再生速度</string>
+  <string name="exo_controls_playback_speed_normal">標準</string>
+  <string name="exo_controls_overflow_left_button_description">前のボタンリストに戻る</string>
+  <string name="exo_controls_overflow_right_button_description">他のボタンを見る</string>
+  <string name="exo_controls_seek_bar_description">再生中</string>
+  <string name="exo_controls_settings_description">設定</string>
+  <string name="exo_controls_cc_is_on">タップすると、字幕が非表示になります</string>
+  <string name="exo_controls_cc_is_off">タップすると、字幕が表示されます</string>
+  <string name="exo_controls_rewind_desc_holder">%d 秒巻き戻し</string>
+  <string name="exo_controls_ffwd_desc_holder">%d 秒早送り</string>
+  <string name="exo_controls_fullscreen_enter_description">全画面表示に変更</string>
+  <string name="exo_controls_fullscreen_exit_description">全画面表示を終了</string>
 </resources>

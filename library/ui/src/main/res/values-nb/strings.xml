@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Gjenta alle</string>
   <string name="exo_controls_shuffle_on_description">Tilfeldig rekkefølge er på</string>
   <string name="exo_controls_shuffle_off_description">Tilfeldig rekkefølge er av</string>
-  <string name="exo_controls_fullscreen_description">Fullskjermmodus</string>
   <string name="exo_controls_vr_description">VR-modus</string>
   <string name="exo_download_description">Last ned</string>
   <string name="exo_download_notification_channel_name">Nedlastinger</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Teksting</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Lydspor</string>
+  <string name="exo_controls_playback_speed">Avspillingshastighet</string>
+  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <string name="exo_controls_overflow_left_button_description">Tilbake til forrige knappeliste</string>
+  <string name="exo_controls_overflow_right_button_description">Se flere knapper</string>
+  <string name="exo_controls_seek_bar_description">Avspillingsfremdrift</string>
+  <string name="exo_controls_settings_description">Innstillinger</string>
+  <string name="exo_controls_cc_is_on">Trykk for å skjule undertekster</string>
+  <string name="exo_controls_cc_is_off">Trykk for å vise undertekster</string>
+  <string name="exo_controls_rewind_desc_holder">Spol %d sekunder bakover</string>
+  <string name="exo_controls_ffwd_desc_holder">Spol %d sekunder fremover</string>
+  <string name="exo_controls_fullscreen_enter_description">Se i fullskjerm</string>
+  <string name="exo_controls_fullscreen_exit_description">Avslutt fullskjerm</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Atkārtot visu</string>
   <string name="exo_controls_shuffle_on_description">Atsk. jauktā secībā ieslēgta</string>
   <string name="exo_controls_shuffle_off_description">Atsk. jauktā secībā izslēgta</string>
-  <string name="exo_controls_fullscreen_description">Pilnekrāna režīms</string>
   <string name="exo_controls_vr_description">VR režīms</string>
   <string name="exo_download_description">Lejupielādēt</string>
   <string name="exo_download_notification_channel_name">Lejupielādes</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Slēgtie paraksti</string>
   <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Audio ieraksts</string>
+  <string name="exo_controls_playback_speed">Atskaņošanas ātrums</string>
+  <string name="exo_controls_playback_speed_normal">Parasts</string>
+  <string name="exo_controls_overflow_left_button_description">Uz iepriekšējo pogu sarakstu</string>
+  <string name="exo_controls_overflow_right_button_description">Skatīt citas pogas</string>
+  <string name="exo_controls_seek_bar_description">Atskaņošanas norise</string>
+  <string name="exo_controls_settings_description">Iestatījumi</string>
+  <string name="exo_controls_cc_is_on">Pieskarties, lai paslēptu subtitrus</string>
+  <string name="exo_controls_cc_is_off">Pieskarties, lai rādītu subtitrus</string>
+  <string name="exo_controls_rewind_desc_holder">Attīt atpakaļ par %d sekundēm</string>
+  <string name="exo_controls_ffwd_desc_holder">Pārtīt %d sekundes uz priekšu</string>
+  <string name="exo_controls_fullscreen_enter_description">Atvērt pilnekrāna režīmu</string>
+  <string name="exo_controls_fullscreen_exit_description">Aizvērt pilnekrāna režīmu</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Herhaal alles</string>
   <string name="exo_controls_shuffle_on_description">Skommel is aan</string>
   <string name="exo_controls_shuffle_off_description">Skommel is af</string>
-  <string name="exo_controls_fullscreen_description">Volskermmodus</string>
   <string name="exo_controls_vr_description">VR-modus</string>
   <string name="exo_download_description">Aflaai</string>
   <string name="exo_download_notification_channel_name">Aflaaie</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Onderskrifte</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Oudiosnit</string>
+  <string name="exo_controls_playback_speed">Terugspeelspoed</string>
+  <string name="exo_controls_playback_speed_normal">Normaal</string>
+  <string name="exo_controls_overflow_left_button_description">\"Terug na vorige\"-knoppielys</string>
+  <string name="exo_controls_overflow_right_button_description">Sien nog knoppies</string>
+  <string name="exo_controls_seek_bar_description">Terugspeelvordering</string>
+  <string name="exo_controls_settings_description">Instellings</string>
+  <string name="exo_controls_cc_is_on">Tik om onderskrifte te versteek</string>
+  <string name="exo_controls_cc_is_off">Tik om onderskrifte te wys</string>
+  <string name="exo_controls_rewind_desc_holder">Gaan %d sekondes terug</string>
+  <string name="exo_controls_ffwd_desc_holder">Gaan %d sekondes vinnig vorentoe</string>
+  <string name="exo_controls_fullscreen_enter_description">Gaan na volskerm</string>
+  <string name="exo_controls_fullscreen_exit_description">Verlaat volskerm</string>
 </resources>

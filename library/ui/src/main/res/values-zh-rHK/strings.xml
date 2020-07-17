@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">全部重複播放</string>
   <string name="exo_controls_shuffle_on_description">已開啟隨機播放功能</string>
   <string name="exo_controls_shuffle_off_description">已關閉隨機播放功能</string>
-  <string name="exo_controls_fullscreen_description">全螢幕模式</string>
   <string name="exo_controls_vr_description">虛擬現實模式</string>
   <string name="exo_download_description">下載</string>
   <string name="exo_download_notification_channel_name">下載內容</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">字幕</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s、%2$s</string>
+  <string name="exo_controls_audio_track">音軌</string>
+  <string name="exo_controls_playback_speed">播放速度</string>
+  <string name="exo_controls_playback_speed_normal">正常</string>
+  <string name="exo_controls_overflow_left_button_description">返回上一個按鈕清單</string>
+  <string name="exo_controls_overflow_right_button_description">查看更多按鈕</string>
+  <string name="exo_controls_seek_bar_description">播放進度</string>
+  <string name="exo_controls_settings_description">設定</string>
+  <string name="exo_controls_cc_is_on">輕按即可隱藏字幕</string>
+  <string name="exo_controls_cc_is_off">輕按即可顯示字幕</string>
+  <string name="exo_controls_rewind_desc_holder">倒帶 %d 秒</string>
+  <string name="exo_controls_ffwd_desc_holder">快轉 %d 秒</string>
+  <string name="exo_controls_fullscreen_enter_description">進入全螢幕</string>
+  <string name="exo_controls_fullscreen_exit_description">關閉全螢幕</string>
 </resources>

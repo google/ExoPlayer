@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Баарын кайталоо</string>
   <string name="exo_controls_shuffle_on_description">Аралаштыруу күйүк</string>
   <string name="exo_controls_shuffle_off_description">Аралаштыруу өчүк</string>
-  <string name="exo_controls_fullscreen_description">Толук экран режими</string>
   <string name="exo_controls_vr_description">VR режими</string>
   <string name="exo_download_description">Жүктөп алуу</string>
   <string name="exo_download_notification_channel_name">Жүктөлүп алынгандар</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Коштомо жазуулар</string>
   <string name="exo_track_bitrate">%1$.2f Мб/сек.</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Аудиотрек</string>
+  <string name="exo_controls_playback_speed">Ойнотуу ылдамдыгы</string>
+  <string name="exo_controls_playback_speed_normal">Орточо</string>
+  <string name="exo_controls_overflow_left_button_description">Мурунку баскыч тизмесине кайтуу</string>
+  <string name="exo_controls_overflow_right_button_description">Дагы баскычтарды көрүү</string>
+  <string name="exo_controls_seek_bar_description">Ойнотуу көрсөткүчү</string>
+  <string name="exo_controls_settings_description">Жөндөөлөр</string>
+  <string name="exo_controls_cc_is_on">Коштомо жазууларды жашыруу үчүн басыңыз</string>
+  <string name="exo_controls_cc_is_off">Коштомо жазууларды көрсөтүү үчүн басыңыз</string>
+  <string name="exo_controls_rewind_desc_holder">%d секунд артка түрдүрүү</string>
+  <string name="exo_controls_ffwd_desc_holder">%d секунд алдыга түрдүрүү</string>
+  <string name="exo_controls_fullscreen_enter_description">Толук экранга кирүү</string>
+  <string name="exo_controls_fullscreen_exit_description">Толук экран режиминен чыгуу</string>
 </resources>

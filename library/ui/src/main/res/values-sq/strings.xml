@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Përsërit të gjitha</string>
   <string name="exo_controls_shuffle_on_description">Përzierja aktive</string>
   <string name="exo_controls_shuffle_off_description">Përzierja joaktive</string>
-  <string name="exo_controls_fullscreen_description">Modaliteti me ekran të plotë</string>
   <string name="exo_controls_vr_description">Modaliteti RV</string>
   <string name="exo_download_description">Shkarko</string>
   <string name="exo_download_notification_channel_name">Shkarkimet</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Titrat</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Pjesë zanore</string>
+  <string name="exo_controls_playback_speed">Shpejtësia e luajtjes</string>
+  <string name="exo_controls_playback_speed_normal">Normale</string>
+  <string name="exo_controls_overflow_left_button_description">Kthehu te lista e butonave të mëparshëm</string>
+  <string name="exo_controls_overflow_right_button_description">Shiko më shumë butona</string>
+  <string name="exo_controls_seek_bar_description">Progresi i luajtjes</string>
+  <string name="exo_controls_settings_description">Cilësimet</string>
+  <string name="exo_controls_cc_is_on">Trokit për të fshehur titrat</string>
+  <string name="exo_controls_cc_is_off">Trokit për të shfaqur titrat</string>
+  <string name="exo_controls_rewind_desc_holder">Shko prapa %d sekonda</string>
+  <string name="exo_controls_ffwd_desc_holder">Shpejt përpara %d sekonda</string>
+  <string name="exo_controls_fullscreen_enter_description">Hyr në luajtjen me ekran të plotë</string>
+  <string name="exo_controls_fullscreen_exit_description">Dil nga ekrani i plotë</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">सर्व रीपीट करा</string>
   <string name="exo_controls_shuffle_on_description">शफल करा सुरू करा</string>
   <string name="exo_controls_shuffle_off_description">शफल करा बंद करा</string>
-  <string name="exo_controls_fullscreen_description">फुल स्क्रीन मोड</string>
   <string name="exo_controls_vr_description">VR मोड</string>
   <string name="exo_download_description">डाउनलोड करा</string>
   <string name="exo_download_notification_channel_name">डाउनलोड</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">सबटायटल</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">ऑडिओ ट्रॅक</string>
+  <string name="exo_controls_playback_speed">प्लेबॅकचा वेग</string>
+  <string name="exo_controls_playback_speed_normal">सामान्य</string>
+  <string name="exo_controls_overflow_left_button_description">बटणांच्या मागील सूचीवर परत जा</string>
+  <string name="exo_controls_overflow_right_button_description">आणखी बटणे पाहा</string>
+  <string name="exo_controls_seek_bar_description">प्लेबॅकची प्रगती</string>
+  <string name="exo_controls_settings_description">सेटिंग्ज</string>
+  <string name="exo_controls_cc_is_on">सबटायटल लपवण्यासाठी टॅप करा</string>
+  <string name="exo_controls_cc_is_off">सबटायटल दाखवण्यासाठी टॅप करा</string>
+  <string name="exo_controls_rewind_desc_holder">%d सेकंद रीवाइंड करा</string>
+  <string name="exo_controls_ffwd_desc_holder">%d सेकंद फास्ट फॉरवर्ड करा</string>
+  <string name="exo_controls_fullscreen_enter_description">फुलस्क्रीनवर पाहा</string>
+  <string name="exo_controls_fullscreen_exit_description">फुलस्क्रीनवरून बाहेर पडा</string>
 </resources>

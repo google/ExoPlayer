@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Паўтарыць усе</string>
   <string name="exo_controls_shuffle_on_description">Перамешванне ўключана</string>
   <string name="exo_controls_shuffle_off_description">Перамешванне выключана</string>
-  <string name="exo_controls_fullscreen_description">Поўнаэкранны рэжым</string>
   <string name="exo_controls_vr_description">VR-рэжым</string>
   <string name="exo_download_description">Спампаваць</string>
   <string name="exo_download_notification_channel_name">Спампоўкі</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Цітры</string>
   <string name="exo_track_bitrate">%1$.2f Мбіт/с</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Гукавая дарожка</string>
+  <string name="exo_controls_playback_speed">Хуткасць прайгравання</string>
+  <string name="exo_controls_playback_speed_normal">Звычайная</string>
+  <string name="exo_controls_overflow_left_button_description">Да папярэдняга спіса кнопак</string>
+  <string name="exo_controls_overflow_right_button_description">Паказаць дадатковыя кнопкі</string>
+  <string name="exo_controls_seek_bar_description">Ход прайгравання</string>
+  <string name="exo_controls_settings_description">Налады</string>
+  <string name="exo_controls_cc_is_on">Націсніце, каб схаваць субцітры</string>
+  <string name="exo_controls_cc_is_off">Націсніце, каб паказаць субцітры</string>
+  <string name="exo_controls_rewind_desc_holder">Пераматаць назад на %d с</string>
+  <string name="exo_controls_ffwd_desc_holder">Пераматаць уперад на %d с</string>
+  <string name="exo_controls_fullscreen_enter_description">Уключыць поўнаэкранны рэжым</string>
+  <string name="exo_controls_fullscreen_exit_description">Выключыць поўнаэкранны рэжым</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Барлығын қайталау</string>
   <string name="exo_controls_shuffle_on_description">Араластыру режимі қосулы.</string>
   <string name="exo_controls_shuffle_off_description">Араластыру режимі өшірулі.</string>
-  <string name="exo_controls_fullscreen_description">Толық экран режимі</string>
   <string name="exo_controls_vr_description">VR режимі</string>
   <string name="exo_download_description">Жүктеп алу</string>
   <string name="exo_download_notification_channel_name">Жүктеп алынғандар</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Субтитр</string>
   <string name="exo_track_bitrate">%1$.2f МБ/сек</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Аудиотрек</string>
+  <string name="exo_controls_playback_speed">Ойнату жылдамдығы</string>
+  <string name="exo_controls_playback_speed_normal">Қалыпты</string>
+  <string name="exo_controls_overflow_left_button_description">Алдыңғы түймелер тізіміне оралу</string>
+  <string name="exo_controls_overflow_right_button_description">Басқа түймелерді көру</string>
+  <string name="exo_controls_seek_bar_description">Ойнату барысы</string>
+  <string name="exo_controls_settings_description">Параметрлер</string>
+  <string name="exo_controls_cc_is_on">Субтитрді жасыру үшін түртіңіз</string>
+  <string name="exo_controls_cc_is_off">Субтитрді көрсету үшін түртіңіз</string>
+  <string name="exo_controls_rewind_desc_holder">%d секунд артқа айналдыру</string>
+  <string name="exo_controls_ffwd_desc_holder">%d секунд алға айналдыру</string>
+  <string name="exo_controls_fullscreen_enter_description">Толық экранды режимге кіру</string>
+  <string name="exo_controls_fullscreen_exit_description">Толық экранды режимнен шығу</string>
 </resources>

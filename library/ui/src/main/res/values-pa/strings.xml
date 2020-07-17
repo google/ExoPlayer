@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">ਸਾਰਿਆਂ ਨੂੰ ਦੁਹਰਾਓ</string>
   <string name="exo_controls_shuffle_on_description">\'ਬੇਤਰਤੀਬ ਕਰੋ\' ਮੋਡ ਚਾਲੂ ਹੈ</string>
   <string name="exo_controls_shuffle_off_description">\'ਬੇਤਰਤੀਬ ਕਰੋ\' ਮੋਡ ਬੰਦ ਹੈ</string>
-  <string name="exo_controls_fullscreen_description">ਪੂਰੀ-ਸਕ੍ਰੀਨ ਮੋਡ</string>
   <string name="exo_controls_vr_description">VR ਮੋਡ</string>
   <string name="exo_download_description">ਡਾਊਨਲੋਡ ਕਰੋ</string>
   <string name="exo_download_notification_channel_name">ਡਾਊਨਲੋਡ</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">ਬੰਦ ਸੁੁਰਖੀਆਂ</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">ਆਡੀਓ ਟਰੈਕ</string>
+  <string name="exo_controls_playback_speed">ਪਲੇਬੈਕ ਦੀ ਗਤੀ</string>
+  <string name="exo_controls_playback_speed_normal">ਸਧਾਰਨ</string>
+  <string name="exo_controls_overflow_left_button_description">ਪਿਛਲੀ ਬਟਨ ਸੂਚੀ \'ਤੇ ਵਾਪਸ ਜਾਓ</string>
+  <string name="exo_controls_overflow_right_button_description">ਹੋਰ ਬਟਨ ਦੇਖੋ</string>
+  <string name="exo_controls_seek_bar_description">ਪਲੇਬੈਕ ਪ੍ਰਗਤੀ</string>
+  <string name="exo_controls_settings_description">ਸੈਟਿੰਗਾਂ</string>
+  <string name="exo_controls_cc_is_on">ਉਪਸਿਰਲੇਖਾਂ ਨੂੰ ਲੁਕਾਉਣ ਲਈ ਟੈਪ ਕਰੋ</string>
+  <string name="exo_controls_cc_is_off">ਉਪਸਿਰਲੇਖਾਂ ਨੂੰ ਦਿਖਾਉਣ ਲਈ ਟੈਪ ਕਰੋ</string>
+  <string name="exo_controls_rewind_desc_holder">%d ਸਕਿੰਟ ਪਿੱਛੇ ਕਰੋ</string>
+  <string name="exo_controls_ffwd_desc_holder">ਤੇਜ਼ੀ ਨਾਲ %d ਸਕਿੰਟ ਅੱਗੇ ਕਰੋ</string>
+  <string name="exo_controls_fullscreen_enter_description">ਪੂਰੀ ਸਕ੍ਰੀਨ ਦਾਖਲ ਕਰੋ</string>
+  <string name="exo_controls_fullscreen_exit_description">ਪੂਰੀ-ਸਕ੍ਰੀਨ ਤੋਂ ਬਾਹਰ ਜਾਓ</string>
 </resources>

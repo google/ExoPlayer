@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">ყველას გამეორება</string>
   <string name="exo_controls_shuffle_on_description">არეულად დაკვრა ჩართულია</string>
   <string name="exo_controls_shuffle_off_description">არეულად დაკვრა გამორთულია</string>
-  <string name="exo_controls_fullscreen_description">სრულეკრანიანი რეჟიმი</string>
   <string name="exo_controls_vr_description">VR რეჟიმი</string>
   <string name="exo_download_description">ჩამოტვირთვა</string>
   <string name="exo_download_notification_channel_name">ჩამოტვირთვები</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">დახურული სუბტიტრები</string>
   <string name="exo_track_bitrate">%1$.2f მბიტ/წმ</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">აუდიოჩანაწერი</string>
+  <string name="exo_controls_playback_speed">დაკვრის სიჩქარე</string>
+  <string name="exo_controls_playback_speed_normal">ჩვეულებრივი</string>
+  <string name="exo_controls_overflow_left_button_description">ღილაკების წინა სიაზე გადასვლა</string>
+  <string name="exo_controls_overflow_right_button_description">სხვა ღილაკების ნახვა</string>
+  <string name="exo_controls_seek_bar_description">დაკვრის პროგრესი</string>
+  <string name="exo_controls_settings_description">პარამეტრები</string>
+  <string name="exo_controls_cc_is_on">შეეხეთ სუბტიტრების დასამალად</string>
+  <string name="exo_controls_cc_is_off">შეეხეთ სუბტიტრების საჩვენებლად</string>
+  <string name="exo_controls_rewind_desc_holder">უკან გადახვევა %d წამით</string>
+  <string name="exo_controls_ffwd_desc_holder">წინ გადახვევა %d წამით</string>
+  <string name="exo_controls_fullscreen_enter_description">სრულეკრანიან რეჟიმში შესვლა</string>
+  <string name="exo_controls_fullscreen_exit_description">სრულეკრანიანი რეჟიმიდან გამოსვლა</string>
 </resources>

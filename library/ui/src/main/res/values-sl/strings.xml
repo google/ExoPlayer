@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Ponavljanje vseh</string>
   <string name="exo_controls_shuffle_on_description">Naklj. predvajanje vklopljeno</string>
   <string name="exo_controls_shuffle_off_description">Naklj. predvajanje izklopljeno</string>
-  <string name="exo_controls_fullscreen_description">Celozaslonski način</string>
   <string name="exo_controls_vr_description">Način VR</string>
   <string name="exo_download_description">Prenos</string>
   <string name="exo_download_notification_channel_name">Prenosi</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">Podnapisi</string>
   <string name="exo_track_bitrate">%1$.2f Mb/s</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Zvočni posnetek</string>
+  <string name="exo_controls_playback_speed">Hitrost predvajanja</string>
+  <string name="exo_controls_playback_speed_normal">Običajna</string>
+  <string name="exo_controls_overflow_left_button_description">Nazaj na prejšnji seznam gumbov</string>
+  <string name="exo_controls_overflow_right_button_description">Prikaz več gumbov</string>
+  <string name="exo_controls_seek_bar_description">Potek predvajanja</string>
+  <string name="exo_controls_settings_description">Nastavitve</string>
+  <string name="exo_controls_cc_is_on">Dotaknite se za izklop podnapisov</string>
+  <string name="exo_controls_cc_is_off">Dotaknite se za vklop podnapisov</string>
+  <string name="exo_controls_rewind_desc_holder">Premik nazaj za %d s</string>
+  <string name="exo_controls_ffwd_desc_holder">Premik naprej za %d s</string>
+  <string name="exo_controls_fullscreen_enter_description">Vstop v celozaslonski način</string>
+  <string name="exo_controls_fullscreen_exit_description">Izhod iz celozaslonskega načina</string>
 </resources>

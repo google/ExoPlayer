@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Alles herhalen</string>
   <string name="exo_controls_shuffle_on_description">Shuffle aan</string>
   <string name="exo_controls_shuffle_off_description">Shuffle uit</string>
-  <string name="exo_controls_fullscreen_description">Modus \'Volledig scherm\'</string>
   <string name="exo_controls_vr_description">VR-modus</string>
   <string name="exo_download_description">Downloaden</string>
   <string name="exo_download_notification_channel_name">Downloads</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Audiotrack</string>
+  <string name="exo_controls_playback_speed">Afspeelsnelheid</string>
+  <string name="exo_controls_playback_speed_normal">Normaal</string>
+  <string name="exo_controls_overflow_left_button_description">Terug naar vorige knoppenlijst</string>
+  <string name="exo_controls_overflow_right_button_description">Meer knoppen bekijken</string>
+  <string name="exo_controls_seek_bar_description">Afspeelvoortgang</string>
+  <string name="exo_controls_settings_description">Instellingen</string>
+  <string name="exo_controls_cc_is_on">Tik om de ondertiteling te verbergen</string>
+  <string name="exo_controls_cc_is_off">Tik om de ondertiteling weer te geven</string>
+  <string name="exo_controls_rewind_desc_holder">%d seconden terugspoelen</string>
+  <string name="exo_controls_ffwd_desc_holder">%d seconden vooruitspoelen</string>
+  <string name="exo_controls_fullscreen_enter_description">Volledig scherm openen</string>
+  <string name="exo_controls_fullscreen_exit_description">Volledig scherm sluiten</string>
 </resources>

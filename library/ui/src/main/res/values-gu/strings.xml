@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">બધાને રિપીટ કરો</string>
   <string name="exo_controls_shuffle_on_description">શફલ ચાલુ છે</string>
   <string name="exo_controls_shuffle_off_description">શફલ બંધ છે</string>
-  <string name="exo_controls_fullscreen_description">પૂર્ણસ્ક્રીન મોડ</string>
   <string name="exo_controls_vr_description">VR મોડ</string>
   <string name="exo_download_description">ડાઉનલોડ કરો</string>
   <string name="exo_download_notification_channel_name">ડાઉનલોડ</string>
@@ -36,8 +35,8 @@
   <string name="exo_download_completed">ડાઉનલોડ પૂર્ણ થયું</string>
   <string name="exo_download_failed">ડાઉનલોડ નિષ્ફળ થયું</string>
   <string name="exo_download_removing">ડાઉનલોડ કાઢી નાખી રહ્યાં છીએ</string>
-  <string name="exo_track_selection_title_video">વીડિઓ</string>
-  <string name="exo_track_selection_title_audio">ઑડિઓ</string>
+  <string name="exo_track_selection_title_video">વીડિયો</string>
+  <string name="exo_track_selection_title_audio">ઑડિયો</string>
   <string name="exo_track_selection_title_text">ટેક્સ્ટ</string>
   <string name="exo_track_selection_none">એકપણ નહીં</string>
   <string name="exo_track_selection_auto">આપમેળે</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">ઑડિયો ટ્રૅક</string>
+  <string name="exo_controls_playback_speed">પ્લેબૅકની ઝડપ</string>
+  <string name="exo_controls_playback_speed_normal">સામાન્ય</string>
+  <string name="exo_controls_overflow_left_button_description">પહેલાંની બટન સૂચિ પર પાછા જાઓ</string>
+  <string name="exo_controls_overflow_right_button_description">વધુ બટન જુઓ</string>
+  <string name="exo_controls_seek_bar_description">પ્લેબૅક ચાલુ છે</string>
+  <string name="exo_controls_settings_description">સેટિંગ</string>
+  <string name="exo_controls_cc_is_on">સબટાઇટલ છુપાવવા માટે ટૅપ કરો</string>
+  <string name="exo_controls_cc_is_off">સબટાઇટલ બતાવવા માટે ટૅપ કરો</string>
+  <string name="exo_controls_rewind_desc_holder">%d સેકન્ડ રિવાઇન્ડ કરો</string>
+  <string name="exo_controls_ffwd_desc_holder">%d સેકન્ડ ફાસ્ટ ફૉરવર્ડ કરો</string>
+  <string name="exo_controls_fullscreen_enter_description">પૂર્ણસ્ક્રીન મોડમાં દાખલ થાઓ</string>
+  <string name="exo_controls_fullscreen_exit_description">પૂર્ણસ્ક્રીન મોડમાંથી બહાર નીકળો</string>
 </resources>

@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">Repeat all</string>
   <string name="exo_controls_shuffle_on_description">Shuffle on</string>
   <string name="exo_controls_shuffle_off_description">Shuffle off</string>
-  <string name="exo_controls_fullscreen_description">Full-screen mode</string>
   <string name="exo_controls_vr_description">VR mode</string>
   <string name="exo_download_description">Download</string>
   <string name="exo_download_notification_channel_name">Downloads</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s, %2$s</string>
+  <string name="exo_controls_audio_track">Audio track</string>
+  <string name="exo_controls_playback_speed">Playback speed</string>
+  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <string name="exo_controls_overflow_left_button_description">Back to previous button list</string>
+  <string name="exo_controls_overflow_right_button_description">See more buttons</string>
+  <string name="exo_controls_seek_bar_description">Playback progress</string>
+  <string name="exo_controls_settings_description">Settings</string>
+  <string name="exo_controls_cc_is_on">Tap to hide subtitles</string>
+  <string name="exo_controls_cc_is_off">Tap to show subtitles</string>
+  <string name="exo_controls_rewind_desc_holder">Rewind %d seconds</string>
+  <string name="exo_controls_ffwd_desc_holder">Fast forward %d seconds</string>
+  <string name="exo_controls_fullscreen_enter_description">Enter fullscreen</string>
+  <string name="exo_controls_fullscreen_exit_description">Exit fullscreen</string>
 </resources>

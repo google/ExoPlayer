@@ -28,7 +28,6 @@
   <string name="exo_controls_repeat_all_description">အားလုံး ပြန်ကျော့ရန်</string>
   <string name="exo_controls_shuffle_on_description">ရောသမမွှေကို ဖွင့်ထားသည်</string>
   <string name="exo_controls_shuffle_off_description">ရောသမမွှေကို ပိတ်ထားသည်</string>
-  <string name="exo_controls_fullscreen_description">မျက်နှာပြင်အပြည့် မုဒ်</string>
   <string name="exo_controls_vr_description">VR မုဒ်</string>
   <string name="exo_download_description">ဒေါင်းလုဒ် လုပ်ရန်</string>
   <string name="exo_download_notification_channel_name">ဒေါင်းလုဒ်များ</string>
@@ -54,4 +53,17 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <string name="exo_track_bitrate">%1$.2f Mbps</string>
   <string name="exo_item_list">%1$s၊ %2$s</string>
+  <string name="exo_controls_audio_track">သီချင်း</string>
+  <string name="exo_controls_playback_speed">ဖွင့်ရန် အမြန်နှုန်း</string>
+  <string name="exo_controls_playback_speed_normal">ပုံမှန်</string>
+  <string name="exo_controls_overflow_left_button_description">ယခင်ခလုတ်စာရင်းသို့ ပြန်သွားရန်</string>
+  <string name="exo_controls_overflow_right_button_description">နောက်ထပ်ခလုတ်များကို ကြည့်ရန်</string>
+  <string name="exo_controls_seek_bar_description">ဖွင့်သည့် အနေအထား</string>
+  <string name="exo_controls_settings_description">ဆက်တင်များ</string>
+  <string name="exo_controls_cc_is_on">စာတန်းထိုးများဖျောက်ထားရန် တို့ပါ</string>
+  <string name="exo_controls_cc_is_off">စာတန်းထိုးများပြရန် တို့ပါ</string>
+  <string name="exo_controls_rewind_desc_holder">နောက်သို့ %d စက္ကန့်ရစ်ရန်</string>
+  <string name="exo_controls_ffwd_desc_holder">ရှေ့သို့ %d စက္ကန့်ရစ်ရန်</string>
+  <string name="exo_controls_fullscreen_enter_description">ဖန်သားပြင်အပြည့်သို့ ဝင်ရောက်ပါ</string>
+  <string name="exo_controls_fullscreen_exit_description">ဖန်သားပြင်အပြည့်မှ ထွက်ရန်</string>
 </resources>
