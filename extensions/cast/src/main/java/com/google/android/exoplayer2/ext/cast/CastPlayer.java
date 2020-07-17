@@ -427,6 +427,9 @@ public final class CastPlayer extends BasePlayer {
     return playWhenReady.value;
   }
 
+  // We still call EventListener#onSeekProcessed() for backwards compatibility with listeners that
+  // don't implement onPositionDiscontinuity().
+  @SuppressWarnings("deprecation")
   @Override
   public void seekTo(int windowIndex, long positionMs) {
     MediaStatus mediaStatus = getMediaStatus();
