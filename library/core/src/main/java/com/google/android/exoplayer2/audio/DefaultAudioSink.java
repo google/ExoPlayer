@@ -470,14 +470,27 @@ public final class DefaultAudioSink implements AudioSink {
   public void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException {
     boolean isInputPcm = Util.isEncodingLinearPcm(inputFormat.encoding);
-    int sampleRate = inputFormat.sampleRate;
-    int channelCount = inputFormat.channelCount;
-    @C.Encoding int encoding = inputFormat.encoding;
-    boolean useFloatOutput =
-        enableFloatOutput && Util.isEncodingHighResolutionPcm(inputFormat.encoding);
-    AudioProcessor[] availableAudioProcessors =
-        useFloatOutput ? toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
+
+    int inputPcmFrameSize;
+    @Nullable AudioProcessor[] availableAudioProcessors;
+    boolean canApplyPlaybackParameters;
+
+    boolean useOffload;
+    @C.Encoding int outputEncoding;
+    int outputSampleRate;
+    int outputChannelCount;
+    int outputChannelConfig;
+    int outputPcmFrameSize;
+
     if (isInputPcm) {
+      inputPcmFrameSize = Util.getPcmFrameSize(inputFormat.encoding, inputFormat.channelCount);
+
+      boolean useFloatOutput =
+          enableFloatOutput && Util.isEncodingHighResolutionPcm(inputFormat.encoding);
+      availableAudioProcessors =
+          useFloatOutput ? toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
+      canApplyPlaybackParameters = !useFloatOutput;
+
       trimmingAudioProcessor.setTrimFrameCount(
           inputFormat.encoderDelay, inputFormat.encoderPadding);
 
@@ -492,7 +505,8 @@ public final class DefaultAudioSink implements AudioSink {
       channelMappingAudioProcessor.setChannelMap(outputChannels);
 
       AudioProcessor.AudioFormat outputFormat =
-          new AudioProcessor.AudioFormat(sampleRate, channelCount, encoding);
+          new AudioProcessor.AudioFormat(
+              inputFormat.sampleRate, inputFormat.channelCount, inputFormat.encoding);
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
           AudioProcessor.AudioFormat nextFormat = audioProcessor.configure(outputFormat);
@@ -503,33 +517,40 @@ public final class DefaultAudioSink implements AudioSink {
           throw new ConfigurationException(e);
         }
       }
-      sampleRate = outputFormat.sampleRate;
-      channelCount = outputFormat.channelCount;
-      encoding = outputFormat.encoding;
+
+      useOffload = false;
+      outputEncoding = outputFormat.encoding;
+      outputSampleRate = outputFormat.sampleRate;
+      outputChannelCount = outputFormat.channelCount;
+      outputChannelConfig = Util.getAudioTrackChannelConfig(outputChannelCount);
+      outputPcmFrameSize = Util.getPcmFrameSize(outputEncoding, outputChannelCount);
+    } else {
+      // We're configuring for either passthrough or offload.
+      useOffload =
+          enableOffload
+              && isOffloadedPlaybackSupported(
+                  inputFormat.channelCount,
+                  inputFormat.sampleRate,
+                  inputFormat.encoding,
+                  audioAttributes,
+                  inputFormat.encoderDelay,
+                  inputFormat.encoderPadding);
+      inputPcmFrameSize = C.LENGTH_UNSET;
+      availableAudioProcessors = new AudioProcessor[0];
+      canApplyPlaybackParameters = false;
+      outputEncoding = inputFormat.encoding;
+      outputSampleRate = inputFormat.sampleRate;
+      outputChannelCount = inputFormat.channelCount;
+      outputPcmFrameSize = C.LENGTH_UNSET;
+      outputChannelConfig =
+          useOffload
+              ? Util.getAudioTrackChannelConfig(outputChannelCount)
+              : getChannelConfigForPassthrough(inputFormat.channelCount);
     }
 
-    int outputChannelConfig = getChannelConfig(channelCount, isInputPcm);
     if (outputChannelConfig == AudioFormat.CHANNEL_INVALID) {
-      throw new ConfigurationException("Unsupported channel count: " + channelCount);
+      throw new ConfigurationException("Unsupported channel count: " + outputChannelCount);
     }
-
-    int inputPcmFrameSize =
-        isInputPcm
-            ? Util.getPcmFrameSize(inputFormat.encoding, inputFormat.channelCount)
-            : C.LENGTH_UNSET;
-    int outputPcmFrameSize =
-        isInputPcm ? Util.getPcmFrameSize(encoding, channelCount) : C.LENGTH_UNSET;
-    boolean canApplyPlaybackParameters = isInputPcm && !useFloatOutput;
-    boolean useOffload =
-        enableOffload
-            && !isInputPcm
-            && isOffloadedPlaybackSupported(
-                channelCount,
-                sampleRate,
-                encoding,
-                audioAttributes,
-                inputFormat.encoderDelay,
-                inputFormat.encoderPadding);
 
     Configuration pendingConfiguration =
         new Configuration(
@@ -537,9 +558,9 @@ public final class DefaultAudioSink implements AudioSink {
             inputPcmFrameSize,
             inputFormat.sampleRate,
             outputPcmFrameSize,
-            sampleRate,
+            outputSampleRate,
             outputChannelConfig,
-            encoding,
+            outputEncoding,
             specifiedBufferSize,
             canApplyPlaybackParameters,
             availableAudioProcessors,
@@ -900,7 +921,7 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean drainToEndOfStream() throws WriteException {
     boolean audioProcessorNeedsEndOfStream = false;
     if (drainingAudioProcessorIndex == C.INDEX_UNSET) {
-      drainingAudioProcessorIndex = configuration.isInputPcm ? 0 : activeAudioProcessors.length;
+      drainingAudioProcessorIndex = 0;
       audioProcessorNeedsEndOfStream = true;
     }
     while (drainingAudioProcessorIndex < activeAudioProcessors.length) {
@@ -1285,8 +1306,8 @@ public final class DefaultAudioSink implements AudioSink {
     if (Util.SDK_INT < 29) {
       return false;
     }
-    int channelMask = getChannelConfig(channelCount, /* isInputPcm= */ false);
-    AudioFormat audioFormat = getAudioFormat(sampleRateHz, channelMask, encoding);
+    int channelConfig = Util.getAudioTrackChannelConfig(channelCount);
+    AudioFormat audioFormat = getAudioFormat(sampleRateHz, channelConfig, encoding);
     if (!AudioManager.isOffloadedPlaybackSupported(
         audioFormat, audioAttributes.getAudioAttributesV21())) {
       return false;
@@ -1310,32 +1331,6 @@ public final class DefaultAudioSink implements AudioSink {
     return Util.SDK_INT >= 29 && audioTrack.isOffloadedPlayback();
   }
 
-  @RequiresApi(29)
-  private final class StreamEventCallbackV29 extends AudioTrack.StreamEventCallback {
-    private final Handler handler;
-
-    public StreamEventCallbackV29() {
-      handler = new Handler();
-    }
-
-    @Override
-    public void onDataRequest(AudioTrack track, int size) {
-      Assertions.checkState(track == DefaultAudioSink.this.audioTrack);
-      if (listener != null) {
-        listener.onOffloadBufferEmptying();
-      }
-    }
-
-    public void register(AudioTrack audioTrack) {
-      audioTrack.registerStreamEventCallback(handler::post, this);
-    }
-
-    public void unregister(AudioTrack audioTrack) {
-      audioTrack.unregisterStreamEventCallback(this);
-      handler.removeCallbacksAndMessages(/* token= */ null);
-    }
-  }
-
   private static AudioTrack initializeKeepSessionIdAudioTrack(int audioSessionId) {
     int sampleRate = 4000; // Equal to private AudioTrack.MIN_SAMPLE_RATE.
     int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
@@ -1345,8 +1340,8 @@ public final class DefaultAudioSink implements AudioSink {
         MODE_STATIC, audioSessionId);
   }
 
-  private static int getChannelConfig(int channelCount, boolean isInputPcm) {
-    if (Util.SDK_INT <= 28 && !isInputPcm) {
+  private static int getChannelConfigForPassthrough(int channelCount) {
+    if (Util.SDK_INT <= 28) {
       // In passthrough mode the channel count used to configure the audio track doesn't affect how
       // the stream is handled, except that some devices do overly-strict channel configuration
       // checks. Therefore we override the channel count so that a known-working channel
@@ -1358,9 +1353,9 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
 
-    // Workaround for Nexus Player not reporting support for mono passthrough.
-    // (See [Internal: b/34268671].)
-    if (Util.SDK_INT <= 26 && "fugu".equals(Util.DEVICE) && !isInputPcm && channelCount == 1) {
+    // Workaround for Nexus Player not reporting support for mono passthrough. See
+    // [Internal: b/34268671].
+    if (Util.SDK_INT <= 26 && "fugu".equals(Util.DEVICE) && channelCount == 1) {
       channelCount = 2;
     }
 
@@ -1511,6 +1506,32 @@ public final class DefaultAudioSink implements AudioSink {
       audioTrackPositionTracker.handleEndOfStream(getWrittenFrames());
       audioTrack.stop();
       bytesUntilNextAvSync = 0;
+    }
+  }
+
+  @RequiresApi(29)
+  private final class StreamEventCallbackV29 extends AudioTrack.StreamEventCallback {
+    private final Handler handler;
+
+    public StreamEventCallbackV29() {
+      handler = new Handler();
+    }
+
+    @Override
+    public void onDataRequest(AudioTrack track, int size) {
+      Assertions.checkState(track == DefaultAudioSink.this.audioTrack);
+      if (listener != null) {
+        listener.onOffloadBufferEmptying();
+      }
+    }
+
+    public void register(AudioTrack audioTrack) {
+      audioTrack.registerStreamEventCallback(handler::post, this);
+    }
+
+    public void unregister(AudioTrack audioTrack) {
+      audioTrack.unregisterStreamEventCallback(this);
+      handler.removeCallbacksAndMessages(/* token= */ null);
     }
   }
 
