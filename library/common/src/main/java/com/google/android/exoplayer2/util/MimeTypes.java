@@ -193,7 +193,6 @@ public final class MimeTypes {
       case AUDIO_RAW:
       case AUDIO_ALAW:
       case AUDIO_MLAW:
-      case AUDIO_OPUS:
       case AUDIO_FLAC:
       case AUDIO_AC3:
       case AUDIO_E_AC3:
