@@ -79,7 +79,6 @@ public class SampleChooserActivity extends AppCompatActivity
   private DownloadTracker downloadTracker;
   private SampleAdapter sampleAdapter;
   private MenuItem preferExtensionDecodersMenuItem;
-  private MenuItem randomAbrMenuItem;
   private ExpandableListView sampleListView;
 
   @Override
@@ -135,7 +134,6 @@ public class SampleChooserActivity extends AppCompatActivity
     inflater.inflate(R.menu.sample_chooser_menu, menu);
     preferExtensionDecodersMenuItem = menu.findItem(R.id.prefer_extension_decoders);
     preferExtensionDecodersMenuItem.setVisible(useExtensionRenderers);
-    randomAbrMenuItem = menu.findItem(R.id.random_abr);
     return true;
   }
 
@@ -229,11 +227,6 @@ public class SampleChooserActivity extends AppCompatActivity
     intent.putExtra(
         IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA,
         isNonNullAndChecked(preferExtensionDecodersMenuItem));
-    String abrAlgorithm =
-        isNonNullAndChecked(randomAbrMenuItem)
-            ? IntentUtil.ABR_ALGORITHM_RANDOM
-            : IntentUtil.ABR_ALGORITHM_DEFAULT;
-    intent.putExtra(IntentUtil.ABR_ALGORITHM_EXTRA, abrAlgorithm);
     IntentUtil.addToIntent(playlistHolder.mediaItems, intent);
     startActivity(intent);
     return true;

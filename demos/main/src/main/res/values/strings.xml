@@ -67,6 +67,4 @@
 
   <string name="prefer_extension_decoders">Prefer extension decoders</string>
 
-  <string name="random_abr">Enable random ABR</string>
-
 </resources>
