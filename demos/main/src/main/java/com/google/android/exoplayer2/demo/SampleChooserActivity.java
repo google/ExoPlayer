@@ -114,9 +114,8 @@ public class SampleChooserActivity extends AppCompatActivity
       Arrays.sort(uris);
     }
 
-    DemoApplication application = (DemoApplication) getApplication();
-    useExtensionRenderers = application.useExtensionRenderers();
-    downloadTracker = application.getDownloadTracker();
+    useExtensionRenderers = DemoUtil.useExtensionRenderers();
+    downloadTracker = DemoUtil.getDownloadTracker(/* context= */ this);
     loadSample();
 
     // Start the download service if it should be running but it's not currently.
@@ -247,8 +246,8 @@ public class SampleChooserActivity extends AppCompatActivity
           .show();
     } else {
       RenderersFactory renderersFactory =
-          ((DemoApplication) getApplication())
-              .buildRenderersFactory(isNonNullAndChecked(preferExtensionDecodersMenuItem));
+          DemoUtil.buildRenderersFactory(
+              /* context= */ this, isNonNullAndChecked(preferExtensionDecodersMenuItem));
       downloadTracker.toggleDownload(
           getSupportFragmentManager(), playlistHolder.mediaItems.get(0), renderersFactory);
     }

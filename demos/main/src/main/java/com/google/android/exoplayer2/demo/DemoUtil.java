@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import androidx.multidex.MultiDexApplication;
+import android.content.Context;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
@@ -38,53 +38,34 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Executors;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Placeholder application to facilitate overriding Application methods for debugging and testing.
- */
-public class DemoApplication extends MultiDexApplication {
+/** Utility methods for the demo app. */
+public final class DemoUtil {
 
   public static final String DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel";
 
-  private static final String TAG = "DemoApplication";
+  private static final String TAG = "DemoUtil";
   private static final String DOWNLOAD_ACTION_FILE = "actions";
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
 
-  private HttpDataSource.Factory httpDataSourceFactory;
-  private DatabaseProvider databaseProvider;
-  private File downloadDirectory;
-  private Cache downloadCache;
-  private DownloadManager downloadManager;
-  private DownloadTracker downloadTracker;
-  private DownloadNotificationHelper downloadNotificationHelper;
-
-  @Override
-  public void onCreate() {
-    super.onCreate();
-    CronetEngineWrapper cronetEngineWrapper = new CronetEngineWrapper(/* context= */ this);
-    String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
-    httpDataSourceFactory =
-        new CronetDataSourceFactory(
-            cronetEngineWrapper,
-            Executors.newSingleThreadExecutor(),
-            /* transferListener= */ null,
-            userAgent);
-  }
-
-  /** Returns a {@link DataSource.Factory}. */
-  public DataSource.Factory buildDataSourceFactory() {
-    DefaultDataSourceFactory upstreamFactory =
-        new DefaultDataSourceFactory(/* context= */ this, httpDataSourceFactory);
-    return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
-  }
+  private static DataSource.@MonotonicNonNull Factory dataSourceFactory;
+  private static HttpDataSource.@MonotonicNonNull Factory httpDataSourceFactory;
+  private static @MonotonicNonNull DatabaseProvider databaseProvider;
+  private static @MonotonicNonNull File downloadDirectory;
+  private static @MonotonicNonNull Cache downloadCache;
+  private static @MonotonicNonNull DownloadManager downloadManager;
+  private static @MonotonicNonNull DownloadTracker downloadTracker;
+  private static @MonotonicNonNull DownloadNotificationHelper downloadNotificationHelper;
 
   /** Returns whether extension renderers should be used. */
-  public boolean useExtensionRenderers() {
+  public static boolean useExtensionRenderers() {
     return "withDecoderExtensions".equals(BuildConfig.FLAVOR);
   }
 
-  public RenderersFactory buildRenderersFactory(boolean preferExtensionRenderer) {
+  public static RenderersFactory buildRenderersFactory(
+      Context context, boolean preferExtensionRenderer) {
     @DefaultRenderersFactory.ExtensionRendererMode
     int extensionRendererMode =
         useExtensionRenderers()
@@ -92,61 +73,96 @@ public class DemoApplication extends MultiDexApplication {
                 ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
                 : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
             : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
-    return new DefaultRenderersFactory(/* context= */ this)
+    return new DefaultRenderersFactory(context.getApplicationContext())
         .setExtensionRendererMode(extensionRendererMode);
   }
 
-  public DownloadNotificationHelper getDownloadNotificationHelper() {
+  public static synchronized HttpDataSource.Factory getHttpDataSourceFactory(Context context) {
+    if (httpDataSourceFactory == null) {
+      context = context.getApplicationContext();
+      CronetEngineWrapper cronetEngineWrapper = new CronetEngineWrapper(context);
+      String userAgent = Util.getUserAgent(context, "ExoPlayerDemo");
+      httpDataSourceFactory =
+          new CronetDataSourceFactory(
+              cronetEngineWrapper,
+              Executors.newSingleThreadExecutor(),
+              /* transferListener= */ null,
+              userAgent);
+    }
+    return httpDataSourceFactory;
+  }
+
+  /** Returns a {@link DataSource.Factory}. */
+  public static synchronized DataSource.Factory buildDataSourceFactory(Context context) {
+    if (dataSourceFactory == null) {
+      context = context.getApplicationContext();
+      DefaultDataSourceFactory upstreamFactory =
+          new DefaultDataSourceFactory(context, getHttpDataSourceFactory(context));
+      dataSourceFactory = buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache(context));
+    }
+    return dataSourceFactory;
+  }
+
+  public static synchronized DownloadNotificationHelper getDownloadNotificationHelper(
+      Context context) {
     if (downloadNotificationHelper == null) {
       downloadNotificationHelper =
-          new DownloadNotificationHelper(this, DOWNLOAD_NOTIFICATION_CHANNEL_ID);
+          new DownloadNotificationHelper(context, DOWNLOAD_NOTIFICATION_CHANNEL_ID);
     }
     return downloadNotificationHelper;
   }
 
-  public DownloadManager getDownloadManager() {
-    initDownloadManager();
+  public static synchronized DownloadManager getDownloadManager(Context context) {
+    ensureDownloadManagerInitialized(context);
     return downloadManager;
   }
 
-  public DownloadTracker getDownloadTracker() {
-    initDownloadManager();
+  public static synchronized DownloadTracker getDownloadTracker(Context context) {
+    ensureDownloadManagerInitialized(context);
     return downloadTracker;
   }
 
-  private synchronized Cache getDownloadCache() {
+  private static synchronized Cache getDownloadCache(Context context) {
     if (downloadCache == null) {
-      File downloadContentDirectory = new File(getDownloadDirectory(), DOWNLOAD_CONTENT_DIRECTORY);
+      File downloadContentDirectory =
+          new File(getDownloadDirectory(context), DOWNLOAD_CONTENT_DIRECTORY);
       downloadCache =
-          new SimpleCache(downloadContentDirectory, new NoOpCacheEvictor(), getDatabaseProvider());
+          new SimpleCache(
+              downloadContentDirectory, new NoOpCacheEvictor(), getDatabaseProvider(context));
     }
     return downloadCache;
   }
 
-  private synchronized void initDownloadManager() {
+  private static synchronized void ensureDownloadManagerInitialized(Context context) {
     if (downloadManager == null) {
-      DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(getDatabaseProvider());
+      DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(getDatabaseProvider(context));
       upgradeActionFile(
-          DOWNLOAD_ACTION_FILE, downloadIndex, /* addNewDownloadsAsCompleted= */ false);
+          context, DOWNLOAD_ACTION_FILE, downloadIndex, /* addNewDownloadsAsCompleted= */ false);
       upgradeActionFile(
-          DOWNLOAD_TRACKER_ACTION_FILE, downloadIndex, /* addNewDownloadsAsCompleted= */ true);
+          context,
+          DOWNLOAD_TRACKER_ACTION_FILE,
+          downloadIndex,
+          /* addNewDownloadsAsCompleted= */ true);
       downloadManager =
           new DownloadManager(
-              /* context= */ this,
-              getDatabaseProvider(),
-              getDownloadCache(),
-              httpDataSourceFactory,
+              context,
+              getDatabaseProvider(context),
+              getDownloadCache(context),
+              getHttpDataSourceFactory(context),
               Executors.newFixedThreadPool(/* nThreads= */ 6));
       downloadTracker =
-          new DownloadTracker(/* context= */ this, buildDataSourceFactory(), downloadManager);
+          new DownloadTracker(context, buildDataSourceFactory(context), downloadManager);
     }
   }
 
-  private void upgradeActionFile(
-      String fileName, DefaultDownloadIndex downloadIndex, boolean addNewDownloadsAsCompleted) {
+  private static synchronized void upgradeActionFile(
+      Context context,
+      String fileName,
+      DefaultDownloadIndex downloadIndex,
+      boolean addNewDownloadsAsCompleted) {
     try {
       ActionFileUpgradeUtil.upgradeAndDelete(
-          new File(getDownloadDirectory(), fileName),
+          new File(getDownloadDirectory(context), fileName),
           /* downloadIdProvider= */ null,
           downloadIndex,
           /* deleteOnFailure= */ true,
@@ -156,18 +172,18 @@ public class DemoApplication extends MultiDexApplication {
     }
   }
 
-  private DatabaseProvider getDatabaseProvider() {
+  private static synchronized DatabaseProvider getDatabaseProvider(Context context) {
     if (databaseProvider == null) {
-      databaseProvider = new ExoDatabaseProvider(this);
+      databaseProvider = new ExoDatabaseProvider(context);
     }
     return databaseProvider;
   }
 
-  private File getDownloadDirectory() {
+  private static synchronized File getDownloadDirectory(Context context) {
     if (downloadDirectory == null) {
-      downloadDirectory = getExternalFilesDir(null);
+      downloadDirectory = context.getExternalFilesDir(/* type= */ null);
       if (downloadDirectory == null) {
-        downloadDirectory = getFilesDir();
+        downloadDirectory = context.getFilesDir();
       }
     }
     return downloadDirectory;
@@ -181,4 +197,6 @@ public class DemoApplication extends MultiDexApplication {
         .setCacheWriteDataSinkFactory(null)
         .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
   }
+
+  private DemoUtil() {}
 }

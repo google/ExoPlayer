@@ -52,7 +52,7 @@ public final class DownloadNotificationUtil {
       @Nullable String message,
       List<Download> downloads) {
     return new DownloadNotificationHelper(context, channelId)
-        .buildProgressNotification(smallIcon, contentIntent, message, downloads);
+        .buildProgressNotification(context, smallIcon, contentIntent, message, downloads);
   }
 
   /**
@@ -72,7 +72,7 @@ public final class DownloadNotificationUtil {
       @Nullable PendingIntent contentIntent,
       @Nullable String message) {
     return new DownloadNotificationHelper(context, channelId)
-        .buildDownloadCompletedNotification(smallIcon, contentIntent, message);
+        .buildDownloadCompletedNotification(context, smallIcon, contentIntent, message);
   }
 
   /**
@@ -92,6 +92,6 @@ public final class DownloadNotificationUtil {
       @Nullable PendingIntent contentIntent,
       @Nullable String message) {
     return new DownloadNotificationHelper(context, channelId)
-        .buildDownloadFailedNotification(smallIcon, contentIntent, message);
+        .buildDownloadFailedNotification(context, smallIcon, contentIntent, message);
   }
 }

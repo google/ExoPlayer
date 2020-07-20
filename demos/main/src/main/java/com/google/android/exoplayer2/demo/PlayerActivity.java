@@ -315,7 +315,7 @@ public class PlayerActivity extends AppCompatActivity
       boolean preferExtensionDecoders =
           intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false);
       RenderersFactory renderersFactory =
-          ((DemoApplication) getApplication()).buildRenderersFactory(preferExtensionDecoders);
+          DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
 
       trackSelector = new DefaultTrackSelector(/* context= */ this, trackSelectionFactory);
       trackSelector.setParameters(trackSelectorParameters);
@@ -357,7 +357,7 @@ public class PlayerActivity extends AppCompatActivity
 
     List<MediaItem> mediaItems =
         IntentUtil.createMediaItemsFromIntent(
-            intent, ((DemoApplication) getApplication()).getDownloadTracker());
+            intent, DemoUtil.getDownloadTracker(/* context= */ this));
     boolean hasAds = false;
     for (int i = 0; i < mediaItems.size(); i++) {
       MediaItem mediaItem = mediaItems.get(i);
@@ -439,7 +439,7 @@ public class PlayerActivity extends AppCompatActivity
 
   /** Returns a new DataSource factory. */
   protected DataSource.Factory buildDataSourceFactory() {
-    return ((DemoApplication) getApplication()).buildDataSourceFactory();
+    return DemoUtil.buildDataSourceFactory(/* context= */ this);
   }
 
   // User controls
