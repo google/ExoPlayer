@@ -29,11 +29,9 @@ import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link MergingMediaSource}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public class MergingMediaSourceTest {
 
   @Test

@@ -52,11 +52,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link DecoderVideoRenderer}. */
-@LooperMode(LooperMode.Mode.PAUSED)
 @RunWith(AndroidJUnit4.class)
 public final class DecoderVideoRendererTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();

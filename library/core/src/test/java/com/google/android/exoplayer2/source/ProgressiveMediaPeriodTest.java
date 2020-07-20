@@ -33,11 +33,9 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit test for {@link ProgressiveMediaPeriod}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public final class ProgressiveMediaPeriodTest {
 
   @Test

@@ -36,11 +36,9 @@ import java.util.concurrent.CountDownLatch;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit test for {@link MergingMediaPeriod}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public final class MergingMediaPeriodTest {
 
   private static final Format childFormat11 = new Format.Builder().setId("1_1").build();
