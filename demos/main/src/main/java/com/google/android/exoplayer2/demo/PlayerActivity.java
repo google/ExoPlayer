@@ -155,10 +155,6 @@ public class PlayerActivity extends AppCompatActivity
     } else {
       DefaultTrackSelector.ParametersBuilder builder =
           new DefaultTrackSelector.ParametersBuilder(/* context= */ this);
-      boolean tunneling = intent.getBooleanExtra(IntentUtil.TUNNELING_EXTRA, false);
-      if (Util.SDK_INT >= 21 && tunneling) {
-        builder.setTunnelingAudioSessionId(C.generateAudioSessionIdV21(/* context= */ this));
-      }
       trackSelectorParameters = builder.build();
       clearStartPosition();
     }

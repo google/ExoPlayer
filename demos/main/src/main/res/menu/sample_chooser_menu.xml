@@ -23,8 +23,4 @@
       android:title="@string/random_abr"
       android:checkable="true"
       app:showAsAction="never"/>
-  <item android:id="@+id/tunneling"
-      android:title="@string/tunneling"
-      android:checkable="true"
-      app:showAsAction="never"/>
 </menu>

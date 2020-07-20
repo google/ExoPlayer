@@ -80,7 +80,6 @@ public class SampleChooserActivity extends AppCompatActivity
   private SampleAdapter sampleAdapter;
   private MenuItem preferExtensionDecodersMenuItem;
   private MenuItem randomAbrMenuItem;
-  private MenuItem tunnelingMenuItem;
   private ExpandableListView sampleListView;
 
   @Override
@@ -138,10 +137,6 @@ public class SampleChooserActivity extends AppCompatActivity
     preferExtensionDecodersMenuItem = menu.findItem(R.id.prefer_extension_decoders);
     preferExtensionDecodersMenuItem.setVisible(useExtensionRenderers);
     randomAbrMenuItem = menu.findItem(R.id.random_abr);
-    tunnelingMenuItem = menu.findItem(R.id.tunneling);
-    if (Util.SDK_INT < 21) {
-      tunnelingMenuItem.setEnabled(false);
-    }
     return true;
   }
 
@@ -240,7 +235,6 @@ public class SampleChooserActivity extends AppCompatActivity
             ? IntentUtil.ABR_ALGORITHM_RANDOM
             : IntentUtil.ABR_ALGORITHM_DEFAULT;
     intent.putExtra(IntentUtil.ABR_ALGORITHM_EXTRA, abrAlgorithm);
-    intent.putExtra(IntentUtil.TUNNELING_EXTRA, isNonNullAndChecked(tunnelingMenuItem));
     IntentUtil.addToIntent(playlistHolder.mediaItems, intent);
     startActivity(intent);
     return true;

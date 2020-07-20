@@ -93,7 +93,6 @@ public class IntentUtil {
   public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
 
   public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
-  public static final String TUNNELING_EXTRA = "tunneling";
 
   /** Creates a list of {@link MediaItem media items} from an {@link Intent}. */
   public static List<MediaItem> createMediaItemsFromIntent(
