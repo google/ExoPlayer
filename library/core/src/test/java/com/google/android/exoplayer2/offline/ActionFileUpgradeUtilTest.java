@@ -24,11 +24,10 @@ import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,38 +57,32 @@ public class ActionFileUpgradeUtilTest {
   }
 
   @Test
-  public void upgradeAndDelete_createsDownloads() throws IOException {
-    // Copy the test asset to a file.
+  public void upgradeAndDelete_progressiveActionFile_createsDownloads() throws IOException {
     byte[] actionFileBytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(),
-            "offline/action_file_for_download_index_upgrade.exi");
+            "offline/action_file_for_download_index_upgrade_progressive.exi");
     try (FileOutputStream output = new FileOutputStream(tempFile)) {
       output.write(actionFileBytes);
     }
-
-    StreamKey expectedStreamKey1 =
-        new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5);
-    StreamKey expectedStreamKey2 =
-        new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadRequest expectedRequest1 =
         new DownloadRequest(
-            /* id= */ "key123",
-            Uri.parse("https://www.test.com/download1"),
+            /* id= */ "http://www.test.com/1/video.mp4",
+            Uri.parse("http://www.test.com/1/video.mp4"),
             /* mimeType= */ MimeTypes.VIDEO_UNKNOWN,
-            asList(expectedStreamKey1),
+            /* streamKeys= */ ImmutableList.of(),
             /* keySetId= */ null,
-            /* customCacheKey= */ "key123",
-            /* data= */ new byte[] {1, 2, 3, 4});
+            /* customCacheKey= */ null,
+            /* data= */ null);
     DownloadRequest expectedRequest2 =
         new DownloadRequest(
-            /* id= */ "key234",
-            Uri.parse("https://www.test.com/download2"),
+            /* id= */ "customCacheKey",
+            Uri.parse("http://www.test.com/2/video.mp4"),
             /* mimeType= */ MimeTypes.VIDEO_UNKNOWN,
-            asList(expectedStreamKey2),
+            /* streamKeys= */ ImmutableList.of(),
             /* keySetId= */ null,
-            /* customCacheKey= */ "key234",
-            new byte[] {5, 4, 3, 2, 1});
+            /* customCacheKey= */ "customCacheKey",
+            /* data= */ new byte[] {0, 1, 2, 3});
 
     ActionFileUpgradeUtil.upgradeAndDelete(
         tempFile,
@@ -98,6 +91,133 @@ public class ActionFileUpgradeUtilTest {
         /* deleteOnFailure= */ true,
         /* addNewDownloadsAsCompleted= */ false);
 
+    assertThat(tempFile.exists()).isFalse();
+    assertDownloadIndexContainsRequest(expectedRequest1, Download.STATE_QUEUED);
+    assertDownloadIndexContainsRequest(expectedRequest2, Download.STATE_QUEUED);
+  }
+
+  @Test
+  public void upgradeAndDelete_dashActionFile_createsDownloads() throws IOException {
+    byte[] actionFileBytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(),
+            "offline/action_file_for_download_index_upgrade_dash.exi");
+    try (FileOutputStream output = new FileOutputStream(tempFile)) {
+      output.write(actionFileBytes);
+    }
+    DownloadRequest expectedRequest1 =
+        new DownloadRequest(
+            /* id= */ "http://www.test.com/1/manifest.mpd",
+            Uri.parse("http://www.test.com/1/manifest.mpd"),
+            MimeTypes.APPLICATION_MPD,
+            /* streamKeys= */ ImmutableList.of(),
+            /* keySetId= */ null,
+            /* customCacheKey= */ null,
+            /* data= */ null);
+    DownloadRequest expectedRequest2 =
+        new DownloadRequest(
+            /* id= */ "http://www.test.com/2/manifest.mpd",
+            Uri.parse("http://www.test.com/2/manifest.mpd"),
+            MimeTypes.APPLICATION_MPD,
+            ImmutableList.of(
+                new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0),
+                new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1)),
+            /* keySetId= */ null,
+            /* customCacheKey= */ null,
+            /* data= */ new byte[] {0, 1, 2, 3});
+
+    ActionFileUpgradeUtil.upgradeAndDelete(
+        tempFile,
+        /* downloadIdProvider= */ null,
+        downloadIndex,
+        /* deleteOnFailure= */ true,
+        /* addNewDownloadsAsCompleted= */ false);
+
+    assertThat(tempFile.exists()).isFalse();
+    assertDownloadIndexContainsRequest(expectedRequest1, Download.STATE_QUEUED);
+    assertDownloadIndexContainsRequest(expectedRequest2, Download.STATE_QUEUED);
+  }
+
+  @Test
+  public void upgradeAndDelete_hlsActionFile_createsDownloads() throws IOException {
+    byte[] actionFileBytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(),
+            "offline/action_file_for_download_index_upgrade_hls.exi");
+    try (FileOutputStream output = new FileOutputStream(tempFile)) {
+      output.write(actionFileBytes);
+    }
+    DownloadRequest expectedRequest1 =
+        new DownloadRequest(
+            /* id= */ "http://www.test.com/1/manifest.m3u8",
+            Uri.parse("http://www.test.com/1/manifest.m3u8"),
+            MimeTypes.APPLICATION_M3U8,
+            /* streamKeys= */ ImmutableList.of(),
+            /* keySetId= */ null,
+            /* customCacheKey= */ null,
+            /* data= */ null);
+    DownloadRequest expectedRequest2 =
+        new DownloadRequest(
+            /* id= */ "http://www.test.com/2/manifest.m3u8",
+            Uri.parse("http://www.test.com/2/manifest.m3u8"),
+            MimeTypes.APPLICATION_M3U8,
+            ImmutableList.of(
+                new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0),
+                new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1)),
+            /* keySetId= */ null,
+            /* customCacheKey= */ null,
+            /* data= */ new byte[] {0, 1, 2, 3});
+
+    ActionFileUpgradeUtil.upgradeAndDelete(
+        tempFile,
+        /* downloadIdProvider= */ null,
+        downloadIndex,
+        /* deleteOnFailure= */ true,
+        /* addNewDownloadsAsCompleted= */ false);
+
+    assertThat(tempFile.exists()).isFalse();
+    assertDownloadIndexContainsRequest(expectedRequest1, Download.STATE_QUEUED);
+    assertDownloadIndexContainsRequest(expectedRequest2, Download.STATE_QUEUED);
+  }
+
+  @Test
+  public void upgradeAndDelete_smoothStreamingActionFile_createsDownloads() throws IOException {
+    byte[] actionFileBytes =
+        TestUtil.getByteArray(
+            ApplicationProvider.getApplicationContext(),
+            "offline/action_file_for_download_index_upgrade_ss.exi");
+    try (FileOutputStream output = new FileOutputStream(tempFile)) {
+      output.write(actionFileBytes);
+    }
+    DownloadRequest expectedRequest1 =
+        new DownloadRequest(
+            /* id= */ "http://www.test.com/1/video.ism/manifest",
+            Uri.parse("http://www.test.com/1/video.ism/manifest"),
+            MimeTypes.APPLICATION_SS,
+            /* streamKeys= */ ImmutableList.of(),
+            /* keySetId= */ null,
+            /* customCacheKey= */ null,
+            /* data= */ null);
+    DownloadRequest expectedRequest2 =
+        new DownloadRequest(
+            /* id= */ "http://www.test.com/2/video.ism/manifest",
+            Uri.parse("http://www.test.com/2/video.ism/manifest"),
+            MimeTypes.APPLICATION_SS,
+            ImmutableList.of(
+                new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0),
+                new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1)),
+            /* keySetId= */ null,
+            /* customCacheKey= */ null,
+            /* data= */ new byte[] {0, 1, 2, 3});
+
+    ActionFileUpgradeUtil.upgradeAndDelete(
+        tempFile,
+        /* downloadIdProvider= */ null,
+        downloadIndex,
+        /* deleteOnFailure= */ true,
+        /* addNewDownloadsAsCompleted= */ false);
+
+    assertThat(tempFile.exists()).isFalse();
     assertDownloadIndexContainsRequest(expectedRequest1, Download.STATE_QUEUED);
     assertDownloadIndexContainsRequest(expectedRequest2, Download.STATE_QUEUED);
   }
@@ -109,7 +229,7 @@ public class ActionFileUpgradeUtilTest {
             /* id= */ "id",
             Uri.parse("https://www.test.com/download"),
             /* mimeType= */ null,
-            asList(
+            ImmutableList.of(
                 new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
                 new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5)),
             /* keySetId= */ new byte[] {1, 2, 3, 4},
@@ -133,7 +253,7 @@ public class ActionFileUpgradeUtilTest {
             /* id= */ "id",
             Uri.parse("https://www.test.com/download1"),
             /* mimeType= */ null,
-            asList(streamKey1),
+            ImmutableList.of(streamKey1),
             /* keySetId= */ new byte[] {1, 2, 3, 4},
             /* customCacheKey= */ "key123",
             /* data= */ new byte[] {1, 2, 3, 4});
@@ -142,7 +262,7 @@ public class ActionFileUpgradeUtilTest {
             /* id= */ "id",
             Uri.parse("https://www.test.com/download2"),
             /* mimeType= */ MimeTypes.APPLICATION_MP4,
-            asList(streamKey2),
+            ImmutableList.of(streamKey2),
             /* keySetId= */ new byte[] {5, 4, 3, 2, 1},
             /* customCacheKey= */ "key345",
             /* data= */ new byte[] {5, 4, 3, 2, 1});
@@ -174,7 +294,7 @@ public class ActionFileUpgradeUtilTest {
             /* id= */ "id1",
             Uri.parse("https://www.test.com/download1"),
             /* mimeType= */ null,
-            asList(streamKey1),
+            ImmutableList.of(streamKey1),
             /* keySetId= */ new byte[] {1, 2, 3, 4},
             /* customCacheKey= */ "key123",
             /* data= */ new byte[] {1, 2, 3, 4});
@@ -183,7 +303,7 @@ public class ActionFileUpgradeUtilTest {
             /* id= */ "id2",
             Uri.parse("https://www.test.com/download2"),
             /* mimeType= */ null,
-            asList(streamKey2),
+            ImmutableList.of(streamKey2),
             /* keySetId= */ new byte[] {5, 4, 3, 2, 1},
             /* customCacheKey= */ "key123",
             /* data= */ new byte[] {5, 4, 3, 2, 1});
@@ -206,9 +326,5 @@ public class ActionFileUpgradeUtilTest {
     Download download = downloadIndex.getDownload(request.id);
     assertThat(download.request).isEqualTo(request);
     assertThat(download.state).isEqualTo(state);
-  }
-
-  private static List<StreamKey> asList(StreamKey... streamKeys) {
-    return Arrays.asList(streamKeys);
   }
 }
