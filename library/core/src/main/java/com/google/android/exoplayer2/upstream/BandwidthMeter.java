@@ -56,10 +56,11 @@ public interface BandwidthMeter {
       }
 
       /** Adds a listener to the event dispatcher. */
-      public void addListener(Handler handler, BandwidthMeter.EventListener eventListener) {
-        Assertions.checkArgument(handler != null && eventListener != null);
+      public void addListener(Handler eventHandler, BandwidthMeter.EventListener eventListener) {
+        Assertions.checkNotNull(eventHandler);
+        Assertions.checkNotNull(eventListener);
         removeListener(eventListener);
-        listeners.add(new HandlerAndListener(handler, eventListener));
+        listeners.add(new HandlerAndListener(eventHandler, eventListener));
       }
 
       /** Removes a listener from the event dispatcher. */

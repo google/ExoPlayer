@@ -101,6 +101,7 @@ public class AnalyticsCollector
    * @param listener The listener to add.
    */
   public void addListener(AnalyticsListener listener) {
+    Assertions.checkNotNull(listener);
     listeners.add(listener);
   }
 

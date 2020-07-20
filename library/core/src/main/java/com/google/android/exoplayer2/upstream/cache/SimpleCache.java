@@ -309,6 +309,8 @@ public final class SimpleCache implements Cache {
   @Override
   public synchronized NavigableSet<CacheSpan> addListener(String key, Listener listener) {
     Assertions.checkState(!released);
+    Assertions.checkNotNull(key);
+    Assertions.checkNotNull(listener);
     ArrayList<Listener> listenersForKey = listeners.get(key);
     if (listenersForKey == null) {
       listenersForKey = new ArrayList<>();

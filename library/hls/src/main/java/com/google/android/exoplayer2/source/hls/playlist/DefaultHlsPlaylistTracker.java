@@ -161,6 +161,7 @@ public final class DefaultHlsPlaylistTracker
 
   @Override
   public void addListener(PlaylistEventListener listener) {
+    Assertions.checkNotNull(listener);
     listeners.add(listener);
   }
 

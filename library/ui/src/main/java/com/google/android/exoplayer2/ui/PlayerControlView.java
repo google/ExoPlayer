@@ -586,6 +586,7 @@ public class PlayerControlView extends FrameLayout {
    * @param listener The listener to be notified about visibility changes.
    */
   public void addVisibilityListener(VisibilityListener listener) {
+    Assertions.checkNotNull(listener);
     visibilityListeners.add(listener);
   }
 

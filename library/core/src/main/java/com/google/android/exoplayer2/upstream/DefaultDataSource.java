@@ -135,6 +135,7 @@ public final class DefaultDataSource implements DataSource {
 
   @Override
   public void addTransferListener(TransferListener transferListener) {
+    Assertions.checkNotNull(transferListener);
     baseDataSource.addTransferListener(transferListener);
     transferListeners.add(transferListener);
     maybeAddListenerToDataSource(fileDataSource, transferListener);

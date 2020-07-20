@@ -324,6 +324,7 @@ public final class DownloadManager {
    * @param listener The listener to be added.
    */
   public void addListener(Listener listener) {
+    Assertions.checkNotNull(listener);
     listeners.add(listener);
   }
 

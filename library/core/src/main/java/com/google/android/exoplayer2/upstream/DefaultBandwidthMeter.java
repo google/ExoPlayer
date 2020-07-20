@@ -332,6 +332,8 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   @Override
   public void addEventListener(Handler eventHandler, EventListener eventListener) {
+    Assertions.checkNotNull(eventHandler);
+    Assertions.checkNotNull(eventListener);
     eventDispatcher.addListener(eventHandler, eventListener);
   }
 

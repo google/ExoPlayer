@@ -254,6 +254,7 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void addListener(Player.EventListener listener) {
+    Assertions.checkNotNull(listener);
     listeners.addIfAbsent(new ListenerHolder(listener));
   }
 

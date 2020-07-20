@@ -820,6 +820,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addAudioListener(AudioListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
+    Assertions.checkNotNull(listener);
     audioListeners.add(listener);
   }
 
@@ -970,6 +971,7 @@ public class SimpleExoPlayer extends BasePlayer
    */
   public void addAnalyticsListener(AnalyticsListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
+    Assertions.checkNotNull(listener);
     analyticsCollector.addListener(listener);
   }
 
@@ -1068,6 +1070,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addVideoListener(com.google.android.exoplayer2.video.VideoListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
+    Assertions.checkNotNull(listener);
     videoListeners.add(listener);
   }
 
@@ -1121,7 +1124,7 @@ public class SimpleExoPlayer extends BasePlayer
    */
   @Deprecated
   @SuppressWarnings("deprecation")
-  public void setVideoListener(VideoListener listener) {
+  public void setVideoListener(@Nullable VideoListener listener) {
     videoListeners.clear();
     if (listener != null) {
       addVideoListener(listener);
@@ -1144,6 +1147,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addTextOutput(TextOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
+    Assertions.checkNotNull(listener);
     textOutputs.add(listener);
   }
 
@@ -1187,6 +1191,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addMetadataOutput(MetadataOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
+    Assertions.checkNotNull(listener);
     metadataOutputs.add(listener);
   }
 
@@ -1227,7 +1232,7 @@ public class SimpleExoPlayer extends BasePlayer
    */
   @Deprecated
   @SuppressWarnings("deprecation")
-  public void setVideoDebugListener(VideoRendererEventListener listener) {
+  public void setVideoDebugListener(@Nullable VideoRendererEventListener listener) {
     videoDebugListeners.retainAll(Collections.singleton(analyticsCollector));
     if (listener != null) {
       addVideoDebugListener(listener);
@@ -1240,6 +1245,7 @@ public class SimpleExoPlayer extends BasePlayer
    */
   @Deprecated
   public void addVideoDebugListener(VideoRendererEventListener listener) {
+    Assertions.checkNotNull(listener);
     videoDebugListeners.add(listener);
   }
 
@@ -1258,7 +1264,7 @@ public class SimpleExoPlayer extends BasePlayer
    */
   @Deprecated
   @SuppressWarnings("deprecation")
-  public void setAudioDebugListener(AudioRendererEventListener listener) {
+  public void setAudioDebugListener(@Nullable AudioRendererEventListener listener) {
     audioDebugListeners.retainAll(Collections.singleton(analyticsCollector));
     if (listener != null) {
       addAudioDebugListener(listener);
@@ -1271,6 +1277,7 @@ public class SimpleExoPlayer extends BasePlayer
    */
   @Deprecated
   public void addAudioDebugListener(AudioRendererEventListener listener) {
+    Assertions.checkNotNull(listener);
     audioDebugListeners.add(listener);
   }
 
@@ -1298,6 +1305,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addListener(Player.EventListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
+    Assertions.checkNotNull(listener);
     player.addListener(listener);
   }
 
@@ -1866,6 +1874,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void addDeviceListener(DeviceListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
+    Assertions.checkNotNull(listener);
     deviceListeners.add(listener);
   }
 

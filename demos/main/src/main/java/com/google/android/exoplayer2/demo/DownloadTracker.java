@@ -76,6 +76,7 @@ public class DownloadTracker {
   }
 
   public void addListener(Listener listener) {
+    checkNotNull(listener);
     listeners.add(listener);
   }
 

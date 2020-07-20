@@ -291,6 +291,7 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void addListener(EventListener listener) {
+    Assertions.checkNotNull(listener);
     listeners.addIfAbsent(new ListenerHolder(listener));
   }
 

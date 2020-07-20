@@ -51,6 +51,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
   @Override
   public void addListener(Runnable listener, Executor executor) {
+    Assertions.checkNotNull(listener);
+    Assertions.checkNotNull(executor);
     future.addListener(listener, executor);
   }
 

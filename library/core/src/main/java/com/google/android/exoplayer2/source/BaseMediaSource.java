@@ -162,6 +162,8 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
+    Assertions.checkNotNull(handler);
+    Assertions.checkNotNull(eventListener);
     eventDispatcher.addEventListener(handler, eventListener);
   }
 
@@ -172,6 +174,8 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener) {
+    Assertions.checkNotNull(handler);
+    Assertions.checkNotNull(eventListener);
     drmEventDispatcher.addEventListener(handler, eventListener);
   }
 

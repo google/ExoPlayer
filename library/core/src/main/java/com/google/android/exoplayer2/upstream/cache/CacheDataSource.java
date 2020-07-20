@@ -541,6 +541,7 @@ public final class CacheDataSource implements DataSource {
 
   @Override
   public void addTransferListener(TransferListener transferListener) {
+    Assertions.checkNotNull(transferListener);
     cacheReadDataSource.addTransferListener(transferListener);
     upstreamDataSource.addTransferListener(transferListener);
   }
