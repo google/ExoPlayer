@@ -250,7 +250,10 @@
     *   Migrate to new 'friendly obstruction' IMA SDK APIs, and allow apps to
         register a purpose and detail reason for overlay views via
         `AdsLoader.AdViewProvider`.
-*   Demo app: Retain previous position in list of samples.
+*   Demo app:
+    *   Retain previous position in list of samples.
+    *   Replace the `extensions` variant with `decoderExtensions` and make the
+        demo app use the Cronet and IMA extensions by default.
 *   Add Guava dependency.
 
 ### 2.11.7 (2020-06-29) ###

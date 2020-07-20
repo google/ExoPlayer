@@ -20,13 +20,14 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
+import com.google.android.exoplayer2.ext.cronet.CronetDataSourceFactory;
+import com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper;
 import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
@@ -50,8 +51,7 @@ public class DemoApplication extends MultiDexApplication {
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
 
-  protected String userAgent;
-
+  private HttpDataSource.Factory httpDataSourceFactory;
   private DatabaseProvider databaseProvider;
   private File downloadDirectory;
   private Cache downloadCache;
@@ -62,24 +62,26 @@ public class DemoApplication extends MultiDexApplication {
   @Override
   public void onCreate() {
     super.onCreate();
-    userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
+    CronetEngineWrapper cronetEngineWrapper = new CronetEngineWrapper(/* context= */ this);
+    String userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
+    httpDataSourceFactory =
+        new CronetDataSourceFactory(
+            cronetEngineWrapper,
+            Executors.newSingleThreadExecutor(),
+            /* transferListener= */ null,
+            userAgent);
   }
 
   /** Returns a {@link DataSource.Factory}. */
   public DataSource.Factory buildDataSourceFactory() {
     DefaultDataSourceFactory upstreamFactory =
-        new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
+        new DefaultDataSourceFactory(/* context= */ this, httpDataSourceFactory);
     return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
-  }
-
-  /** Returns a {@link HttpDataSource.Factory}. */
-  public HttpDataSource.Factory buildHttpDataSourceFactory() {
-    return new DefaultHttpDataSourceFactory(userAgent);
   }
 
   /** Returns whether extension renderers should be used. */
   public boolean useExtensionRenderers() {
-    return "withExtensions".equals(BuildConfig.FLAVOR);
+    return "withDecoderExtensions".equals(BuildConfig.FLAVOR);
   }
 
   public RenderersFactory buildRenderersFactory(boolean preferExtensionRenderer) {
@@ -112,7 +114,7 @@ public class DemoApplication extends MultiDexApplication {
     return downloadTracker;
   }
 
-  protected synchronized Cache getDownloadCache() {
+  private synchronized Cache getDownloadCache() {
     if (downloadCache == null) {
       File downloadContentDirectory = new File(getDownloadDirectory(), DOWNLOAD_CONTENT_DIRECTORY);
       downloadCache =
@@ -130,10 +132,10 @@ public class DemoApplication extends MultiDexApplication {
           DOWNLOAD_TRACKER_ACTION_FILE, downloadIndex, /* addNewDownloadsAsCompleted= */ true);
       downloadManager =
           new DownloadManager(
-              this,
+              /* context= */ this,
               getDatabaseProvider(),
               getDownloadCache(),
-              buildHttpDataSourceFactory(),
+              httpDataSourceFactory,
               Executors.newFixedThreadPool(/* nThreads= */ 6));
       downloadTracker =
           new DownloadTracker(/* context= */ this, buildDataSourceFactory(), downloadManager);
@@ -171,7 +173,7 @@ public class DemoApplication extends MultiDexApplication {
     return downloadDirectory;
   }
 
-  protected static CacheDataSource.Factory buildReadOnlyCacheDataSource(
+  private static CacheDataSource.Factory buildReadOnlyCacheDataSource(
       DataSource.Factory upstreamFactory, Cache cache) {
     return new CacheDataSource.Factory()
         .setCache(cache)
