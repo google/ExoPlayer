@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import static com.google.android.exoplayer2.offline.DownloadRequest.TYPE_PROGRESSIVE;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -23,6 +22,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -74,18 +74,20 @@ public class ActionFileUpgradeUtilTest {
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadRequest expectedRequest1 =
         new DownloadRequest(
-            "key123",
-            /* type= */ "test",
+            /* id= */ "key123",
             Uri.parse("https://www.test.com/download1"),
+            /* mimeType= */ MimeTypes.VIDEO_UNKNOWN,
             asList(expectedStreamKey1),
+            /* keySetId= */ null,
             /* customCacheKey= */ "key123",
-            new byte[] {1, 2, 3, 4});
+            /* data= */ new byte[] {1, 2, 3, 4});
     DownloadRequest expectedRequest2 =
         new DownloadRequest(
-            "key234",
-            /* type= */ "test",
+            /* id= */ "key234",
             Uri.parse("https://www.test.com/download2"),
+            /* mimeType= */ MimeTypes.VIDEO_UNKNOWN,
             asList(expectedStreamKey2),
+            /* keySetId= */ null,
             /* customCacheKey= */ "key234",
             new byte[] {5, 4, 3, 2, 1});
 
@@ -102,17 +104,17 @@ public class ActionFileUpgradeUtilTest {
 
   @Test
   public void mergeRequest_nonExistingDownload_createsNewDownload() throws IOException {
-    byte[] data = new byte[] {1, 2, 3, 4};
     DownloadRequest request =
         new DownloadRequest(
-            "id",
-            TYPE_PROGRESSIVE,
+            /* id= */ "id",
             Uri.parse("https://www.test.com/download"),
+            /* mimeType= */ null,
             asList(
                 new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
                 new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5)),
+            /* keySetId= */ new byte[] {1, 2, 3, 4},
             /* customCacheKey= */ "key123",
-            data);
+            /* data= */ new byte[] {1, 2, 3, 4});
 
     ActionFileUpgradeUtil.mergeRequest(
         request, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
@@ -128,32 +130,36 @@ public class ActionFileUpgradeUtilTest {
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadRequest request1 =
         new DownloadRequest(
-            "id",
-            TYPE_PROGRESSIVE,
+            /* id= */ "id",
             Uri.parse("https://www.test.com/download1"),
+            /* mimeType= */ null,
             asList(streamKey1),
+            /* keySetId= */ new byte[] {1, 2, 3, 4},
             /* customCacheKey= */ "key123",
-            new byte[] {1, 2, 3, 4});
+            /* data= */ new byte[] {1, 2, 3, 4});
     DownloadRequest request2 =
         new DownloadRequest(
-            "id",
-            TYPE_PROGRESSIVE,
+            /* id= */ "id",
             Uri.parse("https://www.test.com/download2"),
+            /* mimeType= */ MimeTypes.APPLICATION_MP4,
             asList(streamKey2),
-            /* customCacheKey= */ "key123",
-            new byte[] {5, 4, 3, 2, 1});
+            /* keySetId= */ new byte[] {5, 4, 3, 2, 1},
+            /* customCacheKey= */ "key345",
+            /* data= */ new byte[] {5, 4, 3, 2, 1});
+
     ActionFileUpgradeUtil.mergeRequest(
         request1, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
     ActionFileUpgradeUtil.mergeRequest(
         request2, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
-
     Download download = downloadIndex.getDownload(request2.id);
+
     assertThat(download).isNotNull();
-    assertThat(download.request.type).isEqualTo(request2.type);
+    assertThat(download.request.mimeType).isEqualTo(MimeTypes.APPLICATION_MP4);
     assertThat(download.request.customCacheKey).isEqualTo(request2.customCacheKey);
     assertThat(download.request.data).isEqualTo(request2.data);
     assertThat(download.request.uri).isEqualTo(request2.uri);
     assertThat(download.request.streamKeys).containsExactly(streamKey1, streamKey2);
+    assertThat(download.request.keySetId).isEqualTo(request2.keySetId);
     assertThat(download.state).isEqualTo(Download.STATE_QUEUED);
   }
 
@@ -165,20 +171,22 @@ public class ActionFileUpgradeUtilTest {
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadRequest request1 =
         new DownloadRequest(
-            "id1",
-            TYPE_PROGRESSIVE,
+            /* id= */ "id1",
             Uri.parse("https://www.test.com/download1"),
+            /* mimeType= */ null,
             asList(streamKey1),
+            /* keySetId= */ new byte[] {1, 2, 3, 4},
             /* customCacheKey= */ "key123",
-            new byte[] {1, 2, 3, 4});
+            /* data= */ new byte[] {1, 2, 3, 4});
     DownloadRequest request2 =
         new DownloadRequest(
-            "id2",
-            TYPE_PROGRESSIVE,
+            /* id= */ "id2",
             Uri.parse("https://www.test.com/download2"),
+            /* mimeType= */ null,
             asList(streamKey2),
+            /* keySetId= */ new byte[] {5, 4, 3, 2, 1},
             /* customCacheKey= */ "key123",
-            new byte[] {5, 4, 3, 2, 1});
+            /* data= */ new byte[] {5, 4, 3, 2, 1});
     ActionFileUpgradeUtil.mergeRequest(
         request1, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
 

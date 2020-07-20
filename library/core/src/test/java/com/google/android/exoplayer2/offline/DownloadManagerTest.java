@@ -790,9 +790,10 @@ public class DownloadManagerTest {
   private static DownloadRequest createDownloadRequest(String id, StreamKey... keys) {
     return new DownloadRequest(
         id,
-        DownloadRequest.TYPE_DASH,
         Uri.parse("http://abc.com/ " + id),
+        /* mimeType= */ null,
         Arrays.asList(keys),
+        /* keySetId= */ null,
         /* customCacheKey= */ null,
         /* data= */ null);
   }

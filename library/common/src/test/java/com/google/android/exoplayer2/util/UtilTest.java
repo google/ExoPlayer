@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.getInMemoryDatabaseProvider;
 import static com.google.android.exoplayer2.util.Util.binarySearchCeil;
 import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
@@ -24,6 +25,7 @@ import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StrikethroughSpan;
@@ -995,6 +997,21 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("hak")).isEqualTo("zh-hak");
     assertThat(Util.normalizeLanguageCode("nan")).isEqualTo("zh-nan");
     assertThat(Util.normalizeLanguageCode("hsn")).isEqualTo("zh-hsn");
+  }
+
+  @Test
+  public void tableExists_withExistingTable() {
+    SQLiteDatabase database = getInMemoryDatabaseProvider().getWritableDatabase();
+    database.execSQL("CREATE TABLE TestTable (ID INTEGER NOT NULL)");
+
+    assertThat(Util.tableExists(database, "TestTable")).isTrue();
+  }
+
+  @Test
+  public void tableExists_withNonExistingTable() {
+    SQLiteDatabase database = getInMemoryDatabaseProvider().getReadableDatabase();
+
+    assertThat(Util.tableExists(database, "table")).isFalse();
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {

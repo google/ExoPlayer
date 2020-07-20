@@ -21,6 +21,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -127,9 +128,10 @@ public class ActionFileTest {
   private static DownloadRequest buildExpectedRequest(Uri uri, byte[] data) {
     return new DownloadRequest(
         /* id= */ uri.toString(),
-        DownloadRequest.TYPE_PROGRESSIVE,
         uri,
+        /* mimeType= */ MimeTypes.VIDEO_UNKNOWN,
         /* streamKeys= */ Collections.emptyList(),
+        /* keySetId= */ null,
         /* customCacheKey= */ null,
         data);
   }

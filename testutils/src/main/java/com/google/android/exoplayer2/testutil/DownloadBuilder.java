@@ -38,9 +38,10 @@ public final class DownloadBuilder {
   private final DownloadProgress progress;
 
   private String id;
-  private String type;
   private Uri uri;
+  @Nullable private String mimeType;
   private List<StreamKey> streamKeys;
+  private byte[] keySetId;
   @Nullable private String cacheKey;
   private byte[] customMetadata;
 
@@ -52,18 +53,19 @@ public final class DownloadBuilder {
   private int failureReason;
 
   /**
-   * Creates a download builder for "uri" with type "type" and no stream keys.
+   * Creates a download builder for "uri" and no stream keys.
    *
    * @param id The unique content identifier for the download.
    */
   public DownloadBuilder(String id) {
     this(
         id,
-        "type",
         Uri.parse("uri"),
+        /* mimeType= */ null,
         /* streamKeys= */ Collections.emptyList(),
+        /* keySetId= */ new byte[0],
         /* cacheKey= */ null,
-        new byte[0]);
+        /* customMetadata= */ new byte[0]);
   }
 
   /**
@@ -74,9 +76,10 @@ public final class DownloadBuilder {
   public DownloadBuilder(DownloadRequest request) {
     this(
         request.id,
-        request.type,
         request.uri,
+        request.mimeType,
         request.streamKeys,
+        request.keySetId,
         request.customCacheKey,
         request.data);
   }
@@ -84,27 +87,23 @@ public final class DownloadBuilder {
   /** Creates a download builder. */
   private DownloadBuilder(
       String id,
-      String type,
       Uri uri,
+      @Nullable String mimeType,
       List<StreamKey> streamKeys,
+      byte[] keySetId,
       @Nullable String cacheKey,
       byte[] customMetadata) {
     this.id = id;
-    this.type = type;
     this.uri = uri;
+    this.mimeType = mimeType;
     this.streamKeys = streamKeys;
+    this.keySetId = keySetId;
     this.cacheKey = cacheKey;
     this.customMetadata = customMetadata;
     this.state = Download.STATE_QUEUED;
     this.contentLength = C.LENGTH_UNSET;
     this.failureReason = Download.FAILURE_REASON_NONE;
     this.progress = new DownloadProgress();
-  }
-
-  /** @see DownloadRequest#type */
-  public DownloadBuilder setType(String type) {
-    this.type = type;
-    return this;
   }
 
   /** @see DownloadRequest#uri */
@@ -116,6 +115,18 @@ public final class DownloadBuilder {
   /** @see DownloadRequest#uri */
   public DownloadBuilder setUri(Uri uri) {
     this.uri = uri;
+    return this;
+  }
+
+  /** @see DownloadRequest#mimeType */
+  public DownloadBuilder setMimeType(String mimeType) {
+    this.mimeType = mimeType;
+    return this;
+  }
+
+  /** @see DownloadRequest#keySetId */
+  public DownloadBuilder setKeySetId(byte[] keySetId) {
+    this.keySetId = keySetId;
     return this;
   }
 
@@ -187,7 +198,7 @@ public final class DownloadBuilder {
 
   public Download build() {
     DownloadRequest request =
-        new DownloadRequest(id, type, uri, streamKeys, cacheKey, customMetadata);
+        new DownloadRequest(id, uri, mimeType, streamKeys, keySetId, cacheKey, customMetadata);
     return new Download(
         request,
         state,

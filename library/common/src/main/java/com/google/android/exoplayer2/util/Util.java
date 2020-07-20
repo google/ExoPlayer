@@ -30,6 +30,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
 import android.media.AudioFormat;
 import android.net.ConnectivityManager;
@@ -2225,6 +2227,14 @@ public final class Util {
       removedItems.addFirst(items.remove(fromIndex + i));
     }
     items.addAll(Math.min(newFromIndex, items.size()), removedItems);
+  }
+
+  /** Returns whether the table exists in the database. */
+  public static boolean tableExists(SQLiteDatabase database, String tableName) {
+    long count =
+        DatabaseUtils.queryNumEntries(
+            database, "sqlite_master", "tbl_name = ?", new String[] {tableName});
+    return count > 0;
   }
 
   @Nullable

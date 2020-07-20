@@ -43,10 +43,11 @@ public final class DefaultDownloaderFactoryTest {
     Downloader downloader =
         factory.createDownloader(
             new DownloadRequest(
-                "id",
-                DownloadRequest.TYPE_PROGRESSIVE,
+                /* id= */ "id",
                 Uri.parse("https://www.test.com/download"),
+                /* mimeType= */ null,
                 /* streamKeys= */ Collections.emptyList(),
+                /* keySetId= */ null,
                 /* customCacheKey= */ null,
                 /* data= */ null));
     assertThat(downloader).isInstanceOf(ProgressiveDownloader.class);

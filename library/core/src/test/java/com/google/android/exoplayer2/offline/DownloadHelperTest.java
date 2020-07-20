@@ -403,8 +403,8 @@ public class DownloadHelperTest {
 
     DownloadRequest downloadRequest = downloadHelper.getDownloadRequest(data);
 
-    assertThat(downloadRequest.type).isEqualTo(DownloadRequest.TYPE_PROGRESSIVE);
     assertThat(downloadRequest.uri).isEqualTo(testMediaItem.playbackProperties.uri);
+    assertThat(downloadRequest.mimeType).isEqualTo(testMediaItem.playbackProperties.mimeType);
     assertThat(downloadRequest.customCacheKey)
         .isEqualTo(testMediaItem.playbackProperties.customCacheKey);
     assertThat(downloadRequest.data).isEqualTo(data);

@@ -320,9 +320,7 @@ public final class DownloadHelper {
    * @throws IllegalStateException If the media item is of type DASH, HLS or SmoothStreaming.
    */
   public static DownloadHelper forMediaItem(Context context, MediaItem mediaItem) {
-    Assertions.checkArgument(
-        DownloadRequest.TYPE_PROGRESSIVE.equals(
-            getDownloadType(checkNotNull(mediaItem.playbackProperties))));
+    Assertions.checkArgument(isProgressive(checkNotNull(mediaItem.playbackProperties)));
     return forMediaItem(
         mediaItem,
         getDefaultTrackSelectorParameters(context),
@@ -412,9 +410,7 @@ public final class DownloadHelper {
       @Nullable RenderersFactory renderersFactory,
       @Nullable DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
-    boolean isProgressive =
-        DownloadRequest.TYPE_PROGRESSIVE.equals(
-            getDownloadType(checkNotNull(mediaItem.playbackProperties)));
+    boolean isProgressive = isProgressive(checkNotNull(mediaItem.playbackProperties));
     Assertions.checkArgument(isProgressive || dataSourceFactory != null);
     return new DownloadHelper(
         mediaItem,
@@ -455,7 +451,7 @@ public final class DownloadHelper {
         new MediaItem.Builder()
             .setUri(downloadRequest.uri)
             .setCustomCacheKey(downloadRequest.customCacheKey)
-            .setMimeType(getMimeType(downloadRequest.type))
+            .setMimeType(downloadRequest.mimeType)
             .setStreamKeys(downloadRequest.streamKeys)
             .build(),
         dataSourceFactory,
@@ -747,13 +743,14 @@ public final class DownloadHelper {
    * @return The built {@link DownloadRequest}.
    */
   public DownloadRequest getDownloadRequest(String id, @Nullable byte[] data) {
-    String downloadType = getDownloadType(playbackProperties);
     if (mediaSource == null) {
+      // TODO: add support for DRM (keySetId) [Internal ref: b/158980798]
       return new DownloadRequest(
           id,
-          downloadType,
           playbackProperties.uri,
+          playbackProperties.mimeType,
           /* streamKeys= */ Collections.emptyList(),
+          /* keySetId= */ null,
           playbackProperties.customCacheKey,
           data);
     }
@@ -769,11 +766,13 @@ public final class DownloadHelper {
       }
       streamKeys.addAll(mediaPreparer.mediaPeriods[periodIndex].getStreamKeys(allSelections));
     }
+    // TODO: add support for DRM (keySetId) [Internal ref: b/158980798]
     return new DownloadRequest(
         id,
-        downloadType,
         playbackProperties.uri,
+        playbackProperties.mimeType,
         streamKeys,
+        /* keySetId= */ null,
         playbackProperties.customCacheKey,
         data);
   }
@@ -909,36 +908,9 @@ public final class DownloadHelper {
         .createMediaSource(mediaItem);
   }
 
-  private static String getDownloadType(MediaItem.PlaybackProperties playbackProperties) {
-    int contentType =
-        Util.inferContentTypeWithMimeType(playbackProperties.uri, playbackProperties.mimeType);
-    switch (contentType) {
-      case C.TYPE_DASH:
-        return DownloadRequest.TYPE_DASH;
-      case C.TYPE_HLS:
-        return DownloadRequest.TYPE_HLS;
-      case C.TYPE_SS:
-        return DownloadRequest.TYPE_SS;
-      case C.TYPE_OTHER:
-      default:
-        return DownloadRequest.TYPE_PROGRESSIVE;
-    }
-  }
-
-  @Nullable
-  private static String getMimeType(String downloadType) {
-    switch (downloadType) {
-      case DownloadRequest.TYPE_DASH:
-        return MimeTypes.APPLICATION_MPD;
-      case DownloadRequest.TYPE_HLS:
-        return MimeTypes.APPLICATION_M3U8;
-      case DownloadRequest.TYPE_SS:
-        return MimeTypes.APPLICATION_SS;
-      case DownloadRequest.TYPE_PROGRESSIVE:
-        return null;
-      default:
-        throw new IllegalArgumentException();
-    }
+  private static boolean isProgressive(MediaItem.PlaybackProperties playbackProperties) {
+    return Util.inferContentTypeWithMimeType(playbackProperties.uri, playbackProperties.mimeType)
+        == C.TYPE_OTHER;
   }
 
   private static final class MediaPreparer
