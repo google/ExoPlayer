@@ -1736,7 +1736,7 @@ public final class Util {
       case MimeTypes.APPLICATION_SS:
         return C.TYPE_SS;
       default:
-        return Util.inferContentType(uri);
+        return C.TYPE_OTHER;
     }
   }
 
