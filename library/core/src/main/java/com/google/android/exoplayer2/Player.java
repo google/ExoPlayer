@@ -782,7 +782,6 @@ public interface Player {
     MEDIA_ITEM_TRANSITION_REASON_REPEAT,
     MEDIA_ITEM_TRANSITION_REASON_AUTO,
     MEDIA_ITEM_TRANSITION_REASON_SEEK,
-    MEDIA_ITEM_TRANSITION_REASON_SKIP,
     MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
   })
   @interface MediaItemTransitionReason {}
@@ -792,14 +791,12 @@ public interface Player {
   int MEDIA_ITEM_TRANSITION_REASON_AUTO = 1;
   /** A seek to another media item has occurred. */
   int MEDIA_ITEM_TRANSITION_REASON_SEEK = 2;
-  /** Playback skipped to a new media item (for example after failure). */
-  int MEDIA_ITEM_TRANSITION_REASON_SKIP = 3;
   /**
    * The current media item has changed because of a change in the playlist. This can either be if
    * the media item previously being played has been removed, or when the playlist becomes non-empty
    * after being empty.
    */
-  int MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED = 4;
+  int MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED = 3;
 
   /** The default playback speed. */
   float DEFAULT_PLAYBACK_SPEED = 1.0f;

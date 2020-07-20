@@ -681,8 +681,6 @@ public class EventLogger implements AnalyticsListener {
         return "REPEAT";
       case Player.MEDIA_ITEM_TRANSITION_REASON_SEEK:
         return "SEEK";
-      case Player.MEDIA_ITEM_TRANSITION_REASON_SKIP:
-        return "SKIP";
       default:
         return "?";
     }
