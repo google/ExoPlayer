@@ -350,7 +350,6 @@ public class SampleChooserActivity extends AppCompatActivity
       String extension = null;
       String title = null;
       boolean isLive = false;
-      String sphericalStereoMode = null;
       ArrayList<PlaylistHolder> children = null;
       Uri subtitleUri = null;
       String subtitleMimeType = null;
@@ -415,11 +414,6 @@ public class SampleChooserActivity extends AppCompatActivity
           case "ad_tag_uri":
             mediaItem.setAdTagUri(reader.nextString());
             break;
-          case "spherical_stereo_mode":
-            Assertions.checkState(
-                !insidePlaylist, "Invalid attribute on nested item: spherical_stereo_mode");
-            sphericalStereoMode = reader.nextString();
-            break;
           case "subtitle_uri":
             subtitleUri = Uri.parse(reader.nextString());
             break;
@@ -446,7 +440,7 @@ public class SampleChooserActivity extends AppCompatActivity
             .setUri(uri)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
             .setMimeType(IntentUtil.inferAdaptiveStreamMimeType(uri, extension))
-            .setTag(new IntentUtil.Tag(isLive, sphericalStereoMode));
+            .setTag(new IntentUtil.Tag(isLive));
         if (subtitleUri != null) {
           MediaItem.Subtitle subtitle =
               new MediaItem.Subtitle(

@@ -42,13 +42,10 @@ public class IntentUtil {
 
     /** Whether the stream is a live stream. */
     public final boolean isLive;
-    /** The spherical stereo mode or null. */
-    @Nullable public final String sphericalStereoMode;
 
     /** Creates an instance. */
-    public Tag(boolean isLive, @Nullable String sphericalStereoMode) {
+    public Tag(boolean isLive) {
       this.isLive = isLive;
-      this.sphericalStereoMode = sphericalStereoMode;
     }
   }
 
@@ -59,11 +56,6 @@ public class IntentUtil {
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
 
   // Activity extras.
-
-  public static final String SPHERICAL_STEREO_MODE_EXTRA = "spherical_stereo_mode";
-  public static final String SPHERICAL_STEREO_MODE_MONO = "mono";
-  public static final String SPHERICAL_STEREO_MODE_TOP_BOTTOM = "top_bottom";
-  public static final String SPHERICAL_STEREO_MODE_LEFT_RIGHT = "left_right";
 
   // Media item configuration extras.
 
@@ -237,19 +229,16 @@ public class IntentUtil {
   private static void addPlaybackPropertiesToIntent(
       MediaItem.PlaybackProperties playbackProperties, Intent intent, String extrasKeySuffix) {
     boolean isLive = false;
-    String sphericalStereoMode = null;
     if (playbackProperties.tag instanceof Tag) {
       Tag tag = (Tag) playbackProperties.tag;
       isLive = tag.isLive;
-      sphericalStereoMode = tag.sphericalStereoMode;
     }
     intent
         .putExtra(MIME_TYPE_EXTRA + extrasKeySuffix, playbackProperties.mimeType)
         .putExtra(
             AD_TAG_URI_EXTRA + extrasKeySuffix,
             playbackProperties.adTagUri != null ? playbackProperties.adTagUri.toString() : null)
-        .putExtra(IS_LIVE_EXTRA + extrasKeySuffix, isLive)
-        .putExtra(SPHERICAL_STEREO_MODE_EXTRA, sphericalStereoMode);
+        .putExtra(IS_LIVE_EXTRA + extrasKeySuffix, isLive);
     if (playbackProperties.drmConfiguration != null) {
       addDrmConfigurationToIntent(playbackProperties.drmConfiguration, intent, extrasKeySuffix);
     }

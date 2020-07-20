@@ -254,6 +254,9 @@
     *   Retain previous position in list of samples.
     *   Replace the `extensions` variant with `decoderExtensions` and make the
         demo app use the Cronet and IMA extensions by default.
+    *   Removed support for media tunneling
+    *   Removed support for random ABR (random track selection)
+    *   Removed support for playing back in spherical stereo mode
 *   Add Guava dependency.
 
 ### 2.11.7 (2020-06-29) ###

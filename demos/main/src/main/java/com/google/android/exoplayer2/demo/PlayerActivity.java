@@ -51,7 +51,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
-import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
@@ -108,10 +107,6 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onCreate(Bundle savedInstanceState) {
     Intent intent = getIntent();
-    String sphericalStereoMode = intent.getStringExtra(IntentUtil.SPHERICAL_STEREO_MODE_EXTRA);
-    if (sphericalStereoMode != null) {
-      setTheme(R.style.PlayerTheme_Spherical);
-    }
     super.onCreate(savedInstanceState);
     dataSourceFactory = buildDataSourceFactory();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
@@ -128,21 +123,6 @@ public class PlayerActivity extends AppCompatActivity
     playerView.setControllerVisibilityListener(this);
     playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
-    if (sphericalStereoMode != null) {
-      int stereoMode;
-      if (IntentUtil.SPHERICAL_STEREO_MODE_MONO.equals(sphericalStereoMode)) {
-        stereoMode = C.STEREO_MODE_MONO;
-      } else if (IntentUtil.SPHERICAL_STEREO_MODE_TOP_BOTTOM.equals(sphericalStereoMode)) {
-        stereoMode = C.STEREO_MODE_TOP_BOTTOM;
-      } else if (IntentUtil.SPHERICAL_STEREO_MODE_LEFT_RIGHT.equals(sphericalStereoMode)) {
-        stereoMode = C.STEREO_MODE_LEFT_RIGHT;
-      } else {
-        showToast(R.string.error_unrecognized_stereo_mode);
-        finish();
-        return;
-      }
-      ((SphericalGLSurfaceView) playerView.getVideoSurfaceView()).setDefaultStereoMode(stereoMode);
-    }
 
     if (savedInstanceState != null) {
       trackSelectorParameters = savedInstanceState.getParcelable(KEY_TRACK_SELECTOR_PARAMETERS);

@@ -496,26 +496,6 @@
     ]
   },
   {
-    "name": "360",
-    "samples": [
-      {
-        "name": "Congo (360 top-bottom stereo)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/congo.mp4",
-        "spherical_stereo_mode": "top_bottom"
-      },
-      {
-        "name": "Sphericalv2 (180 top-bottom stereo)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/sphericalv2.mp4",
-        "spherical_stereo_mode": "top_bottom"
-      },
-      {
-        "name": "Iceland (360 top-bottom stereo ts)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/iceland0.ts",
-        "spherical_stereo_mode": "top_bottom"
-      }
-    ]
-  },
-  {
     "name": "Subtitles",
     "samples": [
       {
