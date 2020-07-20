@@ -471,9 +471,13 @@ public interface Player {
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
 
     /**
-     * Called when playback transitions to a different media item.
+     * Called when playback transitions to a media item or starts repeating a media item according
+     * to the current {@link #getRepeatMode() repeat mode}.
      *
-     * @param mediaItem The {@link MediaItem}. May be null if the timeline becomes empty.
+     * <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
+     * consequence of a playlist change.
+     *
+     * @param mediaItem The {@link MediaItem}. May be null if the playlist becomes empty.
      * @param reason The reason for the transition.
      */
     default void onMediaItemTransition(
