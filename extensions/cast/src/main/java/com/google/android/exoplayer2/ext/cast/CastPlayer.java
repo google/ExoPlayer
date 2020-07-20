@@ -1095,6 +1095,9 @@ public final class CastPlayer extends BasePlayer {
 
   private final class SeekResultCallback implements ResultCallback<MediaChannelResult> {
 
+    // We still call EventListener#onSeekProcessed() for backwards compatibility with listeners that
+    // don't implement onPositionDiscontinuity().
+    @SuppressWarnings("deprecation")
     @Override
     public void onResult(MediaChannelResult result) {
       int statusCode = result.getStatus().getStatusCode();
