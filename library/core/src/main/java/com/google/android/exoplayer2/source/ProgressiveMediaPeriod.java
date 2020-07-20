@@ -787,7 +787,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (trackFormat.drmInitData != null) {
         trackFormat =
             trackFormat.copyWithExoMediaCryptoType(
-                drmSessionManager.getExoMediaCryptoType(trackFormat.drmInitData));
+                drmSessionManager.getExoMediaCryptoType(
+                    trackFormat.drmInitData, MimeTypes.getTrackType(trackFormat.sampleMimeType)));
       }
       trackArray[i] = new TrackGroup(trackFormat);
     }

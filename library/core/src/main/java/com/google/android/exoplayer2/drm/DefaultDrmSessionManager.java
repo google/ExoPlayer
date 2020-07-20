@@ -578,10 +578,17 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   @Override
   @Nullable
-  public Class<? extends ExoMediaCrypto> getExoMediaCryptoType(DrmInitData drmInitData) {
-    return canAcquireSession(drmInitData)
-        ? Assertions.checkNotNull(exoMediaDrm).getExoMediaCryptoType()
-        : null;
+  public Class<? extends ExoMediaCrypto> getExoMediaCryptoType(
+      @Nullable DrmInitData drmInitData, int trackType) {
+    Class<? extends ExoMediaCrypto> exoMediaCryptoType =
+        Assertions.checkNotNull(exoMediaDrm).getExoMediaCryptoType();
+    if (drmInitData == null) {
+      return Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) != C.INDEX_UNSET
+          ? exoMediaCryptoType
+          : null;
+    } else {
+      return canAcquireSession(drmInitData) ? exoMediaCryptoType : UnsupportedMediaCrypto.class;
+    }
   }
 
   // Internal methods.

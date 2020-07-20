@@ -269,9 +269,8 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
     return new FakeExoMediaCrypto();
   }
 
-  @Nullable
   @Override
-  public Class<? extends ExoMediaCrypto> getExoMediaCryptoType() {
+  public Class<FakeExoMediaCrypto> getExoMediaCryptoType() {
     return FakeExoMediaCrypto.class;
   }
 

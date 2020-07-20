@@ -1313,7 +1313,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         if (format.drmInitData != null) {
           format =
               format.copyWithExoMediaCryptoType(
-                  drmSessionManager.getExoMediaCryptoType(format.drmInitData));
+                  drmSessionManager.getExoMediaCryptoType(
+                      format.drmInitData, MimeTypes.getTrackType(format.sampleMimeType)));
         }
         exposedFormats[j] = format;
       }

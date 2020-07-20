@@ -674,7 +674,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         if (drmInitData != null) {
           format =
               format.copyWithExoMediaCryptoType(
-                  drmSessionManager.getExoMediaCryptoType(drmInitData));
+                  drmSessionManager.getExoMediaCryptoType(
+                      drmInitData, MimeTypes.getTrackType(format.sampleMimeType)));
         }
         formats[j] = format;
       }
