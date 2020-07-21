@@ -328,8 +328,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // lengths greater than Integer.MAX_VALUE.
       Assertions.checkState(atomHeaderBytesRead == Atom.HEADER_SIZE);
       Assertions.checkState(atomSize <= Integer.MAX_VALUE);
-      atomData = new ParsableByteArray((int) atomSize);
+      ParsableByteArray atomData = new ParsableByteArray((int) atomSize);
       System.arraycopy(atomHeader.data, 0, atomData.data, 0, Atom.HEADER_SIZE);
+      this.atomData = atomData;
       parserState = STATE_READING_ATOM_PAYLOAD;
     } else {
       atomData = null;
