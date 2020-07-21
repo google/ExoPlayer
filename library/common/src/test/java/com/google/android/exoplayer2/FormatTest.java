@@ -27,11 +27,11 @@ import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -71,11 +71,9 @@ public final class FormatTest {
     initializationData.add(initData2);
 
     DrmInitData.SchemeData drmData1 =
-        new DrmInitData.SchemeData(
-            WIDEVINE_UUID, VIDEO_MP4, TestUtil.buildTestData(128, 1 /* data seed */));
+        new DrmInitData.SchemeData(WIDEVINE_UUID, VIDEO_MP4, buildTestData(128, 1 /* data seed */));
     DrmInitData.SchemeData drmData2 =
-        new DrmInitData.SchemeData(
-            C.UUID_NIL, VIDEO_WEBM, TestUtil.buildTestData(128, 1 /* data seed */));
+        new DrmInitData.SchemeData(C.UUID_NIL, VIDEO_WEBM, buildTestData(128, 1 /* data seed */));
     DrmInitData drmInitData = new DrmInitData(drmData1, drmData2);
 
     byte[] projectionData = new byte[] {1, 2, 3};
@@ -123,5 +121,13 @@ public final class FormatTest {
         /* encoderPadding= */ 1002,
         /* accessibilityChannel= */ 2,
         /* exoMediaCryptoType= */ ExoMediaCrypto.class);
+  }
+
+  /** Generates an array of random bytes with the specified length. */
+  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] buildTestData(int length, int seed) {
+    byte[] source = new byte[length];
+    new Random(seed).nextBytes(source);
+    return source;
   }
 }

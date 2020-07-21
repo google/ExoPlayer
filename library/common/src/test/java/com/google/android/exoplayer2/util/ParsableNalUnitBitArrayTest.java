@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
@@ -121,4 +120,14 @@ public final class ParsableNalUnitBitArrayTest {
     assertThat(array.canReadBits(25)).isFalse();
   }
 
+  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
+  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] createByteArray(int... bytes) {
+    byte[] byteArray = new byte[bytes.length];
+    for (int i = 0; i < byteArray.length; i++) {
+      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
+      byteArray[i] = (byte) bytes[i];
+    }
+    return byteArray;
+  }
 }

@@ -18,12 +18,15 @@ android.buildTypes.debug.testCoverageEnabled true
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'com.google.guava:guava:' + guavaVersion
+    implementation 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version
-    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
-    testImplementation project(modulePrefix + 'library-core')
-    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.mockito:mockito-core:' + mockitoVersion
+    testImplementation 'androidx.test:core:' + androidxTestCoreVersion
+    testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
+    testImplementation 'junit:junit:' + junitVersion
+    testImplementation 'com.google.truth:truth:' + truthVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-import static com.google.android.exoplayer2.testutil.TestUtil.getInMemoryDatabaseProvider;
 import static com.google.android.exoplayer2.util.Util.binarySearchCeil;
 import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
@@ -26,13 +25,13 @@ import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -760,7 +759,7 @@ public class UtilTest {
 
   @Test
   public void toHexString_returnsHexString() {
-    byte[] bytes = TestUtil.createByteArray(0x12, 0xFC, 0x06);
+    byte[] bytes = createByteArray(0x12, 0xFC, 0x06);
 
     assertThat(Util.toHexString(bytes)).isEqualTo("12fc06");
   }
@@ -807,7 +806,7 @@ public class UtilTest {
 
     Random random = new Random(0);
     for (int i = 0; i < 1000; i++) {
-      String string = TestUtil.buildTestString(1000, random);
+      String string = buildTestString(1000, random);
       assertEscapeUnescapeFileName(string);
     }
   }
@@ -862,7 +861,7 @@ public class UtilTest {
 
   @Test
   public void inflate_withDeflatedData_success() {
-    byte[] testData = TestUtil.buildTestData(/*arbitrary test data size*/ 256 * 1024);
+    byte[] testData = buildTestData(/*arbitrary test data size*/ 256 * 1024);
     byte[] compressedData = new byte[testData.length * 2];
     Deflater compresser = new Deflater(9);
     compresser.setInput(testData);
@@ -1007,7 +1006,7 @@ public class UtilTest {
 
   @Test
   public void tableExists_withExistingTable() {
-    SQLiteDatabase database = getInMemoryDatabaseProvider().getWritableDatabase();
+    SQLiteDatabase database = getInMemorySQLiteOpenHelper().getWritableDatabase();
     database.execSQL("CREATE TABLE TestTable (ID INTEGER NOT NULL)");
 
     assertThat(Util.tableExists(database, "TestTable")).isTrue();
@@ -1015,7 +1014,7 @@ public class UtilTest {
 
   @Test
   public void tableExists_withNonExistingTable() {
-    SQLiteDatabase database = getInMemoryDatabaseProvider().getReadableDatabase();
+    SQLiteDatabase database = getInMemorySQLiteOpenHelper().getReadableDatabase();
 
     assertThat(Util.tableExists(database, "table")).isFalse();
   }
@@ -1036,5 +1035,52 @@ public class UtilTest {
       longArray.add(value);
     }
     return longArray;
+  }
+
+  /** Returns a {@link SQLiteOpenHelper} that provides an in-memory database. */
+  private static SQLiteOpenHelper getInMemorySQLiteOpenHelper() {
+    return new SQLiteOpenHelper(
+        /* context= */ null, /* name= */ null, /* factory= */ null, /* version= */ 1) {
+      @Override
+      public void onCreate(SQLiteDatabase db) {}
+
+      @Override
+      public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
+    };
+  }
+
+  /** Generates an array of random bytes with the specified length. */
+  private static byte[] buildTestData(int length, int seed) {
+    byte[] source = new byte[length];
+    new Random(seed).nextBytes(source);
+    return source;
+  }
+
+  /** Equivalent to {@code buildTestData(length, length)}. */
+  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] buildTestData(int length) {
+    return buildTestData(length, length);
+  }
+
+  /** Generates a random string with the specified maximum length. */
+  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  private static String buildTestString(int maximumLength, Random random) {
+    int length = random.nextInt(maximumLength);
+    StringBuilder builder = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      builder.append((char) random.nextInt());
+    }
+    return builder.toString();
+  }
+
+  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
+  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] createByteArray(int... bytes) {
+    byte[] byteArray = new byte[bytes.length];
+    for (int i = 0; i < byteArray.length; i++) {
+      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
+      byteArray[i] = (byte) bytes[i];
+    }
+    return byteArray;
   }
 }
