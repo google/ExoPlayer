@@ -304,6 +304,8 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   }
 
   private void putDownloadInternal(Download download, SQLiteDatabase database) {
+    byte[] keySetId =
+        download.request.keySetId == null ? Util.EMPTY_BYTE_ARRAY : download.request.keySetId;
     ContentValues values = new ContentValues();
     values.put(COLUMN_ID, download.request.id);
     values.put(COLUMN_MIME_TYPE, download.request.mimeType);
@@ -319,7 +321,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     values.put(COLUMN_FAILURE_REASON, download.failureReason);
     values.put(COLUMN_PERCENT_DOWNLOADED, download.getPercentDownloaded());
     values.put(COLUMN_BYTES_DOWNLOADED, download.getBytesDownloaded());
-    values.put(COLUMN_KEY_SET_ID, download.request.keySetId);
+    values.put(COLUMN_KEY_SET_ID, keySetId);
     database.replaceOrThrow(tableName, /* nullColumnHack= */ null, values);
   }
 
@@ -430,13 +432,14 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   }
 
   private static Download getDownloadForCurrentRow(Cursor cursor) {
+    byte[] keySetId = cursor.getBlob(COLUMN_INDEX_KEY_SET_ID);
     DownloadRequest request =
         new DownloadRequest(
             /* id= */ cursor.getString(COLUMN_INDEX_ID),
             /* uri= */ Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
             /* mimeType= */ cursor.getString(COLUMN_INDEX_MIME_TYPE),
             /* streamKeys= */ decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),
-            /* keySetId= */ cursor.getBlob(COLUMN_INDEX_KEY_SET_ID),
+            /* keySetId= */ keySetId.length > 0 ? keySetId : null,
             /* customCacheKey= */ cursor.getString(COLUMN_INDEX_CUSTOM_CACHE_KEY),
             /* data= */ cursor.getBlob(COLUMN_INDEX_DATA));
     DownloadProgress downloadProgress = new DownloadProgress();

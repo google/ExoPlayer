@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.offline;
 
-import android.net.Uri;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -24,7 +23,6 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.reflect.Constructor;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -95,9 +93,15 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     if (constructor == null) {
       throw new IllegalStateException("Module missing for content type " + contentType);
     }
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(request.uri)
+            .setStreamKeys(request.streamKeys)
+            .setCustomCacheKey(request.customCacheKey)
+            .setDrmKeySetId(request.keySetId)
+            .build();
     try {
-      return constructor.newInstance(
-          request.uri, request.streamKeys, cacheDataSourceFactory, executor);
+      return constructor.newInstance(mediaItem, cacheDataSourceFactory, executor);
     } catch (Exception e) {
       throw new IllegalStateException(
           "Failed to instantiate downloader for content type " + contentType);
@@ -140,7 +144,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
     try {
       return clazz
           .asSubclass(Downloader.class)
-          .getConstructor(Uri.class, List.class, CacheDataSource.Factory.class, Executor.class);
+          .getConstructor(MediaItem.class, CacheDataSource.Factory.class, Executor.class);
     } catch (NoSuchMethodException e) {
       // The downloader is present, but the expected constructor is missing.
       throw new IllegalStateException("Downloader constructor missing", e);

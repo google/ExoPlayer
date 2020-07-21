@@ -48,11 +48,8 @@ public final class DownloadRequest implements Parcelable {
   @Nullable public final String mimeType;
   /** Stream keys to be downloaded. If empty, all streams will be downloaded. */
   public final List<StreamKey> streamKeys;
-  /**
-   * The key set id of the offline licence if the content is protected with DRM, or empty if no
-   * license is needed.
-   */
-  public final byte[] keySetId;
+  /** The key set id of the offline licence if the content is protected with DRM. */
+  @Nullable public final byte[] keySetId;
   /**
    * Custom key for cache indexing, or null. Must be null for DASH, HLS and SmoothStreaming
    * downloads.
@@ -88,8 +85,7 @@ public final class DownloadRequest implements Parcelable {
     ArrayList<StreamKey> mutableKeys = new ArrayList<>(streamKeys);
     Collections.sort(mutableKeys);
     this.streamKeys = Collections.unmodifiableList(mutableKeys);
-    this.keySetId =
-        keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : Util.EMPTY_BYTE_ARRAY;
+    this.keySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
     this.customCacheKey = customCacheKey;
     this.data = data != null ? Arrays.copyOf(data, data.length) : Util.EMPTY_BYTE_ARRAY;
   }
@@ -104,7 +100,7 @@ public final class DownloadRequest implements Parcelable {
       mutableStreamKeys.add(in.readParcelable(StreamKey.class.getClassLoader()));
     }
     streamKeys = Collections.unmodifiableList(mutableStreamKeys);
-    keySetId = castNonNull(in.createByteArray());
+    keySetId = in.createByteArray();
     customCacheKey = in.readString();
     data = castNonNull(in.createByteArray());
   }

@@ -41,7 +41,7 @@ public final class DownloadBuilder {
   private Uri uri;
   @Nullable private String mimeType;
   private List<StreamKey> streamKeys;
-  private byte[] keySetId;
+  @Nullable private byte[] keySetId;
   @Nullable private String cacheKey;
   private byte[] customMetadata;
 
@@ -63,7 +63,7 @@ public final class DownloadBuilder {
         Uri.parse("uri"),
         /* mimeType= */ null,
         /* streamKeys= */ Collections.emptyList(),
-        /* keySetId= */ new byte[0],
+        /* keySetId= */ null,
         /* cacheKey= */ null,
         /* customMetadata= */ new byte[0]);
   }
@@ -90,7 +90,7 @@ public final class DownloadBuilder {
       Uri uri,
       @Nullable String mimeType,
       List<StreamKey> streamKeys,
-      byte[] keySetId,
+      @Nullable byte[] keySetId,
       @Nullable String cacheKey,
       byte[] customMetadata) {
     this.id = id;
