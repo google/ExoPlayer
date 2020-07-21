@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static android.net.NetworkInfo.State.CONNECTED;
+import static android.net.NetworkInfo.State.DISCONNECTED;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -68,42 +70,42 @@ public final class DefaultBandwidthMeterTest {
             ConnectivityManager.TYPE_WIFI,
             /* subType= */ 0,
             /* isAvailable= */ false,
-            /* isConnected= */ false);
+            DISCONNECTED);
     networkInfoWifi =
         ShadowNetworkInfo.newInstance(
             DetailedState.CONNECTED,
             ConnectivityManager.TYPE_WIFI,
             /* subType= */ 0,
             /* isAvailable= */ true,
-            /* isConnected= */ true);
+            CONNECTED);
     networkInfo2g =
         ShadowNetworkInfo.newInstance(
             DetailedState.CONNECTED,
             ConnectivityManager.TYPE_MOBILE,
             TelephonyManager.NETWORK_TYPE_GPRS,
             /* isAvailable= */ true,
-            /* isConnected= */ true);
+            CONNECTED);
     networkInfo3g =
         ShadowNetworkInfo.newInstance(
             DetailedState.CONNECTED,
             ConnectivityManager.TYPE_MOBILE,
             TelephonyManager.NETWORK_TYPE_HSDPA,
             /* isAvailable= */ true,
-            /* isConnected= */ true);
+            CONNECTED);
     networkInfo4g =
         ShadowNetworkInfo.newInstance(
             DetailedState.CONNECTED,
             ConnectivityManager.TYPE_MOBILE,
             TelephonyManager.NETWORK_TYPE_LTE,
             /* isAvailable= */ true,
-            /* isConnected= */ true);
+            CONNECTED);
     networkInfoEthernet =
         ShadowNetworkInfo.newInstance(
             DetailedState.CONNECTED,
             ConnectivityManager.TYPE_ETHERNET,
             /* subType= */ 0,
             /* isAvailable= */ true,
-            /* isConnected= */ true);
+            CONNECTED);
   }
   
   @Test

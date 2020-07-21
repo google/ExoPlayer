@@ -885,7 +885,7 @@ public final class CastPlayer extends BasePlayer {
       return;
     }
     if (this.remoteMediaClient != null) {
-      this.remoteMediaClient.removeListener(statusListener);
+      this.remoteMediaClient.unregisterCallback(statusListener);
       this.remoteMediaClient.removeProgressListener(statusListener);
     }
     this.remoteMediaClient = remoteMediaClient;
@@ -893,7 +893,7 @@ public final class CastPlayer extends BasePlayer {
       if (sessionAvailabilityListener != null) {
         sessionAvailabilityListener.onCastSessionAvailable();
       }
-      remoteMediaClient.addListener(statusListener);
+      remoteMediaClient.registerCallback(statusListener);
       remoteMediaClient.addProgressListener(statusListener, PROGRESS_REPORT_PERIOD_MS);
       updateInternalStateAndNotifyIfChanged();
     } else {
@@ -1007,10 +1007,8 @@ public final class CastPlayer extends BasePlayer {
 
   // Internal classes.
 
-  private final class StatusListener
-      implements RemoteMediaClient.Listener,
-          SessionManagerListener<CastSession>,
-          RemoteMediaClient.ProgressListener {
+  private final class StatusListener extends RemoteMediaClient.Callback
+      implements SessionManagerListener<CastSession>, RemoteMediaClient.ProgressListener {
 
     // RemoteMediaClient.ProgressListener implementation.
 
@@ -1019,7 +1017,7 @@ public final class CastPlayer extends BasePlayer {
       lastReportedPositionMs = progressMs;
     }
 
-    // RemoteMediaClient.Listener implementation.
+    // RemoteMediaClient.Callback implementation.
 
     @Override
     public void onStatusUpdated() {
