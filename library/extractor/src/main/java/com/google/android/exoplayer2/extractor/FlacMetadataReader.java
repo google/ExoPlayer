@@ -192,7 +192,7 @@ public final class FlacMetadataReader {
     data.skipBytes(1);
     int length = data.readUnsignedInt24();
 
-    long seekTableEndPosition = data.getPosition() + length;
+    long seekTableEndPosition = (long) data.getPosition() + length;
     int seekPointCount = length / SEEK_POINT_SIZE;
     long[] pointSampleNumbers = new long[seekPointCount];
     long[] pointOffsets = new long[seekPointCount];
