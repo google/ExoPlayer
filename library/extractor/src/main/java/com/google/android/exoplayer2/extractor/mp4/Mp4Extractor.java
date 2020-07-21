@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import static com.google.android.exoplayer2.extractor.mp4.AtomParsers.parseTraks;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -46,6 +48,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * Extracts data from the MP4 container format.
@@ -118,8 +121,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   // Extractor outputs.
   private @MonotonicNonNull ExtractorOutput extractorOutput;
-  private Mp4Track[] tracks;
-  private long[][] accumulatedSampleSizes;
+  private Mp4Track @MonotonicNonNull [] tracks;
+  private long @MonotonicNonNull [][] accumulatedSampleSizes;
   private int firstVideoTrackIndex;
   private long durationUs;
   private boolean isQuickTime;
@@ -213,7 +216,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   @Override
   public SeekPoints getSeekPoints(long timeUs) {
-    if (tracks.length == 0) {
+    if (checkNotNull(tracks).length == 0) {
       return new SeekPoints(SeekPoint.START);
     }
 
@@ -346,6 +349,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     long atomPayloadSize = atomSize - atomHeaderBytesRead;
     long atomEndPosition = input.getPosition() + atomPayloadSize;
     boolean seekRequired = false;
+    @Nullable ParsableByteArray atomData = this.atomData;
     if (atomData != null) {
       input.readFully(atomData.data, atomHeaderBytesRead, (int) atomPayloadSize);
       if (atomType == Atom.TYPE_ftyp) {
@@ -418,6 +422,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
             isQuickTime,
             /* modifyTrackFunction= */ track -> track);
 
+    ExtractorOutput extractorOutput = checkNotNull(this.extractorOutput);
     int trackCount = trackSampleTables.size();
     for (int i = 0; i < trackCount; i++) {
       TrackSampleTable trackSampleTable = trackSampleTables.get(i);
@@ -483,7 +488,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         return RESULT_END_OF_INPUT;
       }
     }
-    Mp4Track track = tracks[sampleTrackIndex];
+    Mp4Track track = castNonNull(tracks)[sampleTrackIndex];
     TrackOutput trackOutput = track.trackOutput;
     int sampleIndex = track.sampleIndex;
     long position = track.sampleTable.offsets[sampleIndex];
@@ -583,14 +588,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     long minAccumulatedBytes = Long.MAX_VALUE;
     boolean minAccumulatedBytesRequiresReload = true;
     int minAccumulatedBytesTrackIndex = C.INDEX_UNSET;
-    for (int trackIndex = 0; trackIndex < tracks.length; trackIndex++) {
+    for (int trackIndex = 0; trackIndex < castNonNull(tracks).length; trackIndex++) {
       Mp4Track track = tracks[trackIndex];
       int sampleIndex = track.sampleIndex;
       if (sampleIndex == track.sampleTable.sampleCount) {
         continue;
       }
       long sampleOffset = track.sampleTable.offsets[sampleIndex];
-      long sampleAccumulatedBytes = accumulatedSampleSizes[trackIndex][sampleIndex];
+      long sampleAccumulatedBytes = castNonNull(accumulatedSampleSizes)[trackIndex][sampleIndex];
       long skipAmount = sampleOffset - inputPosition;
       boolean requiresReload = skipAmount < 0 || skipAmount >= RELOAD_MINIMUM_SEEK_DISTANCE;
       if ((!requiresReload && preferredRequiresReload)
@@ -616,6 +621,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   /**
    * Updates every track's sample index to point its latest sync sample before/at {@code timeUs}.
    */
+  @RequiresNonNull("tracks")
   private void updateSampleIndices(long timeUs) {
     for (Mp4Track track : tracks) {
       TrackSampleTable sampleTable = track.sampleTable;
