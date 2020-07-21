@@ -33,7 +33,6 @@ import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.testutil.truth.SpannedSubject;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -744,12 +743,19 @@ public class UtilTest {
 
     assertThat(result).isInstanceOf(SpannableString.class);
     assertThat(result.toString()).isEqualTo("a short");
-    SpannedSubject.assertThat((Spanned) result)
-        .hasUnderlineSpanBetween(0, 7)
-        .withFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    SpannedSubject.assertThat((Spanned) result)
-        .hasStrikethroughSpanBetween(4, 7)
-        .withFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+    // TODO(internal b/161776534): Use SpannedSubject when it's available in a dependency we can use
+    // from here.
+    Spanned spannedResult = (Spanned) result;
+    Object[] spans = spannedResult.getSpans(0, result.length(), Object.class);
+    assertThat(spans).hasLength(2);
+    assertThat(spans[0]).isInstanceOf(UnderlineSpan.class);
+    assertThat(spannedResult.getSpanStart(spans[0])).isEqualTo(0);
+    assertThat(spannedResult.getSpanEnd(spans[0])).isEqualTo(7);
+    assertThat(spannedResult.getSpanFlags(spans[0])).isEqualTo(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    assertThat(spans[1]).isInstanceOf(StrikethroughSpan.class);
+    assertThat(spannedResult.getSpanStart(spans[1])).isEqualTo(4);
+    assertThat(spannedResult.getSpanEnd(spans[1])).isEqualTo(7);
+    assertThat(spannedResult.getSpanFlags(spans[1])).isEqualTo(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
