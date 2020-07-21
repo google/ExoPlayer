@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Zvuková stopa</string>
   <string name="exo_controls_playback_speed">Rychlost přehrávání</string>
   <string name="exo_controls_playback_speed_normal">Normální</string>
-  <string name="exo_controls_overflow_left_button_description">Zpět na předchozí seznam tlačítek</string>
-  <string name="exo_controls_overflow_right_button_description">Zobrazit další tlačítka</string>
+  <string name="exo_controls_overflow_hide_description">Zpět na předchozí seznam tlačítek</string>
+  <string name="exo_controls_overflow_show_description">Zobrazit další tlačítka</string>
   <string name="exo_controls_seek_bar_description">Průběh přehrávání</string>
   <string name="exo_controls_settings_description">Nastavení</string>
-  <string name="exo_controls_cc_is_on">Klepnutím skryjete titulky</string>
-  <string name="exo_controls_cc_is_off">Klepnutím zobrazíte titulky</string>
-  <string name="exo_controls_rewind_desc_holder">Přetočit zpět o %d s</string>
-  <string name="exo_controls_ffwd_desc_holder">Posunout vpřed o %d s</string>
+  <string name="exo_controls_cc_enabled_description">Klepnutím skryjete titulky</string>
+  <string name="exo_controls_cc_disabled_description">Klepnutím zobrazíte titulky</string>
+  <string name="exo_controls_rewind_by_amount_description">Přetočit zpět o %d s</string>
+  <string name="exo_controls_fastforward_by_amount_description">Posunout vpřed o %d s</string>
   <string name="exo_controls_fullscreen_enter_description">Přejít do režimu celé obrazovky</string>
   <string name="exo_controls_fullscreen_exit_description">Ukončit režim celé obrazovky</string>
 </resources>

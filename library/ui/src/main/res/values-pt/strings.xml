@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Faixa de áudio</string>
   <string name="exo_controls_playback_speed">Velocidade da reprodução</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_controls_overflow_left_button_description">Lista de botões anterior</string>
-  <string name="exo_controls_overflow_right_button_description">Ver mais botões</string>
+  <string name="exo_controls_overflow_hide_description">Lista de botões anterior</string>
+  <string name="exo_controls_overflow_show_description">Ver mais botões</string>
   <string name="exo_controls_seek_bar_description">Andamento da reprodução</string>
   <string name="exo_controls_settings_description">Configurações</string>
-  <string name="exo_controls_cc_is_on">Toque para ocultar legendas</string>
-  <string name="exo_controls_cc_is_off">Toque para mostrar legendas</string>
-  <string name="exo_controls_rewind_desc_holder">Retroceder %d segundos</string>
-  <string name="exo_controls_ffwd_desc_holder">Avançar %d segundos</string>
+  <string name="exo_controls_cc_enabled_description">Toque para ocultar legendas</string>
+  <string name="exo_controls_cc_disabled_description">Toque para mostrar legendas</string>
+  <string name="exo_controls_rewind_by_amount_description">Retroceder %d segundos</string>
+  <string name="exo_controls_fastforward_by_amount_description">Avançar %d segundos</string>
   <string name="exo_controls_fullscreen_enter_description">Entrar no modo de tela cheia</string>
   <string name="exo_controls_fullscreen_exit_description">Sair do modo de tela cheia</string>
 </resources>

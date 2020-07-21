@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Ձայնային կատարում</string>
   <string name="exo_controls_playback_speed">Նվագարկման արագությունը</string>
   <string name="exo_controls_playback_speed_normal">Սովորական</string>
-  <string name="exo_controls_overflow_left_button_description">Անցնել կոճակների նախորդ ցանկին</string>
-  <string name="exo_controls_overflow_right_button_description">Այլ կոճակներ</string>
+  <string name="exo_controls_overflow_hide_description">Անցնել կոճակների նախորդ ցանկին</string>
+  <string name="exo_controls_overflow_show_description">Այլ կոճակներ</string>
   <string name="exo_controls_seek_bar_description">Նվագարկման ընթացքը</string>
   <string name="exo_controls_settings_description">Կարգավորումներ</string>
-  <string name="exo_controls_cc_is_on">Հպեք՝ ենթագրերը թաքցնելու համար</string>
-  <string name="exo_controls_cc_is_off">Հպեք՝ ենթագրերը ցուցադրելու համար</string>
-  <string name="exo_controls_rewind_desc_holder">%d վայրկյան հետ</string>
-  <string name="exo_controls_ffwd_desc_holder">%d վայրկյան առաջ</string>
+  <string name="exo_controls_cc_enabled_description">Հպեք՝ ենթագրերը թաքցնելու համար</string>
+  <string name="exo_controls_cc_disabled_description">Հպեք՝ ենթագրերը ցուցադրելու համար</string>
+  <string name="exo_controls_rewind_by_amount_description">%d վայրկյան հետ</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d վայրկյան առաջ</string>
   <string name="exo_controls_fullscreen_enter_description">Մտնել լիաէկրան ռեժիմ</string>
   <string name="exo_controls_fullscreen_exit_description">Դուրս գալ լիաէկրան ռեժիմից</string>
 </resources>

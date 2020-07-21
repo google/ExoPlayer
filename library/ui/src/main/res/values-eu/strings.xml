@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Audio-pista</string>
   <string name="exo_controls_playback_speed">Erreprodukzioaren abiadura</string>
   <string name="exo_controls_playback_speed_normal">Normala</string>
-  <string name="exo_controls_overflow_left_button_description">Itzuli aurreko botoi-zerrendara</string>
-  <string name="exo_controls_overflow_right_button_description">Ikusi botoi gehiago</string>
+  <string name="exo_controls_overflow_hide_description">Itzuli aurreko botoi-zerrendara</string>
+  <string name="exo_controls_overflow_show_description">Ikusi botoi gehiago</string>
   <string name="exo_controls_seek_bar_description">Erreprodukzioaren garapena</string>
   <string name="exo_controls_settings_description">Ezarpenak</string>
-  <string name="exo_controls_cc_is_on">Sakatu azpitituluak ezkutatzeko</string>
-  <string name="exo_controls_cc_is_off">Sakatu azpitituluak erakusteko</string>
-  <string name="exo_controls_rewind_desc_holder">Atzeratu %d segundo</string>
-  <string name="exo_controls_ffwd_desc_holder">Aurreratu %d segundo</string>
+  <string name="exo_controls_cc_enabled_description">Sakatu azpitituluak ezkutatzeko</string>
+  <string name="exo_controls_cc_disabled_description">Sakatu azpitituluak erakusteko</string>
+  <string name="exo_controls_rewind_by_amount_description">Atzeratu %d segundo</string>
+  <string name="exo_controls_fastforward_by_amount_description">Aurreratu %d segundo</string>
   <string name="exo_controls_fullscreen_enter_description">Erreproduzitu pantaila osoan</string>
   <string name="exo_controls_fullscreen_exit_description">Irten pantaila osotik</string>
 </resources>

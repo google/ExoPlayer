@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">ኦዲዮ ትራክ</string>
   <string name="exo_controls_playback_speed">የመልሶ ማጫወት ፍጥነት</string>
   <string name="exo_controls_playback_speed_normal">መደበኛ</string>
-  <string name="exo_controls_overflow_left_button_description">ወደ ቀዳሚው የአዝራር ዝርዝር ተመለስ</string>
-  <string name="exo_controls_overflow_right_button_description">ተጨማሪ አዝራሮችን ይመልከቱ</string>
+  <string name="exo_controls_overflow_hide_description">ወደ ቀዳሚው የአዝራር ዝርዝር ተመለስ</string>
+  <string name="exo_controls_overflow_show_description">ተጨማሪ አዝራሮችን ይመልከቱ</string>
   <string name="exo_controls_seek_bar_description">የመልሶ ማጫወት ሂደት</string>
   <string name="exo_controls_settings_description">ቅንብሮች</string>
-  <string name="exo_controls_cc_is_on">የግርጌ ጽሑፎችን ለመደበቅ መታ ያድርጉ</string>
-  <string name="exo_controls_cc_is_off">የግርጌ ጽሑፎችን ለማሳየት መታ ያድርጉ</string>
-  <string name="exo_controls_rewind_desc_holder">በ%d ሰከንዶች ወደኋላ መልስ</string>
-  <string name="exo_controls_ffwd_desc_holder">በ%d ሰከንዶች ወደፊት አሳልፍ</string>
+  <string name="exo_controls_cc_enabled_description">የግርጌ ጽሑፎችን ለመደበቅ መታ ያድርጉ</string>
+  <string name="exo_controls_cc_disabled_description">የግርጌ ጽሑፎችን ለማሳየት መታ ያድርጉ</string>
+  <string name="exo_controls_rewind_by_amount_description">በ%d ሰከንዶች ወደኋላ መልስ</string>
+  <string name="exo_controls_fastforward_by_amount_description">በ%d ሰከንዶች ወደፊት አሳልፍ</string>
   <string name="exo_controls_fullscreen_enter_description">ወደ ሙሉ ማያ ገጽ ግባ</string>
   <string name="exo_controls_fullscreen_exit_description">ከሙሉ ማያገጽ ውጣ</string>
 </resources>

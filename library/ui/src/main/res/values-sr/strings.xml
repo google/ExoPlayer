@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Аудио снимак</string>
   <string name="exo_controls_playback_speed">Брзина репродукције</string>
   <string name="exo_controls_playback_speed_normal">Уобичајена</string>
-  <string name="exo_controls_overflow_left_button_description">Назад на претходну листу дугмади</string>
-  <string name="exo_controls_overflow_right_button_description">Прикажи још дугмади</string>
+  <string name="exo_controls_overflow_hide_description">Назад на претходну листу дугмади</string>
+  <string name="exo_controls_overflow_show_description">Прикажи још дугмади</string>
   <string name="exo_controls_seek_bar_description">Напредовање репродукције</string>
   <string name="exo_controls_settings_description">Подешавања</string>
-  <string name="exo_controls_cc_is_on">Додирните да би се титлови сакрили</string>
-  <string name="exo_controls_cc_is_off">Додирните да би се титлови приказивали</string>
-  <string name="exo_controls_rewind_desc_holder">Премотај %d секунди уназад</string>
-  <string name="exo_controls_ffwd_desc_holder">Премотај %d секунди унапред</string>
+  <string name="exo_controls_cc_enabled_description">Додирните да би се титлови сакрили</string>
+  <string name="exo_controls_cc_disabled_description">Додирните да би се титлови приказивали</string>
+  <string name="exo_controls_rewind_by_amount_description">Премотај %d секунди уназад</string>
+  <string name="exo_controls_fastforward_by_amount_description">Премотај %d секунди унапред</string>
   <string name="exo_controls_fullscreen_enter_description">Пређи на цео екран</string>
   <string name="exo_controls_fullscreen_exit_description">Изађи из целог екрана</string>
 </resources>

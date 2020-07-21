@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">قطعه</string>
   <string name="exo_controls_playback_speed">سرعت بازپخش</string>
   <string name="exo_controls_playback_speed_normal">عادی</string>
-  <string name="exo_controls_overflow_left_button_description">فهرست دکمه برگشت به عقب</string>
-  <string name="exo_controls_overflow_right_button_description">مشاهده دکمه‌های بیشتر</string>
+  <string name="exo_controls_overflow_hide_description">فهرست دکمه برگشت به عقب</string>
+  <string name="exo_controls_overflow_show_description">مشاهده دکمه‌های بیشتر</string>
   <string name="exo_controls_seek_bar_description">پیشرفت بازپخش</string>
   <string name="exo_controls_settings_description">تنظیمات</string>
-  <string name="exo_controls_cc_is_on">برای پنهان کردن زیرنویس ضربه بزنید</string>
-  <string name="exo_controls_cc_is_off">برای نمایش زیرنویس ضربه بزنید</string>
-  <string name="exo_controls_rewind_desc_holder">عقب بردن %d ثانیه</string>
-  <string name="exo_controls_ffwd_desc_holder">جلو بردن سریع %d ثانیه</string>
+  <string name="exo_controls_cc_enabled_description">برای پنهان کردن زیرنویس ضربه بزنید</string>
+  <string name="exo_controls_cc_disabled_description">برای نمایش زیرنویس ضربه بزنید</string>
+  <string name="exo_controls_rewind_by_amount_description">عقب بردن %d ثانیه</string>
+  <string name="exo_controls_fastforward_by_amount_description">جلو بردن سریع %d ثانیه</string>
   <string name="exo_controls_fullscreen_enter_description">ورود به حالت تمام‌صفحه</string>
   <string name="exo_controls_fullscreen_exit_description">خروج از حالت تمام‌صفحه</string>
 </resources>

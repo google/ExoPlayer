@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Audio track</string>
   <string name="exo_controls_playback_speed">Bilis ng pag-playback</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_controls_overflow_left_button_description">Bumalik sa nakaraang button list</string>
-  <string name="exo_controls_overflow_right_button_description">Tumingin pa ng mga button</string>
+  <string name="exo_controls_overflow_hide_description">Bumalik sa nakaraang button list</string>
+  <string name="exo_controls_overflow_show_description">Tumingin pa ng mga button</string>
   <string name="exo_controls_seek_bar_description">Progreso ng pag-playback</string>
   <string name="exo_controls_settings_description">Mga Setting</string>
-  <string name="exo_controls_cc_is_on">I-tap para itago ang mga subtitle</string>
-  <string name="exo_controls_cc_is_off">I-tap para ipakita ang mga subtitle</string>
-  <string name="exo_controls_rewind_desc_holder">I-rewind ng %d (na) segundo</string>
-  <string name="exo_controls_ffwd_desc_holder">I-fast forward ng %d (na) segundo</string>
+  <string name="exo_controls_cc_enabled_description">I-tap para itago ang mga subtitle</string>
+  <string name="exo_controls_cc_disabled_description">I-tap para ipakita ang mga subtitle</string>
+  <string name="exo_controls_rewind_by_amount_description">I-rewind ng %d (na) segundo</string>
+  <string name="exo_controls_fastforward_by_amount_description">I-fast forward ng %d (na) segundo</string>
   <string name="exo_controls_fullscreen_enter_description">Mag-fullscreen</string>
   <string name="exo_controls_fullscreen_exit_description">Lumabas sa fullscreen</string>
 </resources>

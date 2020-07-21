@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">音軌</string>
   <string name="exo_controls_playback_speed">播放速度</string>
   <string name="exo_controls_playback_speed_normal">正常</string>
-  <string name="exo_controls_overflow_left_button_description">返回上一個按鈕清單</string>
-  <string name="exo_controls_overflow_right_button_description">查看更多按鈕</string>
+  <string name="exo_controls_overflow_hide_description">返回上一個按鈕清單</string>
+  <string name="exo_controls_overflow_show_description">查看更多按鈕</string>
   <string name="exo_controls_seek_bar_description">播放進度</string>
   <string name="exo_controls_settings_description">設定</string>
-  <string name="exo_controls_cc_is_on">輕按即可隱藏字幕</string>
-  <string name="exo_controls_cc_is_off">輕按即可顯示字幕</string>
-  <string name="exo_controls_rewind_desc_holder">倒帶 %d 秒</string>
-  <string name="exo_controls_ffwd_desc_holder">快轉 %d 秒</string>
+  <string name="exo_controls_cc_enabled_description">輕按即可隱藏字幕</string>
+  <string name="exo_controls_cc_disabled_description">輕按即可顯示字幕</string>
+  <string name="exo_controls_rewind_by_amount_description">倒帶 %d 秒</string>
+  <string name="exo_controls_fastforward_by_amount_description">快轉 %d 秒</string>
   <string name="exo_controls_fullscreen_enter_description">進入全螢幕</string>
   <string name="exo_controls_fullscreen_exit_description">關閉全螢幕</string>
 </resources>

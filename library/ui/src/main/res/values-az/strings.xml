@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Audio trek</string>
   <string name="exo_controls_playback_speed">Oxutma sürəti</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_controls_overflow_left_button_description">Əvvəlki düymə siyahısına geri</string>
-  <string name="exo_controls_overflow_right_button_description">Daha çox düyməyə baxın</string>
+  <string name="exo_controls_overflow_hide_description">Əvvəlki düymə siyahısına geri</string>
+  <string name="exo_controls_overflow_show_description">Daha çox düyməyə baxın</string>
   <string name="exo_controls_seek_bar_description">Oxutmanın gedişatı</string>
   <string name="exo_controls_settings_description">Ayarlar</string>
-  <string name="exo_controls_cc_is_on">Altyazıları gizlətmək üçün toxunun</string>
-  <string name="exo_controls_cc_is_off">Altyazıları göstərmək üçün toxunun</string>
-  <string name="exo_controls_rewind_desc_holder">%d saniyə geri keçin</string>
-  <string name="exo_controls_ffwd_desc_holder">%d saniyə irəli keçin</string>
+  <string name="exo_controls_cc_enabled_description">Altyazıları gizlətmək üçün toxunun</string>
+  <string name="exo_controls_cc_disabled_description">Altyazıları göstərmək üçün toxunun</string>
+  <string name="exo_controls_rewind_by_amount_description">%d saniyə geri keçin</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d saniyə irəli keçin</string>
   <string name="exo_controls_fullscreen_enter_description">Tam ekrana daxil olun</string>
   <string name="exo_controls_fullscreen_exit_description">Tam ekrandan çıxın</string>
 </resources>

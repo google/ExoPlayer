@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">ऑडियो ट्रैक</string>
   <string name="exo_controls_playback_speed">वीडियो चलाने की रफ़्तार</string>
   <string name="exo_controls_playback_speed_normal">सामान्य</string>
-  <string name="exo_controls_overflow_left_button_description">बटन की पिछली सूची पर वापस जाएं</string>
-  <string name="exo_controls_overflow_right_button_description">ज़्यादा बटन देखें</string>
+  <string name="exo_controls_overflow_hide_description">बटन की पिछली सूची पर वापस जाएं</string>
+  <string name="exo_controls_overflow_show_description">ज़्यादा बटन देखें</string>
   <string name="exo_controls_seek_bar_description">वीडियो चलने की प्रगति</string>
   <string name="exo_controls_settings_description">सेटिंग</string>
-  <string name="exo_controls_cc_is_on">सबटाइटल छिपाने के लिए टैप करें</string>
-  <string name="exo_controls_cc_is_off">सबटाइटल देखने के लिए टैप करें</string>
-  <string name="exo_controls_rewind_desc_holder">वीडियो को %d सेकंड पीछे ले जाएं</string>
-  <string name="exo_controls_ffwd_desc_holder">वीडियो को %d सेकंड आगे बढ़ाएं</string>
+  <string name="exo_controls_cc_enabled_description">सबटाइटल छिपाने के लिए टैप करें</string>
+  <string name="exo_controls_cc_disabled_description">सबटाइटल देखने के लिए टैप करें</string>
+  <string name="exo_controls_rewind_by_amount_description">वीडियो को %d सेकंड पीछे ले जाएं</string>
+  <string name="exo_controls_fastforward_by_amount_description">वीडियो को %d सेकंड आगे बढ़ाएं</string>
   <string name="exo_controls_fullscreen_enter_description">फ़ुलस्क्रीन मोड पर देखें</string>
   <string name="exo_controls_fullscreen_exit_description">फ़ुलस्क्रीन मोड से बाहर निकलें</string>
 </resources>

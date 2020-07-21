@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Κομμάτι ήχου</string>
   <string name="exo_controls_playback_speed">Ταχύτητα αναπαραγωγής</string>
   <string name="exo_controls_playback_speed_normal">Κανονική</string>
-  <string name="exo_controls_overflow_left_button_description">Επιστρ. σε προηγ. λίστα κουμπιών</string>
-  <string name="exo_controls_overflow_right_button_description">Εμφάνιση περισσότερων κουμπιών</string>
+  <string name="exo_controls_overflow_hide_description">Επιστρ. σε προηγ. λίστα κουμπιών</string>
+  <string name="exo_controls_overflow_show_description">Εμφάνιση περισσότερων κουμπιών</string>
   <string name="exo_controls_seek_bar_description">Πρόοδος αναπαραγωγής</string>
   <string name="exo_controls_settings_description">Ρυθμίσεις</string>
-  <string name="exo_controls_cc_is_on">Πατήστε για απόκρυψη υποτίτλων</string>
-  <string name="exo_controls_cc_is_off">Πατήστε για εμφάνιση υποτίτλων</string>
-  <string name="exo_controls_rewind_desc_holder">Μετάβαση προς τα πίσω κατά %d δευτερόλεπτα</string>
-  <string name="exo_controls_ffwd_desc_holder">Γρήγορη προώθηση κατά %d δευτερόλεπτα</string>
+  <string name="exo_controls_cc_enabled_description">Πατήστε για απόκρυψη υποτίτλων</string>
+  <string name="exo_controls_cc_disabled_description">Πατήστε για εμφάνιση υποτίτλων</string>
+  <string name="exo_controls_rewind_by_amount_description">Μετάβαση προς τα πίσω κατά %d δευτερόλεπτα</string>
+  <string name="exo_controls_fastforward_by_amount_description">Γρήγορη προώθηση κατά %d δευτερόλεπτα</string>
   <string name="exo_controls_fullscreen_enter_description">Πλήρης οθόνη</string>
   <string name="exo_controls_fullscreen_exit_description">Έξοδος από πλήρη οθόνη</string>
 </resources>

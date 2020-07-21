@@ -85,7 +85,7 @@
 
   <style name="ExoStyledControls.Button.FfwdWithAmount">
     <item name="android:background">@drawable/exo_ripple_ffwd</item>
-    <item name="android:contentDescription">@string/exo_controls_ffwd_desc_holder</item>
+    <item name="android:contentDescription">@string/exo_controls_fastforward_by_amount_description</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
@@ -93,7 +93,7 @@
 
   <style name="ExoStyledControls.Button.RewWithAmount">
     <item name="android:background">@drawable/exo_ripple_rew</item>
-    <item name="android:contentDescription">@string/exo_controls_rewind_desc_holder</item>
+    <item name="android:contentDescription">@string/exo_controls_rewind_by_amount_description</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
@@ -171,7 +171,7 @@
 
   <style name="ExoStyledControls.Button.Bottom.CC">
     <item name="android:src">@drawable/exo_styled_controls_subtitle_off</item>
-    <item name="android:contentDescription">@string/exo_controls_cc_is_off</item>
+    <item name="android:contentDescription">@string/exo_controls_cc_disabled_description</item>
   </style>
 
   <style name="ExoStyledControls.Button.Bottom.FullScreen">
@@ -181,12 +181,12 @@
 
   <style name="ExoStyledControls.Button.Bottom.OverflowShow">
     <item name="android:src">@drawable/exo_styled_controls_overflow_show</item>
-    <item name="android:contentDescription">@string/exo_controls_overflow_right_button_description</item>
+    <item name="android:contentDescription">@string/exo_controls_overflow_show_description</item>
   </style>
 
   <style name="ExoStyledControls.Button.Bottom.OverflowHide">
     <item name="android:src">@drawable/exo_styled_controls_overflow_hide</item>
-    <item name="android:contentDescription">@string/exo_controls_overflow_left_button_description</item>
+    <item name="android:contentDescription">@string/exo_controls_overflow_hide_description</item>
   </style>
 
   <style name="ExoStyledControls.Button.Bottom.Settings">

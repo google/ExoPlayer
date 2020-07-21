@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Звуковая дорожка</string>
   <string name="exo_controls_playback_speed">Скорость воспроизведения</string>
   <string name="exo_controls_playback_speed_normal">Стандартная</string>
-  <string name="exo_controls_overflow_left_button_description">Вернуться к предыдущему списку кнопок</string>
-  <string name="exo_controls_overflow_right_button_description">Открыть список других кнопок</string>
+  <string name="exo_controls_overflow_hide_description">Вернуться к предыдущему списку кнопок</string>
+  <string name="exo_controls_overflow_show_description">Открыть список других кнопок</string>
   <string name="exo_controls_seek_bar_description">Полоса прокрутки воспроизведения</string>
   <string name="exo_controls_settings_description">Настройки</string>
-  <string name="exo_controls_cc_is_on">Нажмите, чтобы скрыть субтитры</string>
-  <string name="exo_controls_cc_is_off">Нажмите, чтобы показать субтитры</string>
-  <string name="exo_controls_rewind_desc_holder">Перемотать на %d с назад</string>
-  <string name="exo_controls_ffwd_desc_holder">Перемотать на %d с вперед</string>
+  <string name="exo_controls_cc_enabled_description">Нажмите, чтобы скрыть субтитры</string>
+  <string name="exo_controls_cc_disabled_description">Нажмите, чтобы показать субтитры</string>
+  <string name="exo_controls_rewind_by_amount_description">Перемотать на %d с назад</string>
+  <string name="exo_controls_fastforward_by_amount_description">Перемотать на %d с вперед</string>
   <string name="exo_controls_fullscreen_enter_description">Полноэкранный режим</string>
   <string name="exo_controls_fullscreen_exit_description">Выйти из полноэкранного режима</string>
 </resources>

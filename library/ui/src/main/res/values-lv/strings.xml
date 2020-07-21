@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Audio ieraksts</string>
   <string name="exo_controls_playback_speed">Atskaņošanas ātrums</string>
   <string name="exo_controls_playback_speed_normal">Parasts</string>
-  <string name="exo_controls_overflow_left_button_description">Uz iepriekšējo pogu sarakstu</string>
-  <string name="exo_controls_overflow_right_button_description">Skatīt citas pogas</string>
+  <string name="exo_controls_overflow_hide_description">Uz iepriekšējo pogu sarakstu</string>
+  <string name="exo_controls_overflow_show_description">Skatīt citas pogas</string>
   <string name="exo_controls_seek_bar_description">Atskaņošanas norise</string>
   <string name="exo_controls_settings_description">Iestatījumi</string>
-  <string name="exo_controls_cc_is_on">Pieskarties, lai paslēptu subtitrus</string>
-  <string name="exo_controls_cc_is_off">Pieskarties, lai rādītu subtitrus</string>
-  <string name="exo_controls_rewind_desc_holder">Attīt atpakaļ par %d sekundēm</string>
-  <string name="exo_controls_ffwd_desc_holder">Pārtīt %d sekundes uz priekšu</string>
+  <string name="exo_controls_cc_enabled_description">Pieskarties, lai paslēptu subtitrus</string>
+  <string name="exo_controls_cc_disabled_description">Pieskarties, lai rādītu subtitrus</string>
+  <string name="exo_controls_rewind_by_amount_description">Attīt atpakaļ par %d sekundēm</string>
+  <string name="exo_controls_fastforward_by_amount_description">Pārtīt %d sekundes uz priekšu</string>
   <string name="exo_controls_fullscreen_enter_description">Atvērt pilnekrāna režīmu</string>
   <string name="exo_controls_fullscreen_exit_description">Aizvērt pilnekrāna režīmu</string>
 </resources>

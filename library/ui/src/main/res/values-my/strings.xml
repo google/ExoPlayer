@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">သီချင်း</string>
   <string name="exo_controls_playback_speed">ဖွင့်ရန် အမြန်နှုန်း</string>
   <string name="exo_controls_playback_speed_normal">ပုံမှန်</string>
-  <string name="exo_controls_overflow_left_button_description">ယခင်ခလုတ်စာရင်းသို့ ပြန်သွားရန်</string>
-  <string name="exo_controls_overflow_right_button_description">နောက်ထပ်ခလုတ်များကို ကြည့်ရန်</string>
+  <string name="exo_controls_overflow_hide_description">ယခင်ခလုတ်စာရင်းသို့ ပြန်သွားရန်</string>
+  <string name="exo_controls_overflow_show_description">နောက်ထပ်ခလုတ်များကို ကြည့်ရန်</string>
   <string name="exo_controls_seek_bar_description">ဖွင့်သည့် အနေအထား</string>
   <string name="exo_controls_settings_description">ဆက်တင်များ</string>
-  <string name="exo_controls_cc_is_on">စာတန်းထိုးများဖျောက်ထားရန် တို့ပါ</string>
-  <string name="exo_controls_cc_is_off">စာတန်းထိုးများပြရန် တို့ပါ</string>
-  <string name="exo_controls_rewind_desc_holder">နောက်သို့ %d စက္ကန့်ရစ်ရန်</string>
-  <string name="exo_controls_ffwd_desc_holder">ရှေ့သို့ %d စက္ကန့်ရစ်ရန်</string>
+  <string name="exo_controls_cc_enabled_description">စာတန်းထိုးများဖျောက်ထားရန် တို့ပါ</string>
+  <string name="exo_controls_cc_disabled_description">စာတန်းထိုးများပြရန် တို့ပါ</string>
+  <string name="exo_controls_rewind_by_amount_description">နောက်သို့ %d စက္ကန့်ရစ်ရန်</string>
+  <string name="exo_controls_fastforward_by_amount_description">ရှေ့သို့ %d စက္ကန့်ရစ်ရန်</string>
   <string name="exo_controls_fullscreen_enter_description">ဖန်သားပြင်အပြည့်သို့ ဝင်ရောက်ပါ</string>
   <string name="exo_controls_fullscreen_exit_description">ဖန်သားပြင်အပြည့်မှ ထွက်ရန်</string>
 </resources>

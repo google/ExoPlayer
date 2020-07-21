@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Heliriba</string>
   <string name="exo_controls_playback_speed">Taasesituskiirus</string>
   <string name="exo_controls_playback_speed_normal">Tavaline</string>
-  <string name="exo_controls_overflow_left_button_description">Tagasi eelmise nupuloendi juurde</string>
-  <string name="exo_controls_overflow_right_button_description">Kuva rohkem nuppe</string>
+  <string name="exo_controls_overflow_hide_description">Tagasi eelmise nupuloendi juurde</string>
+  <string name="exo_controls_overflow_show_description">Kuva rohkem nuppe</string>
   <string name="exo_controls_seek_bar_description">Taasesitus on pooleli</string>
   <string name="exo_controls_settings_description">Seaded</string>
-  <string name="exo_controls_cc_is_on">Puudutage subtiitrite peitmiseks</string>
-  <string name="exo_controls_cc_is_off">Puudutage subtiitrite kuvamiseks</string>
-  <string name="exo_controls_rewind_desc_holder">Keri %d sekundit tagasi</string>
-  <string name="exo_controls_ffwd_desc_holder">Keri %d sekundit edasi</string>
+  <string name="exo_controls_cc_enabled_description">Puudutage subtiitrite peitmiseks</string>
+  <string name="exo_controls_cc_disabled_description">Puudutage subtiitrite kuvamiseks</string>
+  <string name="exo_controls_rewind_by_amount_description">Keri %d sekundit tagasi</string>
+  <string name="exo_controls_fastforward_by_amount_description">Keri %d sekundit edasi</string>
   <string name="exo_controls_fullscreen_enter_description">Avamine täisekraanil</string>
   <string name="exo_controls_fullscreen_exit_description">Väljumine täisekraanilt</string>
 </resources>

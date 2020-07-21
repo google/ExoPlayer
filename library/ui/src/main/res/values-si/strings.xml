@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">ඕඩියෝ ඛණ්ඩය</string>
   <string name="exo_controls_playback_speed">පසුධාවන වේගය</string>
   <string name="exo_controls_playback_speed_normal">සාමාන්‍ය</string>
-  <string name="exo_controls_overflow_left_button_description">පෙර බොත්තම් ලැයිස්තුවට ආපසු යන්න</string>
-  <string name="exo_controls_overflow_right_button_description">තව බොත්තම් බලන්න</string>
+  <string name="exo_controls_overflow_hide_description">පෙර බොත්තම් ලැයිස්තුවට ආපසු යන්න</string>
+  <string name="exo_controls_overflow_show_description">තව බොත්තම් බලන්න</string>
   <string name="exo_controls_seek_bar_description">පසුධාවන ප්‍රගතිය</string>
   <string name="exo_controls_settings_description">සැකසීම්</string>
-  <string name="exo_controls_cc_is_on">උප සිරැසි සැඟවීමට තට්ටු කරන්න</string>
-  <string name="exo_controls_cc_is_off">උප සිරැසි පෙන්වීමට තට්ටු කරන්න</string>
-  <string name="exo_controls_rewind_desc_holder">තත්පර %dක් ආපස්සට යවන්න</string>
-  <string name="exo_controls_ffwd_desc_holder">තත්පර %dක් වේගයෙන් ඉදිරියට යවන්න</string>
+  <string name="exo_controls_cc_enabled_description">උප සිරැසි සැඟවීමට තට්ටු කරන්න</string>
+  <string name="exo_controls_cc_disabled_description">උප සිරැසි පෙන්වීමට තට්ටු කරන්න</string>
+  <string name="exo_controls_rewind_by_amount_description">තත්පර %dක් ආපස්සට යවන්න</string>
+  <string name="exo_controls_fastforward_by_amount_description">තත්පර %dක් වේගයෙන් ඉදිරියට යවන්න</string>
   <string name="exo_controls_fullscreen_enter_description">පූර්ණ තිරයට ඇතුළු වන්න</string>
   <string name="exo_controls_fullscreen_exit_description">පූර්ණ තිරයෙන් පිට වන්න</string>
 </resources>

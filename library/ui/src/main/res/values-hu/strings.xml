@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Hangsáv</string>
   <string name="exo_controls_playback_speed">Lejátszási sebesség</string>
   <string name="exo_controls_playback_speed_normal">Normál</string>
-  <string name="exo_controls_overflow_left_button_description">Vissza az előző gomblistára</string>
-  <string name="exo_controls_overflow_right_button_description">További gombok megjelenítése</string>
+  <string name="exo_controls_overflow_hide_description">Vissza az előző gomblistára</string>
+  <string name="exo_controls_overflow_show_description">További gombok megjelenítése</string>
   <string name="exo_controls_seek_bar_description">Lejátszási folyamat</string>
   <string name="exo_controls_settings_description">Beállítások</string>
-  <string name="exo_controls_cc_is_on">A feliratok elrejtéséhez koppintson</string>
-  <string name="exo_controls_cc_is_off">A feliratok megjelenítéséhez koppintson</string>
-  <string name="exo_controls_rewind_desc_holder">Visszatekerés %d másodperccel</string>
-  <string name="exo_controls_ffwd_desc_holder">Gyors előretekerés %d másodperccel</string>
+  <string name="exo_controls_cc_enabled_description">A feliratok elrejtéséhez koppintson</string>
+  <string name="exo_controls_cc_disabled_description">A feliratok megjelenítéséhez koppintson</string>
+  <string name="exo_controls_rewind_by_amount_description">Visszatekerés %d másodperccel</string>
+  <string name="exo_controls_fastforward_by_amount_description">Gyors előretekerés %d másodperccel</string>
   <string name="exo_controls_fullscreen_enter_description">Teljes képernyő</string>
   <string name="exo_controls_fullscreen_exit_description">Kilépés a teljes képernyős módból</string>
 </resources>

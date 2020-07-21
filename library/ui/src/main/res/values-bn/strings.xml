@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">অডিও ট্র্যাক</string>
   <string name="exo_controls_playback_speed">প্লেব্যাক স্পিড</string>
   <string name="exo_controls_playback_speed_normal">সাধারণ</string>
-  <string name="exo_controls_overflow_left_button_description">আগের বোতামের তালিকাতে ফিরে যান</string>
-  <string name="exo_controls_overflow_right_button_description">আরও বোতাম দেখুন</string>
+  <string name="exo_controls_overflow_hide_description">আগের বোতামের তালিকাতে ফিরে যান</string>
+  <string name="exo_controls_overflow_show_description">আরও বোতাম দেখুন</string>
   <string name="exo_controls_seek_bar_description">কতটা প্লেব্যাক হয়েছে</string>
   <string name="exo_controls_settings_description">সেটিংস</string>
-  <string name="exo_controls_cc_is_on">সাবটাইটেল লুকাতে ট্যাপ করুন</string>
-  <string name="exo_controls_cc_is_off">সাবটাইটেল দেখাতে ট্যাপ করুন</string>
-  <string name="exo_controls_rewind_desc_holder">%d সেকেন্ড রিওয়াইন্ড করুন</string>
-  <string name="exo_controls_ffwd_desc_holder">%d সেকেন্ড ফাস্ট ফরওয়ার্ড করুন</string>
+  <string name="exo_controls_cc_enabled_description">সাবটাইটেল লুকাতে ট্যাপ করুন</string>
+  <string name="exo_controls_cc_disabled_description">সাবটাইটেল দেখাতে ট্যাপ করুন</string>
+  <string name="exo_controls_rewind_by_amount_description">%d সেকেন্ড রিওয়াইন্ড করুন</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d সেকেন্ড ফাস্ট ফরওয়ার্ড করুন</string>
   <string name="exo_controls_fullscreen_enter_description">ফুল-স্ক্রিন মোডে দেখুন</string>
   <string name="exo_controls_fullscreen_exit_description">ফুল-স্ক্রিন মোড ছেড়ে বেরোন</string>
 </resources>

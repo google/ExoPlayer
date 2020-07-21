@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Garso takelis</string>
   <string name="exo_controls_playback_speed">Atkūrimo sparta</string>
   <string name="exo_controls_playback_speed_normal">Įprasta</string>
-  <string name="exo_controls_overflow_left_button_description">Atgal į ankstesnių mygtukų sąr.</string>
-  <string name="exo_controls_overflow_right_button_description">Žr. daugiau mygtukų</string>
+  <string name="exo_controls_overflow_hide_description">Atgal į ankstesnių mygtukų sąr.</string>
+  <string name="exo_controls_overflow_show_description">Žr. daugiau mygtukų</string>
   <string name="exo_controls_seek_bar_description">Atkūrimo eiga</string>
   <string name="exo_controls_settings_description">Nustatymai</string>
-  <string name="exo_controls_cc_is_on">Palieskite, kad paslėptumėte subtitrus</string>
-  <string name="exo_controls_cc_is_off">Palieskite, kad rodytumėte subtitrus</string>
-  <string name="exo_controls_rewind_desc_holder">Atsukti %d sek.</string>
-  <string name="exo_controls_ffwd_desc_holder">Prasukti %d sek.</string>
+  <string name="exo_controls_cc_enabled_description">Palieskite, kad paslėptumėte subtitrus</string>
+  <string name="exo_controls_cc_disabled_description">Palieskite, kad rodytumėte subtitrus</string>
+  <string name="exo_controls_rewind_by_amount_description">Atsukti %d sek.</string>
+  <string name="exo_controls_fastforward_by_amount_description">Prasukti %d sek.</string>
   <string name="exo_controls_fullscreen_enter_description">Įjungti viso ekrano režimą</string>
   <string name="exo_controls_fullscreen_exit_description">Išjungti viso ekrano režimą</string>
 </resources>

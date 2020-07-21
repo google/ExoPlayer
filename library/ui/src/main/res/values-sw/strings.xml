@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Wimbo wa sauti</string>
   <string name="exo_controls_playback_speed">Kasi ya kucheza</string>
   <string name="exo_controls_playback_speed_normal">Kawaida</string>
-  <string name="exo_controls_overflow_left_button_description">Rudi kwenye orodha ya vitufe vya awali</string>
-  <string name="exo_controls_overflow_right_button_description">Angalia vitufe vingine</string>
+  <string name="exo_controls_overflow_hide_description">Rudi kwenye orodha ya vitufe vya awali</string>
+  <string name="exo_controls_overflow_show_description">Angalia vitufe vingine</string>
   <string name="exo_controls_seek_bar_description">Kiasi cha uchezaji</string>
   <string name="exo_controls_settings_description">Mipangilio</string>
-  <string name="exo_controls_cc_is_on">Gusa ili ufiche manukuu</string>
-  <string name="exo_controls_cc_is_off">Gusa ili uonyeshe manukuu</string>
-  <string name="exo_controls_rewind_desc_holder">Rudisha nyuma kwa sekunde %d</string>
-  <string name="exo_controls_ffwd_desc_holder">Sogeza mbele haraka kwa sekunde %d</string>
+  <string name="exo_controls_cc_enabled_description">Gusa ili ufiche manukuu</string>
+  <string name="exo_controls_cc_disabled_description">Gusa ili uonyeshe manukuu</string>
+  <string name="exo_controls_rewind_by_amount_description">Rudisha nyuma kwa sekunde %d</string>
+  <string name="exo_controls_fastforward_by_amount_description">Sogeza mbele haraka kwa sekunde %d</string>
   <string name="exo_controls_fullscreen_enter_description">Fungua skrini nzima</string>
   <string name="exo_controls_fullscreen_exit_description">Funga skrini nzima</string>
 </resources>

@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">ઑડિયો ટ્રૅક</string>
   <string name="exo_controls_playback_speed">પ્લેબૅકની ઝડપ</string>
   <string name="exo_controls_playback_speed_normal">સામાન્ય</string>
-  <string name="exo_controls_overflow_left_button_description">પહેલાંની બટન સૂચિ પર પાછા જાઓ</string>
-  <string name="exo_controls_overflow_right_button_description">વધુ બટન જુઓ</string>
+  <string name="exo_controls_overflow_hide_description">પહેલાંની બટન સૂચિ પર પાછા જાઓ</string>
+  <string name="exo_controls_overflow_show_description">વધુ બટન જુઓ</string>
   <string name="exo_controls_seek_bar_description">પ્લેબૅક ચાલુ છે</string>
   <string name="exo_controls_settings_description">સેટિંગ</string>
-  <string name="exo_controls_cc_is_on">સબટાઇટલ છુપાવવા માટે ટૅપ કરો</string>
-  <string name="exo_controls_cc_is_off">સબટાઇટલ બતાવવા માટે ટૅપ કરો</string>
-  <string name="exo_controls_rewind_desc_holder">%d સેકન્ડ રિવાઇન્ડ કરો</string>
-  <string name="exo_controls_ffwd_desc_holder">%d સેકન્ડ ફાસ્ટ ફૉરવર્ડ કરો</string>
+  <string name="exo_controls_cc_enabled_description">સબટાઇટલ છુપાવવા માટે ટૅપ કરો</string>
+  <string name="exo_controls_cc_disabled_description">સબટાઇટલ બતાવવા માટે ટૅપ કરો</string>
+  <string name="exo_controls_rewind_by_amount_description">%d સેકન્ડ રિવાઇન્ડ કરો</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d સેકન્ડ ફાસ્ટ ફૉરવર્ડ કરો</string>
   <string name="exo_controls_fullscreen_enter_description">પૂર્ણસ્ક્રીન મોડમાં દાખલ થાઓ</string>
   <string name="exo_controls_fullscreen_exit_description">પૂર્ણસ્ક્રીન મોડમાંથી બહાર નીકળો</string>
 </resources>

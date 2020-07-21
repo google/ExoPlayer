@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Pista de audio</string>
   <string name="exo_controls_playback_speed">Velocidade de reprodución</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_controls_overflow_left_button_description">Volver á lista anterior</string>
-  <string name="exo_controls_overflow_right_button_description">Mostrar máis botóns</string>
+  <string name="exo_controls_overflow_hide_description">Volver á lista anterior</string>
+  <string name="exo_controls_overflow_show_description">Mostrar máis botóns</string>
   <string name="exo_controls_seek_bar_description">Progreso da reprodución</string>
   <string name="exo_controls_settings_description">Configuración</string>
-  <string name="exo_controls_cc_is_on">Tocar para ocultar subtítulos</string>
-  <string name="exo_controls_cc_is_off">Tocar para mostrar subtítulos</string>
-  <string name="exo_controls_rewind_desc_holder">Rebobinar %d segundos</string>
-  <string name="exo_controls_ffwd_desc_holder">Avanzar rapidamente %d segundos</string>
+  <string name="exo_controls_cc_enabled_description">Tocar para ocultar subtítulos</string>
+  <string name="exo_controls_cc_disabled_description">Tocar para mostrar subtítulos</string>
+  <string name="exo_controls_rewind_by_amount_description">Rebobinar %d segundos</string>
+  <string name="exo_controls_fastforward_by_amount_description">Avanzar rapidamente %d segundos</string>
   <string name="exo_controls_fullscreen_enter_description">Acceder a pantalla completa</string>
   <string name="exo_controls_fullscreen_exit_description">Saír de pantalla completa</string>
 </resources>

@@ -678,8 +678,10 @@ public class StyledPlayerControlView extends FrameLayout {
     trackNameProvider = new DefaultTrackNameProvider(getResources());
     subtitleOnButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_subtitle_on);
     subtitleOffButtonDrawable = resources.getDrawable(R.drawable.exo_styled_controls_subtitle_off);
-    subtitleOnContentDescription = resources.getString(R.string.exo_controls_cc_is_on);
-    subtitleOffContentDescription = resources.getString(R.string.exo_controls_cc_is_off);
+    subtitleOnContentDescription =
+        resources.getString(R.string.exo_controls_cc_enabled_description);
+    subtitleOffContentDescription =
+        resources.getString(R.string.exo_controls_cc_disabled_description);
     textTrackSelectionAdapter = new TextTrackSelectionAdapter();
     audioTrackSelectionAdapter = new AudioTrackSelectionAdapter();
 
@@ -1155,7 +1157,7 @@ public class StyledPlayerControlView extends FrameLayout {
     }
     if (rewindButton != null) {
       rewindButton.setContentDescription(
-          resources.getString(R.string.exo_controls_rewind_desc_holder, rewindSec));
+          resources.getString(R.string.exo_controls_rewind_by_amount_description, rewindSec));
     }
   }
 
@@ -1169,7 +1171,8 @@ public class StyledPlayerControlView extends FrameLayout {
     }
     if (fastForwardButton != null) {
       fastForwardButton.setContentDescription(
-          resources.getString(R.string.exo_controls_ffwd_desc_holder, fastForwardSec));
+          resources.getString(
+              R.string.exo_controls_fastforward_by_amount_description, fastForwardSec));
     }
   }
 

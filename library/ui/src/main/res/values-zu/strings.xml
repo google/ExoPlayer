@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Ithrekhi yomsindo</string>
   <string name="exo_controls_playback_speed">Isivinini sokudlala</string>
   <string name="exo_controls_playback_speed_normal">Ivamile</string>
-  <string name="exo_controls_overflow_left_button_description">Buyela emuva kuhlu lwenkinobho yangaphambilini</string>
-  <string name="exo_controls_overflow_right_button_description">Bona izinkinobho eziningi</string>
+  <string name="exo_controls_overflow_hide_description">Buyela emuva kuhlu lwenkinobho yangaphambilini</string>
+  <string name="exo_controls_overflow_show_description">Bona izinkinobho eziningi</string>
   <string name="exo_controls_seek_bar_description">Inqubekela phambili yokudlala</string>
   <string name="exo_controls_settings_description">Amasethingi</string>
-  <string name="exo_controls_cc_is_on">Thepha ukuze ufihle imibhalo engezansi</string>
-  <string name="exo_controls_cc_is_off">Thepha ukuze ubonise imibhalo engezansi</string>
-  <string name="exo_controls_rewind_desc_holder">Hlehlisa ngamasekhondi angu-%d</string>
-  <string name="exo_controls_ffwd_desc_holder">Dlulisela phambili ngamasekhondi angu-%d</string>
+  <string name="exo_controls_cc_enabled_description">Thepha ukuze ufihle imibhalo engezansi</string>
+  <string name="exo_controls_cc_disabled_description">Thepha ukuze ubonise imibhalo engezansi</string>
+  <string name="exo_controls_rewind_by_amount_description">Hlehlisa ngamasekhondi angu-%d</string>
+  <string name="exo_controls_fastforward_by_amount_description">Dlulisela phambili ngamasekhondi angu-%d</string>
   <string name="exo_controls_fullscreen_enter_description">Faka isikrini esigcwele</string>
   <string name="exo_controls_fullscreen_exit_description">Phuma kusikrini esigcwele</string>
 </resources>

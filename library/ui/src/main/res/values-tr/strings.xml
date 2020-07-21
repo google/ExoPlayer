@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Ses parçası</string>
   <string name="exo_controls_playback_speed">Çalma hızı</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_controls_overflow_left_button_description">Önceki düğme listesine dön</string>
-  <string name="exo_controls_overflow_right_button_description">Diğer düğmeleri göster</string>
+  <string name="exo_controls_overflow_hide_description">Önceki düğme listesine dön</string>
+  <string name="exo_controls_overflow_show_description">Diğer düğmeleri göster</string>
   <string name="exo_controls_seek_bar_description">Çalma ilerleme durumu</string>
   <string name="exo_controls_settings_description">Ayarlar</string>
-  <string name="exo_controls_cc_is_on">Altyazıları gizlemek için dokunun</string>
-  <string name="exo_controls_cc_is_off">Altyazıları göstermek için dokunun</string>
-  <string name="exo_controls_rewind_desc_holder">%d saniye geri sar</string>
-  <string name="exo_controls_ffwd_desc_holder">%d saniye ileri sar</string>
+  <string name="exo_controls_cc_enabled_description">Altyazıları gizlemek için dokunun</string>
+  <string name="exo_controls_cc_disabled_description">Altyazıları göstermek için dokunun</string>
+  <string name="exo_controls_rewind_by_amount_description">%d saniye geri sar</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d saniye ileri sar</string>
   <string name="exo_controls_fullscreen_enter_description">Tam ekrana geç</string>
   <string name="exo_controls_fullscreen_exit_description">Tam ekrandan çık</string>
 </resources>

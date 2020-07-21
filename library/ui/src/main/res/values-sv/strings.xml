@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Ljudspår</string>
   <string name="exo_controls_playback_speed">Uppspelningshastighet</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_controls_overflow_left_button_description">Öppna föregående knapplista</string>
-  <string name="exo_controls_overflow_right_button_description">Visa fler knappar</string>
+  <string name="exo_controls_overflow_hide_description">Öppna föregående knapplista</string>
+  <string name="exo_controls_overflow_show_description">Visa fler knappar</string>
   <string name="exo_controls_seek_bar_description">Uppspelningsförlopp</string>
   <string name="exo_controls_settings_description">Inställningar</string>
-  <string name="exo_controls_cc_is_on">Dölj undertexterna genom att trycka här</string>
-  <string name="exo_controls_cc_is_off">Visa undertexter genom att trycka här</string>
-  <string name="exo_controls_rewind_desc_holder">Spola tillbaka %d sekunder</string>
-  <string name="exo_controls_ffwd_desc_holder">Spola framåt %d sekunder</string>
+  <string name="exo_controls_cc_enabled_description">Dölj undertexterna genom att trycka här</string>
+  <string name="exo_controls_cc_disabled_description">Visa undertexter genom att trycka här</string>
+  <string name="exo_controls_rewind_by_amount_description">Spola tillbaka %d sekunder</string>
+  <string name="exo_controls_fastforward_by_amount_description">Spola framåt %d sekunder</string>
   <string name="exo_controls_fullscreen_enter_description">Aktivera helskärm</string>
   <string name="exo_controls_fullscreen_exit_description">Lämna helskärm</string>
 </resources>

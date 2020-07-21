@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Zvočni posnetek</string>
   <string name="exo_controls_playback_speed">Hitrost predvajanja</string>
   <string name="exo_controls_playback_speed_normal">Običajna</string>
-  <string name="exo_controls_overflow_left_button_description">Nazaj na prejšnji seznam gumbov</string>
-  <string name="exo_controls_overflow_right_button_description">Prikaz več gumbov</string>
+  <string name="exo_controls_overflow_hide_description">Nazaj na prejšnji seznam gumbov</string>
+  <string name="exo_controls_overflow_show_description">Prikaz več gumbov</string>
   <string name="exo_controls_seek_bar_description">Potek predvajanja</string>
   <string name="exo_controls_settings_description">Nastavitve</string>
-  <string name="exo_controls_cc_is_on">Dotaknite se za izklop podnapisov</string>
-  <string name="exo_controls_cc_is_off">Dotaknite se za vklop podnapisov</string>
-  <string name="exo_controls_rewind_desc_holder">Premik nazaj za %d s</string>
-  <string name="exo_controls_ffwd_desc_holder">Premik naprej za %d s</string>
+  <string name="exo_controls_cc_enabled_description">Dotaknite se za izklop podnapisov</string>
+  <string name="exo_controls_cc_disabled_description">Dotaknite se za vklop podnapisov</string>
+  <string name="exo_controls_rewind_by_amount_description">Premik nazaj za %d s</string>
+  <string name="exo_controls_fastforward_by_amount_description">Premik naprej za %d s</string>
   <string name="exo_controls_fullscreen_enter_description">Vstop v celozaslonski način</string>
   <string name="exo_controls_fullscreen_exit_description">Izhod iz celozaslonskega načina</string>
 </resources>

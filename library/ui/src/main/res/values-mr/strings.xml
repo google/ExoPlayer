@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">ऑडिओ ट्रॅक</string>
   <string name="exo_controls_playback_speed">प्लेबॅकचा वेग</string>
   <string name="exo_controls_playback_speed_normal">सामान्य</string>
-  <string name="exo_controls_overflow_left_button_description">बटणांच्या मागील सूचीवर परत जा</string>
-  <string name="exo_controls_overflow_right_button_description">आणखी बटणे पाहा</string>
+  <string name="exo_controls_overflow_hide_description">बटणांच्या मागील सूचीवर परत जा</string>
+  <string name="exo_controls_overflow_show_description">आणखी बटणे पाहा</string>
   <string name="exo_controls_seek_bar_description">प्लेबॅकची प्रगती</string>
   <string name="exo_controls_settings_description">सेटिंग्ज</string>
-  <string name="exo_controls_cc_is_on">सबटायटल लपवण्यासाठी टॅप करा</string>
-  <string name="exo_controls_cc_is_off">सबटायटल दाखवण्यासाठी टॅप करा</string>
-  <string name="exo_controls_rewind_desc_holder">%d सेकंद रीवाइंड करा</string>
-  <string name="exo_controls_ffwd_desc_holder">%d सेकंद फास्ट फॉरवर्ड करा</string>
+  <string name="exo_controls_cc_enabled_description">सबटायटल लपवण्यासाठी टॅप करा</string>
+  <string name="exo_controls_cc_disabled_description">सबटायटल दाखवण्यासाठी टॅप करा</string>
+  <string name="exo_controls_rewind_by_amount_description">%d सेकंद रीवाइंड करा</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d सेकंद फास्ट फॉरवर्ड करा</string>
   <string name="exo_controls_fullscreen_enter_description">फुलस्क्रीनवर पाहा</string>
   <string name="exo_controls_fullscreen_exit_description">फुलस्क्रीनवरून बाहेर पडा</string>
 </resources>

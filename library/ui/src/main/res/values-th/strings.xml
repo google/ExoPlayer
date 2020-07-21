@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">แทร็กเสียง</string>
   <string name="exo_controls_playback_speed">ความเร็วในการเล่น</string>
   <string name="exo_controls_playback_speed_normal">ปกติ</string>
-  <string name="exo_controls_overflow_left_button_description">กลับไปที่รายการปุ่มก่อนหน้า</string>
-  <string name="exo_controls_overflow_right_button_description">ดูปุ่มอื่นๆ</string>
+  <string name="exo_controls_overflow_hide_description">กลับไปที่รายการปุ่มก่อนหน้า</string>
+  <string name="exo_controls_overflow_show_description">ดูปุ่มอื่นๆ</string>
   <string name="exo_controls_seek_bar_description">ความคืบหน้าในการเล่น</string>
   <string name="exo_controls_settings_description">การตั้งค่า</string>
-  <string name="exo_controls_cc_is_on">แตะเพื่อซ่อนคำบรรยาย</string>
-  <string name="exo_controls_cc_is_off">แตะเพื่อแสดงคำบรรยาย</string>
-  <string name="exo_controls_rewind_desc_holder">กรอกลับ %d วินาที</string>
-  <string name="exo_controls_ffwd_desc_holder">กรอไปข้างหน้า %d วินาที</string>
+  <string name="exo_controls_cc_enabled_description">แตะเพื่อซ่อนคำบรรยาย</string>
+  <string name="exo_controls_cc_disabled_description">แตะเพื่อแสดงคำบรรยาย</string>
+  <string name="exo_controls_rewind_by_amount_description">กรอกลับ %d วินาที</string>
+  <string name="exo_controls_fastforward_by_amount_description">กรอไปข้างหน้า %d วินาที</string>
   <string name="exo_controls_fullscreen_enter_description">แสดงแบบเต็มหน้าจอ</string>
   <string name="exo_controls_fullscreen_exit_description">ออกจากโหมดเต็มหน้าจอ</string>
 </resources>

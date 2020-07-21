@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">अडियो ट्र्याक</string>
   <string name="exo_controls_playback_speed">प्लेब्याकको गति</string>
   <string name="exo_controls_playback_speed_normal">सामान्य</string>
-  <string name="exo_controls_overflow_left_button_description">बटनको अघिल्लो सूचीमा फर्कनुहोस्</string>
-  <string name="exo_controls_overflow_right_button_description">थप बटनहरू हेर्नुहोस्</string>
+  <string name="exo_controls_overflow_hide_description">बटनको अघिल्लो सूचीमा फर्कनुहोस्</string>
+  <string name="exo_controls_overflow_show_description">थप बटनहरू हेर्नुहोस्</string>
   <string name="exo_controls_seek_bar_description">हालसम्म भिडियो प्ले भएको अवधि</string>
   <string name="exo_controls_settings_description">सेटिङ</string>
-  <string name="exo_controls_cc_is_on">सबटाइटल लुकाउन ट्याप गर्नुहोस्</string>
-  <string name="exo_controls_cc_is_off">सबटाइटल देखिने बनाउन ट्याप गर्नुहोस्</string>
-  <string name="exo_controls_rewind_desc_holder">%d सेकेन्ड पछाडि जानुहोस्</string>
-  <string name="exo_controls_ffwd_desc_holder">%d सेकेन्ड अगाडि जानुहोस्</string>
+  <string name="exo_controls_cc_enabled_description">सबटाइटल लुकाउन ट्याप गर्नुहोस्</string>
+  <string name="exo_controls_cc_disabled_description">सबटाइटल देखिने बनाउन ट्याप गर्नुहोस्</string>
+  <string name="exo_controls_rewind_by_amount_description">%d सेकेन्ड पछाडि जानुहोस्</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d सेकेन्ड अगाडि जानुहोस्</string>
   <string name="exo_controls_fullscreen_enter_description">पूर्ण स्क्रिन मोडमा खोल्नुहोस्</string>
   <string name="exo_controls_fullscreen_exit_description">पूर्ण स्क्रिन मोडबाट बाहिरिनुहोस्</string>
 </resources>

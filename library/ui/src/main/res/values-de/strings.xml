@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Audiotitel</string>
   <string name="exo_controls_playback_speed">Wiedergabegeschwindigkeit</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_controls_overflow_left_button_description">Zurück zur vorherigen Schaltflächenliste</string>
-  <string name="exo_controls_overflow_right_button_description">Weitere Schaltflächen zeigen</string>
+  <string name="exo_controls_overflow_hide_description">Zurück zur vorherigen Schaltflächenliste</string>
+  <string name="exo_controls_overflow_show_description">Weitere Schaltflächen zeigen</string>
   <string name="exo_controls_seek_bar_description">Wiedergabefortschritt</string>
   <string name="exo_controls_settings_description">Einstellungen</string>
-  <string name="exo_controls_cc_is_on">Zum Ausblenden von Untertiteln tippen</string>
-  <string name="exo_controls_cc_is_off">Zum Einblenden von Untertiteln tippen</string>
-  <string name="exo_controls_rewind_desc_holder">%d Sekunden zurückspulen</string>
-  <string name="exo_controls_ffwd_desc_holder">%d Sekunden vorspulen</string>
+  <string name="exo_controls_cc_enabled_description">Zum Ausblenden von Untertiteln tippen</string>
+  <string name="exo_controls_cc_disabled_description">Zum Einblenden von Untertiteln tippen</string>
+  <string name="exo_controls_rewind_by_amount_description">%d Sekunden zurückspulen</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d Sekunden vorspulen</string>
   <string name="exo_controls_fullscreen_enter_description">Vollbild aktivieren</string>
   <string name="exo_controls_fullscreen_exit_description">Vollbild beenden</string>
 </resources>

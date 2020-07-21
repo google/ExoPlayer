@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">ஆடியோ டிராக்</string>
   <string name="exo_controls_playback_speed">வீடியோவின் இயக்க வேகம்</string>
   <string name="exo_controls_playback_speed_normal">இயல்பு</string>
-  <string name="exo_controls_overflow_left_button_description">முந்தைய பட்டன்களுக்குச் செல்லும்</string>
-  <string name="exo_controls_overflow_right_button_description">மேலும் பட்டன்களைக் காட்டும்</string>
+  <string name="exo_controls_overflow_hide_description">முந்தைய பட்டன்களுக்குச் செல்லும்</string>
+  <string name="exo_controls_overflow_show_description">மேலும் பட்டன்களைக் காட்டும்</string>
   <string name="exo_controls_seek_bar_description">வீடியோவின் இயக்க நிலை</string>
   <string name="exo_controls_settings_description">அமைப்புகள்</string>
-  <string name="exo_controls_cc_is_on">வசனங்களை மறைக்க தட்டவும்</string>
-  <string name="exo_controls_cc_is_off">வசனங்களைக் காட்ட தட்டவும்</string>
-  <string name="exo_controls_rewind_desc_holder">%d வினாடிகள் பின்செல்ல உதவும் பட்டன்</string>
-  <string name="exo_controls_ffwd_desc_holder">%d வினாடிகள் வேகமாக முன்செல்ல உதவும் பட்டன்</string>
+  <string name="exo_controls_cc_enabled_description">வசனங்களை மறைக்க தட்டவும்</string>
+  <string name="exo_controls_cc_disabled_description">வசனங்களைக் காட்ட தட்டவும்</string>
+  <string name="exo_controls_rewind_by_amount_description">%d வினாடிகள் பின்செல்ல உதவும் பட்டன்</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d வினாடிகள் வேகமாக முன்செல்ல உதவும் பட்டன்</string>
   <string name="exo_controls_fullscreen_enter_description">முழுத்திரையில் காட்ட உதவும் பட்டன்</string>
   <string name="exo_controls_fullscreen_exit_description">முழுத்திரையை வெளியேற உதவும் பட்டன்</string>
 </resources>

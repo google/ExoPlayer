@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">المقطع الصوتي</string>
   <string name="exo_controls_playback_speed">سرعة التشغيل</string>
   <string name="exo_controls_playback_speed_normal">عادية</string>
-  <string name="exo_controls_overflow_left_button_description">الرجوع إلى قائمة الازرار السابقة</string>
-  <string name="exo_controls_overflow_right_button_description">عرض مزيد من الأزرار</string>
+  <string name="exo_controls_overflow_hide_description">الرجوع إلى قائمة الازرار السابقة</string>
+  <string name="exo_controls_overflow_show_description">عرض مزيد من الأزرار</string>
   <string name="exo_controls_seek_bar_description">مستوى تقدُّم التشغيل</string>
   <string name="exo_controls_settings_description">الإعدادات</string>
-  <string name="exo_controls_cc_is_on">النقر لإخفاء الترجمة</string>
-  <string name="exo_controls_cc_is_off">النقر لإظهار الترجمة</string>
-  <string name="exo_controls_rewind_desc_holder">ترجيع الفيديو بمقدار %d ثانية</string>
-  <string name="exo_controls_ffwd_desc_holder">تقديم سريع للفيديو بمقدار %d ثانية</string>
+  <string name="exo_controls_cc_enabled_description">النقر لإخفاء الترجمة</string>
+  <string name="exo_controls_cc_disabled_description">النقر لإظهار الترجمة</string>
+  <string name="exo_controls_rewind_by_amount_description">ترجيع الفيديو بمقدار %d ثانية</string>
+  <string name="exo_controls_fastforward_by_amount_description">تقديم سريع للفيديو بمقدار %d ثانية</string>
   <string name="exo_controls_fullscreen_enter_description">دخول إلى وضع ملء الشاشة</string>
   <string name="exo_controls_fullscreen_exit_description">خروج من وضع ملء الشاشة</string>
 </resources>

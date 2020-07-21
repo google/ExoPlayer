@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">აუდიოჩანაწერი</string>
   <string name="exo_controls_playback_speed">დაკვრის სიჩქარე</string>
   <string name="exo_controls_playback_speed_normal">ჩვეულებრივი</string>
-  <string name="exo_controls_overflow_left_button_description">ღილაკების წინა სიაზე გადასვლა</string>
-  <string name="exo_controls_overflow_right_button_description">სხვა ღილაკების ნახვა</string>
+  <string name="exo_controls_overflow_hide_description">ღილაკების წინა სიაზე გადასვლა</string>
+  <string name="exo_controls_overflow_show_description">სხვა ღილაკების ნახვა</string>
   <string name="exo_controls_seek_bar_description">დაკვრის პროგრესი</string>
   <string name="exo_controls_settings_description">პარამეტრები</string>
-  <string name="exo_controls_cc_is_on">შეეხეთ სუბტიტრების დასამალად</string>
-  <string name="exo_controls_cc_is_off">შეეხეთ სუბტიტრების საჩვენებლად</string>
-  <string name="exo_controls_rewind_desc_holder">უკან გადახვევა %d წამით</string>
-  <string name="exo_controls_ffwd_desc_holder">წინ გადახვევა %d წამით</string>
+  <string name="exo_controls_cc_enabled_description">შეეხეთ სუბტიტრების დასამალად</string>
+  <string name="exo_controls_cc_disabled_description">შეეხეთ სუბტიტრების საჩვენებლად</string>
+  <string name="exo_controls_rewind_by_amount_description">უკან გადახვევა %d წამით</string>
+  <string name="exo_controls_fastforward_by_amount_description">წინ გადახვევა %d წამით</string>
   <string name="exo_controls_fullscreen_enter_description">სრულეკრანიან რეჟიმში შესვლა</string>
   <string name="exo_controls_fullscreen_exit_description">სრულეკრანიანი რეჟიმიდან გამოსვლა</string>
 </resources>

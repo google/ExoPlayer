@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Oudiosnit</string>
   <string name="exo_controls_playback_speed">Terugspeelspoed</string>
   <string name="exo_controls_playback_speed_normal">Normaal</string>
-  <string name="exo_controls_overflow_left_button_description">\"Terug na vorige\"-knoppielys</string>
-  <string name="exo_controls_overflow_right_button_description">Sien nog knoppies</string>
+  <string name="exo_controls_overflow_hide_description">\"Terug na vorige\"-knoppielys</string>
+  <string name="exo_controls_overflow_show_description">Sien nog knoppies</string>
   <string name="exo_controls_seek_bar_description">Terugspeelvordering</string>
   <string name="exo_controls_settings_description">Instellings</string>
-  <string name="exo_controls_cc_is_on">Tik om onderskrifte te versteek</string>
-  <string name="exo_controls_cc_is_off">Tik om onderskrifte te wys</string>
-  <string name="exo_controls_rewind_desc_holder">Gaan %d sekondes terug</string>
-  <string name="exo_controls_ffwd_desc_holder">Gaan %d sekondes vinnig vorentoe</string>
+  <string name="exo_controls_cc_enabled_description">Tik om onderskrifte te versteek</string>
+  <string name="exo_controls_cc_disabled_description">Tik om onderskrifte te wys</string>
+  <string name="exo_controls_rewind_by_amount_description">Gaan %d sekondes terug</string>
+  <string name="exo_controls_fastforward_by_amount_description">Gaan %d sekondes vinnig vorentoe</string>
   <string name="exo_controls_fullscreen_enter_description">Gaan na volskerm</string>
   <string name="exo_controls_fullscreen_exit_description">Verlaat volskerm</string>
 </resources>

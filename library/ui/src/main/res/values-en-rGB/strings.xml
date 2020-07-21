@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Audio track</string>
   <string name="exo_controls_playback_speed">Playback speed</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_controls_overflow_left_button_description">Back to previous button list</string>
-  <string name="exo_controls_overflow_right_button_description">See more buttons</string>
+  <string name="exo_controls_overflow_hide_description">Back to previous button list</string>
+  <string name="exo_controls_overflow_show_description">See more buttons</string>
   <string name="exo_controls_seek_bar_description">Playback progress</string>
   <string name="exo_controls_settings_description">Settings</string>
-  <string name="exo_controls_cc_is_on">Tap to hide subtitles</string>
-  <string name="exo_controls_cc_is_off">Tap to show subtitles</string>
-  <string name="exo_controls_rewind_desc_holder">Rewind %d seconds</string>
-  <string name="exo_controls_ffwd_desc_holder">Fast forward %d seconds</string>
+  <string name="exo_controls_cc_enabled_description">Tap to hide subtitles</string>
+  <string name="exo_controls_cc_disabled_description">Tap to show subtitles</string>
+  <string name="exo_controls_rewind_by_amount_description">Rewind %d seconds</string>
+  <string name="exo_controls_fastforward_by_amount_description">Fast forward %d seconds</string>
   <string name="exo_controls_fullscreen_enter_description">Enter fullscreen</string>
   <string name="exo_controls_fullscreen_exit_description">Exit fullscreen</string>
 </resources>

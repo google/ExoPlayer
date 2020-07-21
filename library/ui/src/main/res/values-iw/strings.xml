@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">טראק של אודיו</string>
   <string name="exo_controls_playback_speed">מהירות הפעלה</string>
   <string name="exo_controls_playback_speed_normal">רגילה</string>
-  <string name="exo_controls_overflow_left_button_description">חזרה לרשימת הלחצנים הקודמת</string>
-  <string name="exo_controls_overflow_right_button_description">הצגת לחצנים נוספים</string>
+  <string name="exo_controls_overflow_hide_description">חזרה לרשימת הלחצנים הקודמת</string>
+  <string name="exo_controls_overflow_show_description">הצגת לחצנים נוספים</string>
   <string name="exo_controls_seek_bar_description">התקדמות ההפעלה</string>
   <string name="exo_controls_settings_description">הגדרות</string>
-  <string name="exo_controls_cc_is_on">יש להקיש כדי להסתיר את הכתוביות</string>
-  <string name="exo_controls_cc_is_off">יש להקיש כדי להציג את הכתוביות</string>
-  <string name="exo_controls_rewind_desc_holder">הרצה %d שניות אחורה</string>
-  <string name="exo_controls_ffwd_desc_holder">הרצה %d שניות קדימה</string>
+  <string name="exo_controls_cc_enabled_description">יש להקיש כדי להסתיר את הכתוביות</string>
+  <string name="exo_controls_cc_disabled_description">יש להקיש כדי להציג את הכתוביות</string>
+  <string name="exo_controls_rewind_by_amount_description">הרצה %d שניות אחורה</string>
+  <string name="exo_controls_fastforward_by_amount_description">הרצה %d שניות קדימה</string>
   <string name="exo_controls_fullscreen_enter_description">כניסה למסך מלא</string>
   <string name="exo_controls_fullscreen_exit_description">יציאה ממסך מלא</string>
 </resources>

@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">오디오 트랙</string>
   <string name="exo_controls_playback_speed">재생 속도</string>
   <string name="exo_controls_playback_speed_normal">일반</string>
-  <string name="exo_controls_overflow_left_button_description">이전 버튼 목록으로 돌아가기</string>
-  <string name="exo_controls_overflow_right_button_description">버튼 더보기</string>
+  <string name="exo_controls_overflow_hide_description">이전 버튼 목록으로 돌아가기</string>
+  <string name="exo_controls_overflow_show_description">버튼 더보기</string>
   <string name="exo_controls_seek_bar_description">재생 진행률</string>
   <string name="exo_controls_settings_description">설정</string>
-  <string name="exo_controls_cc_is_on">탭하여 자막 숨기기</string>
-  <string name="exo_controls_cc_is_off">탭하여 자막 표시</string>
-  <string name="exo_controls_rewind_desc_holder">%d초 되감기</string>
-  <string name="exo_controls_ffwd_desc_holder">%d초 앞으로 이동</string>
+  <string name="exo_controls_cc_enabled_description">탭하여 자막 숨기기</string>
+  <string name="exo_controls_cc_disabled_description">탭하여 자막 표시</string>
+  <string name="exo_controls_rewind_by_amount_description">%d초 되감기</string>
+  <string name="exo_controls_fastforward_by_amount_description">%d초 앞으로 이동</string>
   <string name="exo_controls_fullscreen_enter_description">전체 화면으로 전환</string>
   <string name="exo_controls_fullscreen_exit_description">전체 화면 종료</string>
 </resources>

@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Lydspor</string>
   <string name="exo_controls_playback_speed">Afspilningshastighed</string>
   <string name="exo_controls_playback_speed_normal">Normal</string>
-  <string name="exo_controls_overflow_left_button_description">Tilbage til forrige liste over knapper</string>
-  <string name="exo_controls_overflow_right_button_description">Se flere knapper</string>
+  <string name="exo_controls_overflow_hide_description">Tilbage til forrige liste over knapper</string>
+  <string name="exo_controls_overflow_show_description">Se flere knapper</string>
   <string name="exo_controls_seek_bar_description">Afspilningsstatus</string>
   <string name="exo_controls_settings_description">Indstillinger</string>
-  <string name="exo_controls_cc_is_on">Tryk for at skjule undertekster</string>
-  <string name="exo_controls_cc_is_off">Tryk for at vise undertekster</string>
-  <string name="exo_controls_rewind_desc_holder">Spol %d sekunder tilbage</string>
-  <string name="exo_controls_ffwd_desc_holder">Spol %d sekunder frem</string>
+  <string name="exo_controls_cc_enabled_description">Tryk for at skjule undertekster</string>
+  <string name="exo_controls_cc_disabled_description">Tryk for at vise undertekster</string>
+  <string name="exo_controls_rewind_by_amount_description">Spol %d sekunder tilbage</string>
+  <string name="exo_controls_fastforward_by_amount_description">Spol %d sekunder frem</string>
   <string name="exo_controls_fullscreen_enter_description">Åbn fuld skærm</string>
   <string name="exo_controls_fullscreen_exit_description">Afslut fuld skærm</string>
 </resources>

@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Zvučni zapis</string>
   <string name="exo_controls_playback_speed">Brzina reprodukcije</string>
   <string name="exo_controls_playback_speed_normal">Normalno</string>
-  <string name="exo_controls_overflow_left_button_description">Nazad na prethodnu listu dugmadi</string>
-  <string name="exo_controls_overflow_right_button_description">Prikaz više dugmadi</string>
+  <string name="exo_controls_overflow_hide_description">Nazad na prethodnu listu dugmadi</string>
+  <string name="exo_controls_overflow_show_description">Prikaz više dugmadi</string>
   <string name="exo_controls_seek_bar_description">Napredak reprodukcije</string>
   <string name="exo_controls_settings_description">Postavke</string>
-  <string name="exo_controls_cc_is_on">Dodirnite da sakrijete titlove</string>
-  <string name="exo_controls_cc_is_off">Dodirnite da prikažete titlove</string>
-  <string name="exo_controls_rewind_desc_holder">Premotavanje %d s nazad</string>
-  <string name="exo_controls_ffwd_desc_holder">Premotavanje %d s naprijed</string>
+  <string name="exo_controls_cc_enabled_description">Dodirnite da sakrijete titlove</string>
+  <string name="exo_controls_cc_disabled_description">Dodirnite da prikažete titlove</string>
+  <string name="exo_controls_rewind_by_amount_description">Premotavanje %d s nazad</string>
+  <string name="exo_controls_fastforward_by_amount_description">Premotavanje %d s naprijed</string>
   <string name="exo_controls_fullscreen_enter_description">Prikaz preko cijelog ekrana</string>
   <string name="exo_controls_fullscreen_exit_description">Isključ. prikaza preko cijelog ekrana</string>
 </resources>

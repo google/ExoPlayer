@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Runut audio</string>
   <string name="exo_controls_playback_speed">Kelajuan main balik</string>
   <string name="exo_controls_playback_speed_normal">Biasa</string>
-  <string name="exo_controls_overflow_left_button_description">Kembali ke senarai butang terdahulu</string>
-  <string name="exo_controls_overflow_right_button_description">Lihat lagi butang</string>
+  <string name="exo_controls_overflow_hide_description">Kembali ke senarai butang terdahulu</string>
+  <string name="exo_controls_overflow_show_description">Lihat lagi butang</string>
   <string name="exo_controls_seek_bar_description">Kemajuan main balik</string>
   <string name="exo_controls_settings_description">Tetapan</string>
-  <string name="exo_controls_cc_is_on">Ketik untuk sembunyikan sari kata</string>
-  <string name="exo_controls_cc_is_off">Ketik untuk menunjukkan sari kata</string>
-  <string name="exo_controls_rewind_desc_holder">Mandir %d saat</string>
-  <string name="exo_controls_ffwd_desc_holder">Mundar laju %d saat</string>
+  <string name="exo_controls_cc_enabled_description">Ketik untuk sembunyikan sari kata</string>
+  <string name="exo_controls_cc_disabled_description">Ketik untuk menunjukkan sari kata</string>
+  <string name="exo_controls_rewind_by_amount_description">Mandir %d saat</string>
+  <string name="exo_controls_fastforward_by_amount_description">Mundar laju %d saat</string>
   <string name="exo_controls_fullscreen_enter_description">Masuk ke skrin penuh</string>
   <string name="exo_controls_fullscreen_exit_description">Keluar dari skrin penuh</string>
 </resources>

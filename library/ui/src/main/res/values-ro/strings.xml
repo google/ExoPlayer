@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Înregistrare audio</string>
   <string name="exo_controls_playback_speed">Viteza de redare</string>
   <string name="exo_controls_playback_speed_normal">Normală</string>
-  <string name="exo_controls_overflow_left_button_description">Lista anterioară de butoane</string>
-  <string name="exo_controls_overflow_right_button_description">Vedeți mai multe butoane</string>
+  <string name="exo_controls_overflow_hide_description">Lista anterioară de butoane</string>
+  <string name="exo_controls_overflow_show_description">Vedeți mai multe butoane</string>
   <string name="exo_controls_seek_bar_description">Progresul redării</string>
   <string name="exo_controls_settings_description">Setări</string>
-  <string name="exo_controls_cc_is_on">Atingeți pentru a ascunde subtitrările.</string>
-  <string name="exo_controls_cc_is_off">Atingeți pentru a afișa subtitrările.</string>
-  <string name="exo_controls_rewind_desc_holder">Derulați înapoi cu %d secunde</string>
-  <string name="exo_controls_ffwd_desc_holder">Derulați rapid înainte cu %d secunde</string>
+  <string name="exo_controls_cc_enabled_description">Atingeți pentru a ascunde subtitrările.</string>
+  <string name="exo_controls_cc_disabled_description">Atingeți pentru a afișa subtitrările.</string>
+  <string name="exo_controls_rewind_by_amount_description">Derulați înapoi cu %d secunde</string>
+  <string name="exo_controls_fastforward_by_amount_description">Derulați rapid înainte cu %d secunde</string>
   <string name="exo_controls_fullscreen_enter_description">Accesați în ecran complet</string>
   <string name="exo_controls_fullscreen_exit_description">Ieșiți din ecranul complet</string>
 </resources>

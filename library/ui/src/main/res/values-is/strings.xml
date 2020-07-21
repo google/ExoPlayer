@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Hljóðrás</string>
   <string name="exo_controls_playback_speed">Spilunarhraði</string>
   <string name="exo_controls_playback_speed_normal">Venjulegur</string>
-  <string name="exo_controls_overflow_left_button_description">Aftur á fyrri hnappalista</string>
-  <string name="exo_controls_overflow_right_button_description">Sjá fleiri hnappa</string>
+  <string name="exo_controls_overflow_hide_description">Aftur á fyrri hnappalista</string>
+  <string name="exo_controls_overflow_show_description">Sjá fleiri hnappa</string>
   <string name="exo_controls_seek_bar_description">Framvinda spilunar</string>
   <string name="exo_controls_settings_description">Stillingar</string>
-  <string name="exo_controls_cc_is_on">Ýttu til að fela skjátexta</string>
-  <string name="exo_controls_cc_is_off">Ýttu til að sýna skjátexta</string>
-  <string name="exo_controls_rewind_desc_holder">Spóla aftur um %d sekúndur</string>
-  <string name="exo_controls_ffwd_desc_holder">Spóla fram um %d sekúndur</string>
+  <string name="exo_controls_cc_enabled_description">Ýttu til að fela skjátexta</string>
+  <string name="exo_controls_cc_disabled_description">Ýttu til að sýna skjátexta</string>
+  <string name="exo_controls_rewind_by_amount_description">Spóla aftur um %d sekúndur</string>
+  <string name="exo_controls_fastforward_by_amount_description">Spóla fram um %d sekúndur</string>
   <string name="exo_controls_fullscreen_enter_description">Nota allan skjáinn</string>
   <string name="exo_controls_fullscreen_exit_description">Hætta að nota allan skjáinn</string>
 </resources>

@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">Аудиозапис</string>
   <string name="exo_controls_playback_speed">Брзина на репродукцијата</string>
   <string name="exo_controls_playback_speed_normal">Нормална</string>
-  <string name="exo_controls_overflow_left_button_description">Кон список со претходно копче</string>
-  <string name="exo_controls_overflow_right_button_description">Прикажи повеќе копчиња</string>
+  <string name="exo_controls_overflow_hide_description">Кон список со претходно копче</string>
+  <string name="exo_controls_overflow_show_description">Прикажи повеќе копчиња</string>
   <string name="exo_controls_seek_bar_description">Напредок на репродукцијата</string>
   <string name="exo_controls_settings_description">Поставки</string>
-  <string name="exo_controls_cc_is_on">Допрете за да се сокријат титловите</string>
-  <string name="exo_controls_cc_is_off">Допрете за да се прикажат титловите</string>
-  <string name="exo_controls_rewind_desc_holder">Премотајте %d секунди наназад</string>
-  <string name="exo_controls_ffwd_desc_holder">Премотајте %d секунди нанапред</string>
+  <string name="exo_controls_cc_enabled_description">Допрете за да се сокријат титловите</string>
+  <string name="exo_controls_cc_disabled_description">Допрете за да се прикажат титловите</string>
+  <string name="exo_controls_rewind_by_amount_description">Премотајте %d секунди наназад</string>
+  <string name="exo_controls_fastforward_by_amount_description">Премотајте %d секунди нанапред</string>
   <string name="exo_controls_fullscreen_enter_description">Приказ на цел екран</string>
   <string name="exo_controls_fullscreen_exit_description">Излезете од цел екран</string>
 </resources>

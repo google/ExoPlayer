@@ -56,14 +56,14 @@
   <string name="exo_controls_audio_track">ഓഡിയോ ട്രാക്ക്</string>
   <string name="exo_controls_playback_speed">പ്ലേബാക്ക് വേഗത</string>
   <string name="exo_controls_playback_speed_normal">സാധാരണം</string>
-  <string name="exo_controls_overflow_left_button_description">മുൻ ബട്ടൺ ലിസ്റ്റിലേക്ക് മടങ്ങുക</string>
-  <string name="exo_controls_overflow_right_button_description">കൂടുതൽ ബട്ടണുകൾ കാണുക</string>
+  <string name="exo_controls_overflow_hide_description">മുൻ ബട്ടൺ ലിസ്റ്റിലേക്ക് മടങ്ങുക</string>
+  <string name="exo_controls_overflow_show_description">കൂടുതൽ ബട്ടണുകൾ കാണുക</string>
   <string name="exo_controls_seek_bar_description">പ്ലേബാക്ക് പുരോഗതി</string>
   <string name="exo_controls_settings_description">ക്രമീകരണം</string>
-  <string name="exo_controls_cc_is_on">സബ്‌ടൈറ്റിലുകൾ മറയ്‌ക്കാൻ ടാപ്പ് ചെയ്യുക</string>
-  <string name="exo_controls_cc_is_off">സബ്‌ടൈറ്റിലുകൾ കാണിക്കാൻ ടാപ്പ് ചെയ്യുക</string>
-  <string name="exo_controls_rewind_desc_holder">%d സെക്കൻഡ് പിന്നോട്ട് നീക്കുക</string>
-  <string name="exo_controls_ffwd_desc_holder">വേഗത്തിൽ %d സെക്കൻഡ് മുന്നോട്ട് നീക്കുക</string>
+  <string name="exo_controls_cc_enabled_description">സബ്‌ടൈറ്റിലുകൾ മറയ്‌ക്കാൻ ടാപ്പ് ചെയ്യുക</string>
+  <string name="exo_controls_cc_disabled_description">സബ്‌ടൈറ്റിലുകൾ കാണിക്കാൻ ടാപ്പ് ചെയ്യുക</string>
+  <string name="exo_controls_rewind_by_amount_description">%d സെക്കൻഡ് പിന്നോട്ട് നീക്കുക</string>
+  <string name="exo_controls_fastforward_by_amount_description">വേഗത്തിൽ %d സെക്കൻഡ് മുന്നോട്ട് നീക്കുക</string>
   <string name="exo_controls_fullscreen_enter_description">പൂർണ്ണ സ്‌ക്രീൻ ആക്കുക</string>
   <string name="exo_controls_fullscreen_exit_description">പൂർണ്ണ സ്‌ക്രീനിൽ നിന്ന് പുറത്തുകടക്കുക</string>
 </resources>
