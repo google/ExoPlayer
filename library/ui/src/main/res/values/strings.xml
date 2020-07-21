@@ -44,6 +44,7 @@
   <string name="exo_controls_shuffle_off_description">Shuffle off</string>
   <!-- Description for a media control button that toggles whether a video playback is in VR mode. [CHAR LIMIT=30] -->
   <string name="exo_controls_vr_description">VR mode</string>
+
   <!-- Description for a button that downloads a piece of media content onto the device. [CHAR LIMIT=20] -->
   <string name="exo_download_description">Download</string>
   <!-- Default name for a notification channel corresponding to media downloads. [CHAR LIMIT=40] -->
@@ -56,6 +57,7 @@
   <string name="exo_download_failed">Download failed</string>
   <!-- Shown in a notification or UI component to indicate downloads are being removed from the device. [CHAR LIMIT=40] -->
   <string name="exo_download_removing">Removing downloads</string>
+
   <!-- The title of a track selection view for video tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_title_video">Video</string>
   <!-- The title of a track selection view for audio tracks. [CHAR LIMIT=20] -->
@@ -90,13 +92,10 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <!-- Describes the bitrate of a media track in Megabits (https://en.wikipedia.org/wiki/Megabit) per second. [CHAR LIMIT=20] -->
   <string name="exo_track_bitrate"><xliff:g id="bitrate" example="5.2">%1$.2f</xliff:g> Mbps</string>
+
   <!-- Defines a way of appending an item to a list of items. For example appending "banana" to "apple, pear" to get "apple, pear, banana". Note: the command separator will appear between all consecutive list items, so do not use an equivalent of 'and'. [CHAR LIMIT=40] -->
   <string name="exo_item_list"><xliff:g id="list" example="apple, pear">%1$s</xliff:g>, <xliff:g id="item" example="banana">%2$s</xliff:g></string>
 
-  <!-- The title of audio track selection. It is shown with the currently selected audio track's
-       information (such as language). If a user clicks it, the list of possible audio tracks
-       will be shown. [CHAR_LIMIT=20] -->
-  <string name="exo_controls_audio_track">Audio track</string>
   <!-- The title of playback speed selection. It is shown with the current playback speed.
        If a user clicks it, the list of possible playback speeds will be shown.
        [CHAR_LIMIT=32] -->
@@ -104,9 +103,8 @@
   <!-- It implies that the playback speed is normal (1.0x). [CHAR_LIMIT=16] -->
   <string name="exo_controls_playback_speed_normal">Normal</string>
   <!-- Text for displaying custom playback speed. [CHAR_LIMIT=16] -->
-  <string translatable="false" name="exo_controls_custom_playback_speed">
-        <xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x
-    </string>
+  <string translatable="false" name="exo_controls_custom_playback_speed"><xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x</string>
+
   <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
   <string translatable="false" name="exo_controls_time_placeholder">00:00:00</string>
   <!-- Content description of the left arrow button to navigate a list of buttons.

@@ -34,14 +34,4 @@
     <item>1.5x</item>
     <item>2x</item>
   </string-array>
-
-  <string-array translatable="false" name="exo_settings_main_texts">
-    <item>@string/exo_controls_playback_speed</item>
-    <item>@string/exo_controls_audio_track</item>
-  </string-array>
-
-  <array name="exo_settings_icon_ids">
-    <item>@drawable/exo_styled_controls_speed</item>
-    <item>@drawable/exo_styled_controls_audiotrack</item>
-  </array>
 </resources>
