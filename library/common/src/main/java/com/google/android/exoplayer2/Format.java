@@ -767,8 +767,8 @@ public final class Format implements Parcelable {
    * The audio sampling rate in Hz, or {@link #NO_VALUE} if unknown or not applicable.
    */
   public final int sampleRate;
-  /** @deprecated Use {@link #encoding}. */
-  @Deprecated @C.PcmEncoding public final int pcmEncoding;
+  /** The {@link C.PcmEncoding} for PCM audio. Set to {@link #NO_VALUE} for other media types. */
+  @C.PcmEncoding public final int pcmEncoding;
   /** The {@link C.Encoding} for audio. Set to {@link #NO_VALUE} for other media types. */
   @C.Encoding public final int encoding;
   /**
@@ -1214,7 +1214,6 @@ public final class Format implements Parcelable {
   }
 
   // Some fields are deprecated but they're still assigned below.
-  @SuppressWarnings("deprecation")
   /* package */ Format(
       @Nullable String id,
       @Nullable String label,
@@ -1301,7 +1300,7 @@ public final class Format implements Parcelable {
   }
 
   // Some fields are deprecated but they're still assigned below.
-  @SuppressWarnings({"ResourceType", "deprecation"})
+  @SuppressWarnings({"ResourceType"})
   /* package */ Format(Parcel in) {
     id = in.readString();
     label = in.readString();

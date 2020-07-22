@@ -1,7 +1,7 @@
 config:
-  encoding = 2 (16 bit)
-  channel count = 2
-  sample rate = 48000
+  pcmEncoding = 2
+  channelCount = 2
+  sampleRate = 48000
 buffer:
   time = 1000
   data = 1217833679

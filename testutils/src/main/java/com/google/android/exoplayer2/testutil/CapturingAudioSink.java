@@ -19,11 +19,11 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.ForwardingAudioSink;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -131,24 +131,24 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
 
   private static final class DumpableConfiguration implements Dumper.Dumpable {
 
-    private final int inputEncoding;
+    @C.PcmEncoding private final int inputPcmEncoding;
     private final int inputChannelCount;
     private final int inputSampleRate;
 
-    public DumpableConfiguration(int inputEncoding, int inputChannelCount, int inputSampleRate) {
-      this.inputEncoding = inputEncoding;
+    public DumpableConfiguration(
+        @C.PcmEncoding int inputPcmEncoding, int inputChannelCount, int inputSampleRate) {
+      this.inputPcmEncoding = inputPcmEncoding;
       this.inputChannelCount = inputChannelCount;
       this.inputSampleRate = inputSampleRate;
     }
 
     @Override
     public void dump(Dumper dumper) {
-      int bitDepth = (Util.getPcmFrameSize(inputEncoding, /* channelCount= */ 1) * 8);
       dumper
           .startBlock("config")
-          .add("encoding", inputEncoding + " (" + bitDepth + " bit)")
-          .add("channel count", inputChannelCount)
-          .add("sample rate", inputSampleRate)
+          .add("pcmEncoding", inputPcmEncoding)
+          .add("channelCount", inputChannelCount)
+          .add("sampleRate", inputSampleRate)
           .endBlock();
     }
   }
