@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -94,7 +95,7 @@ public class DefaultLoadControl implements LoadControl {
   /** Builder for {@link DefaultLoadControl}. */
   public static final class Builder {
 
-    private DefaultAllocator allocator;
+    @Nullable private DefaultAllocator allocator;
     private int minBufferMs;
     private int maxBufferMs;
     private int bufferForPlaybackMs;

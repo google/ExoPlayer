@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Default implementation of {@link Allocator}.
@@ -35,7 +36,7 @@ public final class DefaultAllocator implements Allocator {
   private int targetBufferSize;
   private int allocatedCount;
   private int availableCount;
-  private Allocation[] availableAllocations;
+  @NullableType private Allocation[] availableAllocations;
 
   /**
    * Constructs an instance without creating any {@link Allocation}s up front.
@@ -97,7 +98,7 @@ public final class DefaultAllocator implements Allocator {
     allocatedCount++;
     Allocation allocation;
     if (availableCount > 0) {
-      allocation = availableAllocations[--availableCount];
+      allocation = Assertions.checkNotNull(availableAllocations[--availableCount]);
       availableAllocations[availableCount] = null;
     } else {
       allocation = new Allocation(new byte[individualAllocationSize], 0);
@@ -141,11 +142,11 @@ public final class DefaultAllocator implements Allocator {
       int lowIndex = 0;
       int highIndex = availableCount - 1;
       while (lowIndex <= highIndex) {
-        Allocation lowAllocation = availableAllocations[lowIndex];
+        Allocation lowAllocation = Assertions.checkNotNull(availableAllocations[lowIndex]);
         if (lowAllocation.data == initialAllocationBlock) {
           lowIndex++;
         } else {
-          Allocation highAllocation = availableAllocations[highIndex];
+          Allocation highAllocation = Assertions.checkNotNull(availableAllocations[highIndex]);
           if (highAllocation.data != initialAllocationBlock) {
             highIndex--;
           } else {
