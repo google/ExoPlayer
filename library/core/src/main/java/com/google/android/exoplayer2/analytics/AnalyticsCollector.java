@@ -355,33 +355,6 @@ public class AnalyticsCollector
   // MediaSourceEventListener implementation.
 
   @Override
-  public final void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
-    // TODO: Remove this method, as it's no longer needed for queue tracking.
-    // We won't find this media period in the tracked queue yet because onQueueUpdated is called
-    // after this method. Try to use the current timeline directly if possible.
-    Timeline timeline = checkNotNull(player).getCurrentTimeline();
-    EventTime eventTime =
-        timeline.getIndexOfPeriod(mediaPeriodId.periodUid) != C.INDEX_UNSET
-            ? generateEventTime(
-                timeline,
-                timeline.getPeriodByUid(mediaPeriodId.periodUid, period).windowIndex,
-                mediaPeriodId)
-            : generateEventTime(Timeline.EMPTY, windowIndex, mediaPeriodId);
-    for (AnalyticsListener listener : listeners) {
-      listener.onMediaPeriodCreated(eventTime);
-    }
-  }
-
-  @Override
-  public final void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
-    // TODO: Remove this method, as it's no longer needed for queue tracking.
-    EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
-    for (AnalyticsListener listener : listeners) {
-      listener.onMediaPeriodReleased(eventTime);
-    }
-  }
-
-  @Override
   public final void onLoadStarted(
       int windowIndex,
       @Nullable MediaPeriodId mediaPeriodId,
@@ -428,15 +401,6 @@ public class AnalyticsCollector
     EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
     for (AnalyticsListener listener : listeners) {
       listener.onLoadError(eventTime, loadEventInfo, mediaLoadData, error, wasCanceled);
-    }
-  }
-
-  @Override
-  public final void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId) {
-    // TODO: Remove this method, as it's no longer needed for queue tracking.
-    EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
-    for (AnalyticsListener listener : listeners) {
-      listener.onReadingStarted(eventTime);
     }
   }
 

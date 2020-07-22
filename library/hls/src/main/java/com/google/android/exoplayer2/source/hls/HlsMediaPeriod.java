@@ -89,7 +89,6 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   // Maps sample stream wrappers to variant/rendition index by matching array positions.
   private int[][] manifestUrlIndicesPerWrapper;
   private SequenceableLoader compositeSequenceableLoader;
-  private boolean notifiedReadingStarted;
 
   /**
    * Creates an HLS media period.
@@ -144,7 +143,6 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     sampleStreamWrappers = new HlsSampleStreamWrapper[0];
     enabledSampleStreamWrappers = new HlsSampleStreamWrapper[0];
     manifestUrlIndicesPerWrapper = new int[0][];
-    eventDispatcher.mediaPeriodCreated();
   }
 
   public void release() {
@@ -153,7 +151,6 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       sampleStreamWrapper.release();
     }
     callback = null;
-    eventDispatcher.mediaPeriodReleased();
   }
 
   @Override
@@ -381,10 +378,6 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
 
   @Override
   public long readDiscontinuity() {
-    if (!notifiedReadingStarted) {
-      eventDispatcher.readingStarted();
-      notifiedReadingStarted = true;
-    }
     return C.TIME_UNSET;
   }
 

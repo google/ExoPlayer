@@ -61,7 +61,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private SsManifest manifest;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
-  private boolean notifiedReadingStarted;
 
   public SsMediaPeriod(
       SsManifest manifest,
@@ -88,7 +87,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     sampleStreams = newSampleStreamArray(0);
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
-    mediaSourceEventDispatcher.mediaPeriodCreated();
   }
 
   public void updateManifest(SsManifest manifest) {
@@ -104,7 +102,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       sampleStream.release();
     }
     callback = null;
-    mediaSourceEventDispatcher.mediaPeriodReleased();
   }
 
   // MediaPeriod implementation.
@@ -201,10 +198,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long readDiscontinuity() {
-    if (!notifiedReadingStarted) {
-      mediaSourceEventDispatcher.readingStarted();
-      notifiedReadingStarted = true;
-    }
     return C.TIME_UNSET;
   }
 

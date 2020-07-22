@@ -402,16 +402,6 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onMediaPeriodCreated(EventTime eventTime) {
-    logd(eventTime, "mediaPeriodCreated");
-  }
-
-  @Override
-  public void onMediaPeriodReleased(EventTime eventTime) {
-    logd(eventTime, "mediaPeriodReleased");
-  }
-
-  @Override
   public void onLoadStarted(
       EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
     // Do nothing.
@@ -437,11 +427,6 @@ public class EventLogger implements AnalyticsListener {
   public void onLoadCompleted(
       EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {
     // Do nothing.
-  }
-
-  @Override
-  public void onReadingStarted(EventTime eventTime) {
-    logd(eventTime, "mediaPeriodReadingStarted");
   }
 
   @Override

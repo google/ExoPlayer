@@ -31,22 +31,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public interface MediaSourceEventListener {
 
   /**
-   * Called when a media period is created by the media source.
-   *
-   * @param windowIndex The window index in the timeline this media period belongs to.
-   * @param mediaPeriodId The {@link MediaPeriodId} of the created media period.
-   */
-  default void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {}
-
-  /**
-   * Called when a media period is released by the media source.
-   *
-   * @param windowIndex The window index in the timeline this media period belongs to.
-   * @param mediaPeriodId The {@link MediaPeriodId} of the released media period.
-   */
-  default void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {}
-
-  /**
    * Called when a load begins.
    *
    * @param windowIndex The window index in the timeline of the media source this load belongs to.
@@ -131,14 +115,6 @@ public interface MediaSourceEventListener {
       MediaLoadData mediaLoadData,
       IOException error,
       boolean wasCanceled) {}
-
-  /**
-   * Called when a media period is first being read from.
-   *
-   * @param windowIndex The window index in the timeline this media period belongs to.
-   * @param mediaPeriodId The {@link MediaPeriodId} of the media period being read from.
-   */
-  default void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId) {}
 
   /**
    * Called when data is removed from the back of a media buffer, typically so that it can be
@@ -231,28 +207,6 @@ public interface MediaSourceEventListener {
         if (listenerAndHandler.listener == eventListener) {
           listenerAndHandlers.remove(listenerAndHandler);
         }
-      }
-    }
-
-    /** Dispatches {@link #onMediaPeriodCreated(int, MediaPeriodId)}. */
-    public void mediaPeriodCreated() {
-      MediaPeriodId mediaPeriodId = Assertions.checkNotNull(this.mediaPeriodId);
-      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        MediaSourceEventListener listener = listenerAndHandler.listener;
-        postOrRun(
-            listenerAndHandler.handler,
-            () -> listener.onMediaPeriodCreated(windowIndex, mediaPeriodId));
-      }
-    }
-
-    /** Dispatches {@link #onMediaPeriodReleased(int, MediaPeriodId)}. */
-    public void mediaPeriodReleased() {
-      MediaPeriodId mediaPeriodId = Assertions.checkNotNull(this.mediaPeriodId);
-      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        MediaSourceEventListener listener = listenerAndHandler.listener;
-        postOrRun(
-            listenerAndHandler.handler,
-            () -> listener.onMediaPeriodReleased(windowIndex, mediaPeriodId));
       }
     }
 
@@ -457,17 +411,6 @@ public interface MediaSourceEventListener {
             () ->
                 listener.onLoadError(
                     windowIndex, mediaPeriodId, loadEventInfo, mediaLoadData, error, wasCanceled));
-      }
-    }
-
-    /** Dispatches {@link #onReadingStarted(int, MediaPeriodId)}. */
-    public void readingStarted() {
-      MediaPeriodId mediaPeriodId = Assertions.checkNotNull(this.mediaPeriodId);
-      for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
-        MediaSourceEventListener listener = listenerAndHandler.listener;
-        postOrRun(
-            listenerAndHandler.handler,
-            () -> listener.onReadingStarted(windowIndex, mediaPeriodId));
       }
     }
 

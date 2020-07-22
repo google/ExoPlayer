@@ -101,6 +101,8 @@
         `SampleStreams` to `Renderers`.
     *   Fix wrong `MediaPeriodId` for some renderer errors reported by
         `AnalyticsListener.onPlayerError`.
+    *   Remove onMediaPeriodCreated/Released/ReadingStarted from
+        `MediaSourceEventListener` and `AnalyticsListener`.
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Track selection:
     *   Add `Player.getTrackSelector`.

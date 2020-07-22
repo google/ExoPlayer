@@ -409,27 +409,6 @@ public interface AnalyticsListener {
   default void onUpstreamDiscarded(EventTime eventTime, MediaLoadData mediaLoadData) {}
 
   /**
-   * Called when a media source created a media period.
-   *
-   * @param eventTime The event time.
-   */
-  default void onMediaPeriodCreated(EventTime eventTime) {}
-
-  /**
-   * Called when a media source released a media period.
-   *
-   * @param eventTime The event time.
-   */
-  default void onMediaPeriodReleased(EventTime eventTime) {}
-
-  /**
-   * Called when the player started reading a media period.
-   *
-   * @param eventTime The event time.
-   */
-  default void onReadingStarted(EventTime eventTime) {}
-
-  /**
    * Called when the bandwidth estimate for the current data source has been updated.
    *
    * @param eventTime The event time.

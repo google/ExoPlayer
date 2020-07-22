@@ -102,7 +102,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private DashManifest manifest;
   private int periodIndex;
   private List<EventStream> eventStreams;
-  private boolean notifiedReadingStarted;
 
   public DashMediaPeriod(
       int id,
@@ -144,7 +143,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         buildTrackGroups(drmSessionManager, period.adaptationSets, eventStreams);
     trackGroups = result.first;
     trackGroupInfos = result.second;
-    mediaSourceEventDispatcher.mediaPeriodCreated();
   }
 
   /**
@@ -183,7 +181,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       sampleStream.release(this);
     }
     callback = null;
-    mediaSourceEventDispatcher.mediaPeriodReleased();
   }
 
   // ChunkSampleStream.ReleaseCallback implementation.
@@ -320,10 +317,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long readDiscontinuity() {
-    if (!notifiedReadingStarted) {
-      mediaSourceEventDispatcher.readingStarted();
-      notifiedReadingStarted = true;
-    }
     return C.TIME_UNSET;
   }
 

@@ -192,18 +192,6 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     return mediaTimeMs;
   }
 
-  /**
-   * Returns whether {@link MediaSourceEventListener#onMediaPeriodCreated(int, MediaPeriodId)} and
-   * {@link MediaSourceEventListener#onMediaPeriodReleased(int, MediaPeriodId)} events of the given
-   * media period should be reported. The default implementation is to always report these events.
-   *
-   * @param mediaPeriodId A {@link MediaPeriodId} in the composite media source.
-   * @return Whether create and release events for this media period should be reported.
-   */
-  protected boolean shouldDispatchCreateOrReleaseEvent(MediaPeriodId mediaPeriodId) {
-    return true;
-  }
-
   private static final class MediaSourceAndListener {
 
     public final MediaSource mediaSource;
@@ -232,26 +220,6 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     }
 
     // MediaSourceEventListener implementation
-
-    @Override
-    public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
-      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        if (shouldDispatchCreateOrReleaseEvent(
-            Assertions.checkNotNull(mediaSourceEventDispatcher.mediaPeriodId))) {
-          mediaSourceEventDispatcher.mediaPeriodCreated();
-        }
-      }
-    }
-
-    @Override
-    public void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
-      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        if (shouldDispatchCreateOrReleaseEvent(
-            Assertions.checkNotNull(mediaSourceEventDispatcher.mediaPeriodId))) {
-          mediaSourceEventDispatcher.mediaPeriodReleased();
-        }
-      }
-    }
 
     @Override
     public void onLoadStarted(
@@ -300,13 +268,6 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
         mediaSourceEventDispatcher.loadError(
             loadEventData, maybeUpdateMediaLoadData(mediaLoadData), error, wasCanceled);
-      }
-    }
-
-    @Override
-    public void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId) {
-      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        mediaSourceEventDispatcher.readingStarted();
       }
     }
 

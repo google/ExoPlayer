@@ -130,7 +130,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private boolean seenFirstTrackSelection;
   private boolean notifyDiscontinuity;
-  private boolean notifiedReadingStarted;
   private int enabledTrackCount;
   private long length;
 
@@ -205,7 +204,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     length = C.LENGTH_UNSET;
     durationUs = C.TIME_UNSET;
     dataType = C.DATA_TYPE_MEDIA;
-    mediaSourceEventDispatcher.mediaPeriodCreated();
   }
 
   public void release() {
@@ -220,7 +218,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     handler.removeCallbacksAndMessages(null);
     callback = null;
     released = true;
-    mediaSourceEventDispatcher.mediaPeriodReleased();
   }
 
   @Override
@@ -374,10 +371,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public long readDiscontinuity() {
-    if (!notifiedReadingStarted) {
-      mediaSourceEventDispatcher.readingStarted();
-      notifiedReadingStarted = true;
-    }
     if (notifyDiscontinuity
         && (loadingFinished || getExtractedSamplesCount() > extractedSamplesCountAtStartOfLoad)) {
       notifyDiscontinuity = false;

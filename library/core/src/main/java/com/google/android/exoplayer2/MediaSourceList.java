@@ -528,20 +528,6 @@ import java.util.Set;
     // MediaSourceEventListener implementation
 
     @Override
-    public void onMediaPeriodCreated(int windowIndex, MediaSource.MediaPeriodId mediaPeriodId) {
-      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        mediaSourceEventDispatcher.mediaPeriodCreated();
-      }
-    }
-
-    @Override
-    public void onMediaPeriodReleased(int windowIndex, MediaSource.MediaPeriodId mediaPeriodId) {
-      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        mediaSourceEventDispatcher.mediaPeriodReleased();
-      }
-    }
-
-    @Override
     public void onLoadStarted(
         int windowIndex,
         @Nullable MediaSource.MediaPeriodId mediaPeriodId,
@@ -584,13 +570,6 @@ import java.util.Set;
         boolean wasCanceled) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
         mediaSourceEventDispatcher.loadError(loadEventData, mediaLoadData, error, wasCanceled);
-      }
-    }
-
-    @Override
-    public void onReadingStarted(int windowIndex, MediaSource.MediaPeriodId mediaPeriodId) {
-      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        mediaSourceEventDispatcher.readingStarted();
       }
     }
 

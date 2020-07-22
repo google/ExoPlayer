@@ -44,7 +44,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 /** A runner for {@link MediaSource} tests. */
 public class MediaSourceTestRunner {
@@ -59,8 +58,6 @@ public class MediaSourceTestRunner {
 
   private final LinkedBlockingDeque<Timeline> timelines;
   private final CopyOnWriteArrayList<Pair<Integer, MediaPeriodId>> completedLoads;
-  private final AtomicReference<MediaPeriodId> lastCreatedMediaPeriod;
-  private final AtomicReference<MediaPeriodId> lastReleasedMediaPeriod;
 
   private Timeline timeline;
 
@@ -78,8 +75,6 @@ public class MediaSourceTestRunner {
     mediaSourceListener = new MediaSourceListener();
     timelines = new LinkedBlockingDeque<>();
     completedLoads = new CopyOnWriteArrayList<>();
-    lastCreatedMediaPeriod = new AtomicReference<>();
-    lastReleasedMediaPeriod = new AtomicReference<>();
     mediaSource.addEventListener(playbackHandler, mediaSourceListener);
   }
 
@@ -270,7 +265,6 @@ public class MediaSourceTestRunner {
   private void assertPrepareAndReleasePeriod(MediaPeriodId mediaPeriodId)
       throws InterruptedException {
     MediaPeriod mediaPeriod = createPeriod(mediaPeriodId);
-    assertThat(lastCreatedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);
     CountDownLatch preparedLatch = preparePeriod(mediaPeriod, 0);
     assertThat(preparedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     // MediaSource is supposed to support multiple calls to createPeriod without an intervening call
@@ -282,16 +276,11 @@ public class MediaSourceTestRunner {
             mediaPeriodId.adIndexInAdGroup,
             mediaPeriodId.windowSequenceNumber + 1000);
     MediaPeriod secondMediaPeriod = createPeriod(secondMediaPeriodId);
-    assertThat(lastCreatedMediaPeriod.getAndSet(/* newValue= */ null))
-        .isEqualTo(secondMediaPeriodId);
     CountDownLatch secondPreparedLatch = preparePeriod(secondMediaPeriod, 0);
     assertThat(secondPreparedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     // Release the periods.
     releasePeriod(mediaPeriod);
-    assertThat(lastReleasedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);
     releasePeriod(secondMediaPeriod);
-    assertThat(lastReleasedMediaPeriod.getAndSet(/* newValue= */ null))
-        .isEqualTo(secondMediaPeriodId);
   }
 
   /**
@@ -356,18 +345,6 @@ public class MediaSourceTestRunner {
     // MediaSourceEventListener methods.
 
     @Override
-    public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
-      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
-      lastCreatedMediaPeriod.set(mediaPeriodId);
-    }
-
-    @Override
-    public void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
-      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
-      lastReleasedMediaPeriod.set(mediaPeriodId);
-    }
-
-    @Override
     public void onLoadStarted(
         int windowIndex,
         @Nullable MediaPeriodId mediaPeriodId,
@@ -403,11 +380,6 @@ public class MediaSourceTestRunner {
         MediaLoadData mediaLoadData,
         IOException error,
         boolean wasCanceled) {
-      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
-    }
-
-    @Override
-    public void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
     }
 
