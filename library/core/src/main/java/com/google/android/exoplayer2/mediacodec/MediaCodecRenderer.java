@@ -1651,7 +1651,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       // No change.
     } else if (newCodecOperatingRate == CODEC_OPERATING_RATE_UNSET) {
       // The only way to clear the operating rate is to instantiate a new codec instance. See
-      // [Internal ref: b/71987865].
+      // [Internal ref: b/111543954].
       drainAndReinitializeCodec();
     } else if (codecOperatingRate != CODEC_OPERATING_RATE_UNSET
         || newCodecOperatingRate > assumedMinimumCodecOperatingRate) {
