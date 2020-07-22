@@ -26,9 +26,11 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -58,11 +60,10 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.annotation.LooperMode;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link MediaCodecVideoRenderer}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.LEGACY)
 public class MediaCodecVideoRendererTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
@@ -73,6 +74,7 @@ public class MediaCodecVideoRendererTest {
           .setHeight(1080)
           .build();
 
+  private Looper testMainLooper;
   private MediaCodecVideoRenderer mediaCodecVideoRenderer;
   @Nullable private Format currentOutputFormat;
 
@@ -80,6 +82,7 @@ public class MediaCodecVideoRendererTest {
 
   @Before
   public void setUp() throws Exception {
+    testMainLooper = Looper.getMainLooper();
     MediaCodecSelector mediaCodecSelector =
         (mimeType, requiresSecureDecoder, requiresTunnelingDecoder) ->
             Collections.singletonList(
@@ -99,7 +102,7 @@ public class MediaCodecVideoRendererTest {
             ApplicationProvider.getApplicationContext(),
             mediaCodecSelector,
             /* allowedJoiningTimeMs= */ 0,
-            /* eventHandler= */ new Handler(),
+            /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1) {
           @Override
@@ -152,6 +155,7 @@ public class MediaCodecVideoRendererTest {
       mediaCodecVideoRenderer.render(posUs, SystemClock.elapsedRealtime() * 1000);
       posUs += 40_000;
     }
+    shadowOf(testMainLooper).idle();
 
     verify(eventListener).onDroppedFrames(eq(1), anyLong());
   }
@@ -182,6 +186,7 @@ public class MediaCodecVideoRendererTest {
       mediaCodecVideoRenderer.render(positionUs, SystemClock.elapsedRealtime() * 1000);
       positionUs += 10;
     } while (!mediaCodecVideoRenderer.isEnded());
+    shadowOf(testMainLooper).idle();
 
     verify(eventListener)
         .onVideoSizeChanged(
@@ -234,6 +239,7 @@ public class MediaCodecVideoRendererTest {
       mediaCodecVideoRenderer.render(/* positionUs= */ pos, SystemClock.elapsedRealtime() * 1000);
       pos += 250;
     } while (!mediaCodecVideoRenderer.isEnded());
+    shadowOf(testMainLooper).idle();
 
     InOrder orderVerifier = inOrder(eventListener);
     orderVerifier.verify(eventListener).onVideoSizeChanged(anyInt(), anyInt(), anyInt(), eq(1f));
@@ -274,6 +280,7 @@ public class MediaCodecVideoRendererTest {
       mediaCodecVideoRenderer.render(positionUs, SystemClock.elapsedRealtime() * 1000);
       positionUs += 10;
     } while (!mediaCodecVideoRenderer.isEnded());
+    shadowOf(testMainLooper).idle();
 
     assertThat(currentOutputFormat).isEqualTo(VIDEO_H264);
   }
@@ -300,6 +307,7 @@ public class MediaCodecVideoRendererTest {
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     }
+    shadowOf(testMainLooper).idle();
 
     verify(eventListener).onRenderedFirstFrame(any());
   }
@@ -327,6 +335,7 @@ public class MediaCodecVideoRendererTest {
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     }
+    shadowOf(testMainLooper).idle();
 
     verify(eventListener, never()).onRenderedFirstFrame(any());
   }
@@ -354,12 +363,14 @@ public class MediaCodecVideoRendererTest {
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     }
+    shadowOf(testMainLooper).idle();
 
     verify(eventListener).onRenderedFirstFrame(any());
   }
 
   @Test
   public void replaceStream_rendersFirstFrameOnlyAfterStartPosition() throws Exception {
+    ShadowLooper shadowLooper = shadowOf(testMainLooper);
     FakeSampleStream fakeSampleStream1 =
         new FakeSampleStream(
             /* mediaSourceEventDispatcher= */ null,
@@ -404,11 +415,13 @@ public class MediaCodecVideoRendererTest {
     }
 
     // Expect only the first frame of the first stream to have been rendered.
+    shadowLooper.idle();
     verify(eventListener).onRenderedFirstFrame(any());
 
     // Render to the start position of the stream and verify the new first frame gets rendered (even
     // though its sampleTimeUs is far in the future).
     mediaCodecVideoRenderer.render(/* positionUs= */ 50, SystemClock.elapsedRealtime() * 1000);
+    shadowLooper.idle();
 
     verify(eventListener, times(2)).onRenderedFirstFrame(any());
   }
@@ -455,6 +468,7 @@ public class MediaCodecVideoRendererTest {
       positionUs += 10;
     } while (!mediaCodecVideoRenderer.isEnded());
     mediaCodecVideoRenderer.stop();
+    shadowOf(testMainLooper).idle();
 
     InOrder orderVerifier = inOrder(eventListener);
     orderVerifier.verify(eventListener).onVideoFrameProcessingOffset(anyLong(), eq(1), eq(mp4Uhd));
