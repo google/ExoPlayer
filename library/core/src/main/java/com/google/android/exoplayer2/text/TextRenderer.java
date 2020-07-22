@@ -159,7 +159,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       replaceDecoder();
     } else {
       releaseBuffers();
-      decoder.flush();
+      Assertions.checkNotNull(decoder).flush();
     }
   }
 
@@ -170,9 +170,9 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     }
 
     if (nextSubtitle == null) {
-      decoder.setPositionUs(positionUs);
+      Assertions.checkNotNull(decoder).setPositionUs(positionUs);
       try {
-        nextSubtitle = decoder.dequeueOutputBuffer();
+        nextSubtitle = Assertions.checkNotNull(decoder).dequeueOutputBuffer();
       } catch (SubtitleDecoderException e) {
         handleDecoderError(e);
         return;
@@ -194,8 +194,8 @@ public final class TextRenderer extends BaseRenderer implements Callback {
         textRendererNeedsUpdate = true;
       }
     }
-
     if (nextSubtitle != null) {
+      SubtitleOutputBuffer nextSubtitle = this.nextSubtitle;
       if (nextSubtitle.isEndOfStream()) {
         if (!textRendererNeedsUpdate && getNextEventTime() == Long.MAX_VALUE) {
           if (decoderReplacementState == REPLACEMENT_STATE_WAIT_END_OF_STREAM) {
@@ -210,14 +210,16 @@ public final class TextRenderer extends BaseRenderer implements Callback {
         if (subtitle != null) {
           subtitle.release();
         }
+        nextSubtitleEventIndex = nextSubtitle.getNextEventTimeIndex(positionUs);
         subtitle = nextSubtitle;
-        nextSubtitle = null;
-        nextSubtitleEventIndex = subtitle.getNextEventTimeIndex(positionUs);
+        this.nextSubtitle = null;
         textRendererNeedsUpdate = true;
       }
     }
 
     if (textRendererNeedsUpdate) {
+      // If textRendererNeedsUpdate then subtitle must be non-null.
+      Assertions.checkNotNull(subtitle);
       // textRendererNeedsUpdate is set and we're playing. Update the renderer.
       updateOutput(subtitle.getCues(positionUs));
     }
@@ -227,17 +229,18 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     }
 
     try {
+      @Nullable SubtitleInputBuffer nextInputBuffer = this.nextInputBuffer;
       while (!inputStreamEnded) {
         if (nextInputBuffer == null) {
-          nextInputBuffer = decoder.dequeueInputBuffer();
+          nextInputBuffer = Assertions.checkNotNull(decoder).dequeueInputBuffer();
           if (nextInputBuffer == null) {
             return;
           }
         }
         if (decoderReplacementState == REPLACEMENT_STATE_SIGNAL_END_OF_STREAM) {
           nextInputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-          decoder.queueInputBuffer(nextInputBuffer);
-          nextInputBuffer = null;
+          Assertions.checkNotNull(decoder).queueInputBuffer(nextInputBuffer);
+          this.nextInputBuffer = null;
           decoderReplacementState = REPLACEMENT_STATE_WAIT_END_OF_STREAM;
           return;
         }
@@ -248,13 +251,18 @@ public final class TextRenderer extends BaseRenderer implements Callback {
             inputStreamEnded = true;
             waitingForKeyFrame = false;
           } else {
-            nextInputBuffer.subsampleOffsetUs = formatHolder.format.subsampleOffsetUs;
+            @Nullable Format format = formatHolder.format;
+            if (format == null) {
+              // We haven't received a format yet.
+              return;
+            }
+            nextInputBuffer.subsampleOffsetUs = format.subsampleOffsetUs;
             nextInputBuffer.flip();
             waitingForKeyFrame &= !nextInputBuffer.isKeyFrame();
           }
           if (!waitingForKeyFrame) {
-            decoder.queueInputBuffer(nextInputBuffer);
-            nextInputBuffer = null;
+            Assertions.checkNotNull(decoder).queueInputBuffer(nextInputBuffer);
+            this.nextInputBuffer = null;
           }
         } else if (result == C.RESULT_NOTHING_READ) {
           return;
@@ -300,14 +308,14 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   private void releaseDecoder() {
     releaseBuffers();
-    decoder.release();
+    Assertions.checkNotNull(decoder).release();
     decoder = null;
     decoderReplacementState = REPLACEMENT_STATE_NONE;
   }
 
   private void initDecoder() {
     waitingForKeyFrame = true;
-    decoder = decoderFactory.createDecoder(streamFormat);
+    decoder = decoderFactory.createDecoder(Assertions.checkNotNull(streamFormat));
   }
 
   private void replaceDecoder() {
@@ -316,6 +324,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   private long getNextEventTime() {
+    Assertions.checkNotNull(subtitle);
     return nextSubtitleEventIndex == C.INDEX_UNSET
         || nextSubtitleEventIndex >= subtitle.getEventTimeCount()
         ? Long.MAX_VALUE : subtitle.getEventTime(nextSubtitleEventIndex);
