@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.StandaloneMediaClock;
@@ -133,7 +134,9 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
 
   @Override
   public long getPositionUs() {
-    return isUsingStandaloneClock ? standaloneClock.getPositionUs() : rendererClock.getPositionUs();
+    return isUsingStandaloneClock
+        ? standaloneClock.getPositionUs()
+        : Assertions.checkNotNull(rendererClock).getPositionUs();
   }
 
   @Override
@@ -160,6 +163,9 @@ import com.google.android.exoplayer2.util.StandaloneMediaClock;
       }
       return;
     }
+    // We are either already using the renderer clock or switching from the standalone to the
+    // renderer clock, so it must be non-null.
+    MediaClock rendererClock = Assertions.checkNotNull(this.rendererClock);
     long rendererClockPositionUs = rendererClock.getPositionUs();
     if (isUsingStandaloneClock) {
       // Ensure enabling the renderer clock doesn't jump backwards in time.
