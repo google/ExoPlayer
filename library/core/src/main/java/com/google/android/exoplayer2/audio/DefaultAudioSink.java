@@ -22,6 +22,7 @@ import android.media.AudioTrack;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -441,12 +443,13 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   @SinkFormatSupport
   public int getFormatSupport(Format format) {
-    if (format.encoding == C.ENCODING_INVALID) {
-      return SINK_FORMAT_UNSUPPORTED;
-    }
-    if (Util.isEncodingLinearPcm(format.encoding)) {
-      if (format.encoding == C.ENCODING_PCM_16BIT
-          || (enableFloatOutput && format.encoding == C.ENCODING_PCM_FLOAT)) {
+    if (MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)) {
+      if (!Util.isEncodingLinearPcm(format.pcmEncoding)) {
+        Log.w(TAG, "Invalid PCM encoding: " + format.pcmEncoding);
+        return SINK_FORMAT_UNSUPPORTED;
+      }
+      if (format.pcmEncoding == C.ENCODING_PCM_16BIT
+          || (enableFloatOutput && format.pcmEncoding == C.ENCODING_PCM_FLOAT)) {
         return SINK_FORMAT_SUPPORTED_DIRECTLY;
       }
       // We can resample all linear PCM encodings to 16-bit integer PCM, which AudioTrack is
@@ -456,7 +459,7 @@ public final class DefaultAudioSink implements AudioSink {
     if (enableOffload && isOffloadedPlaybackSupported(format, audioAttributes)) {
       return SINK_FORMAT_SUPPORTED_DIRECTLY;
     }
-    if (isPassthroughPlaybackSupported(format)) {
+    if (isPassthroughPlaybackSupported(format, audioCapabilities)) {
       return SINK_FORMAT_SUPPORTED_DIRECTLY;
     }
     return SINK_FORMAT_UNSUPPORTED;
@@ -482,15 +485,15 @@ public final class DefaultAudioSink implements AudioSink {
     @OutputMode int outputMode;
     @C.Encoding int outputEncoding;
     int outputSampleRate;
-    int outputChannelCount;
     int outputChannelConfig;
     int outputPcmFrameSize;
 
-    if (Util.isEncodingLinearPcm(inputFormat.encoding)) {
-      inputPcmFrameSize = Util.getPcmFrameSize(inputFormat.encoding, inputFormat.channelCount);
+    if (MimeTypes.AUDIO_RAW.equals(inputFormat.sampleMimeType)) {
+      Assertions.checkArgument(Util.isEncodingLinearPcm(inputFormat.pcmEncoding));
 
+      inputPcmFrameSize = Util.getPcmFrameSize(inputFormat.pcmEncoding, inputFormat.channelCount);
       boolean useFloatOutput =
-          enableFloatOutput && Util.isEncodingHighResolutionPcm(inputFormat.encoding);
+          enableFloatOutput && Util.isEncodingHighResolutionPcm(inputFormat.pcmEncoding);
       availableAudioProcessors =
           useFloatOutput ? toFloatPcmAvailableAudioProcessors : toIntPcmAvailableAudioProcessors;
       canApplyPlaybackParameters = !useFloatOutput;
@@ -510,7 +513,7 @@ public final class DefaultAudioSink implements AudioSink {
 
       AudioProcessor.AudioFormat outputFormat =
           new AudioProcessor.AudioFormat(
-              inputFormat.sampleRate, inputFormat.channelCount, inputFormat.encoding);
+              inputFormat.sampleRate, inputFormat.channelCount, inputFormat.pcmEncoding);
       for (AudioProcessor audioProcessor : availableAudioProcessors) {
         try {
           AudioProcessor.AudioFormat nextFormat = audioProcessor.configure(outputFormat);
@@ -525,30 +528,41 @@ public final class DefaultAudioSink implements AudioSink {
       outputMode = OUTPUT_MODE_PCM;
       outputEncoding = outputFormat.encoding;
       outputSampleRate = outputFormat.sampleRate;
-      outputChannelCount = outputFormat.channelCount;
-      outputChannelConfig = Util.getAudioTrackChannelConfig(outputChannelCount);
-      outputPcmFrameSize = Util.getPcmFrameSize(outputEncoding, outputChannelCount);
+      outputChannelConfig = Util.getAudioTrackChannelConfig(outputFormat.channelCount);
+      outputPcmFrameSize = Util.getPcmFrameSize(outputEncoding, outputFormat.channelCount);
     } else {
       inputPcmFrameSize = C.LENGTH_UNSET;
       availableAudioProcessors = new AudioProcessor[0];
       canApplyPlaybackParameters = false;
-      outputEncoding = inputFormat.encoding;
       outputSampleRate = inputFormat.sampleRate;
-      outputChannelCount = inputFormat.channelCount;
       outputPcmFrameSize = C.LENGTH_UNSET;
       if (enableOffload && isOffloadedPlaybackSupported(inputFormat, audioAttributes)) {
         outputMode = OUTPUT_MODE_OFFLOAD;
-        outputChannelConfig = Util.getAudioTrackChannelConfig(outputChannelCount);
+        outputEncoding =
+            MimeTypes.getEncoding(
+                Assertions.checkNotNull(inputFormat.sampleMimeType), inputFormat.codecs);
+        outputChannelConfig = Util.getAudioTrackChannelConfig(inputFormat.channelCount);
       } else {
         outputMode = OUTPUT_MODE_PASSTHROUGH;
-        outputChannelConfig = getChannelConfigForPassthrough(inputFormat.channelCount);
+        @Nullable
+        Pair<Integer, Integer> encodingAndChannelConfig =
+            getEncodingAndChannelConfigForPassthrough(inputFormat, audioCapabilities);
+        if (encodingAndChannelConfig == null) {
+          throw new ConfigurationException("Unable to configure passthrough for: " + inputFormat);
+        }
+        outputEncoding = encodingAndChannelConfig.first;
+        outputChannelConfig = encodingAndChannelConfig.second;
       }
     }
 
-    if (outputChannelConfig == AudioFormat.CHANNEL_INVALID) {
-      throw new ConfigurationException("Unsupported channel count: " + outputChannelCount);
+    if (outputEncoding == C.ENCODING_INVALID) {
+      throw new ConfigurationException(
+          "Invalid output encoding (mode=" + outputMode + ") for: " + inputFormat);
     }
-
+    if (outputChannelConfig == AudioFormat.CHANNEL_INVALID) {
+      throw new ConfigurationException(
+          "Invalid output channel config (mode=" + outputMode + ") for: " + inputFormat);
+    }
     Configuration pendingConfiguration =
         new Configuration(
             inputPcmFrameSize,
@@ -1276,60 +1290,67 @@ public final class DefaultAudioSink implements AudioSink {
         : writtenEncodedFrames;
   }
 
-  private boolean isPassthroughPlaybackSupported(Format format) {
-    // Check for encodings that are known to work for passthrough with the implementation in this
-    // class. This avoids trying to use passthrough with an encoding where the device/app reports
-    // it's capable but it is untested or known to be broken (for example AAC-LC).
-    return audioCapabilities != null
-        && audioCapabilities.supportsEncoding(format.encoding)
-        && (format.encoding == C.ENCODING_AC3
-            || format.encoding == C.ENCODING_E_AC3
-            || format.encoding == C.ENCODING_E_AC3_JOC
-            || format.encoding == C.ENCODING_AC4
-            || format.encoding == C.ENCODING_DTS
-            || format.encoding == C.ENCODING_DTS_HD
-            || format.encoding == C.ENCODING_DOLBY_TRUEHD)
-        && (format.channelCount == Format.NO_VALUE
-            || format.channelCount <= audioCapabilities.getMaxChannelCount());
-  }
-
-  private static boolean isOffloadedPlaybackSupported(
-      Format format, AudioAttributes audioAttributes) {
-    if (Util.SDK_INT < 29) {
-      return false;
-    }
-    int channelConfig = Util.getAudioTrackChannelConfig(format.channelCount);
-    AudioFormat audioFormat = getAudioFormat(format.sampleRate, channelConfig, format.encoding);
-    if (!AudioManager.isOffloadedPlaybackSupported(
-        audioFormat, audioAttributes.getAudioAttributesV21())) {
-      return false;
-    }
-    boolean notGapless = format.encoderDelay == 0 && format.encoderPadding == 0;
-    return notGapless || isOffloadGaplessSupported();
+  private static boolean isPassthroughPlaybackSupported(
+      Format format, @Nullable AudioCapabilities audioCapabilities) {
+    return getEncodingAndChannelConfigForPassthrough(format, audioCapabilities) != null;
   }
 
   /**
-   * Returns if the device supports gapless in offload playback.
+   * Returns the encoding and channel config to use when configuring an {@link AudioTrack} in
+   * passthrough mode for the specified {@link Format}. Returns {@code null} if passthrough of the
+   * format is unsupported.
    *
-   * <p>Gapless offload is not supported by all devices and there is no API to query its support. As
-   * a result this detection is currently based on manual testing. TODO(internal b/158191844): Add
-   * an SDK API to query offload gapless support.
+   * @param format The {@link Format}.
+   * @param audioCapabilities The device audio capabilities.
+   * @return The encoding and channel config to use, or {@code null} if passthrough of the format is
+   *     unsupported.
    */
-  private static boolean isOffloadGaplessSupported() {
-    return Util.SDK_INT >= 30 && Util.MODEL.startsWith("Pixel");
-  }
+  @Nullable
+  private static Pair<Integer, Integer> getEncodingAndChannelConfigForPassthrough(
+      Format format, @Nullable AudioCapabilities audioCapabilities) {
+    if (audioCapabilities == null) {
+      return null;
+    }
 
-  private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
-    return Util.SDK_INT >= 29 && audioTrack.isOffloadedPlayback();
-  }
+    @C.Encoding
+    int encoding =
+        MimeTypes.getEncoding(Assertions.checkNotNull(format.sampleMimeType), format.codecs);
+    // Check for encodings that are known to work for passthrough with the implementation in this
+    // class. This avoids trying to use passthrough with an encoding where the device/app reports
+    // it's capable but it is untested or known to be broken (for example AAC-LC).
+    boolean supportedEncoding =
+        encoding == C.ENCODING_AC3
+            || encoding == C.ENCODING_E_AC3
+            || encoding == C.ENCODING_E_AC3_JOC
+            || encoding == C.ENCODING_AC4
+            || encoding == C.ENCODING_DTS
+            || encoding == C.ENCODING_DTS_HD
+            || encoding == C.ENCODING_DOLBY_TRUEHD;
+    if (!supportedEncoding) {
+      return null;
+    }
 
-  private static AudioTrack initializeKeepSessionIdAudioTrack(int audioSessionId) {
-    int sampleRate = 4000; // Equal to private AudioTrack.MIN_SAMPLE_RATE.
-    int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
-    @C.PcmEncoding int encoding = C.ENCODING_PCM_16BIT;
-    int bufferSize = 2; // Use a two byte buffer, as it is not actually used for playback.
-    return new AudioTrack(C.STREAM_TYPE_DEFAULT, sampleRate, channelConfig, encoding, bufferSize,
-        MODE_STATIC, audioSessionId);
+    // E-AC3 JOC is object based, so any channel count specified in the format is arbitrary. Use 6,
+    // since the E-AC3 compatible part of the stream is 5.1.
+    int channelCount = encoding == C.ENCODING_E_AC3_JOC ? 6 : format.channelCount;
+    if (channelCount > audioCapabilities.getMaxChannelCount()) {
+      return null;
+    }
+
+    int channelConfig = getChannelConfigForPassthrough(channelCount);
+    if (channelConfig == AudioFormat.CHANNEL_INVALID) {
+      return null;
+    }
+
+    if (audioCapabilities.supportsEncoding(encoding)) {
+      return Pair.create(encoding, channelConfig);
+    } else if (encoding == C.ENCODING_E_AC3_JOC
+        && audioCapabilities.supportsEncoding(C.ENCODING_E_AC3)) {
+      // E-AC3 receivers support E-AC3 JOC streams (but decode in 2-D rather than 3-D).
+      return Pair.create(C.ENCODING_E_AC3, channelConfig);
+    }
+
+    return null;
   }
 
   private static int getChannelConfigForPassthrough(int channelCount) {
@@ -1352,6 +1373,60 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     return Util.getAudioTrackChannelConfig(channelCount);
+  }
+
+  private static boolean isOffloadedPlaybackSupported(
+      Format format, AudioAttributes audioAttributes) {
+    if (Util.SDK_INT < 29) {
+      return false;
+    }
+    @C.Encoding
+    int encoding =
+        MimeTypes.getEncoding(Assertions.checkNotNull(format.sampleMimeType), format.codecs);
+    if (encoding == C.ENCODING_INVALID) {
+      return false;
+    }
+    int channelConfig = Util.getAudioTrackChannelConfig(format.channelCount);
+    if (channelConfig == AudioFormat.CHANNEL_INVALID) {
+      return false;
+    }
+    AudioFormat audioFormat = getAudioFormat(format.sampleRate, channelConfig, encoding);
+    if (!AudioManager.isOffloadedPlaybackSupported(
+        audioFormat, audioAttributes.getAudioAttributesV21())) {
+      return false;
+    }
+    boolean notGapless = format.encoderDelay == 0 && format.encoderPadding == 0;
+    return notGapless || isOffloadedGaplessPlaybackSupported();
+  }
+
+  /**
+   * Returns whether the device supports gapless in offload playback.
+   *
+   * <p>Gapless offload is not supported by all devices and there is no API to query its support. As
+   * a result this detection is currently based on manual testing.
+   */
+  // TODO(internal b/158191844): Add an SDK API to query offload gapless support.
+  private static boolean isOffloadedGaplessPlaybackSupported() {
+    return Util.SDK_INT >= 30 && Util.MODEL.startsWith("Pixel");
+  }
+
+  private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
+    return Util.SDK_INT >= 29 && audioTrack.isOffloadedPlayback();
+  }
+
+  private static AudioTrack initializeKeepSessionIdAudioTrack(int audioSessionId) {
+    int sampleRate = 4000; // Equal to private AudioTrack.MIN_SAMPLE_RATE.
+    int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
+    @C.PcmEncoding int encoding = C.ENCODING_PCM_16BIT;
+    int bufferSize = 2; // Use a two byte buffer, as it is not actually used for playback.
+    return new AudioTrack(
+        C.STREAM_TYPE_DEFAULT,
+        sampleRate,
+        channelConfig,
+        encoding,
+        bufferSize,
+        MODE_STATIC,
+        audioSessionId);
   }
 
   private static int getMaximumEncodedRateBytesPerSecond(@C.Encoding int encoding) {

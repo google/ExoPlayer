@@ -1446,7 +1446,7 @@ public final class Util {
         .setSampleMimeType(MimeTypes.AUDIO_RAW)
         .setChannelCount(channels)
         .setSampleRate(sampleRate)
-        .setEncoding(pcmEncoding)
+        .setPcmEncoding(pcmEncoding)
         .build();
   }
 
@@ -1503,7 +1503,7 @@ public final class Util {
 
   /**
    * Returns the audio track channel configuration for the given channel count, or {@link
-   * AudioFormat#CHANNEL_INVALID} if output is not poossible.
+   * AudioFormat#CHANNEL_INVALID} if output is not possible.
    *
    * @param channelCount The number of channels in the input audio.
    * @return The channel configuration or {@link AudioFormat#CHANNEL_INVALID} if output is not

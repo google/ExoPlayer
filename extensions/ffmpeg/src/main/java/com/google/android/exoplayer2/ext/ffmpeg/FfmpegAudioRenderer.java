@@ -136,7 +136,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
         .setSampleMimeType(MimeTypes.AUDIO_RAW)
         .setChannelCount(decoder.getChannelCount())
         .setSampleRate(decoder.getSampleRate())
-        .setEncoding(decoder.getEncoding())
+        .setPcmEncoding(decoder.getEncoding())
         .build();
   }
 

@@ -88,7 +88,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
           .setSampleMimeType(MimeTypes.AUDIO_RAW)
           .setChannelCount(CHANNEL_COUNT)
           .setSampleRate(SAMPLE_RATE_HZ)
-          .setEncoding(PCM_ENCODING)
+          .setPcmEncoding(PCM_ENCODING)
           .build();
   private static final MediaItem MEDIA_ITEM =
       new MediaItem.Builder()

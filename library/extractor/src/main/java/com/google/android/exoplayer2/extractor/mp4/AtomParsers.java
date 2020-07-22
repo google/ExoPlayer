@@ -404,7 +404,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
         chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
       }
-      int fixedSampleSize = Util.getPcmFrameSize(track.format.encoding, track.format.channelCount);
+      int fixedSampleSize =
+          Util.getPcmFrameSize(track.format.pcmEncoding, track.format.channelCount);
       FixedSampleSizeRechunker.Results rechunkedResults =
           FixedSampleSizeRechunker.rechunk(
               fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
@@ -1325,7 +1326,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               .setCodecs(codecs)
               .setChannelCount(channelCount)
               .setSampleRate(sampleRate)
-              .setEncoding(pcmEncoding)
+              .setPcmEncoding(pcmEncoding)
               .setInitializationData(
                   initializationData == null ? null : Collections.singletonList(initializationData))
               .setDrmInitData(drmInitData)

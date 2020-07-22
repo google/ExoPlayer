@@ -231,7 +231,7 @@ public final class WavExtractor implements Extractor {
               .setMaxInputSize(targetSampleSizeBytes)
               .setChannelCount(header.numChannels)
               .setSampleRate(header.frameRateHz)
-              .setEncoding(pcmEncoding)
+              .setPcmEncoding(pcmEncoding)
               .build();
     }
 
@@ -373,7 +373,7 @@ public final class WavExtractor implements Extractor {
               .setMaxInputSize(numOutputFramesToBytes(targetSampleSizeFrames, numChannels))
               .setChannelCount(header.numChannels)
               .setSampleRate(header.frameRateHz)
-              .setEncoding(C.ENCODING_PCM_16BIT)
+              .setPcmEncoding(C.ENCODING_PCM_16BIT)
               .build();
     }
 

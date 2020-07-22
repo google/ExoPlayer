@@ -290,7 +290,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected boolean usePassthrough(Format format) {
-    return getPassthroughEncoding(format) != C.ENCODING_INVALID;
+    @Nullable String mimeType = format.sampleMimeType;
+    if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
+      // PCM passthrough is not yet supported.
+      return false;
+    }
+    return audioSink.supportsFormat(format);
   }
 
   @Override
@@ -345,7 +350,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     return Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType)
         && oldFormat.channelCount == newFormat.channelCount
         && oldFormat.sampleRate == newFormat.sampleRate
-        && oldFormat.encoding == newFormat.encoding
+        && oldFormat.pcmEncoding == newFormat.pcmEncoding
         && oldFormat.initializationDataEquals(newFormat)
         && !MimeTypes.AUDIO_OPUS.equals(oldFormat.sampleMimeType);
   }
@@ -394,21 +399,26 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     Format audioSinkInputFormat;
     @Nullable int[] channelMap = null;
     if (codecPassthroughFormat != null) { // Raw codec passthrough
-      audioSinkInputFormat = getFormatWithEncodingForPassthrough(codecPassthroughFormat);
+      audioSinkInputFormat = codecPassthroughFormat;
     } else if (getCodec() == null) { // Codec bypass passthrough
-      audioSinkInputFormat = getFormatWithEncodingForPassthrough(outputFormat);
+      audioSinkInputFormat = outputFormat;
     } else {
       MediaFormat mediaFormat = getCodec().getOutputFormat();
       @C.PcmEncoding int pcmEncoding;
       if (mediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
         pcmEncoding = Util.getPcmEncoding(mediaFormat.getInteger(VIVO_BITS_PER_SAMPLE_KEY));
       } else {
-        pcmEncoding = getPcmEncoding(outputFormat);
+        // If the format is anything other than PCM then we assume that the audio decoder will
+        // output 16-bit PCM.
+        pcmEncoding =
+            MimeTypes.AUDIO_RAW.equals(outputFormat.sampleMimeType)
+                ? outputFormat.pcmEncoding
+                : C.ENCODING_PCM_16BIT;
       }
       audioSinkInputFormat =
           new Format.Builder()
               .setSampleMimeType(MimeTypes.AUDIO_RAW)
-              .setEncoding(pcmEncoding)
+              .setPcmEncoding(pcmEncoding)
               .setEncoderDelay(outputFormat.encoderDelay)
               .setEncoderPadding(outputFormat.encoderPadding)
               .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
@@ -427,45 +437,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       audioSink.configure(audioSinkInputFormat, /* specifiedBufferSize= */ 0, channelMap);
     } catch (AudioSink.ConfigurationException e) {
       throw createRendererException(e, outputFormat);
-    }
-  }
-
-  /**
-   * Returns the {@link C.Encoding} constant to use for passthrough of the given format, or {@link
-   * C#ENCODING_INVALID} if passthrough is not possible.
-   *
-   * @param format The format for which to get the encoding.
-   * @return The {@link C.Encoding} corresponding to the format, or {@link C#ENCODING_INVALID} if
-   *     the format is not supported.
-   */
-  @C.Encoding
-  protected int getPassthroughEncoding(Format format) {
-    @Nullable String mimeType = format.sampleMimeType;
-    if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
-      // PCM passthrough is not supported.
-      return C.ENCODING_INVALID;
-    }
-    if (MimeTypes.AUDIO_E_AC3_JOC.equals(mimeType)) {
-      // E-AC3 JOC is object-based so the output channel count is arbitrary.
-      Format eAc3JocFormat =
-          format
-              .buildUpon()
-              .setChannelCount(Format.NO_VALUE)
-              .setEncoding(C.ENCODING_E_AC3_JOC)
-              .build();
-      if (audioSink.supportsFormat(eAc3JocFormat)) {
-        return C.ENCODING_E_AC3_JOC;
-      }
-      // E-AC3 receivers can decode JOC streams, but in 2-D rather than 3-D, so try to fall back.
-      mimeType = MimeTypes.AUDIO_E_AC3;
-    }
-
-    @C.Encoding int encoding = MimeTypes.getEncoding(mimeType, format.codecs);
-    Format passthroughFormat = format.buildUpon().setEncoding(encoding).build();
-    if (audioSink.supportsFormat(passthroughFormat)) {
-      return encoding;
-    } else {
-      return C.ENCODING_INVALID;
     }
   }
 
@@ -782,13 +753,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
   }
 
-  private Format getFormatWithEncodingForPassthrough(Format outputFormat) {
-    @C.Encoding int passthroughEncoding = getPassthroughEncoding(outputFormat);
-    // TODO(b/112299307): Passthrough can have become unavailable since usePassthrough was called.
-    Assertions.checkState(passthroughEncoding != C.ENCODING_INVALID);
-    return outputFormat.buildUpon().setEncoding(passthroughEncoding).build();
-  }
-
   /**
    * Returns whether the device's decoders are known to not support setting the codec operating
    * rate.
@@ -830,15 +794,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
             || Util.DEVICE.startsWith("gprimelte")
             || Util.DEVICE.startsWith("j2y18lte")
             || Util.DEVICE.startsWith("ms01"));
-  }
-
-  @C.PcmEncoding
-  private static int getPcmEncoding(Format format) {
-    // If the format is anything other than PCM then we assume that the audio decoder will output
-    // 16-bit PCM.
-    return MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)
-        ? format.encoding
-        : C.ENCODING_PCM_16BIT;
   }
 
   private final class AudioSinkListener implements AudioSink.Listener {

@@ -56,7 +56,7 @@ public class MediaCodecAudioRendererTest {
   private static final Format AUDIO_AAC =
       new Format.Builder()
           .setSampleMimeType(MimeTypes.AUDIO_AAC)
-          .setEncoding(C.ENCODING_PCM_16BIT)
+          .setPcmEncoding(C.ENCODING_PCM_16BIT)
           .setChannelCount(2)
           .setSampleRate(44100)
           .setEncoderDelay(100)
@@ -274,7 +274,7 @@ public class MediaCodecAudioRendererTest {
   private static Format getAudioSinkFormat(Format inputFormat) {
     return new Format.Builder()
         .setSampleMimeType(MimeTypes.AUDIO_RAW)
-        .setEncoding(C.ENCODING_PCM_16BIT)
+        .setPcmEncoding(C.ENCODING_PCM_16BIT)
         .setChannelCount(inputFormat.channelCount)
         .setSampleRate(inputFormat.sampleRate)
         .setEncoderDelay(inputFormat.encoderDelay)

@@ -96,7 +96,7 @@ import java.util.List;
  * <ul>
  *   <li>{@link #channelCount}
  *   <li>{@link #sampleRate}
- *   <li>{@link #encoding}
+ *   <li>{@link #pcmEncoding}
  *   <li>{@link #encoderDelay}
  *   <li>{@link #encoderPadding}
  * </ul>
@@ -157,7 +157,7 @@ public final class Format implements Parcelable {
 
     private int channelCount;
     private int sampleRate;
-    @C.Encoding private int encoding;
+    @C.PcmEncoding private int pcmEncoding;
     private int encoderDelay;
     private int encoderPadding;
 
@@ -185,7 +185,7 @@ public final class Format implements Parcelable {
       // Audio specific.
       channelCount = NO_VALUE;
       sampleRate = NO_VALUE;
-      encoding = NO_VALUE;
+      pcmEncoding = NO_VALUE;
       // Text specific.
       accessibilityChannel = NO_VALUE;
     }
@@ -225,7 +225,7 @@ public final class Format implements Parcelable {
       // Audio specific.
       this.channelCount = format.channelCount;
       this.sampleRate = format.sampleRate;
-      this.encoding = format.encoding;
+      this.pcmEncoding = format.pcmEncoding;
       this.encoderDelay = format.encoderDelay;
       this.encoderPadding = format.encoderPadding;
       // Text specific.
@@ -530,13 +530,13 @@ public final class Format implements Parcelable {
     }
 
     /**
-     * Sets {@link Format#encoding}. The default value is {@link #NO_VALUE}.
+     * Sets {@link Format#pcmEncoding}. The default value is {@link #NO_VALUE}.
      *
-     * @param encoding The {@link Format#encoding}.
+     * @param pcmEncoding The {@link Format#pcmEncoding}.
      * @return The builder.
      */
-    public Builder setEncoding(@C.Encoding int encoding) {
-      this.encoding = encoding;
+    public Builder setPcmEncoding(@C.PcmEncoding int pcmEncoding) {
+      this.pcmEncoding = pcmEncoding;
       return this;
     }
 
@@ -618,7 +618,7 @@ public final class Format implements Parcelable {
           colorInfo,
           channelCount,
           sampleRate,
-          encoding,
+          pcmEncoding,
           encoderDelay,
           encoderPadding,
           accessibilityChannel,
@@ -769,8 +769,6 @@ public final class Format implements Parcelable {
   public final int sampleRate;
   /** The {@link C.PcmEncoding} for PCM audio. Set to {@link #NO_VALUE} for other media types. */
   @C.PcmEncoding public final int pcmEncoding;
-  /** The {@link C.Encoding} for audio. Set to {@link #NO_VALUE} for other media types. */
-  @C.Encoding public final int encoding;
   /**
    * The number of frames to trim from the start of the decoded audio stream, or 0 if not
    * applicable.
@@ -1008,7 +1006,7 @@ public final class Format implements Parcelable {
       int maxInputSize,
       int channelCount,
       int sampleRate,
-      @C.Encoding int encoding,
+      @C.PcmEncoding int pcmEncoding,
       @Nullable List<byte[]> initializationData,
       @Nullable DrmInitData drmInitData,
       @C.SelectionFlags int selectionFlags,
@@ -1026,7 +1024,7 @@ public final class Format implements Parcelable {
         .setDrmInitData(drmInitData)
         .setChannelCount(channelCount)
         .setSampleRate(sampleRate)
-        .setEncoding(encoding)
+        .setPcmEncoding(pcmEncoding)
         .build();
   }
 
@@ -1040,7 +1038,7 @@ public final class Format implements Parcelable {
       int maxInputSize,
       int channelCount,
       int sampleRate,
-      @C.Encoding int encoding,
+      @C.PcmEncoding int pcmEncoding,
       int encoderDelay,
       int encoderPadding,
       @Nullable List<byte[]> initializationData,
@@ -1062,7 +1060,7 @@ public final class Format implements Parcelable {
         .setDrmInitData(drmInitData)
         .setChannelCount(channelCount)
         .setSampleRate(sampleRate)
-        .setEncoding(encoding)
+        .setPcmEncoding(pcmEncoding)
         .setEncoderDelay(encoderDelay)
         .setEncoderPadding(encoderPadding)
         .build();
@@ -1244,7 +1242,7 @@ public final class Format implements Parcelable {
       // Audio specific.
       int channelCount,
       int sampleRate,
-      @C.Encoding int encoding,
+      @C.PcmEncoding int pcmEncoding,
       int encoderDelay,
       int encoderPadding,
       // Text specific.
@@ -1282,8 +1280,7 @@ public final class Format implements Parcelable {
     // Audio specific.
     this.channelCount = channelCount;
     this.sampleRate = sampleRate;
-    this.encoding = encoding;
-    this.pcmEncoding = toPcmEncoding(encoding);
+    this.pcmEncoding = pcmEncoding;
     this.encoderDelay = encoderDelay == NO_VALUE ? 0 : encoderDelay;
     this.encoderPadding = encoderPadding == NO_VALUE ? 0 : encoderPadding;
     // Text specific.
@@ -1337,8 +1334,7 @@ public final class Format implements Parcelable {
     // Audio specific.
     channelCount = in.readInt();
     sampleRate = in.readInt();
-    encoding = in.readInt();
-    pcmEncoding = toPcmEncoding(encoding);
+    pcmEncoding = in.readInt();
     encoderDelay = in.readInt();
     encoderPadding = in.readInt();
     // Text specific.
@@ -1569,7 +1565,7 @@ public final class Format implements Parcelable {
       // Audio specific.
       result = 31 * result + channelCount;
       result = 31 * result + sampleRate;
-      result = 31 * result + encoding;
+      result = 31 * result + pcmEncoding;
       result = 31 * result + encoderDelay;
       result = 31 * result + encoderPadding;
       // Text specific.
@@ -1606,7 +1602,7 @@ public final class Format implements Parcelable {
         && stereoMode == other.stereoMode
         && channelCount == other.channelCount
         && sampleRate == other.sampleRate
-        && encoding == other.encoding
+        && pcmEncoding == other.pcmEncoding
         && encoderDelay == other.encoderDelay
         && encoderPadding == other.encoderPadding
         && accessibilityChannel == other.accessibilityChannel
@@ -1727,7 +1723,7 @@ public final class Format implements Parcelable {
     // Audio specific.
     dest.writeInt(channelCount);
     dest.writeInt(sampleRate);
-    dest.writeInt(encoding);
+    dest.writeInt(pcmEncoding);
     dest.writeInt(encoderDelay);
     dest.writeInt(encoderPadding);
     // Text specific.
@@ -1747,9 +1743,4 @@ public final class Format implements Parcelable {
     }
 
   };
-
-  @C.PcmEncoding
-  private static int toPcmEncoding(@C.Encoding int encoding) {
-    return Util.isEncodingLinearPcm(encoding) ? encoding : NO_VALUE;
-  }
 }

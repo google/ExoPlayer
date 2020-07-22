@@ -57,7 +57,7 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
       throws ConfigurationException {
     interceptedData.add(
         new DumpableConfiguration(
-            inputFormat.encoding, inputFormat.channelCount, inputFormat.sampleRate));
+            inputFormat.pcmEncoding, inputFormat.channelCount, inputFormat.sampleRate));
     super.configure(inputFormat, specifiedBufferSize, outputChannels);
   }
 
