@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlayerMessage.Target;
@@ -67,7 +66,8 @@ import java.util.concurrent.TimeoutException;
 
   private final Renderer[] renderers;
   private final TrackSelector trackSelector;
-  private final PlaybackUpdateListenerImpl playbackUpdateListener;
+  private final Handler playbackInfoUpdateHandler;
+  private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
   private final Handler internalPlayerHandler;
   private final CopyOnWriteArrayList<ListenerHolder> listeners;
@@ -87,8 +87,6 @@ import java.util.concurrent.TimeoutException;
   @DiscontinuityReason private int pendingDiscontinuityReason;
   @PlayWhenReadyChangeReason private int pendingPlayWhenReadyChangeReason;
   private boolean foregroundMode;
-  private int pendingSetPlaybackSpeedAcks;
-  private float playbackSpeed;
   private SeekParameters seekParameters;
   private ShuffleOrder shuffleOrder;
   private boolean pauseAtEndOfMediaItems;
@@ -155,9 +153,11 @@ import java.util.concurrent.TimeoutException;
             new TrackSelection[renderers.length],
             null);
     period = new Timeline.Period();
-    playbackSpeed = Player.DEFAULT_PLAYBACK_SPEED;
     maskingWindowIndex = C.INDEX_UNSET;
-    playbackUpdateListener = new PlaybackUpdateListenerImpl(applicationLooper);
+    playbackInfoUpdateHandler = new Handler(applicationLooper);
+    playbackInfoUpdateListener =
+        playbackInfoUpdate ->
+            playbackInfoUpdateHandler.post(() -> handlePlaybackInfo(playbackInfoUpdate));
     playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
     pendingListenerNotifications = new ArrayDeque<>();
     if (analyticsCollector != null) {
@@ -179,7 +179,7 @@ import java.util.concurrent.TimeoutException;
             pauseAtEndOfMediaItems,
             applicationLooper,
             clock,
-            playbackUpdateListener);
+            playbackInfoUpdateListener);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
 
@@ -595,7 +595,7 @@ import java.util.concurrent.TimeoutException;
       // general because the midroll ad preceding the seek destination must be played before the
       // content position can be played, if a different ad is playing at the moment.
       Log.w(TAG, "seekTo ignored because an ad is playing");
-      playbackUpdateListener.onPlaybackInfoUpdate(
+      playbackInfoUpdateListener.onPlaybackInfoUpdate(
           new ExoPlayerImplInternal.PlaybackInfoUpdate(playbackInfo));
       return;
     }
@@ -632,30 +632,30 @@ import java.util.concurrent.TimeoutException;
   @Deprecated
   @Override
   public PlaybackParameters getPlaybackParameters() {
-    return new PlaybackParameters(playbackSpeed);
+    return new PlaybackParameters(playbackInfo.playbackSpeed);
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   public void setPlaybackSpeed(float playbackSpeed) {
     checkState(playbackSpeed > 0);
-    if (this.playbackSpeed == playbackSpeed) {
+    if (playbackInfo.playbackSpeed == playbackSpeed) {
       return;
     }
-    pendingSetPlaybackSpeedAcks++;
-    this.playbackSpeed = playbackSpeed;
-    PlaybackParameters playbackParameters = new PlaybackParameters(playbackSpeed);
+    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackSpeed(playbackSpeed);
+    pendingOperationAcks++;
     internalPlayer.setPlaybackSpeed(playbackSpeed);
-    notifyListeners(
-        listener -> {
-          listener.onPlaybackParametersChanged(playbackParameters);
-          listener.onPlaybackSpeedChanged(playbackSpeed);
-        });
+    updatePlaybackInfo(
+        newPlaybackInfo,
+        /* positionDiscontinuity= */ false,
+        /* ignored */ DISCONTINUITY_REASON_INTERNAL,
+        /* ignored */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* seekProcessed= */ false);
   }
 
   @Override
   public float getPlaybackSpeed() {
-    return playbackSpeed;
+    return playbackInfo.playbackSpeed;
   }
 
   @Override
@@ -726,7 +726,7 @@ import java.util.concurrent.TimeoutException;
                   ExoPlaybackException.createForUnexpected(
                       new RuntimeException(new TimeoutException("Player release timed out.")))));
     }
-    playbackUpdateListener.handler.removeCallbacksAndMessages(null);
+    playbackInfoUpdateHandler.removeCallbacksAndMessages(null);
     if (analyticsCollector != null) {
       bandwidthMeter.removeEventListener(analyticsCollector);
     }
@@ -896,23 +896,6 @@ import java.util.concurrent.TimeoutException;
     return mediaSources;
   }
 
-  @SuppressWarnings("deprecation")
-  private void handlePlaybackSpeed(float playbackSpeed, boolean operationAck) {
-    if (operationAck) {
-      pendingSetPlaybackSpeedAcks--;
-    }
-    if (pendingSetPlaybackSpeedAcks == 0) {
-      if (this.playbackSpeed != playbackSpeed) {
-        this.playbackSpeed = playbackSpeed;
-        notifyListeners(
-            listener -> {
-              listener.onPlaybackParametersChanged(new PlaybackParameters(playbackSpeed));
-              listener.onPlaybackSpeedChanged(playbackSpeed);
-            });
-      }
-    }
-  }
-
   private void handlePlaybackInfo(ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfoUpdate) {
     pendingOperationAcks -= playbackInfoUpdate.operationAcks;
     if (playbackInfoUpdate.positionDiscontinuity) {
@@ -996,7 +979,7 @@ import java.util.concurrent.TimeoutException;
       PlaybackInfo playbackInfo,
       PlaybackInfo oldPlaybackInfo,
       boolean positionDiscontinuity,
-      int positionDiscontinuityReason,
+      @DiscontinuityReason int positionDiscontinuityReason,
       boolean timelineChanged) {
 
     Timeline oldTimeline = oldPlaybackInfo.timeline;
@@ -1360,49 +1343,6 @@ import java.util.concurrent.TimeoutException;
     return positionMs;
   }
 
-  private final class PlaybackUpdateListenerImpl
-      implements ExoPlayerImplInternal.PlaybackUpdateListener, Handler.Callback {
-    private static final int MSG_PLAYBACK_INFO_CHANGED = 0;
-    private static final int MSG_PLAYBACK_SPEED_CHANGED = 1;
-
-    private final Handler handler;
-
-    private PlaybackUpdateListenerImpl(Looper applicationLooper) {
-      handler = Util.createHandler(applicationLooper, /* callback= */ this);
-    }
-
-    @Override
-    public void onPlaybackInfoUpdate(ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfo) {
-      handler.obtainMessage(MSG_PLAYBACK_INFO_CHANGED, playbackInfo).sendToTarget();
-    }
-
-    @Override
-    public void onPlaybackSpeedChange(float playbackSpeed, boolean acknowledgeCommand) {
-      handler
-          .obtainMessage(
-              MSG_PLAYBACK_SPEED_CHANGED,
-              /* arg1= */ acknowledgeCommand ? 1 : 0,
-              /* arg2= */ 0,
-              /* obj= */ playbackSpeed)
-          .sendToTarget();
-    }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-      switch (msg.what) {
-        case MSG_PLAYBACK_INFO_CHANGED:
-          handlePlaybackInfo((ExoPlayerImplInternal.PlaybackInfoUpdate) msg.obj);
-          break;
-        case MSG_PLAYBACK_SPEED_CHANGED:
-          handlePlaybackSpeed((Float) msg.obj, /* operationAck= */ msg.arg1 != 0);
-          break;
-        default:
-          throw new IllegalStateException();
-      }
-      return true;
-    }
-  }
-
   private static final class PlaybackInfoUpdate implements Runnable {
 
     private final PlaybackInfo playbackInfo;
@@ -1424,6 +1364,7 @@ import java.util.concurrent.TimeoutException;
     private final boolean playWhenReadyChanged;
     private final boolean playbackSuppressionReasonChanged;
     private final boolean isPlayingChanged;
+    private final boolean playbackSpeedChanged;
 
     public PlaybackInfoUpdate(
         PlaybackInfo playbackInfo,
@@ -1461,6 +1402,7 @@ import java.util.concurrent.TimeoutException;
       playbackSuppressionReasonChanged =
           previousPlaybackInfo.playbackSuppressionReason != playbackInfo.playbackSuppressionReason;
       isPlayingChanged = isPlaying(previousPlaybackInfo) != isPlaying(playbackInfo);
+      playbackSpeedChanged = previousPlaybackInfo.playbackSpeed != playbackInfo.playbackSpeed;
     }
 
     @SuppressWarnings("deprecation")
@@ -1525,6 +1467,15 @@ import java.util.concurrent.TimeoutException;
       if (isPlayingChanged) {
         invokeAll(
             listenerSnapshot, listener -> listener.onIsPlayingChanged(isPlaying(playbackInfo)));
+      }
+      if (playbackSpeedChanged) {
+        PlaybackParameters playbackParameters = new PlaybackParameters(playbackInfo.playbackSpeed);
+        invokeAll(
+            listenerSnapshot,
+            listener -> {
+              listener.onPlaybackSpeedChanged(playbackInfo.playbackSpeed);
+              listener.onPlaybackParametersChanged(playbackParameters);
+            });
       }
       if (seekProcessed) {
         invokeAll(listenerSnapshot, EventListener::onSeekProcessed);

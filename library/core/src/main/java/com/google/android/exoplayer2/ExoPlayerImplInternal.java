@@ -109,10 +109,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
-  public interface PlaybackUpdateListener {
+  public interface PlaybackInfoUpdateListener {
     void onPlaybackInfoUpdate(ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfo);
-
-    void onPlaybackSpeedChange(float playbackSpeed, boolean acknowledgeCommand);
   }
 
   // Internal messages
@@ -168,7 +166,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private final DefaultMediaClock mediaClock;
   private final ArrayList<PendingMessageInfo> pendingMessages;
   private final Clock clock;
-  private final PlaybackUpdateListener playbackUpdateListener;
+  private final PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final MediaPeriodQueue queue;
   private final MediaSourceList mediaSourceList;
 
@@ -210,8 +208,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean pauseAtEndOfWindow,
       Looper applicationLooper,
       Clock clock,
-      PlaybackUpdateListener playbackUpdateListener) {
-    this.playbackUpdateListener = playbackUpdateListener;
+      PlaybackInfoUpdateListener playbackInfoUpdateListener) {
+    this.playbackInfoUpdateListener = playbackInfoUpdateListener;
     this.renderers = renderers;
     this.trackSelector = trackSelector;
     this.emptyTrackSelectorResult = emptyTrackSelectorResult;
@@ -624,7 +622,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void maybeNotifyPlaybackInfoChanged() {
     playbackInfoUpdate.setPlaybackInfo(playbackInfo);
     if (playbackInfoUpdate.hasPendingChange) {
-      playbackUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
+      playbackInfoUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
       playbackInfoUpdate = new PlaybackInfoUpdate(playbackInfo);
     }
   }
@@ -1279,6 +1277,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             mediaPeriodId,
             playbackInfo.playWhenReady,
             playbackInfo.playbackSuppressionReason,
+            playbackInfo.playbackSpeed,
             startPositionUs,
             /* totalBufferedDurationUs= */ 0,
             startPositionUs);
@@ -1964,7 +1963,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void handlePlaybackSpeed(float playbackSpeed, boolean acknowledgeCommand)
       throws ExoPlaybackException {
-    playbackUpdateListener.onPlaybackSpeedChange(playbackSpeed, acknowledgeCommand);
+    playbackInfoUpdate.incrementPendingOperationAcks(acknowledgeCommand ? 1 : 0);
+    playbackInfo = playbackInfo.copyWithPlaybackSpeed(playbackSpeed);
     updateTrackSelectionPlaybackSpeed(playbackSpeed);
     for (Renderer renderer : renderers) {
       if (renderer != null) {

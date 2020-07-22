@@ -62,6 +62,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.testutil.Action;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
@@ -82,6 +83,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinit
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.TestExoPlayer;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocation;
@@ -3333,15 +3335,29 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void setPlaybackParametersConsecutivelyNotifiesListenerForEveryChangeOnce()
+  public void setPlaybackParametersConsecutivelyNotifiesListenerForEveryChangeOnceAndIsMasked()
       throws Exception {
+    List<Float> maskedPlaybackSpeeds = new ArrayList<>();
+    Action getPlaybackSpeedAction =
+        new Action("getPlaybackSpeed", /* description= */ null) {
+          @Override
+          protected void doActionImpl(
+              SimpleExoPlayer player,
+              DefaultTrackSelector trackSelector,
+              @Nullable Surface surface) {
+            maskedPlaybackSpeeds.add(player.getPlaybackSpeed());
+          }
+        };
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .setPlaybackSpeed(1.1f)
+            .apply(getPlaybackSpeedAction)
             .setPlaybackSpeed(1.2f)
+            .apply(getPlaybackSpeedAction)
             .setPlaybackSpeed(1.3f)
+            .apply(getPlaybackSpeedAction)
             .play()
             .build();
     List<Float> reportedPlaybackSpeeds = new ArrayList<>();
@@ -3360,6 +3376,7 @@ public final class ExoPlayerTest {
         .blockUntilEnded(TIMEOUT_MS);
 
     assertThat(reportedPlaybackSpeeds).containsExactly(1.1f, 1.2f, 1.3f).inOrder();
+    assertThat(maskedPlaybackSpeeds).isEqualTo(reportedPlaybackSpeeds);
   }
 
   @Test
