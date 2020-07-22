@@ -934,7 +934,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void setPlaybackParametersBeforePreparationCompletesSucceeds() throws Exception {
+  public void setPlaybackSpeedBeforePreparationCompletesSucceeds() throws Exception {
     // Test that no exception is thrown when playback parameters are updated between creating a
     // period and preparation of the period completing.
     final CountDownLatch createPeriodCalledCountDownLatch = new CountDownLatch(1);
@@ -3335,7 +3335,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void setPlaybackParametersConsecutivelyNotifiesListenerForEveryChangeOnceAndIsMasked()
+  public void setPlaybackSpeedConsecutivelyNotifiesListenerForEveryChangeOnceAndIsMasked()
       throws Exception {
     List<Float> maskedPlaybackSpeeds = new ArrayList<>();
     Action getPlaybackSpeedAction =
@@ -3381,7 +3381,7 @@ public final class ExoPlayerTest {
 
   @Test
   public void
-      setUnsupportedPlaybackParametersConsecutivelyNotifiesListenerForEveryChangeOnceAndResetsOnceHandled()
+      setUnsupportedPlaybackSpeedConsecutivelyNotifiesListenerForEveryChangeOnceAndResetsOnceHandled()
           throws Exception {
     Renderer renderer =
         new FakeMediaClockRenderer(C.TRACK_TYPE_AUDIO) {

@@ -96,7 +96,7 @@ public final class DefaultAudioSinkTest {
   }
 
   @Test
-  public void handlesBufferAfterReset_withPlaybackParameters() throws Exception {
+  public void handlesBufferAfterReset_withPlaybackSpeed() throws Exception {
     defaultAudioSink.setPlaybackSpeed(/* playbackSpeed= */ 1.5f);
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
     defaultAudioSink.handleBuffer(
@@ -124,7 +124,7 @@ public final class DefaultAudioSinkTest {
   }
 
   @Test
-  public void handlesBufferAfterReset_withFormatChangeAndPlaybackParameters() throws Exception {
+  public void handlesBufferAfterReset_withFormatChangeAndPlaybackSpeed() throws Exception {
     defaultAudioSink.setPlaybackSpeed(/* playbackSpeed= */ 1.5f);
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
     defaultAudioSink.handleBuffer(
