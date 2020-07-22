@@ -634,8 +634,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       fullyConsumed = audioSink.handleBuffer(buffer, bufferPresentationTimeUs, sampleCount);
     } catch (AudioSink.InitializationException | AudioSink.WriteException e) {
-      // TODO(internal: b/145658993) Use outputFormat instead.
-      throw createRendererException(e, inputFormat);
+      throw createRendererException(e, format);
     }
 
     if (fullyConsumed) {
@@ -654,8 +653,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       audioSink.playToEndOfStream();
     } catch (AudioSink.WriteException e) {
-      // TODO(internal: b/145658993) Use outputFormat instead.
-      throw createRendererException(e, inputFormat);
+      Format outputFormat = getCurrentOutputFormat();
+      throw createRendererException(e, outputFormat != null ? outputFormat : inputFormat);
     }
   }
 

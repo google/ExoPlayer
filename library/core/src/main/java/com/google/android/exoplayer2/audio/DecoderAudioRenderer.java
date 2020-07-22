@@ -255,7 +255,11 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
         // End of stream read having not read a format.
         Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
         inputStreamEnded = true;
-        processEndOfStream();
+        try {
+          processEndOfStream();
+        } catch (AudioSink.WriteException e) {
+          throw createRendererException(e, /* format= */ null);
+        }
         return;
       } else {
         // We still don't have a format and can't make progress without one.
@@ -356,7 +360,11 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
       } else {
         outputBuffer.release();
         outputBuffer = null;
-        processEndOfStream();
+        try {
+          processEndOfStream();
+        } catch (AudioSink.WriteException e) {
+          throw createRendererException(e, getOutputFormat());
+        }
       }
       return false;
     }
@@ -431,14 +439,9 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
     }
   }
 
-  private void processEndOfStream() throws ExoPlaybackException {
+  private void processEndOfStream() throws AudioSink.WriteException {
     outputStreamEnded = true;
-    try {
-      audioSink.playToEndOfStream();
-    } catch (AudioSink.WriteException e) {
-      // TODO(internal: b/145658993) Use outputFormat for the call from drainOutputBuffer.
-      throw createRendererException(e, inputFormat);
-    }
+    audioSink.playToEndOfStream();
   }
 
   private void flushDecoder() throws ExoPlaybackException {
