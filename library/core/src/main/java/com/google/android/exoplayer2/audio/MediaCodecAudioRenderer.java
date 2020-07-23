@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
@@ -101,11 +102,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
    * @param mediaCodecSelector A decoder selector.
    */
   public MediaCodecAudioRenderer(Context context, MediaCodecSelector mediaCodecSelector) {
-    this(
-        context,
-        mediaCodecSelector,
-        /* eventHandler= */ null,
-        /* eventListener= */ null);
+    this(context, mediaCodecSelector, /* eventHandler= */ null, /* eventListener= */ null);
   }
 
   /**
@@ -120,12 +117,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       MediaCodecSelector mediaCodecSelector,
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener) {
-    this(
-        context,
-        mediaCodecSelector,
-        eventHandler,
-        eventListener,
-        (AudioCapabilities) null);
+    this(context, mediaCodecSelector, eventHandler, eventListener, (AudioCapabilities) null);
   }
 
   /**
@@ -378,8 +370,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onCodecInitialized(String name, long initializedTimestampMs,
-      long initializationDurationMs) {
+  protected void onCodecInitialized(
+      String name, long initializedTimestampMs, long initializationDurationMs) {
     eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
   }
 
@@ -406,15 +398,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     } else {
       MediaFormat mediaFormat = getCodec().getOutputFormat();
       @C.PcmEncoding int pcmEncoding;
-      if (mediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
+      if (MimeTypes.AUDIO_RAW.equals(outputFormat.sampleMimeType)) {
+        // For PCM streams, the encoder passes through int samples despite set to float mode.
+        pcmEncoding = outputFormat.pcmEncoding;
+      } else if (Util.SDK_INT >= 24 && mediaFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
+        pcmEncoding = mediaFormat.getInteger(MediaFormat.KEY_PCM_ENCODING);
+      } else if (mediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
         pcmEncoding = Util.getPcmEncoding(mediaFormat.getInteger(VIVO_BITS_PER_SAMPLE_KEY));
       } else {
         // If the format is anything other than PCM then we assume that the audio decoder will
         // output 16-bit PCM.
-        pcmEncoding =
-            MimeTypes.AUDIO_RAW.equals(outputFormat.sampleMimeType)
-                ? outputFormat.pcmEncoding
-                : C.ENCODING_PCM_16BIT;
+        pcmEncoding = C.ENCODING_PCM_16BIT;
       }
       audioSinkInputFormat =
           new Format.Builder()
@@ -741,6 +735,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       // not sync frames. Set a format key to override this.
       mediaFormat.setInteger("ac4-is-sync", 1);
     }
+    if (Util.SDK_INT >= 24
+        && audioSink.getFormatSupport(
+                Util.getPcmFormat(C.ENCODING_PCM_FLOAT, format.channelCount, format.sampleRate))
+            == AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY) {
+      mediaFormat.setInteger(MediaFormat.KEY_PCM_ENCODING, AudioFormat.ENCODING_PCM_FLOAT);
+    }
     return mediaFormat;
   }
 
@@ -769,15 +769,17 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   /**
    * Returns whether the decoder is known to output six audio channels when provided with input with
    * fewer than six channels.
-   * <p>
-   * See [Internal: b/35655036].
+   *
+   * <p>See [Internal: b/35655036].
    */
   private static boolean codecNeedsDiscardChannelsWorkaround(String codecName) {
     // The workaround applies to Samsung Galaxy S6 and Samsung Galaxy S7.
-    return Util.SDK_INT < 24 && "OMX.SEC.aac.dec".equals(codecName)
+    return Util.SDK_INT < 24
+        && "OMX.SEC.aac.dec".equals(codecName)
         && "samsung".equals(Util.MANUFACTURER)
-        && (Util.DEVICE.startsWith("zeroflte") || Util.DEVICE.startsWith("herolte")
-        || Util.DEVICE.startsWith("heroqlte"));
+        && (Util.DEVICE.startsWith("zeroflte")
+            || Util.DEVICE.startsWith("herolte")
+            || Util.DEVICE.startsWith("heroqlte"));
   }
 
   /**
