@@ -193,13 +193,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * its children by looking for the following ids:
  *
  * <ul>
- *   <li><b>{@code exo_play}</b> - The play button.
+ *   <li><b>{@code exo_play_pause}</b> - The play and pause button.
  *       <ul>
- *         <li>Type: {@link View}
- *       </ul>
- *   <li><b>{@code exo_pause}</b> - The pause button.
- *       <ul>
- *         <li>Type: {@link View}
+ *         <li>Type: {@link ImageView}
  *       </ul>
  *   <li><b>{@code exo_rew}</b> - The rewind button.
  *       <ul>
@@ -251,6 +247,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li><b>{@code exo_vr}</b> - The VR mode button.
  *       <ul>
  *         <li>Type: {@link View}
+ *       </ul>
+ *   <li><b>{@code exo_subtitle}</b> - The subtitle button.
+ *       <ul>
+ *         <li>Type: {@link ImageView}
+ *       </ul>
+ *   <li><b>{@code exo_fullscreen}</b> - The fullscreen button.
+ *       <ul>
+ *         <li>Type: {@link ImageView}
  *       </ul>
  *   <li><b>{@code exo_position}</b> - Text view displaying the current playback position.
  *       <ul>
