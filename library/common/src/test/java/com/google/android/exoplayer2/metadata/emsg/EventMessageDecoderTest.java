@@ -82,7 +82,7 @@ public final class EventMessageDecoderTest {
   }
 
   /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
-  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
   private static byte[] createByteArray(int... bytes) {
     byte[] byteArray = new byte[bytes.length];
     for (int i = 0; i < byteArray.length; i++) {
@@ -96,7 +96,7 @@ public final class EventMessageDecoderTest {
    * Create a new {@link MetadataInputBuffer} and copy {@code data} into the backing {@link
    * ByteBuffer}.
    */
-  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
   private static MetadataInputBuffer createMetadataInputBuffer(byte[] data) {
     MetadataInputBuffer buffer = new MetadataInputBuffer();
     buffer.data = ByteBuffer.allocate(data.length).put(data);

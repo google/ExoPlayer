@@ -163,7 +163,7 @@ public class DrmInitDataTest {
   }
 
   /** Generates an array of random bytes with the specified length. */
-  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
   private static byte[] buildTestData(int length, int seed) {
     byte[] source = new byte[length];
     new Random(seed).nextBytes(source);

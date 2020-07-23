@@ -742,7 +742,7 @@ public class UtilTest {
 
     assertThat(result).isInstanceOf(SpannableString.class);
     assertThat(result.toString()).isEqualTo("a short");
-    // TODO(internal b/161776534): Use SpannedSubject when it's available in a dependency we can use
+    // TODO(internal b/161804035): Use SpannedSubject when it's available in a dependency we can use
     // from here.
     Spanned spannedResult = (Spanned) result;
     Object[] spans = spannedResult.getSpans(0, result.length(), Object.class);
@@ -1057,13 +1057,13 @@ public class UtilTest {
   }
 
   /** Equivalent to {@code buildTestData(length, length)}. */
-  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
   private static byte[] buildTestData(int length) {
     return buildTestData(length, length);
   }
 
   /** Generates a random string with the specified maximum length. */
-  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
   private static String buildTestString(int maximumLength, Random random) {
     int length = random.nextInt(maximumLength);
     StringBuilder builder = new StringBuilder(length);
@@ -1074,7 +1074,7 @@ public class UtilTest {
   }
 
   /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
-  // TODO(internal b/161776534): Use TestUtils when it's available in a dependency we can use here.
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
   private static byte[] createByteArray(int... bytes) {
     byte[] byteArray = new byte[bytes.length];
     for (int i = 0; i < byteArray.length; i++) {
