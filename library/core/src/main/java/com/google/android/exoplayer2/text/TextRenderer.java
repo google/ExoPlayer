@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
@@ -27,7 +29,6 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.SampleStream;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -115,7 +116,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   public TextRenderer(
       TextOutput output, @Nullable Looper outputLooper, SubtitleDecoderFactory decoderFactory) {
     super(C.TRACK_TYPE_TEXT);
-    this.output = Assertions.checkNotNull(output);
+    this.output = checkNotNull(output);
     this.outputHandler =
         outputLooper == null ? null : Util.createHandler(outputLooper, /* callback= */ this);
     this.decoderFactory = decoderFactory;
@@ -159,7 +160,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       replaceDecoder();
     } else {
       releaseBuffers();
-      Assertions.checkNotNull(decoder).flush();
+      checkNotNull(decoder).flush();
     }
   }
 
@@ -170,9 +171,9 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     }
 
     if (nextSubtitle == null) {
-      Assertions.checkNotNull(decoder).setPositionUs(positionUs);
+      checkNotNull(decoder).setPositionUs(positionUs);
       try {
-        nextSubtitle = Assertions.checkNotNull(decoder).dequeueOutputBuffer();
+        nextSubtitle = checkNotNull(decoder).dequeueOutputBuffer();
       } catch (SubtitleDecoderException e) {
         handleDecoderError(e);
         return;
@@ -219,7 +220,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
     if (textRendererNeedsUpdate) {
       // If textRendererNeedsUpdate then subtitle must be non-null.
-      Assertions.checkNotNull(subtitle);
+      checkNotNull(subtitle);
       // textRendererNeedsUpdate is set and we're playing. Update the renderer.
       updateOutput(subtitle.getCues(positionUs));
     }
@@ -229,17 +230,18 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     }
 
     try {
-      @Nullable SubtitleInputBuffer nextInputBuffer = this.nextInputBuffer;
       while (!inputStreamEnded) {
+        @Nullable SubtitleInputBuffer nextInputBuffer = this.nextInputBuffer;
         if (nextInputBuffer == null) {
-          nextInputBuffer = Assertions.checkNotNull(decoder).dequeueInputBuffer();
+          nextInputBuffer = checkNotNull(decoder).dequeueInputBuffer();
           if (nextInputBuffer == null) {
             return;
           }
+          this.nextInputBuffer = nextInputBuffer;
         }
         if (decoderReplacementState == REPLACEMENT_STATE_SIGNAL_END_OF_STREAM) {
           nextInputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-          Assertions.checkNotNull(decoder).queueInputBuffer(nextInputBuffer);
+          checkNotNull(decoder).queueInputBuffer(nextInputBuffer);
           this.nextInputBuffer = null;
           decoderReplacementState = REPLACEMENT_STATE_WAIT_END_OF_STREAM;
           return;
@@ -261,7 +263,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
             waitingForKeyFrame &= !nextInputBuffer.isKeyFrame();
           }
           if (!waitingForKeyFrame) {
-            Assertions.checkNotNull(decoder).queueInputBuffer(nextInputBuffer);
+            checkNotNull(decoder).queueInputBuffer(nextInputBuffer);
             this.nextInputBuffer = null;
           }
         } else if (result == C.RESULT_NOTHING_READ) {
@@ -270,7 +272,6 @@ public final class TextRenderer extends BaseRenderer implements Callback {
       }
     } catch (SubtitleDecoderException e) {
       handleDecoderError(e);
-      return;
     }
   }
 
@@ -308,14 +309,14 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   private void releaseDecoder() {
     releaseBuffers();
-    Assertions.checkNotNull(decoder).release();
+    checkNotNull(decoder).release();
     decoder = null;
     decoderReplacementState = REPLACEMENT_STATE_NONE;
   }
 
   private void initDecoder() {
     waitingForKeyFrame = true;
-    decoder = decoderFactory.createDecoder(Assertions.checkNotNull(streamFormat));
+    decoder = decoderFactory.createDecoder(checkNotNull(streamFormat));
   }
 
   private void replaceDecoder() {
@@ -324,7 +325,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   private long getNextEventTime() {
-    Assertions.checkNotNull(subtitle);
+    checkNotNull(subtitle);
     return nextSubtitleEventIndex == C.INDEX_UNSET
         || nextSubtitleEventIndex >= subtitle.getEventTimeCount()
         ? Long.MAX_VALUE : subtitle.getEventTime(nextSubtitleEventIndex);
