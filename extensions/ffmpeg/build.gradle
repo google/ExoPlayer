@@ -15,9 +15,16 @@ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
     sourceSets.main {
+        // The directory from which to pick the ffmpeg binaries.
         jniLibs.srcDir 'src/main/libs'
-        jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
     }
+}
+
+// Configure the native build only if ffmpeg is present to avoid gradle sync
+// failures if ffmpeg hasn't been built according to the README instructions.
+if (project.file('src/main/jni/ffmpeg').exists()) {
+    android.externalNativeBuild.cmake.path = 'src/main/jni/CMakeLists.txt'
+    android.externalNativeBuild.cmake.version = '3.7.1+'
 }
 
 dependencies {
