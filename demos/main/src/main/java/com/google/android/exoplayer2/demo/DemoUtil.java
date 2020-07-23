@@ -61,7 +61,7 @@ public final class DemoUtil {
 
   /** Returns whether extension renderers should be used. */
   public static boolean useExtensionRenderers() {
-    return "withDecoderExtensions".equals(BuildConfig.FLAVOR);
+    return BuildConfig.USE_DECODER_EXTENSIONS;
   }
 
   public static RenderersFactory buildRenderersFactory(
