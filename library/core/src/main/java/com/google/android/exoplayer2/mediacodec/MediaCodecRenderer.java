@@ -387,7 +387,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private long codecHotswapDeadlineMs;
   private int inputIndex;
   private int outputIndex;
-  private ByteBuffer outputBuffer;
+  @Nullable private ByteBuffer outputBuffer;
   private boolean isDecodeOnlyOutputBuffer;
   private boolean isLastOutputBuffer;
   private boolean bypassEnabled;
@@ -1168,6 +1168,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
   }
 
+  @Nullable
   private ByteBuffer getOutputBuffer(int outputIndex) {
     if (Util.SDK_INT >= 21) {
       return codec.getOutputBuffer(outputIndex);
@@ -1874,7 +1875,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at the
    *     start of the current iteration of the rendering loop.
    * @param codec The {@link MediaCodec} instance, or null in bypass mode were no codec is used.
-   * @param buffer The output buffer to process.
+   * @param buffer The output buffer to process, or null if the buffer data is not made available to
+   *     the application layer (see {@link MediaCodec#getOutputBuffer(int)}). This {@code buffer}
+   *     can only be null for video data. Note that the buffer data can still be rendered in this
+   *     case by using the {@code bufferIndex}.
    * @param bufferIndex The index of the output buffer.
    * @param bufferFlags The flags attached to the output buffer.
    * @param sampleCount The number of samples extracted from the sample queue in the buffer. This
@@ -1891,7 +1895,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       long positionUs,
       long elapsedRealtimeUs,
       @Nullable MediaCodec codec,
-      ByteBuffer buffer,
+      @Nullable ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,
       int sampleCount,

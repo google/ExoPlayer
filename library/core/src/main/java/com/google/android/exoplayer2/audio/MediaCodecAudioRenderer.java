@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.MediaCodec;
@@ -40,7 +42,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -568,7 +569,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       long positionUs,
       long elapsedRealtimeUs,
       @Nullable MediaCodec codec,
-      ByteBuffer buffer,
+      @Nullable ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,
       int sampleCount,
@@ -577,6 +578,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       boolean isLastBuffer,
       Format format)
       throws ExoPlaybackException {
+    checkNotNull(buffer);
     if (codec != null
         && codecNeedsEosBufferTimestampWorkaround
         && bufferPresentationTimeUs == 0
@@ -588,7 +590,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (codecPassthroughFormat != null
         && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
-      Assertions.checkNotNull(codec).releaseOutputBuffer(bufferIndex, false);
+      checkNotNull(codec).releaseOutputBuffer(bufferIndex, false);
       return true;
     }
 

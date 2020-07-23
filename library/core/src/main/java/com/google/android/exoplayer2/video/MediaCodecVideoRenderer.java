@@ -759,7 +759,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       long positionUs,
       long elapsedRealtimeUs,
       @Nullable MediaCodec codec,
-      ByteBuffer buffer,
+      @Nullable ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,
       int sampleCount,
