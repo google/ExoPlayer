@@ -36,7 +36,7 @@ public final class DefaultAllocator implements Allocator {
   private int targetBufferSize;
   private int allocatedCount;
   private int availableCount;
-  @NullableType private Allocation[] availableAllocations;
+  private @NullableType Allocation[] availableAllocations;
 
   /**
    * Constructs an instance without creating any {@link Allocation}s up front.

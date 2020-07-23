@@ -43,7 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Base class for multi segment stream downloaders.
@@ -456,14 +455,14 @@ public abstract class SegmentDownloader<M extends FilterableManifest<M>> impleme
 
     public final Segment segment;
     public final CacheDataSource dataSource;
-    @NullableType private final ProgressNotifier progressNotifier;
+    @Nullable private final ProgressNotifier progressNotifier;
     public final byte[] temporaryBuffer;
     private final CacheWriter cacheWriter;
 
     public SegmentDownloadRunnable(
         Segment segment,
         CacheDataSource dataSource,
-        @NullableType ProgressNotifier progressNotifier,
+        @Nullable ProgressNotifier progressNotifier,
         byte[] temporaryBuffer) {
       this.segment = segment;
       this.dataSource = dataSource;
