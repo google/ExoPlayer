@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.net.Uri;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -275,7 +278,7 @@ public final class CacheDataSource implements DataSource {
 
     private CacheDataSource createDataSourceInternal(
         @Nullable DataSource upstreamDataSource, @Flags int flags, int upstreamPriority) {
-      Cache cache = Assertions.checkNotNull(this.cache);
+      Cache cache = checkNotNull(this.cache);
       @Nullable DataSink cacheWriteDataSink;
       if (cacheIsReadOnly || upstreamDataSource == null) {
         cacheWriteDataSink = null;
@@ -541,7 +544,7 @@ public final class CacheDataSource implements DataSource {
 
   @Override
   public void addTransferListener(TransferListener transferListener) {
-    Assertions.checkNotNull(transferListener);
+    checkNotNull(transferListener);
     cacheReadDataSource.addTransferListener(transferListener);
     upstreamDataSource.addTransferListener(transferListener);
   }
@@ -550,7 +553,8 @@ public final class CacheDataSource implements DataSource {
   public long open(DataSpec dataSpec) throws IOException {
     try {
       String key = cacheKeyFactory.buildCacheKey(dataSpec);
-      requestDataSpec = dataSpec.buildUpon().setKey(key).build();
+      DataSpec requestDataSpec = dataSpec.buildUpon().setKey(key).build();
+      this.requestDataSpec = requestDataSpec;
       actualUri = getRedirectedUriOrDefault(cache, key, /* defaultUri= */ requestDataSpec.uri);
       readPosition = dataSpec.position;
 
@@ -571,7 +575,7 @@ public final class CacheDataSource implements DataSource {
           }
         }
       }
-      openNextSource(false);
+      openNextSource(requestDataSpec, false);
       return bytesRemaining;
     } catch (Throwable e) {
       handleBeforeThrow(e);
@@ -581,6 +585,7 @@ public final class CacheDataSource implements DataSource {
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws IOException {
+    DataSpec requestDataSpec = checkNotNull(this.requestDataSpec);
     if (readLength == 0) {
       return 0;
     }
@@ -589,9 +594,9 @@ public final class CacheDataSource implements DataSource {
     }
     try {
       if (readPosition >= checkCachePosition) {
-        openNextSource(true);
+        openNextSource(requestDataSpec, true);
       }
-      int bytesRead = currentDataSource.read(buffer, offset, readLength);
+      int bytesRead = checkNotNull(currentDataSource).read(buffer, offset, readLength);
       if (bytesRead != C.RESULT_END_OF_INPUT) {
         if (isReadingFromCache()) {
           totalCachedBytesRead += bytesRead;
@@ -601,16 +606,16 @@ public final class CacheDataSource implements DataSource {
           bytesRemaining -= bytesRead;
         }
       } else if (currentDataSpecLengthUnset) {
-        setNoBytesRemainingAndMaybeStoreLength();
+        setNoBytesRemainingAndMaybeStoreLength(castNonNull(requestDataSpec.key));
       } else if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
         closeCurrentSource();
-        openNextSource(false);
+        openNextSource(requestDataSpec, false);
         return read(buffer, offset, readLength);
       }
       return bytesRead;
     } catch (IOException e) {
       if (currentDataSpecLengthUnset && DataSourceException.isCausedByPositionOutOfRange(e)) {
-        setNoBytesRemainingAndMaybeStoreLength();
+        setNoBytesRemainingAndMaybeStoreLength(castNonNull(requestDataSpec.key));
         return C.RESULT_END_OF_INPUT;
       }
       handleBeforeThrow(e);
@@ -660,12 +665,13 @@ public final class CacheDataSource implements DataSource {
    * opened if it's possible to switch to reading from or writing to the cache. If a switch isn't
    * possible then the current source is left unchanged.
    *
+   * @param requestDataSpec The original {@link DataSpec} to build upon for the next source.
    * @param checkCache If true tries to switch to reading from or writing to cache instead of
    *     reading from {@link #upstreamDataSource}, which is the currently open source.
    */
-  private void openNextSource(boolean checkCache) throws IOException {
+  private void openNextSource(DataSpec requestDataSpec, boolean checkCache) throws IOException {
     @Nullable CacheSpan nextSpan;
-    String key = requestDataSpec.key;
+    String key = castNonNull(requestDataSpec.key);
     if (currentRequestIgnoresCache) {
       nextSpan = null;
     } else if (blockOnCache) {
@@ -689,7 +695,7 @@ public final class CacheDataSource implements DataSource {
           requestDataSpec.buildUpon().setPosition(readPosition).setLength(bytesRemaining).build();
     } else if (nextSpan.isCached) {
       // Data is cached in a span file starting at nextSpan.position.
-      Uri fileUri = Uri.fromFile(nextSpan.file);
+      Uri fileUri = Uri.fromFile(castNonNull(nextSpan.file));
       long filePositionOffset = nextSpan.position;
       long positionInFile = readPosition - filePositionOffset;
       long length = nextSpan.length - positionInFile;
@@ -741,7 +747,7 @@ public final class CacheDataSource implements DataSource {
       try {
         closeCurrentSource();
       } catch (Throwable e) {
-        if (nextSpan.isHoleSpan()) {
+        if (castNonNull(nextSpan).isHoleSpan()) {
           // Release the hole span before throwing, else we'll hold it forever.
           cache.releaseHoleSpan(nextSpan);
         }
@@ -763,7 +769,7 @@ public final class CacheDataSource implements DataSource {
       ContentMetadataMutations.setContentLength(mutations, readPosition + bytesRemaining);
     }
     if (isReadingFromUpstream()) {
-      actualUri = currentDataSource.getUri();
+      actualUri = nextDataSource.getUri();
       boolean isRedirected = !requestDataSpec.uri.equals(actualUri);
       ContentMetadataMutations.setRedirectedUri(mutations, isRedirected ? actualUri : null);
     }
@@ -772,12 +778,12 @@ public final class CacheDataSource implements DataSource {
     }
   }
 
-  private void setNoBytesRemainingAndMaybeStoreLength() throws IOException {
+  private void setNoBytesRemainingAndMaybeStoreLength(String key) throws IOException {
     bytesRemaining = 0;
     if (isWritingToCache()) {
       ContentMetadataMutations mutations = new ContentMetadataMutations();
       ContentMetadataMutations.setContentLength(mutations, readPosition);
-      cache.applyContentMetadataMutations(requestDataSpec.key, mutations);
+      cache.applyContentMetadataMutations(key, mutations);
     }
   }
 
