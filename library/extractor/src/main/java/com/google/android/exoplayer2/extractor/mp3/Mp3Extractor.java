@@ -109,7 +109,7 @@ public final class Mp3Extractor implements Extractor {
   /**
    * The maximum number of bytes to peek when sniffing, excluding the ID3 header, before giving up.
    */
-  private static final int MAX_SNIFF_BYTES = 16 * 1024;
+  private static final int MAX_SNIFF_BYTES = 32 * 1024;
   /**
    * Maximum length of data read into {@link #scratch}.
    */
