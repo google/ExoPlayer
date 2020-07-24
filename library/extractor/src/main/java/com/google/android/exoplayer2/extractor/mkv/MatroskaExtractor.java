@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.android.exoplayer2.video.DolbyVisionConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -155,8 +156,13 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_BLOCK = 0xA1;
   private static final int ID_BLOCK_DURATION = 0x9B;
   private static final int ID_BLOCK_ADDITIONS = 0x75A1;
+  private static final int ID_BLOCK_ADDITION_MAPPING = 0x41E4;
   private static final int ID_BLOCK_MORE = 0xA6;
   private static final int ID_BLOCK_ADD_ID = 0xEE;
+  private static final int ID_BLOCK_ADD_ID_VALUE = 0x41F0;
+  private static final int ID_BLOCK_ADD_ID_NAME = 0x41A4;
+  private static final int ID_BLOCK_ADD_ID_TYPE = 0x41E7;
+  private static final int ID_BLOCK_ADD_ID_EXTRA_DATA = 0x41ED;
   private static final int ID_BLOCK_ADDITIONAL = 0xA5;
   private static final int ID_REFERENCE_BLOCK = 0xFB;
   private static final int ID_TRACKS = 0x1654AE6B;
@@ -231,6 +237,18 @@ public class MatroskaExtractor implements Extractor {
    */
   private static final int BLOCK_ADDITIONAL_ID_VP9_ITU_T_35 = 4;
 
+  /**
+   * Dolby Vision configuration for profiles <= 7
+   * https://www.matroska.org/technical/codec_specs.html
+   */
+  private static final int BLOCK_ADDITIONAL_ID_DVCC = 0x64766343;
+
+  /**
+   * Dolby Vision configuration for profiles > 7
+   * https://www.matroska.org/technical/codec_specs.html
+   */
+  private static final int BLOCK_ADDITIONAL_ID_DVVC = 0x64767643;
+
   private static final int LACING_NONE = 0;
   private static final int LACING_XIPH = 1;
   private static final int LACING_FIXED_SIZE = 2;
@@ -253,8 +271,8 @@ public class MatroskaExtractor implements Extractor {
    */
   private static final byte[] SUBRIP_PREFIX =
       new byte[] {
-        49, 10, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 48, 48, 32, 45, 45, 62, 32, 48, 48, 58, 48,
-        48, 58, 48, 48, 44, 48, 48, 48, 10
+          49, 10, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 48, 48, 32, 45, 45, 62, 32, 48, 48, 58, 48,
+          48, 58, 48, 48, 44, 48, 48, 48, 10
       };
   /**
    * The byte offset of the end timecode in {@link #SUBRIP_PREFIX}.
@@ -288,8 +306,8 @@ public class MatroskaExtractor implements Extractor {
    */
   private static final byte[] SSA_PREFIX =
       new byte[] {
-        68, 105, 97, 108, 111, 103, 117, 101, 58, 32, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44,
-        48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44
+          68, 105, 97, 108, 111, 103, 117, 101, 58, 32, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44,
+          48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44
       };
   /**
    * The byte offset of the end timecode in {@link #SSA_PREFIX}.
@@ -510,6 +528,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_CUE_TRACK_POSITIONS:
       case ID_BLOCK_GROUP:
       case ID_BLOCK_ADDITIONS:
+      case ID_BLOCK_ADDITION_MAPPING:
       case ID_BLOCK_MORE:
       case ID_PROJECTION:
       case ID_COLOUR:
@@ -552,11 +571,14 @@ public class MatroskaExtractor implements Extractor {
       case ID_MAX_FALL:
       case ID_PROJECTION_TYPE:
       case ID_BLOCK_ADD_ID:
+      case ID_BLOCK_ADD_ID_VALUE:
+      case ID_BLOCK_ADD_ID_TYPE:
         return EbmlProcessor.ELEMENT_TYPE_UNSIGNED_INT;
       case ID_DOC_TYPE:
       case ID_NAME:
       case ID_CODEC_ID:
       case ID_LANGUAGE:
+      case ID_BLOCK_ADD_ID_NAME:
         return EbmlProcessor.ELEMENT_TYPE_STRING;
       case ID_SEEK_ID:
       case ID_CONTENT_COMPRESSION_SETTINGS:
@@ -566,6 +588,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_CODEC_PRIVATE:
       case ID_PROJECTION_PRIVATE:
       case ID_BLOCK_ADDITIONAL:
+      case ID_BLOCK_ADD_ID_EXTRA_DATA:
         return EbmlProcessor.ELEMENT_TYPE_BINARY;
       case ID_DURATION:
       case ID_SAMPLING_FREQUENCY:
@@ -968,6 +991,9 @@ public class MatroskaExtractor implements Extractor {
       case ID_BLOCK_ADD_ID:
         blockAdditionalId = (int) value;
         break;
+      case ID_BLOCK_ADD_ID_TYPE:
+        currentTrack.blockAdditionalId = (int) value;
+        break;
       default:
         break;
     }
@@ -1091,6 +1117,9 @@ public class MatroskaExtractor implements Extractor {
         input.readFully(encryptionKey, 0, contentSize);
         currentTrack.cryptoData = new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, encryptionKey,
             0, 0); // We assume patternless AES-CTR.
+        break;
+      case ID_BLOCK_ADD_ID_EXTRA_DATA:
+        handleBlockAddIDExtraData(currentTrack, input, contentSize);
         break;
       case ID_SIMPLE_BLOCK:
       case ID_BLOCK:
@@ -1243,10 +1272,24 @@ public class MatroskaExtractor implements Extractor {
   protected void handleBlockAdditionalData(
       Track track, int blockAdditionalId, ExtractorInput input, int contentSize)
       throws IOException {
+
     if (blockAdditionalId == BLOCK_ADDITIONAL_ID_VP9_ITU_T_35
         && CODEC_ID_VP9.equals(track.codecId)) {
       blockAdditionalData.reset(contentSize);
       input.readFully(blockAdditionalData.data, 0, contentSize);
+    } else {
+      // Unhandled block additional data.
+      input.skipFully(contentSize);
+    }
+  }
+
+  protected void handleBlockAddIDExtraData(
+      Track track, ExtractorInput input, int contentSize)
+      throws IOException {
+
+    if (track.blockAdditionalId == BLOCK_ADDITIONAL_ID_DVVC || track.blockAdditionalId == BLOCK_ADDITIONAL_ID_DVCC) {
+      track.doviDecoderConfigurationRecord = new byte[contentSize];
+      input.readFully(track.doviDecoderConfigurationRecord, 0, contentSize);
     } else {
       // Unhandled block additional data.
       input.skipFully(contentSize);
@@ -1915,6 +1958,8 @@ public class MatroskaExtractor implements Extractor {
     public float whitePointChromaticityY = Format.NO_VALUE;
     public float maxMasteringLuminance = Format.NO_VALUE;
     public float minMasteringLuminance = Format.NO_VALUE;
+    // DOVIDecoderConfigurationRecord structure as defined in [@!DolbyVisionWithinIso.2020-02]
+    @Nullable public byte[] doviDecoderConfigurationRecord = null;
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
@@ -1932,6 +1977,9 @@ public class MatroskaExtractor implements Extractor {
     // Set when the output is initialized. nalUnitLengthFieldLength is only set for H264/H265.
     public TrackOutput output;
     public int nalUnitLengthFieldLength;
+
+    // Block additional state
+    private int blockAdditionalId;
 
     /** Initializes the track with an output. */
     public void initializeOutput(ExtractorOutput output, int trackId) throws ParserException {
@@ -2083,6 +2131,16 @@ public class MatroskaExtractor implements Extractor {
           break;
         default:
           throw new ParserException("Unrecognized codec identifier.");
+      }
+
+
+      if(doviDecoderConfigurationRecord != null) {
+        @Nullable DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig
+            .parse(new ParsableByteArray(doviDecoderConfigurationRecord));
+        if (dolbyVisionConfig != null) {
+          codecs = dolbyVisionConfig.codecs;
+          mimeType = MimeTypes.VIDEO_DOLBY_VISION;
+        }
       }
 
       @C.SelectionFlags int selectionFlags = 0;
