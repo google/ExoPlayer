@@ -562,6 +562,7 @@ public class StyledPlayerControlView extends FrameLayout {
     }
     fullScreenButton = findViewById(R.id.exo_fullscreen);
     if (fullScreenButton != null) {
+      fullScreenButton.setVisibility(GONE);
       fullScreenButton.setOnClickListener(this::onFullScreenButtonClicked);
     }
     settingsButton = findViewById(R.id.exo_settings);
