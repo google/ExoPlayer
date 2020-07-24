@@ -46,6 +46,7 @@ import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
+import com.google.ads.interactivemedia.v3.api.CompanionAdSlot;
 import com.google.ads.interactivemedia.v3.api.FriendlyObstruction;
 import com.google.ads.interactivemedia.v3.api.FriendlyObstructionPurpose;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
@@ -67,15 +68,17 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,6 +125,7 @@ public final class ImaAdsLoader
     @Nullable private ImaSdkSettings imaSdkSettings;
     @Nullable private AdEventListener adEventListener;
     @Nullable private Set<UiElement> adUiElements;
+    @Nullable private Collection<CompanionAdSlot> companionAdSlots;
     private long adPreloadTimeoutMs;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
@@ -180,7 +184,19 @@ public final class ImaAdsLoader
      * @see AdsRenderingSettings#setUiElements(Set)
      */
     public Builder setAdUiElements(Set<UiElement> adUiElements) {
-      this.adUiElements = new HashSet<>(checkNotNull(adUiElements));
+      this.adUiElements = ImmutableSet.copyOf(checkNotNull(adUiElements));
+      return this;
+    }
+
+    /**
+     * Sets the slots to use for companion ads, if they are present in the loaded ad.
+     *
+     * @param companionAdSlots The slots to use for companion ads.
+     * @return This builder, for convenience.
+     * @see AdDisplayContainer#setCompanionSlots(Collection)
+     */
+    public Builder setCompanionAdSlots(Collection<CompanionAdSlot> companionAdSlots) {
+      this.companionAdSlots = ImmutableList.copyOf(checkNotNull(companionAdSlots));
       return this;
     }
 
@@ -298,6 +314,7 @@ public final class ImaAdsLoader
           focusSkipButtonWhenAvailable,
           playAdBeforeStartPosition,
           adUiElements,
+          companionAdSlots,
           adEventListener,
           imaFactory);
     }
@@ -322,6 +339,7 @@ public final class ImaAdsLoader
           focusSkipButtonWhenAvailable,
           playAdBeforeStartPosition,
           adUiElements,
+          companionAdSlots,
           adEventListener,
           imaFactory);
     }
@@ -388,6 +406,7 @@ public final class ImaAdsLoader
   private final boolean playAdBeforeStartPosition;
   private final int mediaBitrate;
   @Nullable private final Set<UiElement> adUiElements;
+  @Nullable private final Collection<CompanionAdSlot> companionAdSlots;
   @Nullable private final AdEventListener adEventListener;
   private final ImaFactory imaFactory;
   private final ImaSdkSettings imaSdkSettings;
@@ -495,6 +514,7 @@ public final class ImaAdsLoader
         /* focusSkipButtonWhenAvailable= */ true,
         /* playAdBeforeStartPosition= */ true,
         /* adUiElements= */ null,
+        /* companionAdSlots= */ null,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
   }
@@ -512,6 +532,7 @@ public final class ImaAdsLoader
       boolean focusSkipButtonWhenAvailable,
       boolean playAdBeforeStartPosition,
       @Nullable Set<UiElement> adUiElements,
+      @Nullable Collection<CompanionAdSlot> companionAdSlots,
       @Nullable AdEventListener adEventListener,
       ImaFactory imaFactory) {
     checkArgument(adTagUri != null || adsResponse != null);
@@ -525,6 +546,7 @@ public final class ImaAdsLoader
     this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
     this.playAdBeforeStartPosition = playAdBeforeStartPosition;
     this.adUiElements = adUiElements;
+    this.companionAdSlots = companionAdSlots;
     this.adEventListener = adEventListener;
     this.imaFactory = imaFactory;
     if (imaSdkSettings == null) {
@@ -595,6 +617,9 @@ public final class ImaAdsLoader
     }
     adDisplayContainer =
         imaFactory.createAdDisplayContainer(adViewGroup, /* player= */ componentListener);
+    if (companionAdSlots != null) {
+      adDisplayContainer.setCompanionSlots(companionAdSlots);
+    }
     adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings, adDisplayContainer);
     adsLoader.addAdErrorListener(componentListener);
     adsLoader.addAdsLoadedListener(componentListener);

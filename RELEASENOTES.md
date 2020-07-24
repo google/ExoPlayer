@@ -252,6 +252,8 @@
     *   Migrate to new 'friendly obstruction' IMA SDK APIs, and allow apps to
         register a purpose and detail reason for overlay views via
         `AdsLoader.AdViewProvider`.
+    *   Add `ImaAdsLoader.Builder.setCompanionAdSlots` so it's possible to set
+        companion ad slots without accessing the `AdDisplayContainer`.
 *   Demo app:
     *   Retain previous position in list of samples.
     *   Replace the `extensions` variant with `decoderExtensions` and make the

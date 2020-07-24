@@ -29,6 +29,7 @@ dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    implementation 'com.google.guava:guava:' + guavaVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     androidTestImplementation project(modulePrefix + 'testutils')
