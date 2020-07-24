@@ -165,7 +165,7 @@ public final class Format implements Parcelable {
 
     private int accessibilityChannel;
 
-    // Provided by source.
+    // Provided by the source.
 
     @Nullable private Class<? extends ExoMediaCrypto> exoMediaCryptoType;
 
@@ -230,7 +230,7 @@ public final class Format implements Parcelable {
       this.encoderPadding = format.encoderPadding;
       // Text specific.
       this.accessibilityChannel = format.accessibilityChannel;
-      // Provided by source.
+      // Provided by the source.
       this.exoMediaCryptoType = format.exoMediaCryptoType;
     }
 
@@ -787,9 +787,9 @@ public final class Format implements Parcelable {
   // Provided by source.
 
   /**
-   * The type of the {@link ExoMediaCrypto} that the source will associate to the content that this
-   * format describes, or null if the source will not associate an {@link ExoMediaCrypto}. Cannot be
-   * null if {@link #drmInitData} is not null.
+   * The type of {@link ExoMediaCrypto} that will be associated with the content this format
+   * describes, or {@code null} if the content is not encrypted. Cannot be null if {@link
+   * #drmInitData} is non-null.
    */
   @Nullable public final Class<? extends ExoMediaCrypto> exoMediaCryptoType;
 
@@ -1287,10 +1287,7 @@ public final class Format implements Parcelable {
     this.accessibilityChannel = accessibilityChannel;
     // Provided by source.
     if (exoMediaCryptoType == null && drmInitData != null) {
-      // Described content is encrypted but no exoMediaCryptoType has been assigned. Use
-      // UnsupportedMediaCrypto (not supported by any Renderers), so MediaSources are forced to
-      // replace
-      // this value in order to have Renderers flag this Format as supported.
+      // Encrypted content must always have a non-null exoMediaCryptoType.
       exoMediaCryptoType = UnsupportedMediaCrypto.class;
     }
     this.exoMediaCryptoType = exoMediaCryptoType;
@@ -1340,9 +1337,7 @@ public final class Format implements Parcelable {
     // Text specific.
     accessibilityChannel = in.readInt();
     // Provided by source.
-    // If the described content is encrypted. Use UnsupportedMediaCrypto (not supported by any
-    // Renderers), so MediaSources are forced to replace this value in order to have Renderers flag
-    // this Format as supported.
+    // Encrypted content must always have a non-null exoMediaCryptoType.
     exoMediaCryptoType = drmInitData != null ? UnsupportedMediaCrypto.class : null;
   }
 
@@ -1570,7 +1565,7 @@ public final class Format implements Parcelable {
       result = 31 * result + encoderPadding;
       // Text specific.
       result = 31 * result + accessibilityChannel;
-      // Provided by source.
+      // Provided by the source.
       result = 31 * result + (exoMediaCryptoType == null ? 0 : exoMediaCryptoType.hashCode());
       hashCode = result;
     }
