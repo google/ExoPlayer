@@ -271,8 +271,8 @@ public class MatroskaExtractor implements Extractor {
    */
   private static final byte[] SUBRIP_PREFIX =
       new byte[] {
-          49, 10, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 48, 48, 32, 45, 45, 62, 32, 48, 48, 58, 48,
-          48, 58, 48, 48, 44, 48, 48, 48, 10
+        49, 10, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 48, 48, 32, 45, 45, 62, 32, 48, 48, 58, 48,
+        48, 58, 48, 48, 44, 48, 48, 48, 10
       };
   /**
    * The byte offset of the end timecode in {@link #SUBRIP_PREFIX}.
