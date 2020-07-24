@@ -306,8 +306,8 @@ public class MatroskaExtractor implements Extractor {
    */
   private static final byte[] SSA_PREFIX =
       new byte[] {
-          68, 105, 97, 108, 111, 103, 117, 101, 58, 32, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44,
-          48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44
+        68, 105, 97, 108, 111, 103, 117, 101, 58, 32, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44,
+        48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44
       };
   /**
    * The byte offset of the end timecode in {@link #SSA_PREFIX}.
