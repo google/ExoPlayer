@@ -87,7 +87,7 @@ public final class VpxLibrary {
    * protected content.
    */
   public static boolean matchesExpectedExoMediaCryptoType(
-      @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
+      Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
     return Util.areEqual(VpxLibrary.exoMediaCryptoType, exoMediaCryptoType);
   }
 

@@ -213,7 +213,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
     @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
-    boolean formatHasDrm = format.drmInitData != null || format.exoMediaCryptoType != null;
+    boolean formatHasDrm = format.exoMediaCryptoType != null;
     boolean supportsFormatDrm = supportsFormatDrm(format);
     // In passthrough mode, if the format needs decryption then we need to use a passthrough
     // decoder. Else we don't don't need a decoder at all.

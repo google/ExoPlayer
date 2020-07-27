@@ -128,7 +128,7 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
     boolean drmIsSupported =
-        format.drmInitData == null
+        format.exoMediaCryptoType == null
             || VpxLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType);
     if (!drmIsSupported) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);

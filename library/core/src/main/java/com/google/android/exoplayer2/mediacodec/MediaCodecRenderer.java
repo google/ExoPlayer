@@ -1972,7 +1972,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** Returns whether this renderer supports the given {@link Format Format's} DRM scheme. */
   protected static boolean supportsFormatDrm(Format format) {
-    return format.drmInitData == null
+    return format.exoMediaCryptoType == null
         || FrameworkMediaCrypto.class.equals(format.exoMediaCryptoType);
   }
 

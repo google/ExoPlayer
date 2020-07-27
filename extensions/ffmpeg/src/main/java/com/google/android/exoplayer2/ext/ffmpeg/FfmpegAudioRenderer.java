@@ -103,7 +103,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
         || (!sinkSupportsFormat(format, C.ENCODING_PCM_16BIT)
             && !sinkSupportsFormat(format, C.ENCODING_PCM_FLOAT))) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
-    } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
+    } else if (format.exoMediaCryptoType != null) {
       return FORMAT_UNSUPPORTED_DRM;
     } else {
       return FORMAT_HANDLED;

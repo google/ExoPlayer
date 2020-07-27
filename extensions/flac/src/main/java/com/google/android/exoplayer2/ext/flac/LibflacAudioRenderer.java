@@ -107,7 +107,7 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
     }
     if (!sinkSupportsFormat(outputFormat)) {
       return FORMAT_UNSUPPORTED_SUBTYPE;
-    } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
+    } else if (format.exoMediaCryptoType != null) {
       return FORMAT_UNSUPPORTED_DRM;
     } else {
       return FORMAT_HANDLED;

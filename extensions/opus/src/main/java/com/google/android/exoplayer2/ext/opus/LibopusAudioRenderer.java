@@ -83,7 +83,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
   @FormatSupport
   protected int supportsFormatInternal(Format format) {
     boolean drmIsSupported =
-        format.drmInitData == null
+        format.exoMediaCryptoType == null
             || OpusLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType);
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
