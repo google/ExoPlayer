@@ -16,6 +16,7 @@ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'com.google.guava:guava:' + guavaVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'testutils')

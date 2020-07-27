@@ -17,6 +17,7 @@ dependencies {
     api "com.google.android.gms:play-services-cronet:17.0.0"
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'com.google.guava:guava:' + guavaVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'library')

@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
-import com.google.android.exoplayer2.util.Supplier;
+import com.google.common.base.Supplier;
 import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 import org.junit.runner.RunWith;

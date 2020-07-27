@@ -30,8 +30,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Predicate;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
@@ -477,7 +477,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     if (contentTypePredicate != null) {
       List<String> contentTypeHeaders = responseInfo.getAllHeaders().get(CONTENT_TYPE);
       String contentType = isEmpty(contentTypeHeaders) ? null : contentTypeHeaders.get(0);
-      if (contentType != null && !contentTypePredicate.evaluate(contentType)) {
+      if (contentType != null && !contentTypePredicate.apply(contentType)) {
         throw new InvalidContentTypeException(contentType, dataSpec);
       }
     }

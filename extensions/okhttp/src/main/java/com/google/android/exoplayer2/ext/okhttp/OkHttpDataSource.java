@@ -26,8 +26,8 @@ import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Predicate;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -252,7 +252,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     // Check for a valid content type.
     MediaType mediaType = responseBody.contentType();
     String contentType = mediaType != null ? mediaType.toString() : "";
-    if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
+    if (contentTypePredicate != null && !contentTypePredicate.apply(contentType)) {
       closeConnectionQuietly();
       throw new InvalidContentTypeException(contentType, dataSpec);
     }

@@ -23,8 +23,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Predicate;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -319,7 +319,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
     // Check for a valid content type.
     String contentType = connection.getContentType();
-    if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
+    if (contentTypePredicate != null && !contentTypePredicate.apply(contentType)) {
       closeConnectionQuietly();
       throw new InvalidContentTypeException(contentType, dataSpec);
     }
