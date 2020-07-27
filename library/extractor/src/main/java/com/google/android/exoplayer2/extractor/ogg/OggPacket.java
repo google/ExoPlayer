@@ -86,9 +86,9 @@ import java.util.Arrays;
       int segmentIndex = currentSegmentIndex + segmentCount;
       if (size > 0) {
         if (packetArray.capacity() < packetArray.limit() + size) {
-          packetArray.data = Arrays.copyOf(packetArray.data, packetArray.limit() + size);
+          packetArray.reset(Arrays.copyOf(packetArray.getData(), packetArray.limit() + size));
         }
-        input.readFully(packetArray.data, packetArray.limit(), size);
+        input.readFully(packetArray.getData(), packetArray.limit(), size);
         packetArray.setLimit(packetArray.limit() + size);
         populated = pageHeader.laces[segmentIndex - 1] != 255;
       }
@@ -124,11 +124,12 @@ import java.util.Arrays;
    * Trims the packet data array.
    */
   public void trimPayload() {
-    if (packetArray.data.length == OggPageHeader.MAX_PAGE_PAYLOAD) {
+    if (packetArray.getData().length == OggPageHeader.MAX_PAGE_PAYLOAD) {
       return;
     }
-    packetArray.data = Arrays.copyOf(packetArray.data, Math.max(OggPageHeader.MAX_PAGE_PAYLOAD,
-        packetArray.limit()));
+    packetArray.reset(
+        Arrays.copyOf(
+            packetArray.getData(), Math.max(OggPageHeader.MAX_PAGE_PAYLOAD, packetArray.limit())));
   }
 
   /**

@@ -346,7 +346,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private boolean readAtomHeader(ExtractorInput input) throws IOException {
     if (atomHeaderBytesRead == 0) {
       // Read the standard length atom header.
-      if (!input.readFully(atomHeader.data, 0, Atom.HEADER_SIZE, true)) {
+      if (!input.readFully(atomHeader.getData(), 0, Atom.HEADER_SIZE, true)) {
         return false;
       }
       atomHeaderBytesRead = Atom.HEADER_SIZE;
@@ -358,7 +358,7 @@ public class FragmentedMp4Extractor implements Extractor {
     if (atomSize == Atom.DEFINES_LARGE_SIZE) {
       // Read the large size.
       int headerBytesRemaining = Atom.LONG_HEADER_SIZE - Atom.HEADER_SIZE;
-      input.readFully(atomHeader.data, Atom.HEADER_SIZE, headerBytesRemaining);
+      input.readFully(atomHeader.getData(), Atom.HEADER_SIZE, headerBytesRemaining);
       atomHeaderBytesRead += headerBytesRemaining;
       atomSize = atomHeader.readUnsignedLongToLong();
     } else if (atomSize == Atom.EXTENDS_TO_END_SIZE) {
@@ -421,7 +421,7 @@ public class FragmentedMp4Extractor implements Extractor {
         throw new ParserException("Leaf atom with length > 2147483647 (unsupported).");
       }
       atomData = new ParsableByteArray((int) atomSize);
-      System.arraycopy(atomHeader.data, 0, atomData.data, 0, Atom.HEADER_SIZE);
+      System.arraycopy(atomHeader.getData(), 0, atomData.getData(), 0, Atom.HEADER_SIZE);
       parserState = STATE_READING_ATOM_PAYLOAD;
     } else {
       if (atomSize > Integer.MAX_VALUE) {
@@ -437,7 +437,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private void readAtomPayload(ExtractorInput input) throws IOException {
     int atomPayloadSize = (int) atomSize - atomHeaderBytesRead;
     if (atomData != null) {
-      input.readFully(atomData.data, Atom.HEADER_SIZE, atomPayloadSize);
+      input.readFully(atomData.getData(), Atom.HEADER_SIZE, atomPayloadSize);
       onLeafAtomRead(new LeafAtom(atomType, atomData), input.getPosition());
     } else {
       input.skipFully(atomPayloadSize);
@@ -1330,7 +1330,7 @@ public class FragmentedMp4Extractor implements Extractor {
     if (track.nalUnitLengthFieldLength != 0) {
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
-      byte[] nalPrefixData = nalPrefix.data;
+      byte[] nalPrefixData = nalPrefix.getData();
       nalPrefixData[0] = 0;
       nalPrefixData[1] = 0;
       nalPrefixData[2] = 0;
@@ -1364,11 +1364,12 @@ public class FragmentedMp4Extractor implements Extractor {
           if (processSeiNalUnitPayload) {
             // Read and write the payload of the SEI NAL unit.
             nalBuffer.reset(sampleCurrentNalBytesRemaining);
-            input.readFully(nalBuffer.data, 0, sampleCurrentNalBytesRemaining);
+            input.readFully(nalBuffer.getData(), 0, sampleCurrentNalBytesRemaining);
             output.sampleData(nalBuffer, sampleCurrentNalBytesRemaining);
             writtenBytes = sampleCurrentNalBytesRemaining;
             // Unescape and process the SEI NAL unit.
-            int unescapedLength = NalUnitUtil.unescapeStream(nalBuffer.data, nalBuffer.limit());
+            int unescapedLength =
+                NalUnitUtil.unescapeStream(nalBuffer.getData(), nalBuffer.limit());
             // If the format is H.265/HEVC the NAL unit header has two bytes so skip one more byte.
             nalBuffer.setPosition(MimeTypes.VIDEO_H265.equals(track.format.sampleMimeType) ? 1 : 0);
             nalBuffer.setLimit(unescapedLength);
@@ -1466,7 +1467,7 @@ public class FragmentedMp4Extractor implements Extractor {
         if (schemeDatas == null) {
           schemeDatas = new ArrayList<>();
         }
-        byte[] psshData = child.data.data;
+        byte[] psshData = child.data.getData();
         @Nullable UUID uuid = PsshAtomUtil.parseUuid(psshData);
         if (uuid == null) {
           Log.w(TAG, "Skipped pssh atom (failed to extract uuid)");
@@ -1706,7 +1707,7 @@ public class FragmentedMp4Extractor implements Extractor {
       boolean writeSubsampleEncryptionData = haveSubsampleEncryptionTable || clearHeaderSize != 0;
 
       // Write the signal byte, containing the vector size and the subsample encryption flag.
-      encryptionSignalByte.data[0] =
+      encryptionSignalByte.getData()[0] =
           (byte) (vectorSize | (writeSubsampleEncryptionData ? 0x80 : 0));
       encryptionSignalByte.setPosition(0);
       output.sampleData(encryptionSignalByte, 1, TrackOutput.SAMPLE_DATA_PART_ENCRYPTION);
@@ -1724,16 +1725,17 @@ public class FragmentedMp4Extractor implements Extractor {
         // into account.
         scratch.reset(SINGLE_SUBSAMPLE_ENCRYPTION_DATA_LENGTH);
         // subsampleCount = 1 (unsigned short)
-        scratch.data[0] = (byte) 0;
-        scratch.data[1] = (byte) 1;
+        byte[] data = scratch.getData();
+        data[0] = (byte) 0;
+        data[1] = (byte) 1;
         // clearDataSize = clearHeaderSize (unsigned short)
-        scratch.data[2] = (byte) ((clearHeaderSize >> 8) & 0xFF);
-        scratch.data[3] = (byte) (clearHeaderSize & 0xFF);
+        data[2] = (byte) ((clearHeaderSize >> 8) & 0xFF);
+        data[3] = (byte) (clearHeaderSize & 0xFF);
         // encryptedDataSize = sampleSize (unsigned int)
-        scratch.data[4] = (byte) ((sampleSize >> 24) & 0xFF);
-        scratch.data[5] = (byte) ((sampleSize >> 16) & 0xFF);
-        scratch.data[6] = (byte) ((sampleSize >> 8) & 0xFF);
-        scratch.data[7] = (byte) (sampleSize & 0xFF);
+        data[4] = (byte) ((sampleSize >> 24) & 0xFF);
+        data[5] = (byte) ((sampleSize >> 16) & 0xFF);
+        data[6] = (byte) ((sampleSize >> 8) & 0xFF);
+        data[7] = (byte) (sampleSize & 0xFF);
         output.sampleData(
             scratch,
             SINGLE_SUBSAMPLE_ENCRYPTION_DATA_LENGTH,
@@ -1750,13 +1752,14 @@ public class FragmentedMp4Extractor implements Extractor {
         // We need to account for the additional clear header by adding clearHeaderSize to
         // clearDataSize for the first subsample specified in the subsample encryption data.
         scratch.reset(subsampleDataLength);
-        scratch.readBytes(subsampleEncryptionData.data, /* offset= */ 0, subsampleDataLength);
+        scratch.readBytes(subsampleEncryptionData.getData(), /* offset= */ 0, subsampleDataLength);
         subsampleEncryptionData.skipBytes(subsampleDataLength);
 
-        int clearDataSize = (scratch.data[2] & 0xFF) << 8 | (scratch.data[3] & 0xFF);
+        byte[] data = scratch.getData();
+        int clearDataSize = (data[2] & 0xFF) << 8 | (data[3] & 0xFF);
         int adjustedClearDataSize = clearDataSize + clearHeaderSize;
-        scratch.data[2] = (byte) ((adjustedClearDataSize >> 8) & 0xFF);
-        scratch.data[3] = (byte) (adjustedClearDataSize & 0xFF);
+        data[2] = (byte) ((adjustedClearDataSize >> 8) & 0xFF);
+        data[3] = (byte) (adjustedClearDataSize & 0xFF);
         subsampleEncryptionData = scratch;
       }
 

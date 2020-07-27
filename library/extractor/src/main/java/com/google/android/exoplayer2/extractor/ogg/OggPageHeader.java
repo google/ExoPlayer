@@ -105,7 +105,7 @@ import java.io.IOException;
   public boolean skipToNextPage(ExtractorInput input, long limit) throws IOException {
     Assertions.checkArgument(input.getPosition() == input.getPeekPosition());
     while ((limit == C.POSITION_UNSET || input.getPosition() + CAPTURE_PATTERN_SIZE < limit)
-        && peekSafely(input, scratch.data, 0, CAPTURE_PATTERN_SIZE, /* quiet= */ true)) {
+        && peekSafely(input, scratch.getData(), 0, CAPTURE_PATTERN_SIZE, /* quiet= */ true)) {
       scratch.reset();
       if (scratch.readUnsignedInt() == CAPTURE_PATTERN) {
         input.resetPeekPosition();
@@ -133,7 +133,7 @@ import java.io.IOException;
   public boolean populate(ExtractorInput input, boolean quiet) throws IOException {
     reset();
     scratch.reset();
-    if (!peekSafely(input, scratch.data, 0, EMPTY_PAGE_HEADER_SIZE, quiet)
+    if (!peekSafely(input, scratch.getData(), 0, EMPTY_PAGE_HEADER_SIZE, quiet)
         || scratch.readUnsignedInt() != CAPTURE_PATTERN) {
       return false;
     }
@@ -157,7 +157,7 @@ import java.io.IOException;
 
     // calculate total size of header including laces
     scratch.reset();
-    input.peekFully(scratch.data, 0, pageSegmentCount);
+    input.peekFully(scratch.getData(), 0, pageSegmentCount);
     for (int i = 0; i < pageSegmentCount; i++) {
       laces[i] = scratch.readUnsignedByte();
       bodySize += laces[i];

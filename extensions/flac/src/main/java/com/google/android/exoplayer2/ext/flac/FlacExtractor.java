@@ -210,7 +210,7 @@ public final class FlacExtractor implements Extractor {
     if (this.streamMetadata == null) {
       this.streamMetadata = streamMetadata;
       outputBuffer.reset(streamMetadata.getMaxDecodedFrameSize());
-      outputFrameHolder = new OutputFrameHolder(ByteBuffer.wrap(outputBuffer.data));
+      outputFrameHolder = new OutputFrameHolder(ByteBuffer.wrap(outputBuffer.getData()));
       binarySearchSeeker =
           outputSeekMap(
               flacDecoderJni,

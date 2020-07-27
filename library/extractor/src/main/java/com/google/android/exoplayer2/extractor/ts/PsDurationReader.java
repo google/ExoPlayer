@@ -145,7 +145,7 @@ import java.io.IOException;
 
     packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
-    input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
+    input.peekFully(packetBuffer.getData(), /* offset= */ 0, bytesToSearch);
 
     firstScrValue = readFirstScrValueFromBuffer(packetBuffer);
     isFirstScrValueRead = true;
@@ -158,7 +158,7 @@ import java.io.IOException;
     for (int searchPosition = searchStartPosition;
         searchPosition < searchEndPosition - 3;
         searchPosition++) {
-      int nextStartCode = peekIntAtPosition(packetBuffer.data, searchPosition);
+      int nextStartCode = peekIntAtPosition(packetBuffer.getData(), searchPosition);
       if (nextStartCode == PsExtractor.PACK_START_CODE) {
         packetBuffer.setPosition(searchPosition + 4);
         long scrValue = readScrValueFromPack(packetBuffer);
@@ -182,7 +182,7 @@ import java.io.IOException;
 
     packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
-    input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
+    input.peekFully(packetBuffer.getData(), /* offset= */ 0, bytesToSearch);
 
     lastScrValue = readLastScrValueFromBuffer(packetBuffer);
     isLastScrValueRead = true;
@@ -195,7 +195,7 @@ import java.io.IOException;
     for (int searchPosition = searchEndPosition - 4;
         searchPosition >= searchStartPosition;
         searchPosition--) {
-      int nextStartCode = peekIntAtPosition(packetBuffer.data, searchPosition);
+      int nextStartCode = peekIntAtPosition(packetBuffer.getData(), searchPosition);
       if (nextStartCode == PsExtractor.PACK_START_CODE) {
         packetBuffer.setPosition(searchPosition + 4);
         long scrValue = readScrValueFromPack(packetBuffer);

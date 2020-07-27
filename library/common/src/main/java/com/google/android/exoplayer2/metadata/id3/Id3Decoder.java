@@ -601,9 +601,10 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       @Nullable FramePredicate framePredicate)
       throws UnsupportedEncodingException {
     int framePosition = id3Data.getPosition();
-    int chapterIdEndIndex = indexOfZeroByte(id3Data.data, framePosition);
-    String chapterId = new String(id3Data.data, framePosition, chapterIdEndIndex - framePosition,
-        "ISO-8859-1");
+    int chapterIdEndIndex = indexOfZeroByte(id3Data.getData(), framePosition);
+    String chapterId =
+        new String(
+            id3Data.getData(), framePosition, chapterIdEndIndex - framePosition, "ISO-8859-1");
     id3Data.setPosition(chapterIdEndIndex + 1);
 
     int startTime = id3Data.readInt();
@@ -640,9 +641,10 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
       @Nullable FramePredicate framePredicate)
       throws UnsupportedEncodingException {
     int framePosition = id3Data.getPosition();
-    int elementIdEndIndex = indexOfZeroByte(id3Data.data, framePosition);
-    String elementId = new String(id3Data.data, framePosition, elementIdEndIndex - framePosition,
-        "ISO-8859-1");
+    int elementIdEndIndex = indexOfZeroByte(id3Data.getData(), framePosition);
+    String elementId =
+        new String(
+            id3Data.getData(), framePosition, elementIdEndIndex - framePosition, "ISO-8859-1");
     id3Data.setPosition(elementIdEndIndex + 1);
 
     int ctocFlags = id3Data.readUnsignedByte();
@@ -653,8 +655,8 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
     String[] children = new String[childCount];
     for (int i = 0; i < childCount; i++) {
       int startIndex = id3Data.getPosition();
-      int endIndex = indexOfZeroByte(id3Data.data, startIndex);
-      children[i] = new String(id3Data.data, startIndex, endIndex - startIndex, "ISO-8859-1");
+      int endIndex = indexOfZeroByte(id3Data.getData(), startIndex);
+      children[i] = new String(id3Data.getData(), startIndex, endIndex - startIndex, "ISO-8859-1");
       id3Data.setPosition(endIndex + 1);
     }
 
@@ -721,7 +723,7 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
    * @return The length of the data after processing.
    */
   private static int removeUnsynchronization(ParsableByteArray data, int length) {
-    byte[] bytes = data.data;
+    byte[] bytes = data.getData();
     int startPosition = data.getPosition();
     for (int i = startPosition; i + 1 < startPosition + length; i++) {
       if ((bytes[i] & 0xFF) == 0xFF && bytes[i + 1] == 0x00) {

@@ -127,7 +127,7 @@ import java.util.Arrays;
     if (buffer.hasSupplementalData()) {
       // If there is supplemental data, the sample data is prefixed by its size.
       scratch.reset(4);
-      readData(extrasHolder.offset, scratch.data, 4);
+      readData(extrasHolder.offset, scratch.getData(), 4);
       int sampleSize = scratch.readUnsignedIntToInt();
       extrasHolder.offset += 4;
       extrasHolder.size -= 4;
@@ -223,9 +223,9 @@ import java.util.Arrays;
 
     // Read the signal byte.
     scratch.reset(1);
-    readData(offset, scratch.data, 1);
+    readData(offset, scratch.getData(), 1);
     offset++;
-    byte signalByte = scratch.data[0];
+    byte signalByte = scratch.getData()[0];
     boolean subsampleEncryption = (signalByte & 0x80) != 0;
     int ivSize = signalByte & 0x7F;
 
@@ -244,7 +244,7 @@ import java.util.Arrays;
     int subsampleCount;
     if (subsampleEncryption) {
       scratch.reset(2);
-      readData(offset, scratch.data, 2);
+      readData(offset, scratch.getData(), 2);
       offset += 2;
       subsampleCount = scratch.readUnsignedShort();
     } else {
@@ -263,7 +263,7 @@ import java.util.Arrays;
     if (subsampleEncryption) {
       int subsampleDataLength = 6 * subsampleCount;
       scratch.reset(subsampleDataLength);
-      readData(offset, scratch.data, subsampleDataLength);
+      readData(offset, scratch.getData(), subsampleDataLength);
       offset += subsampleDataLength;
       scratch.setPosition(0);
       for (int i = 0; i < subsampleCount; i++) {

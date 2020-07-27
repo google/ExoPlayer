@@ -465,7 +465,7 @@ public final class WavExtractor implements Extractor {
     private void decode(byte[] input, int blockCount, ParsableByteArray output) {
       for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
         for (int channelIndex = 0; channelIndex < header.numChannels; channelIndex++) {
-          decodeBlockForChannel(input, blockIndex, channelIndex, output.data);
+          decodeBlockForChannel(input, blockIndex, channelIndex, output.getData());
         }
       }
       int decodedDataSize = numOutputFramesToBytes(framesPerBlock * blockCount);

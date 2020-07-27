@@ -133,7 +133,7 @@ public final class H263Reader implements ElementaryStreamReader {
     checkStateNotNull(output);
     int offset = data.getPosition();
     int limit = data.limit();
-    byte[] dataArray = data.data;
+    byte[] dataArray = data.getData();
 
     // Append the data to the buffer.
     totalBytesWritten += data.bytesLeft();
@@ -155,7 +155,7 @@ public final class H263Reader implements ElementaryStreamReader {
       }
 
       // We've found a start code with the following value.
-      int startCodeValue = data.data[startCodeOffset + 3] & 0xFF;
+      int startCodeValue = data.getData()[startCodeOffset + 3] & 0xFF;
       // This is the number of bytes from the current offset to the start of the next start
       // code. It may be negative if the start code started in the previously consumed data.
       int lengthToStartCode = startCodeOffset - offset;
@@ -191,7 +191,8 @@ public final class H263Reader implements ElementaryStreamReader {
           castNonNull(userDataReader).consume(pesTimeUs, userDataParsable);
         }
 
-        if (startCodeValue == START_CODE_VALUE_USER_DATA && data.data[startCodeOffset + 2] == 0x1) {
+        if (startCodeValue == START_CODE_VALUE_USER_DATA
+            && data.getData()[startCodeOffset + 2] == 0x1) {
           userData.startNalUnit(startCodeValue);
         }
       }

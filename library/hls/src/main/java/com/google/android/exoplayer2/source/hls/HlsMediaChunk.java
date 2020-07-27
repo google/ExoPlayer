@@ -455,7 +455,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private long peekId3PrivTimestamp(ExtractorInput input) throws IOException {
     input.resetPeekPosition();
     try {
-      input.peekFully(scratchId3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+      input.peekFully(scratchId3Data.getData(), 0, Id3Decoder.ID3_HEADER_LENGTH);
     } catch (EOFException e) {
       // The input isn't long enough for there to be any ID3 data.
       return C.TIME_UNSET;
@@ -469,12 +469,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     int id3Size = scratchId3Data.readSynchSafeInt();
     int requiredCapacity = id3Size + Id3Decoder.ID3_HEADER_LENGTH;
     if (requiredCapacity > scratchId3Data.capacity()) {
-      byte[] data = scratchId3Data.data;
+      byte[] data = scratchId3Data.getData();
       scratchId3Data.reset(requiredCapacity);
-      System.arraycopy(data, 0, scratchId3Data.data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+      System.arraycopy(data, 0, scratchId3Data.getData(), 0, Id3Decoder.ID3_HEADER_LENGTH);
     }
-    input.peekFully(scratchId3Data.data, Id3Decoder.ID3_HEADER_LENGTH, id3Size);
-    Metadata metadata = id3Decoder.decode(scratchId3Data.data, id3Size);
+    input.peekFully(scratchId3Data.getData(), Id3Decoder.ID3_HEADER_LENGTH, id3Size);
+    Metadata metadata = id3Decoder.decode(scratchId3Data.getData(), id3Size);
     if (metadata == null) {
       return C.TIME_UNSET;
     }
@@ -485,7 +485,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         PrivFrame privFrame = (PrivFrame) frame;
         if (PRIV_TIMESTAMP_FRAME_OWNER.equals(privFrame.owner)) {
           System.arraycopy(
-              privFrame.privateData, 0, scratchId3Data.data, 0, 8 /* timestamp size */);
+              privFrame.privateData, 0, scratchId3Data.getData(), 0, 8 /* timestamp size */);
           scratchId3Data.reset(8);
           // The top 31 bits should be zeros, but explicitly zero them to wrap in the case that the
           // streaming provider forgot. See: https://github.com/google/ExoPlayer/pull/3495.

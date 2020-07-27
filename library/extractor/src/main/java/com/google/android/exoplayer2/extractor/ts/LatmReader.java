@@ -79,7 +79,7 @@ public final class LatmReader implements ElementaryStreamReader {
   public LatmReader(@Nullable String language) {
     this.language = language;
     sampleDataBuffer = new ParsableByteArray(INITIAL_BUFFER_SIZE);
-    sampleBitArray = new ParsableBitArray(sampleDataBuffer.data);
+    sampleBitArray = new ParsableBitArray(sampleDataBuffer.getData());
   }
 
   @Override
@@ -122,7 +122,7 @@ public final class LatmReader implements ElementaryStreamReader {
           break;
         case STATE_READING_HEADER:
           sampleSize = ((secondHeaderByte & ~SYNC_BYTE_SECOND) << 8) | data.readUnsignedByte();
-          if (sampleSize > sampleDataBuffer.data.length) {
+          if (sampleSize > sampleDataBuffer.getData().length) {
             resetBufferForSize(sampleSize);
           }
           bytesRead = 0;
@@ -302,7 +302,7 @@ public final class LatmReader implements ElementaryStreamReader {
     } else {
       // Sample data is not byte-aligned and we need align it ourselves before outputting.
       // Byte alignment is needed because LATM framing is not supported by MediaCodec.
-      data.readBits(sampleDataBuffer.data, 0, muxLengthBytes * 8);
+      data.readBits(sampleDataBuffer.getData(), 0, muxLengthBytes * 8);
       sampleDataBuffer.setPosition(0);
     }
     output.sampleData(sampleDataBuffer, muxLengthBytes);
@@ -312,7 +312,7 @@ public final class LatmReader implements ElementaryStreamReader {
 
   private void resetBufferForSize(int newSize) {
     sampleDataBuffer.reset(newSize);
-    sampleBitArray.reset(sampleDataBuffer.data);
+    sampleBitArray.reset(sampleDataBuffer.getData());
   }
 
   private static long latmGetValue(ParsableBitArray data) {

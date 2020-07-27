@@ -318,7 +318,7 @@ public class FlacMetadataReaderTest {
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE);
     int seekTableBlockSize = 598;
     ParsableByteArray scratch = new ParsableByteArray(seekTableBlockSize);
-    input.read(scratch.data, 0, seekTableBlockSize);
+    input.read(scratch.getData(), 0, seekTableBlockSize);
 
     FlacMetadataReader.readSeekTableMetadataBlock(scratch);
 
@@ -332,7 +332,7 @@ public class FlacMetadataReaderTest {
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE);
     int seekTableBlockSize = 598;
     ParsableByteArray scratch = new ParsableByteArray(seekTableBlockSize);
-    input.read(scratch.data, 0, seekTableBlockSize);
+    input.read(scratch.getData(), 0, seekTableBlockSize);
 
     FlacStreamMetadata.SeekTable seekTable = FlacMetadataReader.readSeekTableMetadataBlock(scratch);
 

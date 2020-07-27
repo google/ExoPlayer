@@ -75,7 +75,7 @@ import java.io.IOException;
       int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
 
       packetBuffer.reset(bytesToSearch);
-      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
+      input.peekFully(packetBuffer.getData(), /* offset= */ 0, bytesToSearch);
 
       return searchForScrValueInBuffer(packetBuffer, targetTimestamp, inputPosition);
     }
@@ -92,7 +92,7 @@ import java.io.IOException;
       long lastScrTimeUsInRange = C.TIME_UNSET;
 
       while (packetBuffer.bytesLeft() >= 4) {
-        int nextStartCode = peekIntAtPosition(packetBuffer.data, packetBuffer.getPosition());
+        int nextStartCode = peekIntAtPosition(packetBuffer.getData(), packetBuffer.getPosition());
         if (nextStartCode != PsExtractor.PACK_START_CODE) {
           packetBuffer.skipBytes(1);
           continue;
@@ -162,7 +162,7 @@ import java.io.IOException;
         return;
       }
 
-      int nextStartCode = peekIntAtPosition(packetBuffer.data, packetBuffer.getPosition());
+      int nextStartCode = peekIntAtPosition(packetBuffer.getData(), packetBuffer.getPosition());
       if (nextStartCode == PsExtractor.SYSTEM_HEADER_START_CODE) {
         packetBuffer.skipBytes(4);
         int systemHeaderLength = packetBuffer.readUnsignedShort();
@@ -178,7 +178,7 @@ import java.io.IOException;
       // If we couldn't find these codes within the buffer, return the buffer limit, or return
       // the first position which PES packets pattern does not match (some malformed packets).
       while (packetBuffer.bytesLeft() >= 4) {
-        nextStartCode = peekIntAtPosition(packetBuffer.data, packetBuffer.getPosition());
+        nextStartCode = peekIntAtPosition(packetBuffer.getData(), packetBuffer.getPosition());
         if (nextStartCode == PsExtractor.PACK_START_CODE
             || nextStartCode == PsExtractor.MPEG_PROGRAM_END_CODE) {
           break;

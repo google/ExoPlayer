@@ -89,7 +89,11 @@ public final class Id3Reader implements ElementaryStreamReader {
     if (sampleBytesRead < ID3_HEADER_LENGTH) {
       // We're still reading the ID3 header.
       int headerBytesAvailable = Math.min(bytesAvailable, ID3_HEADER_LENGTH - sampleBytesRead);
-      System.arraycopy(data.data, data.getPosition(), id3Header.data, sampleBytesRead,
+      System.arraycopy(
+          data.getData(),
+          data.getPosition(),
+          id3Header.getData(),
+          sampleBytesRead,
           headerBytesAvailable);
       if (sampleBytesRead + headerBytesAvailable == ID3_HEADER_LENGTH) {
         // We've finished reading the ID3 header. Extract the sample size.

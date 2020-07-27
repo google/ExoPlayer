@@ -79,7 +79,7 @@ import java.io.IOException;
       int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
 
       packetBuffer.reset(bytesToSearch);
-      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
+      input.peekFully(packetBuffer.getData(), /* offset= */ 0, bytesToSearch);
 
       return searchForPcrValueInBuffer(packetBuffer, targetTimestamp, inputPosition);
     }
@@ -94,7 +94,7 @@ import java.io.IOException;
 
       while (packetBuffer.bytesLeft() >= TsExtractor.TS_PACKET_SIZE) {
         int startOfPacket =
-            TsUtil.findSyncBytePosition(packetBuffer.data, packetBuffer.getPosition(), limit);
+            TsUtil.findSyncBytePosition(packetBuffer.getData(), packetBuffer.getPosition(), limit);
         int endOfPacket = startOfPacket + TsExtractor.TS_PACKET_SIZE;
         if (endOfPacket > limit) {
           break;

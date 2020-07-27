@@ -47,7 +47,7 @@ public class FlacFrameReaderTest {
             "flac/bear_one_metadata_block.flac", streamMetadataHolder);
     int frameStartMarker = FlacMetadataReader.getFrameStartMarker(input);
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.MAX_FRAME_HEADER_SIZE);
-    input.read(scratch.data, 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
+    input.read(scratch.getData(), 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
 
     FlacFrameReader.checkAndReadFrameHeader(
         scratch,
@@ -67,7 +67,7 @@ public class FlacFrameReaderTest {
             "flac/bear_one_metadata_block.flac", streamMetadataHolder);
     int frameStartMarker = FlacMetadataReader.getFrameStartMarker(input);
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.MAX_FRAME_HEADER_SIZE);
-    input.read(scratch.data, 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
+    input.read(scratch.getData(), 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
 
     boolean result =
         FlacFrameReader.checkAndReadFrameHeader(
@@ -90,7 +90,7 @@ public class FlacFrameReaderTest {
     // Skip first frame.
     input.skip(5030);
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.MAX_FRAME_HEADER_SIZE);
-    input.read(scratch.data, 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
+    input.read(scratch.getData(), 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
     SampleNumberHolder sampleNumberHolder = new SampleNumberHolder();
 
     FlacFrameReader.checkAndReadFrameHeader(
@@ -107,7 +107,7 @@ public class FlacFrameReaderTest {
         buildExtractorInputReadingFromFirstFrame(
             "flac/bear_one_metadata_block.flac", streamMetadataHolder);
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.MAX_FRAME_HEADER_SIZE);
-    input.read(scratch.data, 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
+    input.read(scratch.getData(), 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
 
     // The first bytes of the frame are not equal to the frame start marker.
     boolean result =
@@ -276,7 +276,7 @@ public class FlacFrameReaderTest {
     // Skip to block size bits of last frame.
     input.skipFully(164033);
     ParsableByteArray scratch = new ParsableByteArray(2);
-    input.readFully(scratch.data, 0, 2);
+    input.readFully(scratch.getData(), 0, 2);
 
     int result = FlacFrameReader.readFrameBlockSizeSamplesFromKey(scratch, /* blockSizeKey= */ 7);
 

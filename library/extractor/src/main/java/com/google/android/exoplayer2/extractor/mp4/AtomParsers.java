@@ -729,7 +729,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int durationPosition = tkhd.getPosition();
     int durationByteCount = version == 0 ? 4 : 8;
     for (int i = 0; i < durationByteCount; i++) {
-      if (tkhd.data[durationPosition + i] != -1) {
+      if (tkhd.getData()[durationPosition + i] != -1) {
         durationUnknown = false;
         break;
       }
@@ -1513,7 +1513,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int childAtomSize = parent.readInt();
       int childAtomType = parent.readInt();
       if (childAtomType == Atom.TYPE_proj) {
-        return Arrays.copyOfRange(parent.data, childPosition, childPosition + childAtomSize);
+        return Arrays.copyOfRange(parent.getData(), childPosition, childPosition + childAtomSize);
       }
       childPosition += childAtomSize;
     }

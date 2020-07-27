@@ -873,7 +873,7 @@ public class UtilTest {
     ParsableByteArray output = new ParsableByteArray();
     assertThat(Util.inflate(input, output, /* inflater= */ null)).isTrue();
     assertThat(output.limit()).isEqualTo(testData.length);
-    assertThat(Arrays.copyOf(output.data, output.limit())).isEqualTo(testData);
+    assertThat(Arrays.copyOf(output.getData(), output.limit())).isEqualTo(testData);
   }
 
   // TODO: Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved

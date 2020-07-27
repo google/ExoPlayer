@@ -192,7 +192,7 @@ public final class TsExtractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    byte[] buffer = tsPacketBuffer.data;
+    byte[] buffer = tsPacketBuffer.getData();
     input.peekFully(buffer, 0, TS_PACKET_SIZE * SNIFF_TS_PACKET_COUNT);
     for (int startPosCandidate = 0; startPosCandidate < TS_PACKET_SIZE; startPosCandidate++) {
       // Try to identify at least SNIFF_TS_PACKET_COUNT packets starting with TS_SYNC_BYTE.
@@ -374,7 +374,7 @@ public final class TsExtractor implements Extractor {
   }
 
   private boolean fillBufferWithAtLeastOnePacket(ExtractorInput input) throws IOException {
-    byte[] data = tsPacketBuffer.data;
+    byte[] data = tsPacketBuffer.getData();
     // Shift bytes to the start of the buffer if there isn't enough space left at the end.
     if (BUFFER_SIZE - tsPacketBuffer.getPosition() < TS_PACKET_SIZE) {
       int bytesLeft = tsPacketBuffer.bytesLeft();
@@ -404,7 +404,8 @@ public final class TsExtractor implements Extractor {
   private int findEndOfFirstTsPacketInBuffer() throws ParserException {
     int searchStart = tsPacketBuffer.getPosition();
     int limit = tsPacketBuffer.limit();
-    int syncBytePosition = TsUtil.findSyncBytePosition(tsPacketBuffer.data, searchStart, limit);
+    int syncBytePosition =
+        TsUtil.findSyncBytePosition(tsPacketBuffer.getData(), searchStart, limit);
     // Discard all bytes before the sync byte.
     // If sync byte is not found, this means discard the whole buffer.
     tsPacketBuffer.setPosition(syncBytePosition);
@@ -710,8 +711,11 @@ public final class TsExtractor implements Extractor {
         data.skipBytes(positionOfNextDescriptor - data.getPosition());
       }
       data.setPosition(descriptorsEndPosition);
-      return new EsInfo(streamType, language, dvbSubtitleInfos,
-          Arrays.copyOfRange(data.data, descriptorsStartPosition, descriptorsEndPosition));
+      return new EsInfo(
+          streamType,
+          language,
+          dvbSubtitleInfos,
+          Arrays.copyOfRange(data.getData(), descriptorsStartPosition, descriptorsEndPosition));
     }
 
   }

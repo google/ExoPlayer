@@ -2046,14 +2046,14 @@ public final class Util {
     if (input.bytesLeft() <= 0) {
       return false;
     }
-    byte[] outputData = output.data;
+    byte[] outputData = output.getData();
     if (outputData.length < input.bytesLeft()) {
       outputData = new byte[2 * input.bytesLeft()];
     }
     if (inflater == null) {
       inflater = new Inflater();
     }
-    inflater.setInput(input.data, input.getPosition(), input.bytesLeft());
+    inflater.setInput(input.getData(), input.getPosition(), input.bytesLeft());
     try {
       int outputSize = 0;
       while (true) {

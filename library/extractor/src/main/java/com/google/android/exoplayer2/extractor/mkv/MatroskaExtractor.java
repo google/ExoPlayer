@@ -1068,8 +1068,8 @@ public class MatroskaExtractor implements Extractor {
   protected void binaryElement(int id, int contentSize, ExtractorInput input) throws IOException {
     switch (id) {
       case ID_SEEK_ID:
-        Arrays.fill(seekEntryIdBytes.data, (byte) 0);
-        input.readFully(seekEntryIdBytes.data, 4 - contentSize, contentSize);
+        Arrays.fill(seekEntryIdBytes.getData(), (byte) 0);
+        input.readFully(seekEntryIdBytes.getData(), 4 - contentSize, contentSize);
         seekEntryIdBytes.setPosition(0);
         seekEntryId = (int) seekEntryIdBytes.readUnsignedInt();
         break;
@@ -1119,7 +1119,7 @@ public class MatroskaExtractor implements Extractor {
         if (blockState == BLOCK_STATE_HEADER) {
           // Read the relative timecode (2 bytes) and flags (1 byte).
           readScratch(input, 3);
-          int lacing = (scratch.data[2] & 0x06) >> 1;
+          int lacing = (scratch.getData()[2] & 0x06) >> 1;
           if (lacing == LACING_NONE) {
             blockSampleCount = 1;
             blockSampleSizes = ensureArrayCapacity(blockSampleSizes, 1);
@@ -1127,7 +1127,7 @@ public class MatroskaExtractor implements Extractor {
           } else {
             // Read the sample count (1 byte).
             readScratch(input, 4);
-            blockSampleCount = (scratch.data[3] & 0xFF) + 1;
+            blockSampleCount = (scratch.getData()[3] & 0xFF) + 1;
             blockSampleSizes = ensureArrayCapacity(blockSampleSizes, blockSampleCount);
             if (lacing == LACING_FIXED_SIZE) {
               int blockLacingSampleSize =
@@ -1141,7 +1141,7 @@ public class MatroskaExtractor implements Extractor {
                 int byteValue;
                 do {
                   readScratch(input, ++headerSize);
-                  byteValue = scratch.data[headerSize - 1] & 0xFF;
+                  byteValue = scratch.getData()[headerSize - 1] & 0xFF;
                   blockSampleSizes[sampleIndex] += byteValue;
                 } while (byteValue == 0xFF);
                 totalSamplesSize += blockSampleSizes[sampleIndex];
@@ -1154,20 +1154,20 @@ public class MatroskaExtractor implements Extractor {
               for (int sampleIndex = 0; sampleIndex < blockSampleCount - 1; sampleIndex++) {
                 blockSampleSizes[sampleIndex] = 0;
                 readScratch(input, ++headerSize);
-                if (scratch.data[headerSize - 1] == 0) {
+                if (scratch.getData()[headerSize - 1] == 0) {
                   throw new ParserException("No valid varint length mask found");
                 }
                 long readValue = 0;
                 for (int i = 0; i < 8; i++) {
                   int lengthMask = 1 << (7 - i);
-                  if ((scratch.data[headerSize - 1] & lengthMask) != 0) {
+                  if ((scratch.getData()[headerSize - 1] & lengthMask) != 0) {
                     int readPosition = headerSize - 1;
                     headerSize += i;
                     readScratch(input, headerSize);
-                    readValue = (scratch.data[readPosition++] & 0xFF) & ~lengthMask;
+                    readValue = (scratch.getData()[readPosition++] & 0xFF) & ~lengthMask;
                     while (readPosition < headerSize) {
                       readValue <<= 8;
-                      readValue |= (scratch.data[readPosition++] & 0xFF);
+                      readValue |= (scratch.getData()[readPosition++] & 0xFF);
                     }
                     // The first read value is the first size. Later values are signed offsets.
                     if (sampleIndex > 0) {
@@ -1194,10 +1194,11 @@ public class MatroskaExtractor implements Extractor {
             }
           }
 
-          int timecode = (scratch.data[0] << 8) | (scratch.data[1] & 0xFF);
+          int timecode = (scratch.getData()[0] << 8) | (scratch.getData()[1] & 0xFF);
           blockTimeUs = clusterTimecodeUs + scaleTimecodeToUs(timecode);
-          boolean isKeyframe = track.type == TRACK_TYPE_AUDIO
-              || (id == ID_SIMPLE_BLOCK && (scratch.data[2] & 0x80) == 0x80);
+          boolean isKeyframe =
+              track.type == TRACK_TYPE_AUDIO
+                  || (id == ID_SIMPLE_BLOCK && (scratch.getData()[2] & 0x80) == 0x80);
           blockFlags = isKeyframe ? C.BUFFER_FLAG_KEY_FRAME : 0;
           blockState = BLOCK_STATE_DATA;
           blockSampleIndex = 0;
@@ -1246,7 +1247,7 @@ public class MatroskaExtractor implements Extractor {
     if (blockAdditionalId == BLOCK_ADDITIONAL_ID_VP9_ITU_T_35
         && CODEC_ID_VP9.equals(track.codecId)) {
       blockAdditionalData.reset(contentSize);
-      input.readFully(blockAdditionalData.data, 0, contentSize);
+      input.readFully(blockAdditionalData.getData(), 0, contentSize);
     } else {
       // Unhandled block additional data.
       input.skipFully(contentSize);
@@ -1264,7 +1265,7 @@ public class MatroskaExtractor implements Extractor {
         } else if (blockDurationUs == C.TIME_UNSET) {
           Log.w(TAG, "Skipping subtitle sample with no duration.");
         } else {
-          setSubtitleEndTime(track.codecId, blockDurationUs, subtitleSample.data);
+          setSubtitleEndTime(track.codecId, blockDurationUs, subtitleSample.getData());
           // Note: If we ever want to support DRM protected subtitles then we'll need to output the
           // appropriate encryption data here.
           track.output.sampleData(subtitleSample, subtitleSample.limit());
@@ -1299,10 +1300,11 @@ public class MatroskaExtractor implements Extractor {
       return;
     }
     if (scratch.capacity() < requiredLength) {
-      scratch.reset(Arrays.copyOf(scratch.data, Math.max(scratch.data.length * 2, requiredLength)),
+      scratch.reset(
+          Arrays.copyOf(scratch.getData(), Math.max(scratch.getData().length * 2, requiredLength)),
           scratch.limit());
     }
-    input.readFully(scratch.data, scratch.limit(), requiredLength - scratch.limit());
+    input.readFully(scratch.getData(), scratch.limit(), requiredLength - scratch.limit());
     scratch.setLimit(requiredLength);
   }
 
@@ -1331,12 +1333,12 @@ public class MatroskaExtractor implements Extractor {
         // Clear the encrypted flag.
         blockFlags &= ~C.BUFFER_FLAG_ENCRYPTED;
         if (!sampleSignalByteRead) {
-          input.readFully(scratch.data, 0, 1);
+          input.readFully(scratch.getData(), 0, 1);
           sampleBytesRead++;
-          if ((scratch.data[0] & 0x80) == 0x80) {
+          if ((scratch.getData()[0] & 0x80) == 0x80) {
             throw new ParserException("Extension bit is set in signal byte");
           }
-          sampleSignalByte = scratch.data[0];
+          sampleSignalByte = scratch.getData()[0];
           sampleSignalByteRead = true;
         }
         boolean isEncrypted = (sampleSignalByte & 0x01) == 0x01;
@@ -1344,11 +1346,12 @@ public class MatroskaExtractor implements Extractor {
           boolean hasSubsampleEncryption = (sampleSignalByte & 0x02) == 0x02;
           blockFlags |= C.BUFFER_FLAG_ENCRYPTED;
           if (!sampleInitializationVectorRead) {
-            input.readFully(encryptionInitializationVector.data, 0, ENCRYPTION_IV_SIZE);
+            input.readFully(encryptionInitializationVector.getData(), 0, ENCRYPTION_IV_SIZE);
             sampleBytesRead += ENCRYPTION_IV_SIZE;
             sampleInitializationVectorRead = true;
             // Write the signal byte, containing the IV size and the subsample encryption flag.
-            scratch.data[0] = (byte) (ENCRYPTION_IV_SIZE | (hasSubsampleEncryption ? 0x80 : 0x00));
+            scratch.getData()[0] =
+                (byte) (ENCRYPTION_IV_SIZE | (hasSubsampleEncryption ? 0x80 : 0x00));
             scratch.setPosition(0);
             output.sampleData(scratch, 1, TrackOutput.SAMPLE_DATA_PART_ENCRYPTION);
             sampleBytesWritten++;
@@ -1362,7 +1365,7 @@ public class MatroskaExtractor implements Extractor {
           }
           if (hasSubsampleEncryption) {
             if (!samplePartitionCountRead) {
-              input.readFully(scratch.data, 0, 1);
+              input.readFully(scratch.getData(), 0, 1);
               sampleBytesRead++;
               scratch.setPosition(0);
               samplePartitionCount = scratch.readUnsignedByte();
@@ -1370,7 +1373,7 @@ public class MatroskaExtractor implements Extractor {
             }
             int samplePartitionDataSize = samplePartitionCount * 4;
             scratch.reset(samplePartitionDataSize);
-            input.readFully(scratch.data, 0, samplePartitionDataSize);
+            input.readFully(scratch.getData(), 0, samplePartitionDataSize);
             sampleBytesRead += samplePartitionDataSize;
             short subsampleCount = (short) (1 + (samplePartitionCount / 2));
             int subsampleDataSize = 2 + 6 * subsampleCount;
@@ -1423,10 +1426,10 @@ public class MatroskaExtractor implements Extractor {
         // If there is supplemental data, the structure of the sample data is:
         // sample size (4 bytes) || sample data || supplemental data
         scratch.reset(/* limit= */ 4);
-        scratch.data[0] = (byte) ((size >> 24) & 0xFF);
-        scratch.data[1] = (byte) ((size >> 16) & 0xFF);
-        scratch.data[2] = (byte) ((size >> 8) & 0xFF);
-        scratch.data[3] = (byte) (size & 0xFF);
+        scratch.getData()[0] = (byte) ((size >> 24) & 0xFF);
+        scratch.getData()[1] = (byte) ((size >> 16) & 0xFF);
+        scratch.getData()[2] = (byte) ((size >> 8) & 0xFF);
+        scratch.getData()[3] = (byte) (size & 0xFF);
         output.sampleData(scratch, 4, TrackOutput.SAMPLE_DATA_PART_SUPPLEMENTAL);
         sampleBytesWritten += 4;
       }
@@ -1440,7 +1443,7 @@ public class MatroskaExtractor implements Extractor {
 
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
-      byte[] nalLengthData = nalLength.data;
+      byte[] nalLengthData = nalLength.getData();
       nalLengthData[0] = 0;
       nalLengthData[1] = 0;
       nalLengthData[2] = 0;
@@ -1526,11 +1529,11 @@ public class MatroskaExtractor implements Extractor {
     if (subtitleSample.capacity() < sizeWithPrefix) {
       // Initialize subripSample to contain the required prefix and have space to hold a subtitle
       // twice as long as this one.
-      subtitleSample.data = Arrays.copyOf(samplePrefix, sizeWithPrefix + size);
+      subtitleSample.reset(Arrays.copyOf(samplePrefix, sizeWithPrefix + size));
     } else {
-      System.arraycopy(samplePrefix, 0, subtitleSample.data, 0, samplePrefix.length);
+      System.arraycopy(samplePrefix, 0, subtitleSample.getData(), 0, samplePrefix.length);
     }
-    input.readFully(subtitleSample.data, samplePrefix.length, size);
+    input.readFully(subtitleSample.getData(), samplePrefix.length, size);
     subtitleSample.reset(sizeWithPrefix);
     // Defer writing the data to the track output. We need to modify the sample data by setting
     // the correct end timecode, which we might not have yet.
@@ -2243,7 +2246,7 @@ public class MatroskaExtractor implements Extractor {
           // Search for the initialization data from the end of the BITMAPINFOHEADER. The last 20
           // bytes of which are: sizeImage(4), xPel/m (4), yPel/m (4), clrUsed(4), clrImportant(4).
           int startOffset = buffer.getPosition() + 20;
-          byte[] bufferData = buffer.data;
+          byte[] bufferData = buffer.getData();
           for (int offset = startOffset; offset < bufferData.length - 4; offset++) {
             if (bufferData[offset] == 0x00
                 && bufferData[offset + 1] == 0x00

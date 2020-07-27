@@ -179,7 +179,7 @@ public final class ProjectionDecoder {
     final double log2 = Math.log(2.0);
     int coordinateCountSizeBits = (int) Math.ceil(Math.log(2.0 * coordinateCount) / log2);
 
-    ParsableBitArray bitInput = new ParsableBitArray(input.data);
+    ParsableBitArray bitInput = new ParsableBitArray(input.getData());
     bitInput.setPosition(input.getPosition() * 8);
     float[] vertices = new float[vertexCount * 5];
     int[] coordinateIndices = new int[5];

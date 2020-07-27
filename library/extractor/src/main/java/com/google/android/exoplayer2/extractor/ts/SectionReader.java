@@ -88,7 +88,7 @@ public final class SectionReader implements TsPayloadReader {
           }
         }
         int headerBytesToRead = Math.min(data.bytesLeft(), SECTION_HEADER_LENGTH - bytesRead);
-        data.readBytes(sectionData.data, bytesRead, headerBytesToRead);
+        data.readBytes(sectionData.getData(), bytesRead, headerBytesToRead);
         bytesRead += headerBytesToRead;
         if (bytesRead == SECTION_HEADER_LENGTH) {
           sectionData.reset(SECTION_HEADER_LENGTH);
@@ -100,21 +100,21 @@ public final class SectionReader implements TsPayloadReader {
               (((secondHeaderByte & 0x0F) << 8) | thirdHeaderByte) + SECTION_HEADER_LENGTH;
           if (sectionData.capacity() < totalSectionLength) {
             // Ensure there is enough space to keep the whole section.
-            byte[] bytes = sectionData.data;
+            byte[] bytes = sectionData.getData();
             sectionData.reset(
                 Math.min(MAX_SECTION_LENGTH, Math.max(totalSectionLength, bytes.length * 2)));
-            System.arraycopy(bytes, 0, sectionData.data, 0, SECTION_HEADER_LENGTH);
+            System.arraycopy(bytes, 0, sectionData.getData(), 0, SECTION_HEADER_LENGTH);
           }
         }
       } else {
         // Reading the body.
         int bodyBytesToRead = Math.min(data.bytesLeft(), totalSectionLength - bytesRead);
-        data.readBytes(sectionData.data, bytesRead, bodyBytesToRead);
+        data.readBytes(sectionData.getData(), bytesRead, bodyBytesToRead);
         bytesRead += bodyBytesToRead;
         if (bytesRead == totalSectionLength) {
           if (sectionSyntaxIndicator) {
             // This section has common syntax as defined in ISO/IEC 13818-1, section 2.4.4.11.
-            if (Util.crc32(sectionData.data, 0, totalSectionLength, 0xFFFFFFFF) != 0) {
+            if (Util.crc32(sectionData.getData(), 0, totalSectionLength, 0xFFFFFFFF) != 0) {
               // The CRC is invalid so discard the section.
               waitingForPayloadStart = true;
               return;

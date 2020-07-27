@@ -96,7 +96,7 @@ public class OggExtractor implements Extractor {
 
     int length = Math.min(header.bodySize, MAX_VERIFICATION_BYTES);
     ParsableByteArray scratch = new ParsableByteArray(length);
-    input.peekFully(scratch.data, 0, length);
+    input.peekFully(scratch.getData(), 0, length);
 
     if (FlacReader.verifyBitstreamType(resetPosition(scratch))) {
       streamReader = new FlacReader();

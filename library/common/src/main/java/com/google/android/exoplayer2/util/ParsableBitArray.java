@@ -72,7 +72,7 @@ public final class ParsableBitArray {
    * @param parsableByteArray The {@link ParsableByteArray}.
    */
   public void reset(ParsableByteArray parsableByteArray) {
-    reset(parsableByteArray.data, parsableByteArray.limit());
+    reset(parsableByteArray.getData(), parsableByteArray.limit());
     setPosition(parsableByteArray.getPosition() * 8);
   }
 

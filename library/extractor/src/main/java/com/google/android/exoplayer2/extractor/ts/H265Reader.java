@@ -125,7 +125,7 @@ public final class H265Reader implements ElementaryStreamReader {
     while (data.bytesLeft() > 0) {
       int offset = data.getPosition();
       int limit = data.limit();
-      byte[] dataArray = data.data;
+      byte[] dataArray = data.getData();
 
       // Append the data to the buffer.
       totalBytesWritten += data.bytesLeft();

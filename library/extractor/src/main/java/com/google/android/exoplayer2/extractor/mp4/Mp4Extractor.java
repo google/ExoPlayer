@@ -277,7 +277,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private boolean readAtomHeader(ExtractorInput input) throws IOException {
     if (atomHeaderBytesRead == 0) {
       // Read the standard length atom header.
-      if (!input.readFully(atomHeader.data, 0, Atom.HEADER_SIZE, true)) {
+      if (!input.readFully(atomHeader.getData(), 0, Atom.HEADER_SIZE, true)) {
         return false;
       }
       atomHeaderBytesRead = Atom.HEADER_SIZE;
@@ -289,7 +289,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     if (atomSize == Atom.DEFINES_LARGE_SIZE) {
       // Read the large size.
       int headerBytesRemaining = Atom.LONG_HEADER_SIZE - Atom.HEADER_SIZE;
-      input.readFully(atomHeader.data, Atom.HEADER_SIZE, headerBytesRemaining);
+      input.readFully(atomHeader.getData(), Atom.HEADER_SIZE, headerBytesRemaining);
       atomHeaderBytesRead += headerBytesRemaining;
       atomSize = atomHeader.readUnsignedLongToLong();
     } else if (atomSize == Atom.EXTENDS_TO_END_SIZE) {
@@ -329,7 +329,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       Assertions.checkState(atomHeaderBytesRead == Atom.HEADER_SIZE);
       Assertions.checkState(atomSize <= Integer.MAX_VALUE);
       ParsableByteArray atomData = new ParsableByteArray((int) atomSize);
-      System.arraycopy(atomHeader.data, 0, atomData.data, 0, Atom.HEADER_SIZE);
+      System.arraycopy(atomHeader.getData(), 0, atomData.getData(), 0, Atom.HEADER_SIZE);
       this.atomData = atomData;
       parserState = STATE_READING_ATOM_PAYLOAD;
     } else {
@@ -352,7 +352,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     boolean seekRequired = false;
     @Nullable ParsableByteArray atomData = this.atomData;
     if (atomData != null) {
-      input.readFully(atomData.data, atomHeaderBytesRead, (int) atomPayloadSize);
+      input.readFully(atomData.getData(), atomHeaderBytesRead, (int) atomPayloadSize);
       if (atomType == Atom.TYPE_ftyp) {
         isQuickTime = processFtypAtom(atomData);
       } else if (!containerAtoms.isEmpty()) {
@@ -509,7 +509,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     if (track.track.nalUnitLengthFieldLength != 0) {
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
-      byte[] nalLengthData = nalLength.data;
+      byte[] nalLengthData = nalLength.getData();
       nalLengthData[0] = 0;
       nalLengthData[1] = 0;
       nalLengthData[2] = 0;
@@ -651,7 +651,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     // (iso) [1 byte version + 3 bytes flags][4 byte size of next atom]
     // (qt)  [4 byte size of next atom      ][4 byte hdlr atom type   ]
     // In case of (iso) we need to skip the next 4 bytes.
-    input.peekFully(scratch.data, 0, 8);
+    input.peekFully(scratch.getData(), 0, 8);
     scratch.skipBytes(4);
     if (scratch.readInt() == Atom.TYPE_hdlr) {
       input.resetPeekPosition();

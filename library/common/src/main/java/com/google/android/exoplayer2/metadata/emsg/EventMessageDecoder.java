@@ -38,7 +38,7 @@ public final class EventMessageDecoder extends SimpleMetadataDecoder {
     long durationMs = emsgData.readUnsignedInt();
     long id = emsgData.readUnsignedInt();
     byte[] messageData =
-        Arrays.copyOfRange(emsgData.data, emsgData.getPosition(), emsgData.limit());
+        Arrays.copyOfRange(emsgData.getData(), emsgData.getPosition(), emsgData.limit());
     return new EventMessage(schemeIdUri, value, durationMs, id, messageData);
   }
 }

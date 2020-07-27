@@ -190,7 +190,7 @@ public final class OggPacketTest {
       throws IOException {
     assertThat(readPacket(extractorInput)).isTrue();
     ParsableByteArray payload = oggPacket.getPayload();
-    assertThat(Arrays.copyOf(payload.data, payload.limit())).isEqualTo(expected);
+    assertThat(Arrays.copyOf(payload.getData(), payload.limit())).isEqualTo(expected);
   }
 
   private void assertReadEof(FakeExtractorInput extractorInput) throws IOException {

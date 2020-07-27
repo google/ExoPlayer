@@ -99,7 +99,7 @@ public final class DtsReader implements ElementaryStreamReader {
           }
           break;
         case STATE_READING_HEADER:
-          if (continueRead(data, headerScratchBytes.data, HEADER_SIZE)) {
+          if (continueRead(data, headerScratchBytes.getData(), HEADER_SIZE)) {
             parseHeader();
             headerScratchBytes.setPosition(0);
             output.sampleData(headerScratchBytes, HEADER_SIZE);
@@ -155,10 +155,11 @@ public final class DtsReader implements ElementaryStreamReader {
       syncBytes <<= 8;
       syncBytes |= pesBuffer.readUnsignedByte();
       if (DtsUtil.isSyncWord(syncBytes)) {
-        headerScratchBytes.data[0] = (byte) ((syncBytes >> 24) & 0xFF);
-        headerScratchBytes.data[1] = (byte) ((syncBytes >> 16) & 0xFF);
-        headerScratchBytes.data[2] = (byte) ((syncBytes >> 8) & 0xFF);
-        headerScratchBytes.data[3] = (byte) (syncBytes & 0xFF);
+        byte[] headerData = headerScratchBytes.getData();
+        headerData[0] = (byte) ((syncBytes >> 24) & 0xFF);
+        headerData[1] = (byte) ((syncBytes >> 16) & 0xFF);
+        headerData[2] = (byte) ((syncBytes >> 8) & 0xFF);
+        headerData[3] = (byte) (syncBytes & 0xFF);
         bytesRead = 4;
         syncBytes = 0;
         return true;
@@ -170,7 +171,7 @@ public final class DtsReader implements ElementaryStreamReader {
   /** Parses the sample header. */
   @RequiresNonNull("output")
   private void parseHeader() {
-    byte[] frameData = headerScratchBytes.data;
+    byte[] frameData = headerScratchBytes.getData();
     if (format == null) {
       format = DtsUtil.parseDtsFormat(frameData, formatId, language, null);
       output.format(format);

@@ -132,7 +132,7 @@ import java.io.IOException;
 
     packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
-    input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
+    input.peekFully(packetBuffer.getData(), /* offset= */ 0, bytesToSearch);
 
     firstPcrValue = readFirstPcrValueFromBuffer(packetBuffer, pcrPid);
     isFirstPcrValueRead = true;
@@ -145,7 +145,7 @@ import java.io.IOException;
     for (int searchPosition = searchStartPosition;
         searchPosition < searchEndPosition;
         searchPosition++) {
-      if (packetBuffer.data[searchPosition] != TsExtractor.TS_SYNC_BYTE) {
+      if (packetBuffer.getData()[searchPosition] != TsExtractor.TS_SYNC_BYTE) {
         continue;
       }
       long pcrValue = TsUtil.readPcrFromPacket(packetBuffer, searchPosition, pcrPid);
@@ -168,7 +168,7 @@ import java.io.IOException;
 
     packetBuffer.reset(bytesToSearch);
     input.resetPeekPosition();
-    input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
+    input.peekFully(packetBuffer.getData(), /* offset= */ 0, bytesToSearch);
 
     lastPcrValue = readLastPcrValueFromBuffer(packetBuffer, pcrPid);
     isLastPcrValueRead = true;
@@ -181,7 +181,7 @@ import java.io.IOException;
     for (int searchPosition = searchEndPosition - 1;
         searchPosition >= searchStartPosition;
         searchPosition--) {
-      if (packetBuffer.data[searchPosition] != TsExtractor.TS_SYNC_BYTE) {
+      if (packetBuffer.getData()[searchPosition] != TsExtractor.TS_SYNC_BYTE) {
         continue;
       }
       long pcrValue = TsUtil.readPcrFromPacket(packetBuffer, searchPosition, pcrPid);

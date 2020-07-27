@@ -79,7 +79,7 @@ public final class FlacMetadataReader {
    */
   public static boolean checkAndPeekStreamMarker(ExtractorInput input) throws IOException {
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.STREAM_MARKER_SIZE);
-    input.peekFully(scratch.data, 0, FlacConstants.STREAM_MARKER_SIZE);
+    input.peekFully(scratch.getData(), 0, FlacConstants.STREAM_MARKER_SIZE);
     return scratch.readUnsignedInt() == STREAM_MARKER;
   }
 
@@ -118,7 +118,7 @@ public final class FlacMetadataReader {
    */
   public static void readStreamMarker(ExtractorInput input) throws IOException {
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.STREAM_MARKER_SIZE);
-    input.readFully(scratch.data, 0, FlacConstants.STREAM_MARKER_SIZE);
+    input.readFully(scratch.getData(), 0, FlacConstants.STREAM_MARKER_SIZE);
     if (scratch.readUnsignedInt() != STREAM_MARKER) {
       throw new ParserException("Failed to read FLAC stream marker.");
     }
@@ -228,7 +228,7 @@ public final class FlacMetadataReader {
   public static int getFrameStartMarker(ExtractorInput input) throws IOException {
     input.resetPeekPosition();
     ParsableByteArray scratch = new ParsableByteArray(2);
-    input.peekFully(scratch.data, 0, 2);
+    input.peekFully(scratch.getData(), 0, 2);
 
     int frameStartMarker = scratch.readUnsignedShort();
     int syncCode = frameStartMarker >> 2;
@@ -251,14 +251,14 @@ public final class FlacMetadataReader {
   private static FlacStreamMetadata.SeekTable readSeekTableMetadataBlock(
       ExtractorInput input, int length) throws IOException {
     ParsableByteArray scratch = new ParsableByteArray(length);
-    input.readFully(scratch.data, 0, length);
+    input.readFully(scratch.getData(), 0, length);
     return readSeekTableMetadataBlock(scratch);
   }
 
   private static List<String> readVorbisCommentMetadataBlock(ExtractorInput input, int length)
       throws IOException {
     ParsableByteArray scratch = new ParsableByteArray(length);
-    input.readFully(scratch.data, 0, length);
+    input.readFully(scratch.getData(), 0, length);
     scratch.skipBytes(FlacConstants.METADATA_BLOCK_HEADER_SIZE);
     CommentHeader commentHeader =
         VorbisUtil.readVorbisCommentHeader(
@@ -269,7 +269,7 @@ public final class FlacMetadataReader {
   private static PictureFrame readPictureMetadataBlock(ExtractorInput input, int length)
       throws IOException {
     ParsableByteArray scratch = new ParsableByteArray(length);
-    input.readFully(scratch.data, 0, length);
+    input.readFully(scratch.getData(), 0, length);
     scratch.skipBytes(FlacConstants.METADATA_BLOCK_HEADER_SIZE);
 
     int pictureType = scratch.readInt();

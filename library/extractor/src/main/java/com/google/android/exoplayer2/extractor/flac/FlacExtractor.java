@@ -265,7 +265,9 @@ public final class FlacExtractor implements Extractor {
     if (currentLimit < BUFFER_LENGTH) {
       int bytesRead =
           input.read(
-              buffer.data, /* offset= */ currentLimit, /* length= */ BUFFER_LENGTH - currentLimit);
+              buffer.getData(),
+              /* offset= */ currentLimit,
+              /* length= */ BUFFER_LENGTH - currentLimit);
       foundEndOfInput = bytesRead == C.RESULT_END_OF_INPUT;
       if (!foundEndOfInput) {
         buffer.setLimit(currentLimit + bytesRead);
@@ -300,7 +302,11 @@ public final class FlacExtractor implements Extractor {
       // The next frame header may not fit in the rest of the buffer, so put the trailing bytes at
       // the start of the buffer, and reset the position and limit.
       System.arraycopy(
-          buffer.data, buffer.getPosition(), buffer.data, /* destPos= */ 0, buffer.bytesLeft());
+          buffer.getData(),
+          buffer.getPosition(),
+          buffer.getData(),
+          /* destPos= */ 0,
+          buffer.bytesLeft());
       buffer.reset(buffer.bytesLeft());
     }
 

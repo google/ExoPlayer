@@ -67,7 +67,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
     state = STATE_FINDING_HEADER;
     // The first byte of an MPEG Audio frame header is always 0xFF.
     headerScratch = new ParsableByteArray(4);
-    headerScratch.data[0] = (byte) 0xFF;
+    headerScratch.getData()[0] = (byte) 0xFF;
     header = new MpegAudioUtil.Header();
     this.language = language;
   }
@@ -129,7 +129,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
    * @param source The source from which to read.
    */
   private void findHeader(ParsableByteArray source) {
-    byte[] data = source.data;
+    byte[] data = source.getData();
     int startOffset = source.getPosition();
     int endOffset = source.limit();
     for (int i = startOffset; i < endOffset; i++) {
@@ -140,7 +140,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
         source.setPosition(i + 1);
         // Reset lastByteWasFF for next time.
         lastByteWasFF = false;
-        headerScratch.data[1] = data[i];
+        headerScratch.getData()[1] = data[i];
         frameBytesRead = 2;
         state = STATE_READING_HEADER;
         return;
@@ -168,7 +168,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
   @RequiresNonNull("output")
   private void readHeaderRemainder(ParsableByteArray source) {
     int bytesToRead = Math.min(source.bytesLeft(), HEADER_SIZE - frameBytesRead);
-    source.readBytes(headerScratch.data, frameBytesRead, bytesToRead);
+    source.readBytes(headerScratch.getData(), frameBytesRead, bytesToRead);
     frameBytesRead += bytesToRead;
     if (frameBytesRead < HEADER_SIZE) {
       // We haven't read the whole header yet.

@@ -59,13 +59,13 @@ import java.util.List;
 
   @Override
   protected long preparePayload(ParsableByteArray packet) {
-    return convertTimeToGranule(getPacketDurationUs(packet.data));
+    return convertTimeToGranule(getPacketDurationUs(packet.getData()));
   }
 
   @Override
   protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData) {
     if (!headerRead) {
-      byte[] metadata = Arrays.copyOf(packet.data, packet.limit());
+      byte[] metadata = Arrays.copyOf(packet.getData(), packet.limit());
       int channelCount = metadata[9] & 0xFF;
       int preskip = ((metadata[11] & 0xFF) << 8) | (metadata[10] & 0xFF);
 
