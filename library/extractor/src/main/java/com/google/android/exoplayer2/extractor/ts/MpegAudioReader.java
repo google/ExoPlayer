@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -167,7 +169,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
    */
   @RequiresNonNull("output")
   private void readHeaderRemainder(ParsableByteArray source) {
-    int bytesToRead = Math.min(source.bytesLeft(), HEADER_SIZE - frameBytesRead);
+    int bytesToRead = min(source.bytesLeft(), HEADER_SIZE - frameBytesRead);
     source.readBytes(headerScratch.getData(), frameBytesRead, bytesToRead);
     frameBytesRead += bytesToRead;
     if (frameBytesRead < HEADER_SIZE) {
@@ -219,7 +221,7 @@ public final class MpegAudioReader implements ElementaryStreamReader {
    */
   @RequiresNonNull("output")
   private void readFrameRemainder(ParsableByteArray source) {
-    int bytesToRead = Math.min(source.bytesLeft(), frameSize - frameBytesRead);
+    int bytesToRead = min(source.bytesLeft(), frameSize - frameBytesRead);
     output.sampleData(source, bytesToRead);
     frameBytesRead += bytesToRead;
     if (frameBytesRead < frameSize) {

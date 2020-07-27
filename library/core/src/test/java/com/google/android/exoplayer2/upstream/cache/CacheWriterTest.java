@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
@@ -69,7 +70,7 @@ public final class CacheWriterTest {
       for (int i = 0; i < spansAndGaps.length; i++) {
         int spanOrGap = spansAndGaps[i];
         if (position < spanOrGap) {
-          long left = Math.min(spanOrGap - position, length);
+          long left = min(spanOrGap - position, length);
           return (i & 1) == 1 ? -left : left;
         }
         position -= spanOrGap;

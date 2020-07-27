@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import static java.lang.Math.max;
+
 import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -493,7 +495,7 @@ public final class DefaultHlsPlaylistTracker
         return false;
       }
       long currentTimeMs = SystemClock.elapsedRealtime();
-      long snapshotValidityDurationMs = Math.max(30000, C.usToMs(playlistSnapshot.durationUs));
+      long snapshotValidityDurationMs = max(30000, C.usToMs(playlistSnapshot.durationUs));
       return playlistSnapshot.hasEndTag
           || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_EVENT
           || playlistSnapshot.playlistType == HlsMediaPlaylist.PLAYLIST_TYPE_VOD

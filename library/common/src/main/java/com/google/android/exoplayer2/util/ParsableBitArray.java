@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static java.lang.Math.min;
+
 import com.google.common.base.Charsets;
 import java.nio.charset.Charset;
 
@@ -319,7 +321,7 @@ public final class ParsableBitArray {
     if (numBits < 32) {
       value &= (1 << numBits) - 1;
     }
-    int firstByteReadSize = Math.min(8 - bitOffset, numBits);
+    int firstByteReadSize = min(8 - bitOffset, numBits);
     int firstByteRightPaddingSize = 8 - bitOffset - firstByteReadSize;
     int firstByteBitmask = (0xFF00 >> bitOffset) | ((1 << firstByteRightPaddingSize) - 1);
     data[byteOffset] = (byte) (data[byteOffset] & firstByteBitmask);

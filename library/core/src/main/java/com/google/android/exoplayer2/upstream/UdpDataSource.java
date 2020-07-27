@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -137,7 +139,7 @@ public final class UdpDataSource extends BaseDataSource {
     }
 
     int packetOffset = packet.getLength() - packetRemaining;
-    int bytesToRead = Math.min(packetRemaining, readLength);
+    int bytesToRead = min(packetRemaining, readLength);
     System.arraycopy(packetBuffer, packetOffset, buffer, offset, bytesToRead);
     packetRemaining -= bytesToRead;
     return bytesToRead;

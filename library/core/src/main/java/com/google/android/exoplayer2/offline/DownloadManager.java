@@ -25,6 +25,7 @@ import static com.google.android.exoplayer2.offline.Download.STATE_REMOVING;
 import static com.google.android.exoplayer2.offline.Download.STATE_RESTARTING;
 import static com.google.android.exoplayer2.offline.Download.STATE_STOPPED;
 import static com.google.android.exoplayer2.offline.Download.STOP_REASON_NONE;
+import static java.lang.Math.min;
 
 import android.content.Context;
 import android.os.Handler;
@@ -1389,7 +1390,7 @@ public final class DownloadManager {
     }
 
     private static int getRetryDelayMillis(int errorCount) {
-      return Math.min((errorCount - 1) * 1000, 5000);
+      return min((errorCount - 1) * 1000, 5000);
     }
   }
 

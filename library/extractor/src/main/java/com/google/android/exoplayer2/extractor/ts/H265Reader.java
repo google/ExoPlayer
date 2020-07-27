@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -354,7 +356,7 @@ public final class H265Reader implements ElementaryStreamReader {
           // scaling_list_pred_matrix_id_delta[sizeId][matrixId]
           bitArray.readUnsignedExpGolombCodedInt();
         } else {
-          int coefNum = Math.min(64, 1 << (4 + (sizeId << 1)));
+          int coefNum = min(64, 1 << (4 + (sizeId << 1)));
           if (sizeId > 1) {
             // scaling_list_dc_coef_minus8[sizeId - 2][matrixId]
             bitArray.readSignedExpGolombCodedInt();

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.util.Pair;
 import android.util.SparseArray;
 import androidx.annotation.CallSuper;
@@ -1301,7 +1304,7 @@ public class MatroskaExtractor implements Extractor {
     }
     if (scratch.capacity() < requiredLength) {
       scratch.reset(
-          Arrays.copyOf(scratch.getData(), Math.max(scratch.getData().length * 2, requiredLength)),
+          Arrays.copyOf(scratch.getData(), max(scratch.getData().length * 2, requiredLength)),
           scratch.limit());
     }
     input.readFully(scratch.getData(), scratch.limit(), requiredLength - scratch.limit());
@@ -1600,7 +1603,7 @@ public class MatroskaExtractor implements Extractor {
    */
   private void writeToTarget(ExtractorInput input, byte[] target, int offset, int length)
       throws IOException {
-    int pendingStrippedBytes = Math.min(length, sampleStrippedBytes.bytesLeft());
+    int pendingStrippedBytes = min(length, sampleStrippedBytes.bytesLeft());
     input.readFully(target, offset + pendingStrippedBytes, length - pendingStrippedBytes);
     if (pendingStrippedBytes > 0) {
       sampleStrippedBytes.readBytes(target, offset, pendingStrippedBytes);
@@ -1616,7 +1619,7 @@ public class MatroskaExtractor implements Extractor {
     int bytesWritten;
     int strippedBytesLeft = sampleStrippedBytes.bytesLeft();
     if (strippedBytesLeft > 0) {
-      bytesWritten = Math.min(length, strippedBytesLeft);
+      bytesWritten = min(length, strippedBytesLeft);
       output.sampleData(sampleStrippedBytes, bytesWritten);
     } else {
       bytesWritten = output.sampleData(input, length, false);
@@ -1747,7 +1750,7 @@ public class MatroskaExtractor implements Extractor {
       return array;
     } else {
       // Double the size to avoid allocating constantly if the required length increases gradually.
-      return new int[Math.max(array.length * 2, length)];
+      return new int[max(array.length * 2, length)];
     }
   }
 

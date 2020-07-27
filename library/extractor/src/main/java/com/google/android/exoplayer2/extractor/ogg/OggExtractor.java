@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -94,7 +96,7 @@ public class OggExtractor implements Extractor {
       return false;
     }
 
-    int length = Math.min(header.bodySize, MAX_VERIFICATION_BYTES);
+    int length = min(header.bodySize, MAX_VERIFICATION_BYTES);
     ParsableByteArray scratch = new ParsableByteArray(length);
     input.peekFully(scratch.getData(), 0, length);
 

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import androidx.annotation.IntDef;
@@ -700,7 +701,7 @@ public final class CacheDataSource implements DataSource {
       long positionInFile = readPosition - filePositionOffset;
       long length = nextSpan.length - positionInFile;
       if (bytesRemaining != C.LENGTH_UNSET) {
-        length = Math.min(length, bytesRemaining);
+        length = min(length, bytesRemaining);
       }
       nextDataSpec =
           requestDataSpec
@@ -719,7 +720,7 @@ public final class CacheDataSource implements DataSource {
       } else {
         length = nextSpan.length;
         if (bytesRemaining != C.LENGTH_UNSET) {
-          length = Math.min(length, bytesRemaining);
+          length = min(length, bytesRemaining);
         }
       }
       nextDataSpec =

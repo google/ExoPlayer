@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
@@ -550,7 +551,7 @@ public final class CacheDataSourceTest {
     int requestLength = (int) dataSpec.length;
     int readLength = TEST_DATA.length - position;
     if (requestLength != C.LENGTH_UNSET) {
-      readLength = Math.min(readLength, requestLength);
+      readLength = min(readLength, requestLength);
     }
     assertThat(cacheDataSource.open(dataSpec))
         .isEqualTo(unknownLength ? requestLength : readLength);

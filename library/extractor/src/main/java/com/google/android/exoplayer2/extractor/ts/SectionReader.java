@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -87,7 +90,7 @@ public final class SectionReader implements TsPayloadReader {
             return;
           }
         }
-        int headerBytesToRead = Math.min(data.bytesLeft(), SECTION_HEADER_LENGTH - bytesRead);
+        int headerBytesToRead = min(data.bytesLeft(), SECTION_HEADER_LENGTH - bytesRead);
         data.readBytes(sectionData.getData(), bytesRead, headerBytesToRead);
         bytesRead += headerBytesToRead;
         if (bytesRead == SECTION_HEADER_LENGTH) {
@@ -101,14 +104,13 @@ public final class SectionReader implements TsPayloadReader {
           if (sectionData.capacity() < totalSectionLength) {
             // Ensure there is enough space to keep the whole section.
             byte[] bytes = sectionData.getData();
-            sectionData.reset(
-                Math.min(MAX_SECTION_LENGTH, Math.max(totalSectionLength, bytes.length * 2)));
+            sectionData.reset(min(MAX_SECTION_LENGTH, max(totalSectionLength, bytes.length * 2)));
             System.arraycopy(bytes, 0, sectionData.getData(), 0, SECTION_HEADER_LENGTH);
           }
         }
       } else {
         // Reading the body.
-        int bodyBytesToRead = Math.min(data.bytesLeft(), totalSectionLength - bytesRead);
+        int bodyBytesToRead = min(data.bytesLeft(), totalSectionLength - bytesRead);
         data.readBytes(sectionData.getData(), bytesRead, bodyBytesToRead);
         bytesRead += bodyBytesToRead;
         if (bytesRead == totalSectionLength) {

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -386,10 +389,10 @@ public class DefaultLoadControl implements LoadControl {
       // duration to keep enough media buffered for a playout duration of minBufferUs.
       long mediaDurationMinBufferUs =
           Util.getMediaDurationForPlayoutDuration(minBufferUs, playbackSpeed);
-      minBufferUs = Math.min(mediaDurationMinBufferUs, maxBufferUs);
+      minBufferUs = min(mediaDurationMinBufferUs, maxBufferUs);
     }
     // Prevent playback from getting stuck if minBufferUs is too small.
-    minBufferUs = Math.max(minBufferUs, 500_000);
+    minBufferUs = max(minBufferUs, 500_000);
     if (bufferedDurationUs < minBufferUs) {
       isBuffering = prioritizeTimeOverSizeThresholds || !targetBufferSizeReached;
       if (!isBuffering && bufferedDurationUs < 500_000) {
@@ -430,7 +433,7 @@ public class DefaultLoadControl implements LoadControl {
         targetBufferSize += getDefaultBufferSize(renderers[i].getTrackType());
       }
     }
-    return Math.max(DEFAULT_MIN_BUFFER_SIZE, targetBufferSize);
+    return max(DEFAULT_MIN_BUFFER_SIZE, targetBufferSize);
   }
 
   private void reset(boolean resetAllocator) {

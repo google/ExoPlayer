@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.BinarySearchSeeker;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -72,7 +74,7 @@ import java.io.IOException;
     public TimestampSearchResult searchForTimestamp(ExtractorInput input, long targetTimestamp)
         throws IOException {
       long inputPosition = input.getPosition();
-      int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
+      int bytesToSearch = (int) min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
 
       packetBuffer.reset(bytesToSearch);
       input.peekFully(packetBuffer.getData(), /* offset= */ 0, bytesToSearch);
@@ -195,7 +197,7 @@ import java.io.IOException;
         }
         int pesPacketLength = packetBuffer.readUnsignedShort();
         packetBuffer.setPosition(
-            Math.min(packetBuffer.limit(), packetBuffer.getPosition() + pesPacketLength));
+            min(packetBuffer.limit(), packetBuffer.getPosition() + pesPacketLength));
       }
     }
   }

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.robolectric.shadows.ShadowBaseLooper.shadowMainLooper;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -46,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -433,7 +433,7 @@ public class DownloadHelperTest {
             preparedLatch.countDown();
           }
         });
-    while (!preparedLatch.await(0, TimeUnit.MILLISECONDS)) {
+    while (!preparedLatch.await(0, MILLISECONDS)) {
       shadowMainLooper().idleFor(shadowMainLooper().getNextScheduledTaskTime());
     }
     if (prepareException.get() != null) {

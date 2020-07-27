@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static java.lang.Math.max;
+
 import android.net.Uri;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
@@ -246,9 +248,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // buffered duration to time-to-live-edge to decide whether to switch. Therefore, we subtract
       // the duration of the last loaded segment from timeToLiveEdgeUs as well.
       long subtractedDurationUs = previous.getDurationUs();
-      bufferedDurationUs = Math.max(0, bufferedDurationUs - subtractedDurationUs);
+      bufferedDurationUs = max(0, bufferedDurationUs - subtractedDurationUs);
       if (timeToLiveEdgeUs != C.TIME_UNSET) {
-        timeToLiveEdgeUs = Math.max(0, timeToLiveEdgeUs - subtractedDurationUs);
+        timeToLiveEdgeUs = max(0, timeToLiveEdgeUs - subtractedDurationUs);
       }
     }
 

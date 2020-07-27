@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.Math.max;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.net.Uri;
@@ -512,7 +513,7 @@ public final class HlsMediaSource extends BaseMediaSource
       if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = 0;
         if (!segments.isEmpty()) {
-          int defaultStartSegmentIndex = Math.max(0, segments.size() - 3);
+          int defaultStartSegmentIndex = max(0, segments.size() - 3);
           // We attempt to set the default start position to be at least twice the target duration
           // behind the live edge.
           long minStartPositionUs = playlist.durationUs - playlist.targetDurationUs * 2;

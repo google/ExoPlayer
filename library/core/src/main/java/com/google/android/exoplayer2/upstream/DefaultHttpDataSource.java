@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
@@ -634,7 +637,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
             // increase it.
             Log.w(TAG, "Inconsistent headers [" + contentLengthHeader + "] [" + contentRangeHeader
                 + "]");
-            contentLength = Math.max(contentLength, contentLengthFromRange);
+            contentLength = max(contentLength, contentLengthFromRange);
           }
         } catch (NumberFormatException e) {
           Log.e(TAG, "Unexpected Content-Range [" + contentRangeHeader + "]");
@@ -664,7 +667,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
 
     while (bytesSkipped != bytesToSkip) {
-      int readLength = (int) Math.min(bytesToSkip - bytesSkipped, skipBuffer.length);
+      int readLength = (int) min(bytesToSkip - bytesSkipped, skipBuffer.length);
       int read = inputStream.read(skipBuffer, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
@@ -703,7 +706,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       if (bytesRemaining == 0) {
         return C.RESULT_END_OF_INPUT;
       }
-      readLength = (int) Math.min(readLength, bytesRemaining);
+      readLength = (int) min(readLength, bytesRemaining);
     }
 
     int read = inputStream.read(buffer, offset, readLength);

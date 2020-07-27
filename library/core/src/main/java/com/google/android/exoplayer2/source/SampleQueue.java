@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.Math.max;
 
 import android.os.Looper;
 import android.util.Log;
@@ -713,7 +714,7 @@ public class SampleQueue implements TrackOutput {
       int size,
       @Nullable CryptoData cryptoData) {
     isLastSampleQueued = (sampleFlags & C.BUFFER_FLAG_LAST_SAMPLE) != 0;
-    largestQueuedTimestampUs = Math.max(largestQueuedTimestampUs, timeUs);
+    largestQueuedTimestampUs = max(largestQueuedTimestampUs, timeUs);
 
     int relativeEndIndex = getRelativeIndex(length);
     timesUs[relativeEndIndex] = timeUs;
@@ -776,7 +777,7 @@ public class SampleQueue implements TrackOutput {
       return timeUs > largestDiscardedTimestampUs;
     }
     long largestReadTimestampUs =
-        Math.max(largestDiscardedTimestampUs, getLargestTimestamp(readPosition));
+        max(largestDiscardedTimestampUs, getLargestTimestamp(readPosition));
     if (largestReadTimestampUs >= timeUs) {
       return false;
     }
@@ -797,7 +798,7 @@ public class SampleQueue implements TrackOutput {
     int discardCount = getWriteIndex() - discardFromIndex;
     checkArgument(0 <= discardCount && discardCount <= (length - readPosition));
     length -= discardCount;
-    largestQueuedTimestampUs = Math.max(largestDiscardedTimestampUs, getLargestTimestamp(length));
+    largestQueuedTimestampUs = max(largestDiscardedTimestampUs, getLargestTimestamp(length));
     isLastSampleQueued = discardCount == 0 && isLastSampleQueued;
     if (length != 0) {
       int relativeLastWriteIndex = getRelativeIndex(length - 1);
@@ -894,7 +895,7 @@ public class SampleQueue implements TrackOutput {
    */
   private long discardSamples(int discardCount) {
     largestDiscardedTimestampUs =
-        Math.max(largestDiscardedTimestampUs, getLargestTimestamp(discardCount));
+        max(largestDiscardedTimestampUs, getLargestTimestamp(discardCount));
     length -= discardCount;
     absoluteFirstIndex += discardCount;
     relativeFirstIndex += discardCount;
@@ -928,7 +929,7 @@ public class SampleQueue implements TrackOutput {
     long largestTimestampUs = Long.MIN_VALUE;
     int relativeSampleIndex = getRelativeIndex(length - 1);
     for (int i = 0; i < length; i++) {
-      largestTimestampUs = Math.max(largestTimestampUs, timesUs[relativeSampleIndex]);
+      largestTimestampUs = max(largestTimestampUs, timesUs[relativeSampleIndex]);
       if ((flags[relativeSampleIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
         break;
       }

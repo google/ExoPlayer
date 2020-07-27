@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -191,7 +194,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
             default:
               throw new IllegalStateException();
           }
-          bestRendererSupport = Math.max(bestRendererSupport, trackRendererSupport);
+          bestRendererSupport = max(bestRendererSupport, trackRendererSupport);
         }
       }
       return bestRendererSupport;
@@ -218,7 +221,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
       @RendererSupport int bestRendererSupport = RENDERER_SUPPORT_NO_TRACKS;
       for (int i = 0; i < rendererCount; i++) {
         if (rendererTrackTypes[i] == trackType) {
-          bestRendererSupport = Math.max(bestRendererSupport, getRendererSupport(i));
+          bestRendererSupport = max(bestRendererSupport, getRendererSupport(i));
         }
       }
       return bestRendererSupport;
@@ -307,13 +310,13 @@ public abstract class MappingTrackSelector extends TrackSelector {
           multipleMimeTypes |= !Util.areEqual(firstSampleMimeType, sampleMimeType);
         }
         adaptiveSupport =
-            Math.min(
+            min(
                 adaptiveSupport,
                 RendererCapabilities.getAdaptiveSupport(
                     rendererFormatSupports[rendererIndex][groupIndex][i]));
       }
       return multipleMimeTypes
-          ? Math.min(adaptiveSupport, rendererMixedMimeTypeAdaptiveSupports[rendererIndex])
+          ? min(adaptiveSupport, rendererMixedMimeTypeAdaptiveSupports[rendererIndex])
           : adaptiveSupport;
     }
 
@@ -502,7 +505,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
         int trackFormatSupportLevel =
             RendererCapabilities.getFormatSupport(
                 rendererCapability.supportsFormat(group.getFormat(trackIndex)));
-        formatSupportLevel = Math.max(formatSupportLevel, trackFormatSupportLevel);
+        formatSupportLevel = max(formatSupportLevel, trackFormatSupportLevel);
       }
       boolean rendererIsUnassociated = rendererTrackGroupCounts[rendererIndex] == 0;
       if (formatSupportLevel > bestFormatSupportLevel

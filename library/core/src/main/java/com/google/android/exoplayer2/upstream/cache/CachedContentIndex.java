@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static java.lang.Math.min;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -391,13 +393,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       // large) valueSize was read. In such cases the implementation below is expected to throw
       // IOException from one of the readFully calls, due to the end of the input being reached.
       int bytesRead = 0;
-      int nextBytesToRead = Math.min(valueSize, INCREMENTAL_METADATA_READ_LENGTH);
+      int nextBytesToRead = min(valueSize, INCREMENTAL_METADATA_READ_LENGTH);
       byte[] value = Util.EMPTY_BYTE_ARRAY;
       while (bytesRead != valueSize) {
         value = Arrays.copyOf(value, bytesRead + nextBytesToRead);
         input.readFully(value, bytesRead, nextBytesToRead);
         bytesRead += nextBytesToRead;
-        nextBytesToRead = Math.min(valueSize - bytesRead, INCREMENTAL_METADATA_READ_LENGTH);
+        nextBytesToRead = min(valueSize - bytesRead, INCREMENTAL_METADATA_READ_LENGTH);
       }
       metadata.put(name, value);
     }

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import static com.google.android.exoplayer2.text.span.SpanUtil.addOrReplaceSpan;
+import static java.lang.Math.min;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Color;
@@ -285,9 +286,12 @@ public final class WebvttCueParser {
         case CHAR_AMPERSAND:
           int semiColonEndIndex = markup.indexOf(CHAR_SEMI_COLON, pos + 1);
           int spaceEndIndex = markup.indexOf(CHAR_SPACE, pos + 1);
-          int entityEndIndex = semiColonEndIndex == -1 ? spaceEndIndex
-              : (spaceEndIndex == -1 ? semiColonEndIndex
-                  : Math.min(semiColonEndIndex, spaceEndIndex));
+          int entityEndIndex =
+              semiColonEndIndex == -1
+                  ? spaceEndIndex
+                  : (spaceEndIndex == -1
+                      ? semiColonEndIndex
+                      : min(semiColonEndIndex, spaceEndIndex));
           if (entityEndIndex != -1) {
             applyEntity(markup.substring(pos + 1, entityEndIndex), spannedText);
             if (entityEndIndex == spaceEndIndex) {
@@ -809,7 +813,7 @@ public final class WebvttCueParser {
               .setLineAnchor(lineAnchor)
               .setPosition(position)
               .setPositionAnchor(positionAnchor)
-              .setSize(Math.min(size, deriveMaxSize(positionAnchor, position)))
+              .setSize(min(size, deriveMaxSize(positionAnchor, position)))
               .setVerticalType(verticalType);
 
       if (text != null) {

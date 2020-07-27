@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.ads;
 
+import static java.lang.Math.max;
+
 import android.net.Uri;
 import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
@@ -213,7 +215,7 @@ public final class AdPlaybackState {
     @CheckResult
     private static @AdState int[] copyStatesWithSpaceForAdCount(@AdState int[] states, int count) {
       int oldStateCount = states.length;
-      int newStateCount = Math.max(count, oldStateCount);
+      int newStateCount = max(count, oldStateCount);
       states = Arrays.copyOf(states, newStateCount);
       Arrays.fill(states, oldStateCount, newStateCount, AD_STATE_UNAVAILABLE);
       return states;
@@ -222,7 +224,7 @@ public final class AdPlaybackState {
     @CheckResult
     private static long[] copyDurationsUsWithSpaceForAdCount(long[] durationsUs, int count) {
       int oldDurationsUsCount = durationsUs.length;
-      int newDurationsUsCount = Math.max(count, oldDurationsUsCount);
+      int newDurationsUsCount = max(count, oldDurationsUsCount);
       durationsUs = Arrays.copyOf(durationsUs, newDurationsUsCount);
       Arrays.fill(durationsUs, oldDurationsUsCount, newDurationsUsCount, C.TIME_UNSET);
       return durationsUs;

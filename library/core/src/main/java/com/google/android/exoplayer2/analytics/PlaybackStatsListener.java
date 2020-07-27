@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.analytics;
 
+import static java.lang.Math.max;
+
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -792,7 +794,7 @@ public final class PlaybackStatsListener
         long buildTimeMs = SystemClock.elapsedRealtime();
         playbackStateDurationsMs =
             Arrays.copyOf(this.playbackStateDurationsMs, PlaybackStats.PLAYBACK_STATE_COUNT);
-        long lastStateDurationMs = Math.max(0, buildTimeMs - currentPlaybackStateStartTimeMs);
+        long lastStateDurationMs = max(0, buildTimeMs - currentPlaybackStateStartTimeMs);
         playbackStateDurationsMs[currentPlaybackState] += lastStateDurationMs;
         maybeUpdateMaxRebufferTimeMs(buildTimeMs);
         maybeRecordVideoFormatTime(buildTimeMs);

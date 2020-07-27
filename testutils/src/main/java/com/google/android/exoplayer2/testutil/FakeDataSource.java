@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -124,8 +127,7 @@ public class FakeDataSource extends BaseDataSource {
     currentSegmentIndex = 0;
     int scannedLength = 0;
     for (Segment segment : fakeData.getSegments()) {
-      segment.bytesRead =
-          (int) Math.min(Math.max(0, dataSpec.position - scannedLength), segment.length);
+      segment.bytesRead = (int) min(max(0, dataSpec.position - scannedLength), segment.length);
       scannedLength += segment.length;
       findingCurrentSegmentIndex &= segment.isErrorSegment() ? segment.exceptionCleared
           : (!segment.isActionSegment() && segment.bytesRead == segment.length);
@@ -166,9 +168,9 @@ public class FakeDataSource extends BaseDataSource {
         Util.castNonNull(current.action).run();
       } else {
         // Read at most bytesRemaining.
-        readLength = (int) Math.min(readLength, bytesRemaining);
+        readLength = (int) min(readLength, bytesRemaining);
         // Do not allow crossing of the segment boundary.
-        readLength = Math.min(readLength, current.length - current.bytesRead);
+        readLength = min(readLength, current.length - current.bytesRead);
         // Perform the read and return.
         Assertions.checkArgument(buffer.length - offset >= readLength);
         if (current.data != null) {

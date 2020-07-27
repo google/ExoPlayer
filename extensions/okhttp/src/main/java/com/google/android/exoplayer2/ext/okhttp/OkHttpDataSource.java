@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.okhttp;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -395,7 +396,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     while (bytesSkipped != bytesToSkip) {
-      int readLength = (int) Math.min(bytesToSkip - bytesSkipped, SKIP_BUFFER.length);
+      int readLength = (int) min(bytesToSkip - bytesSkipped, SKIP_BUFFER.length);
       int read = castNonNull(responseByteStream).read(SKIP_BUFFER, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
@@ -431,7 +432,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       if (bytesRemaining == 0) {
         return C.RESULT_END_OF_INPUT;
       }
-      readLength = (int) Math.min(readLength, bytesRemaining);
+      readLength = (int) min(readLength, bytesRemaining);
     }
 
     int read = castNonNull(responseByteStream).read(buffer, offset, readLength);

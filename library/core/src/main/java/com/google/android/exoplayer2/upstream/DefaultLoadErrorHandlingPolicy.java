@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
@@ -91,7 +93,7 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
             || exception instanceof FileNotFoundException
             || exception instanceof UnexpectedLoaderException
         ? C.TIME_UNSET
-        : Math.min((loadErrorInfo.errorCount - 1) * 1000, 5000);
+        : min((loadErrorInfo.errorCount - 1) * 1000, 5000);
   }
 
   /**

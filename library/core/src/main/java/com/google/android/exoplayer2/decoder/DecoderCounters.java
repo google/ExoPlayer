@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import static java.lang.Math.max;
+
 /**
  * Maintains decoder event counts, for debugging purposes only.
- * <p>
- * Counters should be written from the playback thread only. Counters may be read from any thread.
- * To ensure that the counter values are made visible across threads, users of this class should
- * invoke {@link #ensureUpdated()} prior to reading and after writing.
+ *
+ * <p>Counters should be written from the playback thread only. Counters may be read from any
+ * thread. To ensure that the counter values are made visible across threads, users of this class
+ * should invoke {@link #ensureUpdated()} prior to reading and after writing.
  */
 public final class DecoderCounters {
 
@@ -117,8 +119,8 @@ public final class DecoderCounters {
     renderedOutputBufferCount += other.renderedOutputBufferCount;
     skippedOutputBufferCount += other.skippedOutputBufferCount;
     droppedBufferCount += other.droppedBufferCount;
-    maxConsecutiveDroppedBufferCount = Math.max(maxConsecutiveDroppedBufferCount,
-        other.maxConsecutiveDroppedBufferCount);
+    maxConsecutiveDroppedBufferCount =
+        max(maxConsecutiveDroppedBufferCount, other.maxConsecutiveDroppedBufferCount);
     droppedToKeyframeCount += other.droppedToKeyframeCount;
     addVideoFrameProcessingOffsets(
         other.totalVideoFrameProcessingOffsetUs, other.videoFrameProcessingOffsetCount);

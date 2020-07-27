@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.Math.max;
+
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -666,7 +668,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
       currentPositionUs =
           allowPositionDiscontinuity
               ? newCurrentPositionUs
-              : Math.max(currentPositionUs, newCurrentPositionUs);
+              : max(currentPositionUs, newCurrentPositionUs);
       allowPositionDiscontinuity = false;
     }
   }

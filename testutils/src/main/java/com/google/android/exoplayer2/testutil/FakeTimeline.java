@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
@@ -290,8 +292,7 @@ public final class FakeTimeline extends Timeline {
    */
   public FakeTimeline(Object[] manifests, TimelineWindowDefinition... windowDefinitions) {
     this.manifests = new Object[windowDefinitions.length];
-    System.arraycopy(
-        manifests, 0, this.manifests, 0, Math.min(this.manifests.length, manifests.length));
+    System.arraycopy(manifests, 0, this.manifests, 0, min(this.manifests.length, manifests.length));
     this.windowDefinitions = windowDefinitions;
     periodOffsets = new int[windowDefinitions.length + 1];
     periodOffsets[0] = 0;

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static java.lang.Math.max;
+
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -614,12 +616,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       HlsMediaChunk lastCompletedMediaChunk = lastMediaChunk.isLoadCompleted() ? lastMediaChunk
           : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
       if (lastCompletedMediaChunk != null) {
-        bufferedPositionUs = Math.max(bufferedPositionUs, lastCompletedMediaChunk.endTimeUs);
+        bufferedPositionUs = max(bufferedPositionUs, lastCompletedMediaChunk.endTimeUs);
       }
       if (sampleQueuesBuilt) {
         for (SampleQueue sampleQueue : sampleQueues) {
-          bufferedPositionUs =
-              Math.max(bufferedPositionUs, sampleQueue.getLargestQueuedTimestampUs());
+          bufferedPositionUs = max(bufferedPositionUs, sampleQueue.getLargestQueuedTimestampUs());
         }
       }
       return bufferedPositionUs;
@@ -655,7 +656,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       loadPositionUs =
           lastMediaChunk.isLoadCompleted()
               ? lastMediaChunk.endTimeUs
-              : Math.max(lastSeekPositionUs, lastMediaChunk.startTimeUs);
+              : max(lastSeekPositionUs, lastMediaChunk.startTimeUs);
     }
     chunkSource.getNextChunk(
         positionUs,

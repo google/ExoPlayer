@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static junit.framework.TestCase.assertFalse;
 
 import android.content.Context;
@@ -45,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /** Helper class to run an ExoPlayer test. */
@@ -476,7 +476,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    * @throws Exception If any exception occurred during playback, release, or due to a timeout.
    */
   public ExoPlayerTestRunner blockUntilEnded(long timeoutMs) throws Exception {
-    if (!endedCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
+    if (!endedCountDownLatch.await(timeoutMs, MILLISECONDS)) {
       exception = new TimeoutException("Test playback timed out waiting for playback to end.");
     }
     release();
@@ -498,7 +498,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    */
   public ExoPlayerTestRunner blockUntilActionScheduleFinished(long timeoutMs)
       throws TimeoutException, InterruptedException {
-    if (!actionScheduleFinishedCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
+    if (!actionScheduleFinishedCountDownLatch.await(timeoutMs, MILLISECONDS)) {
       throw new TimeoutException("Test playback timed out waiting for action schedule to finish.");
     }
     return this;

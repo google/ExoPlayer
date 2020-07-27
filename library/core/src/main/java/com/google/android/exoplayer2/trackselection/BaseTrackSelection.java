@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static java.lang.Math.max;
+
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -160,7 +162,7 @@ public abstract class BaseTrackSelection implements TrackSelection {
       return false;
     }
     excludeUntilTimes[index] =
-        Math.max(
+        max(
             excludeUntilTimes[index],
             Util.addWithOverflowDefault(nowMs, exclusionDurationMs, Long.MAX_VALUE));
     return true;

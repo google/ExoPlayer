@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
@@ -304,7 +306,7 @@ import java.util.Arrays;
     advanceReadTo(absolutePosition);
     int remaining = length;
     while (remaining > 0) {
-      int toCopy = Math.min(remaining, (int) (readAllocationNode.endPosition - absolutePosition));
+      int toCopy = min(remaining, (int) (readAllocationNode.endPosition - absolutePosition));
       Allocation allocation = readAllocationNode.allocation;
       target.put(allocation.data, readAllocationNode.translateOffset(absolutePosition), toCopy);
       remaining -= toCopy;
@@ -326,7 +328,7 @@ import java.util.Arrays;
     advanceReadTo(absolutePosition);
     int remaining = length;
     while (remaining > 0) {
-      int toCopy = Math.min(remaining, (int) (readAllocationNode.endPosition - absolutePosition));
+      int toCopy = min(remaining, (int) (readAllocationNode.endPosition - absolutePosition));
       Allocation allocation = readAllocationNode.allocation;
       System.arraycopy(
           allocation.data,
@@ -392,7 +394,7 @@ import java.util.Arrays;
           allocator.allocate(),
           new AllocationNode(writeAllocationNode.endPosition, allocationLength));
     }
-    return Math.min(length, (int) (writeAllocationNode.endPosition - totalBytesWritten));
+    return min(length, (int) (writeAllocationNode.endPosition - totalBytesWritten));
   }
 
   /**

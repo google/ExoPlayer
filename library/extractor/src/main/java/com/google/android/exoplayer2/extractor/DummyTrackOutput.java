@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -44,7 +46,7 @@ public final class DummyTrackOutput implements TrackOutput {
   public int sampleData(
       DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
       throws IOException {
-    int bytesToSkipByReading = Math.min(readBuffer.length, length);
+    int bytesToSkipByReading = min(readBuffer.length, length);
     int bytesSkipped = input.read(readBuffer, /* offset= */ 0, bytesToSkipByReading);
     if (bytesSkipped == C.RESULT_END_OF_INPUT) {
       if (allowEndOfInput) {

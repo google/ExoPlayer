@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import android.os.SystemClock;
 import androidx.annotation.CheckResult;
@@ -363,8 +366,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    int maxSegmentCount =
-        (int) Math.min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
+    int maxSegmentCount = (int) min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
     if (periodDurationUs != C.TIME_UNSET) {
       while (maxSegmentCount > 1
           && representationHolder.getSegmentStartTimeUs(segmentNum + maxSegmentCount - 1)
@@ -759,8 +761,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         long periodStartUs = C.msToUs(manifest.getPeriod(periodIndex).startMs);
         long liveEdgeTimeInPeriodUs = liveEdgeTimeUs - periodStartUs;
         long bufferDepthUs = C.msToUs(manifest.timeShiftBufferDepthMs);
-        return Math.max(
-            getFirstSegmentNum(), getSegmentNum(liveEdgeTimeInPeriodUs - bufferDepthUs));
+        return max(getFirstSegmentNum(), getSegmentNum(liveEdgeTimeInPeriodUs - bufferDepthUs));
       }
       return getFirstSegmentNum();
     }

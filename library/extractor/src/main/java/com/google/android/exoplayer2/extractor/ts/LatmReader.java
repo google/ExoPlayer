@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -129,7 +131,7 @@ public final class LatmReader implements ElementaryStreamReader {
           state = STATE_READING_SAMPLE;
           break;
         case STATE_READING_SAMPLE:
-          bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
+          bytesToRead = min(data.bytesLeft(), sampleSize - bytesRead);
           data.readBytes(sampleBitArray.data, bytesRead, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {

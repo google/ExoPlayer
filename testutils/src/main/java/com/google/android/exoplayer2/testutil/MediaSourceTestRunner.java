@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -43,7 +44,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 
 /** A runner for {@link MediaSource} tests. */
 public class MediaSourceTestRunner {
@@ -97,7 +97,7 @@ public class MediaSourceTestRunner {
           }
         });
     try {
-      assertThat(finishedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+      assertThat(finishedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     } catch (InterruptedException e) {
       Util.sneakyThrow(e);
     }
@@ -232,7 +232,7 @@ public class MediaSourceTestRunner {
    */
   public Timeline assertTimelineChangeBlocking() {
     try {
-      timeline = timelines.poll(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      timeline = timelines.poll(TIMEOUT_MS, MILLISECONDS);
       assertThat(timeline).isNotNull(); // Null indicates the poll timed out.
       assertNoTimelineChange();
       return timeline;
@@ -266,7 +266,7 @@ public class MediaSourceTestRunner {
       throws InterruptedException {
     MediaPeriod mediaPeriod = createPeriod(mediaPeriodId);
     CountDownLatch preparedLatch = preparePeriod(mediaPeriod, 0);
-    assertThat(preparedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(preparedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     // MediaSource is supposed to support multiple calls to createPeriod without an intervening call
     // to releasePeriod.
     MediaPeriodId secondMediaPeriodId =
@@ -277,7 +277,7 @@ public class MediaSourceTestRunner {
             mediaPeriodId.windowSequenceNumber + 1000);
     MediaPeriod secondMediaPeriod = createPeriod(secondMediaPeriodId);
     CountDownLatch secondPreparedLatch = preparePeriod(secondMediaPeriod, 0);
-    assertThat(secondPreparedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(secondPreparedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     // Release the periods.
     releasePeriod(mediaPeriod);
     releasePeriod(secondMediaPeriod);

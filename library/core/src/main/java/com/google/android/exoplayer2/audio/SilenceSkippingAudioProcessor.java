@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
@@ -218,7 +220,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
     int limit = inputBuffer.limit();
 
     // Check if there's any noise within the maybe silence buffer duration.
-    inputBuffer.limit(Math.min(limit, inputBuffer.position() + maybeSilenceBuffer.length));
+    inputBuffer.limit(min(limit, inputBuffer.position() + maybeSilenceBuffer.length));
     int noiseLimit = findNoiseLimit(inputBuffer);
     if (noiseLimit == inputBuffer.position()) {
       // The buffer contains the start of possible silence.
@@ -248,7 +250,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
       state = STATE_NOISY;
     } else {
       // Fill as much of the maybe silence buffer as possible.
-      int bytesToWrite = Math.min(maybeSilenceInputSize, maybeSilenceBufferRemaining);
+      int bytesToWrite = min(maybeSilenceInputSize, maybeSilenceBufferRemaining);
       inputBuffer.limit(inputBuffer.position() + bytesToWrite);
       inputBuffer.get(maybeSilenceBuffer, maybeSilenceBufferSize, bytesToWrite);
       maybeSilenceBufferSize += bytesToWrite;
@@ -320,7 +322,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
    * position.
    */
   private void updatePaddingBuffer(ByteBuffer input, byte[] buffer, int size) {
-    int fromInputSize = Math.min(input.remaining(), paddingSize);
+    int fromInputSize = min(input.remaining(), paddingSize);
     int fromBufferSize = paddingSize - fromInputSize;
     System.arraycopy(
         /* src= */ buffer,

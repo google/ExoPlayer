@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
@@ -228,9 +231,9 @@ import java.util.Set;
     if (fromIndex == toIndex || fromIndex == newFromIndex) {
       return createTimeline();
     }
-    int startIndex = Math.min(fromIndex, newFromIndex);
+    int startIndex = min(fromIndex, newFromIndex);
     int newEndIndex = newFromIndex + (toIndex - fromIndex) - 1;
-    int endIndex = Math.max(newEndIndex, toIndex - 1);
+    int endIndex = max(newEndIndex, toIndex - 1);
     int windowOffset = mediaSourceHolders.get(startIndex).firstWindowIndexInChild;
     Util.moveItems(mediaSourceHolders, fromIndex, toIndex, newFromIndex);
     for (int i = startIndex; i <= endIndex; i++) {

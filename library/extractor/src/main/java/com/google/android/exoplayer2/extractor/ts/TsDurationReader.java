@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -123,7 +125,7 @@ import java.io.IOException;
 
   private int readFirstPcrValue(ExtractorInput input, PositionHolder seekPositionHolder, int pcrPid)
       throws IOException {
-    int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength());
+    int bytesToSearch = (int) min(TIMESTAMP_SEARCH_BYTES, input.getLength());
     int searchStartPosition = 0;
     if (input.getPosition() != searchStartPosition) {
       seekPositionHolder.position = searchStartPosition;
@@ -159,7 +161,7 @@ import java.io.IOException;
   private int readLastPcrValue(ExtractorInput input, PositionHolder seekPositionHolder, int pcrPid)
       throws IOException {
     long inputLength = input.getLength();
-    int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, inputLength);
+    int bytesToSearch = (int) min(TIMESTAMP_SEARCH_BYTES, inputLength);
     long searchStartPosition = inputLength - bytesToSearch;
     if (input.getPosition() != searchStartPosition) {
       seekPositionHolder.position = searchStartPosition;

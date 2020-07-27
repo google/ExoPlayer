@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.source.smoothstreaming;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -757,9 +759,12 @@ public final class SsMediaSource extends BaseMediaSource
     long endTimeUs = Long.MIN_VALUE;
     for (StreamElement element : manifest.streamElements) {
       if (element.chunkCount > 0) {
-        startTimeUs = Math.min(startTimeUs, element.getStartTimeUs(0));
-        endTimeUs = Math.max(endTimeUs, element.getStartTimeUs(element.chunkCount - 1)
-            + element.getChunkDurationUs(element.chunkCount - 1));
+        startTimeUs = min(startTimeUs, element.getStartTimeUs(0));
+        endTimeUs =
+            max(
+                endTimeUs,
+                element.getStartTimeUs(element.chunkCount - 1)
+                    + element.getChunkDurationUs(element.chunkCount - 1));
       }
     }
 
@@ -779,7 +784,7 @@ public final class SsMediaSource extends BaseMediaSource
               mediaItem);
     } else if (manifest.isLive) {
       if (manifest.dvrWindowLengthUs != C.TIME_UNSET && manifest.dvrWindowLengthUs > 0) {
-        startTimeUs = Math.max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
+        startTimeUs = max(startTimeUs, endTimeUs - manifest.dvrWindowLengthUs);
       }
       long durationUs = endTimeUs - startTimeUs;
       long defaultStartPositionUs = durationUs - C.msToUs(livePresentationDelayMs);
@@ -787,7 +792,7 @@ public final class SsMediaSource extends BaseMediaSource
         // The default start position is too close to the start of the live window. Set it to the
         // minimum default start position provided the window is at least twice as big. Else set
         // it to the middle of the window.
-        defaultStartPositionUs = Math.min(MIN_LIVE_DEFAULT_START_POSITION_US, durationUs / 2);
+        defaultStartPositionUs = min(MIN_LIVE_DEFAULT_START_POSITION_US, durationUs / 2);
       }
       timeline =
           new SinglePeriodTimeline(
@@ -823,7 +828,7 @@ public final class SsMediaSource extends BaseMediaSource
       return;
     }
     long nextLoadTimestamp = manifestLoadStartTimestamp + MINIMUM_MANIFEST_REFRESH_PERIOD_MS;
-    long delayUntilNextLoad = Math.max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
+    long delayUntilNextLoad = max(0, nextLoadTimestamp - SystemClock.elapsedRealtime());
     manifestRefreshHandler.postDelayed(this::startLoadingManifest, delayUntilNextLoad);
   }
 

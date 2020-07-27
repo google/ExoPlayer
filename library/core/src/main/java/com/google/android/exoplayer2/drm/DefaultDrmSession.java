@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.drm;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.Math.min;
 
 import android.annotation.SuppressLint;
 import android.media.NotProvisionedException;
@@ -451,7 +452,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     Pair<Long, Long> pair =
         Assertions.checkNotNull(WidevineUtil.getLicenseDurationRemainingSec(this));
-    return Math.min(pair.first, pair.second);
+    return min(pair.first, pair.second);
   }
 
   private void postKeyRequest(byte[] scope, int type, boolean allowRetry) {

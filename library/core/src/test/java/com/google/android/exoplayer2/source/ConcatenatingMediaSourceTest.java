@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -38,7 +39,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -413,7 +413,7 @@ public final class ConcatenatingMediaSourceTest {
                 createFakeMediaSource(),
                 Util.createHandlerForCurrentLooper(),
                 runnableInvoked::countDown));
-    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS);
     testThread.release();
 
     assertThat(runnableInvoked.getCount()).isEqualTo(0);
@@ -430,7 +430,7 @@ public final class ConcatenatingMediaSourceTest {
                 Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
                 Util.createHandlerForCurrentLooper(),
                 runnableInvoked::countDown));
-    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS);
     testThread.release();
 
     assertThat(runnableInvoked.getCount()).isEqualTo(0);
@@ -448,7 +448,7 @@ public final class ConcatenatingMediaSourceTest {
                 createFakeMediaSource(),
                 Util.createHandlerForCurrentLooper(),
                 runnableInvoked::countDown));
-    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS);
     testThread.release();
 
     assertThat(runnableInvoked.getCount()).isEqualTo(0);
@@ -466,7 +466,7 @@ public final class ConcatenatingMediaSourceTest {
                 Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}),
                 Util.createHandlerForCurrentLooper(),
                 runnableInvoked::countDown));
-    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS);
     testThread.release();
 
     assertThat(runnableInvoked.getCount()).isEqualTo(0);
@@ -483,7 +483,7 @@ public final class ConcatenatingMediaSourceTest {
           mediaSource.removeMediaSource(
               /* index */ 0, Util.createHandlerForCurrentLooper(), runnableInvoked::countDown);
         });
-    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS);
     testThread.release();
 
     assertThat(runnableInvoked.getCount()).isEqualTo(0);
@@ -504,7 +504,7 @@ public final class ConcatenatingMediaSourceTest {
               Util.createHandlerForCurrentLooper(),
               runnableInvoked::countDown);
         });
-    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS);
     testThread.release();
 
     assertThat(runnableInvoked.getCount()).isEqualTo(0);
@@ -652,9 +652,7 @@ public final class ConcatenatingMediaSourceTest {
                 callbackCalledCondition::countDown);
             mediaSource.releaseSource(caller);
           });
-      assertThat(
-              callbackCalledCondition.await(
-                  MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS))
+      assertThat(callbackCalledCondition.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS))
           .isTrue();
     } finally {
       testThread.release();
@@ -1055,7 +1053,7 @@ public final class ConcatenatingMediaSourceTest {
                 new ShuffleOrder.UnshuffledShuffleOrder(/* length= */ 0),
                 Util.createHandlerForCurrentLooper(),
                 runnableInvoked::countDown));
-    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    runnableInvoked.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS);
     testThread.release();
 
     assertThat(runnableInvoked.getCount()).isEqualTo(0);
@@ -1146,8 +1144,7 @@ public final class ConcatenatingMediaSourceTest {
     }
 
     public Timeline assertTimelineChangeBlocking() throws InterruptedException {
-      assertThat(finishedLatch.await(MediaSourceTestRunner.TIMEOUT_MS, TimeUnit.MILLISECONDS))
-          .isTrue();
+      assertThat(finishedLatch.await(MediaSourceTestRunner.TIMEOUT_MS, MILLISECONDS)).isTrue();
       if (error != null) {
         throw error;
       }

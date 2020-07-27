@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.Math.max;
+
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -244,7 +246,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
     if (periodDurationUs != C.TIME_UNSET) {
       // Ensure the overridden position doesn't exceed the period duration.
       if (preparePositionOverrideUs >= periodDurationUs) {
-        preparePositionOverrideUs = Math.max(0, periodDurationUs - 1);
+        preparePositionOverrideUs = max(0, periodDurationUs - 1);
       }
     }
     maskingPeriod.overridePreparePositionUs(preparePositionOverrideUs);

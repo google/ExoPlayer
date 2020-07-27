@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static java.lang.Math.max;
+
 import android.annotation.SuppressLint;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
@@ -206,11 +208,11 @@ public final class MediaCodecUtil {
           getDecoderInfo(MimeTypes.VIDEO_H264, /* secure= */ false, /* tunneling= */ false);
       if (decoderInfo != null) {
         for (CodecProfileLevel profileLevel : decoderInfo.getProfileLevels()) {
-          result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);
+          result = max(avcLevelToMaxFrameSize(profileLevel.level), result);
         }
         // We assume support for at least 480p (SDK_INT >= 21) or 360p (SDK_INT < 21), which are
         // the levels mandated by the Android CDD.
-        result = Math.max(result, Util.SDK_INT >= 21 ? (720 * 480) : (480 * 360));
+        result = max(result, Util.SDK_INT >= 21 ? (720 * 480) : (480 * 360));
       }
       maxH264DecodableFrameSize = result;
     }

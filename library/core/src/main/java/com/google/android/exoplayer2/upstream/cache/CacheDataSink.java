@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -207,7 +208,7 @@ public final class CacheDataSink implements DataSink {
           openNextOutputStream(dataSpec);
         }
         int bytesToWrite =
-            (int) Math.min(length - bytesWritten, dataSpecFragmentSize - outputStreamBytesWritten);
+            (int) min(length - bytesWritten, dataSpecFragmentSize - outputStreamBytesWritten);
         castNonNull(outputStream).write(buffer, offset + bytesWritten, bytesToWrite);
         bytesWritten += bytesToWrite;
         outputStreamBytesWritten += bytesToWrite;
@@ -234,7 +235,7 @@ public final class CacheDataSink implements DataSink {
     long length =
         dataSpec.length == C.LENGTH_UNSET
             ? C.LENGTH_UNSET
-            : Math.min(dataSpec.length - dataSpecBytesWritten, dataSpecFragmentSize);
+            : min(dataSpec.length - dataSpecBytesWritten, dataSpecFragmentSize);
     file =
         cache.startFile(
             castNonNull(dataSpec.key), dataSpec.position + dataSpecBytesWritten, length);

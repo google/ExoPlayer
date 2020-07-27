@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import static com.google.android.exoplayer2.extractor.mp4.AtomParsers.parseTraks;
+import static java.lang.Math.max;
 
 import android.util.Pair;
 import android.util.SparseArray;
@@ -515,7 +516,7 @@ public class FragmentedMp4Extractor implements Extractor {
         TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i, track.type));
         trackBundle.init(sampleTable, getDefaultSampleValues(defaultSampleValuesArray, track.id));
         trackBundles.put(track.id, trackBundle);
-        durationUs = Math.max(durationUs, track.durationUs);
+        durationUs = max(durationUs, track.durationUs);
       }
       maybeInitExtraTracks();
       extractorOutput.endTracks();

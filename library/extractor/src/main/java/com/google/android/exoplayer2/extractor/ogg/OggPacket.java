@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static java.lang.Math.max;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
@@ -129,7 +131,7 @@ import java.util.Arrays;
     }
     packetArray.reset(
         Arrays.copyOf(
-            packetArray.getData(), Math.max(OggPageHeader.MAX_PAGE_PAYLOAD, packetArray.limit())));
+            packetArray.getData(), max(OggPageHeader.MAX_PAGE_PAYLOAD, packetArray.limit())));
   }
 
   /**

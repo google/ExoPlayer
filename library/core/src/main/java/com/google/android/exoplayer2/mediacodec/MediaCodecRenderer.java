@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.Math.max;
 
 import android.annotation.TargetApi;
 import android.media.MediaCodec;
@@ -1354,10 +1355,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // TODO(b/158483277): Find the root cause of why a gap is introduced in MP3 playback when using
     // presentationTimeUs from the c2Mp3TimestampTracker.
     if (c2Mp3TimestampTracker != null) {
-      largestQueuedPresentationTimeUs = Math.max(largestQueuedPresentationTimeUs, buffer.timeUs);
+      largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, buffer.timeUs);
     } else {
-      largestQueuedPresentationTimeUs =
-          Math.max(largestQueuedPresentationTimeUs, presentationTimeUs);
+      largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, presentationTimeUs);
     }
     buffer.flip();
     if (buffer.hasSupplementalData()) {

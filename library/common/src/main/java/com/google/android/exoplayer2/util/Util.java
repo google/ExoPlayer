@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.util;
 
 import static android.content.Context.UI_MODE_SERVICE;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
@@ -721,7 +723,7 @@ public final class Util {
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
   public static int constrainValue(int value, int min, int max) {
-    return Math.max(min, Math.min(value, max));
+    return max(min, min(value, max));
   }
 
   /**
@@ -733,7 +735,7 @@ public final class Util {
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
   public static long constrainValue(long value, long min, long max) {
-    return Math.max(min, Math.min(value, max));
+    return max(min, min(value, max));
   }
 
   /**
@@ -745,7 +747,7 @@ public final class Util {
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
   public static float constrainValue(float value, float min, float max) {
-    return Math.max(min, Math.min(value, max));
+    return max(min, min(value, max));
   }
 
   /**
@@ -847,7 +849,7 @@ public final class Util {
         index++;
       }
     }
-    return stayInBounds ? Math.max(0, index) : index;
+    return stayInBounds ? max(0, index) : index;
   }
 
   /**
@@ -879,7 +881,7 @@ public final class Util {
         index++;
       }
     }
-    return stayInBounds ? Math.max(0, index) : index;
+    return stayInBounds ? max(0, index) : index;
   }
 
   /**
@@ -915,7 +917,7 @@ public final class Util {
         index++;
       }
     }
-    return stayInBounds ? Math.max(0, index) : index;
+    return stayInBounds ? max(0, index) : index;
   }
 
   /**
@@ -989,7 +991,7 @@ public final class Util {
         index--;
       }
     }
-    return stayInBounds ? Math.min(array.length - 1, index) : index;
+    return stayInBounds ? min(array.length - 1, index) : index;
   }
 
   /**
@@ -1022,7 +1024,7 @@ public final class Util {
         index--;
       }
     }
-    return stayInBounds ? Math.min(array.length - 1, index) : index;
+    return stayInBounds ? min(array.length - 1, index) : index;
   }
 
   /**
@@ -1060,7 +1062,7 @@ public final class Util {
         index--;
       }
     }
-    return stayInBounds ? Math.min(list.size() - 1, index) : index;
+    return stayInBounds ? min(list.size() - 1, index) : index;
   }
 
   /**
@@ -2226,7 +2228,7 @@ public final class Util {
     for (int i = removedItemsLength - 1; i >= 0; i--) {
       removedItems.addFirst(items.remove(fromIndex + i));
     }
-    items.addAll(Math.min(newFromIndex, items.size()), removedItems);
+    items.addAll(min(newFromIndex, items.size()), removedItems);
   }
 
   /** Returns whether the table exists in the database. */

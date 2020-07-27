@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.source.dash;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -1035,7 +1037,7 @@ public final class DashMediaSource extends BaseMediaSource {
       long liveStreamDurationUs = nowUnixTimeUs - C.msToUs(manifest.availabilityStartTimeMs);
       long liveStreamEndPositionInLastPeriodUs = liveStreamDurationUs
           - C.msToUs(manifest.getPeriod(lastPeriodIndex).startMs);
-      currentEndTimeUs = Math.min(liveStreamEndPositionInLastPeriodUs, currentEndTimeUs);
+      currentEndTimeUs = min(liveStreamEndPositionInLastPeriodUs, currentEndTimeUs);
       if (manifest.timeShiftBufferDepthMs != C.TIME_UNSET) {
         long timeShiftBufferDepthUs = C.msToUs(manifest.timeShiftBufferDepthMs);
         long offsetInPeriodUs = currentEndTimeUs - timeShiftBufferDepthUs;
@@ -1044,7 +1046,7 @@ public final class DashMediaSource extends BaseMediaSource {
           offsetInPeriodUs += manifest.getPeriodDurationUs(--periodIndex);
         }
         if (periodIndex == 0) {
-          currentStartTimeUs = Math.max(currentStartTimeUs, offsetInPeriodUs);
+          currentStartTimeUs = max(currentStartTimeUs, offsetInPeriodUs);
         } else {
           // The time shift buffer starts after the earliest period.
           // TODO: Does this ever happen?
@@ -1070,8 +1072,8 @@ public final class DashMediaSource extends BaseMediaSource {
         // The default start position is too close to the start of the live window. Set it to the
         // minimum default start position provided the window is at least twice as big. Else set
         // it to the middle of the window.
-        windowDefaultStartPositionUs = Math.min(MIN_LIVE_DEFAULT_START_POSITION_US,
-            windowDurationUs / 2);
+        windowDefaultStartPositionUs =
+            min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
       }
     }
     long windowStartTimeMs = C.TIME_UNSET;
@@ -1116,8 +1118,7 @@ public final class DashMediaSource extends BaseMediaSource {
           minUpdatePeriodMs = 5000;
         }
         long nextLoadTimestampMs = manifestLoadStartTimestampMs + minUpdatePeriodMs;
-        long delayUntilNextLoadMs =
-            Math.max(0, nextLoadTimestampMs - SystemClock.elapsedRealtime());
+        long delayUntilNextLoadMs = max(0, nextLoadTimestampMs - SystemClock.elapsedRealtime());
         scheduleManifestRefresh(delayUntilNextLoadMs);
       }
     }
@@ -1148,7 +1149,7 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   private long getManifestLoadRetryDelayMillis() {
-    return Math.min((staleManifestReloadAttempt - 1) * 1000, 5000);
+    return min((staleManifestReloadAttempt - 1) * 1000, 5000);
   }
 
   private <T> void startLoading(ParsingLoadable<T> loadable,
@@ -1199,12 +1200,12 @@ public final class DashMediaSource extends BaseMediaSource {
         } else if (!seenEmptyIndex) {
           long firstSegmentNum = index.getFirstSegmentNum();
           long adaptationSetAvailableStartTimeUs = index.getTimeUs(firstSegmentNum);
-          availableStartTimeUs = Math.max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
+          availableStartTimeUs = max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
           if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED) {
             long lastSegmentNum = firstSegmentNum + segmentCount - 1;
             long adaptationSetAvailableEndTimeUs = index.getTimeUs(lastSegmentNum)
                 + index.getDurationUs(lastSegmentNum, durationUs);
-            availableEndTimeUs = Math.min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
+            availableEndTimeUs = min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
           }
         }
       }

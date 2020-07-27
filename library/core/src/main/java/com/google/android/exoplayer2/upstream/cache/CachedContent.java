@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -157,7 +159,7 @@ import java.util.TreeSet;
     SimpleCacheSpan ceilSpan = cachedSpans.ceiling(lookupSpan);
     if (ceilSpan != null) {
       long holeLength = ceilSpan.position - position;
-      length = length == C.LENGTH_UNSET ? holeLength : Math.min(holeLength, length);
+      length = length == C.LENGTH_UNSET ? holeLength : min(holeLength, length);
     }
     return SimpleCacheSpan.createHole(key, position, length);
   }
@@ -179,7 +181,7 @@ import java.util.TreeSet;
     SimpleCacheSpan span = getSpan(position, length);
     if (span.isHoleSpan()) {
       // We don't have a span covering the start of the queried region.
-      return -Math.min(span.isOpenEnded() ? Long.MAX_VALUE : span.length, length);
+      return -min(span.isOpenEnded() ? Long.MAX_VALUE : span.length, length);
     }
     long queryEndPosition = position + length;
     if (queryEndPosition < 0) {
@@ -195,14 +197,14 @@ import java.util.TreeSet;
         }
         // We expect currentEndPosition to always equal (next.position + next.length), but
         // perform a max check anyway to guard against the existence of overlapping spans.
-        currentEndPosition = Math.max(currentEndPosition, next.position + next.length);
+        currentEndPosition = max(currentEndPosition, next.position + next.length);
         if (currentEndPosition >= queryEndPosition) {
           // We've found spans covering the queried region.
           break;
         }
       }
     }
-    return Math.min(currentEndPosition - position, length);
+    return min(currentEndPosition - position, length);
   }
 
   /**

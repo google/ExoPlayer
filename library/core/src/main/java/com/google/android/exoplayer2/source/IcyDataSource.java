@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -85,7 +87,7 @@ import java.util.Map;
         return C.RESULT_END_OF_INPUT;
       }
     }
-    int bytesRead = upstream.read(buffer, offset, Math.min(bytesUntilMetadata, readLength));
+    int bytesRead = upstream.read(buffer, offset, min(bytesUntilMetadata, readLength));
     if (bytesRead != C.RESULT_END_OF_INPUT) {
       bytesUntilMetadata -= bytesRead;
     }

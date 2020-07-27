@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static java.lang.Math.max;
+
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
@@ -505,7 +507,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     droppedFrames += droppedBufferCount;
     consecutiveDroppedFrameCount += droppedBufferCount;
     decoderCounters.maxConsecutiveDroppedBufferCount =
-        Math.max(consecutiveDroppedFrameCount, decoderCounters.maxConsecutiveDroppedBufferCount);
+        max(consecutiveDroppedFrameCount, decoderCounters.maxConsecutiveDroppedBufferCount);
     if (maxDroppedFramesToNotify > 0 && droppedFrames >= maxDroppedFramesToNotify) {
       maybeNotifyDroppedFrames();
     }

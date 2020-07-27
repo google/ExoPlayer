@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.extractor.flac;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -224,7 +226,7 @@ public final class FlacExtractor implements Extractor {
     }
 
     Assertions.checkNotNull(flacStreamMetadata);
-    minFrameSize = Math.max(flacStreamMetadata.minFrameSize, FlacConstants.MIN_FRAME_HEADER_SIZE);
+    minFrameSize = max(flacStreamMetadata.minFrameSize, FlacConstants.MIN_FRAME_HEADER_SIZE);
     castNonNull(trackOutput)
         .format(flacStreamMetadata.getFormat(streamMarkerAndInfoBlock, id3Metadata));
 
@@ -282,7 +284,7 @@ public final class FlacExtractor implements Extractor {
 
     // Skip frame search on the bytes within the minimum frame size.
     if (currentFrameBytesWritten < minFrameSize) {
-      buffer.skipBytes(Math.min(minFrameSize - currentFrameBytesWritten, buffer.bytesLeft()));
+      buffer.skipBytes(min(minFrameSize - currentFrameBytesWritten, buffer.bytesLeft()));
     }
 
     long nextFrameFirstSampleNumber = findFrame(buffer, foundEndOfInput);

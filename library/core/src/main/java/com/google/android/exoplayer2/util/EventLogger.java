@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static java.lang.Math.min;
+
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.Surface;
@@ -162,14 +164,14 @@ public class EventLogger implements AnalyticsListener {
             + windowCount
             + ", reason="
             + getTimelineChangeReasonString(reason));
-    for (int i = 0; i < Math.min(periodCount, MAX_TIMELINE_ITEM_LINES); i++) {
+    for (int i = 0; i < min(periodCount, MAX_TIMELINE_ITEM_LINES); i++) {
       eventTime.timeline.getPeriod(i, period);
       logd("  " + "period [" + getTimeString(period.getDurationMs()) + "]");
     }
     if (periodCount > MAX_TIMELINE_ITEM_LINES) {
       logd("  ...");
     }
-    for (int i = 0; i < Math.min(windowCount, MAX_TIMELINE_ITEM_LINES); i++) {
+    for (int i = 0; i < min(windowCount, MAX_TIMELINE_ITEM_LINES); i++) {
       eventTime.timeline.getWindow(i, window);
       logd(
           "  "

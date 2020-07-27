@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -471,7 +474,7 @@ public final class DefaultAudioSink implements AudioSink {
       return CURRENT_POSITION_NOT_SET;
     }
     long positionUs = audioTrackPositionTracker.getCurrentPositionUs(sourceEnded);
-    positionUs = Math.min(positionUs, configuration.framesToDurationUs(getWrittenFrames()));
+    positionUs = min(positionUs, configuration.framesToDurationUs(getWrittenFrames()));
     return applySkipping(applyMediaPositionParameters(positionUs));
   }
 
@@ -644,7 +647,7 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
 
-    startMediaTimeUs = Math.max(0, presentationTimeUs);
+    startMediaTimeUs = max(0, presentationTimeUs);
     startMediaTimeUsNeedsSync = false;
 
     applyPlaybackSpeedAndSkipSilence(presentationTimeUs);
@@ -876,7 +879,7 @@ public final class DefaultAudioSink implements AudioSink {
       // Work out how many bytes we can write without the risk of blocking.
       int bytesToWrite = audioTrackPositionTracker.getAvailableBufferSize(writtenPcmBytes);
       if (bytesToWrite > 0) {
-        bytesToWrite = Math.min(bytesRemaining, bytesToWrite);
+        bytesToWrite = min(bytesRemaining, bytesToWrite);
         bytesWritten = audioTrack.write(preV21OutputBuffer, preV21OutputBufferOffset, bytesToWrite);
         if (bytesWritten > 0) {
           preV21OutputBufferOffset += bytesWritten;
@@ -1232,7 +1235,7 @@ public final class DefaultAudioSink implements AudioSink {
         new MediaPositionParameters(
             playbackSpeed,
             skipSilenceEnabled,
-            /* mediaTimeUs= */ Math.max(0, presentationTimeUs),
+            /* mediaTimeUs= */ max(0, presentationTimeUs),
             /* audioTrackPositionUs= */ configuration.framesToDurationUs(getWrittenFrames())));
     setupAudioProcessors();
     if (listener != null) {
@@ -1871,8 +1874,7 @@ public final class DefaultAudioSink implements AudioSink {
       int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
       int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * outputPcmFrameSize;
       int maxAppBufferSize =
-          Math.max(
-              minBufferSize, (int) durationUsToFrames(MAX_BUFFER_DURATION_US) * outputPcmFrameSize);
+          max(minBufferSize, (int) durationUsToFrames(MAX_BUFFER_DURATION_US) * outputPcmFrameSize);
       return Util.constrainValue(multipliedBufferSize, minAppBufferSize, maxAppBufferSize);
     }
 

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -235,9 +238,9 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       BaseMediaChunk lastCompletedMediaChunk = lastMediaChunk.isLoadCompleted() ? lastMediaChunk
           : mediaChunks.size() > 1 ? mediaChunks.get(mediaChunks.size() - 2) : null;
       if (lastCompletedMediaChunk != null) {
-        bufferedPositionUs = Math.max(bufferedPositionUs, lastCompletedMediaChunk.endTimeUs);
+        bufferedPositionUs = max(bufferedPositionUs, lastCompletedMediaChunk.endTimeUs);
       }
-      return Math.max(bufferedPositionUs, primarySampleQueue.getLargestQueuedTimestampUs());
+      return max(bufferedPositionUs, primarySampleQueue.getLargestQueuedTimestampUs());
     }
   }
 
@@ -682,7 +685,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
         primarySampleIndexToMediaChunkIndex(discardToSampleIndex, /* minChunkIndex= */ 0);
     // Don't discard any chunks that we haven't reported the primary format change for yet.
     discardToMediaChunkIndex =
-        Math.min(discardToMediaChunkIndex, nextNotifyPrimaryFormatMediaChunkIndex);
+        min(discardToMediaChunkIndex, nextNotifyPrimaryFormatMediaChunkIndex);
     if (discardToMediaChunkIndex > 0) {
       Util.removeRange(mediaChunks, /* fromIndex= */ 0, /* toIndex= */ discardToMediaChunkIndex);
       nextNotifyPrimaryFormatMediaChunkIndex -= discardToMediaChunkIndex;
@@ -749,7 +752,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     BaseMediaChunk firstRemovedChunk = mediaChunks.get(chunkIndex);
     Util.removeRange(mediaChunks, /* fromIndex= */ chunkIndex, /* toIndex= */ mediaChunks.size());
     nextNotifyPrimaryFormatMediaChunkIndex =
-        Math.max(nextNotifyPrimaryFormatMediaChunkIndex, mediaChunks.size());
+        max(nextNotifyPrimaryFormatMediaChunkIndex, mediaChunks.size());
     primarySampleQueue.discardUpstreamSamples(firstRemovedChunk.getFirstSampleIndex(0));
     for (int i = 0; i < embeddedSampleQueues.length; i++) {
       embeddedSampleQueues[i].discardUpstreamSamples(firstRemovedChunk.getFirstSampleIndex(i + 1));

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.util.Base64;
@@ -85,7 +86,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
     if (remainingBytes == 0) {
       return C.RESULT_END_OF_INPUT;
     }
-    readLength = Math.min(readLength, remainingBytes);
+    readLength = min(readLength, remainingBytes);
     System.arraycopy(castNonNull(data), readPosition, buffer, offset, readLength);
     readPosition += readLength;
     bytesTransferred(readLength);

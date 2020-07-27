@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.pgs;
 
+import static java.lang.Math.min;
+
 import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
@@ -182,7 +184,7 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
       int position = bitmapData.getPosition();
       int limit = bitmapData.limit();
       if (position < limit && sectionLength > 0) {
-        int bytesToRead = Math.min(sectionLength, limit - position);
+        int bytesToRead = min(sectionLength, limit - position);
         buffer.readBytes(bitmapData.getData(), position, bytesToRead);
         bitmapData.setPosition(position + bytesToRead);
       }

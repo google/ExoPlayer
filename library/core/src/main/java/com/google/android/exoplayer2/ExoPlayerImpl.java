@@ -18,6 +18,8 @@ package com.google.android.exoplayer2;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
@@ -457,8 +459,7 @@ import java.util.concurrent.TimeoutException;
             && newFromIndex >= 0);
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
-    newFromIndex =
-        Math.min(newFromIndex, mediaSourceHolderSnapshots.size() - (toIndex - fromIndex));
+    newFromIndex = min(newFromIndex, mediaSourceHolderSnapshots.size() - (toIndex - fromIndex));
     Util.moveItems(mediaSourceHolderSnapshots, fromIndex, toIndex, newFromIndex);
     Timeline newTimeline = createMaskingTimeline();
     PlaybackInfo newPlaybackInfo =
@@ -1240,7 +1241,7 @@ import java.util.concurrent.TimeoutException;
       checkState(!newPeriodId.isAd());
       // A forward seek within the playing period (timeline did not change).
       long maskedTotalBufferedDurationUs =
-          Math.max(
+          max(
               0,
               playbackInfo.totalBufferedDurationUs - (newContentPositionUs - oldContentPositionUs));
       long maskedBufferedPositionUs = playbackInfo.bufferedPositionUs;

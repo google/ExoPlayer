@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
@@ -86,7 +88,7 @@ import java.nio.ByteBuffer;
     }
 
     // Trim any pending start bytes from the input buffer.
-    int trimBytes = Math.min(remaining, pendingTrimStartBytes);
+    int trimBytes = min(remaining, pendingTrimStartBytes);
     trimmedFrameCount += trimBytes / inputAudioFormat.bytesPerFrame;
     pendingTrimStartBytes -= trimBytes;
     inputBuffer.position(position + trimBytes);

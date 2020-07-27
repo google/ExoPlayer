@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import static java.lang.Math.min;
+
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -585,7 +587,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 adaptationSetIdToIndex.get(
                     Integer.parseInt(adaptationSetId), /* valueIfKeyNotFound= */ -1);
             if (otherAdaptationSetId != -1) {
-              mergedGroupIndex = Math.min(mergedGroupIndex, otherAdaptationSetId);
+              mergedGroupIndex = min(mergedGroupIndex, otherAdaptationSetId);
             }
           }
         }

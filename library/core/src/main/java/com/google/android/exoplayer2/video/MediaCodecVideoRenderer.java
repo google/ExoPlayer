@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -620,7 +623,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     for (Format streamFormat : streamFormats) {
       float streamFrameRate = streamFormat.frameRate;
       if (streamFrameRate != Format.NO_VALUE) {
-        maxFrameRate = Math.max(maxFrameRate, streamFrameRate);
+        maxFrameRate = max(maxFrameRate, streamFrameRate);
       }
     }
     return maxFrameRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxFrameRate * operatingRate);
@@ -1041,8 +1044,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     decoderCounters.droppedBufferCount += droppedBufferCount;
     droppedFrames += droppedBufferCount;
     consecutiveDroppedFrameCount += droppedBufferCount;
-    decoderCounters.maxConsecutiveDroppedBufferCount = Math.max(consecutiveDroppedFrameCount,
-        decoderCounters.maxConsecutiveDroppedBufferCount);
+    decoderCounters.maxConsecutiveDroppedBufferCount =
+        max(consecutiveDroppedFrameCount, decoderCounters.maxConsecutiveDroppedBufferCount);
     if (maxDroppedFramesToNotify > 0 && droppedFrames >= maxDroppedFramesToNotify) {
       maybeNotifyDroppedFrames();
     }
@@ -1354,7 +1357,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           int scaledMaxInputSize =
               (int) (maxInputSize * INITIAL_FORMAT_MAX_INPUT_SIZE_SCALE_FACTOR);
           // Avoid exceeding the maximum expected for the codec.
-          maxInputSize = Math.min(scaledMaxInputSize, codecMaxInputSize);
+          maxInputSize = min(scaledMaxInputSize, codecMaxInputSize);
         }
       }
       return new CodecMaxValues(maxWidth, maxHeight, maxInputSize);
@@ -1365,19 +1368,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           format, streamFormat, /* isNewFormatComplete= */ false)) {
         haveUnknownDimensions |=
             (streamFormat.width == Format.NO_VALUE || streamFormat.height == Format.NO_VALUE);
-        maxWidth = Math.max(maxWidth, streamFormat.width);
-        maxHeight = Math.max(maxHeight, streamFormat.height);
-        maxInputSize = Math.max(maxInputSize, getMaxInputSize(codecInfo, streamFormat));
+        maxWidth = max(maxWidth, streamFormat.width);
+        maxHeight = max(maxHeight, streamFormat.height);
+        maxInputSize = max(maxInputSize, getMaxInputSize(codecInfo, streamFormat));
       }
     }
     if (haveUnknownDimensions) {
       Log.w(TAG, "Resolutions unknown. Codec max resolution: " + maxWidth + "x" + maxHeight);
       Point codecMaxSize = getCodecMaxSize(codecInfo, format);
       if (codecMaxSize != null) {
-        maxWidth = Math.max(maxWidth, codecMaxSize.x);
-        maxHeight = Math.max(maxHeight, codecMaxSize.y);
+        maxWidth = max(maxWidth, codecMaxSize.x);
+        maxHeight = max(maxHeight, codecMaxSize.y);
         maxInputSize =
-            Math.max(
+            max(
                 maxInputSize,
                 getCodecMaxInputSize(codecInfo, format.sampleMimeType, maxWidth, maxHeight));
         Log.w(TAG, "Codec max resolution adjusted to: " + maxWidth + "x" + maxHeight);

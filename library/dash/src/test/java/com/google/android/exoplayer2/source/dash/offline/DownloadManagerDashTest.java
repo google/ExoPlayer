@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.source.dash.offline.DashDownloadTest
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
@@ -48,7 +49,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -205,8 +205,7 @@ public class DownloadManagerDashTest {
         .appendReadData(TestUtil.buildTestData(5))
         .endData();
     handleDownloadRequest(fakeStreamKey1);
-    assertThat(downloadInProgressLatch.await(ASSERT_TRUE_TIMEOUT_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(downloadInProgressLatch.await(ASSERT_TRUE_TIMEOUT_MS, MILLISECONDS)).isTrue();
 
     handleRemoveAction();
     downloadManagerListener.blockUntilIdleAndThrowAnyFailure();

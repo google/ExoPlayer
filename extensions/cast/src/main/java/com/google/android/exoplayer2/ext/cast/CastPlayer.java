@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import static java.lang.Math.min;
+
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BasePlayer;
@@ -335,7 +337,7 @@ public final class CastPlayer extends BasePlayer {
             && toIndex <= currentTimeline.getWindowCount()
             && newIndex >= 0
             && newIndex < currentTimeline.getWindowCount());
-    newIndex = Math.min(newIndex, currentTimeline.getWindowCount() - (toIndex - fromIndex));
+    newIndex = min(newIndex, currentTimeline.getWindowCount() - (toIndex - fromIndex));
     if (fromIndex == toIndex || fromIndex == newIndex) {
       // Do nothing.
       return;
@@ -811,7 +813,7 @@ public final class CastPlayer extends BasePlayer {
     }
     return remoteMediaClient.queueLoad(
         mediaQueueItems,
-        Math.min(startWindowIndex, mediaQueueItems.length - 1),
+        min(startWindowIndex, mediaQueueItems.length - 1),
         getCastRepeatMode(repeatMode),
         startPositionMs,
         /* customData= */ null);

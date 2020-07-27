@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.extractor.mp4;
 import static com.google.android.exoplayer2.extractor.mp4.AtomParsers.parseTraks;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -433,7 +435,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       Track track = trackSampleTable.track;
       long trackDurationUs =
           track.durationUs != C.TIME_UNSET ? track.durationUs : trackSampleTable.durationUs;
-      durationUs = Math.max(durationUs, trackDurationUs);
+      durationUs = max(durationUs, trackDurationUs);
       Mp4Track mp4Track = new Mp4Track(track, trackSampleTable,
           extractorOutput.track(i, track.type));
 
@@ -715,7 +717,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       return offset;
     }
     long sampleOffset = sampleTable.offsets[sampleIndex];
-    return Math.min(sampleOffset, offset);
+    return min(sampleOffset, offset);
   }
 
   /**

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -122,7 +124,7 @@ public final class PesReader implements TsPayloadReader {
           }
           break;
         case STATE_READING_HEADER_EXTENSION:
-          int readLength = Math.min(MAX_HEADER_EXTENSION_SIZE, extendedHeaderLength);
+          int readLength = min(MAX_HEADER_EXTENSION_SIZE, extendedHeaderLength);
           // Read as much of the extended header as we're interested in, and skip the rest.
           if (continueRead(data, pesScratch.data, readLength)
               && continueRead(data, /* target= */ null, extendedHeaderLength)) {
@@ -170,7 +172,7 @@ public final class PesReader implements TsPayloadReader {
    */
   private boolean continueRead(
       ParsableByteArray source, @Nullable byte[] target, int targetLength) {
-    int bytesToRead = Math.min(source.bytesLeft(), targetLength - bytesRead);
+    int bytesToRead = min(source.bytesLeft(), targetLength - bytesRead);
     if (bytesToRead <= 0) {
       return true;
     } else if (target == null) {

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.Math.max;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -363,7 +364,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     for (Format streamFormat : streamFormats) {
       int streamSampleRate = streamFormat.sampleRate;
       if (streamSampleRate != Format.NO_VALUE) {
-        maxSampleRate = Math.max(maxSampleRate, streamSampleRate);
+        maxSampleRate = max(maxSampleRate, streamSampleRate);
       }
     }
     return maxSampleRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxSampleRate * operatingRate);
@@ -674,7 +675,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     for (Format streamFormat : streamFormats) {
       if (codecInfo.isSeamlessAdaptationSupported(
           format, streamFormat, /* isNewFormatComplete= */ false)) {
-        maxInputSize = Math.max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
+        maxInputSize = max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
       }
     }
     return maxInputSize;
@@ -750,7 +751,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       currentPositionUs =
           allowPositionDiscontinuity
               ? newCurrentPositionUs
-              : Math.max(currentPositionUs, newCurrentPositionUs);
+              : max(currentPositionUs, newCurrentPositionUs);
       allowPositionDiscontinuity = false;
     }
   }

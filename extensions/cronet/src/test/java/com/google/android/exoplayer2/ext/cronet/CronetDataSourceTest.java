@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.cronet;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -1423,7 +1424,7 @@ public final class CronetDataSourceTest {
                     mockUrlRequest, testUrlResponseInfo);
               } else {
                 ByteBuffer inputBuffer = (ByteBuffer) invocation.getArguments()[0];
-                int readLength = Math.min(positionAndRemaining[1], inputBuffer.remaining());
+                int readLength = min(positionAndRemaining[1], inputBuffer.remaining());
                 inputBuffer.put(buildTestDataBuffer(positionAndRemaining[0], readLength));
                 positionAndRemaining[0] += readLength;
                 positionAndRemaining[1] -= readLength;

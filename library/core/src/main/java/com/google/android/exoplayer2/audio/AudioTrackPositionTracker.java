@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.media.AudioTimestamp;
 import android.media.AudioTrack;
@@ -251,7 +253,7 @@ import java.lang.reflect.Method;
         positionUs = systemTimeUs + smoothedPlayheadOffsetUs;
       }
       if (!sourceEnded) {
-        positionUs = Math.max(0, positionUs - latencyUs);
+        positionUs = max(0, positionUs - latencyUs);
       }
     }
 
@@ -472,7 +474,7 @@ import java.lang.reflect.Method;
                     * 1000L
                 - bufferSizeUs;
         // Check that the latency is non-negative.
-        latencyUs = Math.max(latencyUs, 0);
+        latencyUs = max(latencyUs, 0);
         // Check that the latency isn't too large.
         if (latencyUs > MAX_LATENCY_US) {
           listener.onInvalidLatency(latencyUs);
@@ -537,7 +539,7 @@ import java.lang.reflect.Method;
       // Simulate the playback head position up to the total number of frames submitted.
       long elapsedTimeSinceStopUs = (SystemClock.elapsedRealtime() * 1000) - stopTimestampUs;
       long framesSinceStop = (elapsedTimeSinceStopUs * outputSampleRate) / C.MICROS_PER_SECOND;
-      return Math.min(endPlaybackHeadPosition, stopPlaybackHeadPosition + framesSinceStop);
+      return min(endPlaybackHeadPosition, stopPlaybackHeadPosition + framesSinceStop);
     }
 
     int state = audioTrack.getPlayState();

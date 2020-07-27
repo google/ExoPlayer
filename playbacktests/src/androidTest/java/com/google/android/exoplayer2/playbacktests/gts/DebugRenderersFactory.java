@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static java.lang.Math.max;
+
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
@@ -239,7 +241,7 @@ import java.util.ArrayList;
     private long dequeueTimestamp() {
       queueSize--;
       startIndex++;
-      minimumInsertIndex = Math.max(minimumInsertIndex, startIndex);
+      minimumInsertIndex = max(minimumInsertIndex, startIndex);
       return timestampsList[startIndex - 1];
     }
 

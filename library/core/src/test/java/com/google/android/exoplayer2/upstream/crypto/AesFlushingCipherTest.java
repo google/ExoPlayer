@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream.crypto;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -100,7 +101,7 @@ public class AesFlushingCipherTest {
     int offset = 0;
     while (offset < data.length) {
       int bytes = (1 + random.nextInt(50)) * 16;
-      bytes = Math.min(bytes, data.length - offset);
+      bytes = min(bytes, data.length - offset);
       assertThat(bytes % 16).isEqualTo(0);
       encryptCipher.updateInPlace(data, offset, bytes);
       offset += bytes;
@@ -113,7 +114,7 @@ public class AesFlushingCipherTest {
     offset = 0;
     while (offset < data.length) {
       int bytes = (1 + random.nextInt(50)) * 16;
-      bytes = Math.min(bytes, data.length - offset);
+      bytes = min(bytes, data.length - offset);
       assertThat(bytes % 16).isEqualTo(0);
       decryptCipher.updateInPlace(data, offset, bytes);
       offset += bytes;
@@ -134,7 +135,7 @@ public class AesFlushingCipherTest {
     int offset = 0;
     while (offset < data.length) {
       int bytes = 1 + random.nextInt(4095);
-      bytes = Math.min(bytes, data.length - offset);
+      bytes = min(bytes, data.length - offset);
       encryptCipher.updateInPlace(data, offset, bytes);
       offset += bytes;
     }
@@ -146,7 +147,7 @@ public class AesFlushingCipherTest {
     offset = 0;
     while (offset < data.length) {
       int bytes = 1 + random.nextInt(4095);
-      bytes = Math.min(bytes, data.length - offset);
+      bytes = min(bytes, data.length - offset);
       decryptCipher.updateInPlace(data, offset, bytes);
       offset += bytes;
     }
@@ -166,7 +167,7 @@ public class AesFlushingCipherTest {
     int offset = 0;
     while (offset < data.length) {
       int bytes = 1 + random.nextInt(4095);
-      bytes = Math.min(bytes, data.length - offset);
+      bytes = min(bytes, data.length - offset);
       encryptCipher.updateInPlace(data, offset, bytes);
       offset += bytes;
     }
@@ -185,7 +186,7 @@ public class AesFlushingCipherTest {
     // Decrypt
     while (remainingLength > 0) {
       int bytes = 1 + random.nextInt(4095);
-      bytes = Math.min(bytes, remainingLength);
+      bytes = min(bytes, remainingLength);
       decryptCipher.updateInPlace(data, offset, bytes);
       offset += bytes;
       remainingLength -= bytes;

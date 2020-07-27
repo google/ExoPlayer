@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -130,7 +132,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
           }
           break;
         case STATE_READING_SAMPLE:
-          int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
+          int bytesToRead = min(data.bytesLeft(), sampleSize - bytesRead);
           output.sampleData(data, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
@@ -160,7 +162,7 @@ public final class Ac4Reader implements ElementaryStreamReader {
    * @return Whether the target length was reached.
    */
   private boolean continueRead(ParsableByteArray source, byte[] target, int targetLength) {
-    int bytesToRead = Math.min(source.bytesLeft(), targetLength - bytesRead);
+    int bytesToRead = min(source.bytesLeft(), targetLength - bytesRead);
     source.readBytes(target, bytesRead, bytesToRead);
     bytesRead += bytesToRead;
     return bytesRead == targetLength;

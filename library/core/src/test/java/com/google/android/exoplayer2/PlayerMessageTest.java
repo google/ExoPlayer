@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,7 +30,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.After;
 import org.junit.Before;
@@ -117,7 +117,7 @@ public class PlayerMessageTest {
       assertThat(message.experimental_blockUntilDelivered(TIMEOUT_MS, clock)).isTrue();
       // Ensure experimental_blockUntilDelivered() entered the blocking loop.
       verify(clock, Mockito.atLeast(2)).elapsedRealtime();
-      future.get(1, TimeUnit.SECONDS);
+      future.get(1, SECONDS);
     } finally {
       executorService.shutdown();
     }

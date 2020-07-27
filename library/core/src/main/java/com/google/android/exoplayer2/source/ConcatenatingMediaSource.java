@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -804,8 +807,8 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   }
 
   private void moveMediaSourceInternal(int currentIndex, int newIndex) {
-    int startIndex = Math.min(currentIndex, newIndex);
-    int endIndex = Math.max(currentIndex, newIndex);
+    int startIndex = min(currentIndex, newIndex);
+    int endIndex = max(currentIndex, newIndex);
     int windowOffset = mediaSourceHolders.get(startIndex).firstWindowIndexInChild;
     mediaSourceHolders.add(newIndex, mediaSourceHolders.remove(currentIndex));
     for (int i = startIndex; i <= endIndex; i++) {

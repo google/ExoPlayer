@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
+import static java.lang.Math.max;
+
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -284,7 +286,7 @@ public final class FlvExtractor implements Extractor {
 
   private ParsableByteArray prepareTagData(ExtractorInput input) throws IOException {
     if (tagDataSize > tagData.capacity()) {
-      tagData.reset(new byte[Math.max(tagData.capacity() * 2, tagDataSize)], 0);
+      tagData.reset(new byte[max(tagData.capacity() * 2, tagDataSize)], 0);
     } else {
       tagData.setPosition(0);
     }

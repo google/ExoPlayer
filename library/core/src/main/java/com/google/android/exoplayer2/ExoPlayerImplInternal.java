@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -1122,7 +1125,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         if (newPlayingPeriodHolder.info.durationUs != C.TIME_UNSET
             && periodPositionUs >= newPlayingPeriodHolder.info.durationUs) {
           // Make sure seek position doesn't exceed period duration.
-          periodPositionUs = Math.max(0, newPlayingPeriodHolder.info.durationUs - 1);
+          periodPositionUs = max(0, newPlayingPeriodHolder.info.durationUs - 1);
         }
         if (newPlayingPeriodHolder.hasEnabledTracks) {
           periodPositionUs = newPlayingPeriodHolder.mediaPeriod.seekToUs(periodPositionUs);
@@ -1415,7 +1418,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Correct next index if necessary (e.g. after seeking, timeline changes, or new messages)
     int currentPeriodIndex =
         playbackInfo.timeline.getIndexOfPeriod(playbackInfo.periodId.periodUid);
-    int nextPendingMessageIndex = Math.min(nextPendingMessageIndexHint, pendingMessages.size());
+    int nextPendingMessageIndex = min(nextPendingMessageIndexHint, pendingMessages.size());
     PendingMessageInfo previousInfo =
         nextPendingMessageIndex > 0 ? pendingMessages.get(nextPendingMessageIndex - 1) : null;
     while (previousInfo != null
@@ -1543,8 +1546,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       queue.removeAfter(periodHolder);
       if (periodHolder.prepared) {
         long loadingPeriodPositionUs =
-            Math.max(
-                periodHolder.info.startPositionUs, periodHolder.toPeriodTime(rendererPositionUs));
+            max(periodHolder.info.startPositionUs, periodHolder.toPeriodTime(rendererPositionUs));
         periodHolder.applyTrackSelection(newTrackSelectorResult, loadingPeriodPositionUs, false);
       }
     }
@@ -1696,7 +1698,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       if (readingPositionUs == C.TIME_END_OF_SOURCE) {
         return C.TIME_END_OF_SOURCE;
       } else {
-        maxReadPositionUs = Math.max(readingPositionUs, maxReadPositionUs);
+        maxReadPositionUs = max(readingPositionUs, maxReadPositionUs);
       }
     }
     return maxReadPositionUs;
@@ -2162,7 +2164,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     long totalBufferedDurationUs =
         bufferedPositionInLoadingPeriodUs - loadingPeriodHolder.toPeriodTime(rendererPositionUs);
-    return Math.max(0, totalBufferedDurationUs);
+    return max(0, totalBufferedDurationUs);
   }
 
   private void updateLoadControlTrackSelection(

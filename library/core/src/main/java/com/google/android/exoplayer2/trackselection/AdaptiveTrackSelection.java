@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static java.lang.Math.max;
+
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -543,7 +545,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     @Override
     public long getAllocatedBandwidth() {
       long totalBandwidth = (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction);
-      long allocatableBandwidth = Math.max(0L, totalBandwidth - reservedBandwidth);
+      long allocatableBandwidth = max(0L, totalBandwidth - reservedBandwidth);
       if (allocationCheckpoints == null) {
         return allocatableBandwidth;
       }
