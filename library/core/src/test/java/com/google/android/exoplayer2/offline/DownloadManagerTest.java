@@ -909,7 +909,7 @@ public class DownloadManagerTest {
     }
 
     public void assertStreamKeys(StreamKey... streamKeys) {
-      assertThat(request.streamKeys).containsExactly(streamKeys);
+      assertThat(request.streamKeys).containsExactlyElementsIn(streamKeys);
     }
 
     public void assertDownloadStarted() throws InterruptedException {
