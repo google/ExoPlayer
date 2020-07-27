@@ -54,9 +54,10 @@ import java.util.ArrayList;
   private final OnLayoutChangeListener onLayoutChangeListener;
 
   private int uxState = UX_STATE_ALL_VISIBLE;
+  private boolean initiallyHidden;
   private boolean isMinimalMode;
   private boolean needToShowBars;
-  private boolean animationEnabled = true;
+  private boolean animationEnabled;
 
   @Nullable private StyledPlayerControlView styledPlayerControlView;
 
@@ -86,9 +87,11 @@ import java.util.ArrayList;
     hideMainBarsRunnable = this::hideMainBars;
     hideControllerRunnable = this::hideController;
     onLayoutChangeListener = this::onLayoutChange;
+    animationEnabled = true;
   }
 
   public void show() {
+    initiallyHidden = false;
     if (this.styledPlayerControlView == null) {
       return;
     }
@@ -102,6 +105,7 @@ import java.util.ArrayList;
   }
 
   public void hide() {
+    initiallyHidden = true;
     if (styledPlayerControlView == null
         || uxState == UX_STATE_ANIMATING_HIDE
         || uxState == UX_STATE_NONE_VISIBLE) {
@@ -155,6 +159,8 @@ import java.util.ArrayList;
 
   public void onViewAttached(StyledPlayerControlView v) {
     styledPlayerControlView = v;
+
+    v.setVisibility(initiallyHidden ? View.GONE : View.VISIBLE);
 
     v.addOnLayoutChangeListener(onLayoutChangeListener);
 

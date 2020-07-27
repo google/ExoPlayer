@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -1320,9 +1322,10 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     }
     int playbackState = player.getPlaybackState();
     return controllerAutoShow
+        && !player.getCurrentTimeline().isEmpty()
         && (playbackState == Player.STATE_IDLE
             || playbackState == Player.STATE_ENDED
-            || !player.getPlayWhenReady());
+            || !checkNotNull(player).getPlayWhenReady());
   }
 
   private void showController(boolean showIndefinitely) {
@@ -1613,7 +1616,7 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
       // Suppress the update if transitioning to an unprepared period within the same window. This
       // is necessary to avoid closing the shutter when such a transition occurs. See:
       // https://github.com/google/ExoPlayer/issues/5507.
-      Player player = Assertions.checkNotNull(StyledPlayerView.this.player);
+      Player player = checkNotNull(StyledPlayerView.this.player);
       Timeline timeline = player.getCurrentTimeline();
       if (timeline.isEmpty()) {
         lastPeriodUidWithTracks = null;
