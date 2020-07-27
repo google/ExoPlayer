@@ -187,7 +187,7 @@ public final class FlacExtractor implements Extractor {
     }
     currentFrameFirstSampleNumber = timeUs == 0 ? 0 : SAMPLE_NUMBER_UNKNOWN;
     currentFrameBytesWritten = 0;
-    buffer.reset();
+    buffer.reset(/* limit= */ 0);
   }
 
   @Override

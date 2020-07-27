@@ -1104,7 +1104,7 @@ public class MatroskaExtractor implements Extractor {
           blockTrackNumberLength = varintReader.getLastLength();
           blockDurationUs = C.TIME_UNSET;
           blockState = BLOCK_STATE_HEADER;
-          scratch.reset();
+          scratch.reset(/* limit= */ 0);
         }
 
         Track track = tracks.get(blockTrackNumber);
@@ -1422,7 +1422,7 @@ public class MatroskaExtractor implements Extractor {
 
       if (track.maxBlockAdditionId > 0) {
         blockFlags |= C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA;
-        blockAdditionalData.reset();
+        blockAdditionalData.reset(/* limit= */ 0);
         // If there is supplemental data, the structure of the sample data is:
         // sample size (4 bytes) || sample data || supplemental data
         scratch.reset(/* limit= */ 4);
@@ -1520,7 +1520,7 @@ public class MatroskaExtractor implements Extractor {
     samplePartitionCount = 0;
     sampleSignalByte = (byte) 0;
     sampleInitializationVectorRead = false;
-    sampleStrippedBytes.reset();
+    sampleStrippedBytes.reset(/* limit= */ 0);
   }
 
   private void writeSubtitleSampleData(ExtractorInput input, byte[] samplePrefix, int size)

@@ -40,7 +40,7 @@ import java.util.Arrays;
    */
   public void reset() {
     pageHeader.reset();
-    packetArray.reset();
+    packetArray.reset(/* limit= */ 0);
     currentSegmentIndex = C.INDEX_UNSET;
     populated = false;
   }
@@ -61,7 +61,7 @@ import java.util.Arrays;
 
     if (populated) {
       populated = false;
-      packetArray.reset();
+      packetArray.reset(/* limit= */ 0);
     }
 
     while (!populated) {

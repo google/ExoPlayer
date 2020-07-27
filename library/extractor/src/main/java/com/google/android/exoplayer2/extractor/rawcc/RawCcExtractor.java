@@ -72,7 +72,7 @@ public final class RawCcExtractor implements Extractor {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    dataScratch.reset();
+    dataScratch.reset(/* limit= */ HEADER_SIZE);
     input.peekFully(dataScratch.getData(), 0, HEADER_SIZE);
     return dataScratch.readInt() == HEADER_ID;
   }
@@ -118,7 +118,7 @@ public final class RawCcExtractor implements Extractor {
   }
 
   private boolean parseHeader(ExtractorInput input) throws IOException {
-    dataScratch.reset();
+    dataScratch.reset(/* limit= */ HEADER_SIZE);
     if (input.readFully(dataScratch.getData(), 0, HEADER_SIZE, true)) {
       if (dataScratch.readInt() != HEADER_ID) {
         throw new IOException("Input not RawCC");
@@ -132,14 +132,15 @@ public final class RawCcExtractor implements Extractor {
   }
 
   private boolean parseTimestampAndSampleCount(ExtractorInput input) throws IOException {
-    dataScratch.reset();
     if (version == 0) {
+      dataScratch.reset(/* limit= */ TIMESTAMP_SIZE_V0 + 1);
       if (!input.readFully(dataScratch.getData(), 0, TIMESTAMP_SIZE_V0 + 1, true)) {
         return false;
       }
       // version 0 timestamps are 45kHz, so we need to convert them into us
       timestampUs = dataScratch.readUnsignedInt() * 1000 / 45;
     } else if (version == 1) {
+      dataScratch.reset(/* limit= */ TIMESTAMP_SIZE_V1 + 1);
       if (!input.readFully(dataScratch.getData(), 0, TIMESTAMP_SIZE_V1 + 1, true)) {
         return false;
       }
@@ -156,7 +157,7 @@ public final class RawCcExtractor implements Extractor {
   @RequiresNonNull("trackOutput")
   private void parseSamples(ExtractorInput input) throws IOException {
     for (; remainingSampleCount > 0; remainingSampleCount--) {
-      dataScratch.reset();
+      dataScratch.reset(/* limit= */ 3);
       input.readFully(dataScratch.getData(), 0, 3);
 
       trackOutput.sampleData(dataScratch, 3);

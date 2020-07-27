@@ -239,7 +239,7 @@ public final class TsExtractor implements Extractor {
     if (timeUs != 0 && tsBinarySearchSeeker != null) {
       tsBinarySearchSeeker.setSeekTargetUs(timeUs);
     }
-    tsPacketBuffer.reset();
+    tsPacketBuffer.reset(/* limit= */ 0);
     continuityCounters.clear();
     for (int i = 0; i < tsPayloadReaders.size(); i++) {
       tsPayloadReaders.valueAt(i).seek();
