@@ -206,6 +206,8 @@
 *   Ogg: Allow non-contiguous pages
     ([#7230](https://github.com/google/ExoPlayer/issues/7230)).
 *   Matroska: Remove support for "Invisible" block header flag.
+*   FLV: Ignore SCRIPTDATA segments with invalid name types, rather than failing
+    playback ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
 *   Extractors:
     *   Add `IndexSeeker` for accurate seeks in VBR MP3 streams
         ([#6787](https://github.com/google/ExoPlayer/issues/6787)). This seeker
