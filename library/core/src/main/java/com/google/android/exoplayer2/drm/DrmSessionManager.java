@@ -33,11 +33,6 @@ public interface DrmSessionManager {
       new DrmSessionManager() {
 
         @Override
-        public boolean canAcquireSession(DrmInitData drmInitData) {
-          return false;
-        }
-
-        @Override
         public DrmSession acquireSession(
             Looper playbackLooper,
             @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
@@ -69,16 +64,6 @@ public interface DrmSessionManager {
   default void release() {
     // Do nothing.
   }
-
-  /**
-   * Returns whether the manager is capable of acquiring a session for the given
-   * {@link DrmInitData}.
-   *
-   * @param drmInitData DRM initialization data.
-   * @return Whether the manager is capable of acquiring a session for the given
-   *     {@link DrmInitData}.
-   */
-  boolean canAcquireSession(DrmInitData drmInitData);
 
   /**
    * Returns a {@link DrmSession} that does not execute key requests, with an incremented reference
