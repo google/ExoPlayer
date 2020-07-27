@@ -218,7 +218,6 @@ public class TimelinePlaylistManager implements PlaylistManager {
 
   @Override
   public boolean setMediaItem(Player player, MediaItem mediaItem) {
-    // TODO(jaewan): Distinguish setMediaItem(item) and setPlaylist({item})
     List<MediaItem> playlist = new ArrayList<>();
     playlist.add(mediaItem);
     return setPlaylist(player, playlist, /* metadata */ null);

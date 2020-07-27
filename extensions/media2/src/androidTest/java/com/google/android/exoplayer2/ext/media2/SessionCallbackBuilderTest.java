@@ -23,7 +23,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Looper;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -79,11 +78,6 @@ public class SessionCallbackBuilderTest {
 
   @Before
   public void setUp() {
-    // Workaround to instantiate MediaSession with public androidx.media dependency.
-    // TODO(jaewan): Remove this workaround when androidx.media 1.2.0 is released.
-    if (Looper.myLooper() == null) {
-      Looper.prepare();
-    }
     context = ApplicationProvider.getApplicationContext();
     executor = playerTestRule.getExecutor();
     sessionPlayerConnector = playerTestRule.getSessionPlayerConnector();

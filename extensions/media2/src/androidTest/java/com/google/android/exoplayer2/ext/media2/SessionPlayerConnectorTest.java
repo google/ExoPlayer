@@ -64,7 +64,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -957,34 +956,6 @@ public class SessionPlayerConnectorTest {
     assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
         .isFalse();
     assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
-  }
-
-  @Test
-  @LargeTest
-  @Ignore("setMediaItem() is currently implemented with setPlaylist(), so list isn't empty.")
-  @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-  public void setMediaItem_afterSettingPlaylist_notifiesOnPlaylistChangedWithNullList()
-      throws Exception {
-    List<MediaItem> playlist = TestUtils.createPlaylist(context, /* size= */ 10);
-    CountDownLatch onPlaylistBecomesNullLatch = new CountDownLatch(1);
-    sessionPlayerConnector.registerPlayerCallback(
-        executor,
-        new SessionPlayer.PlayerCallback() {
-          @Override
-          public void onPlaylistChanged(
-              @NonNull SessionPlayer player,
-              @Nullable List<MediaItem> list,
-              @Nullable MediaMetadata metadata) {
-            if (list == null) {
-              onPlaylistBecomesNullLatch.countDown();
-            }
-          }
-        });
-    sessionPlayerConnector.setPlaylist(playlist, /* metadata= */ null);
-    sessionPlayerConnector.setMediaItem(playlist.get(0));
-    assertThat(
-            onPlaylistBecomesNullLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
   }
 
   @Test
