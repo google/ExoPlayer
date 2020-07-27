@@ -1570,8 +1570,7 @@ public final class AnalyticsCollectorTest {
                 private int streamChangeCount = 0;
 
                 @Override
-                protected void onStreamChanged(
-                    Format[] formats, long startPositionUs, long offsetUs)
+                protected void onStreamChanged(Format[] formats, long offsetUs)
                     throws ExoPlaybackException {
                   // Fail when changing streams for the second time. This will happen during the
                   // period transition (as the first time is when enabling the stream initially).

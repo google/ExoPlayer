@@ -1844,10 +1844,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         // The renderer stream is not final, so we can replace the sample streams immediately.
         Format[] formats = getFormats(newTrackSelectorResult.selections.get(i));
         renderer.replaceStream(
-            formats,
-            readingPeriodHolder.sampleStreams[i],
-            readingPeriodHolder.getStartPositionRendererTime(),
-            readingPeriodHolder.getRendererOffset());
+            formats, readingPeriodHolder.sampleStreams[i], readingPeriodHolder.getRendererOffset());
       } else if (renderer.isEnded()) {
         // The renderer has finished playback, so we can disable it now.
         disableRenderer(renderer);
@@ -2103,7 +2100,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
         rendererPositionUs,
         joining,
         mayRenderStartOfStream,
-        periodHolder.getStartPositionRendererTime(),
         periodHolder.getRendererOffset());
 
     renderer.handleMessage(

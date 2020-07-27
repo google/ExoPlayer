@@ -142,7 +142,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
+  protected void onStreamChanged(Format[] formats, long offsetUs) {
     streamFormat = formats[0];
     if (decoder != null) {
       decoderReplacementState = REPLACEMENT_STATE_SIGNAL_END_OF_STREAM;

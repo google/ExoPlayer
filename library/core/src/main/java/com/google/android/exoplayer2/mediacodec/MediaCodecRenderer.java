@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 
 import android.annotation.TargetApi;
@@ -353,7 +352,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final TimedValueQueue<Format> formatQueue;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
-  private final long[] pendingOutputStreamStartPositionsUs;
   private final long[] pendingOutputStreamOffsetsUs;
   private final long[] pendingOutputStreamSwitchTimesUs;
 
@@ -409,7 +407,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @MediaCodecOperationMode private int mediaCodecOperationMode;
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
-  private long outputStreamStartPositionUs;
   private long outputStreamOffsetUs;
   private int pendingOutputStreamOffsetCount;
   private boolean receivedOutputMediaFormatChange;
@@ -441,10 +438,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputBufferInfo = new MediaCodec.BufferInfo();
     operatingRate = 1f;
     mediaCodecOperationMode = OPERATION_MODE_SYNCHRONOUS;
-    pendingOutputStreamStartPositionsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
-    outputStreamStartPositionUs = C.TIME_UNSET;
     outputStreamOffsetUs = C.TIME_UNSET;
     bypassBatchBuffer = new BatchBuffer();
     resetCodecStateForRelease();
@@ -667,12 +662,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
-      throws ExoPlaybackException {
-    if (this.outputStreamOffsetUs == C.TIME_UNSET) {
-      checkState(this.outputStreamStartPositionUs == C.TIME_UNSET);
-      this.outputStreamStartPositionUs = startPositionUs;
-      this.outputStreamOffsetUs = offsetUs;
+  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+    if (outputStreamOffsetUs == C.TIME_UNSET) {
+      outputStreamOffsetUs = offsetUs;
     } else {
       if (pendingOutputStreamOffsetCount == pendingOutputStreamOffsetsUs.length) {
         Log.w(
@@ -682,7 +674,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       } else {
         pendingOutputStreamOffsetCount++;
       }
-      pendingOutputStreamStartPositionsUs[pendingOutputStreamOffsetCount - 1] = startPositionUs;
       pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1] = offsetUs;
       pendingOutputStreamSwitchTimesUs[pendingOutputStreamOffsetCount - 1] =
           largestQueuedPresentationTimeUs;
@@ -708,8 +699,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     formatQueue.clear();
     if (pendingOutputStreamOffsetCount != 0) {
       outputStreamOffsetUs = pendingOutputStreamOffsetsUs[pendingOutputStreamOffsetCount - 1];
-      outputStreamStartPositionUs =
-          pendingOutputStreamStartPositionsUs[pendingOutputStreamOffsetCount - 1];
       pendingOutputStreamOffsetCount = 0;
     }
   }
@@ -727,7 +716,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Override
   protected void onDisabled() {
     inputFormat = null;
-    outputStreamStartPositionUs = C.TIME_UNSET;
     outputStreamOffsetUs = C.TIME_UNSET;
     pendingOutputStreamOffsetCount = 0;
     if (sourceDrmSession != null || codecDrmSession != null) {
@@ -1553,15 +1541,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onProcessedOutputBuffer(long presentationTimeUs) {
     while (pendingOutputStreamOffsetCount != 0
         && presentationTimeUs >= pendingOutputStreamSwitchTimesUs[0]) {
-      outputStreamStartPositionUs = pendingOutputStreamStartPositionsUs[0];
       outputStreamOffsetUs = pendingOutputStreamOffsetsUs[0];
       pendingOutputStreamOffsetCount--;
-      System.arraycopy(
-          pendingOutputStreamStartPositionsUs,
-          /* srcPos= */ 1,
-          pendingOutputStreamStartPositionsUs,
-          /* destPos= */ 0,
-          pendingOutputStreamOffsetCount);
       System.arraycopy(
           pendingOutputStreamOffsetsUs,
           /* srcPos= */ 1,
@@ -1955,13 +1936,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Returns the start position of the output {@link SampleStream}, in renderer time microseconds.
-   */
-  protected final long getOutputStreamStartPositionUs() {
-    return outputStreamStartPositionUs;
-  }
-
-  /**
    * Returns the offset that should be subtracted from {@code bufferPresentationTimeUs} in {@link
    * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, int, long, boolean, boolean,
    * Format)} to get the playback position with respect to the media.
@@ -2096,7 +2070,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     BatchBuffer batchBuffer = bypassBatchBuffer;
 
     // Let's process the pending buffer if any.
-    checkState(!outputStreamEnded);
+    Assertions.checkState(!outputStreamEnded);
     if (!batchBuffer.isEmpty()) { // Optimisation: Do not process buffer if empty.
       if (processOutputBuffer(
           positionUs,
@@ -2135,7 +2109,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     // Now refill the empty buffer for the next iteration.
-    checkState(!inputStreamEnded);
+    Assertions.checkState(!inputStreamEnded);
     FormatHolder formatHolder = getFormatHolder();
     boolean formatChange = readBatchFromSource(formatHolder, batchBuffer);
 

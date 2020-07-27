@@ -7566,7 +7566,7 @@ public final class ExoPlayerTest {
           boolean pendingFirstBufferTime = false;
 
           @Override
-          protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
+          protected void onStreamChanged(Format[] formats, long offsetUs) {
             rendererStreamOffsetsUs.add(offsetUs);
             pendingFirstBufferTime = true;
           }

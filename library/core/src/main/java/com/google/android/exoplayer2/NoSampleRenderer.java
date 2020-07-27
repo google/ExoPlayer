@@ -68,14 +68,13 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
       long positionUs,
       boolean joining,
       boolean mayRenderStartOfStream,
-      long startPositionUs,
       long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
     onEnabled(joining);
-    replaceStream(formats, stream, startPositionUs, offsetUs);
+    replaceStream(formats, stream, offsetUs);
     onPositionReset(positionUs, joining);
   }
 
@@ -87,8 +86,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void replaceStream(
-      Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
+  public final void replaceStream(Format[] formats, SampleStream stream, long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;

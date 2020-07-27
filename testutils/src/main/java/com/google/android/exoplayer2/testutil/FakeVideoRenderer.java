@@ -33,7 +33,7 @@ public class FakeVideoRenderer extends FakeRenderer {
   private final VideoRendererEventListener.EventDispatcher eventDispatcher;
   private final DecoderCounters decoderCounters;
   private @MonotonicNonNull Format format;
-  private long startPositionUs;
+  private long streamOffsetUs;
   private boolean renderedFirstFrameAfterReset;
   private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
   private boolean renderedFirstFrameAfterEnable;
@@ -54,10 +54,9 @@ public class FakeVideoRenderer extends FakeRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
-      throws ExoPlaybackException {
-    super.onStreamChanged(formats, startPositionUs, offsetUs);
-    this.startPositionUs = startPositionUs;
+  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+    super.onStreamChanged(formats, offsetUs);
+    streamOffsetUs = offsetUs;
     if (renderedFirstFrameAfterReset) {
       renderedFirstFrameAfterReset = false;
     }
@@ -102,7 +101,7 @@ public class FakeVideoRenderer extends FakeRenderer {
         !renderedFirstFrameAfterEnable
             ? (getState() == Renderer.STATE_STARTED || mayRenderFirstFrameAfterEnableIfNotStarted)
             : !renderedFirstFrameAfterReset;
-    shouldProcess |= shouldRenderFirstFrame && playbackPositionUs >= startPositionUs;
+    shouldProcess |= shouldRenderFirstFrame && playbackPositionUs >= streamOffsetUs;
     if (shouldProcess && !renderedFirstFrameAfterReset) {
       @MonotonicNonNull Format format = Assertions.checkNotNull(this.format);
       eventDispatcher.videoSizeChanged(

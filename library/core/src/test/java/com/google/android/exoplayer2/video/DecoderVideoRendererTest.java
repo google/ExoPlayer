@@ -197,7 +197,6 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
-        /* startPositionUs= */ 0L,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -226,7 +225,6 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
-        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -254,7 +252,6 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
-        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     renderer.start();
     for (int i = 0; i < 10; i++) {
@@ -269,7 +266,7 @@ public final class DecoderVideoRendererTest {
   // TODO: Fix rendering of first frame at stream transition.
   @Ignore
   @Test
-  public void replaceStream_rendersFirstFrameOnlyAfterStartPosition() throws Exception {
+  public void replaceStream_whenStarted_rendersFirstFrameOfNewStream() throws Exception {
     FakeSampleStream fakeSampleStream1 =
         new FakeSampleStream(
             /* mediaSourceEventDispatcher= */ null,
@@ -285,7 +282,7 @@ public final class DecoderVideoRendererTest {
             new DrmSessionEventListener.EventDispatcher(),
             /* initialFormat= */ H264_FORMAT,
             ImmutableList.of(
-                oneByteSample(/* timeUs= */ 1_000_000), FakeSampleStreamItem.END_OF_STREAM_ITEM));
+                oneByteSample(/* timeUs= */ 0), FakeSampleStreamItem.END_OF_STREAM_ITEM));
     renderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {H264_FORMAT},
@@ -293,31 +290,67 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
-        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
+    renderer.start();
 
     boolean replacedStream = false;
-    // Render until just before the start position of the second stream
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i <= 10; i++) {
       renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && renderer.hasReadStreamToEnd()) {
-        renderer.replaceStream(
-            new Format[] {H264_FORMAT},
-            fakeSampleStream2,
-            /* startPositionUs= */ 50,
-            /* offsetUs= */ 100);
+        renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
         replacedStream = true;
       }
       // Ensure pending messages are delivered.
       ShadowLooper.idleMainLooper();
     }
 
-    // Expect only the first frame of the first stream to have been rendered.
+    verify(eventListener, times(2)).onRenderedFirstFrame(any());
+  }
+
+  // TODO: Fix rendering of first frame at stream transition.
+  @Ignore
+  @Test
+  public void replaceStream_whenNotStarted_doesNotRenderFirstFrameOfNewStream() throws Exception {
+    FakeSampleStream fakeSampleStream1 =
+        new FakeSampleStream(
+            /* mediaSourceEventDispatcher= */ null,
+            DrmSessionManager.DUMMY,
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ H264_FORMAT,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0), FakeSampleStreamItem.END_OF_STREAM_ITEM));
+    FakeSampleStream fakeSampleStream2 =
+        new FakeSampleStream(
+            /* mediaSourceEventDispatcher= */ null,
+            DrmSessionManager.DUMMY,
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ H264_FORMAT,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0), FakeSampleStreamItem.END_OF_STREAM_ITEM));
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {H264_FORMAT},
+        fakeSampleStream1,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* offsetUs */ 0);
+
+    boolean replacedStream = false;
+    for (int i = 0; i < 10; i++) {
+      renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
+      if (!replacedStream && renderer.hasReadStreamToEnd()) {
+        renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
+        replacedStream = true;
+      }
+      // Ensure pending messages are delivered.
+      ShadowLooper.idleMainLooper();
+    }
+
     verify(eventListener).onRenderedFirstFrame(any());
 
-    // Render to the start position of the stream and verify the new first frame gets rendered (even
-    // though its sampleTimeUs is far in the future).
-    renderer.render(/* positionUs= */ 50, SystemClock.elapsedRealtime() * 1000);
+    // Render to streamOffsetUs and verify the new first frame gets rendered.
+    renderer.render(/* positionUs= */ 100, SystemClock.elapsedRealtime() * 1000);
 
     verify(eventListener, times(2)).onRenderedFirstFrame(any());
   }

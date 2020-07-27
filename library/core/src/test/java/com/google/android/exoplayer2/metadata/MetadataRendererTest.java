@@ -154,7 +154,6 @@ public class MetadataRendererTest {
             ImmutableList.of(
                 FakeSampleStreamItem.sample(/* timeUs= */ 0, /* flags= */ 0, input),
                 FakeSampleStreamItem.END_OF_STREAM_ITEM)),
-        /* startPositionUs= */ 0L,
         /* offsetUs= */ 0L);
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the format
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the data
