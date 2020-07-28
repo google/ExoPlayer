@@ -1600,6 +1600,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return operatingRate;
   }
 
+  /** Returns the operating rate used by the current codec */
+  protected float getCodecOperatingRate() {
+    return codecOperatingRate;
+  }
+
   /**
    * Returns the {@link MediaFormat#KEY_OPERATING_RATE} value for a given renderer operating rate,
    * current {@link Format} and set of possible stream formats.
