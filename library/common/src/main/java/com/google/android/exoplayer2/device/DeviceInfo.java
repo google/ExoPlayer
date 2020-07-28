@@ -40,6 +40,10 @@ public final class DeviceInfo {
   /** Playback happens outside of the device (e.g. a cast device). */
   public static final int PLAYBACK_TYPE_REMOTE = 1;
 
+  /** Unknown DeviceInfo. */
+  public static final DeviceInfo UNKNOWN =
+      new DeviceInfo(PLAYBACK_TYPE_LOCAL, /* minVolume= */ 0, /* maxVolume= */ 0);
+
   /** The type of playback. */
   public final @PlaybackType int playbackType;
   /** The minimum volume that the device supports. */
