@@ -819,7 +819,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       decoderCounters.ensureUpdated();
     } catch (IllegalStateException e) {
       if (isMediaCodecException(e)) {
-        throw createRendererException(e, inputFormat);
+        throw createRendererException(createDecoderException(e, getCodecInfo()), inputFormat);
       }
       throw e;
     }
