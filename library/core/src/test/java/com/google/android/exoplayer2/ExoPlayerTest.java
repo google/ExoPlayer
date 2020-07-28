@@ -118,6 +118,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.robolectric.shadows.ShadowAudioManager;
 
 /** Unit test for {@link ExoPlayer}. */
@@ -183,24 +184,32 @@ public final class ExoPlayerTest {
   /** Tests playback of a source that exposes a single period. */
   @Test
   public void playSinglePeriodTimeline() throws Exception {
-    Object manifest = new Object();
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1, manifest);
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setTimeline(timeline)
-            .setManifest(manifest)
-            .setRenderers(renderer)
-            .build()
-            .start()
-            .blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertNoPositionDiscontinuities();
-    testRunner.assertTimelinesSame(placeholderTimeline, timeline);
-    testRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-    testRunner.assertTrackGroupsEqual(
-        new TrackGroupArray(new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT)));
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(renderer).build();
+    EventListener mockEventListener = mock(EventListener.class);
+    player.addListener(mockEventListener);
+
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    InOrder inOrder = Mockito.inOrder(mockEventListener);
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(placeholderTimeline)),
+            eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+    inOrder
+        .verify(mockEventListener)
+        .onTracksChanged(
+            eq(new TrackGroupArray(new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT))), any());
+    inOrder.verify(mockEventListener, never()).onPositionDiscontinuity(anyInt());
     assertThat(renderer.getFormatsRead()).containsExactly(ExoPlayerTestRunner.VIDEO_FORMAT);
     assertThat(renderer.sampleBufferReadCount).isEqualTo(1);
     assertThat(renderer.isEnded).isTrue();
@@ -211,20 +220,28 @@ public final class ExoPlayerTest {
   public void playMultiPeriodTimeline() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setTimeline(timeline)
-            .setRenderers(renderer)
-            .build()
-            .start()
-            .blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertPositionDiscontinuityReasonsEqual(
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
-    testRunner.assertTimelinesSame(new FakeMediaSource.InitialTimeline(timeline), timeline);
-    testRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(renderer).build();
+    EventListener mockEventListener = mock(EventListener.class);
+    player.addListener(mockEventListener);
+
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    InOrder inOrder = Mockito.inOrder(mockEventListener);
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(new FakeMediaSource.InitialTimeline(timeline))),
+            eq(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION));
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+    inOrder
+        .verify(mockEventListener, times(2))
+        .onPositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     assertThat(renderer.getFormatsRead())
         .containsExactly(
             ExoPlayerTestRunner.VIDEO_FORMAT,
