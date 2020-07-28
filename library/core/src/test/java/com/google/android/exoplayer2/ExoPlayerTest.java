@@ -17,13 +17,18 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
+import static com.google.android.exoplayer2.testutil.TestExoPlayer.runUntilPlaybackState;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
@@ -82,6 +87,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeTrackSelection;
 import com.google.android.exoplayer2.testutil.FakeTrackSelector;
+import com.google.android.exoplayer2.testutil.NoUidTimeline;
 import com.google.android.exoplayer2.testutil.TestExoPlayer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -110,6 +116,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
+import org.mockito.InOrder;
 import org.robolectric.shadows.ShadowAudioManager;
 
 /** Unit test for {@link ExoPlayer}. */
@@ -146,18 +154,27 @@ public final class ExoPlayerTest {
     Timeline expectedMaskingTimeline =
         new MaskingMediaSource.PlaceholderTimeline(FakeMediaSource.FAKE_MEDIA_ITEM);
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_UNKNOWN);
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setTimeline(timeline)
-            .setRenderers(renderer)
-            .build()
-            .start()
-            .blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertNoPositionDiscontinuities();
-    testRunner.assertTimelinesSame(expectedMaskingTimeline, Timeline.EMPTY);
-    testRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(renderer).build();
+    EventListener mockEventListener = mock(EventListener.class);
+    player.addListener(mockEventListener);
+
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    InOrder inOrder = inOrder(mockEventListener);
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(expectedMaskingTimeline)),
+            eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+    inOrder.verify(mockEventListener, never()).onPositionDiscontinuity(anyInt());
     assertThat(renderer.getFormatsRead()).isEmpty();
     assertThat(renderer.sampleBufferReadCount).isEqualTo(0);
     assertThat(renderer.isEnded).isFalse();
@@ -2525,7 +2542,7 @@ public final class ExoPlayerTest {
     // indices are non-zero.
     player.prepare();
     player.play();
-    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
     verify(secondMediaItemTarget).handleMessage(anyInt(), any());
 
     // Remove first item and play second item again to check if message is triggered again.
@@ -2534,7 +2551,7 @@ public final class ExoPlayerTest {
     // See https://github.com/google/ExoPlayer/issues/7278.
     player.removeMediaItem(/* index= */ 0);
     player.seekTo(/* positionMs= */ 0);
-    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
 
     assertThat(player.getPlayerError()).isNull();
     verify(secondMediaItemTarget, times(2)).handleMessage(anyInt(), any());
@@ -8343,5 +8360,17 @@ public final class ExoPlayerTest {
     public ImmutableList<AdsLoader.OverlayInfo> getAdOverlayInfos() {
       return ImmutableList.of();
     }
+  }
+
+  /**
+   * Returns an argument matcher for {@link Timeline} instances that ignores period and window uids.
+   */
+  private static ArgumentMatcher<Timeline> noUid(Timeline timeline) {
+    return new ArgumentMatcher<Timeline>() {
+      @Override
+      public boolean matches(Timeline argument) {
+        return new NoUidTimeline(timeline).equals(new NoUidTimeline(argument));
+      }
+    };
   }
 }
