@@ -11,6 +11,9 @@
     ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
 *   FLV: Ignore SCRIPTDATA segments with invalid name types, rather than failing
     playback ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
+*   Workaround an issue on Broadcom based devices where playbacks would not
+    transition to `STATE_ENDED` when using video tunneling mode
+    ([#7647](https://github.com/google/ExoPlayer/issues/7647)).
 *   IMA extension: Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the
     media load timeout
     ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
