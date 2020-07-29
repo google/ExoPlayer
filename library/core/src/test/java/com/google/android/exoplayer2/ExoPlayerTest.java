@@ -317,7 +317,6 @@ public final class ExoPlayerTest {
     final FakeRenderer videoRenderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
     FakeMediaClockRenderer audioRenderer =
         new FakeMediaClockRenderer(C.TRACK_TYPE_AUDIO) {
-
           @Override
           public long getPositionUs() {
             // Simulate the playback position lagging behind the reading position: the renderer
@@ -340,21 +339,31 @@ public final class ExoPlayerTest {
             return videoRenderer.isEnded();
           }
         };
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setTimeline(timeline)
-            .setRenderers(videoRenderer, audioRenderer)
-            .setSupportedFormats(ExoPlayerTestRunner.VIDEO_FORMAT, ExoPlayerTestRunner.AUDIO_FORMAT)
-            .build()
-            .start()
-            .blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertPositionDiscontinuityReasonsEqual(
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
-    testRunner.assertTimelinesSame(new FakeMediaSource.InitialTimeline(timeline), timeline);
-    testRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    SimpleExoPlayer player =
+        new TestExoPlayer.Builder(context).setRenderers(videoRenderer, audioRenderer).build();
+    EventListener mockEventListener = mock(EventListener.class);
+    player.addListener(mockEventListener);
+
+    player.setMediaSource(
+        new FakeMediaSource(
+            timeline, ExoPlayerTestRunner.VIDEO_FORMAT, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    InOrder inOrder = inOrder(mockEventListener);
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(new FakeMediaSource.InitialTimeline(timeline))),
+            eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+    inOrder
+        .verify(mockEventListener, times(2))
+        .onPositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
     assertThat(audioRenderer.positionResetCount).isEqualTo(1);
     assertThat(videoRenderer.isEnded).isTrue();
     assertThat(audioRenderer.isEnded).isTrue();
