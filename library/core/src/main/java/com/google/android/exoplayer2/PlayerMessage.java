@@ -293,6 +293,20 @@ public final class PlayerMessage {
   }
 
   /**
+   * Marks the message as processed. Should only be called by a {@link Sender} and may be called
+   * multiple times.
+   *
+   * @param isDelivered Whether the message has been delivered to its target. The message is
+   *     considered as being delivered when this method has been called with {@code isDelivered} set
+   *     to true at least once.
+   */
+  public synchronized void markAsProcessed(boolean isDelivered) {
+    this.isDelivered |= isDelivered;
+    isProcessed = true;
+    notifyAll();
+  }
+
+  /**
    * Blocks until after the message has been delivered or the player is no longer able to deliver
    * the message or the specified waiting time elapses.
    *
@@ -312,20 +326,6 @@ public final class PlayerMessage {
   public synchronized boolean experimental_blockUntilDelivered(long timeoutMs)
       throws InterruptedException, TimeoutException {
     return experimental_blockUntilDelivered(timeoutMs, Clock.DEFAULT);
-  }
-
-  /**
-   * Marks the message as processed. Should only be called by a {@link Sender} and may be called
-   * multiple times.
-   *
-   * @param isDelivered Whether the message has been delivered to its target. The message is
-   *     considered as being delivered when this method has been called with {@code isDelivered} set
-   *     to true at least once.
-   */
-  public synchronized void markAsProcessed(boolean isDelivered) {
-    this.isDelivered |= isDelivered;
-    isProcessed = true;
-    notifyAll();
   }
 
   @VisibleForTesting()
