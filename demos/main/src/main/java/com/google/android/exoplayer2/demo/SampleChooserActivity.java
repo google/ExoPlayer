@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.demo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
 import android.content.Intent;
@@ -52,7 +54,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -403,7 +404,7 @@ public class SampleChooserActivity extends AppCompatActivity
             mediaItem.setDrmForceDefaultLicenseUri(reader.nextBoolean());
             break;
           case "playlist":
-            Assertions.checkState(!insidePlaylist, "Invalid nesting of playlists");
+            checkState(!insidePlaylist, "Invalid nesting of playlists");
             children = new ArrayList<>();
             reader.beginArray();
             while (reader.hasNext()) {
@@ -589,7 +590,7 @@ public class SampleChooserActivity extends AppCompatActivity
     public final List<MediaItem> mediaItems;
 
     private PlaylistHolder(String title, List<MediaItem> mediaItems) {
-      Assertions.checkArgument(!mediaItems.isEmpty());
+      checkArgument(!mediaItems.isEmpty());
       this.title = title;
       this.mediaItems = Collections.unmodifiableList(new ArrayList<>(mediaItems));
     }
