@@ -2,7 +2,7 @@ seekMap:
   isSeekable = false
   duration = UNSET TIME
   getPosition(0) = [[timeUs=0, position=0]]
-numberOfTracks = 3
+numberOfTracks = 2
 track 256:
   total output bytes = 13650
   sample count = 2
@@ -69,10 +69,4 @@ track 257:
     time = 159611
     flags = 1
     data = length 2048, hash 88866F81
-track 8448:
-  total output bytes = 0
-  sample count = 0
-  format 0:
-    id = 1/8448
-    sampleMimeType = application/cea-608
 tracksEnded = true

@@ -150,6 +150,10 @@
     *   Recreate the decoder when handling & swallowing decode errors in
         `TextRenderer`
         ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
+    *   Stop auto-generating a CEA-608 track when playing standalone Transport
+        Stream files. Users that require Closed Captions tracks being
+        auto-generated should manually inject a customized
+        `DefaultTsPayloadReaderFactory` into their `TsExtractor`.
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.

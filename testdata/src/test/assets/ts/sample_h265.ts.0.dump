@@ -5,7 +5,7 @@ seekMap:
   getPosition(1) = [[timeUs=1, position=0]]
   getPosition(450000) = [[timeUs=450000, position=11421]]
   getPosition(900000) = [[timeUs=900000, position=23030]]
-numberOfTracks = 2
+numberOfTracks = 1
 track 256:
   total output bytes = 19364
   sample count = 29
@@ -132,10 +132,4 @@ track 256:
     time = 933333
     flags = 0
     data = length 87, hash EEC4D98C
-track 8448:
-  total output bytes = 0
-  sample count = 0
-  format 0:
-    id = 1/8448
-    sampleMimeType = application/cea-608
 tracksEnded = true
