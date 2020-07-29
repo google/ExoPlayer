@@ -24,27 +24,10 @@ android {
             }
         }
     }
-
-    // This option resolves the problem of finding libgav1JNI.so
-    // on multiple paths. The first one found is picked.
-    packagingOptions {
-        pickFirst 'lib/arm64-v8a/libgav1JNI.so'
-        pickFirst 'lib/armeabi-v7a/libgav1JNI.so'
-        pickFirst 'lib/x86/libgav1JNI.so'
-        pickFirst 'lib/x86_64/libgav1JNI.so'
-    }
-
-    sourceSets.main {
-        // As native JNI library build is invoked from gradle, this is
-        // not needed. However, it exposes the built library and keeps
-        // consistency with the other extensions.
-        jniLibs.srcDir 'src/main/libs'
-    }
 }
 
-// Configure the native build only if libgav1 is present, to avoid gradle sync
-// failures if libgav1 hasn't been checked out according to the README and CMake
-// isn't installed.
+// Configure the native build only if libgav1 is present to avoid gradle sync
+// failures if libgav1 hasn't been built according to the README instructions.
 if (project.file('src/main/jni/libgav1').exists()) {
     android.externalNativeBuild.cmake.path = 'src/main/jni/CMakeLists.txt'
     android.externalNativeBuild.cmake.version = '3.7.1+'

@@ -39,7 +39,7 @@ git clone https://github.com/google/cpu_features
 
 ```
 cd "${AV1_EXT_PATH}/jni" && \
-git clone https://chromium.googlesource.com/codecs/libgav1 libgav1
+git clone https://chromium.googlesource.com/codecs/libgav1
 ```
 
 * Fetch Abseil:
