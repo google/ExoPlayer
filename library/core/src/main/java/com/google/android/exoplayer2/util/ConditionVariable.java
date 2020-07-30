@@ -40,7 +40,7 @@ public final class ConditionVariable {
   }
 
   /**
-   * Creates an instance.
+   * Creates an instance, which starts closed.
    *
    * @param clock The {@link Clock} whose {@link Clock#elapsedRealtime()} method is used to
    *     determine when {@link #block(long)} should time out.
