@@ -18,6 +18,8 @@ package com.google.android.exoplayer2;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static com.google.android.exoplayer2.testutil.TestExoPlayer.runUntilPlaybackState;
+import static com.google.android.exoplayer2.testutil.TestExoPlayer.runUntilTimelineChanged;
+import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
@@ -375,81 +377,62 @@ public final class ExoPlayerTest {
     Timeline firstTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
-                /* isSeekable= */ true, /* isDynamic= */ false, 1000_000_000));
+                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 1_000_000_000));
     MediaSource firstSource = new FakeMediaSource(firstTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
-    final CountDownLatch queuedSourceInfoCountDownLatch = new CountDownLatch(1);
-    final CountDownLatch completePreparationCountDownLatch = new CountDownLatch(1);
-
-    Timeline secondTimeline = new FakeTimeline(/* windowCount= */ 1);
+    AtomicBoolean secondSourcePrepared = new AtomicBoolean();
     MediaSource secondSource =
-        new FakeMediaSource(secondTimeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
+        new FakeMediaSource(
+            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
           public synchronized void prepareSourceInternal(
               @Nullable TransferListener mediaTransferListener) {
             super.prepareSourceInternal(mediaTransferListener);
-            // We've queued a source info refresh on the playback thread's event queue. Allow the
-            // test thread to set the third source to the playlist, and block this thread (the
-            // playback thread) until the test thread's call to setMediaSources() has returned.
-            queuedSourceInfoCountDownLatch.countDown();
-            try {
-              completePreparationCountDownLatch.await();
-            } catch (InterruptedException e) {
-              throw new IllegalStateException(e);
-            }
+            secondSourcePrepared.set(true);
           }
         };
-    Object thirdSourceManifest = new Object();
-    Timeline thirdTimeline = new FakeTimeline(/* windowCount= */ 1, thirdSourceManifest);
+    Timeline thirdTimeline = new FakeTimeline(/* windowCount= */ 1);
     MediaSource thirdSource = new FakeMediaSource(thirdTimeline, ExoPlayerTestRunner.VIDEO_FORMAT);
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(renderer).build();
+    EventListener mockEventListener = mock(EventListener.class);
+    player.addListener(mockEventListener);
 
-    // Prepare the player with a source with the first manifest and a non-empty timeline. Prepare
-    // the player again with a source and a new manifest, which will never be exposed. Allow the
-    // test thread to set a third source, and block the playback thread until the test thread's call
-    // to setMediaSources() has returned.
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .waitForTimelineChanged(
-                firstTimeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
-            .setMediaSources(secondSource)
-            .executeRunnable(
-                () -> {
-                  try {
-                    queuedSourceInfoCountDownLatch.await();
-                  } catch (InterruptedException e) {
-                    // Ignore.
-                  }
-                })
-            .setMediaSources(thirdSource)
-            .executeRunnable(completePreparationCountDownLatch::countDown)
-            .build();
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setMediaSources(firstSource)
-            .setRenderers(renderer)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilActionScheduleFinished(TIMEOUT_MS)
-            .blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertNoPositionDiscontinuities();
+    player.setMediaSource(firstSource);
+    player.prepare();
+    player.play();
+    runUntilTimelineChanged(player);
+    player.setMediaSource(secondSource);
+    runMainLooperUntil(secondSourcePrepared::get);
+    player.setMediaSource(thirdSource);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
     // The first source's preparation completed with a real timeline. When the second source was
     // prepared, it immediately exposed a placeholder timeline, but the source info refresh from the
     // second source was suppressed as we replace it with the third source before the update
     // arrives.
-    testRunner.assertTimelinesSame(
-        placeholderTimeline,
-        firstTimeline,
-        placeholderTimeline,
-        placeholderTimeline,
-        thirdTimeline);
-    testRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-    testRunner.assertTrackGroupsEqual(
-        new TrackGroupArray(new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT)));
+    InOrder inOrder = inOrder(mockEventListener);
+    inOrder.verify(mockEventListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(placeholderTimeline)),
+            eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(firstTimeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+    inOrder
+        .verify(mockEventListener, times(2))
+        .onTimelineChanged(
+            argThat(noUid(placeholderTimeline)),
+            eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(thirdTimeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+    inOrder
+        .verify(mockEventListener)
+        .onTracksChanged(
+            eq(new TrackGroupArray(new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT))), any());
     assertThat(renderer.isEnded).isTrue();
   }
 
