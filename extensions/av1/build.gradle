@@ -29,8 +29,17 @@ android {
 // Configure the native build only if libgav1 is present to avoid gradle sync
 // failures if libgav1 hasn't been built according to the README instructions.
 if (project.file('src/main/jni/libgav1').exists()) {
-    android.externalNativeBuild.cmake.path = 'src/main/jni/CMakeLists.txt'
-    android.externalNativeBuild.cmake.version = '3.7.1+'
+    android.externalNativeBuild.cmake {
+        path = 'src/main/jni/CMakeLists.txt'
+        version = '3.7.1+'
+        if (project.hasProperty('externalNativeBuildDir')) {
+            if (!new File(externalNativeBuildDir).isAbsolute()) {
+                ext.externalNativeBuildDir =
+                        new File(rootDir, it.externalNativeBuildDir)
+            }
+            buildStagingDirectory = "${externalNativeBuildDir}/${project.name}"
+        }
+    }
 }
 
 dependencies {
