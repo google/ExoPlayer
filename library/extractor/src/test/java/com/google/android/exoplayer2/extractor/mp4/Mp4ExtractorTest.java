@@ -74,4 +74,14 @@ public final class Mp4ExtractorTest {
   public void mp4SampleWithEac3jocTrack() throws Exception {
     ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_eac3joc.mp4", simulationConfig);
   }
+
+  @Test
+  public void mp4SampleWithProfile5DolbyVision() throws Exception {
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/dvhe_05_09.mp4", simulationConfig);
+  }
+
+  @Test
+  public void mp4SampleWithProfile8DolbyVision() throws Exception {
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/hev1_08_09.mp4", simulationConfig);
+  }
 }
