@@ -518,6 +518,10 @@
         "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ssa/test-subs-position.ass",
         "subtitle_mime_type": "text/x-ssa",
         "subtitle_language": "en"
+      },
+      {
+        "name": "MPEG-4 Timed Text (tx3g, mov_text)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4"
       }
     ]
   },
