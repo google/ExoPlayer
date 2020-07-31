@@ -52,11 +52,22 @@ public interface ChunkSource {
    *
    * <p>Will only be called if no {@link MediaChunk} in the queue is currently loading.
    *
-   * @param playbackPositionUs The current playback position.
+   * @param playbackPositionUs The current playback position, in microseconds.
    * @param queue The queue of buffered {@link MediaChunk}s.
    * @return The preferred queue size.
    */
   int getPreferredQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue);
+
+  /**
+   * Returns whether an ongoing load of a chunk should be canceled.
+   *
+   * @param playbackPositionUs The current playback position, in microseconds.
+   * @param loadingChunk The currently loading {@link Chunk}.
+   * @param queue The queue of buffered {@link MediaChunk MediaChunks}.
+   * @return Whether the ongoing load of {@code loadingChunk} should be canceled.
+   */
+  boolean shouldCancelLoad(
+      long playbackPositionUs, Chunk loadingChunk, List<? extends MediaChunk> queue);
 
   /**
    * Returns the next chunk to load.

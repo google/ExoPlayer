@@ -103,6 +103,12 @@ public final class FakeChunkSource implements ChunkSource {
   }
 
   @Override
+  public boolean shouldCancelLoad(
+      long playbackPositionUs, Chunk loadingChunk, List<? extends MediaChunk> queue) {
+    return trackSelection.shouldCancelChunkLoad(playbackPositionUs, loadingChunk, queue);
+  }
+
+  @Override
   public void getNextChunk(
       long playbackPositionUs,
       long loadPositionUs,

@@ -187,6 +187,15 @@ public class DefaultSsChunkSource implements SsChunkSource {
   }
 
   @Override
+  public boolean shouldCancelLoad(
+      long playbackPositionUs, Chunk loadingChunk, List<? extends MediaChunk> queue) {
+    if (fatalError != null) {
+      return false;
+    }
+    return trackSelection.shouldCancelChunkLoad(playbackPositionUs, loadingChunk, queue);
+  }
+
+  @Override
   public final void getNextChunk(
       long playbackPositionUs,
       long loadPositionUs,

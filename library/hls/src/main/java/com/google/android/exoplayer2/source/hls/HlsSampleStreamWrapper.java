@@ -1133,6 +1133,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       int discardFromIndex = mediaChunk.getFirstSampleIndex(/* sampleQueueIndex= */ i);
       if (sampleQueues[i].getReadIndex() > discardFromIndex) {
         // Discarding not possible because we already read from the chunk.
+        // TODO: Sparse tracks (e.g. ID3) may prevent discarding in almost all cases because it
+        // means that most chunks have been read from already. See [internal b/161126666].
         return false;
       }
     }

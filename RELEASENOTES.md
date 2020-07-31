@@ -200,6 +200,8 @@
         decoders.
 *   DASH:
     *   Enable support for embedded CEA-708.
+    *   Add support for load cancelation when discarding upstream
+        ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
 *   HLS:
     *   Add support for upstream discard including cancelation of ongoing load
         ([#6322](https://github.com/google/ExoPlayer/issues/6322)).
