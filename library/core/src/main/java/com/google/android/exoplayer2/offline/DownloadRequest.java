@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +36,64 @@ public final class DownloadRequest implements Parcelable {
 
   /** Thrown when the encoded request data belongs to an unsupported request type. */
   public static class UnsupportedRequestException extends IOException {}
+
+  /** A builder for download requests. */
+  public static class Builder {
+    private final String id;
+    private final Uri uri;
+    @Nullable private String mimeType;
+    @Nullable private List<StreamKey> streamKeys;
+    @Nullable private byte[] keySetId;
+    @Nullable private String customCacheKey;
+    @Nullable private byte[] data;
+
+    /** Creates a new instance with the specified id and uri. */
+    public Builder(String id, Uri uri) {
+      this.id = id;
+      this.uri = uri;
+    }
+
+    /** Sets the {@link DownloadRequest#mimeType}. */
+    public Builder setMimeType(@Nullable String mimeType) {
+      this.mimeType = mimeType;
+      return this;
+    }
+
+    /** Sets the {@link DownloadRequest#streamKeys}. */
+    public Builder setStreamKeys(@Nullable List<StreamKey> streamKeys) {
+      this.streamKeys = streamKeys;
+      return this;
+    }
+
+    /** Sets the {@link DownloadRequest#keySetId}. */
+    public Builder setKeySetId(@Nullable byte[] keySetId) {
+      this.keySetId = keySetId;
+      return this;
+    }
+
+    /** Sets the {@link DownloadRequest#customCacheKey}. */
+    public Builder setCustomCacheKey(@Nullable String customCacheKey) {
+      this.customCacheKey = customCacheKey;
+      return this;
+    }
+
+    /** Sets the {@link DownloadRequest#data}. */
+    public Builder setData(@Nullable byte[] data) {
+      this.data = data;
+      return this;
+    }
+
+    public DownloadRequest build() {
+      return new DownloadRequest(
+          id,
+          uri,
+          mimeType,
+          streamKeys != null ? streamKeys : ImmutableList.of(),
+          keySetId,
+          customCacheKey,
+          data);
+    }
+  }
 
   /** The unique content id. */
   public final String id;
@@ -66,7 +125,7 @@ public final class DownloadRequest implements Parcelable {
    * @param customCacheKey See {@link #customCacheKey}.
    * @param data See {@link #data}.
    */
-  public DownloadRequest(
+  private DownloadRequest(
       String id,
       Uri uri,
       @Nullable String mimeType,

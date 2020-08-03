@@ -220,14 +220,10 @@ public class DownloadManagerDashTest {
   private DownloadRequest getDownloadRequest(StreamKey... keys) {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
-    return new DownloadRequest(
-        TEST_ID,
-        TEST_MPD_URI,
-        MimeTypes.APPLICATION_MPD,
-        keysList,
-        /* keySetId= */ null,
-        /* customCacheKey= */ null,
-        null);
+    return new DownloadRequest.Builder(TEST_ID, TEST_MPD_URI)
+        .setMimeType(MimeTypes.APPLICATION_MPD)
+        .setStreamKeys(keysList)
+        .build();
   }
 
   private void handleRemoveAction() {

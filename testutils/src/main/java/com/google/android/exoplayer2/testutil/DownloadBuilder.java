@@ -198,7 +198,13 @@ public final class DownloadBuilder {
 
   public Download build() {
     DownloadRequest request =
-        new DownloadRequest(id, uri, mimeType, streamKeys, keySetId, cacheKey, customMetadata);
+        new DownloadRequest.Builder(id, uri)
+            .setMimeType(mimeType)
+            .setStreamKeys(streamKeys)
+            .setKeySetId(keySetId)
+            .setCustomCacheKey(cacheKey)
+            .setData(customMetadata)
+            .build();
     return new Download(
         request,
         state,

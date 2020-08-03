@@ -140,10 +140,13 @@ import java.util.List;
       // Remove actions are not supported anymore.
       throw new UnsupportedRequestException();
     }
-    // keySetId and mimeType were not supported. Set keySetId to null and try to infer the mime
-    // type from the download type.
-    return new DownloadRequest(
-        id, uri, inferMimeType(downloadType), keys, /* keySetId= */ null, customCacheKey, data);
+
+    return new DownloadRequest.Builder(id, uri)
+        .setMimeType(inferMimeType(downloadType))
+        .setStreamKeys(keys)
+        .setCustomCacheKey(customCacheKey)
+        .setData(data)
+        .build();
   }
 
   private static StreamKey readKey(String type, int version, DataInputStream input)

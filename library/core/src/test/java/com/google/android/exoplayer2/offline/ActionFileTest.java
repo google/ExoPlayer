@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collections;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -126,13 +125,9 @@ public class ActionFileTest {
   }
 
   private static DownloadRequest buildExpectedRequest(Uri uri, byte[] data) {
-    return new DownloadRequest(
-        /* id= */ uri.toString(),
-        uri,
-        /* mimeType= */ MimeTypes.VIDEO_UNKNOWN,
-        /* streamKeys= */ Collections.emptyList(),
-        /* keySetId= */ null,
-        /* customCacheKey= */ null,
-        data);
+    return new DownloadRequest.Builder(/* id= */ uri.toString(), uri)
+        .setMimeType(MimeTypes.VIDEO_UNKNOWN)
+        .setData(data)
+        .build();
   }
 }

@@ -206,14 +206,11 @@ public class DownloadServiceDashTest {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
     DownloadRequest action =
-        new DownloadRequest(
-            TEST_ID,
-            TEST_MPD_URI,
-            MimeTypes.APPLICATION_MPD,
-            keysList,
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            null);
+        new DownloadRequest.Builder(TEST_ID, TEST_MPD_URI)
+            .setMimeType(MimeTypes.APPLICATION_MPD)
+            .setStreamKeys(keysList)
+            .build();
+
     testThread.runOnMainThread(
         () -> {
           Intent startIntent =

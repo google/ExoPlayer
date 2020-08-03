@@ -745,14 +745,11 @@ public final class DownloadHelper {
   public DownloadRequest getDownloadRequest(String id, @Nullable byte[] data) {
     if (mediaSource == null) {
       // TODO: add support for DRM (keySetId) [Internal ref: b/158980798]
-      return new DownloadRequest(
-          id,
-          playbackProperties.uri,
-          playbackProperties.mimeType,
-          /* streamKeys= */ Collections.emptyList(),
-          /* keySetId= */ null,
-          playbackProperties.customCacheKey,
-          data);
+      return new DownloadRequest.Builder(id, playbackProperties.uri)
+          .setMimeType(playbackProperties.mimeType)
+          .setCustomCacheKey(playbackProperties.customCacheKey)
+          .setData(data)
+          .build();
     }
     assertPreparedWithMedia();
     List<StreamKey> streamKeys = new ArrayList<>();
@@ -767,14 +764,12 @@ public final class DownloadHelper {
       streamKeys.addAll(mediaPreparer.mediaPeriods[periodIndex].getStreamKeys(allSelections));
     }
     // TODO: add support for DRM (keySetId) [Internal ref: b/158980798]
-    return new DownloadRequest(
-        id,
-        playbackProperties.uri,
-        playbackProperties.mimeType,
-        streamKeys,
-        /* keySetId= */ null,
-        playbackProperties.customCacheKey,
-        data);
+    return new DownloadRequest.Builder(id, playbackProperties.uri)
+        .setMimeType(playbackProperties.mimeType)
+        .setStreamKeys(streamKeys)
+        .setCustomCacheKey(playbackProperties.customCacheKey)
+        .setData(data)
+        .build();
   }
 
   // Initialization of array of Lists.

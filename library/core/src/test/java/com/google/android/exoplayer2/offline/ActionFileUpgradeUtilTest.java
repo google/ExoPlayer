@@ -66,23 +66,18 @@ public class ActionFileUpgradeUtilTest {
       output.write(actionFileBytes);
     }
     DownloadRequest expectedRequest1 =
-        new DownloadRequest(
-            /* id= */ "http://www.test.com/1/video.mp4",
-            Uri.parse("http://www.test.com/1/video.mp4"),
-            /* mimeType= */ MimeTypes.VIDEO_UNKNOWN,
-            /* streamKeys= */ ImmutableList.of(),
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            /* data= */ null);
+        new DownloadRequest.Builder(
+                /* id= */ "http://www.test.com/1/video.mp4",
+                Uri.parse("http://www.test.com/1/video.mp4"))
+            .setMimeType(MimeTypes.VIDEO_UNKNOWN)
+            .build();
     DownloadRequest expectedRequest2 =
-        new DownloadRequest(
-            /* id= */ "customCacheKey",
-            Uri.parse("http://www.test.com/2/video.mp4"),
-            /* mimeType= */ MimeTypes.VIDEO_UNKNOWN,
-            /* streamKeys= */ ImmutableList.of(),
-            /* keySetId= */ null,
-            /* customCacheKey= */ "customCacheKey",
-            /* data= */ new byte[] {0, 1, 2, 3});
+        new DownloadRequest.Builder(
+                /* id= */ "customCacheKey", Uri.parse("http://www.test.com/2/video.mp4"))
+            .setMimeType(MimeTypes.VIDEO_UNKNOWN)
+            .setCustomCacheKey("customCacheKey")
+            .setData(new byte[] {0, 1, 2, 3})
+            .build();
 
     ActionFileUpgradeUtil.upgradeAndDelete(
         tempFile,
@@ -106,25 +101,22 @@ public class ActionFileUpgradeUtilTest {
       output.write(actionFileBytes);
     }
     DownloadRequest expectedRequest1 =
-        new DownloadRequest(
-            /* id= */ "http://www.test.com/1/manifest.mpd",
-            Uri.parse("http://www.test.com/1/manifest.mpd"),
-            MimeTypes.APPLICATION_MPD,
-            /* streamKeys= */ ImmutableList.of(),
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            /* data= */ null);
+        new DownloadRequest.Builder(
+                /* id= */ "http://www.test.com/1/manifest.mpd",
+                Uri.parse("http://www.test.com/1/manifest.mpd"))
+            .setMimeType(MimeTypes.APPLICATION_MPD)
+            .build();
     DownloadRequest expectedRequest2 =
-        new DownloadRequest(
-            /* id= */ "http://www.test.com/2/manifest.mpd",
-            Uri.parse("http://www.test.com/2/manifest.mpd"),
-            MimeTypes.APPLICATION_MPD,
-            ImmutableList.of(
-                new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0),
-                new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1)),
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            /* data= */ new byte[] {0, 1, 2, 3});
+        new DownloadRequest.Builder(
+                /* id= */ "http://www.test.com/2/manifest.mpd",
+                Uri.parse("http://www.test.com/2/manifest.mpd"))
+            .setMimeType(MimeTypes.APPLICATION_MPD)
+            .setStreamKeys(
+                ImmutableList.of(
+                    new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0),
+                    new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1)))
+            .setData(new byte[] {0, 1, 2, 3})
+            .build();
 
     ActionFileUpgradeUtil.upgradeAndDelete(
         tempFile,
@@ -148,25 +140,22 @@ public class ActionFileUpgradeUtilTest {
       output.write(actionFileBytes);
     }
     DownloadRequest expectedRequest1 =
-        new DownloadRequest(
-            /* id= */ "http://www.test.com/1/manifest.m3u8",
-            Uri.parse("http://www.test.com/1/manifest.m3u8"),
-            MimeTypes.APPLICATION_M3U8,
-            /* streamKeys= */ ImmutableList.of(),
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            /* data= */ null);
+        new DownloadRequest.Builder(
+                /* id= */ "http://www.test.com/1/manifest.m3u8",
+                Uri.parse("http://www.test.com/1/manifest.m3u8"))
+            .setMimeType(MimeTypes.APPLICATION_M3U8)
+            .build();
     DownloadRequest expectedRequest2 =
-        new DownloadRequest(
-            /* id= */ "http://www.test.com/2/manifest.m3u8",
-            Uri.parse("http://www.test.com/2/manifest.m3u8"),
-            MimeTypes.APPLICATION_M3U8,
-            ImmutableList.of(
-                new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0),
-                new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1)),
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            /* data= */ new byte[] {0, 1, 2, 3});
+        new DownloadRequest.Builder(
+                /* id= */ "http://www.test.com/2/manifest.m3u8",
+                Uri.parse("http://www.test.com/2/manifest.m3u8"))
+            .setMimeType(MimeTypes.APPLICATION_M3U8)
+            .setStreamKeys(
+                ImmutableList.of(
+                    new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0),
+                    new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1)))
+            .setData(new byte[] {0, 1, 2, 3})
+            .build();
 
     ActionFileUpgradeUtil.upgradeAndDelete(
         tempFile,
@@ -190,25 +179,22 @@ public class ActionFileUpgradeUtilTest {
       output.write(actionFileBytes);
     }
     DownloadRequest expectedRequest1 =
-        new DownloadRequest(
-            /* id= */ "http://www.test.com/1/video.ism/manifest",
-            Uri.parse("http://www.test.com/1/video.ism/manifest"),
-            MimeTypes.APPLICATION_SS,
-            /* streamKeys= */ ImmutableList.of(),
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            /* data= */ null);
+        new DownloadRequest.Builder(
+                /* id= */ "http://www.test.com/1/video.ism/manifest",
+                Uri.parse("http://www.test.com/1/video.ism/manifest"))
+            .setMimeType(MimeTypes.APPLICATION_SS)
+            .build();
     DownloadRequest expectedRequest2 =
-        new DownloadRequest(
-            /* id= */ "http://www.test.com/2/video.ism/manifest",
-            Uri.parse("http://www.test.com/2/video.ism/manifest"),
-            MimeTypes.APPLICATION_SS,
-            ImmutableList.of(
-                new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0),
-                new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1)),
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            /* data= */ new byte[] {0, 1, 2, 3});
+        new DownloadRequest.Builder(
+                /* id= */ "http://www.test.com/2/video.ism/manifest",
+                Uri.parse("http://www.test.com/2/video.ism/manifest"))
+            .setMimeType(MimeTypes.APPLICATION_SS)
+            .setStreamKeys(
+                ImmutableList.of(
+                    new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0),
+                    new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 1)))
+            .setData(new byte[] {0, 1, 2, 3})
+            .build();
 
     ActionFileUpgradeUtil.upgradeAndDelete(
         tempFile,
@@ -225,16 +211,15 @@ public class ActionFileUpgradeUtilTest {
   @Test
   public void mergeRequest_nonExistingDownload_createsNewDownload() throws IOException {
     DownloadRequest request =
-        new DownloadRequest(
-            /* id= */ "id",
-            Uri.parse("https://www.test.com/download"),
-            /* mimeType= */ null,
-            ImmutableList.of(
-                new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
-                new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5)),
-            /* keySetId= */ new byte[] {1, 2, 3, 4},
-            /* customCacheKey= */ "key123",
-            /* data= */ new byte[] {1, 2, 3, 4});
+        new DownloadRequest.Builder(/* id= */ "id", Uri.parse("https://www.test.com/download"))
+            .setStreamKeys(
+                ImmutableList.of(
+                    new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2),
+                    new StreamKey(/* periodIndex= */ 3, /* groupIndex= */ 4, /* trackIndex= */ 5)))
+            .setKeySetId(new byte[] {1, 2, 3, 4})
+            .setCustomCacheKey("key123")
+            .setData(new byte[] {1, 2, 3, 4})
+            .build();
 
     ActionFileUpgradeUtil.mergeRequest(
         request, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
@@ -249,23 +234,20 @@ public class ActionFileUpgradeUtilTest {
     StreamKey streamKey2 =
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadRequest request1 =
-        new DownloadRequest(
-            /* id= */ "id",
-            Uri.parse("https://www.test.com/download1"),
-            /* mimeType= */ null,
-            ImmutableList.of(streamKey1),
-            /* keySetId= */ new byte[] {1, 2, 3, 4},
-            /* customCacheKey= */ "key123",
-            /* data= */ new byte[] {1, 2, 3, 4});
+        new DownloadRequest.Builder(/* id= */ "id", Uri.parse("https://www.test.com/download1"))
+            .setStreamKeys(ImmutableList.of(streamKey1))
+            .setKeySetId(new byte[] {1, 2, 3, 4})
+            .setCustomCacheKey("key123")
+            .setData(new byte[] {1, 2, 3, 4})
+            .build();
     DownloadRequest request2 =
-        new DownloadRequest(
-            /* id= */ "id",
-            Uri.parse("https://www.test.com/download2"),
-            /* mimeType= */ MimeTypes.APPLICATION_MP4,
-            ImmutableList.of(streamKey2),
-            /* keySetId= */ new byte[] {5, 4, 3, 2, 1},
-            /* customCacheKey= */ "key345",
-            /* data= */ new byte[] {5, 4, 3, 2, 1});
+        new DownloadRequest.Builder(/* id= */ "id", Uri.parse("https://www.test.com/download2"))
+            .setMimeType(MimeTypes.APPLICATION_MP4)
+            .setStreamKeys(ImmutableList.of(streamKey2))
+            .setKeySetId(new byte[] {5, 4, 3, 2, 1})
+            .setCustomCacheKey("key345")
+            .setData(new byte[] {5, 4, 3, 2, 1})
+            .build();
 
     ActionFileUpgradeUtil.mergeRequest(
         request1, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
@@ -290,23 +272,19 @@ public class ActionFileUpgradeUtilTest {
     StreamKey streamKey2 =
         new StreamKey(/* periodIndex= */ 0, /* groupIndex= */ 1, /* trackIndex= */ 2);
     DownloadRequest request1 =
-        new DownloadRequest(
-            /* id= */ "id1",
-            Uri.parse("https://www.test.com/download1"),
-            /* mimeType= */ null,
-            ImmutableList.of(streamKey1),
-            /* keySetId= */ new byte[] {1, 2, 3, 4},
-            /* customCacheKey= */ "key123",
-            /* data= */ new byte[] {1, 2, 3, 4});
+        new DownloadRequest.Builder(/* id= */ "id1", Uri.parse("https://www.test.com/download1"))
+            .setStreamKeys(ImmutableList.of(streamKey1))
+            .setKeySetId(new byte[] {1, 2, 3, 4})
+            .setCustomCacheKey("key123")
+            .setData(new byte[] {1, 2, 3, 4})
+            .build();
     DownloadRequest request2 =
-        new DownloadRequest(
-            /* id= */ "id2",
-            Uri.parse("https://www.test.com/download2"),
-            /* mimeType= */ null,
-            ImmutableList.of(streamKey2),
-            /* keySetId= */ new byte[] {5, 4, 3, 2, 1},
-            /* customCacheKey= */ "key123",
-            /* data= */ new byte[] {5, 4, 3, 2, 1});
+        new DownloadRequest.Builder(/* id= */ "id2", Uri.parse("https://www.test.com/download2"))
+            .setStreamKeys(ImmutableList.of(streamKey2))
+            .setKeySetId(new byte[] {5, 4, 3, 2, 1})
+            .setCustomCacheKey("key456")
+            .setData(new byte[] {5, 4, 3, 2, 1})
+            .build();
     ActionFileUpgradeUtil.mergeRequest(
         request1, downloadIndex, /* addNewDownloadAsCompleted= */ false, NOW_MS);
 

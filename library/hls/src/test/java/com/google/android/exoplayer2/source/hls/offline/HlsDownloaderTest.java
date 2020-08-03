@@ -110,14 +110,12 @@ public class HlsDownloaderTest {
 
     Downloader downloader =
         factory.createDownloader(
-            new DownloadRequest(
-                "id",
-                Uri.parse("https://www.test.com/download"),
-                MimeTypes.APPLICATION_M3U8,
-                Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
-                /* keySetId= */ null,
-                /* customCacheKey= */ null,
-                /* data= */ null));
+            new DownloadRequest.Builder(/* id= */ "id", Uri.parse("https://www.test.com/download"))
+                .setMimeType(MimeTypes.APPLICATION_M3U8)
+                .setStreamKeys(
+                    Collections.singletonList(
+                        new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)))
+                .build());
     assertThat(downloader).isInstanceOf(HlsDownloader.class);
   }
 

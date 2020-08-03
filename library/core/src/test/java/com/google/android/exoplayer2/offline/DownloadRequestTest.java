@@ -16,14 +16,13 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
 import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,24 +42,10 @@ public class DownloadRequestTest {
 
   @Test
   public void mergeRequests_withDifferentIds_fails() {
-    DownloadRequest request1 =
-        new DownloadRequest(
-            /* id= */ "id1",
-            uri1,
-            /* mimeType= */ null,
-            /* streamKeys= */ Collections.emptyList(),
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            /* data= */ null);
-    DownloadRequest request2 =
-        new DownloadRequest(
-            /* id= */ "id2",
-            uri2,
-            /* mimeType= */ null,
-            /* streamKeys= */ Collections.emptyList(),
-            /* keySetId= */ null,
-            /* customCacheKey= */ null,
-            /* data= */ null);
+
+    DownloadRequest request1 = new DownloadRequest.Builder(/* id= */ "id1", uri1).build();
+    DownloadRequest request2 = new DownloadRequest.Builder(/* id= */ "id2", uri2).build();
+
     try {
       request1.copyWithMergedRequest(request2);
       fail();
@@ -114,23 +99,17 @@ public class DownloadRequestTest {
     byte[] data2 = new byte[] {9, 10, 11};
 
     DownloadRequest request1 =
-        new DownloadRequest(
-            /* id= */ "id1",
-            uri1,
-            /* mimeType= */ null,
-            /* streamKeys= */ Collections.emptyList(),
-            keySetId1,
-            /* customCacheKey= */ "key1",
-            data1);
+        new DownloadRequest.Builder(/* id= */ "id1", uri1)
+            .setKeySetId(keySetId1)
+            .setCustomCacheKey("key1")
+            .setData(data1)
+            .build();
     DownloadRequest request2 =
-        new DownloadRequest(
-            /* id= */ "id1",
-            uri2,
-            /* mimeType= */ null,
-            /* streamKeys= */ Collections.emptyList(),
-            keySetId2,
-            /* customCacheKey= */ "key2",
-            data2);
+        new DownloadRequest.Builder(/* id= */ "id1", uri2)
+            .setKeySetId(keySetId2)
+            .setCustomCacheKey("key2")
+            .setData(data2)
+            .build();
 
     // uri, keySetId, customCacheKey and data should be from the request being merged.
     DownloadRequest mergedRequest = request1.copyWithMergedRequest(request2);
@@ -152,14 +131,12 @@ public class DownloadRequestTest {
     streamKeys.add(new StreamKey(1, 2, 3));
     streamKeys.add(new StreamKey(4, 5, 6));
     DownloadRequest requestToParcel =
-        new DownloadRequest(
-            /* id= */ "id",
-            Uri.parse("https://abc.def/ghi"),
-            /* mimeType= */ null,
-            streamKeys,
-            /* keySetId= */ new byte[] {1, 2, 3, 4, 5},
-            /* customCacheKey= */ "key",
-            /* data= */ new byte[] {1, 2, 3, 4, 5});
+        new DownloadRequest.Builder("id", Uri.parse("https://abc.def/ghi"))
+            .setStreamKeys(streamKeys)
+            .setKeySetId(new byte[] {1, 2, 3, 4, 5})
+            .setCustomCacheKey("key")
+            .setData(new byte[] {1, 2, 3, 4, 5})
+            .build();
     Parcel parcel = Parcel.obtain();
     requestToParcel.writeToParcel(parcel, 0);
     parcel.setDataPosition(0);
@@ -217,19 +194,6 @@ public class DownloadRequestTest {
   }
 
   private static DownloadRequest createRequest(Uri uri, StreamKey... keys) {
-    return new DownloadRequest(
-        uri.toString(),
-        uri,
-        /* mimeType= */ null,
-        toList(keys),
-        /* keySetId= */ null,
-        /* customCacheKey= */ null,
-        /* data= */ null);
-  }
-
-  private static List<StreamKey> toList(StreamKey... keys) {
-    ArrayList<StreamKey> keysList = new ArrayList<>();
-    Collections.addAll(keysList, keys);
-    return keysList;
+    return new DownloadRequest.Builder(uri.toString(), uri).setStreamKeys(asList(keys)).build();
   }
 }

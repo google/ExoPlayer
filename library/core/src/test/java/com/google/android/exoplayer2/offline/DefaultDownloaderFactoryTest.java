@@ -22,7 +22,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -42,14 +41,8 @@ public final class DefaultDownloaderFactoryTest {
 
     Downloader downloader =
         factory.createDownloader(
-            new DownloadRequest(
-                /* id= */ "id",
-                Uri.parse("https://www.test.com/download"),
-                /* mimeType= */ null,
-                /* streamKeys= */ Collections.emptyList(),
-                /* keySetId= */ null,
-                /* customCacheKey= */ null,
-                /* data= */ null));
+            new DownloadRequest.Builder(/* id= */ "id", Uri.parse("https://www.test.com/download"))
+                .build());
     assertThat(downloader).isInstanceOf(ProgressiveDownloader.class);
   }
 }

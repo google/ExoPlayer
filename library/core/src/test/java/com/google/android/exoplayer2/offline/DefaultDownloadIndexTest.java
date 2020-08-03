@@ -385,15 +385,15 @@ public class DefaultDownloadIndexTest {
 
   private static Download createDownload(
       String uri, String mimeType, List<StreamKey> streamKeys, @Nullable String customCacheKey) {
+    DownloadRequest downloadRequest =
+        new DownloadRequest.Builder(uri, Uri.parse(uri))
+            .setMimeType(mimeType)
+            .setStreamKeys(streamKeys)
+            .setCustomCacheKey(customCacheKey)
+            .setData(new byte[] {0, 1, 2, 3})
+            .build();
     return new Download(
-        new DownloadRequest(
-            uri,
-            Uri.parse(uri),
-            mimeType,
-            streamKeys,
-            /* keySetId= */ null,
-            customCacheKey,
-            /* data= */ new byte[] {0, 1, 2, 3}),
+        downloadRequest,
         /* state= */ STATE_STOPPED,
         /* startTimeMs= */ 1,
         /* updateTimeMs= */ 2,

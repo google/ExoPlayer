@@ -434,14 +434,15 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   private static Download getDownloadForCurrentRow(Cursor cursor) {
     byte[] keySetId = cursor.getBlob(COLUMN_INDEX_KEY_SET_ID);
     DownloadRequest request =
-        new DownloadRequest(
-            /* id= */ cursor.getString(COLUMN_INDEX_ID),
-            /* uri= */ Uri.parse(cursor.getString(COLUMN_INDEX_URI)),
-            /* mimeType= */ cursor.getString(COLUMN_INDEX_MIME_TYPE),
-            /* streamKeys= */ decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)),
-            /* keySetId= */ keySetId.length > 0 ? keySetId : null,
-            /* customCacheKey= */ cursor.getString(COLUMN_INDEX_CUSTOM_CACHE_KEY),
-            /* data= */ cursor.getBlob(COLUMN_INDEX_DATA));
+        new DownloadRequest.Builder(
+                /* id= */ cursor.getString(COLUMN_INDEX_ID),
+                /* uri= */ Uri.parse(cursor.getString(COLUMN_INDEX_URI)))
+            .setMimeType(cursor.getString(COLUMN_INDEX_MIME_TYPE))
+            .setStreamKeys(decodeStreamKeys(cursor.getString(COLUMN_INDEX_STREAM_KEYS)))
+            .setKeySetId(keySetId.length > 0 ? keySetId : null)
+            .setCustomCacheKey(cursor.getString(COLUMN_INDEX_CUSTOM_CACHE_KEY))
+            .setData(cursor.getBlob(COLUMN_INDEX_DATA))
+            .build();
     DownloadProgress downloadProgress = new DownloadProgress();
     downloadProgress.bytesDownloaded = cursor.getLong(COLUMN_INDEX_BYTES_DOWNLOADED);
     downloadProgress.percentDownloaded = cursor.getFloat(COLUMN_INDEX_PERCENT_DOWNLOADED);
@@ -485,14 +486,13 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
      * 13     bytes_downloaded    integer
      */
     DownloadRequest request =
-        new DownloadRequest(
-            /* id= */ cursor.getString(0),
-            /* uri= */ Uri.parse(cursor.getString(2)),
-            /* mimeType= */ inferMimeType(cursor.getString(1)),
-            /* streamKeys= */ decodeStreamKeys(cursor.getString(3)),
-            /* keySetId= */ null,
-            /* customCacheKey= */ cursor.getString(4),
-            /* data= */ cursor.getBlob(5));
+        new DownloadRequest.Builder(
+                /* id= */ cursor.getString(0), /* uri= */ Uri.parse(cursor.getString(2)))
+            .setMimeType(inferMimeType(cursor.getString(1)))
+            .setStreamKeys(decodeStreamKeys(cursor.getString(3)))
+            .setCustomCacheKey(cursor.getString(4))
+            .setData(cursor.getBlob(5))
+            .build();
     DownloadProgress downloadProgress = new DownloadProgress();
     downloadProgress.bytesDownloaded = cursor.getLong(13);
     downloadProgress.percentDownloaded = cursor.getFloat(12);

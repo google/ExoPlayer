@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.Arrays.asList;
 
 import android.net.Uri;
 import androidx.annotation.GuardedBy;
@@ -33,7 +34,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -785,14 +785,9 @@ public class DownloadManagerTest {
   }
 
   private static DownloadRequest createDownloadRequest(String id, StreamKey... keys) {
-    return new DownloadRequest(
-        id,
-        Uri.parse("http://abc.com/ " + id),
-        /* mimeType= */ null,
-        Arrays.asList(keys),
-        /* keySetId= */ null,
-        /* customCacheKey= */ null,
-        /* data= */ null);
+    return new DownloadRequest.Builder(id, Uri.parse("http://abc.com/ " + id))
+        .setStreamKeys(asList(keys))
+        .build();
   }
 
   // Internal methods.
