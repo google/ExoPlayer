@@ -171,7 +171,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isDynamic= */ false,
                 /* durationUs= */ 10_000_000,
                 FakeTimeline.createAdPlaybackState(
-                    /* adsPerGroup= */ 1, /* adGroupTimesUs... */ 0)));
+                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs... */ 0)));
     MediaPeriodId adMediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0),
@@ -557,7 +557,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isDynamic= */ false,
                 /* durationUs= */ 10_000_000,
                 FakeTimeline.createAdPlaybackState(
-                    /* adsPerGroup= */ 1, /* adGroupTimesUs... */ 0)));
+                    /* adsPerAdGroup= */ 1, /* adGroupTimesUs... */ 0)));
     MediaPeriodId contentMediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
