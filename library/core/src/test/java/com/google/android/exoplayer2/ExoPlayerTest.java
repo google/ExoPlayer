@@ -8363,6 +8363,9 @@ public final class ExoPlayerTest {
     public void stop() {}
 
     @Override
+    public void handlePrepareComplete(int adGroupIndex, int adIndexInAdGroup) {}
+
+    @Override
     public void handlePrepareError(int adGroupIndex, int adIndexInAdGroup, IOException exception) {}
   }
 

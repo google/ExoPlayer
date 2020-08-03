@@ -68,6 +68,8 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
@@ -78,7 +80,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -415,7 +416,7 @@ public final class ImaAdsLoader
   private final ComponentListener componentListener;
   private final List<VideoAdPlayer.VideoAdPlayerCallback> adCallbacks;
   private final Runnable updateAdProgressRunnable;
-  private final Map<AdMediaInfo, AdInfo> adInfoByAdMediaInfo;
+  private final BiMap<AdMediaInfo, AdInfo> adInfoByAdMediaInfo;
 
   private @MonotonicNonNull AdDisplayContainer adDisplayContainer;
   private @MonotonicNonNull AdsLoader adsLoader;
@@ -563,7 +564,7 @@ public final class ImaAdsLoader
     componentListener = new ComponentListener();
     adCallbacks = new ArrayList<>(/* initialCapacity= */ 1);
     updateAdProgressRunnable = this::updateAdProgress;
-    adInfoByAdMediaInfo = new HashMap<>();
+    adInfoByAdMediaInfo = HashBiMap.create();
     supportedMimeTypes = Collections.emptyList();
     lastContentProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     lastAdProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
@@ -749,6 +750,22 @@ public final class ImaAdsLoader
     adPlaybackState = AdPlaybackState.NONE;
     hasAdPlaybackState = true;
     updateAdPlaybackState();
+  }
+
+  @Override
+  public void handlePrepareComplete(int adGroupIndex, int adIndexInAdGroup) {
+    AdInfo adInfo = new AdInfo(adGroupIndex, adIndexInAdGroup);
+    if (DEBUG) {
+      Log.d(TAG, "Prepared ad " + adInfo);
+    }
+    @Nullable AdMediaInfo adMediaInfo = adInfoByAdMediaInfo.inverse().get(adInfo);
+    if (adMediaInfo != null) {
+      for (int i = 0; i < adCallbacks.size(); i++) {
+        adCallbacks.get(i).onLoaded(adMediaInfo);
+      }
+    } else {
+      Log.w(TAG, "Unexpected prepared ad " + adInfo);
+    }
   }
 
   @Override

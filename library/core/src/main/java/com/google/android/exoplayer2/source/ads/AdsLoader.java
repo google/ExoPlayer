@@ -211,6 +211,15 @@ public interface AdsLoader {
   void stop();
 
   /**
+   * Notifies the ads loader that preparation of an ad media period is complete. Called on the main
+   * thread by {@link AdsMediaSource}.
+   *
+   * @param adGroupIndex The index of the ad group.
+   * @param adIndexInAdGroup The index of the ad in the ad group.
+   */
+  void handlePrepareComplete(int adGroupIndex, int adIndexInAdGroup);
+
+  /**
    * Notifies the ads loader that the player was not able to prepare media for a given ad.
    * Implementations should update the ad playback state as the specified ad has failed to load.
    * Called on the main thread by {@link AdsMediaSource}.

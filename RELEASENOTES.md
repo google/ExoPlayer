@@ -260,6 +260,7 @@
         `AdsLoader.AdViewProvider`.
     *   Add `ImaAdsLoader.Builder.setCompanionAdSlots` so it's possible to set
         companion ad slots without accessing the `AdDisplayContainer`.
+    *   Add missing notification of `VideoAdPlayerCallback.onLoaded`.
 *   Demo app:
     *   Retain previous position in list of samples.
     *   Replace the `extensions` variant with `decoderExtensions` and make the
