@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.drm.DefaultDrmSessionManager.MODE_PLAYBACK;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
@@ -317,15 +319,22 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         || Util.SDK_INT < 18) {
       return drmSessionManager;
     }
-    return new DefaultDrmSessionManager.Builder()
-        .setUuidAndExoMediaDrmProvider(
-            mediaItem.playbackProperties.drmConfiguration.uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
-        .setMultiSession(mediaItem.playbackProperties.drmConfiguration.multiSession)
-        .setPlayClearSamplesWithoutKeys(
-            mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey)
-        .setUseDrmSessionsForClearContent(
-            Ints.toArray(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes))
-        .build(createHttpMediaDrmCallback(mediaItem.playbackProperties.drmConfiguration));
+    DefaultDrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(
+                mediaItem.playbackProperties.drmConfiguration.uuid,
+                FrameworkMediaDrm.DEFAULT_PROVIDER)
+            .setMultiSession(mediaItem.playbackProperties.drmConfiguration.multiSession)
+            .setPlayClearSamplesWithoutKeys(
+                mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey)
+            .setUseDrmSessionsForClearContent(
+                Ints.toArray(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes))
+            .build(createHttpMediaDrmCallback(mediaItem.playbackProperties.drmConfiguration));
+
+    drmSessionManager.setMode(
+        MODE_PLAYBACK, mediaItem.playbackProperties.drmConfiguration.getKeySetId());
+
+    return drmSessionManager;
   }
 
   private MediaDrmCallback createHttpMediaDrmCallback(MediaItem.DrmConfiguration drmConfiguration) {
