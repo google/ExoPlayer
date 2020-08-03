@@ -29,11 +29,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 
-/**
- * Opus decoder.
- */
-/* package */ final class OpusDecoder extends
-    SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, OpusDecoderException> {
+/** Opus decoder. */
+/* package */ final class OpusDecoder
+    extends SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, OpusDecoderException> {
 
   private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
 
@@ -52,6 +50,7 @@ import java.util.List;
   private final long nativeDecoderContext;
 
   private int skipSamples;
+  private final boolean outputFloat;
 
   /**
    * Creates an Opus decoder.
@@ -64,6 +63,7 @@ import java.util.List;
    *     the encoder delay and seek pre roll values in nanoseconds, encoded as longs.
    * @param exoMediaCrypto The {@link ExoMediaCrypto} object required for decoding encrypted
    *     content. Maybe null and can be ignored if decoder does not handle encrypted content.
+   * @param outputFloat Forces the decoder to output float PCM samples when set
    * @throws OpusDecoderException Thrown if an exception occurs when initializing the decoder.
    */
   public OpusDecoder(
@@ -71,7 +71,8 @@ import java.util.List;
       int numOutputBuffers,
       int initialInputBufferSize,
       List<byte[]> initializationData,
-      @Nullable ExoMediaCrypto exoMediaCrypto)
+      @Nullable ExoMediaCrypto exoMediaCrypto,
+      boolean outputFloat)
       throws OpusDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     if (!OpusLibrary.isAvailable()) {
@@ -127,12 +128,17 @@ import java.util.List;
       headerSkipSamples = preskip;
       headerSeekPreRollSamples = DEFAULT_SEEK_PRE_ROLL_SAMPLES;
     }
-    nativeDecoderContext = opusInit(SAMPLE_RATE, channelCount, numStreams, numCoupled, gain,
-        streamMap);
+    nativeDecoderContext =
+        opusInit(SAMPLE_RATE, channelCount, numStreams, numCoupled, gain, streamMap);
     if (nativeDecoderContext == 0) {
       throw new OpusDecoderException("Failed to initialize decoder");
     }
     setInitialInputBufferSize(initialInputBufferSize);
+
+    this.outputFloat = outputFloat;
+    if (outputFloat) {
+      opusSetFloatOutput();
+    }
   }
 
   @Override
@@ -192,8 +198,8 @@ import java.util.List;
     if (result < 0) {
       if (result == DRM_ERROR) {
         String message = "Drm error: " + opusGetErrorMessage(nativeDecoderContext);
-        DecryptionException cause = new DecryptionException(
-            opusGetErrorCode(nativeDecoderContext), message);
+        DecryptionException cause =
+            new DecryptionException(opusGetErrorCode(nativeDecoderContext), message);
         return new OpusDecoderException(message, cause);
       } else {
         return new OpusDecoderException("Decode error: " + opusGetErrorMessage(result));
@@ -224,16 +230,12 @@ import java.util.List;
     opusClose(nativeDecoderContext);
   }
 
-  /**
-   * Returns the channel count of output audio.
-   */
+  /** Returns the channel count of output audio. */
   public int getChannelCount() {
     return channelCount;
   }
 
-  /**
-   * Returns the sample rate of output audio.
-   */
+  /** Returns the sample rate of output audio. */
   public int getSampleRate() {
     return SAMPLE_RATE;
   }
@@ -252,9 +254,14 @@ import java.util.List;
     return (short) readUnsignedLittleEndian16(input, offset);
   }
 
-  private native long opusInit(int sampleRate, int channelCount, int numStreams, int numCoupled,
-      int gain, byte[] streamMap);
-  private native int opusDecode(long decoder, long timeUs, ByteBuffer inputBuffer, int inputSize,
+  private native long opusInit(
+      int sampleRate, int channelCount, int numStreams, int numCoupled, int gain, byte[] streamMap);
+
+  private native int opusDecode(
+      long decoder,
+      long timeUs,
+      ByteBuffer inputBuffer,
+      int inputSize,
       SimpleOutputBuffer outputBuffer);
 
   private native int opusSecureDecode(
@@ -273,8 +280,12 @@ import java.util.List;
       @Nullable int[] numBytesOfEncryptedData);
 
   private native void opusClose(long decoder);
+
   private native void opusReset(long decoder);
+
   private native int opusGetErrorCode(long decoder);
+
   private native String opusGetErrorMessage(long decoder);
 
+  private native void opusSetFloatOutput();
 }

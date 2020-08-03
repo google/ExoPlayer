@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
+import com.google.android.exoplayer2.audio.AudioSink.SinkFormatSupport;
 import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -39,6 +40,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
 
   private int channelCount;
   private int sampleRate;
+  private boolean outputFloat;
 
   public LibopusAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -102,6 +104,12 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
   protected OpusDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
       throws OpusDecoderException {
     TraceUtil.beginSection("createOpusDecoder");
+    @SinkFormatSupport
+    int formatSupport =
+        getSinkFormatSupport(
+            Util.getPcmFormat(C.ENCODING_PCM_FLOAT, format.channelCount, format.sampleRate));
+    outputFloat = formatSupport == AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
+
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
     OpusDecoder decoder =
@@ -110,15 +118,18 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
             NUM_BUFFERS,
             initialInputBufferSize,
             format.initializationData,
-            mediaCrypto);
+            mediaCrypto,
+            outputFloat);
     channelCount = decoder.getChannelCount();
     sampleRate = decoder.getSampleRate();
+
     TraceUtil.endSection();
     return decoder;
   }
 
   @Override
   protected Format getOutputFormat() {
-    return Util.getPcmFormat(C.ENCODING_PCM_16BIT, channelCount, sampleRate);
+    @C.PcmEncoding int pcmEncoding = outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
+    return Util.getPcmFormat(pcmEncoding, channelCount, sampleRate);
   }
 }

@@ -199,6 +199,8 @@
         Codec2 MP3 decoder having lower timestamps on the output side.
     *   Propagate gapless audio metadata without the need to recreate the audio
         decoders.
+    *   Add floating point PCM output capability in `MediaCodecAudioRenderer`,
+        and `LibopusAudioRenderer`.
 *   DASH:
     *   Enable support for embedded CEA-708.
     *   Add support for load cancelation when discarding upstream
