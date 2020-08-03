@@ -397,6 +397,23 @@
             "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
           }
         ]
+      },
+      {
+        "name": "Manual ad insertion",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4",
+            "clip_end_position_ms": 10000
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4",
+            "clip_end_position_ms": 5000
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4",
+            "clip_start_position_ms": 10000
+          }
+        ]
       }
     ]
   },

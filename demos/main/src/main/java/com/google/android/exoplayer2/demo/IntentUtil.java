@@ -62,6 +62,8 @@ public class IntentUtil {
   public static final String URI_EXTRA = "uri";
   public static final String IS_LIVE_EXTRA = "is_live";
   public static final String MIME_TYPE_EXTRA = "mime_type";
+  public static final String START_POSITION_MS_EXTRA = "start_position_ms";
+  public static final String END_POSITION_MS_EXTRA = "end_position_ms";
   // For backwards compatibility only.
   public static final String EXTENSION_EXTRA = "extension";
 
@@ -87,13 +89,11 @@ public class IntentUtil {
     if (ACTION_VIEW_LIST.equals(intent.getAction())) {
       int index = 0;
       while (intent.hasExtra(URI_EXTRA + "_" + index)) {
-        Uri uri = Uri.parse(intent.getStringExtra(URI_EXTRA + "_" + index));
+        String extrasSuffix = "_" + index;
+        Uri uri = Uri.parse(intent.getStringExtra(URI_EXTRA + extrasSuffix));
         mediaItems.add(
             createMediaItemFromIntent(
-                uri,
-                intent,
-                /* extrasKeySuffix= */ "_" + index,
-                downloadTracker.getDownloadRequest(uri)));
+                uri, intent, extrasSuffix, downloadTracker.getDownloadRequest(uri)));
         index++;
       }
     } else {
@@ -109,17 +109,22 @@ public class IntentUtil {
   public static void addToIntent(List<MediaItem> mediaItems, Intent intent) {
     Assertions.checkArgument(!mediaItems.isEmpty());
     if (mediaItems.size() == 1) {
-      MediaItem.PlaybackProperties playbackProperties =
-          checkNotNull(mediaItems.get(0).playbackProperties);
-      intent.setAction(IntentUtil.ACTION_VIEW).setData(playbackProperties.uri);
+      MediaItem mediaItem = mediaItems.get(0);
+      MediaItem.PlaybackProperties playbackProperties = checkNotNull(mediaItem.playbackProperties);
+      intent.setAction(ACTION_VIEW).setData(mediaItem.playbackProperties.uri);
       addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "");
+      addClippingPropertiesToIntent(
+          mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "");
     } else {
-      intent.setAction(IntentUtil.ACTION_VIEW_LIST);
+      intent.setAction(ACTION_VIEW_LIST);
       for (int i = 0; i < mediaItems.size(); i++) {
+        MediaItem mediaItem = mediaItems.get(i);
         MediaItem.PlaybackProperties playbackProperties =
-            checkNotNull(mediaItems.get(i).playbackProperties);
-        intent.putExtra(IntentUtil.URI_EXTRA + ("_" + i), playbackProperties.uri.toString());
+            checkNotNull(mediaItem.playbackProperties);
+        intent.putExtra(URI_EXTRA + ("_" + i), playbackProperties.uri.toString());
         addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "_" + i);
+        addClippingPropertiesToIntent(
+            mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "_" + i);
       }
     }
   }
@@ -156,7 +161,12 @@ public class IntentUtil {
             .setCustomCacheKey(downloadRequest != null ? downloadRequest.customCacheKey : null)
             .setMimeType(mimeType)
             .setAdTagUri(intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix))
-            .setSubtitles(createSubtitlesFromIntent(intent, extrasKeySuffix));
+            .setSubtitles(createSubtitlesFromIntent(intent, extrasKeySuffix))
+            .setClipStartPositionMs(
+                intent.getLongExtra(START_POSITION_MS_EXTRA + extrasKeySuffix, 0))
+            .setClipEndPositionMs(
+                intent.getLongExtra(END_POSITION_MS_EXTRA + extrasKeySuffix, C.TIME_END_OF_SOURCE));
+
     return populateDrmPropertiesFromIntent(builder, intent, extrasKeySuffix).build();
   }
 
@@ -278,5 +288,16 @@ public class IntentUtil {
     }
     intent.putExtra(
         DRM_SESSION_FOR_CLEAR_TYPES_EXTRA + extrasKeySuffix, typeStrings.toArray(new String[0]));
+  }
+
+  private static void addClippingPropertiesToIntent(
+      MediaItem.ClippingProperties clippingProperties, Intent intent, String extrasKeySuffix) {
+    if (clippingProperties.startPositionMs != 0) {
+      intent.putExtra(
+          START_POSITION_MS_EXTRA + extrasKeySuffix, clippingProperties.startPositionMs);
+    }
+    if (clippingProperties.endPositionMs != C.TIME_END_OF_SOURCE) {
+      intent.putExtra(END_POSITION_MS_EXTRA + extrasKeySuffix, clippingProperties.endPositionMs);
+    }
   }
 }

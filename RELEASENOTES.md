@@ -262,6 +262,8 @@
         companion ad slots without accessing the `AdDisplayContainer`.
     *   Add missing notification of `VideoAdPlayerCallback.onLoaded`.
 *   Demo app:
+    *   Support clip start/end points in `exolist.json` and demostrate manual ad
+        insertion.
     *   Retain previous position in list of samples.
     *   Replace the `extensions` variant with `decoderExtensions` and make the
         demo app use the Cronet and IMA extensions by default.

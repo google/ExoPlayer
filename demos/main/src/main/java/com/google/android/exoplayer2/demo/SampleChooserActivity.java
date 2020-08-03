@@ -412,6 +412,12 @@ public class SampleChooserActivity extends AppCompatActivity
             }
             reader.endArray();
             break;
+          case "clip_start_position_ms":
+            mediaItem.setClipStartPositionMs(reader.nextLong());
+            break;
+          case "clip_end_position_ms":
+            mediaItem.setClipEndPositionMs(reader.nextLong());
+            break;
           case "ad_tag_uri":
             mediaItem.setAdTagUri(reader.nextString());
             break;
