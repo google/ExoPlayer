@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.demo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaDrm;
@@ -29,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -41,6 +44,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -52,13 +56,13 @@ import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -321,8 +325,7 @@ public class PlayerActivity extends AppCompatActivity
     }
 
     List<MediaItem> mediaItems =
-        IntentUtil.createMediaItemsFromIntent(
-            intent, DemoUtil.getDownloadTracker(/* context= */ this));
+        createMediaItems(intent, DemoUtil.getDownloadTracker(/* context= */ this));
     boolean hasAds = false;
     for (int i = 0; i < mediaItems.size(); i++) {
       MediaItem mediaItem = mediaItems.get(i);
@@ -337,7 +340,7 @@ public class PlayerActivity extends AppCompatActivity
       }
 
       MediaItem.DrmConfiguration drmConfiguration =
-          Assertions.checkNotNull(mediaItem.playbackProperties).drmConfiguration;
+          checkNotNull(mediaItem.playbackProperties).drmConfiguration;
       if (drmConfiguration != null) {
         if (Util.SDK_INT < 18) {
           showToast(R.string.error_drm_unsupported_before_api_18);
@@ -541,7 +544,28 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     public AdsLoader.AdViewProvider getAdViewProvider() {
-      return Assertions.checkNotNull(playerView);
+      return checkNotNull(playerView);
     }
+  }
+
+  private static List<MediaItem> createMediaItems(Intent intent, DownloadTracker downloadTracker) {
+    List<MediaItem> mediaItems = new ArrayList<>();
+    for (MediaItem item : IntentUtil.createMediaItemsFromIntent(intent)) {
+      @Nullable
+      DownloadRequest downloadRequest =
+          downloadTracker.getDownloadRequest(checkNotNull(item.playbackProperties).uri);
+      if (downloadRequest != null) {
+        MediaItem mediaItem =
+            item.buildUpon()
+                .setStreamKeys(downloadRequest.streamKeys)
+                .setCustomCacheKey(downloadRequest.customCacheKey)
+                .setDrmKeySetId(downloadRequest.keySetId)
+                .build();
+        mediaItems.add(mediaItem);
+      } else {
+        mediaItems.add(item);
+      }
+    }
+    return mediaItems;
   }
 }

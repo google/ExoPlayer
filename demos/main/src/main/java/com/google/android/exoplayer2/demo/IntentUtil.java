@@ -23,7 +23,6 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -62,8 +61,8 @@ public class IntentUtil {
   public static final String URI_EXTRA = "uri";
   public static final String IS_LIVE_EXTRA = "is_live";
   public static final String MIME_TYPE_EXTRA = "mime_type";
-  public static final String START_POSITION_MS_EXTRA = "start_position_ms";
-  public static final String END_POSITION_MS_EXTRA = "end_position_ms";
+  public static final String CLIP_START_POSITION_MS_EXTRA = "clip_start_position_ms";
+  public static final String CLIP_END_POSITION_MS_EXTRA = "clip_end_position_ms";
   // For backwards compatibility only.
   public static final String EXTENSION_EXTRA = "extension";
 
@@ -83,24 +82,18 @@ public class IntentUtil {
   public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
 
   /** Creates a list of {@link MediaItem media items} from an {@link Intent}. */
-  public static List<MediaItem> createMediaItemsFromIntent(
-      Intent intent, DownloadTracker downloadTracker) {
+  public static List<MediaItem> createMediaItemsFromIntent(Intent intent) {
     List<MediaItem> mediaItems = new ArrayList<>();
     if (ACTION_VIEW_LIST.equals(intent.getAction())) {
       int index = 0;
       while (intent.hasExtra(URI_EXTRA + "_" + index)) {
-        String extrasSuffix = "_" + index;
-        Uri uri = Uri.parse(intent.getStringExtra(URI_EXTRA + extrasSuffix));
-        mediaItems.add(
-            createMediaItemFromIntent(
-                uri, intent, extrasSuffix, downloadTracker.getDownloadRequest(uri)));
+        Uri uri = Uri.parse(intent.getStringExtra(URI_EXTRA + "_" + index));
+        mediaItems.add(createMediaItemFromIntent(uri, intent, /* extrasKeySuffix= */ "_" + index));
         index++;
       }
     } else {
       Uri uri = intent.getData();
-      mediaItems.add(
-          createMediaItemFromIntent(
-              uri, intent, /* extrasKeySuffix= */ "", downloadTracker.getDownloadRequest(uri)));
+      mediaItems.add(createMediaItemFromIntent(uri, intent, /* extrasKeySuffix= */ ""));
     }
     return mediaItems;
   }
@@ -147,7 +140,7 @@ public class IntentUtil {
   }
 
   private static MediaItem createMediaItemFromIntent(
-      Uri uri, Intent intent, String extrasKeySuffix, @Nullable DownloadRequest downloadRequest) {
+      Uri uri, Intent intent, String extrasKeySuffix) {
     String mimeType = intent.getStringExtra(MIME_TYPE_EXTRA + extrasKeySuffix);
     if (mimeType == null) {
       // Try to use extension for backwards compatibility.
@@ -157,15 +150,14 @@ public class IntentUtil {
     MediaItem.Builder builder =
         new MediaItem.Builder()
             .setUri(uri)
-            .setStreamKeys(downloadRequest != null ? downloadRequest.streamKeys : null)
-            .setCustomCacheKey(downloadRequest != null ? downloadRequest.customCacheKey : null)
             .setMimeType(mimeType)
             .setAdTagUri(intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix))
             .setSubtitles(createSubtitlesFromIntent(intent, extrasKeySuffix))
             .setClipStartPositionMs(
-                intent.getLongExtra(START_POSITION_MS_EXTRA + extrasKeySuffix, 0))
+                intent.getLongExtra(CLIP_START_POSITION_MS_EXTRA + extrasKeySuffix, 0))
             .setClipEndPositionMs(
-                intent.getLongExtra(END_POSITION_MS_EXTRA + extrasKeySuffix, C.TIME_END_OF_SOURCE));
+                intent.getLongExtra(
+                    CLIP_END_POSITION_MS_EXTRA + extrasKeySuffix, C.TIME_END_OF_SOURCE));
 
     return populateDrmPropertiesFromIntent(builder, intent, extrasKeySuffix).build();
   }
@@ -294,10 +286,11 @@ public class IntentUtil {
       MediaItem.ClippingProperties clippingProperties, Intent intent, String extrasKeySuffix) {
     if (clippingProperties.startPositionMs != 0) {
       intent.putExtra(
-          START_POSITION_MS_EXTRA + extrasKeySuffix, clippingProperties.startPositionMs);
+          CLIP_START_POSITION_MS_EXTRA + extrasKeySuffix, clippingProperties.startPositionMs);
     }
     if (clippingProperties.endPositionMs != C.TIME_END_OF_SOURCE) {
-      intent.putExtra(END_POSITION_MS_EXTRA + extrasKeySuffix, clippingProperties.endPositionMs);
+      intent.putExtra(
+          CLIP_END_POSITION_MS_EXTRA + extrasKeySuffix, clippingProperties.endPositionMs);
     }
   }
 }
