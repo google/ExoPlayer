@@ -415,14 +415,14 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
    * <p>{@code mode} must be one of these:
    *
    * <ul>
-   *   <li>{@link #MODE_PLAYBACK}: If {@code offlineLicenseKeySetId} is null, a streaming license is
-   *       requested otherwise the offline license is restored.
-   *   <li>{@link #MODE_QUERY}: {@code offlineLicenseKeySetId} can not be null. The offline license
-   *       is restored.
-   *   <li>{@link #MODE_DOWNLOAD}: If {@code offlineLicenseKeySetId} is null, an offline license is
-   *       requested otherwise the offline license is renewed.
-   *   <li>{@link #MODE_RELEASE}: {@code offlineLicenseKeySetId} can not be null. The offline
-   *       license is released.
+   *   <li>{@link #MODE_PLAYBACK}: If {@code offlineLicenseKeySetId} is null then a streaming
+   *       license is requested. Otherwise, the offline license is restored.
+   *   <li>{@link #MODE_QUERY}: {@code offlineLicenseKeySetId} cannot be null. The offline license
+   *       is restored to allow its status to be queried.
+   *   <li>{@link #MODE_DOWNLOAD}: If {@code offlineLicenseKeySetId} is null then an offline license
+   *       is requested. Otherwise, the offline license is renewed.
+   *   <li>{@link #MODE_RELEASE}: {@code offlineLicenseKeySetId} cannot be null. The offline license
+   *       is released.
    * </ul>
    *
    * @param mode The mode to be set.
