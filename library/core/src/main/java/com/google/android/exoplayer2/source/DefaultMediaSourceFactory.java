@@ -279,7 +279,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     Assertions.checkNotNull(mediaItem.playbackProperties);
     @C.ContentType
     int type =
-        Util.inferContentTypeWithMimeType(
+        Util.inferContentTypeForUriAndMimeType(
             mediaItem.playbackProperties.uri, mediaItem.playbackProperties.mimeType);
     @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
     Assertions.checkNotNull(

@@ -443,10 +443,13 @@ public class SampleChooserActivity extends AppCompatActivity
         }
         return new PlaylistHolder(title, mediaItems);
       } else {
+        @Nullable
+        String adaptiveMimeType =
+            Util.getAdaptiveMimeTypeForContentType(Util.inferContentType(uri, extension));
         mediaItem
             .setUri(uri)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
-            .setMimeType(IntentUtil.inferAdaptiveStreamMimeType(uri, extension))
+            .setMimeType(adaptiveMimeType)
             .setTag(new IntentUtil.Tag(isLive));
         if (subtitleUri != null) {
           MediaItem.Subtitle subtitle =

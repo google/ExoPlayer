@@ -909,7 +909,8 @@ public final class DownloadHelper {
   }
 
   private static boolean isProgressive(MediaItem.PlaybackProperties playbackProperties) {
-    return Util.inferContentTypeWithMimeType(playbackProperties.uri, playbackProperties.mimeType)
+    return Util.inferContentTypeForUriAndMimeType(
+            playbackProperties.uri, playbackProperties.mimeType)
         == C.TYPE_OTHER;
   }
 

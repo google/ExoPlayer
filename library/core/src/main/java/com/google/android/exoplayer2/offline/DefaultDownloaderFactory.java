@@ -69,7 +69,7 @@ public class DefaultDownloaderFactory implements DownloaderFactory {
   @Override
   public Downloader createDownloader(DownloadRequest request) {
     @C.ContentType
-    int contentType = Util.inferContentTypeWithMimeType(request.uri, request.mimeType);
+    int contentType = Util.inferContentTypeForUriAndMimeType(request.uri, request.mimeType);
     switch (contentType) {
       case C.TYPE_DASH:
       case C.TYPE_HLS:

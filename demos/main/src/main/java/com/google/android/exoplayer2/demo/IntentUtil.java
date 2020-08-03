@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,8 +62,6 @@ public class IntentUtil {
   public static final String MIME_TYPE_EXTRA = "mime_type";
   public static final String CLIP_START_POSITION_MS_EXTRA = "clip_start_position_ms";
   public static final String CLIP_END_POSITION_MS_EXTRA = "clip_end_position_ms";
-  // For backwards compatibility only.
-  public static final String EXTENSION_EXTRA = "extension";
 
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
@@ -72,12 +69,11 @@ public class IntentUtil {
   public static final String DRM_SESSION_FOR_CLEAR_TYPES_EXTRA = "drm_session_for_clear_types";
   public static final String DRM_MULTI_SESSION_EXTRA = "drm_multi_session";
   public static final String DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA = "drm_force_default_license_uri";
+
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
   public static final String SUBTITLE_URI_EXTRA = "subtitle_uri";
   public static final String SUBTITLE_MIME_TYPE_EXTRA = "subtitle_mime_type";
   public static final String SUBTITLE_LANGUAGE_EXTRA = "subtitle_language";
-  // For backwards compatibility only.
-  public static final String DRM_SCHEME_UUID_EXTRA = "drm_scheme_uuid";
 
   public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
 
@@ -122,31 +118,9 @@ public class IntentUtil {
     }
   }
 
-  /** Makes a best guess to infer the MIME type from a {@link Uri} and an optional extension. */
-  @Nullable
-  public static String inferAdaptiveStreamMimeType(Uri uri, @Nullable String extension) {
-    @C.ContentType int contentType = Util.inferContentType(uri, extension);
-    switch (contentType) {
-      case C.TYPE_DASH:
-        return MimeTypes.APPLICATION_MPD;
-      case C.TYPE_HLS:
-        return MimeTypes.APPLICATION_M3U8;
-      case C.TYPE_SS:
-        return MimeTypes.APPLICATION_SS;
-      case C.TYPE_OTHER:
-      default:
-        return null;
-    }
-  }
-
   private static MediaItem createMediaItemFromIntent(
       Uri uri, Intent intent, String extrasKeySuffix) {
-    String mimeType = intent.getStringExtra(MIME_TYPE_EXTRA + extrasKeySuffix);
-    if (mimeType == null) {
-      // Try to use extension for backwards compatibility.
-      String extension = intent.getStringExtra(EXTENSION_EXTRA + extrasKeySuffix);
-      mimeType = inferAdaptiveStreamMimeType(uri, extension);
-    }
+    @Nullable String mimeType = intent.getStringExtra(MIME_TYPE_EXTRA + extrasKeySuffix);
     MediaItem.Builder builder =
         new MediaItem.Builder()
             .setUri(uri)
@@ -178,17 +152,15 @@ public class IntentUtil {
   private static MediaItem.Builder populateDrmPropertiesFromIntent(
       MediaItem.Builder builder, Intent intent, String extrasKeySuffix) {
     String schemeKey = DRM_SCHEME_EXTRA + extrasKeySuffix;
-    String schemeUuidKey = DRM_SCHEME_UUID_EXTRA + extrasKeySuffix;
-    if (!intent.hasExtra(schemeKey) && !intent.hasExtra(schemeUuidKey)) {
+    @Nullable String drmSchemeExtra = intent.getStringExtra(schemeKey);
+    if (drmSchemeExtra == null) {
       return builder;
     }
-    String drmSchemeExtra =
-        intent.hasExtra(schemeKey)
-            ? intent.getStringExtra(schemeKey)
-            : intent.getStringExtra(schemeUuidKey);
+    @Nullable
     String[] drmSessionForClearTypesExtra =
         intent.getStringArrayExtra(DRM_SESSION_FOR_CLEAR_TYPES_EXTRA + extrasKeySuffix);
     Map<String, String> headers = new HashMap<>();
+    @Nullable
     String[] keyRequestPropertiesArray =
         intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA + extrasKeySuffix);
     if (keyRequestPropertiesArray != null) {

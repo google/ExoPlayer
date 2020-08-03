@@ -53,6 +53,7 @@ import android.view.WindowManager;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
@@ -1675,13 +1676,13 @@ public final class Util {
   }
 
   /**
-   * Makes a best guess to infer the type from a {@link Uri}.
+   * Makes a best guess to infer the {@link ContentType} from a {@link Uri}.
    *
    * @param uri The {@link Uri}.
    * @param overrideExtension If not null, used to infer the type.
    * @return The content type.
    */
-  @C.ContentType
+  @ContentType
   public static int inferContentType(Uri uri, @Nullable String overrideExtension) {
     return TextUtils.isEmpty(overrideExtension)
         ? inferContentType(uri)
@@ -1689,24 +1690,24 @@ public final class Util {
   }
 
   /**
-   * Makes a best guess to infer the type from a {@link Uri}.
+   * Makes a best guess to infer the {@link ContentType} from a {@link Uri}.
    *
    * @param uri The {@link Uri}.
    * @return The content type.
    */
-  @C.ContentType
+  @ContentType
   public static int inferContentType(Uri uri) {
-    String path = uri.getPath();
+    @Nullable String path = uri.getPath();
     return path == null ? C.TYPE_OTHER : inferContentType(path);
   }
 
   /**
-   * Makes a best guess to infer the type from a file name.
+   * Makes a best guess to infer the {@link ContentType} from a file name.
    *
    * @param fileName Name of the file. It can include the path of the file.
    * @return The content type.
    */
-  @C.ContentType
+  @ContentType
   public static int inferContentType(String fileName) {
     fileName = toLowerInvariant(fileName);
     if (fileName.endsWith(".mpd")) {
@@ -1721,14 +1722,14 @@ public final class Util {
   }
 
   /**
-   * Makes a best guess to infer the type from a {@link Uri} and MIME type.
+   * Makes a best guess to infer the {@link ContentType} from a {@link Uri} and optional MIME type.
    *
    * @param uri The {@link Uri}.
-   * @param mimeType If not null, used to infer the type.
+   * @param mimeType If MIME type, or {@code null}.
    * @return The content type.
    */
-  @C.ContentType
-  public static int inferContentTypeWithMimeType(Uri uri, @Nullable String mimeType) {
+  @ContentType
+  public static int inferContentTypeForUriAndMimeType(Uri uri, @Nullable String mimeType) {
     if (mimeType == null) {
       return Util.inferContentType(uri);
     }
@@ -1741,6 +1742,25 @@ public final class Util {
         return C.TYPE_SS;
       default:
         return C.TYPE_OTHER;
+    }
+  }
+
+  /**
+   * Returns the MIME type corresponding to the given adaptive {@link ContentType}, or {@code null}
+   * if the content type is {@link C#TYPE_OTHER}.
+   */
+  @Nullable
+  public static String getAdaptiveMimeTypeForContentType(int contentType) {
+    switch (contentType) {
+      case C.TYPE_DASH:
+        return MimeTypes.APPLICATION_MPD;
+      case C.TYPE_HLS:
+        return MimeTypes.APPLICATION_M3U8;
+      case C.TYPE_SS:
+        return MimeTypes.APPLICATION_SS;
+      case C.TYPE_OTHER:
+      default:
+        return null;
     }
   }
 
