@@ -1753,14 +1753,13 @@ public class FragmentedMp4Extractor implements Extractor {
         // We need to account for the additional clear header by adding clearHeaderSize to
         // clearDataSize for the first subsample specified in the subsample encryption data.
         scratch.reset(subsampleDataLength);
-        scratch.readBytes(subsampleEncryptionData.getData(), /* offset= */ 0, subsampleDataLength);
-        subsampleEncryptionData.skipBytes(subsampleDataLength);
+        byte[] scratchData = scratch.getData();
+        subsampleEncryptionData.readBytes(scratchData, /* offset= */ 0, subsampleDataLength);
 
-        byte[] data = scratch.getData();
-        int clearDataSize = (data[2] & 0xFF) << 8 | (data[3] & 0xFF);
+        int clearDataSize = (scratchData[2] & 0xFF) << 8 | (scratchData[3] & 0xFF);
         int adjustedClearDataSize = clearDataSize + clearHeaderSize;
-        data[2] = (byte) ((adjustedClearDataSize >> 8) & 0xFF);
-        data[3] = (byte) (adjustedClearDataSize & 0xFF);
+        scratchData[2] = (byte) ((adjustedClearDataSize >> 8) & 0xFF);
+        scratchData[3] = (byte) (adjustedClearDataSize & 0xFF);
         subsampleEncryptionData = scratch;
       }
 
