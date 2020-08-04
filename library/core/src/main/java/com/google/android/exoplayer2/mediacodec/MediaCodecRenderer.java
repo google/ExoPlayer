@@ -631,6 +631,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       throws ExoPlaybackException {
     boolean outputFormatChanged = false;
     @Nullable Format format = formatQueue.pollFloor(presentationTimeUs);
+    if (format == null && codecOutputMediaFormatChanged) {
+      // If the codec's output MediaFormat has changed then there should be a corresponding Format
+      // change, which we've not found. Check the Format queue in case the corresponding
+      // presentation timestamp is greater than presentationTimeUs, which can happen for some codecs
+      // [Internal ref: b/162719047].
+      format = formatQueue.pollFirst();
+    }
     if (format != null) {
       outputFormat = format;
       outputFormatChanged = true;
