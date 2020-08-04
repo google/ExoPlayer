@@ -34,10 +34,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Decodes and renders audio using FFmpeg. */
-public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
+public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioDecoder> {
 
   private static final String TAG = "FfmpegAudioRenderer";
 
@@ -45,8 +44,6 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
   private static final int NUM_BUFFERS = 16;
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
-
-  private @MonotonicNonNull FfmpegAudioDecoder decoder;
 
   public FfmpegAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -122,7 +119,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
     TraceUtil.beginSection("createFfmpegAudioDecoder");
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
-    decoder =
+    FfmpegAudioDecoder decoder =
         new FfmpegAudioDecoder(
             format, NUM_BUFFERS, NUM_BUFFERS, initialInputBufferSize, shouldOutputFloat(format));
     TraceUtil.endSection();
@@ -130,7 +127,7 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer {
   }
 
   @Override
-  public Format getOutputFormat() {
+  public Format getOutputFormat(FfmpegAudioDecoder decoder) {
     Assertions.checkNotNull(decoder);
     return new Format.Builder()
         .setSampleMimeType(MimeTypes.AUDIO_RAW)

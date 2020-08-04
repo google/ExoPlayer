@@ -55,13 +55,13 @@ public class DecoderAudioRendererTest {
       new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_RAW).build();
 
   @Mock private AudioSink mockAudioSink;
-  private DecoderAudioRenderer audioRenderer;
+  private DecoderAudioRenderer<FakeDecoder> audioRenderer;
 
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     audioRenderer =
-        new DecoderAudioRenderer(null, null, mockAudioSink) {
+        new DecoderAudioRenderer<FakeDecoder>(null, null, mockAudioSink) {
           @Override
           public String getName() {
             return "TestAudioRenderer";
@@ -74,14 +74,12 @@ public class DecoderAudioRendererTest {
           }
 
           @Override
-          protected SimpleDecoder<
-                  DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>
-              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
+          protected FakeDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
             return new FakeDecoder();
           }
 
           @Override
-          protected Format getOutputFormat() {
+          protected Format getOutputFormat(FakeDecoder decoder) {
             return FORMAT;
           }
         };

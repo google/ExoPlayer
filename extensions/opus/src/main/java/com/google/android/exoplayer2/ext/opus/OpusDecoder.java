@@ -36,21 +36,22 @@ import java.util.List;
   private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
 
   /** Opus streams are always decoded at 48000 Hz. */
-  private static final int SAMPLE_RATE = 48_000;
+  public static final int SAMPLE_RATE = 48_000;
 
   private static final int NO_ERROR = 0;
   private static final int DECODE_ERROR = -1;
   private static final int DRM_ERROR = -2;
 
+  public final boolean outputFloat;
+  public final int channelCount;
+
   @Nullable private final ExoMediaCrypto exoMediaCrypto;
 
-  private final int channelCount;
   private final int headerSkipSamples;
   private final int headerSeekPreRollSamples;
   private final long nativeDecoderContext;
 
   private int skipSamples;
-  private final boolean outputFloat;
 
   /**
    * Creates an Opus decoder.
@@ -228,16 +229,6 @@ import java.util.List;
   public void release() {
     super.release();
     opusClose(nativeDecoderContext);
-  }
-
-  /** Returns the channel count of output audio. */
-  public int getChannelCount() {
-    return channelCount;
-  }
-
-  /** Returns the sample rate of output audio. */
-  public int getSampleRate() {
-    return SAMPLE_RATE;
   }
 
   private static int nsToSamples(long ns) {

@@ -30,17 +30,13 @@ import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 
 /** Decodes and renders audio using the native Opus decoder. */
-public class LibopusAudioRenderer extends DecoderAudioRenderer {
+public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
 
   private static final String TAG = "LibopusAudioRenderer";
   /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
-
-  private int channelCount;
-  private int sampleRate;
-  private boolean outputFloat;
 
   public LibopusAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -108,7 +104,7 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
     int formatSupport =
         getSinkFormatSupport(
             Util.getPcmFormat(C.ENCODING_PCM_FLOAT, format.channelCount, format.sampleRate));
-    outputFloat = formatSupport == AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
+    boolean outputFloat = formatSupport == AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
 
     int initialInputBufferSize =
         format.maxInputSize != Format.NO_VALUE ? format.maxInputSize : DEFAULT_INPUT_BUFFER_SIZE;
@@ -120,16 +116,15 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer {
             format.initializationData,
             mediaCrypto,
             outputFloat);
-    channelCount = decoder.getChannelCount();
-    sampleRate = decoder.getSampleRate();
 
     TraceUtil.endSection();
     return decoder;
   }
 
   @Override
-  protected Format getOutputFormat() {
-    @C.PcmEncoding int pcmEncoding = outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
-    return Util.getPcmFormat(pcmEncoding, channelCount, sampleRate);
+  protected Format getOutputFormat(OpusDecoder decoder) {
+    @C.PcmEncoding
+    int pcmEncoding = decoder.outputFloat ? C.ENCODING_PCM_FLOAT : C.ENCODING_PCM_16BIT;
+    return Util.getPcmFormat(pcmEncoding, decoder.channelCount, OpusDecoder.SAMPLE_RATE);
   }
 }

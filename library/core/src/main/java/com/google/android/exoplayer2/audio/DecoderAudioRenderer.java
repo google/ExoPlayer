@@ -73,7 +73,10 @@ import java.lang.annotation.RetentionPolicy;
  *       underlying audio track.
  * </ul>
  */
-public abstract class DecoderAudioRenderer extends BaseRenderer implements MediaClock {
+public abstract class DecoderAudioRenderer<
+        T extends
+            Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>>
+    extends BaseRenderer implements MediaClock {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -109,9 +112,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   private int encoderDelay;
   private int encoderPadding;
 
-  @Nullable
-  private Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>
-      decoder;
+  @Nullable private T decoder;
 
   @Nullable private DecoderInputBuffer inputBuffer;
   @Nullable private SimpleOutputBuffer outputBuffer;
@@ -317,15 +318,16 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
    * @return The decoder.
    * @throws DecoderException If an error occurred creating a suitable decoder.
    */
-  protected abstract Decoder<
-          DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>
-      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) throws DecoderException;
+  protected abstract T createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+      throws DecoderException;
 
   /**
    * Returns the format of audio buffers output by the decoder. Will not be called until the first
    * output buffer has been dequeued, so the decoder may use input data to determine the format.
+   *
+   * @param decoder The decoder.
    */
-  protected abstract Format getOutputFormat();
+  protected abstract Format getOutputFormat(T decoder);
 
   /**
    * Returns whether the existing decoder can be kept for a new format.
@@ -365,7 +367,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
         try {
           processEndOfStream();
         } catch (AudioSink.WriteException e) {
-          throw createRendererException(e, getOutputFormat());
+          throw createRendererException(e, getOutputFormat(decoder));
         }
       }
       return false;
@@ -373,7 +375,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
 
     if (audioTrackNeedsConfigure) {
       Format outputFormat =
-          getOutputFormat()
+          getOutputFormat(decoder)
               .buildUpon()
               .setEncoderDelay(encoderDelay)
               .setEncoderPadding(encoderPadding)

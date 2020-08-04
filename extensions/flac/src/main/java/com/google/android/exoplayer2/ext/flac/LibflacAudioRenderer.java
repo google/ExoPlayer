@@ -25,20 +25,16 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DecoderAudioRenderer;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.FlacConstants;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Decodes and renders audio using the native Flac decoder. */
-public final class LibflacAudioRenderer extends DecoderAudioRenderer {
+public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder> {
 
   private static final String TAG = "LibflacAudioRenderer";
   private static final int NUM_BUFFERS = 16;
-
-  private @MonotonicNonNull FlacStreamMetadata streamMetadata;
 
   public LibflacAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -120,14 +116,13 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer {
     TraceUtil.beginSection("createFlacDecoder");
     FlacDecoder decoder =
         new FlacDecoder(NUM_BUFFERS, NUM_BUFFERS, format.maxInputSize, format.initializationData);
-    streamMetadata = decoder.getStreamMetadata();
     TraceUtil.endSection();
     return decoder;
   }
 
   @Override
-  protected Format getOutputFormat() {
-    return getOutputFormat(Assertions.checkNotNull(streamMetadata));
+  protected Format getOutputFormat(FlacDecoder decoder) {
+    return getOutputFormat(decoder.getStreamMetadata());
   }
 
   private static Format getOutputFormat(FlacStreamMetadata streamMetadata) {
