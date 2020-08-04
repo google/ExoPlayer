@@ -195,8 +195,6 @@ public class EventLogger implements AnalyticsListener {
     logd(
         "mediaItem ["
             + getEventTimeString(eventTime)
-            + ", "
-            + (mediaItem == null ? "null" : "mediaId=" + mediaItem.mediaId)
             + ", reason="
             + getMediaItemTransitionReasonString(reason)
             + "]");

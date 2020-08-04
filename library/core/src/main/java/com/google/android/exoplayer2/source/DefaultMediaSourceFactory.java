@@ -381,11 +381,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     }
     AdsLoader adsLoader = adSupportProvider.getAdsLoader(mediaItem.playbackProperties.adTagUri);
     if (adsLoader == null) {
-      Log.w(
-          TAG,
-          String.format(
-              "Playing media without ads. No AdsLoader for media item with mediaId '%s'.",
-              mediaItem.mediaId));
+      Log.w(TAG, "Playing media without ads. No AdsLoader for provided adTagUri");
       return mediaSource;
     }
     return new AdsMediaSource(
