@@ -25,7 +25,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.media.MediaFormat;
 import android.os.SystemClock;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -216,15 +218,16 @@ public class MediaCodecAudioRendererTest {
             /* eventHandler= */ null,
             /* eventListener= */ null) {
           @Override
-          protected void onOutputFormatChanged(Format outputFormat) throws ExoPlaybackException {
-            super.onOutputFormatChanged(outputFormat);
-            if (!outputFormat.equals(AUDIO_AAC)) {
+          protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat)
+              throws ExoPlaybackException {
+            super.onOutputFormatChanged(format, mediaFormat);
+            if (!format.equals(AUDIO_AAC)) {
               setPendingPlaybackException(
                   ExoPlaybackException.createForRenderer(
                       new AudioSink.ConfigurationException("Test"),
                       "rendererName",
                       /* rendererIndex= */ 0,
-                      outputFormat,
+                      format,
                       FORMAT_HANDLED));
             }
           }
@@ -254,8 +257,11 @@ public class MediaCodecAudioRendererTest {
     exceptionThrowingRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     exceptionThrowingRenderer.render(/* positionUs= */ 250, SystemClock.elapsedRealtime() * 1000);
 
+    MediaFormat mediaFormat = new MediaFormat();
+    mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 2);
+    mediaFormat.setInteger(MediaFormat.KEY_SAMPLE_RATE, 32_000);
     // Simulating the exception being thrown when not traceable back to render.
-    exceptionThrowingRenderer.onOutputFormatChanged(changedFormat);
+    exceptionThrowingRenderer.onOutputFormatChanged(changedFormat, mediaFormat);
 
     assertThrows(
         ExoPlaybackException.class,

@@ -67,9 +67,7 @@ public class FakeVideoRenderer extends FakeRenderer {
     super.onStopped();
     eventDispatcher.droppedFrames(/* droppedFrameCount= */ 0, /* elapsedMs= */ 0);
     eventDispatcher.reportVideoFrameProcessingOffset(
-        /* totalProcessingOffsetUs= */ 400000,
-        /* frameCount= */ 10,
-        Assertions.checkNotNull(format));
+        /* totalProcessingOffsetUs= */ 400000, /* frameCount= */ 10);
   }
 
   @Override

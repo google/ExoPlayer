@@ -591,10 +591,9 @@ public interface AnalyticsListener {
    * @param totalProcessingOffsetUs The sum of the video frame processing offsets for frames
    *     rendered since the last call to this method.
    * @param frameCount The number to samples included in {@code totalProcessingOffsetUs}.
-   * @param format The video {@link Format} being rendered.
    */
   default void onVideoFrameProcessingOffset(
-      EventTime eventTime, long totalProcessingOffsetUs, int frameCount, Format format) {}
+      EventTime eventTime, long totalProcessingOffsetUs, int frameCount) {}
 
   /**
    * Called when a frame is rendered for the first time since setting the surface, or since the

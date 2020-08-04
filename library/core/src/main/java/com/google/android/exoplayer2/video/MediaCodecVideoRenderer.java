@@ -153,9 +153,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private long totalVideoFrameProcessingOffsetUs;
   private int videoFrameProcessingOffsetCount;
 
-  @Nullable private MediaFormat currentMediaFormat;
-  private int mediaFormatWidth;
-  private int mediaFormatHeight;
   private int currentWidth;
   private int currentHeight;
   private int currentUnappliedRotationDegrees;
@@ -262,8 +259,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
     scalingMode = VIDEO_SCALING_MODE_DEFAULT;
-    mediaFormatWidth = Format.NO_VALUE;
-    mediaFormatHeight = Format.NO_VALUE;
     clearReportedVideoSize();
   }
 
@@ -449,7 +444,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected void onDisabled() {
-    currentMediaFormat = null;
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     frameReleaseTimeHelper.disable();
@@ -668,51 +662,37 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void onOutputMediaFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat) {
-    currentMediaFormat = outputMediaFormat;
-    boolean hasCrop =
-        outputMediaFormat.containsKey(KEY_CROP_RIGHT)
-            && outputMediaFormat.containsKey(KEY_CROP_LEFT)
-            && outputMediaFormat.containsKey(KEY_CROP_BOTTOM)
-            && outputMediaFormat.containsKey(KEY_CROP_TOP);
-    mediaFormatWidth =
-        hasCrop
-            ? outputMediaFormat.getInteger(KEY_CROP_RIGHT)
-                - outputMediaFormat.getInteger(KEY_CROP_LEFT)
-                + 1
-            : outputMediaFormat.getInteger(MediaFormat.KEY_WIDTH);
-    mediaFormatHeight =
-        hasCrop
-            ? outputMediaFormat.getInteger(KEY_CROP_BOTTOM)
-                - outputMediaFormat.getInteger(KEY_CROP_TOP)
-                + 1
-            : outputMediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
-
-    // Must be applied each time the output MediaFormat changes.
-    codec.setVideoScalingMode(scalingMode);
-    maybeNotifyVideoFrameProcessingOffset();
-  }
-
-  @Override
-  protected void onOutputFormatChanged(Format outputFormat) {
-    configureOutput(outputFormat);
-  }
-
-  @Override
-  protected void configureOutput(Format outputFormat) {
-    if (tunneling) {
-      currentWidth = outputFormat.width;
-      currentHeight = outputFormat.height;
-    } else {
-      currentWidth = mediaFormatWidth;
-      currentHeight = mediaFormatHeight;
+  protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat) {
+    @Nullable MediaCodec codec = getCodec();
+    if (codec != null) {
+      // Must be applied each time the output format changes.
+      codec.setVideoScalingMode(scalingMode);
     }
-    currentPixelWidthHeightRatio = outputFormat.pixelWidthHeightRatio;
+    if (tunneling) {
+      currentWidth = format.width;
+      currentHeight = format.height;
+    } else {
+      Assertions.checkNotNull(mediaFormat);
+      boolean hasCrop =
+          mediaFormat.containsKey(KEY_CROP_RIGHT)
+              && mediaFormat.containsKey(KEY_CROP_LEFT)
+              && mediaFormat.containsKey(KEY_CROP_BOTTOM)
+              && mediaFormat.containsKey(KEY_CROP_TOP);
+      currentWidth =
+          hasCrop
+              ? mediaFormat.getInteger(KEY_CROP_RIGHT) - mediaFormat.getInteger(KEY_CROP_LEFT) + 1
+              : mediaFormat.getInteger(MediaFormat.KEY_WIDTH);
+      currentHeight =
+          hasCrop
+              ? mediaFormat.getInteger(KEY_CROP_BOTTOM) - mediaFormat.getInteger(KEY_CROP_TOP) + 1
+              : mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
+    }
+    currentPixelWidthHeightRatio = format.pixelWidthHeightRatio;
     if (Util.SDK_INT >= 21) {
       // On API level 21 and above the decoder applies the rotation when rendering to the surface.
       // Hence currentUnappliedRotation should always be 0. For 90 and 270 degree rotations, we need
       // to flip the width, height and pixel aspect ratio to reflect the rotation that was applied.
-      if (outputFormat.rotationDegrees == 90 || outputFormat.rotationDegrees == 270) {
+      if (format.rotationDegrees == 90 || format.rotationDegrees == 270) {
         int rotatedHeight = currentWidth;
         currentWidth = currentHeight;
         currentHeight = rotatedHeight;
@@ -720,9 +700,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
     } else {
       // On API level 20 and below the decoder does not apply the rotation.
-      currentUnappliedRotationDegrees = outputFormat.rotationDegrees;
+      currentUnappliedRotationDegrees = format.rotationDegrees;
     }
-    currentFrameRate = outputFormat.frameRate;
+    currentFrameRate = format.frameRate;
     updateSurfaceFrameRate(/* isNewSurface= */ false);
   }
 
@@ -811,7 +791,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
     if (forceRenderOutputBuffer) {
       long releaseTimeNs = System.nanoTime();
-      notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format, currentMediaFormat);
+      notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
       if (Util.SDK_INT >= 21) {
         renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, releaseTimeNs);
       } else {
@@ -857,8 +837,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
-        notifyFrameMetadataListener(
-            presentationTimeUs, adjustedReleaseTimeNs, format, currentMediaFormat);
+        notifyFrameMetadataListener(presentationTimeUs, adjustedReleaseTimeNs, format);
         renderOutputBufferV21(codec, bufferIndex, presentationTimeUs, adjustedReleaseTimeNs);
         updateVideoFrameProcessingOffsetCounters(earlyUs);
         return true;
@@ -877,8 +856,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             return false;
           }
         }
-        notifyFrameMetadataListener(
-            presentationTimeUs, adjustedReleaseTimeNs, format, currentMediaFormat);
+        notifyFrameMetadataListener(presentationTimeUs, adjustedReleaseTimeNs, format);
         renderOutputBuffer(codec, bufferIndex, presentationTimeUs);
         updateVideoFrameProcessingOffsetCounters(earlyUs);
         return true;
@@ -890,10 +868,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void notifyFrameMetadataListener(
-      long presentationTimeUs, long releaseTimeNs, Format format, MediaFormat mediaFormat) {
+      long presentationTimeUs, long releaseTimeNs, Format format) {
     if (frameMetadataListener != null) {
       frameMetadataListener.onVideoFrameAboutToBeRendered(
-          presentationTimeUs, releaseTimeNs, format, mediaFormat);
+          presentationTimeUs, releaseTimeNs, format, getCodecOutputMediaFormat());
     }
   }
 
@@ -1230,10 +1208,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   private void maybeNotifyVideoFrameProcessingOffset() {
-    @Nullable Format outputFormat = getCurrentOutputFormat();
-    if (outputFormat != null && videoFrameProcessingOffsetCount != 0) {
+    if (videoFrameProcessingOffsetCount != 0) {
       eventDispatcher.reportVideoFrameProcessingOffset(
-          totalVideoFrameProcessingOffsetUs, videoFrameProcessingOffsetCount, outputFormat);
+          totalVideoFrameProcessingOffsetUs, videoFrameProcessingOffsetCount);
       totalVideoFrameProcessingOffsetUs = 0;
       videoFrameProcessingOffsetCount = 0;
     }

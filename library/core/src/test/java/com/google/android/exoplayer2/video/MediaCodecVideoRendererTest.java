@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.graphics.SurfaceTexture;
+import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -37,7 +38,6 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -113,9 +113,9 @@ public class MediaCodecVideoRendererTest {
           }
 
           @Override
-          protected void onOutputFormatChanged(Format outputFormat) {
-            super.onOutputFormatChanged(outputFormat);
-            currentOutputFormat = outputFormat;
+          protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat) {
+            super.onOutputFormatChanged(format, mediaFormat);
+            currentOutputFormat = format;
           }
         };
 
@@ -457,60 +457,5 @@ public class MediaCodecVideoRendererTest {
 
     shadowLooper.idle();
     verify(eventListener, times(2)).onRenderedFirstFrame(any());
-  }
-
-  @Test
-  public void onVideoFrameProcessingOffset_isCalledAfterOutputFormatChanges()
-      throws ExoPlaybackException {
-    Format mp4Uhd = VIDEO_H264.buildUpon().setWidth(3840).setHeight(2160).build();
-    FakeSampleStream fakeSampleStream =
-        new FakeSampleStream(
-            /* mediaSourceEventDispatcher= */ null,
-            DrmSessionManager.DUMMY,
-            new DrmSessionEventListener.EventDispatcher(),
-            /* initialFormat= */ mp4Uhd,
-            ImmutableList.of(
-                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME),
-                format(VIDEO_H264),
-                oneByteSample(/* timeUs= */ 50, C.BUFFER_FLAG_KEY_FRAME),
-                oneByteSample(/* timeUs= */ 100),
-                format(mp4Uhd),
-                oneByteSample(/* timeUs= */ 150, C.BUFFER_FLAG_KEY_FRAME),
-                oneByteSample(/* timeUs= */ 200),
-                oneByteSample(/* timeUs= */ 250),
-                format(VIDEO_H264),
-                oneByteSample(/* timeUs= */ 300, C.BUFFER_FLAG_KEY_FRAME),
-                FakeSampleStreamItem.END_OF_STREAM_ITEM));
-
-    mediaCodecVideoRenderer.enable(
-        RendererConfiguration.DEFAULT,
-        new Format[] {mp4Uhd},
-        fakeSampleStream,
-        /* positionUs= */ 0,
-        /* joining= */ false,
-        /* mayRenderStartOfStream= */ true,
-        /* offsetUs */ 0);
-
-    mediaCodecVideoRenderer.setCurrentStreamFinal();
-    mediaCodecVideoRenderer.start();
-
-    int positionUs = 10;
-    do {
-      mediaCodecVideoRenderer.render(positionUs, SystemClock.elapsedRealtime() * 1000);
-      positionUs += 10;
-    } while (!mediaCodecVideoRenderer.isEnded());
-    mediaCodecVideoRenderer.stop();
-    shadowOf(testMainLooper).idle();
-
-    InOrder orderVerifier = inOrder(eventListener);
-    orderVerifier.verify(eventListener).onVideoFrameProcessingOffset(anyLong(), eq(1), eq(mp4Uhd));
-    orderVerifier
-        .verify(eventListener)
-        .onVideoFrameProcessingOffset(anyLong(), eq(2), eq(VIDEO_H264));
-    orderVerifier.verify(eventListener).onVideoFrameProcessingOffset(anyLong(), eq(3), eq(mp4Uhd));
-    orderVerifier
-        .verify(eventListener)
-        .onVideoFrameProcessingOffset(anyLong(), eq(1), eq(VIDEO_H264));
-    orderVerifier.verifyNoMoreInteractions();
   }
 }

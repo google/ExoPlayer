@@ -364,7 +364,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private float operatingRate;
   @Nullable private MediaCodec codec;
   @Nullable private MediaCodecAdapter codecAdapter;
-  @Nullable private Format codecFormat;
+  @Nullable private Format codecInputFormat;
+  @Nullable private MediaFormat codecOutputMediaFormat;
+  private boolean codecOutputMediaFormatChanged;
   private float codecOperatingRate;
   @Nullable private ArrayDeque<MediaCodecInfo> availableCodecInfos;
   @Nullable private DecoderInitializationException preferredDecoderInitializationException;
@@ -409,7 +411,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected DecoderCounters decoderCounters;
   private long outputStreamOffsetUs;
   private int pendingOutputStreamOffsetCount;
-  private boolean receivedOutputMediaFormatChange;
 
   /**
    * @param trackType The track type that the renderer handles. One of the {@code C.TRACK_TYPE_*}
@@ -613,41 +614,51 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *
    * @param exception The exception.
    */
-  protected void setPendingPlaybackException(ExoPlaybackException exception) {
+  protected final void setPendingPlaybackException(ExoPlaybackException exception) {
     pendingPlaybackException = exception;
   }
 
   /**
-   * Polls the pending output format queue for a given buffer timestamp. If a format is present, it
-   * is removed and returned. Otherwise returns {@code null}. Subclasses should only call this
-   * method if they are taking over responsibility for output format propagation (e.g., when using
-   * video tunneling).
+   * Updates the output formats for the specified output buffer timestamp, calling {@link
+   * #onOutputFormatChanged} if a change has occurred.
+   *
+   * <p>Subclasses should only call this method if operating in a mode where buffers are not
+   * dequeued from the decoder, for example when using video tunneling).
    *
    * @throws ExoPlaybackException Thrown if an error occurs as a result of the output format change.
    */
   protected final void updateOutputFormatForTime(long presentationTimeUs)
       throws ExoPlaybackException {
+    boolean outputFormatChanged = false;
     @Nullable Format format = formatQueue.pollFloor(presentationTimeUs);
     if (format != null) {
       outputFormat = format;
-      onOutputFormatChanged(outputFormat);
-    } else if (receivedOutputMediaFormatChange && outputFormat != null) {
-      // No Format change with the MediaFormat change, so we need to update based on the existing
-      // Format.
-      configureOutput(outputFormat);
+      outputFormatChanged = true;
     }
-
-    receivedOutputMediaFormatChange = false;
+    if (outputFormatChanged || (codecOutputMediaFormatChanged && outputFormat != null)) {
+      onOutputFormatChanged(outputFormat, codecOutputMediaFormat);
+      codecOutputMediaFormatChanged = false;
+    }
   }
 
   @Nullable
-  protected final Format getCurrentOutputFormat() {
+  protected Format getInputFormat() {
+    return inputFormat;
+  }
+
+  @Nullable
+  protected final Format getOutputFormat() {
     return outputFormat;
   }
 
   @Nullable
   protected final MediaCodec getCodec() {
     return codec;
+  }
+
+  @Nullable
+  protected final MediaFormat getCodecOutputMediaFormat() {
+    return codecOutputMediaFormat;
   }
 
   @Nullable
@@ -905,11 +916,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void resetCodecStateForRelease() {
     resetCodecStateForFlush();
 
+    pendingPlaybackException = null;
+    c2Mp3TimestampTracker = null;
     availableCodecInfos = null;
     codecInfo = null;
-    codecFormat = null;
+    codecInputFormat = null;
+    codecOutputMediaFormat = null;
+    codecOutputMediaFormatChanged = false;
     codecHasOutputMediaFormat = false;
-    pendingPlaybackException = null;
     codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     codecAdaptationWorkaroundMode = ADAPTATION_WORKAROUND_MODE_NEVER;
     codecNeedsReconfigureWorkaround = false;
@@ -920,7 +934,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsEosOutputExceptionWorkaround = false;
     codecNeedsMonoChannelCountWorkaround = false;
     codecNeedsEosPropagation = false;
-    c2Mp3TimestampTracker = null;
     codecReconfigured = false;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
     resetCodecBuffers();
@@ -1110,16 +1123,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     this.codecAdapter = codecAdapter;
     this.codecInfo = codecInfo;
     this.codecOperatingRate = codecOperatingRate;
-    codecFormat = inputFormat;
+    codecInputFormat = inputFormat;
     codecAdaptationWorkaroundMode = codecAdaptationWorkaroundMode(codecName);
     codecNeedsReconfigureWorkaround = codecNeedsReconfigureWorkaround(codecName);
-    codecNeedsDiscardToSpsWorkaround = codecNeedsDiscardToSpsWorkaround(codecName, codecFormat);
+    codecNeedsDiscardToSpsWorkaround =
+        codecNeedsDiscardToSpsWorkaround(codecName, codecInputFormat);
     codecNeedsFlushWorkaround = codecNeedsFlushWorkaround(codecName);
     codecNeedsSosFlushWorkaround = codecNeedsSosFlushWorkaround(codecName);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
     codecNeedsMonoChannelCountWorkaround =
-        codecNeedsMonoChannelCountWorkaround(codecName, codecFormat);
+        codecNeedsMonoChannelCountWorkaround(codecName, codecInputFormat);
     codecNeedsEosPropagation =
         codecNeedsEosPropagationWorkaround(codecInfo) || getCodecNeedsEosPropagation();
     if ("c2.android.mp3.decoder".equals(codecInfo.name)) {
@@ -1234,8 +1248,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // For adaptive reconfiguration, decoders expect all reconfiguration data to be supplied at
     // the start of the buffer that also contains the first frame in the new format.
     if (codecReconfigurationState == RECONFIGURATION_STATE_WRITE_PENDING) {
-      for (int i = 0; i < codecFormat.initializationData.size(); i++) {
-        byte[] data = codecFormat.initializationData.get(i);
+      for (int i = 0; i < codecInputFormat.initializationData.size(); i++) {
+        byte[] data = codecInputFormat.initializationData.get(i);
         buffer.data.put(data);
       }
       codecReconfigurationState = RECONFIGURATION_STATE_QUEUE_PENDING;
@@ -1270,7 +1284,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // We received a new format immediately before the end of the stream. We need to clear
         // the corresponding reconfiguration data from the current buffer, but re-write it into
-        // a subsequent buffer if there are any (e.g. if the user seeks backwards).
+        // a subsequent buffer if there are any (for example, if the user seeks backwards).
         buffer.clear();
         codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
       }
@@ -1393,6 +1407,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param formatHolder A {@link FormatHolder} that holds the new {@link Format}.
    * @throws ExoPlaybackException If an error occurs re-initializing the {@link MediaCodec}.
    */
+  @CallSuper
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     waitingForFirstSampleInFormat = true;
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
@@ -1426,12 +1441,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return;
     }
 
-    switch (canKeepCodec(codec, codecInfo, codecFormat, newFormat)) {
+    switch (canKeepCodec(codec, codecInfo, codecInputFormat, newFormat)) {
       case KEEP_CODEC_RESULT_NO:
         drainAndReinitializeCodec();
         break;
       case KEEP_CODEC_RESULT_YES_WITH_FLUSH:
-        codecFormat = newFormat;
+        codecInputFormat = newFormat;
         updateCodecOperatingRate();
         if (sourceDrmSession != codecDrmSession) {
           drainAndUpdateCodecDrmSession();
@@ -1448,9 +1463,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           codecNeedsAdaptationWorkaroundBuffer =
               codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
                   || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
-                      && newFormat.width == codecFormat.width
-                      && newFormat.height == codecFormat.height);
-          codecFormat = newFormat;
+                      && newFormat.width == codecInputFormat.width
+                      && newFormat.height == codecInputFormat.height);
+          codecInputFormat = newFormat;
           updateCodecOperatingRate();
           if (sourceDrmSession != codecDrmSession) {
             drainAndUpdateCodecDrmSession();
@@ -1458,7 +1473,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         }
         break;
       case KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION:
-        codecFormat = newFormat;
+        codecInputFormat = newFormat;
         updateCodecOperatingRate();
         if (sourceDrmSession != codecDrmSession) {
           drainAndUpdateCodecDrmSession();
@@ -1470,40 +1485,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Called when the output {@link MediaFormat} of the {@link MediaCodec} changes.
+   * Called when one of the output formats changes.
    *
    * <p>The default implementation is a no-op.
    *
-   * @param codec The {@link MediaCodec} instance.
-   * @param outputMediaFormat The new output {@link MediaFormat}.
-   * @throws ExoPlaybackException Thrown if an error occurs handling the new output media format.
-   */
-  protected void onOutputMediaFormatChanged(MediaCodec codec, MediaFormat outputMediaFormat)
-      throws ExoPlaybackException {
-    // Do nothing.
-  }
-
-  /**
-   * Called when the output {@link Format} changes.
-   *
-   * <p>The default implementation is a no-op.
-   *
-   * @param outputFormat The new output {@link Format}.
-   * @throws ExoPlaybackException Thrown if an error occurs handling the new output format.
-   */
-  protected void onOutputFormatChanged(Format outputFormat) throws ExoPlaybackException {
-    // Do nothing.
-  }
-
-  /**
-   * Configures the renderer output based on a {@link Format}.
-   *
-   * <p>The default implementation is a no-op.
-   *
-   * @param outputFormat The format to configure the output with.
+   * @param format The input {@link Format} to which future output now corresponds. If the renderer
+   *     is in bypass mode, this is also the output format.
+   * @param mediaFormat The codec output {@link MediaFormat}, or {@code null} if the renderer is in
+   *     bypass mode.
    * @throws ExoPlaybackException Thrown if an error occurs configuring the output.
    */
-  protected void configureOutput(Format outputFormat) throws ExoPlaybackException {
+  protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 
@@ -1633,7 +1626,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     float newCodecOperatingRate =
-        getCodecOperatingRateV23(operatingRate, codecFormat, getStreamFormats());
+        getCodecOperatingRateV23(operatingRate, codecInputFormat, getStreamFormats());
     if (codecOperatingRate == newCodecOperatingRate) {
       // No change.
     } else if (newCodecOperatingRate == CODEC_OPERATING_RATE_UNSET) {
@@ -1721,8 +1714,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
       if (outputIndex < 0) {
         if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
-          processOutputMediaFormat();
-          receivedOutputMediaFormatChange = true;
+          processOutputMediaFormatChanged();
           return true;
         } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
           processOutputBuffersChanged();
@@ -1750,6 +1742,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
       this.outputIndex = outputIndex;
       outputBuffer = getOutputBuffer(outputIndex);
+
       // The dequeued buffer is a media buffer. Do some initial setup.
       // It will be processed by calling processOutputBuffer (possibly multiple times).
       if (outputBuffer != null) {
@@ -1815,8 +1808,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return false;
   }
 
-  /** Processes a new output {@link MediaFormat}. */
-  private void processOutputMediaFormat() throws ExoPlaybackException {
+  /** Processes a change in the decoder output {@link MediaFormat}. */
+  private void processOutputMediaFormatChanged() {
     codecHasOutputMediaFormat = true;
     MediaFormat mediaFormat = codecAdapter.getOutputFormat();
     if (codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER
@@ -1830,7 +1823,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecNeedsMonoChannelCountWorkaround) {
       mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 1);
     }
-    onOutputMediaFormatChanged(codec, mediaFormat);
+    codecOutputMediaFormat = mediaFormat;
+    codecOutputMediaFormatChanged = true;
   }
 
   /**
@@ -1874,7 +1868,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     by the source.
    * @param isLastBuffer Whether the buffer is the last sample of the current stream.
    * @param format The {@link Format} associated with the buffer.
-   * @return Whether the output buffer was fully processed (e.g. rendered or skipped).
+   * @return Whether the output buffer was fully processed (for example, rendered or skipped).
    * @throws ExoPlaybackException If an error occurs processing the output buffer.
    */
   protected abstract boolean processOutputBuffer(
@@ -2121,7 +2115,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (!batchBuffer.isEmpty() && waitingForFirstSampleInFormat) {
       // This is the first buffer in a new format, the output format must be updated.
       outputFormat = Assertions.checkNotNull(inputFormat);
-      onOutputFormatChanged(outputFormat);
+      onOutputFormatChanged(outputFormat, /* mediaFormat= */ null);
       waitingForFirstSampleInFormat = false;
     }
 

@@ -1955,7 +1955,7 @@ public final class AnalyticsCollectorTest {
 
     @Override
     public void onVideoFrameProcessingOffset(
-        EventTime eventTime, long totalProcessingOffsetUs, int frameCount, Format format) {
+        EventTime eventTime, long totalProcessingOffsetUs, int frameCount) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_FRAME_PROCESSING_OFFSET, eventTime));
     }
 

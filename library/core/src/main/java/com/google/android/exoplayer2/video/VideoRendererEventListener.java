@@ -88,10 +88,8 @@ public interface VideoRendererEventListener {
    * @param totalProcessingOffsetUs The sum of all video frame processing offset samples for the
    *     video frames processed by the renderer in microseconds.
    * @param frameCount The number of samples included in the {@code totalProcessingOffsetUs}.
-   * @param format The {@link Format} that is currently output.
    */
-  default void onVideoFrameProcessingOffset(
-      long totalProcessingOffsetUs, int frameCount, Format format) {}
+  default void onVideoFrameProcessingOffset(long totalProcessingOffsetUs, int frameCount) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
@@ -182,13 +180,12 @@ public interface VideoRendererEventListener {
     }
 
     /** Invokes {@link VideoRendererEventListener#onVideoFrameProcessingOffset}. */
-    public void reportVideoFrameProcessingOffset(
-        long totalProcessingOffsetUs, int frameCount, Format format) {
+    public void reportVideoFrameProcessingOffset(long totalProcessingOffsetUs, int frameCount) {
       if (handler != null) {
         handler.post(
             () ->
                 castNonNull(listener)
-                    .onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount, format));
+                    .onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount));
       }
     }
 

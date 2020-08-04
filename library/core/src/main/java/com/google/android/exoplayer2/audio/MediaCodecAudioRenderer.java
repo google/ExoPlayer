@@ -91,7 +91,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean codecNeedsDiscardChannelsWorkaround;
   private boolean codecNeedsEosBufferTimestampWorkaround;
   @Nullable private Format codecPassthroughFormat;
-  @Nullable private Format inputFormat;
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
@@ -379,29 +378,23 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     super.onInputFormatChanged(formatHolder);
-    inputFormat = formatHolder.format;
-    eventDispatcher.inputFormatChanged(inputFormat);
+    eventDispatcher.inputFormatChanged(formatHolder.format);
   }
 
   @Override
-  protected void onOutputFormatChanged(Format outputFormat) throws ExoPlaybackException {
-    configureOutput(outputFormat);
-  }
-
-  @Override
-  protected void configureOutput(Format outputFormat) throws ExoPlaybackException {
+  protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat)
+      throws ExoPlaybackException {
     Format audioSinkInputFormat;
     @Nullable int[] channelMap = null;
     if (codecPassthroughFormat != null) { // Raw codec passthrough
       audioSinkInputFormat = codecPassthroughFormat;
     } else if (getCodec() == null) { // Codec bypass passthrough
-      audioSinkInputFormat = outputFormat;
+      audioSinkInputFormat = format;
     } else {
-      MediaFormat mediaFormat = getCodec().getOutputFormat();
       @C.PcmEncoding int pcmEncoding;
-      if (MimeTypes.AUDIO_RAW.equals(outputFormat.sampleMimeType)) {
+      if (MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)) {
         // For PCM streams, the encoder passes through int samples despite set to float mode.
-        pcmEncoding = outputFormat.pcmEncoding;
+        pcmEncoding = format.pcmEncoding;
       } else if (Util.SDK_INT >= 24 && mediaFormat.containsKey(MediaFormat.KEY_PCM_ENCODING)) {
         pcmEncoding = mediaFormat.getInteger(MediaFormat.KEY_PCM_ENCODING);
       } else if (mediaFormat.containsKey(VIVO_BITS_PER_SAMPLE_KEY)) {
@@ -409,22 +402,25 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       } else {
         // If the format is anything other than PCM then we assume that the audio decoder will
         // output 16-bit PCM.
-        pcmEncoding = C.ENCODING_PCM_16BIT;
+        pcmEncoding =
+            MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)
+                ? format.pcmEncoding
+                : C.ENCODING_PCM_16BIT;
       }
       audioSinkInputFormat =
           new Format.Builder()
               .setSampleMimeType(MimeTypes.AUDIO_RAW)
               .setPcmEncoding(pcmEncoding)
-              .setEncoderDelay(outputFormat.encoderDelay)
-              .setEncoderPadding(outputFormat.encoderPadding)
+              .setEncoderDelay(format.encoderDelay)
+              .setEncoderPadding(format.encoderPadding)
               .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
               .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE))
               .build();
       if (codecNeedsDiscardChannelsWorkaround
           && audioSinkInputFormat.channelCount == 6
-          && outputFormat.channelCount < 6) {
-        channelMap = new int[outputFormat.channelCount];
-        for (int i = 0; i < outputFormat.channelCount; i++) {
+          && format.channelCount < 6) {
+        channelMap = new int[format.channelCount];
+        for (int i = 0; i < format.channelCount; i++) {
           channelMap[i] = i;
         }
       }
@@ -432,7 +428,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       audioSink.configure(audioSinkInputFormat, /* specifiedBufferSize= */ 0, channelMap);
     } catch (AudioSink.ConfigurationException e) {
-      throw createRendererException(e, outputFormat);
+      throw createRendererException(e, format);
     }
   }
 
@@ -621,8 +617,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       audioSink.playToEndOfStream();
     } catch (AudioSink.WriteException e) {
-      Format outputFormat = getCurrentOutputFormat();
-      throw createRendererException(e, outputFormat != null ? outputFormat : inputFormat);
+      @Nullable Format outputFormat = getOutputFormat();
+      throw createRendererException(e, outputFormat != null ? outputFormat : getInputFormat());
     }
   }
 

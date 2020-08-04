@@ -2188,11 +2188,9 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onVideoFrameProcessingOffset(
-        long totalProcessingOffsetUs, int frameCount, Format format) {
+    public void onVideoFrameProcessingOffset(long totalProcessingOffsetUs, int frameCount) {
       for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onVideoFrameProcessingOffset(
-            totalProcessingOffsetUs, frameCount, format);
+        videoDebugListener.onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount);
       }
     }
 
