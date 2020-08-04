@@ -713,6 +713,13 @@ public class SampleQueue implements TrackOutput {
       long offset,
       int size,
       @Nullable CryptoData cryptoData) {
+    if (length > 0) {
+      // Ensure sample data doesn't overlap.
+      int previousSampleRelativeIndex = getRelativeIndex(length - 1);
+      checkArgument(
+          offsets[previousSampleRelativeIndex] + sizes[previousSampleRelativeIndex] <= offset);
+    }
+
     isLastSampleQueued = (sampleFlags & C.BUFFER_FLAG_LAST_SAMPLE) != 0;
     largestQueuedTimestampUs = max(largestQueuedTimestampUs, timeUs);
 

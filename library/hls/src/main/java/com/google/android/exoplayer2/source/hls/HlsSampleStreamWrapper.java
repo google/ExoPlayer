@@ -64,6 +64,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -833,6 +834,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         Assertions.checkState(removed == loadable);
         if (mediaChunks.isEmpty()) {
           pendingResetPositionUs = lastSeekPositionUs;
+        } else {
+          Iterables.getLast(mediaChunks).invalidateExtractor();
         }
       }
       loadErrorAction = Loader.DONT_RETRY;
@@ -914,6 +917,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     HlsMediaChunk firstRemovedChunk = discardUpstreamMediaChunksFromIndex(newQueueSize);
     if (mediaChunks.isEmpty()) {
       pendingResetPositionUs = lastSeekPositionUs;
+    } else {
+      Iterables.getLast(mediaChunks).invalidateExtractor();
     }
     loadingFinished = false;
 

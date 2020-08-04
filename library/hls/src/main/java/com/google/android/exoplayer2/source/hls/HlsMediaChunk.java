@@ -143,6 +143,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       shouldSpliceIn = !canContinueWithoutSplice;
       previousExtractor =
           isFollowingChunk
+                  && !previousChunk.extractorInvalidated
                   && previousChunk.discontinuitySequenceNumber == discontinuitySequenceNumber
               ? previousChunk.extractor
               : null;
@@ -224,6 +225,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private volatile boolean loadCanceled;
   private boolean loadCompleted;
   private ImmutableList<Integer> sampleQueueFirstSampleIndices;
+  private boolean extractorInvalidated;
 
   private HlsMediaChunk(
       HlsExtractorFactory extractorFactory,
@@ -300,13 +302,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param sampleQueueIndex The index of the sample queue in the output.
    * @return The first sample index of this chunk in the specified sample queue.
    */
-  int getFirstSampleIndex(int sampleQueueIndex) {
+  public int getFirstSampleIndex(int sampleQueueIndex) {
     Assertions.checkState(!shouldSpliceIn);
     if (sampleQueueIndex >= sampleQueueFirstSampleIndices.size()) {
       // The sample queue was created by this chunk or a later chunk.
       return 0;
     }
     return sampleQueueFirstSampleIndices.get(sampleQueueIndex);
+  }
+
+  /** Prevents the extractor from being reused by a following media chunk. */
+  public void invalidateExtractor() {
+    extractorInvalidated = true;
   }
 
   @Override
