@@ -53,7 +53,7 @@ import java.util.ArrayList;
   private final Runnable hideControllerRunnable;
   private final OnLayoutChangeListener onLayoutChangeListener;
 
-  private int uxState = UX_STATE_ALL_VISIBLE;
+  private int uxState;
   private boolean initiallyHidden;
   private boolean isMinimalMode;
   private boolean needToShowBars;
@@ -88,6 +88,7 @@ import java.util.ArrayList;
     hideControllerRunnable = this::hideController;
     onLayoutChangeListener = this::onLayoutChange;
     animationEnabled = true;
+    uxState = UX_STATE_ALL_VISIBLE;
   }
 
   public void show() {
@@ -432,7 +433,7 @@ import java.util.ArrayList;
     if (styledPlayerControlView == null) {
       return false;
     }
-    return uxState == UX_STATE_ALL_VISIBLE;
+    return uxState == UX_STATE_ALL_VISIBLE && styledPlayerControlView.isVisible();
   }
 
   private void setUxState(int uxState) {
