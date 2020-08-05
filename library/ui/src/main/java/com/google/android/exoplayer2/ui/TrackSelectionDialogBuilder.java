@@ -59,6 +59,7 @@ public final class TrackSelectionDialogBuilder {
   private boolean showDisableOption;
   @Nullable private TrackNameProvider trackNameProvider;
   private boolean isDisabled;
+  private boolean sortTrackAscending = false;
   private List<SelectionOverride> overrides;
 
   /**
@@ -207,6 +208,18 @@ public final class TrackSelectionDialogBuilder {
     return this;
   }
 
+  /**
+   *
+   * Sets Whether the TrackGroupArray of the {@code rendererIndex} specified should be
+   * display in ascending order
+   * @param sort Whether to sort in ascending order or let it as it is received
+   * @return This builder, for convenience.
+   */
+  public TrackSelectionDialogBuilder setSortTrack(boolean sort) {
+    this.sortTrackAscending = sort;
+    return this;
+  }
+
   /** Builds the dialog. */
   public Dialog build() {
     @Nullable Dialog dialog = buildForAndroidX();
@@ -274,7 +287,7 @@ public final class TrackSelectionDialogBuilder {
     if (trackNameProvider != null) {
       selectionView.setTrackNameProvider(trackNameProvider);
     }
-    selectionView.init(mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ null);
+    selectionView.init(mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ null, sortTrackAscending);
     return (dialog, which) ->
         callback.onTracksSelected(selectionView.getIsDisabled(), selectionView.getOverrides());
   }

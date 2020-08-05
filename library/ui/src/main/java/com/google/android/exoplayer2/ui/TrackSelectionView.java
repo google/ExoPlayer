@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.Format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +64,7 @@ public class TrackSelectionView extends LinearLayout {
 
   private boolean allowAdaptiveSelections;
   private boolean allowMultipleOverrides;
+  private boolean sortTrackAscending;
 
   private TrackNameProvider trackNameProvider;
   private CheckedTextView[][] trackViews;
@@ -203,17 +205,28 @@ public class TrackSelectionView extends LinearLayout {
       int rendererIndex,
       boolean isDisabled,
       List<SelectionOverride> overrides,
-      @Nullable TrackSelectionListener listener) {
+      @Nullable TrackSelectionListener listener,
+      boolean sortTrackAscending) {
     this.mappedTrackInfo = mappedTrackInfo;
     this.rendererIndex = rendererIndex;
     this.isDisabled = isDisabled;
     this.listener = listener;
+    this.sortTrackAscending = sortTrackAscending;
     int maxOverrides = allowMultipleOverrides ? overrides.size() : Math.min(overrides.size(), 1);
     for (int i = 0; i < maxOverrides; i++) {
       SelectionOverride override = overrides.get(i);
       this.overrides.put(override.groupIndex, override);
     }
     updateViews();
+  }
+
+  public void init(
+      MappedTrackInfo mappedTrackInfo,
+      int rendererIndex,
+      boolean isDisabled,
+      List<SelectionOverride> overrides,
+      @Nullable TrackSelectionListener listener) {
+    init(mappedTrackInfo, rendererIndex, isDisabled, overrides, listener, false);
   }
 
   /** Returns whether the renderer is disabled. */
@@ -250,7 +263,7 @@ public class TrackSelectionView extends LinearLayout {
     disableView.setEnabled(true);
     defaultView.setEnabled(true);
 
-    trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+    trackGroups = sortTrackGroups(mappedTrackInfo, rendererIndex, sortTrackAscending);
 
     // Add per-track views.
     trackViews = new CheckedTextView[trackGroups.length][];
@@ -286,6 +299,30 @@ public class TrackSelectionView extends LinearLayout {
     }
 
     updateViewStates();
+  }
+
+  private TrackGroupArray sortTrackGroups(MappedTrackInfo mappedTrackInfo, int rendererIndex, boolean asc) {
+    TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+    if(asc) {
+      Format[][] listFormats = new Format[trackGroups.length][];
+      for(int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+        TrackGroup group = trackGroups.get(groupIndex);
+        listFormats[groupIndex] = new Format[group.length];
+        for (int formatIndex = 0; formatIndex < group.length; formatIndex++) {
+          listFormats[groupIndex][formatIndex] = group.getFormat(formatIndex);
+        }
+      }
+
+      // Ascending order by comparing bitrate (works for Video and Audio)
+      Arrays.sort(listFormats[0], (o1, o2) -> Integer.compare(o1.bitrate, o2.bitrate));
+      TrackGroup[] tg = new TrackGroup[listFormats.length];
+      for(int trackIndex = 0; trackIndex < listFormats.length; trackIndex++) {
+        tg[trackIndex] = new TrackGroup(listFormats[trackIndex]);
+      }
+      trackGroups = new TrackGroupArray(tg);
+    }
+
+    return trackGroups;
   }
 
   private void updateViewStates() {
@@ -372,8 +409,8 @@ public class TrackSelectionView extends LinearLayout {
     return allowAdaptiveSelections
         && trackGroups.get(groupIndex).length > 1
         && mappedTrackInfo.getAdaptiveSupport(
-                rendererIndex, groupIndex, /* includeCapabilitiesExceededTracks= */ false)
-            != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
+        rendererIndex, groupIndex, /* includeCapabilitiesExceededTracks= */ false)
+        != RendererCapabilities.ADAPTIVE_NOT_SUPPORTED;
   }
 
   private boolean shouldEnableMultiGroupSelection() {
