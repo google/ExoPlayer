@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.media2;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
 import android.os.Looper;
@@ -32,7 +33,6 @@ import com.google.android.exoplayer2.ext.media2.test.R;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,11 +89,8 @@ public class MediaSessionUtilTest {
                 throw new IllegalStateException(e);
               }
             });
-    assertThat(
-            prepareResult
-                .get(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS)
-                .getResultCode())
+    assertThat(prepareResult.get(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS).getResultCode())
         .isEqualTo(PlayerResult.RESULT_SUCCESS);
-    assertThat(latch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(latch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
   }
 }

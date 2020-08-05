@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.ext.media2;
 import static com.google.android.exoplayer2.ext.media2.TestUtils.assertPlayerResultSuccess;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
 import android.net.Uri;
@@ -52,7 +53,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -156,7 +156,7 @@ public class SessionCallbackBuilderTest {
             latch.countDown();
           };
       try (MediaController controller = createConnectedController(session, listener, null)) {
-        assertThat(latch.await(CONTROLLER_COMMAND_WAIT_TIME_MS, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(latch.await(CONTROLLER_COMMAND_WAIT_TIME_MS, MILLISECONDS)).isTrue();
 
         assertSessionResultFailure(controller.skipToNextPlaylistItem());
         assertSessionResultFailure(controller.skipToPreviousPlaylistItem());
@@ -223,9 +223,7 @@ public class SessionCallbackBuilderTest {
           createConnectedController(session, connectedListener, allowedCommandChangedListener)) {
         assertPlayerResultSuccess(sessionPlayerConnector.skipToNextPlaylistItem());
 
-        assertThat(
-                allowedCommandChangedLatch.await(
-                    CONTROLLER_COMMAND_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+        assertThat(allowedCommandChangedLatch.await(CONTROLLER_COMMAND_WAIT_TIME_MS, MILLISECONDS))
             .isTrue();
 
         // Also test whether the rewind fails as expected.
@@ -251,9 +249,7 @@ public class SessionCallbackBuilderTest {
           @Override
           public int readAt(long position, byte[] buffer, int offset, int size) {
             try {
-              assertThat(
-                      readAllowedLatch.await(
-                          PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+              assertThat(readAllowedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS))
                   .isTrue();
             } catch (Exception e) {
               assertWithMessage("Unexpected exception %s", e).fail();
@@ -297,7 +293,7 @@ public class SessionCallbackBuilderTest {
         readAllowedLatch.countDown();
         assertThat(
                 seekToAllowedForSecondMediaItem.await(
-                    CONTROLLER_COMMAND_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+                    CONTROLLER_COMMAND_WAIT_TIME_MS, MILLISECONDS))
             .isTrue();
       }
     }
@@ -326,7 +322,7 @@ public class SessionCallbackBuilderTest {
       try (MediaController controller = createConnectedController(session)) {
         assertSessionResultSuccess(
             controller.setRating(testMediaId, testRating), CONTROLLER_COMMAND_WAIT_TIME_MS);
-        assertThat(latch.await(0, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(latch.await(0, MILLISECONDS)).isTrue();
       }
     }
   }
@@ -378,7 +374,7 @@ public class SessionCallbackBuilderTest {
       try (MediaController controller = createConnectedController(session, null, listener)) {
         assertSessionResultSuccess(
             controller.sendCustomCommand(testCommand, null), CONTROLLER_COMMAND_WAIT_TIME_MS);
-        assertThat(latch.await(0, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(latch.await(0, MILLISECONDS)).isTrue();
       }
     }
   }
@@ -508,10 +504,9 @@ public class SessionCallbackBuilderTest {
         assertSessionResultSuccess(
             controller.setMediaItem(testMediaIdUri.toString()),
             PLAYER_STATE_CHANGE_OVER_SESSION_WAIT_TIME_MS);
-        assertThat(providerLatch.await(0, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(providerLatch.await(0, MILLISECONDS)).isTrue();
         assertThat(
-                currentMediaItemChangedLatch.await(
-                    CONTROLLER_COMMAND_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+                currentMediaItemChangedLatch.await(CONTROLLER_COMMAND_WAIT_TIME_MS, MILLISECONDS))
             .isTrue();
       }
     }
@@ -543,7 +538,7 @@ public class SessionCallbackBuilderTest {
                 .build())) {
       try (MediaController controller = createConnectedController(session)) {
         assertSessionResultSuccess(controller.skipBackward(), CONTROLLER_COMMAND_WAIT_TIME_MS);
-        assertThat(skipBackwardCalledLatch.await(0, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(skipBackwardCalledLatch.await(0, MILLISECONDS)).isTrue();
       }
     }
   }
@@ -574,7 +569,7 @@ public class SessionCallbackBuilderTest {
                 .build())) {
       try (MediaController controller = createConnectedController(session)) {
         assertSessionResultSuccess(controller.skipForward(), CONTROLLER_COMMAND_WAIT_TIME_MS);
-        assertThat(skipForwardCalledLatch.await(0, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(skipForwardCalledLatch.await(0, MILLISECONDS)).isTrue();
       }
     }
   }
@@ -591,8 +586,7 @@ public class SessionCallbackBuilderTest {
                 .setPostConnectCallback(postConnectCallback)
                 .build())) {
       try (MediaController controller = createConnectedController(session)) {
-        assertThat(postConnectLatch.await(CONTROLLER_COMMAND_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-            .isTrue();
+        assertThat(postConnectLatch.await(CONTROLLER_COMMAND_WAIT_TIME_MS, MILLISECONDS)).isTrue();
       }
     }
   }
@@ -609,8 +603,7 @@ public class SessionCallbackBuilderTest {
                 .setDisconnectedCallback(disconnectCallback)
                 .build())) {
       try (MediaController controller = createConnectedController(session)) {}
-      assertThat(disconnectedLatch.await(CONTROLLER_COMMAND_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-          .isTrue();
+      assertThat(disconnectedLatch.await(CONTROLLER_COMMAND_WAIT_TIME_MS, MILLISECONDS)).isTrue();
     }
   }
 
@@ -666,13 +659,12 @@ public class SessionCallbackBuilderTest {
 
   private static void assertSessionResultSuccess(Future<SessionResult> future, long timeoutMs)
       throws Exception {
-    SessionResult result = future.get(timeoutMs, TimeUnit.MILLISECONDS);
+    SessionResult result = future.get(timeoutMs, MILLISECONDS);
     assertThat(result.getResultCode()).isEqualTo(SessionResult.RESULT_SUCCESS);
   }
 
   private static void assertSessionResultFailure(Future<SessionResult> future) throws Exception {
-    SessionResult result =
-        future.get(PLAYER_STATE_CHANGE_OVER_SESSION_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+    SessionResult result = future.get(PLAYER_STATE_CHANGE_OVER_SESSION_WAIT_TIME_MS, MILLISECONDS);
     assertThat(result.getResultCode()).isNotEqualTo(SessionResult.RESULT_SUCCESS);
   }
 

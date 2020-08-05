@@ -24,6 +24,7 @@ import static com.google.android.exoplayer2.ext.media2.TestUtils.assertPlayerRes
 import static com.google.android.exoplayer2.ext.media2.TestUtils.assertPlayerResultSuccess;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -61,7 +62,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Before;
 import org.junit.Rule;
@@ -130,8 +130,7 @@ public class SessionPlayerConnectorTest {
 
     sessionPlayerConnector.prepare();
     sessionPlayerConnector.play();
-    assertThat(onPlayingLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(onPlayingLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
   }
 
   @Test
@@ -169,9 +168,7 @@ public class SessionPlayerConnectorTest {
               sessionPlayerConnector.prepare();
               sessionPlayerConnector.play();
             });
-    assertThat(
-            onPlayerStatePlayingLatch.await(
-                PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(onPlayerStatePlayingLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
   }
 
@@ -219,8 +216,7 @@ public class SessionPlayerConnectorTest {
     sessionPlayerConnector.play();
 
     // waiting to complete
-    assertThat(
-            onPlaybackCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(onPlaybackCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
     assertThat(sessionPlayerConnector.getPlayerState())
         .isEqualTo(SessionPlayer.PLAYER_STATE_PAUSED);
@@ -244,8 +240,7 @@ public class SessionPlayerConnectorTest {
     sessionPlayerConnector.play();
 
     // waiting to complete
-    assertThat(
-            onPlaybackCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(onPlaybackCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
     assertThat(sessionPlayerConnector.getPlayerState())
         .isEqualTo(SessionPlayer.PLAYER_STATE_PAUSED);
@@ -380,8 +375,7 @@ public class SessionPlayerConnectorTest {
     sessionPlayerConnector.setPlaybackSpeed(2.0f);
     sessionPlayerConnector.play();
 
-    assertThat(
-            onPlaybackCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(onPlaybackCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
     assertThat(sessionPlayerConnector.getCurrentMediaItem()).isEqualTo(mediaItem2);
     assertThat(sessionPlayerConnector.getPlaybackSpeed()).isWithin(0.001f).of(2.0f);
@@ -416,9 +410,7 @@ public class SessionPlayerConnectorTest {
           @Override
           public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
             try {
-              assertThat(
-                      readAllowedLatch.await(
-                          PLAYBACK_COMPLETED_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+              assertThat(readAllowedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS))
                   .isTrue();
             } catch (Exception e) {
               assertWithMessage("Unexpected exception %s", e).fail();
@@ -467,8 +459,7 @@ public class SessionPlayerConnectorTest {
     assertThat(seekFuture1.get().getResultCode()).isEqualTo(RESULT_INFO_SKIPPED);
     assertThat(seekFuture2.get().getResultCode()).isEqualTo(RESULT_INFO_SKIPPED);
     assertThat(seekFuture3.get().getResultCode()).isEqualTo(RESULT_SUCCESS);
-    assertThat(onSeekCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(onSeekCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS)).isTrue();
     assertThat(seekPosition.get()).isEqualTo(testFinalSeekToPosition);
   }
 
@@ -519,8 +510,7 @@ public class SessionPlayerConnectorTest {
 
     InstrumentationRegistry.getInstrumentation()
         .runOnMainSync(() -> simpleExoPlayer.seekTo(testSeekPosition));
-    assertThat(onSeekCompletedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(onSeekCompletedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
     assertThat(seekPosition.get()).isEqualTo(testSeekPosition);
   }
 
@@ -592,8 +582,7 @@ public class SessionPlayerConnectorTest {
     sessionPlayerConnector.registerPlayerCallback(executor, callback);
 
     assertPlayerResultSuccess(sessionPlayerConnector.prepare());
-    assertThat(onPlayerStatePaused.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(onPlayerStatePaused.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
   }
 
   @Test
@@ -624,9 +613,7 @@ public class SessionPlayerConnectorTest {
     assertWithMessage(
             "Expected BUFFERING_STATE_COMPLETE only once. Full changes are %s",
             bufferingStateChanges)
-        .that(
-            onBufferingCompletedLatch.await(
-                PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+        .that(onBufferingCompletedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS))
         .isFalse();
     assertThat(bufferingStateChanges).isNotEmpty();
     int lastIndex = bufferingStateChanges.size() - 1;
@@ -660,8 +647,7 @@ public class SessionPlayerConnectorTest {
 
     sessionPlayerConnector.seekTo(mp4DurationMs >> 1);
 
-    assertThat(onSeekCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(onSeekCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS)).isTrue();
   }
 
   @Test
@@ -688,9 +674,7 @@ public class SessionPlayerConnectorTest {
 
     sessionPlayerConnector.setPlaybackSpeed(0.5f);
 
-    assertThat(
-            onPlaybackSpeedChangedLatch.await(
-                PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(onPlaybackSpeedChangedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
   }
 
@@ -753,9 +737,7 @@ public class SessionPlayerConnectorTest {
           public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
             readRequestedLatch.countDown();
             try {
-              assertThat(
-                      readAllowedLatch.await(
-                          PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+              assertThat(readAllowedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS))
                   .isTrue();
             } catch (Exception e) {
               assertWithMessage("Unexpected exception %s", e).fail();
@@ -780,8 +762,7 @@ public class SessionPlayerConnectorTest {
     ListenableFuture<PlayerResult> prepareFuture = sessionPlayerConnector.prepare();
     ListenableFuture<PlayerResult> seekFuture = sessionPlayerConnector.seekTo(1000);
 
-    assertThat(readRequestedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(readRequestedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
 
     // Cancel the pending commands while preparation is on hold.
     seekFuture.cancel(false);
@@ -834,9 +815,7 @@ public class SessionPlayerConnectorTest {
         executor, new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedLatch));
 
     assertPlayerResultSuccess(sessionPlayerConnector.setPlaylist(playlist, null));
-    assertThat(
-            onCurrentMediaItemChangedLatch.await(
-                PLAYLIST_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(onCurrentMediaItemChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
 
     assertThat(sessionPlayerConnector.getPlaylist()).isEqualTo(playlist);
@@ -864,8 +843,7 @@ public class SessionPlayerConnectorTest {
 
     sessionPlayerConnector.setPlaylist(playlist, /* metadata= */ null);
     sessionPlayerConnector.prepare();
-    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isFalse();
+    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isFalse();
     assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
   }
 
@@ -894,8 +872,7 @@ public class SessionPlayerConnectorTest {
           }
         });
     sessionPlayerConnector.addPlaylistItem(addIndex, newMediaItem);
-    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isFalse();
+    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isFalse();
     assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
   }
 
@@ -923,8 +900,7 @@ public class SessionPlayerConnectorTest {
           }
         });
     sessionPlayerConnector.removePlaylistItem(removeIndex);
-    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isFalse();
+    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isFalse();
     assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
   }
 
@@ -953,8 +929,7 @@ public class SessionPlayerConnectorTest {
           }
         });
     sessionPlayerConnector.replacePlaylistItem(replaceIndex, newMediaItem);
-    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isFalse();
+    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isFalse();
     assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
   }
 
@@ -971,9 +946,7 @@ public class SessionPlayerConnectorTest {
 
     assertPlayerResultSuccess(sessionPlayerConnector.setPlaylist(playlist, null));
     assertThat(sessionPlayerConnector.getCurrentMediaItemIndex()).isEqualTo(0);
-    assertThat(
-            onCurrentMediaItemChangedLatch.await(
-                PLAYLIST_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(onCurrentMediaItemChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
   }
 
@@ -1024,8 +997,7 @@ public class SessionPlayerConnectorTest {
     assertThat(sessionPlayerConnector.prepare()).isNotNull();
     assertThat(sessionPlayerConnector.play()).isNotNull();
 
-    assertThat(
-            onPlaybackCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(onPlaybackCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
   }
 
@@ -1052,8 +1024,7 @@ public class SessionPlayerConnectorTest {
     InstrumentationRegistry.getInstrumentation()
         .runOnMainSync(() -> simpleExoPlayer.setPlayWhenReady(true));
 
-    assertThat(onPlayingLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(onPlayingLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
   }
 
   @Test
@@ -1091,8 +1062,7 @@ public class SessionPlayerConnectorTest {
     InstrumentationRegistry.getInstrumentation()
         .runOnMainSync(() -> simpleExoPlayer.setPlayWhenReady(false));
 
-    assertThat(onPausedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(onPausedLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
   }
 
   @Test
@@ -1129,8 +1099,7 @@ public class SessionPlayerConnectorTest {
                     }));
 
     assertPlayerResultSuccess(sessionPlayerConnector.play());
-    assertThat(
-            playerStateChangesLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(playerStateChangesLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
     assertThat(playerStateChanges)
         .containsExactly(
@@ -1172,8 +1141,7 @@ public class SessionPlayerConnectorTest {
         };
     sessionPlayerConnector.registerPlayerCallback(executor, skipToNextTestCallback);
     assertPlayerResultSuccess(sessionPlayerConnector.skipToNextPlaylistItem());
-    assertThat(onNextMediaItemLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
-        .isTrue();
+    assertThat(onNextMediaItemLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
     sessionPlayerConnector.unregisterPlayerCallback(skipToNextTestCallback);
 
     // STEP 3: skipToPreviousPlaylistItem()
@@ -1193,8 +1161,7 @@ public class SessionPlayerConnectorTest {
         };
     sessionPlayerConnector.registerPlayerCallback(executor, skipToPreviousTestCallback);
     assertPlayerResultSuccess(sessionPlayerConnector.skipToPreviousPlaylistItem());
-    assertThat(
-            onPreviousMediaItemLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+    assertThat(onPreviousMediaItemLatch.await(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
     sessionPlayerConnector.unregisterPlayerCallback(skipToPreviousTestCallback);
   }
@@ -1243,9 +1210,7 @@ public class SessionPlayerConnectorTest {
     assertWithMessage(
             "Current media item didn't change as expected. Actual changes were %s",
             currentMediaItemChanges)
-        .that(
-            onCurrentMediaItemChangedLatch.await(
-                PLAYBACK_COMPLETED_WAIT_TIME_MS, TimeUnit.MILLISECONDS))
+        .that(onCurrentMediaItemChangedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
 
     int expectedMediaItemIndex = 0;

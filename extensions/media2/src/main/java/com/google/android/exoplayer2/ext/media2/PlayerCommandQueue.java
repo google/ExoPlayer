@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -33,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 /** Manages the queue of player actions and handles running them one by one. */
 /* package */ class PlayerCommandQueue implements AutoCloseable {
@@ -399,7 +400,7 @@ import java.util.concurrent.TimeUnit;
               .append(result.hashCode());
       if (result.isDone()) {
         try {
-          int resultCode = result.get(/* timeout= */ 0, TimeUnit.MILLISECONDS).getResultCode();
+          int resultCode = result.get(/* timeout= */ 0, MILLISECONDS).getResultCode();
           stringBuilder.append(", resultCode=").append(resultCode);
         } catch (Exception e) {
           // pass-through.
@@ -437,7 +438,7 @@ import java.util.concurrent.TimeUnit;
               .append(result.hashCode());
       if (result.isDone()) {
         try {
-          int resultCode = result.get(/* timeout= */ 0, TimeUnit.MILLISECONDS).getResultCode();
+          int resultCode = result.get(/* timeout= */ 0, MILLISECONDS).getResultCode();
           stringBuilder.append(", resultCode=").append(resultCode);
         } catch (Exception e) {
           // pass-through.

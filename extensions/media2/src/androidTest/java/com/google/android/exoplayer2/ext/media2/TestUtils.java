@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.ext.media2;
 
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -31,7 +32,6 @@ import androidx.media2.common.UriMediaItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 /** Utilities for tests. */
 public final class TestUtils {
@@ -84,7 +84,7 @@ public final class TestUtils {
       Future<PlayerResult> future, /* @PlayerResult.ResultCode */ int playerResult)
       throws Exception {
     assertThat(future).isNotNull();
-    PlayerResult result = future.get(PLAYER_STATE_CHANGE_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+    PlayerResult result = future.get(PLAYER_STATE_CHANGE_WAIT_TIME_MS, MILLISECONDS);
     assertThat(result).isNotNull();
     assertThat(result.getResultCode()).isEqualTo(playerResult);
   }
