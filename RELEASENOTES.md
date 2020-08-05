@@ -201,6 +201,7 @@
         decoders.
     *   Add floating point PCM output capability in `MediaCodecAudioRenderer`,
         and `LibopusAudioRenderer`.
+    *   Do not use a MediaCodec for PCM formats if AudioTrack supports it.
 *   DASH:
     *   Enable support for embedded CEA-708.
     *   Add support for load cancelation when discarding upstream

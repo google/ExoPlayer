@@ -219,7 +219,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     // In direct mode, if the format has DRM then we need to use a decoder that only decrypts.
     // Else we don't don't need a decoder at all.
     if (supportsFormatDrm
-        && isDirectPlaybackSupported(format)
+        && audioSink.supportsFormat(format)
         && (!formatHasDrm || MediaCodecUtil.getDecryptOnlyDecoderInfo() != null)) {
       return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
     }
@@ -262,7 +262,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (mimeType == null) {
       return Collections.emptyList();
     }
-    if (isDirectPlaybackSupported(format)) {
+    if (audioSink.supportsFormat(format)) {
       // The format is supported directly, so a codec is only needed for decryption.
       @Nullable MediaCodecInfo codecInfo = MediaCodecUtil.getDecryptOnlyDecoderInfo();
       if (codecInfo != null) {
@@ -286,7 +286,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected boolean shouldUseBypass(Format format) {
-    return isDirectPlaybackSupported(format);
+    return audioSink.supportsFormat(format);
   }
 
   @Override
@@ -673,16 +673,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
     }
     return maxInputSize;
-  }
-
-  /** Returns if the format can be played as is to the audio sink. */
-  private boolean isDirectPlaybackSupported(Format format) {
-    @Nullable String mimeType = format.sampleMimeType;
-    if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
-      // Decoding bypass for PCM is not yet supported.
-      return false;
-    }
-    return audioSink.supportsFormat(format);
   }
 
   /**
