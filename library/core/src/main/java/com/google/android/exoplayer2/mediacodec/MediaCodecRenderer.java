@@ -537,7 +537,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return;
     }
 
-    if (sourceDrmSession == null && usePassthrough(inputFormat)) {
+    if (sourceDrmSession == null && shouldUseBypass(inputFormat)) {
       initBypass(inputFormat);
       return;
     }
@@ -588,12 +588,15 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Returns whether encoded passthrough should be used for playing back the input format.
+   * Returns whether buffers in the input format can be processed without a codec.
+   *
+   * <p>This method is only called if the content is not DRM protected, because if the content is
+   * DRM protected use of bypass is never possible.
    *
    * @param format The input {@link Format}.
-   * @return Whether passthrough playback is supported.
+   * @return Whether playback bypassing {@link MediaCodec} is supported.
    */
-  protected boolean usePassthrough(Format format) {
+  protected boolean shouldUseBypass(Format format) {
     return false;
   }
 

@@ -106,13 +106,13 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns information about a decoder suitable for audio passthrough.
+   * Returns information about a decoder that will only decrypt data, without decoding it.
    *
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
   @Nullable
-  public static MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
+  public static MediaCodecInfo getDecryptOnlyDecoderInfo() throws DecoderQueryException {
     return getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false, /* tunneling= */ false);
   }
 

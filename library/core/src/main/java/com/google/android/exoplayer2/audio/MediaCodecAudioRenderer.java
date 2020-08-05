@@ -90,7 +90,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private int codecMaxInputSize;
   private boolean codecNeedsDiscardChannelsWorkaround;
   private boolean codecNeedsEosBufferTimestampWorkaround;
-  @Nullable private Format codecPassthroughFormat;
+  /** Codec used for DRM decryption only in passthrough and offload. */
+  @Nullable private Format decryptOnlyCodecFormat;
+
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
@@ -214,11 +216,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
     boolean formatHasDrm = format.exoMediaCryptoType != null;
     boolean supportsFormatDrm = supportsFormatDrm(format);
-    // In passthrough mode, if the format needs decryption then we need to use a passthrough
-    // decoder. Else we don't don't need a decoder at all.
+    // In direct mode, if the format has DRM then we need to use a decoder that only decrypts.
+    // Else we don't don't need a decoder at all.
     if (supportsFormatDrm
-        && usePassthrough(format)
-        && (!formatHasDrm || MediaCodecUtil.getPassthroughDecoderInfo() != null)) {
+        && isDirectPlaybackSupported(format)
+        && (!formatHasDrm || MediaCodecUtil.getDecryptOnlyDecoderInfo() != null)) {
       return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
     }
     // If the input is PCM then it will be passed directly to the sink. Hence the sink must support
@@ -260,8 +262,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (mimeType == null) {
       return Collections.emptyList();
     }
-    if (usePassthrough(format)) {
-      @Nullable MediaCodecInfo codecInfo = MediaCodecUtil.getPassthroughDecoderInfo();
+    if (isDirectPlaybackSupported(format)) {
+      // The format is supported directly, so a codec is only needed for decryption.
+      @Nullable MediaCodecInfo codecInfo = MediaCodecUtil.getDecryptOnlyDecoderInfo();
       if (codecInfo != null) {
         return Collections.singletonList(codecInfo);
       }
@@ -282,13 +285,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected boolean usePassthrough(Format format) {
-    @Nullable String mimeType = format.sampleMimeType;
-    if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
-      // PCM passthrough is not yet supported.
-      return false;
-    }
-    return audioSink.supportsFormat(format);
+  protected boolean shouldUseBypass(Format format) {
+    return isDirectPlaybackSupported(format);
   }
 
   @Override
@@ -304,11 +302,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     MediaFormat mediaFormat =
         getMediaFormat(format, codecInfo.codecMimeType, codecMaxInputSize, codecOperatingRate);
     codecAdapter.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
-    // Store the input MIME type if we're using the passthrough codec.
-    boolean codecPassthroughEnabled =
+    // Store the input MIME type if we're only using the codec for decryption.
+    boolean decryptOnlyCodecEnabled =
         MimeTypes.AUDIO_RAW.equals(codecInfo.mimeType)
             && !MimeTypes.AUDIO_RAW.equals(format.sampleMimeType);
-    codecPassthroughFormat = codecPassthroughEnabled ? format : null;
+    decryptOnlyCodecFormat = decryptOnlyCodecEnabled ? format : null;
   }
 
   @Override
@@ -386,9 +384,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       throws ExoPlaybackException {
     Format audioSinkInputFormat;
     @Nullable int[] channelMap = null;
-    if (codecPassthroughFormat != null) { // Raw codec passthrough
-      audioSinkInputFormat = codecPassthroughFormat;
-    } else if (getCodec() == null) { // Codec bypass passthrough
+    if (decryptOnlyCodecFormat != null) { // Direct playback with a codec for decryption.
+      audioSinkInputFormat = decryptOnlyCodecFormat;
+    } else if (getCodec() == null) { // Direct playback with codec bypass.
       audioSinkInputFormat = format;
     } else {
       @C.PcmEncoding int pcmEncoding;
@@ -578,7 +576,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       bufferPresentationTimeUs = getLargestQueuedPresentationTimeUs();
     }
 
-    if (codecPassthroughFormat != null
+    if (decryptOnlyCodecFormat != null
         && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
       // Discard output buffers from the passthrough (raw) decoder containing codec specific data.
       checkNotNull(codec).releaseOutputBuffer(bufferIndex, false);
@@ -675,6 +673,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       }
     }
     return maxInputSize;
+  }
+
+  /** Returns if the format can be played as is to the audio sink. */
+  private boolean isDirectPlaybackSupported(Format format) {
+    @Nullable String mimeType = format.sampleMimeType;
+    if (MimeTypes.AUDIO_RAW.equals(mimeType)) {
+      // Decoding bypass for PCM is not yet supported.
+      return false;
+    }
+    return audioSink.supportsFormat(format);
   }
 
   /**
