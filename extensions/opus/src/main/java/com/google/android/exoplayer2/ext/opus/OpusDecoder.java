@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.ext.opus;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
@@ -26,17 +27,11 @@ import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.List;
 
 /** Opus decoder. */
 /* package */ final class OpusDecoder
     extends SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, OpusDecoderException> {
-
-  private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
-
-  /** Opus streams are always decoded at 48000 Hz. */
-  public static final int SAMPLE_RATE = 48_000;
 
   private static final int NO_ERROR = 0;
   private static final int DECODE_ERROR = -1;
@@ -46,9 +41,8 @@ import java.util.List;
   public final int channelCount;
 
   @Nullable private final ExoMediaCrypto exoMediaCrypto;
-
-  private final int headerSkipSamples;
-  private final int headerSeekPreRollSamples;
+  private final int preSkipSamples;
+  private final int seekPreRollSamples;
   private final long nativeDecoderContext;
 
   private int skipSamples;
@@ -77,21 +71,31 @@ import java.util.List;
       throws OpusDecoderException {
     super(new DecoderInputBuffer[numInputBuffers], new SimpleOutputBuffer[numOutputBuffers]);
     if (!OpusLibrary.isAvailable()) {
-      throw new OpusDecoderException("Failed to load decoder native libraries.");
+      throw new OpusDecoderException("Failed to load decoder native libraries");
     }
     this.exoMediaCrypto = exoMediaCrypto;
     if (exoMediaCrypto != null && !OpusLibrary.opusIsSecureDecodeSupported()) {
-      throw new OpusDecoderException("Opus decoder does not support secure decode.");
+      throw new OpusDecoderException("Opus decoder does not support secure decode");
     }
+    int initializationDataSize = initializationData.size();
+    if (initializationDataSize != 1 && initializationDataSize != 3) {
+      throw new OpusDecoderException("Invalid initialization data size");
+    }
+    if (initializationDataSize == 3
+        && (initializationData.get(1).length != 8 || initializationData.get(2).length != 8)) {
+      throw new OpusDecoderException("Invalid pre-skip or seek pre-roll");
+    }
+    preSkipSamples = OpusUtil.getPreSkipSamples(initializationData);
+    seekPreRollSamples = OpusUtil.getSeekPreRollSamples(initializationData);
+
     byte[] headerBytes = initializationData.get(0);
     if (headerBytes.length < 19) {
-      throw new OpusDecoderException("Header size is too small.");
+      throw new OpusDecoderException("Invalid header length");
     }
-    channelCount = headerBytes[9] & 0xFF;
+    channelCount = OpusUtil.getChannelCount(headerBytes);
     if (channelCount > 8) {
       throw new OpusDecoderException("Invalid channel count: " + channelCount);
     }
-    int preskip = readUnsignedLittleEndian16(headerBytes, 10);
     int gain = readSignedLittleEndian16(headerBytes, 16);
 
     byte[] streamMap = new byte[8];
@@ -100,7 +104,7 @@ import java.util.List;
     if (headerBytes[18] == 0) { // Channel mapping
       // If there is no channel mapping, use the defaults.
       if (channelCount > 2) { // Maximum channel count with default layout.
-        throw new OpusDecoderException("Invalid Header, missing stream map.");
+        throw new OpusDecoderException("Invalid header, missing stream map");
       }
       numStreams = 1;
       numCoupled = (channelCount == 2) ? 1 : 0;
@@ -108,29 +112,15 @@ import java.util.List;
       streamMap[1] = 1;
     } else {
       if (headerBytes.length < 21 + channelCount) {
-        throw new OpusDecoderException("Header size is too small.");
+        throw new OpusDecoderException("Invalid header length");
       }
       // Read the channel mapping.
       numStreams = headerBytes[19] & 0xFF;
       numCoupled = headerBytes[20] & 0xFF;
       System.arraycopy(headerBytes, 21, streamMap, 0, channelCount);
     }
-    if (initializationData.size() == 3) {
-      if (initializationData.get(1).length != 8 || initializationData.get(2).length != 8) {
-        throw new OpusDecoderException("Invalid Codec Delay or Seek Preroll");
-      }
-      long codecDelayNs =
-          ByteBuffer.wrap(initializationData.get(1)).order(ByteOrder.nativeOrder()).getLong();
-      long seekPreRollNs =
-          ByteBuffer.wrap(initializationData.get(2)).order(ByteOrder.nativeOrder()).getLong();
-      headerSkipSamples = nsToSamples(codecDelayNs);
-      headerSeekPreRollSamples = nsToSamples(seekPreRollNs);
-    } else {
-      headerSkipSamples = preskip;
-      headerSeekPreRollSamples = DEFAULT_SEEK_PRE_ROLL_SAMPLES;
-    }
     nativeDecoderContext =
-        opusInit(SAMPLE_RATE, channelCount, numStreams, numCoupled, gain, streamMap);
+        opusInit(OpusUtil.SAMPLE_RATE, channelCount, numStreams, numCoupled, gain, streamMap);
     if (nativeDecoderContext == 0) {
       throw new OpusDecoderException("Failed to initialize decoder");
     }
@@ -170,7 +160,7 @@ import java.util.List;
       opusReset(nativeDecoderContext);
       // When seeking to 0, skip number of samples as specified in opus header. When seeking to
       // any other time, skip number of samples as specified by seek preroll.
-      skipSamples = (inputBuffer.timeUs == 0) ? headerSkipSamples : headerSeekPreRollSamples;
+      skipSamples = (inputBuffer.timeUs == 0) ? preSkipSamples : seekPreRollSamples;
     }
     ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     CryptoInfo cryptoInfo = inputBuffer.cryptoInfo;
@@ -182,7 +172,7 @@ import java.util.List;
                 inputData,
                 inputData.limit(),
                 outputBuffer,
-                SAMPLE_RATE,
+                OpusUtil.SAMPLE_RATE,
                 exoMediaCrypto,
                 cryptoInfo.mode,
                 Assertions.checkNotNull(cryptoInfo.key),
@@ -231,18 +221,10 @@ import java.util.List;
     opusClose(nativeDecoderContext);
   }
 
-  private static int nsToSamples(long ns) {
-    return (int) (ns * SAMPLE_RATE / 1000000000);
-  }
-
-  private static int readUnsignedLittleEndian16(byte[] input, int offset) {
+  private static int readSignedLittleEndian16(byte[] input, int offset) {
     int value = input[offset] & 0xFF;
     value |= (input[offset + 1] & 0xFF) << 8;
-    return value;
-  }
-
-  private static int readSignedLittleEndian16(byte[] input, int offset) {
-    return (short) readUnsignedLittleEndian16(input, offset);
+    return (short) value;
   }
 
   private native long opusInit(
