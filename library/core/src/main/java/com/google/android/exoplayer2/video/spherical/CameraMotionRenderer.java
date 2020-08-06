@@ -73,7 +73,7 @@ public final class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     this.offsetUs = offsetUs;
   }
 

@@ -197,6 +197,7 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0L,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -225,6 +226,7 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -252,6 +254,7 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     renderer.start();
     for (int i = 0; i < 10; i++) {
@@ -290,6 +293,7 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     renderer.start();
 
@@ -297,7 +301,11 @@ public final class DecoderVideoRendererTest {
     for (int i = 0; i <= 10; i++) {
       renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && renderer.hasReadStreamToEnd()) {
-        renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
+        renderer.replaceStream(
+            new Format[] {H264_FORMAT},
+            fakeSampleStream2,
+            /* startPositionUs= */ 100,
+            /* offsetUs= */ 100);
         replacedStream = true;
       }
       // Ensure pending messages are delivered.
@@ -334,13 +342,18 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
 
     boolean replacedStream = false;
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && renderer.hasReadStreamToEnd()) {
-        renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
+        renderer.replaceStream(
+            new Format[] {H264_FORMAT},
+            fakeSampleStream2,
+            /* startPositionUs= */ 100,
+            /* offsetUs= */ 100);
         replacedStream = true;
       }
       // Ensure pending messages are delivered.

@@ -114,6 +114,7 @@ public class DecoderAudioRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs= */ 0);
     audioRenderer.setCurrentStreamFinal();
     when(mockAudioSink.isEnded()).thenReturn(true);

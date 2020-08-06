@@ -143,6 +143,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
 
     mediaCodecVideoRenderer.start();
@@ -175,6 +176,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     mediaCodecVideoRenderer.setCurrentStreamFinal();
     mediaCodecVideoRenderer.start();
@@ -217,6 +219,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -262,6 +265,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
 
     mediaCodecVideoRenderer.start();
@@ -298,6 +302,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -325,6 +330,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -351,6 +357,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     mediaCodecVideoRenderer.start();
     for (int i = 0; i < 10; i++) {
@@ -380,7 +387,7 @@ public class MediaCodecVideoRendererTest {
             new DrmSessionEventListener.EventDispatcher(),
             /* initialFormat= */ VIDEO_H264,
             ImmutableList.of(
-                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME),
+                oneByteSample(/* timeUs= */ 1_000_000, C.BUFFER_FLAG_KEY_FRAME),
                 FakeSampleStreamItem.END_OF_STREAM_ITEM));
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -389,6 +396,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     mediaCodecVideoRenderer.start();
 
@@ -398,7 +406,10 @@ public class MediaCodecVideoRendererTest {
           /* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && mediaCodecVideoRenderer.hasReadStreamToEnd()) {
         mediaCodecVideoRenderer.replaceStream(
-            new Format[] {VIDEO_H264}, fakeSampleStream2, /* offsetUs= */ 100);
+            new Format[] {VIDEO_H264},
+            fakeSampleStream2,
+            /* startPositionUs= */ 100,
+            /* offsetUs= */ 100);
         replacedStream = true;
       }
     }
@@ -436,6 +447,7 @@ public class MediaCodecVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
 
     boolean replacedStream = false;
@@ -444,7 +456,10 @@ public class MediaCodecVideoRendererTest {
           /* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && mediaCodecVideoRenderer.hasReadStreamToEnd()) {
         mediaCodecVideoRenderer.replaceStream(
-            new Format[] {VIDEO_H264}, fakeSampleStream2, /* offsetUs= */ 100);
+            new Format[] {VIDEO_H264},
+            fakeSampleStream2,
+            /* startPositionUs= */ 100,
+            /* offsetUs= */ 100);
         replacedStream = true;
       }
     }

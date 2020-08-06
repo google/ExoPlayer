@@ -683,7 +683,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+      throws ExoPlaybackException {
     if (outputStreamOffsetUs == C.TIME_UNSET) {
       outputStreamOffsetUs = offsetUs;
     } else {

@@ -54,8 +54,9 @@ public class FakeVideoRenderer extends FakeRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
-    super.onStreamChanged(formats, offsetUs);
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+      throws ExoPlaybackException {
+    super.onStreamChanged(formats, startPositionUs, offsetUs);
     streamOffsetUs = offsetUs;
     if (renderedFirstFrameAfterReset) {
       renderedFirstFrameAfterReset = false;
