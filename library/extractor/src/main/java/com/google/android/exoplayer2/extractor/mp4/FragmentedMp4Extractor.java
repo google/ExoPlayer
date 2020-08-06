@@ -1011,8 +1011,10 @@ public class FragmentedMp4Extractor implements Extractor {
           checkNonNegative(sampleDurationsPresent ? trun.readInt() : defaultSampleValues.duration);
       int sampleSize =
           checkNonNegative(sampleSizesPresent ? trun.readInt() : defaultSampleValues.size);
-      int sampleFlags = (i == 0 && firstSampleFlagsPresent) ? firstSampleFlags
-          : sampleFlagsPresent ? trun.readInt() : defaultSampleValues.flags;
+      int sampleFlags =
+          sampleFlagsPresent
+              ? trun.readInt()
+              : (i == 0 && firstSampleFlagsPresent) ? firstSampleFlags : defaultSampleValues.flags;
       if (sampleCompositionTimeOffsetsPresent) {
         // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers in
         // version 0 trun boxes, however a significant number of streams violate the spec and use
