@@ -114,11 +114,13 @@ public class FragmentedMp4Extractor implements Extractor {
 
   @SuppressWarnings("ConstantCaseForConstants")
   private static final int SAMPLE_GROUP_TYPE_seig = 0x73656967;
-
   private static final byte[] PIFF_SAMPLE_ENCRYPTION_BOX_EXTENDED_TYPE =
       new byte[] {-94, 57, 79, 82, 90, -101, 79, 20, -94, 68, 108, 66, 124, 100, -115, -12};
+
+  // Extra tracks constants.
   private static final Format EMSG_FORMAT =
       new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_EMSG).build();
+  private static final int EXTRA_TRACKS_BASE_ID = 100;
 
   // Parser states.
   private static final int STATE_READING_ATOM_HEADER = 0;
@@ -172,7 +174,7 @@ public class FragmentedMp4Extractor implements Extractor {
   private int sampleCurrentNalBytesRemaining;
   private boolean processSeiNalUnitPayload;
 
-  // Extractor output.
+  // Outputs.
   private @MonotonicNonNull ExtractorOutput extractorOutput;
   private TrackOutput[] emsgTrackOutputs;
   private TrackOutput[] ceaTrackOutputs;
@@ -268,6 +270,8 @@ public class FragmentedMp4Extractor implements Extractor {
     durationUs = C.TIME_UNSET;
     pendingSeekTimeUs = C.TIME_UNSET;
     segmentIndexEarliestPresentationTimeUs = C.TIME_UNSET;
+    emsgTrackOutputs = new TrackOutput[0];
+    ceaTrackOutputs = new TrackOutput[0];
     enterReadingAtomHeaderState();
   }
 
@@ -279,6 +283,7 @@ public class FragmentedMp4Extractor implements Extractor {
   @Override
   public void init(ExtractorOutput output) {
     extractorOutput = output;
+    initExtraTracks();
     if (sideloadedTrack != null) {
       TrackBundle bundle = new TrackBundle(output.track(0, sideloadedTrack.type));
       bundle.init(
@@ -293,7 +298,6 @@ public class FragmentedMp4Extractor implements Extractor {
           new DefaultSampleValues(
               /* sampleDescriptionIndex= */ 0, /* duration= */ 0, /* size= */ 0, /* flags= */ 0));
       trackBundles.put(0, bundle);
-      maybeInitExtraTracks();
       extractorOutput.endTracks();
     }
   }
@@ -518,7 +522,6 @@ public class FragmentedMp4Extractor implements Extractor {
         trackBundles.put(track.id, trackBundle);
         durationUs = max(durationUs, track.durationUs);
       }
-      maybeInitExtraTracks();
       extractorOutput.endTracks();
     } else {
       Assertions.checkState(trackBundles.size() == trackCount);
@@ -567,30 +570,28 @@ public class FragmentedMp4Extractor implements Extractor {
     }
   }
 
-  private void maybeInitExtraTracks() {
-    if (emsgTrackOutputs == null) {
-      emsgTrackOutputs = new TrackOutput[2];
-      int emsgTrackOutputCount = 0;
-      if (additionalEmsgTrackOutput != null) {
-        emsgTrackOutputs[emsgTrackOutputCount++] = additionalEmsgTrackOutput;
-      }
-      if ((flags & FLAG_ENABLE_EMSG_TRACK) != 0) {
-        emsgTrackOutputs[emsgTrackOutputCount++] =
-            extractorOutput.track(trackBundles.size(), C.TRACK_TYPE_METADATA);
-      }
-      emsgTrackOutputs = Arrays.copyOf(emsgTrackOutputs, emsgTrackOutputCount);
+  private void initExtraTracks() {
+    int nextExtraTrackId = EXTRA_TRACKS_BASE_ID;
 
-      for (TrackOutput eventMessageTrackOutput : emsgTrackOutputs) {
-        eventMessageTrackOutput.format(EMSG_FORMAT);
-      }
+    emsgTrackOutputs = new TrackOutput[2];
+    int emsgTrackOutputCount = 0;
+    if (additionalEmsgTrackOutput != null) {
+      emsgTrackOutputs[emsgTrackOutputCount++] = additionalEmsgTrackOutput;
     }
-    if (ceaTrackOutputs == null) {
-      ceaTrackOutputs = new TrackOutput[closedCaptionFormats.size()];
-      for (int i = 0; i < ceaTrackOutputs.length; i++) {
-        TrackOutput output = extractorOutput.track(trackBundles.size() + 1 + i, C.TRACK_TYPE_TEXT);
-        output.format(closedCaptionFormats.get(i));
-        ceaTrackOutputs[i] = output;
-      }
+    if ((flags & FLAG_ENABLE_EMSG_TRACK) != 0) {
+      emsgTrackOutputs[emsgTrackOutputCount++] =
+          extractorOutput.track(nextExtraTrackId++, C.TRACK_TYPE_METADATA);
+    }
+    emsgTrackOutputs = Arrays.copyOf(emsgTrackOutputs, emsgTrackOutputCount);
+    for (TrackOutput eventMessageTrackOutput : emsgTrackOutputs) {
+      eventMessageTrackOutput.format(EMSG_FORMAT);
+    }
+
+    ceaTrackOutputs = new TrackOutput[closedCaptionFormats.size()];
+    for (int i = 0; i < ceaTrackOutputs.length; i++) {
+      TrackOutput output = extractorOutput.track(nextExtraTrackId++, C.TRACK_TYPE_TEXT);
+      output.format(closedCaptionFormats.get(i));
+      ceaTrackOutputs[i] = output;
     }
   }
 

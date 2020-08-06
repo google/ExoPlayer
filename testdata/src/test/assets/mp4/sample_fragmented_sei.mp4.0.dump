@@ -330,7 +330,7 @@ track 1:
     time = 1044897
     flags = 1
     data = length 10, hash A453EEBE
-track 3:
+track 100:
   total output bytes = 0
   sample count = 0
   format 0:
