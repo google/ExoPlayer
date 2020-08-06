@@ -200,13 +200,13 @@ import java.util.concurrent.TimeoutException;
   }
 
   /**
-   * Configures the player to throw when it detects it's stuck buffering.
+   * Configures the player to not throw when it detects it's stuck buffering.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release. It should
    * only be called before the player is used.
    */
-  public void experimental_throwWhenStuckBuffering() {
-    internalPlayer.experimental_throwWhenStuckBuffering();
+  public void experimental_disableThrowWhenStuckBuffering() {
+    internalPlayer.experimental_disableThrowWhenStuckBuffering();
   }
 
   @Override

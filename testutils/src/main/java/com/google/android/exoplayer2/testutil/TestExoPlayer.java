@@ -61,7 +61,6 @@ public class TestExoPlayer {
     @Nullable private Renderer[] renderers;
     @Nullable private RenderersFactory renderersFactory;
     private boolean useLazyPreparation;
-    private boolean throwWhenStuckBuffering;
     private @MonotonicNonNull Looper looper;
 
     public Builder(Context context) {
@@ -232,19 +231,6 @@ public class TestExoPlayer {
     }
 
     /**
-     * Sets whether the player should throw when it detects it's stuck buffering.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
-     *
-     * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
-     * @return This builder.
-     */
-    public Builder experimental_setThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
-      this.throwWhenStuckBuffering = throwWhenStuckBuffering;
-      return this;
-    }
-
-    /**
      * Builds an {@link SimpleExoPlayer} using the provided values or their defaults.
      *
      * @return The built {@link ExoPlayerTestRunner}.
@@ -278,7 +264,6 @@ public class TestExoPlayer {
           .setClock(clock)
           .setUseLazyPreparation(useLazyPreparation)
           .setLooper(looper)
-          .experimental_setThrowWhenStuckBuffering(throwWhenStuckBuffering)
           .build();
     }
   }

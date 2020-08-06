@@ -224,6 +224,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.pauseAtEndOfWindow = pauseAtEndOfWindow;
     this.clock = clock;
 
+    throwWhenStuckBuffering = true;
     backBufferDurationUs = loadControl.getBackBufferDurationUs();
     retainBackBufferFromKeyframe = loadControl.retainBackBufferFromKeyframe();
 
@@ -257,8 +258,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.releaseTimeoutMs = releaseTimeoutMs;
   }
 
-  public void experimental_throwWhenStuckBuffering() {
-    throwWhenStuckBuffering = true;
+  public void experimental_disableThrowWhenStuckBuffering() {
+    throwWhenStuckBuffering = false;
   }
 
   public void experimental_enableOffloadScheduling(boolean enableOffloadScheduling) {

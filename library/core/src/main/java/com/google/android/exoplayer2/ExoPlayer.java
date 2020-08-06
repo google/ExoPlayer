@@ -215,6 +215,7 @@ public interface ExoPlayer extends Player {
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
       clock = Clock.DEFAULT;
+      throwWhenStuckBuffering = true;
     }
 
     /**
@@ -411,8 +412,8 @@ public interface ExoPlayer extends Player {
       if (releaseTimeoutMs > 0) {
         player.experimental_setReleaseTimeoutMs(releaseTimeoutMs);
       }
-      if (throwWhenStuckBuffering) {
-        player.experimental_throwWhenStuckBuffering();
+      if (!throwWhenStuckBuffering) {
+        player.experimental_disableThrowWhenStuckBuffering();
       }
 
       return player;

@@ -115,7 +115,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
@@ -4588,8 +4587,6 @@ public final class ExoPlayerTest {
     testRunner.blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
   }
 
-  // Disabled until the flag to throw exceptions for [internal: b/144538905] is enabled by default.
-  @Ignore
   @Test
   public void loadControlNeverWantsToLoad_throwsIllegalStateException() {
     LoadControl neverLoadingLoadControl =
@@ -4697,7 +4694,6 @@ public final class ExoPlayerTest {
         new TestExoPlayer.Builder(context)
             .setRenderers(rendererWaitingForData)
             .setLoadControl(loadControlWithMaxBufferUs)
-            .experimental_setThrowWhenStuckBuffering(true)
             .build();
     player.setMediaSource(mediaSourceWithLoadInProgress);
     player.prepare();
@@ -7334,8 +7330,6 @@ public final class ExoPlayerTest {
     assertThat(positionAfterPause.get()).isEqualTo(10_000);
   }
 
-  // Disabled until the flag to throw exceptions for [internal: b/144538905] is enabled by default.
-  @Ignore
   @Test
   public void
       infiniteLoading_withSmallAllocations_oomIsPreventedByLoadControl_andThrowsStuckBufferingIllegalStateException() {

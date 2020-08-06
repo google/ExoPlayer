@@ -206,6 +206,7 @@ public class SimpleExoPlayer extends BasePlayer
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
       clock = Clock.DEFAULT;
+      throwWhenStuckBuffering = true;
     }
 
     /**
@@ -618,8 +619,8 @@ public class SimpleExoPlayer extends BasePlayer
     wifiLockManager = new WifiLockManager(builder.context);
     wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
     deviceInfo = createDeviceInfo(streamVolumeManager);
-    if (builder.throwWhenStuckBuffering) {
-      player.experimental_throwWhenStuckBuffering();
+    if (!builder.throwWhenStuckBuffering) {
+      player.experimental_disableThrowWhenStuckBuffering();
     }
 
     sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
