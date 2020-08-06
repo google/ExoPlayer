@@ -4,8 +4,10 @@
 
 *   Fix distorted playback of floating point audio when samples exceed the
     `[-1, 1]` nominal range.
-*   MP4: Add support for `piff` and `isml` brands
-    ([#7584](https://github.com/google/ExoPlayer/issues/7584)).
+*   MP4:
+    *   Add support for `piff` and `isml` brands
+        ([#7584](https://github.com/google/ExoPlayer/issues/7584)).
+    *   Fix playback of very short MP4 files.
 *   FMP4: Fix `saiz` and `senc` sample count checks, resolving a "length
     mismatch" `ParserException` when playing certain protected FMP4 streams
     ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
