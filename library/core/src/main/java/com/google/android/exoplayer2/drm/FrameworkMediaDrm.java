@@ -306,7 +306,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
       boolean canConcatenateData = true;
       for (int i = 0; i < schemeDatas.size(); i++) {
         SchemeData schemeData = schemeDatas.get(i);
-        byte[] schemeDataData = Util.castNonNull(schemeData.data);
+        byte[] schemeDataData = Assertions.checkNotNull(schemeData.data);
         if (Util.areEqual(schemeData.mimeType, firstSchemeData.mimeType)
             && Util.areEqual(schemeData.licenseServerUrl, firstSchemeData.licenseServerUrl)
             && PsshAtomUtil.isPsshAtom(schemeDataData)) {
@@ -321,7 +321,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
         int concatenatedDataPosition = 0;
         for (int i = 0; i < schemeDatas.size(); i++) {
           SchemeData schemeData = schemeDatas.get(i);
-          byte[] schemeDataData = Util.castNonNull(schemeData.data);
+          byte[] schemeDataData = Assertions.checkNotNull(schemeData.data);
           int schemeDataLength = schemeDataData.length;
           System.arraycopy(
               schemeDataData, 0, concatenatedData, concatenatedDataPosition, schemeDataLength);
@@ -335,7 +335,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     // the first V0 box.
     for (int i = 0; i < schemeDatas.size(); i++) {
       SchemeData schemeData = schemeDatas.get(i);
-      int version = PsshAtomUtil.parseVersion(Util.castNonNull(schemeData.data));
+      int version = PsshAtomUtil.parseVersion(Assertions.checkNotNull(schemeData.data));
       if (Util.SDK_INT < 23 && version == 0) {
         return schemeData;
       } else if (Util.SDK_INT >= 23 && version == 1) {
