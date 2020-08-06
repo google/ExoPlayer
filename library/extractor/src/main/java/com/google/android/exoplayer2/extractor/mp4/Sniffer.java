@@ -99,7 +99,12 @@ import java.io.IOException;
       // Read an atom header.
       int headerSize = Atom.HEADER_SIZE;
       buffer.reset(headerSize);
-      input.peekFully(buffer.getData(), 0, headerSize);
+      boolean success =
+          input.peekFully(buffer.getData(), 0, headerSize, /* allowEndOfInput= */ true);
+      if (!success) {
+        // We've reached the end of the file.
+        break;
+      }
       long atomSize = buffer.readUnsignedInt();
       int atomType = buffer.readInt();
       if (atomSize == Atom.DEFINES_LARGE_SIZE) {
