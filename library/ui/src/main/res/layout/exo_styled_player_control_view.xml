@@ -36,37 +36,6 @@
         layout="@layout/exo_styled_embedded_transport_controls" />
   </FrameLayout>
 
-  <LinearLayout
-      android:id="@+id/exo_title_bar"
-      android:background="@drawable/exo_title_bar_gradient"
-      android:baselineAligned="false"
-      android:layout_gravity="top"
-      style="@style/ExoStyledControls.TitleBar">
-
-    <LinearLayout
-        android:id="@+id/exo_title_bar_left"
-        android:gravity="center_vertical"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-      <TextView
-          android:id="@+id/exo_title_text"
-          android:gravity="center_vertical"
-          android:ellipsize="middle"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:singleLine="true"
-          android:paddingStart="@dimen/exo_icon_padding"
-          android:paddingEnd="@dimen/exo_icon_padding"
-          android:paddingLeft="@dimen/exo_icon_padding"
-          android:paddingRight="@dimen/exo_icon_padding"
-          android:textSize="15sp"
-          android:textColor="#FFFFFFFF"/>
-    </LinearLayout>
-  </LinearLayout>
-
   <FrameLayout
       android:id="@+id/exo_bottom_bar"
       android:layout_width="match_parent"

@@ -118,11 +118,6 @@
     <item name="android:contentDescription">@string/exo_controls_play_description</item>
   </style>
 
-  <style name="ExoStyledControls.TitleBar">
-    <item name="android:layout_width">match_parent</item>
-    <item name="android:layout_height">@dimen/exo_title_bar_height</item>
-  </style>
-
   <style name="ExoStyledControls.TimeText">
     <item name="android:layout_width">wrap_content</item>
     <item name="android:layout_height">wrap_content</item>

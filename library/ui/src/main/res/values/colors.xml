@@ -20,8 +20,6 @@
     <color name="exo_white">#ffffff</color>
     <color name="exo_white_opacity_70">#B3ffffff</color>
     <color name="exo_black_opacity_70">#B3000000</color>
-    <color name="exo_title_bar_gradient_start">#d0000000</color>
-    <color name="exo_title_bar_gradient_end">#00000000</color>
     <color name="exo_widget_center_view_background">#90000000</color>
     <color name="exo_bottom_bar_background">#b0000000</color>
 </resources>

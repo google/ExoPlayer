@@ -34,7 +34,7 @@ import java.util.ArrayList;
   private static final long DURATION_FOR_HIDING_ANIMATION_MS = 250;
   private static final long DURATION_FOR_SHOWING_ANIMATION_MS = 250;
 
-  // Int for defining the UX state where all the views (TitleBar, ProgressBar, BottomBar) are
+  // Int for defining the UX state where all the views (ProgressBar, BottomBar) are
   // all visible.
   private static final int UX_STATE_ALL_VISIBLE = 0;
   // Int for defining the UX state where only the ProgressBar view is visible.
@@ -61,7 +61,6 @@ import java.util.ArrayList;
 
   @Nullable private StyledPlayerControlView styledPlayerControlView;
 
-  @Nullable private ViewGroup titleBar;
   @Nullable private ViewGroup embeddedTransportControls;
   @Nullable private ViewGroup bottomBar;
   @Nullable private ViewGroup minimalControls;
@@ -165,9 +164,6 @@ import java.util.ArrayList;
 
     v.addOnLayoutChangeListener(onLayoutChangeListener);
 
-    // Relating to Title Bar View
-    ViewGroup titleBar = v.findViewById(R.id.exo_title_bar);
-
     // Relating to Center View
     ViewGroup centerView = v.findViewById(R.id.exo_center_view);
     embeddedTransportControls = v.findViewById(R.id.exo_embedded_transport_controls);
@@ -193,12 +189,10 @@ import java.util.ArrayList;
       overflowHideButton.setOnClickListener(this::onOverflowButtonClick);
     }
 
-    this.titleBar = titleBar;
     this.bottomBar = bottomBar;
     this.timeBar = timeBar;
 
     Resources resources = v.getResources();
-    float titleBarHeight = resources.getDimension(R.dimen.exo_title_bar_height);
     float progressBarHeight = resources.getDimension(R.dimen.exo_custom_progress_thumb_size);
     float bottomBarHeight = resources.getDimension(R.dimen.exo_bottom_bar_height);
 
@@ -286,7 +280,6 @@ import java.util.ArrayList;
         });
     hideMainBarsAnimator
         .play(fadeOutAnimator)
-        .with(ofTranslationY(0, -titleBarHeight, titleBar))
         .with(ofTranslationY(0, bottomBarHeight, timeBar))
         .with(ofTranslationY(0, bottomBarHeight, bottomBar));
 
@@ -336,7 +329,6 @@ import java.util.ArrayList;
         });
     hideAllBarsAnimator
         .play(fadeOutAnimator)
-        .with(ofTranslationY(0, -titleBarHeight, titleBar))
         .with(ofTranslationY(0, bottomBarHeight + progressBarHeight, timeBar))
         .with(ofTranslationY(0, bottomBarHeight + progressBarHeight, bottomBar));
 
@@ -356,7 +348,6 @@ import java.util.ArrayList;
         });
     showMainBarsAnimator
         .play(fadeInAnimator)
-        .with(ofTranslationY(-titleBarHeight, 0, titleBar))
         .with(ofTranslationY(bottomBarHeight, 0, timeBar))
         .with(ofTranslationY(bottomBarHeight, 0, bottomBar));
 
@@ -376,7 +367,6 @@ import java.util.ArrayList;
         });
     showAllBarsAnimator
         .play(fadeInAnimator)
-        .with(ofTranslationY(-titleBarHeight, 0, titleBar))
         .with(ofTranslationY(bottomBarHeight + progressBarHeight, 0, timeBar))
         .with(ofTranslationY(bottomBarHeight + progressBarHeight, 0, bottomBar));
 
@@ -584,7 +574,6 @@ import java.util.ArrayList;
             getWidth(embeddedTransportControls), getWidth(timeView) + getWidth(overflowShowButton));
     int defaultModeHeight =
         getHeight(embeddedTransportControls)
-            + getHeight(titleBar)
             + getHeight(timeBar)
             + getHeight(bottomBar);
 
@@ -636,7 +625,6 @@ import java.util.ArrayList;
     }
 
     int[] idsToHideInMinimalMode = {
-      R.id.exo_title_bar,
       R.id.exo_bottom_bar,
       R.id.exo_prev,
       R.id.exo_next,
