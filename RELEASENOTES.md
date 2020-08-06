@@ -213,6 +213,7 @@
         timestamps ([#7464](https://github.com/google/ExoPlayer/issues/7464)).
 *   Ogg: Allow non-contiguous pages
     ([#7230](https://github.com/google/ExoPlayer/issues/7230)).
+*   MP4: Fix playback of MP4 containing Opus.
 *   Matroska: Remove support for "Invisible" block header flag.
 *   FLV: Ignore SCRIPTDATA segments with invalid name types, rather than failing
     playback ([#7675](https://github.com/google/ExoPlayer/issues/7675)).

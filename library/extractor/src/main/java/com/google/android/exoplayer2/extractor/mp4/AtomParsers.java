@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.audio.Ac4Util;
+import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -40,9 +41,9 @@ import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.DolbyVisionConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -913,7 +914,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     parent.setPosition(position + Atom.HEADER_SIZE + StsdData.STSD_HEADER_SIZE);
 
     // Default values.
-    @Nullable List<byte[]> initializationData = null;
+    @Nullable ImmutableList<byte[]> initializationData = null;
     long subsampleOffsetUs = Format.OFFSET_SAMPLE_RELATIVE;
 
     String mimeType;
@@ -924,7 +925,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int sampleDescriptionLength = atomSize - Atom.HEADER_SIZE - 8;
       byte[] sampleDescriptionData = new byte[sampleDescriptionLength];
       parent.readBytes(sampleDescriptionData, 0, sampleDescriptionLength);
-      initializationData = Collections.singletonList(sampleDescriptionData);
+      initializationData = ImmutableList.of(sampleDescriptionData);
     } else if (atomType == Atom.TYPE_wvtt) {
       mimeType = MimeTypes.APPLICATION_MP4VTT;
     } else if (atomType == Atom.TYPE_stpp) {
@@ -1042,7 +1043,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         mimeType = mimeTypeAndInitializationDataBytes.first;
         @Nullable byte[] initializationDataBytes = mimeTypeAndInitializationDataBytes.second;
         if (initializationDataBytes != null) {
-          initializationData = Collections.singletonList(initializationDataBytes);
+          initializationData = ImmutableList.of(initializationDataBytes);
         }
       } else if (childAtomType == Atom.TYPE_pasp) {
         pixelWidthHeightRatio = parsePaspFromParent(parent, childStartPosition);
@@ -1242,7 +1243,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       mimeType = MimeTypes.AUDIO_FLAC;
     }
 
-    @Nullable byte[] initializationData = null;
+    @Nullable List<byte[]> initializationData = null;
     while (childPosition - position < size) {
       parent.setPosition(childPosition);
       int childAtomSize = parent.readInt();
@@ -1255,14 +1256,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           Pair<@NullableType String, byte @NullableType []> mimeTypeAndInitializationData =
               parseEsdsFromParent(parent, esdsAtomPosition);
           mimeType = mimeTypeAndInitializationData.first;
-          initializationData = mimeTypeAndInitializationData.second;
-          if (MimeTypes.AUDIO_AAC.equals(mimeType) && initializationData != null) {
-            // Update sampleRate and channelCount from the AudioSpecificConfig initialization data,
-            // which is more reliable. See [Internal: b/10903778].
-            AacUtil.Config aacConfig = AacUtil.parseAudioSpecificConfig(initializationData);
-            sampleRate = aacConfig.sampleRateHz;
-            channelCount = aacConfig.channelCount;
-            codecs = aacConfig.codecs;
+          @Nullable byte[] initializationDataBytes = mimeTypeAndInitializationData.second;
+          if (initializationDataBytes != null) {
+            if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
+              // Update sampleRate and channelCount from the AudioSpecificConfig initialization
+              // data,
+              // which is more reliable. See [Internal: b/10903778].
+              AacUtil.Config aacConfig = AacUtil.parseAudioSpecificConfig(initializationDataBytes);
+              sampleRate = aacConfig.sampleRateHz;
+              channelCount = aacConfig.channelCount;
+              codecs = aacConfig.codecs;
+            }
+            initializationData = ImmutableList.of(initializationDataBytes);
           }
         }
       } else if (childAtomType == Atom.TYPE_dac3) {
@@ -1291,30 +1296,32 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         // Build an Opus Identification Header (defined in RFC-7845) by concatenating the Opus Magic
         // Signature and the body of the dOps atom.
         int childAtomBodySize = childAtomSize - Atom.HEADER_SIZE;
-        initializationData = new byte[opusMagic.length + childAtomBodySize];
-        System.arraycopy(opusMagic, 0, initializationData, 0, opusMagic.length);
+        byte[] headerBytes = Arrays.copyOf(opusMagic, opusMagic.length + childAtomBodySize);
         parent.setPosition(childPosition + Atom.HEADER_SIZE);
-        parent.readBytes(initializationData, opusMagic.length, childAtomBodySize);
+        parent.readBytes(headerBytes, opusMagic.length, childAtomBodySize);
+        initializationData = OpusUtil.buildInitializationData(headerBytes);
       } else if (childAtomType == Atom.TYPE_dfLa) {
         int childAtomBodySize = childAtomSize - Atom.FULL_HEADER_SIZE;
-        initializationData = new byte[4 + childAtomBodySize];
-        initializationData[0] = 0x66; // f
-        initializationData[1] = 0x4C; // L
-        initializationData[2] = 0x61; // a
-        initializationData[3] = 0x43; // C
+        byte[] initializationDataBytes = new byte[4 + childAtomBodySize];
+        initializationDataBytes[0] = 0x66; // f
+        initializationDataBytes[1] = 0x4C; // L
+        initializationDataBytes[2] = 0x61; // a
+        initializationDataBytes[3] = 0x43; // C
         parent.setPosition(childPosition + Atom.FULL_HEADER_SIZE);
-        parent.readBytes(initializationData, /* offset= */ 4, childAtomBodySize);
+        parent.readBytes(initializationDataBytes, /* offset= */ 4, childAtomBodySize);
+        initializationData = ImmutableList.of(initializationDataBytes);
       } else if (childAtomType == Atom.TYPE_alac) {
         int childAtomBodySize = childAtomSize - Atom.FULL_HEADER_SIZE;
-        initializationData = new byte[childAtomBodySize];
+        byte[] initializationDataBytes = new byte[childAtomBodySize];
         parent.setPosition(childPosition + Atom.FULL_HEADER_SIZE);
-        parent.readBytes(initializationData, /* offset= */ 0, childAtomBodySize);
+        parent.readBytes(initializationDataBytes, /* offset= */ 0, childAtomBodySize);
         // Update sampleRate and channelCount from the AudioSpecificConfig initialization data,
         // which is more reliable. See https://github.com/google/ExoPlayer/pull/6629.
         Pair<Integer, Integer> audioSpecificConfig =
-            CodecSpecificDataUtil.parseAlacAudioSpecificConfig(initializationData);
+            CodecSpecificDataUtil.parseAlacAudioSpecificConfig(initializationDataBytes);
         sampleRate = audioSpecificConfig.first;
         channelCount = audioSpecificConfig.second;
+        initializationData = ImmutableList.of(initializationDataBytes);
       }
       childPosition += childAtomSize;
     }
@@ -1328,8 +1335,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
               .setChannelCount(channelCount)
               .setSampleRate(sampleRate)
               .setPcmEncoding(pcmEncoding)
-              .setInitializationData(
-                  initializationData == null ? null : Collections.singletonList(initializationData))
+              .setInitializationData(initializationData)
               .setDrmInitData(drmInitData)
               .setLanguage(language)
               .build();

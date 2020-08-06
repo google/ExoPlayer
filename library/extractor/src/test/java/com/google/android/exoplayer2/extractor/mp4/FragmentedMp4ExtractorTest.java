@@ -99,6 +99,14 @@ public final class FragmentedMp4ExtractorTest {
   }
 
   @Test
+  public void sampleWithOpusTrack() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(ImmutableList.of()),
+        "mp4/sample_opus_fragmented.mp4",
+        simulationConfig);
+  }
+
+  @Test
   public void samplePartiallyFragmented() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(ImmutableList.of()),
