@@ -780,12 +780,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           trackFormat = trackFormat.buildUpon().setAverageBitrate(icyHeaders.bitrate).build();
         }
       }
-      if (trackFormat.drmInitData != null) {
-        trackFormat =
-            trackFormat.copyWithExoMediaCryptoType(
-                drmSessionManager.getExoMediaCryptoType(
-                    trackFormat.drmInitData, MimeTypes.getTrackType(trackFormat.sampleMimeType)));
-      }
+      trackFormat =
+          trackFormat.copyWithExoMediaCryptoType(
+              drmSessionManager.getExoMediaCryptoType(
+                  trackFormat.drmInitData, MimeTypes.getTrackType(trackFormat.sampleMimeType)));
       trackArray[i] = new TrackGroup(trackFormat);
     }
     trackState = new TrackState(new TrackGroupArray(trackArray), trackIsAudioVideoFlags);

@@ -826,11 +826,15 @@ public class SampleQueue implements TrackOutput {
    * @param outputFormatHolder The output {@link FormatHolder}.
    */
   private void onFormatResult(Format newFormat, FormatHolder outputFormatHolder) {
-    outputFormatHolder.format = newFormat;
     boolean isFirstFormat = downstreamFormat == null;
     @Nullable DrmInitData oldDrmInitData = isFirstFormat ? null : downstreamFormat.drmInitData;
     downstreamFormat = newFormat;
     @Nullable DrmInitData newDrmInitData = newFormat.drmInitData;
+
+    outputFormatHolder.format =
+        newFormat.copyWithExoMediaCryptoType(
+            drmSessionManager.getExoMediaCryptoType(
+                newFormat.drmInitData, MimeTypes.getTrackType(newFormat.sampleMimeType)));
     outputFormatHolder.drmSession = currentDrmSession;
     if (!isFirstFormat && Util.areEqual(oldDrmInitData, newDrmInitData)) {
       // Nothing to do.

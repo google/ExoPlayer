@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -665,14 +664,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       Format[] formats = new Format[representations.size()];
       for (int j = 0; j < formats.length; j++) {
         Format format = representations.get(j).format;
-        DrmInitData drmInitData = format.drmInitData;
-        if (drmInitData != null) {
-          format =
-              format.copyWithExoMediaCryptoType(
-                  drmSessionManager.getExoMediaCryptoType(
-                      drmInitData, MimeTypes.getTrackType(format.sampleMimeType)));
-        }
-        formats[j] = format;
+        formats[j] =
+            format.copyWithExoMediaCryptoType(
+                drmSessionManager.getExoMediaCryptoType(
+                    format.drmInitData, MimeTypes.getTrackType(format.sampleMimeType)));
       }
 
       AdaptationSet firstAdaptationSet = adaptationSets.get(adaptationSetIndices[0]);

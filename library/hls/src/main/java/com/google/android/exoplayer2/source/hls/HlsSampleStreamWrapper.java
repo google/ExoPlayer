@@ -1318,13 +1318,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Format[] exposedFormats = new Format[trackGroup.length];
       for (int j = 0; j < trackGroup.length; j++) {
         Format format = trackGroup.getFormat(j);
-        if (format.drmInitData != null) {
-          format =
-              format.copyWithExoMediaCryptoType(
-                  drmSessionManager.getExoMediaCryptoType(
-                      format.drmInitData, MimeTypes.getTrackType(format.sampleMimeType)));
-        }
-        exposedFormats[j] = format;
+        exposedFormats[j] =
+            format.copyWithExoMediaCryptoType(
+                drmSessionManager.getExoMediaCryptoType(
+                    format.drmInitData, MimeTypes.getTrackType(format.sampleMimeType)));
       }
       trackGroups[i] = new TrackGroup(exposedFormats);
     }
