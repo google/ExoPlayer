@@ -434,7 +434,9 @@ public class SessionPlayerConnectorTest {
     // prepare() will be pending until readAllowed is countDowned.
     sessionPlayerConnector.prepare();
 
-    AtomicLong seekPosition = new AtomicLong();
+    CopyOnWriteArrayList<Long> positionChanges = new CopyOnWriteArrayList<>();
+    long testIntermediateSeekToPosition1 = 3000;
+    long testIntermediateSeekToPosition2 = 2000;
     long testFinalSeekToPosition = 1000;
     CountDownLatch onSeekCompletedLatch = new CountDownLatch(1);
     sessionPlayerConnector.registerPlayerCallback(
@@ -444,13 +446,17 @@ public class SessionPlayerConnectorTest {
           public void onSeekCompleted(@NonNull SessionPlayer player, long position) {
             // Do not assert here, because onSeekCompleted() can be called after the player is
             // closed.
-            seekPosition.set(position);
-            onSeekCompletedLatch.countDown();
+            positionChanges.add(position);
+            if (position == testFinalSeekToPosition) {
+              onSeekCompletedLatch.countDown();
+            }
           }
         });
 
-    ListenableFuture<PlayerResult> seekFuture1 = sessionPlayerConnector.seekTo(3000);
-    ListenableFuture<PlayerResult> seekFuture2 = sessionPlayerConnector.seekTo(2000);
+    ListenableFuture<PlayerResult> seekFuture1 =
+        sessionPlayerConnector.seekTo(testIntermediateSeekToPosition1);
+    ListenableFuture<PlayerResult> seekFuture2 =
+        sessionPlayerConnector.seekTo(testIntermediateSeekToPosition2);
     ListenableFuture<PlayerResult> seekFuture3 =
         sessionPlayerConnector.seekTo(testFinalSeekToPosition);
 
@@ -460,7 +466,9 @@ public class SessionPlayerConnectorTest {
     assertThat(seekFuture2.get().getResultCode()).isEqualTo(RESULT_INFO_SKIPPED);
     assertThat(seekFuture3.get().getResultCode()).isEqualTo(RESULT_SUCCESS);
     assertThat(onSeekCompletedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS)).isTrue();
-    assertThat(seekPosition.get()).isEqualTo(testFinalSeekToPosition);
+    assertThat(positionChanges)
+        .containsNoneOf(testIntermediateSeekToPosition1, testIntermediateSeekToPosition2);
+    assertThat(positionChanges).contains(testFinalSeekToPosition);
   }
 
   @Test

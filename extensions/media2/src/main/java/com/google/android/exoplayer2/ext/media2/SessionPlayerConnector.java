@@ -578,6 +578,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
     if (!notifyCurrentMediaItem && !notifyCurrentPlaylist) {
       return;
     }
+    long currentPosition = getCurrentPosition();
     notifySessionPlayerCallback(
         callback -> {
           if (notifyCurrentPlaylist) {
@@ -587,7 +588,13 @@ public final class SessionPlayerConnector extends SessionPlayer {
           if (notifyCurrentMediaItem) {
             Assertions.checkNotNull(
                 currentMediaItem, "PlaylistManager#currentMediaItem() cannot be changed to null");
+
             callback.onCurrentMediaItemChanged(SessionPlayerConnector.this, currentMediaItem);
+
+            // Workaround for MediaSession's issue that current media item change isn't propagated
+            // to the legacy controllers.
+            // TODO(b/160846312): Remove this workaround with media2 1.1.0-stable.
+            callback.onSeekCompleted(SessionPlayerConnector.this, currentPosition);
           }
         });
   }
@@ -598,9 +605,16 @@ public final class SessionPlayerConnector extends SessionPlayer {
       return;
     }
     this.currentMediaItem = currentMediaItem;
+    long currentPosition = getCurrentPosition();
     notifySessionPlayerCallback(
-        callback ->
-            callback.onCurrentMediaItemChanged(SessionPlayerConnector.this, currentMediaItem));
+        callback -> {
+          callback.onCurrentMediaItemChanged(SessionPlayerConnector.this, currentMediaItem);
+
+          // Workaround for MediaSession's issue that current media item change isn't propagated
+          // to the legacy controllers.
+          // TODO(b/160846312): Remove this workaround with media2 1.1.0-stable.
+          callback.onSeekCompleted(SessionPlayerConnector.this, currentPosition);
+        });
   }
 
   private <T> T runPlayerCallableBlocking(Callable<T> callable) {
@@ -689,8 +703,9 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
     @Override
     public void onSeekCompleted() {
+      long currentPosition = getCurrentPosition();
       notifySessionPlayerCallback(
-          callback -> callback.onSeekCompleted(SessionPlayerConnector.this, getCurrentPosition()));
+          callback -> callback.onSeekCompleted(SessionPlayerConnector.this, currentPosition));
     }
 
     @Override
@@ -720,8 +735,16 @@ public final class SessionPlayerConnector extends SessionPlayer {
         return;
       }
       currentMediaItem = mediaItem;
+      long currentPosition = getCurrentPosition();
       notifySessionPlayerCallback(
-          callback -> callback.onCurrentMediaItemChanged(SessionPlayerConnector.this, mediaItem));
+          callback -> {
+            callback.onCurrentMediaItemChanged(SessionPlayerConnector.this, mediaItem);
+
+            // Workaround for MediaSession's issue that current media item change isn't propagated
+            // to the legacy controllers.
+            // TODO(b/160846312): Remove this workaround with media2 1.1.0-stable.
+            callback.onSeekCompleted(SessionPlayerConnector.this, currentPosition);
+          });
     }
 
     @Override
