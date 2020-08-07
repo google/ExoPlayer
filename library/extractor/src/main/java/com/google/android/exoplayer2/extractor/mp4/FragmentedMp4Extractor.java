@@ -285,18 +285,22 @@ public class FragmentedMp4Extractor implements Extractor {
     extractorOutput = output;
     initExtraTracks();
     if (sideloadedTrack != null) {
-      TrackBundle bundle = new TrackBundle(output.track(0, sideloadedTrack.type));
-      bundle.init(
-          new TrackSampleTable(
-              sideloadedTrack,
-              /* offsets= */ new long[0],
-              /* sizes= */ new int[0],
-              /* maximumSize= */ 0,
-              /* timestampsUs= */ new long[0],
-              /* flags= */ new int[0],
-              /* durationUs= */ 0),
-          new DefaultSampleValues(
-              /* sampleDescriptionIndex= */ 0, /* duration= */ 0, /* size= */ 0, /* flags= */ 0));
+      TrackBundle bundle =
+          new TrackBundle(
+              output.track(0, sideloadedTrack.type),
+              new TrackSampleTable(
+                  sideloadedTrack,
+                  /* offsets= */ new long[0],
+                  /* sizes= */ new int[0],
+                  /* maximumSize= */ 0,
+                  /* timestampsUs= */ new long[0],
+                  /* flags= */ new int[0],
+                  /* durationUs= */ 0),
+              new DefaultSampleValues(
+                  /* sampleDescriptionIndex= */ 0,
+                  /* duration= */ 0,
+                  /* size= */ 0,
+                  /* flags= */ 0));
       trackBundles.put(0, bundle);
       extractorOutput.endTracks();
     }
@@ -306,7 +310,7 @@ public class FragmentedMp4Extractor implements Extractor {
   public void seek(long position, long timeUs) {
     int trackCount = trackBundles.size();
     for (int i = 0; i < trackCount; i++) {
-      trackBundles.valueAt(i).reset();
+      trackBundles.valueAt(i).resetFragmentInfo();
     }
     pendingMetadataSampleInfos.clear();
     pendingMetadataSampleBytes = 0;
@@ -517,8 +521,11 @@ public class FragmentedMp4Extractor implements Extractor {
       for (int i = 0; i < trackCount; i++) {
         TrackSampleTable sampleTable = sampleTables.get(i);
         Track track = sampleTable.track;
-        TrackBundle trackBundle = new TrackBundle(extractorOutput.track(i, track.type));
-        trackBundle.init(sampleTable, getDefaultSampleValues(defaultSampleValuesArray, track.id));
+        TrackBundle trackBundle =
+            new TrackBundle(
+                extractorOutput.track(i, track.type),
+                sampleTable,
+                getDefaultSampleValues(defaultSampleValuesArray, track.id));
         trackBundles.put(track.id, trackBundle);
         durationUs = max(durationUs, track.durationUs);
       }
@@ -530,7 +537,7 @@ public class FragmentedMp4Extractor implements Extractor {
         Track track = sampleTable.track;
         trackBundles
             .get(track.id)
-            .init(sampleTable, getDefaultSampleValues(defaultSampleValuesArray, track.id));
+            .reset(sampleTable, getDefaultSampleValues(defaultSampleValuesArray, track.id));
       }
     }
   }
@@ -719,7 +726,7 @@ public class FragmentedMp4Extractor implements Extractor {
     TrackFragment fragment = trackBundle.fragment;
     long fragmentDecodeTime = fragment.nextFragmentDecodeTime;
     boolean fragmentDecodeTimeIncludesMoov = fragment.nextFragmentDecodeTimeIncludesMoov;
-    trackBundle.reset();
+    trackBundle.resetFragmentInfo();
     trackBundle.currentlyInFragment = true;
     @Nullable LeafAtom tfdtAtom = traf.getLeafAtomOfType(Atom.TYPE_tfdt);
     if (tfdtAtom != null && (flags & FLAG_WORKAROUND_IGNORE_TFDT_BOX) == 0) {
@@ -1567,20 +1574,24 @@ public class FragmentedMp4Extractor implements Extractor {
 
     private boolean currentlyInFragment;
 
-    public TrackBundle(TrackOutput output) {
+    public TrackBundle(
+        TrackOutput output,
+        TrackSampleTable moovSampleTable,
+        DefaultSampleValues defaultSampleValues) {
       this.output = output;
       fragment = new TrackFragment();
       scratch = new ParsableByteArray();
       encryptionSignalByte = new ParsableByteArray(1);
       defaultInitializationVector = new ParsableByteArray();
+      reset(moovSampleTable, defaultSampleValues);
     }
 
-    public void init(TrackSampleTable moovSampleTable, DefaultSampleValues defaultSampleValues) {
+    public void reset(TrackSampleTable moovSampleTable, DefaultSampleValues defaultSampleValues) {
       Assertions.checkNotNull(moovSampleTable.track);
       this.moovSampleTable = moovSampleTable;
       this.defaultSampleValues = Assertions.checkNotNull(defaultSampleValues);
       output.format(moovSampleTable.track.format);
-      reset();
+      resetFragmentInfo();
     }
 
     public void updateDrmInitData(DrmInitData drmInitData) {
@@ -1596,7 +1607,7 @@ public class FragmentedMp4Extractor implements Extractor {
     }
 
     /** Resets the current fragment, sample indices and {@link #currentlyInFragment} boolean. */
-    public void reset() {
+    public void resetFragmentInfo() {
       fragment.reset();
       currentSampleIndex = 0;
       currentTrackRunIndex = 0;
