@@ -175,6 +175,16 @@ public final class DownloadRequest implements Parcelable {
   }
 
   /**
+   * Returns a copy with the specified key set ID.
+   *
+   * @param keySetId The key set ID of the copy.
+   * @return The copy with the specified key set ID.
+   */
+  public DownloadRequest copyWithKeySetId(@Nullable byte[] keySetId) {
+    return new DownloadRequest(id, uri, mimeType, streamKeys, keySetId, customCacheKey, data);
+  }
+
+  /**
    * Returns the result of merging {@code newRequest} into this request. The requests must have the
    * same {@link #id}.
    *

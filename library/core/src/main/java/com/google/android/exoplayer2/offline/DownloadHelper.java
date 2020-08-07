@@ -743,13 +743,17 @@ public final class DownloadHelper {
    * @return The built {@link DownloadRequest}.
    */
   public DownloadRequest getDownloadRequest(String id, @Nullable byte[] data) {
+    DownloadRequest.Builder requestBuilder =
+        new DownloadRequest.Builder(id, playbackProperties.uri)
+            .setMimeType(playbackProperties.mimeType)
+            .setKeySetId(
+                playbackProperties.drmConfiguration != null
+                    ? playbackProperties.drmConfiguration.getKeySetId()
+                    : null)
+            .setCustomCacheKey(playbackProperties.customCacheKey)
+            .setData(data);
     if (mediaSource == null) {
-      // TODO: add support for DRM (keySetId) [Internal ref: b/158980798]
-      return new DownloadRequest.Builder(id, playbackProperties.uri)
-          .setMimeType(playbackProperties.mimeType)
-          .setCustomCacheKey(playbackProperties.customCacheKey)
-          .setData(data)
-          .build();
+      return requestBuilder.build();
     }
     assertPreparedWithMedia();
     List<StreamKey> streamKeys = new ArrayList<>();
@@ -763,13 +767,7 @@ public final class DownloadHelper {
       }
       streamKeys.addAll(mediaPreparer.mediaPeriods[periodIndex].getStreamKeys(allSelections));
     }
-    // TODO: add support for DRM (keySetId) [Internal ref: b/158980798]
-    return new DownloadRequest.Builder(id, playbackProperties.uri)
-        .setMimeType(playbackProperties.mimeType)
-        .setStreamKeys(streamKeys)
-        .setCustomCacheKey(playbackProperties.customCacheKey)
-        .setData(data)
-        .build();
+    return requestBuilder.setStreamKeys(streamKeys).build();
   }
 
   // Initialization of array of Lists.

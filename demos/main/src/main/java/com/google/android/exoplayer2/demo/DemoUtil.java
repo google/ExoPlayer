@@ -93,7 +93,7 @@ public final class DemoUtil {
   }
 
   /** Returns a {@link DataSource.Factory}. */
-  public static synchronized DataSource.Factory buildDataSourceFactory(Context context) {
+  public static synchronized DataSource.Factory getDataSourceFactory(Context context) {
     if (dataSourceFactory == null) {
       context = context.getApplicationContext();
       DefaultDataSourceFactory upstreamFactory =
@@ -151,7 +151,7 @@ public final class DemoUtil {
               getHttpDataSourceFactory(context),
               Executors.newFixedThreadPool(/* nThreads= */ 6));
       downloadTracker =
-          new DownloadTracker(context, buildDataSourceFactory(context), downloadManager);
+          new DownloadTracker(context, getHttpDataSourceFactory(context), downloadManager);
     }
   }
 

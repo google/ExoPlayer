@@ -112,7 +112,7 @@ public class PlayerActivity extends AppCompatActivity
   public void onCreate(Bundle savedInstanceState) {
     Intent intent = getIntent();
     super.onCreate(savedInstanceState);
-    dataSourceFactory = buildDataSourceFactory();
+    dataSourceFactory = DemoUtil.getDataSourceFactory(/* context= */ this);
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
       CookieHandler.setDefault(DEFAULT_COOKIE_MANAGER);
     }
@@ -403,11 +403,6 @@ public class PlayerActivity extends AppCompatActivity
     startAutoPlay = true;
     startWindow = C.INDEX_UNSET;
     startPosition = C.TIME_UNSET;
-  }
-
-  /** Returns a new DataSource factory. */
-  protected DataSource.Factory buildDataSourceFactory() {
-    return DemoUtil.buildDataSourceFactory(/* context= */ this);
   }
 
   // User controls

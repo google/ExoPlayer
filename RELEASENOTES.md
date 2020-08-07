@@ -168,6 +168,7 @@
         [#6725](https://github.com/google/ExoPlayer/issues/6725),
         [#7066](https://github.com/google/ExoPlayer/issues/7066)).
 *   Downloads and caching:
+    *   Add support for offline DRM playbacks.
     *   Add builder in `DownloadRequest`.
     *   Support passing an `Executor` to `DefaultDownloaderFactory` on which
         data downloads are performed.

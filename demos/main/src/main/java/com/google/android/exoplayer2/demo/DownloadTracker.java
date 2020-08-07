@@ -23,9 +23,15 @@ import android.net.Uri;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentManager;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
+import com.google.android.exoplayer2.drm.OfflineLicenseHelper;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadCursor;
 import com.google.android.exoplayer2.offline.DownloadHelper;
@@ -33,9 +39,11 @@ import com.google.android.exoplayer2.offline.DownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloadService;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -55,7 +63,7 @@ public class DownloadTracker {
   private static final String TAG = "DownloadTracker";
 
   private final Context context;
-  private final DataSource.Factory dataSourceFactory;
+  private final HttpDataSource.Factory httpDataSourceFactory;
   private final CopyOnWriteArraySet<Listener> listeners;
   private final HashMap<Uri, Download> downloads;
   private final DownloadIndex downloadIndex;
@@ -64,9 +72,11 @@ public class DownloadTracker {
   @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
 
   public DownloadTracker(
-      Context context, DataSource.Factory dataSourceFactory, DownloadManager downloadManager) {
+      Context context,
+      HttpDataSource.Factory httpDataSourceFactory,
+      DownloadManager downloadManager) {
     this.context = context.getApplicationContext();
-    this.dataSourceFactory = dataSourceFactory;
+    this.httpDataSourceFactory = httpDataSourceFactory;
     listeners = new CopyOnWriteArraySet<>();
     downloads = new HashMap<>();
     downloadIndex = downloadManager.getDownloadIndex();
@@ -89,6 +99,7 @@ public class DownloadTracker {
     return download != null && download.state != Download.STATE_FAILED;
   }
 
+  @Nullable
   public DownloadRequest getDownloadRequest(Uri uri) {
     Download download = downloads.get(uri);
     return download != null && download.state != Download.STATE_FAILED ? download.request : null;
@@ -107,7 +118,8 @@ public class DownloadTracker {
       startDownloadDialogHelper =
           new StartDownloadDialogHelper(
               fragmentManager,
-              DownloadHelper.forMediaItem(context, mediaItem, renderersFactory, dataSourceFactory),
+              DownloadHelper.forMediaItem(
+                  context, mediaItem, renderersFactory, httpDataSourceFactory),
               mediaItem);
     }
   }
@@ -157,6 +169,7 @@ public class DownloadTracker {
 
     private TrackSelectionDialog trackSelectionDialog;
     private MappedTrackInfo mappedTrackInfo;
+    @Nullable private byte[] keySetId;
 
     public StartDownloadDialogHelper(
         FragmentManager fragmentManager, DownloadHelper downloadHelper, MediaItem mediaItem) {
@@ -177,12 +190,43 @@ public class DownloadTracker {
 
     @Override
     public void onPrepared(@NonNull DownloadHelper helper) {
+      @Nullable DrmInitData drmInitData = findDrmInitData(helper);
+      if (drmInitData != null) {
+        if (Util.SDK_INT < 18) {
+          Toast.makeText(context, R.string.error_drm_unsupported_before_api_18, Toast.LENGTH_LONG)
+              .show();
+          Log.e(TAG, "Downloading DRM protected content is not supported on API versions below 18");
+          return;
+        }
+        // TODO(internal b/163107948): Support cases where DrmInitData are not in the manifest.
+        if (!hasSchemaData(drmInitData)) {
+          Toast.makeText(context, R.string.download_start_error_offline_license, Toast.LENGTH_LONG)
+              .show();
+          Log.e(
+              TAG,
+              "Downloading content where DRM scheme data is not located in the manifest is not"
+                  + " supported");
+          return;
+        }
+        try {
+          // TODO(internal b/163107948): Download the license on another thread to keep the UI
+          //  thread unblocked.
+          fetchOfflineLicense(drmInitData);
+        } catch (DrmSession.DrmSessionException e) {
+          Toast.makeText(context, R.string.download_start_error_offline_license, Toast.LENGTH_LONG)
+              .show();
+          Log.e(TAG, "Failed to fetch offline DRM license", e);
+          return;
+        }
+      }
+
       if (helper.getPeriodCount() == 0) {
         Log.d(TAG, "No periods found. Downloading entire stream.");
         startDownload();
         downloadHelper.release();
         return;
       }
+
       mappedTrackInfo = downloadHelper.getMappedTrackInfo(/* periodIndex= */ 0);
       if (!TrackSelectionDialog.willHaveContent(mappedTrackInfo)) {
         Log.d(TAG, "No dialog content. Downloading entire stream.");
@@ -257,8 +301,59 @@ public class DownloadTracker {
     }
 
     private DownloadRequest buildDownloadRequest() {
-      return downloadHelper.getDownloadRequest(
-          Util.getUtf8Bytes(checkNotNull(mediaItem.mediaMetadata.title)));
+      return downloadHelper
+          .getDownloadRequest(Util.getUtf8Bytes(checkNotNull(mediaItem.mediaMetadata.title)))
+          .copyWithKeySetId(keySetId);
     }
+
+    @RequiresApi(18)
+    private void fetchOfflineLicense(DrmInitData drmInitData)
+        throws DrmSession.DrmSessionException {
+      OfflineLicenseHelper offlineLicenseHelper =
+          OfflineLicenseHelper.newWidevineInstance(
+              mediaItem.playbackProperties.drmConfiguration.licenseUri.toString(),
+              httpDataSourceFactory,
+              new DrmSessionEventListener.EventDispatcher());
+      keySetId = offlineLicenseHelper.downloadLicense(drmInitData);
+    }
+  }
+
+  /**
+   * Returns whether any the {@link DrmInitData.SchemeData} contained in {@code drmInitData} has
+   * non-null {@link DrmInitData.SchemeData#data}.
+   */
+  private static boolean hasSchemaData(DrmInitData drmInitData) {
+    for (int i = 0; i < drmInitData.schemeDataCount; i++) {
+      if (drmInitData.get(i).hasData()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Returns the first non-null {@link DrmInitData} found in the content's tracks, or null if no
+   * {@link DrmInitData} are found.
+   */
+  @Nullable
+  private DrmInitData findDrmInitData(DownloadHelper helper) {
+    for (int periodIndex = 0; periodIndex < helper.getPeriodCount(); periodIndex++) {
+      MappedTrackInfo mappedTrackInfo = helper.getMappedTrackInfo(periodIndex);
+      for (int rendererIndex = 0;
+          rendererIndex < mappedTrackInfo.getRendererCount();
+          rendererIndex++) {
+        TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+        for (int trackGroupIndex = 0; trackGroupIndex < trackGroups.length; trackGroupIndex++) {
+          TrackGroup trackGroup = trackGroups.get(trackGroupIndex);
+          for (int formatIndex = 0; formatIndex < trackGroup.length; formatIndex++) {
+            Format format = trackGroup.getFormat(formatIndex);
+            if (format.drmInitData != null) {
+              return format.drmInitData;
+            }
+          }
+        }
+      }
+    }
+    return null;
   }
 }

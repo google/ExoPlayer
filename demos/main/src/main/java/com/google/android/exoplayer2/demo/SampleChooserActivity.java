@@ -253,9 +253,6 @@ public class SampleChooserActivity extends AppCompatActivity
     }
     MediaItem.PlaybackProperties playbackProperties =
         checkNotNull(playlistHolder.mediaItems.get(0).playbackProperties);
-    if (playbackProperties.drmConfiguration != null) {
-      return R.string.download_drm_unsupported;
-    }
     if (((IntentUtil.Tag) checkNotNull(playbackProperties.tag)).isLive) {
       return R.string.download_live_unsupported;
     }
