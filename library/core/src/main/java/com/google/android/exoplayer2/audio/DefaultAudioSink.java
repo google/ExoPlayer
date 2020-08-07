@@ -336,6 +336,15 @@ public final class DefaultAudioSink implements AudioSink {
   private AuxEffectInfo auxEffectInfo;
   private boolean tunneling;
   private long lastFeedElapsedRealtimeMs;
+  /**
+   * Do not retrying offload if it just failed.
+   *
+   * <p>{@link AudioManager#isOffloadedPlaybackSupported(AudioFormat,
+   * android.media.AudioAttributes)} does not guaranty that offload is available (eg: using {@link
+   * android.media.AudioPlaybackCaptureConfiguration}) will disable offload. As a result only try
+   * once per track/seek to play in offload mode.
+   */
+  private boolean disableOffloadAfterFailureUntilNextConfiguration;
 
   /**
    * Creates a new default audio sink.
@@ -459,7 +468,9 @@ public final class DefaultAudioSink implements AudioSink {
       // guaranteed to support.
       return SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
     }
-    if (enableOffload && isOffloadedPlaybackSupported(format, audioAttributes)) {
+    if (enableOffload
+        && !disableOffloadAfterFailureUntilNextConfiguration
+        && isOffloadedPlaybackSupported(format, audioAttributes)) {
       return SINK_FORMAT_SUPPORTED_DIRECTLY;
     }
     if (isPassthroughPlaybackSupported(format, audioCapabilities)) {
@@ -566,6 +577,9 @@ public final class DefaultAudioSink implements AudioSink {
       throw new ConfigurationException(
           "Invalid output channel config (mode=" + outputMode + ") for: " + inputFormat);
     }
+
+    disableOffloadAfterFailureUntilNextConfiguration = false;
+
     Configuration pendingConfiguration =
         new Configuration(
             inputPcmFrameSize,
@@ -619,9 +633,7 @@ public final class DefaultAudioSink implements AudioSink {
     // initialization of the audio track to fail.
     releasingConditionVariable.block();
 
-    audioTrack =
-        Assertions.checkNotNull(configuration)
-            .buildAudioTrack(tunneling, audioAttributes, audioSessionId);
+    audioTrack = buildAudioTrack();
     if (isOffloadedPlayback(audioTrack)) {
       registerStreamEventCallbackV29(audioTrack);
       audioTrack.setOffloadDelayPadding(configuration.trimStartFrames, configuration.trimEndFrames);
@@ -813,6 +825,18 @@ public final class DefaultAudioSink implements AudioSink {
     return false;
   }
 
+  private AudioTrack buildAudioTrack() throws InitializationException {
+    try {
+      return Assertions.checkNotNull(configuration)
+          .buildAudioTrack(tunneling, audioAttributes, audioSessionId);
+    } catch (InitializationException e) {
+      if (configuration.outputModeIsOffload()) {
+        disableOffloadAfterFailureUntilNextConfiguration = true;
+      }
+      throw e;
+    }
+  }
+
   @RequiresApi(29)
   private void registerStreamEventCallbackV29(AudioTrack audioTrack) {
     if (offloadStreamEventCallbackV29 == null) {
@@ -898,6 +922,10 @@ public final class DefaultAudioSink implements AudioSink {
     lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
 
     if (bytesWritten < 0) {
+      boolean isRecoverable = isAudioTrackDeadObject(bytesWritten);
+      if (isRecoverable && configuration.outputModeIsOffload()) {
+        disableOffloadAfterFailureUntilNextConfiguration = true;
+      }
       throw new WriteException(bytesWritten);
     }
 
@@ -930,6 +958,10 @@ public final class DefaultAudioSink implements AudioSink {
       playPendingData();
       handledEndOfStream = true;
     }
+  }
+
+  private static boolean isAudioTrackDeadObject(int status) {
+    return Util.SDK_INT >= 24 && status == AudioTrack.ERROR_DEAD_OBJECT;
   }
 
   private boolean drainToEndOfStream() throws WriteException {
@@ -1143,6 +1175,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     playing = false;
+    disableOffloadAfterFailureUntilNextConfiguration = false;
   }
 
   // Internal methods.
@@ -1771,12 +1804,11 @@ public final class DefaultAudioSink implements AudioSink {
         boolean tunneling, AudioAttributes audioAttributes, int audioSessionId)
         throws InitializationException {
       AudioTrack audioTrack;
-      if (Util.SDK_INT >= 29) {
-        audioTrack = createAudioTrackV29(tunneling, audioAttributes, audioSessionId);
-      } else if (Util.SDK_INT >= 21) {
-        audioTrack = createAudioTrackV21(tunneling, audioAttributes, audioSessionId);
-      } else {
-        audioTrack = createAudioTrack(audioAttributes, audioSessionId);
+      try {
+        audioTrack = createAudioTrack(tunneling, audioAttributes, audioSessionId);
+      } catch (UnsupportedOperationException e) {
+        throw new InitializationException(
+            AudioTrack.STATE_UNINITIALIZED, outputSampleRate, outputChannelConfig, bufferSize);
       }
 
       int state = audioTrack.getState();
@@ -1790,6 +1822,17 @@ public final class DefaultAudioSink implements AudioSink {
         throw new InitializationException(state, outputSampleRate, outputChannelConfig, bufferSize);
       }
       return audioTrack;
+    }
+
+    private AudioTrack createAudioTrack(
+        boolean tunneling, AudioAttributes audioAttributes, int audioSessionId) {
+      if (Util.SDK_INT >= 29) {
+        return createAudioTrackV29(tunneling, audioAttributes, audioSessionId);
+      } else if (Util.SDK_INT >= 21) {
+        return createAudioTrackV21(tunneling, audioAttributes, audioSessionId);
+      } else {
+        return createAudioTrackV9(audioAttributes, audioSessionId);
+      }
     }
 
     @RequiresApi(29)
@@ -1820,7 +1863,7 @@ public final class DefaultAudioSink implements AudioSink {
           audioSessionId);
     }
 
-    private AudioTrack createAudioTrack(AudioAttributes audioAttributes, int audioSessionId) {
+    private AudioTrack createAudioTrackV9(AudioAttributes audioAttributes, int audioSessionId) {
       int streamType = Util.getStreamTypeForAudioUsage(audioAttributes.usage);
       if (audioSessionId == C.AUDIO_SESSION_ID_UNSET) {
         return new AudioTrack(
@@ -1895,6 +1938,10 @@ public final class DefaultAudioSink implements AudioSink {
           .setFlags(android.media.AudioAttributes.FLAG_HW_AV_SYNC)
           .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
           .build();
+    }
+
+    public boolean outputModeIsOffload() {
+      return outputMode == OUTPUT_MODE_OFFLOAD;
     }
   }
 }
