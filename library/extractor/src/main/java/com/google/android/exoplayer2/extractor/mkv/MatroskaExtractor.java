@@ -159,8 +159,6 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_BLOCK_ADDITION_MAPPING = 0x41E4;
   private static final int ID_BLOCK_MORE = 0xA6;
   private static final int ID_BLOCK_ADD_ID = 0xEE;
-  private static final int ID_BLOCK_ADD_ID_VALUE = 0x41F0;
-  private static final int ID_BLOCK_ADD_ID_NAME = 0x41A4;
   private static final int ID_BLOCK_ADD_ID_TYPE = 0x41E7;
   private static final int ID_BLOCK_ADD_ID_EXTRA_DATA = 0x41ED;
   private static final int ID_BLOCK_ADDITIONAL = 0xA5;
@@ -241,13 +239,13 @@ public class MatroskaExtractor implements Extractor {
    * Dolby Vision configuration for profiles <= 7
    * https://www.matroska.org/technical/codec_specs.html
    */
-  private static final int BLOCK_ADDITIONAL_ID_DVCC = 0x64766343;
+  private static final int BLOCK_ADD_ID_TYPE_DVCC = 0x64766343;
 
   /**
    * Dolby Vision configuration for profiles > 7
    * https://www.matroska.org/technical/codec_specs.html
    */
-  private static final int BLOCK_ADDITIONAL_ID_DVVC = 0x64767643;
+  private static final int BLOCK_ADD_ID_TYPE_DVVC = 0x64767643;
 
   private static final int LACING_NONE = 0;
   private static final int LACING_XIPH = 1;
@@ -571,14 +569,12 @@ public class MatroskaExtractor implements Extractor {
       case ID_MAX_FALL:
       case ID_PROJECTION_TYPE:
       case ID_BLOCK_ADD_ID:
-      case ID_BLOCK_ADD_ID_VALUE:
       case ID_BLOCK_ADD_ID_TYPE:
         return EbmlProcessor.ELEMENT_TYPE_UNSIGNED_INT;
       case ID_DOC_TYPE:
       case ID_NAME:
       case ID_CODEC_ID:
       case ID_LANGUAGE:
-      case ID_BLOCK_ADD_ID_NAME:
         return EbmlProcessor.ELEMENT_TYPE_STRING;
       case ID_SEEK_ID:
       case ID_CONTENT_COMPRESSION_SETTINGS:
@@ -992,7 +988,7 @@ public class MatroskaExtractor implements Extractor {
         blockAdditionalId = (int) value;
         break;
       case ID_BLOCK_ADD_ID_TYPE:
-        currentTrack.blockAdditionalId = (int) value;
+        currentTrack.blockAddIdType = (int) value;
         break;
       default:
         break;
@@ -1287,7 +1283,7 @@ public class MatroskaExtractor implements Extractor {
       Track track, ExtractorInput input, int contentSize)
       throws IOException {
 
-    if (track.blockAdditionalId == BLOCK_ADDITIONAL_ID_DVVC || track.blockAdditionalId == BLOCK_ADDITIONAL_ID_DVCC) {
+    if (track.blockAddIdType == BLOCK_ADD_ID_TYPE_DVVC || track.blockAddIdType == BLOCK_ADD_ID_TYPE_DVCC) {
       track.doviDecoderConfigurationRecord = new byte[contentSize];
       input.readFully(track.doviDecoderConfigurationRecord, 0, contentSize);
     } else {
@@ -1979,7 +1975,7 @@ public class MatroskaExtractor implements Extractor {
     public int nalUnitLengthFieldLength;
 
     // Block additional state
-    private int blockAdditionalId;
+    private int blockAddIdType;
 
     /** Initializes the track with an output. */
     public void initializeOutput(ExtractorOutput output, int trackId) throws ParserException {
