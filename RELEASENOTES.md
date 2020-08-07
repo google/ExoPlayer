@@ -215,6 +215,8 @@
     ([#7230](https://github.com/google/ExoPlayer/issues/7230)).
 *   MP4: Fix playback of MP4 containing Opus.
 *   Matroska: Remove support for "Invisible" block header flag.
+*   FMP4: Fix handling of `traf` boxes containing multiple `sbgp` or `sgpd`
+    boxes.
 *   FLV: Ignore SCRIPTDATA segments with invalid name types, rather than failing
     playback ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
 *   Extractors:
