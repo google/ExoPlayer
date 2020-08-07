@@ -735,12 +735,7 @@ public class FragmentedMp4Extractor implements Extractor {
       parseSenc(senc.data, fragment);
     }
 
-    LeafAtom sbgp = traf.getLeafAtomOfType(Atom.TYPE_sbgp);
-    LeafAtom sgpd = traf.getLeafAtomOfType(Atom.TYPE_sgpd);
-    if (sbgp != null && sgpd != null) {
-      parseSgpd(sbgp.data, sgpd.data, encryptionBox != null ? encryptionBox.schemeType : null,
-          fragment);
-    }
+    parseSampleGroups(traf, encryptionBox != null ? encryptionBox.schemeType : null, fragment);
 
     int leafChildrenSize = traf.leafChildren.size();
     for (int i = 0; i < leafChildrenSize; i++) {
@@ -1081,28 +1076,43 @@ public class FragmentedMp4Extractor implements Extractor {
     out.fillEncryptionData(senc);
   }
 
-  private static void parseSgpd(ParsableByteArray sbgp, ParsableByteArray sgpd, String schemeType,
-      TrackFragment out) throws ParserException {
-    sbgp.setPosition(Atom.HEADER_SIZE);
-    int sbgpFullAtom = sbgp.readInt();
-    if (sbgp.readInt() != SAMPLE_GROUP_TYPE_seig) {
-      // Only seig grouping type is supported.
+  private static void parseSampleGroups(
+      ContainerAtom traf, @Nullable String schemeType, TrackFragment out) throws ParserException {
+    // Find sbgp and sgpd boxes with grouping_type == seig.
+    @Nullable ParsableByteArray sbgp = null;
+    @Nullable ParsableByteArray sgpd = null;
+    for (int i = 0; i < traf.leafChildren.size(); i++) {
+      LeafAtom leafAtom = traf.leafChildren.get(i);
+      ParsableByteArray leafAtomData = leafAtom.data;
+      if (leafAtom.type == Atom.TYPE_sbgp) {
+        leafAtomData.setPosition(Atom.FULL_HEADER_SIZE);
+        if (leafAtomData.readInt() == SAMPLE_GROUP_TYPE_seig) {
+          sbgp = leafAtomData;
+        }
+      } else if (leafAtom.type == Atom.TYPE_sgpd) {
+        leafAtomData.setPosition(Atom.FULL_HEADER_SIZE);
+        if (leafAtomData.readInt() == SAMPLE_GROUP_TYPE_seig) {
+          sgpd = leafAtomData;
+        }
+      }
+    }
+    if (sbgp == null || sgpd == null) {
       return;
     }
-    if (Atom.parseFullAtomVersion(sbgpFullAtom) == 1) {
-      sbgp.skipBytes(4); // default_length.
+
+    sbgp.setPosition(Atom.HEADER_SIZE);
+    int sbgpVersion = Atom.parseFullAtomVersion(sbgp.readInt());
+    sbgp.skipBytes(4); // grouping_type == seig.
+    if (sbgpVersion == 1) {
+      sbgp.skipBytes(4); // grouping_type_parameter.
     }
     if (sbgp.readInt() != 1) { // entry_count.
       throw new ParserException("Entry count in sbgp != 1 (unsupported).");
     }
 
     sgpd.setPosition(Atom.HEADER_SIZE);
-    int sgpdFullAtom = sgpd.readInt();
-    if (sgpd.readInt() != SAMPLE_GROUP_TYPE_seig) {
-      // Only seig grouping type is supported.
-      return;
-    }
-    int sgpdVersion = Atom.parseFullAtomVersion(sgpdFullAtom);
+    int sgpdVersion = Atom.parseFullAtomVersion(sgpd.readInt());
+    sgpd.skipBytes(4); // grouping_type == seig.
     if (sgpdVersion == 1) {
       if (sgpd.readUnsignedInt() == 0) {
         throw new ParserException("Variable length description in sgpd found (unsupported)");
@@ -1113,6 +1123,7 @@ public class FragmentedMp4Extractor implements Extractor {
     if (sgpd.readUnsignedInt() != 1) { // entry_count.
       throw new ParserException("Entry count in sgpd != 1 (unsupported).");
     }
+
     // CencSampleEncryptionInformationGroupEntry
     sgpd.skipBytes(1); // reserved = 0.
     int patternByte = sgpd.readUnsignedByte();

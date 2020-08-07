@@ -8,9 +8,12 @@
     *   Add support for `piff` and `isml` brands
         ([#7584](https://github.com/google/ExoPlayer/issues/7584)).
     *   Fix playback of very short MP4 files.
-*   FMP4: Fix `saiz` and `senc` sample count checks, resolving a "length
-    mismatch" `ParserException` when playing certain protected FMP4 streams
-    ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
+*   FMP4:
+    *   Fix `saiz` and `senc` sample count checks, resolving a "length
+        mismatch" `ParserException` when playing certain protected FMP4 streams
+       ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
+    *   Fix handling of `traf` boxes containing multiple `sbgp` or `sgpd`
+        boxes.
 *   FLV: Ignore SCRIPTDATA segments with invalid name types, rather than failing
     playback ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
 *   Workaround an issue on Broadcom based devices where playbacks would not
