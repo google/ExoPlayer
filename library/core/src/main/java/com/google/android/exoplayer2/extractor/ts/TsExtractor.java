@@ -657,6 +657,10 @@ public final class TsExtractor implements Extractor {
         int descriptorTag = data.readUnsignedByte();
         int descriptorLength = data.readUnsignedByte();
         int positionOfNextDescriptor = data.getPosition() + descriptorLength;
+        if (positionOfNextDescriptor > descriptorsEndPosition) {
+          // Descriptor claims to extend past the end position. Skip it.
+          break;
+        }
         if (descriptorTag == TS_PMT_DESC_REGISTRATION) { // registration_descriptor
           long formatIdentifier = data.readUnsignedInt();
           if (formatIdentifier == AC3_FORMAT_IDENTIFIER) {
