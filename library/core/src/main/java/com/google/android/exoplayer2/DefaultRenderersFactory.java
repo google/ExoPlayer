@@ -157,7 +157,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory experimental_setAudioMediaCodecOperationMode(
+  public DefaultRenderersFactory experimentalSetAudioMediaCodecOperationMode(
       @MediaCodecRenderer.MediaCodecOperationMode int mode) {
     audioMediaCodecOperationMode = mode;
     return this;
@@ -172,7 +172,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory experimental_setVideoMediaCodecOperationMode(
+  public DefaultRenderersFactory experimentalSetVideoMediaCodecOperationMode(
       @MediaCodecRenderer.MediaCodecOperationMode int mode) {
     videoMediaCodecOperationMode = mode;
     return this;
@@ -187,10 +187,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory experimental_setMediaCodecOperationMode(
+  public DefaultRenderersFactory experimentalSetMediaCodecOperationMode(
       @MediaCodecRenderer.MediaCodecOperationMode int mode) {
-    experimental_setAudioMediaCodecOperationMode(mode);
-    experimental_setVideoMediaCodecOperationMode(mode);
+    experimentalSetAudioMediaCodecOperationMode(mode);
+    experimentalSetVideoMediaCodecOperationMode(mode);
     return this;
   }
 
@@ -344,7 +344,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
             eventHandler,
             eventListener,
             MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
-    videoRenderer.experimental_setMediaCodecOperationMode(videoMediaCodecOperationMode);
+    videoRenderer.experimentalSetMediaCodecOperationMode(videoMediaCodecOperationMode);
     out.add(videoRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
@@ -469,7 +469,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
             eventHandler,
             eventListener,
             audioSink);
-    audioRenderer.experimental_setMediaCodecOperationMode(audioMediaCodecOperationMode);
+    audioRenderer.experimentalSetMediaCodecOperationMode(audioMediaCodecOperationMode);
     out.add(audioRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {

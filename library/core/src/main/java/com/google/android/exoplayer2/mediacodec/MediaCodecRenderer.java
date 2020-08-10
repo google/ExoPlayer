@@ -472,7 +472,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     By default, the operation mode is set to {@link
    *     MediaCodecRenderer#OPERATION_MODE_SYNCHRONOUS}.
    */
-  public void experimental_setMediaCodecOperationMode(@MediaCodecOperationMode int mode) {
+  public void experimentalSetMediaCodecOperationMode(@MediaCodecOperationMode int mode) {
     mediaCodecOperationMode = mode;
   }
 
