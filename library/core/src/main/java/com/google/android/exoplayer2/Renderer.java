@@ -58,6 +58,8 @@ public interface Renderer extends PlayerMessage.Target {
     /**
      * The renderer no longer needs to render until the next wakeup.
      *
+     * <p>Must be called from the thread ExoPlayer invokes the renderer from.
+     *
      * @param wakeupDeadlineMs Maximum time in milliseconds until {@link #onWakeup()} will be
      *     called.
      */
@@ -66,6 +68,8 @@ public interface Renderer extends PlayerMessage.Target {
     /**
      * The renderer needs to render some frames. The client should call {@link #render(long, long)}
      * at its earliest convenience.
+     *
+     * <p>Can be called from any thread.
      */
     void onWakeup();
   }

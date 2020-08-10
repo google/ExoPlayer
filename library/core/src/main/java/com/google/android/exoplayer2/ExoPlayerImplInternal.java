@@ -141,6 +141,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_SET_SHUFFLE_ORDER = 21;
   private static final int MSG_PLAYLIST_UPDATE_REQUESTED = 22;
   private static final int MSG_SET_PAUSE_AT_END_OF_WINDOW = 23;
+  private static final int MSG_SET_OFFLOAD_SCHEDULING = 24;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
@@ -187,7 +188,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean shuffleModeEnabled;
   private boolean foregroundMode;
   private boolean requestForRendererSleep;
-  private boolean offloadSchedulingEnabled;
+  private boolean enableOffloadScheduling;
 
   private int enabledRendererCount;
   @Nullable private SeekPosition pendingInitialSeekPosition;
@@ -263,10 +264,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   public void experimentalEnableOffloadScheduling(boolean enableOffloadScheduling) {
-    offloadSchedulingEnabled = enableOffloadScheduling;
-    if (!enableOffloadScheduling) {
-      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
-    }
+    handler
+        .obtainMessage(MSG_SET_OFFLOAD_SCHEDULING, enableOffloadScheduling ? 1 : 0, /* unused */ 0)
+        .sendToTarget();
   }
 
   public void prepare() {
@@ -518,6 +518,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
         case MSG_SET_PAUSE_AT_END_OF_WINDOW:
           setPauseAtEndOfWindowInternal(msg.arg1 != 0);
           break;
+        case MSG_SET_OFFLOAD_SCHEDULING:
+          setOffloadSchedulingEnabledInternal(msg.arg1 == 1);
+          break;
         case MSG_RELEASE:
           releaseInternal();
           // Return immediately to not send playback info updates after release.
@@ -736,6 +739,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
     handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
   }
 
+  private void setOffloadSchedulingEnabledInternal(boolean enableOffloadScheduling) {
+    if (enableOffloadScheduling == this.enableOffloadScheduling) {
+      return;
+    }
+    this.enableOffloadScheduling = enableOffloadScheduling;
+    @Player.State int state = playbackInfo.playbackState;
+    if (enableOffloadScheduling || state == Player.STATE_ENDED || state == Player.STATE_IDLE) {
+      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(enableOffloadScheduling);
+    } else {
+      handler.sendEmptyMessage(MSG_DO_SOME_WORK);
+    }
+  }
+
   private void setRepeatModeInternal(@Player.RepeatMode int repeatMode)
       throws ExoPlaybackException {
     this.repeatMode = repeatMode;
@@ -937,8 +953,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         throw new IllegalStateException("Playback stuck buffering and not loading");
       }
     }
-    if (offloadSchedulingEnabled != playbackInfo.offloadSchedulingEnabled) {
-      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(offloadSchedulingEnabled);
+    if (enableOffloadScheduling != playbackInfo.offloadSchedulingEnabled) {
+      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(enableOffloadScheduling);
     }
 
     if ((shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY)
@@ -960,7 +976,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void maybeScheduleWakeup(long operationStartTimeMs, long intervalMs) {
-    if (offloadSchedulingEnabled && requestForRendererSleep) {
+    if (enableOffloadScheduling && requestForRendererSleep) {
       return;
     }
 
@@ -1288,7 +1304,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             startPositionUs,
             /* totalBufferedDurationUs= */ 0,
             startPositionUs,
-            offloadSchedulingEnabled);
+            enableOffloadScheduling);
     if (releaseMediaSourceList) {
       mediaSourceList.release();
     }
