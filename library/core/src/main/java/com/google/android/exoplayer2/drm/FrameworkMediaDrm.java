@@ -74,6 +74,15 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   private int referenceCount;
 
   /**
+   * Returns whether the DRM scheme with the given UUID is supported on this device.
+   *
+   * @see MediaDrm#isCryptoSchemeSupported(UUID)
+   */
+  public static boolean isCryptoSchemeSupported(UUID uuid) {
+    return MediaDrm.isCryptoSchemeSupported(adjustUuid(uuid));
+  }
+
+  /**
    * Creates an instance with an initial reference count of 1. {@link #release()} must be called on
    * the instance when it's no longer required.
    *

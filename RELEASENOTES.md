@@ -282,6 +282,8 @@
     *   Removed support for media tunneling
     *   Removed support for random ABR (random track selection)
     *   Removed support for playing back in spherical stereo mode
+    *   Fix playback of ClearKey protected content on API level 26 and earlier
+        ([#7735](https://github.com/google/ExoPlayer/issues/7735)).
 *   Add Guava dependency.
 
 ### 2.11.7 (2020-06-29) ###

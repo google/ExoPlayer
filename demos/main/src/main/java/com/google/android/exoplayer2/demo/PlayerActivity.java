@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaDrm;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
@@ -41,6 +40,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -346,7 +346,7 @@ public class PlayerActivity extends AppCompatActivity
           showToast(R.string.error_drm_unsupported_before_api_18);
           finish();
           return Collections.emptyList();
-        } else if (!MediaDrm.isCryptoSchemeSupported(drmConfiguration.uuid)) {
+        } else if (!FrameworkMediaDrm.isCryptoSchemeSupported(drmConfiguration.uuid)) {
           showToast(R.string.error_drm_unsupported_scheme);
           finish();
           return Collections.emptyList();
