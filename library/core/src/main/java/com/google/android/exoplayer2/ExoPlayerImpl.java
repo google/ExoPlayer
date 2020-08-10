@@ -195,8 +195,8 @@ import java.util.concurrent.TimeoutException;
    *
    * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
    */
-  public void experimental_setReleaseTimeoutMs(long timeoutMs) {
-    internalPlayer.experimental_setReleaseTimeoutMs(timeoutMs);
+  public void experimentalSetReleaseTimeoutMs(long timeoutMs) {
+    internalPlayer.experimentalSetReleaseTimeoutMs(timeoutMs);
   }
 
   /**

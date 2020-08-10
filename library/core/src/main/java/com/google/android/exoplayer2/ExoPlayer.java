@@ -227,7 +227,7 @@ public interface ExoPlayer extends Player {
      *
      * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
      */
-    public Builder experimental_setReleaseTimeoutMs(long timeoutMs) {
+    public Builder experimentalSetReleaseTimeoutMs(long timeoutMs) {
       releaseTimeoutMs = timeoutMs;
       return this;
     }
@@ -410,7 +410,7 @@ public interface ExoPlayer extends Player {
               looper);
 
       if (releaseTimeoutMs > 0) {
-        player.experimental_setReleaseTimeoutMs(releaseTimeoutMs);
+        player.experimentalSetReleaseTimeoutMs(releaseTimeoutMs);
       }
       if (!throwWhenStuckBuffering) {
         player.experimentalDisableThrowWhenStuckBuffering();

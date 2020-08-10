@@ -254,7 +254,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     handler = clock.createHandler(internalPlaybackThread.getLooper(), this);
   }
 
-  public void experimental_setReleaseTimeoutMs(long releaseTimeoutMs) {
+  public void experimentalSetReleaseTimeoutMs(long releaseTimeoutMs) {
     this.releaseTimeoutMs = releaseTimeoutMs;
   }
 
