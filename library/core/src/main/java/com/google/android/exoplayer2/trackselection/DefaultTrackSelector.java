@@ -1579,7 +1579,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *
    * <p>This method is experimental, and will be renamed or removed in a future release.
    */
-  public void experimental_allowMultipleAdaptiveSelections() {
+  public void experimentalAllowMultipleAdaptiveSelections() {
     this.allowMultipleAdaptiveSelections = true;
   }
 
