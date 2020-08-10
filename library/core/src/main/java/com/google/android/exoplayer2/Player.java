@@ -604,6 +604,14 @@ public interface Player {
      */
     @Deprecated
     default void onSeekProcessed() {}
+
+    /**
+     * Called when the player has started or stopped offload scheduling after a call to {@link
+     * ExoPlayer#experimentalEnableOffloadScheduling(boolean)}.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     */
+    default void onExperimentalOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {}
   }
 
   /**

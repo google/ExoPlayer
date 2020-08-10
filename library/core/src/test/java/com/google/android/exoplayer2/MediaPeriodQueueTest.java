@@ -438,7 +438,8 @@ public final class MediaPeriodQueueTest {
             /* playbackSpeed= */ Player.DEFAULT_PLAYBACK_SPEED,
             /* bufferedPositionUs= */ 0,
             /* totalBufferedDurationUs= */ 0,
-            /* positionUs= */ 0);
+            /* positionUs= */ 0,
+            /* offloadSchedulingEnabled= */ false);
   }
 
   private void advance() {

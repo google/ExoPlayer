@@ -937,6 +937,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
         throw new IllegalStateException("Playback stuck buffering and not loading");
       }
     }
+    if (offloadSchedulingEnabled != playbackInfo.offloadSchedulingEnabled) {
+      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(offloadSchedulingEnabled);
+    }
 
     if ((shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY)
         || playbackInfo.playbackState == Player.STATE_BUFFERING) {
@@ -1284,7 +1287,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
             playbackInfo.playbackSpeed,
             startPositionUs,
             /* totalBufferedDurationUs= */ 0,
-            startPositionUs);
+            startPositionUs,
+            offloadSchedulingEnabled);
     if (releaseMediaSourceList) {
       mediaSourceList.release();
     }

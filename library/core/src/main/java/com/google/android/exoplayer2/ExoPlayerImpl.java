@@ -1366,6 +1366,7 @@ import java.util.concurrent.TimeoutException;
     private final boolean playbackSuppressionReasonChanged;
     private final boolean isPlayingChanged;
     private final boolean playbackSpeedChanged;
+    private final boolean offloadSchedulingChanged;
 
     public PlaybackInfoUpdate(
         PlaybackInfo playbackInfo,
@@ -1404,6 +1405,8 @@ import java.util.concurrent.TimeoutException;
           previousPlaybackInfo.playbackSuppressionReason != playbackInfo.playbackSuppressionReason;
       isPlayingChanged = isPlaying(previousPlaybackInfo) != isPlaying(playbackInfo);
       playbackSpeedChanged = previousPlaybackInfo.playbackSpeed != playbackInfo.playbackSpeed;
+      offloadSchedulingChanged =
+          previousPlaybackInfo.offloadSchedulingEnabled != playbackInfo.offloadSchedulingEnabled;
     }
 
     @SuppressWarnings("deprecation")
@@ -1480,6 +1483,13 @@ import java.util.concurrent.TimeoutException;
       }
       if (seekProcessed) {
         invokeAll(listenerSnapshot, EventListener::onSeekProcessed);
+      }
+      if (offloadSchedulingChanged) {
+        invokeAll(
+            listenerSnapshot,
+            listener ->
+                listener.onExperimentalOffloadSchedulingEnabled(
+                    playbackInfo.offloadSchedulingEnabled));
       }
     }
 
