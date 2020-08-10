@@ -634,5 +634,5 @@ public interface ExoPlayer extends Player {
    *
    * @param enableOffloadScheduling Whether to enable offload scheduling.
    */
-  void experimental_enableOffloadScheduling(boolean enableOffloadScheduling);
+  void experimentalEnableOffloadScheduling(boolean enableOffloadScheduling);
 }

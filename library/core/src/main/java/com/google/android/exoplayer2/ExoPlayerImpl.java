@@ -210,8 +210,8 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void experimental_enableOffloadScheduling(boolean enableOffloadScheduling) {
-    internalPlayer.experimental_enableOffloadScheduling(enableOffloadScheduling);
+  public void experimentalEnableOffloadScheduling(boolean enableOffloadScheduling) {
+    internalPlayer.experimentalEnableOffloadScheduling(enableOffloadScheduling);
   }
 
   @Override

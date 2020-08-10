@@ -262,7 +262,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     throwWhenStuckBuffering = false;
   }
 
-  public void experimental_enableOffloadScheduling(boolean enableOffloadScheduling) {
+  public void experimentalEnableOffloadScheduling(boolean enableOffloadScheduling) {
     offloadSchedulingEnabled = enableOffloadScheduling;
     if (!enableOffloadScheduling) {
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);

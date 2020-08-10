@@ -630,8 +630,8 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void experimental_enableOffloadScheduling(boolean enableOffloadScheduling) {
-    player.experimental_enableOffloadScheduling(enableOffloadScheduling);
+  public void experimentalEnableOffloadScheduling(boolean enableOffloadScheduling) {
+    player.experimentalEnableOffloadScheduling(enableOffloadScheduling);
   }
 
   @Override
