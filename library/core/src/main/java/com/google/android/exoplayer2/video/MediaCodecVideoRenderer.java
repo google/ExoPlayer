@@ -139,6 +139,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private Surface surface;
   private float surfaceFrameRate;
   private Surface dummySurface;
+  private boolean haveReportedFirstFrameRenderedForCurrentSurface;
   @VideoScalingMode private int scalingMode;
   private boolean renderedFirstFrameAfterReset;
   private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
@@ -446,6 +447,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void onDisabled() {
     clearReportedVideoSize();
     clearRenderedFirstFrame();
+    haveReportedFirstFrameRenderedForCurrentSurface = false;
     frameReleaseTimeHelper.disable();
     tunnelingOnFrameRenderedListener = null;
     try {
@@ -504,6 +506,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (this.surface != surface) {
       clearSurfaceFrameRate();
       this.surface = surface;
+      haveReportedFirstFrameRenderedForCurrentSurface = false;
       updateSurfaceFrameRate(/* isNewSurface= */ true);
 
       @State int state = getState();
@@ -1160,11 +1163,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!renderedFirstFrameAfterReset) {
       renderedFirstFrameAfterReset = true;
       eventDispatcher.renderedFirstFrame(surface);
+      haveReportedFirstFrameRenderedForCurrentSurface = true;
     }
   }
 
   private void maybeRenotifyRenderedFirstFrame() {
-    if (renderedFirstFrameAfterReset) {
+    if (haveReportedFirstFrameRenderedForCurrentSurface) {
       eventDispatcher.renderedFirstFrame(surface);
     }
   }
