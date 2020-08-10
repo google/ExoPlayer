@@ -449,7 +449,7 @@ public class SimpleExoPlayer extends BasePlayer
      * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
      * @return This builder.
      */
-    public Builder experimental_setThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
+    public Builder experimentalSetThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
       this.throwWhenStuckBuffering = throwWhenStuckBuffering;
       return this;
     }
@@ -620,7 +620,7 @@ public class SimpleExoPlayer extends BasePlayer
     wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
     deviceInfo = createDeviceInfo(streamVolumeManager);
     if (!builder.throwWhenStuckBuffering) {
-      player.experimental_disableThrowWhenStuckBuffering();
+      player.experimentalDisableThrowWhenStuckBuffering();
     }
 
     sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);

@@ -240,7 +240,7 @@ public interface ExoPlayer extends Player {
      * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
      * @return This builder.
      */
-    public Builder experimental_setThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
+    public Builder experimentalSetThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
       this.throwWhenStuckBuffering = throwWhenStuckBuffering;
       return this;
     }
@@ -413,7 +413,7 @@ public interface ExoPlayer extends Player {
         player.experimental_setReleaseTimeoutMs(releaseTimeoutMs);
       }
       if (!throwWhenStuckBuffering) {
-        player.experimental_disableThrowWhenStuckBuffering();
+        player.experimentalDisableThrowWhenStuckBuffering();
       }
 
       return player;

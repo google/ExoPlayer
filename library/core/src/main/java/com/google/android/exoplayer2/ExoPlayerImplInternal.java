@@ -258,7 +258,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.releaseTimeoutMs = releaseTimeoutMs;
   }
 
-  public void experimental_disableThrowWhenStuckBuffering() {
+  public void experimentalDisableThrowWhenStuckBuffering() {
     throwWhenStuckBuffering = false;
   }
 

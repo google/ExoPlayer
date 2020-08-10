@@ -205,8 +205,8 @@ import java.util.concurrent.TimeoutException;
    * <p>This method is experimental, and will be renamed or removed in a future release. It should
    * only be called before the player is used.
    */
-  public void experimental_disableThrowWhenStuckBuffering() {
-    internalPlayer.experimental_disableThrowWhenStuckBuffering();
+  public void experimentalDisableThrowWhenStuckBuffering() {
+    internalPlayer.experimentalDisableThrowWhenStuckBuffering();
   }
 
   @Override
