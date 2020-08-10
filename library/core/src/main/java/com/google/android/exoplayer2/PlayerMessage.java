@@ -323,13 +323,13 @@ public final class PlayerMessage {
    * @throws InterruptedException If the current thread is interrupted while waiting for the message
    *     to be delivered.
    */
-  public synchronized boolean experimental_blockUntilDelivered(long timeoutMs)
+  public synchronized boolean experimentalBlockUntilDelivered(long timeoutMs)
       throws InterruptedException, TimeoutException {
-    return experimental_blockUntilDelivered(timeoutMs, Clock.DEFAULT);
+    return experimentalBlockUntilDelivered(timeoutMs, Clock.DEFAULT);
   }
 
   @VisibleForTesting()
-  /* package */ synchronized boolean experimental_blockUntilDelivered(long timeoutMs, Clock clock)
+  /* package */ synchronized boolean experimentalBlockUntilDelivered(long timeoutMs, Clock clock)
       throws InterruptedException, TimeoutException {
     Assertions.checkState(isSent);
     Assertions.checkState(handler.getLooper().getThread() != Thread.currentThread());

@@ -66,30 +66,30 @@ public class PlayerMessageTest {
   }
 
   @Test
-  public void experimental_blockUntilDelivered_timesOut() throws Exception {
+  public void experimentalBlockUntilDelivered_timesOut() throws Exception {
     when(clock.elapsedRealtime()).thenReturn(0L).thenReturn(TIMEOUT_MS * 2);
 
     try {
-      message.send().experimental_blockUntilDelivered(TIMEOUT_MS, clock);
+      message.send().experimentalBlockUntilDelivered(TIMEOUT_MS, clock);
       fail();
     } catch (TimeoutException expected) {
     }
 
-    // Ensure experimental_blockUntilDelivered() entered the blocking loop
+    // Ensure experimentalBlockUntilDelivered() entered the blocking loop
     verify(clock, Mockito.times(2)).elapsedRealtime();
   }
 
   @Test
-  public void experimental_blockUntilDelivered_onAlreadyProcessed_succeeds() throws Exception {
+  public void experimentalBlockUntilDelivered_onAlreadyProcessed_succeeds() throws Exception {
     when(clock.elapsedRealtime()).thenReturn(0L);
 
     message.send().markAsProcessed(/* isDelivered= */ true);
 
-    assertThat(message.experimental_blockUntilDelivered(TIMEOUT_MS, clock)).isTrue();
+    assertThat(message.experimentalBlockUntilDelivered(TIMEOUT_MS, clock)).isTrue();
   }
 
   @Test
-  public void experimental_blockUntilDelivered_markAsProcessedWhileBlocked_succeeds()
+  public void experimentalBlockUntilDelivered_markAsProcessedWhileBlocked_succeeds()
       throws Exception {
     message.send();
 
@@ -114,8 +114,8 @@ public class PlayerMessageTest {
             });
 
     try {
-      assertThat(message.experimental_blockUntilDelivered(TIMEOUT_MS, clock)).isTrue();
-      // Ensure experimental_blockUntilDelivered() entered the blocking loop.
+      assertThat(message.experimentalBlockUntilDelivered(TIMEOUT_MS, clock)).isTrue();
+      // Ensure experimentalBlockUntilDelivered() entered the blocking loop.
       verify(clock, Mockito.atLeast(2)).elapsedRealtime();
       future.get(1, SECONDS);
     } finally {
