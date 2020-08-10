@@ -609,15 +609,21 @@ public final class ImaAdsLoader
    * called, so it is only necessary to call this method if you want to request ads before preparing
    * the player.
    *
-   * @param adViewGroup A {@link ViewGroup} on top of the player that will show any ad UI.
+   * @param adViewGroup A {@link ViewGroup} on top of the player that will show any ad UI, or {@code
+   *     null} if playing audio-only ads.
    */
-  public void requestAds(ViewGroup adViewGroup) {
+  public void requestAds(@Nullable ViewGroup adViewGroup) {
     if (hasAdPlaybackState || adsManager != null || pendingAdRequestContext != null) {
       // Ads have already been requested.
       return;
     }
-    adDisplayContainer =
-        imaFactory.createAdDisplayContainer(adViewGroup, /* player= */ componentListener);
+    if (adViewGroup != null) {
+      adDisplayContainer =
+          imaFactory.createAdDisplayContainer(adViewGroup, /* player= */ componentListener);
+    } else {
+      adDisplayContainer =
+          imaFactory.createAudioAdDisplayContainer(context, /* player= */ componentListener);
+    }
     if (companionAdSlots != null) {
       adDisplayContainer.setCompanionSlots(companionAdSlots);
     }
@@ -637,6 +643,19 @@ public final class ImaAdsLoader
     pendingAdRequestContext = new Object();
     request.setUserRequestContext(pendingAdRequestContext);
     adsLoader.requestAds(request);
+  }
+
+  /**
+   * Skips the current ad.
+   *
+   * <p>This method is intended for apps that play audio-only ads and so need to provide their own
+   * UI for users to skip skippable ads. Apps showing video ads should not call this method, as the
+   * IMA SDK provides the UI to skip ads in the ad view group passed via {@link AdViewProvider}.
+   */
+  public void skipAd() {
+    if (adsManager != null) {
+      adsManager.skip();
+    }
   }
 
   // com.google.android.exoplayer2.source.ads.AdsLoader implementation.
@@ -1582,6 +1601,8 @@ public final class ImaAdsLoader
      * non-linear ads, and slots for companion ads.
      */
     AdDisplayContainer createAdDisplayContainer(ViewGroup container, VideoAdPlayer player);
+    /** Creates an {@link AdDisplayContainer} to hold the player for audio ads. */
+    AdDisplayContainer createAudioAdDisplayContainer(Context context, VideoAdPlayer player);
     /**
      * Creates a {@link FriendlyObstruction} to describe an obstruction considered "friendly" for
      * viewability measurement purposes.
@@ -1815,6 +1836,11 @@ public final class ImaAdsLoader
     @Override
     public AdDisplayContainer createAdDisplayContainer(ViewGroup container, VideoAdPlayer player) {
       return ImaSdkFactory.createAdDisplayContainer(container, player);
+    }
+
+    @Override
+    public AdDisplayContainer createAudioAdDisplayContainer(Context context, VideoAdPlayer player) {
+      return ImaSdkFactory.createAudioAdDisplayContainer(context, player);
     }
 
     // The reasonDetail parameter to createFriendlyObstruction is annotated @Nullable but the

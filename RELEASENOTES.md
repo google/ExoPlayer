@@ -266,6 +266,10 @@
     *   Migrate to new 'friendly obstruction' IMA SDK APIs, and allow apps to
         register a purpose and detail reason for overlay views via
         `AdsLoader.AdViewProvider`.
+    *   Add support for audio-only ads display containers by returning `null`
+        from `AdsLoader.AdViewProvider.getAdViewGroup`, and allow skipping
+        audio-only ads via `ImaAdsLoader.skipAd`
+        ([#7689](https://github.com/google/ExoPlayer/issues/7689)).
     *   Add `ImaAdsLoader.Builder.setCompanionAdSlots` so it's possible to set
         companion ad slots without accessing the `AdDisplayContainer`.
     *   Add missing notification of `VideoAdPlayerCallback.onLoaded`.

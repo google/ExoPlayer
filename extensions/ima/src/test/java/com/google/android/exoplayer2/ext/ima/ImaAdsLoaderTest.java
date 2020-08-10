@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -31,7 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
@@ -117,6 +117,7 @@ public final class ImaAdsLoaderTest {
 
   private ViewGroup adViewGroup;
   private AdsLoader.AdViewProvider adViewProvider;
+  private AdsLoader.AdViewProvider audioAdsAdViewProvider;
   private AdEvent.AdEventListener adEventListener;
   private ContentProgressProvider contentProgressProvider;
   private VideoAdPlayer videoAdPlayer;
@@ -127,8 +128,8 @@ public final class ImaAdsLoaderTest {
   @Before
   public void setUp() {
     setupMocks();
-    adViewGroup = new FrameLayout(ApplicationProvider.getApplicationContext());
-    View adOverlayView = new View(ApplicationProvider.getApplicationContext());
+    adViewGroup = new FrameLayout(getApplicationContext());
+    View adOverlayView = new View(getApplicationContext());
     adViewProvider =
         new AdsLoader.AdViewProvider() {
           @Override
@@ -140,6 +141,18 @@ public final class ImaAdsLoaderTest {
           public ImmutableList<AdsLoader.OverlayInfo> getAdOverlayInfos() {
             return ImmutableList.of(
                 new AdsLoader.OverlayInfo(adOverlayView, AdsLoader.OverlayInfo.PURPOSE_CLOSE_AD));
+          }
+        };
+    audioAdsAdViewProvider =
+        new AdsLoader.AdViewProvider() {
+          @Override
+          public ViewGroup getAdViewGroup() {
+            return null;
+          }
+
+          @Override
+          public ImmutableList<AdsLoader.OverlayInfo> getAdOverlayInfos() {
+            return ImmutableList.of();
           }
         };
   }
@@ -165,7 +178,19 @@ public final class ImaAdsLoaderTest {
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
 
     verify(mockImaFactory, atLeastOnce()).createAdDisplayContainer(adViewGroup, videoAdPlayer);
+    verify(mockImaFactory, never()).createAudioAdDisplayContainer(any(), any());
     verify(mockAdDisplayContainer).registerFriendlyObstruction(mockFriendlyObstruction);
+  }
+
+  @Test
+  public void startForAudioOnlyAds_createsAudioOnlyAdDisplayContainer() {
+    setupPlayback(CONTENT_TIMELINE, PREROLL_CUE_POINTS_SECONDS);
+    imaAdsLoader.start(adsLoaderListener, audioAdsAdViewProvider);
+
+    verify(mockImaFactory, atLeastOnce())
+        .createAudioAdDisplayContainer(getApplicationContext(), videoAdPlayer);
+    verify(mockImaFactory, never()).createAdDisplayContainer(any(), any());
+    verify(mockAdDisplayContainer, never()).registerFriendlyObstruction(any());
   }
 
   @Test
@@ -470,7 +495,7 @@ public final class ImaAdsLoaderTest {
     setupPlayback(
         CONTENT_TIMELINE,
         cuePoints,
-        new ImaAdsLoader.Builder(ApplicationProvider.getApplicationContext())
+        new ImaAdsLoader.Builder(getApplicationContext())
             .setPlayAdBeforeStartPosition(false)
             .setImaFactory(mockImaFactory)
             .setImaSdkSettings(mockImaSdkSettings)
@@ -502,7 +527,7 @@ public final class ImaAdsLoaderTest {
     setupPlayback(
         CONTENT_TIMELINE,
         cuePoints,
-        new ImaAdsLoader.Builder(ApplicationProvider.getApplicationContext())
+        new ImaAdsLoader.Builder(getApplicationContext())
             .setPlayAdBeforeStartPosition(false)
             .setImaFactory(mockImaFactory)
             .setImaSdkSettings(mockImaSdkSettings)
@@ -534,7 +559,7 @@ public final class ImaAdsLoaderTest {
     setupPlayback(
         CONTENT_TIMELINE,
         cuePoints,
-        new ImaAdsLoader.Builder(ApplicationProvider.getApplicationContext())
+        new ImaAdsLoader.Builder(getApplicationContext())
             .setPlayAdBeforeStartPosition(false)
             .setImaFactory(mockImaFactory)
             .setImaSdkSettings(mockImaSdkSettings)
@@ -570,7 +595,7 @@ public final class ImaAdsLoaderTest {
     setupPlayback(
         CONTENT_TIMELINE,
         cuePoints,
-        new ImaAdsLoader.Builder(ApplicationProvider.getApplicationContext())
+        new ImaAdsLoader.Builder(getApplicationContext())
             .setPlayAdBeforeStartPosition(false)
             .setImaFactory(mockImaFactory)
             .setImaSdkSettings(mockImaSdkSettings)
@@ -609,7 +634,7 @@ public final class ImaAdsLoaderTest {
     setupPlayback(
         CONTENT_TIMELINE,
         cuePoints,
-        new ImaAdsLoader.Builder(ApplicationProvider.getApplicationContext())
+        new ImaAdsLoader.Builder(getApplicationContext())
             .setPlayAdBeforeStartPosition(false)
             .setImaFactory(mockImaFactory)
             .setImaSdkSettings(mockImaSdkSettings)
@@ -696,7 +721,7 @@ public final class ImaAdsLoaderTest {
     setupPlayback(
         contentTimeline,
         cuePoints,
-        new ImaAdsLoader.Builder(ApplicationProvider.getApplicationContext())
+        new ImaAdsLoader.Builder(getApplicationContext())
             .setImaFactory(mockImaFactory)
             .setImaSdkSettings(mockImaSdkSettings)
             .buildForAdTag(TEST_URI));
@@ -765,6 +790,13 @@ public final class ImaAdsLoaderTest {
             })
         .when(mockImaFactory)
         .createAdDisplayContainer(any(), any());
+    doAnswer(
+            invocation -> {
+              videoAdPlayer = invocation.getArgument(1);
+              return mockAdDisplayContainer;
+            })
+        .when(mockImaFactory)
+        .createAudioAdDisplayContainer(any(), any());
     when(mockImaFactory.createAdsRenderingSettings()).thenReturn(mockAdsRenderingSettings);
     when(mockImaFactory.createAdsRequest()).thenReturn(mockAdsRequest);
     when(mockImaFactory.createAdsLoader(any(), any(), any())).thenReturn(mockAdsLoader);

@@ -80,10 +80,12 @@ public interface AdsLoader {
   interface AdViewProvider {
 
     /**
-     * Returns the {@link ViewGroup} on top of the player that will show any ad UI. Any views on top
-     * of the returned view group must be described by {@link OverlayInfo OverlayInfos} returned by
-     * {@link #getAdOverlayInfos()}, for accurate viewability measurement.
+     * Returns the {@link ViewGroup} on top of the player that will show any ad UI, or {@code null}
+     * if playing audio-only ads. Any views on top of the returned view group must be described by
+     * {@link OverlayInfo OverlayInfos} returned by {@link #getAdOverlayInfos()}, for accurate
+     * viewability measurement.
      */
+    @Nullable
     ViewGroup getAdViewGroup();
 
     /** @deprecated Use {@link #getAdOverlayInfos()} instead. */
