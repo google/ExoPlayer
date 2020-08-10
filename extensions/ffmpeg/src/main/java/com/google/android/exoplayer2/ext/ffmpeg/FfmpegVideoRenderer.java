@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  */
 public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
 
-  private static final String TAG = "FfmpegAudioRenderer";
+  private static final String TAG = "FfmpegVideoRenderer";
 
   /**
    * Creates a new instance.
