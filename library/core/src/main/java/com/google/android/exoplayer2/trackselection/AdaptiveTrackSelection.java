@@ -170,7 +170,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         for (int i = 0; i < adaptiveSelections.size(); i++) {
           adaptiveSelections
               .get(i)
-              .experimental_setBandwidthAllocationCheckpoints(bandwidthCheckpoints[i]);
+              .experimentalSetBandwidthAllocationCheckpoints(bandwidthCheckpoints[i]);
         }
       }
       return selections;
@@ -320,9 +320,9 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    * @param allocationCheckpoints List of checkpoints. Each element must be a long[2], with [0]
    *     being the total bandwidth and [1] being the allocated bandwidth.
    */
-  public void experimental_setBandwidthAllocationCheckpoints(long[][] allocationCheckpoints) {
+  public void experimentalSetBandwidthAllocationCheckpoints(long[][] allocationCheckpoints) {
     ((DefaultBandwidthProvider) bandwidthProvider)
-        .experimental_setBandwidthAllocationCheckpoints(allocationCheckpoints);
+        .experimentalSetBandwidthAllocationCheckpoints(allocationCheckpoints);
   }
 
   @CallSuper
@@ -561,7 +561,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       return previous[1] + (long) (fractionBetweenCheckpoints * (next[1] - previous[1]));
     }
 
-    /* package */ void experimental_setBandwidthAllocationCheckpoints(
+    /* package */ void experimentalSetBandwidthAllocationCheckpoints(
         long[][] allocationCheckpoints) {
       Assertions.checkArgument(allocationCheckpoints.length >= 2);
       this.allocationCheckpoints = allocationCheckpoints;
