@@ -611,7 +611,7 @@ public interface Player {
      *
      * <p>This method is experimental, and will be renamed or removed in a future release.
      */
-    default void onExperimentalOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {}
+    default void onExperimentalOffloadSchedulingEnabledChanged(boolean offloadSchedulingEnabled) {}
   }
 
   /**

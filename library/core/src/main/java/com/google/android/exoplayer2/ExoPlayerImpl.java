@@ -1488,7 +1488,7 @@ import java.util.concurrent.TimeoutException;
         invokeAll(
             listenerSnapshot,
             listener ->
-                listener.onExperimentalOffloadSchedulingEnabled(
+                listener.onExperimentalOffloadSchedulingEnabledChanged(
                     playbackInfo.offloadSchedulingEnabled));
       }
     }

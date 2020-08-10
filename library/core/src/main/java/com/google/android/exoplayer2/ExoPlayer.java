@@ -612,8 +612,8 @@ public interface ExoPlayer extends Player {
    * <p>While offload scheduling is enabled, player events may be delivered severely delayed and
    * apps should not interact with the player. When returning to the foreground, disable offload
    * scheduling and wait for {@link
-   * Player.EventListener#onExperimentalOffloadSchedulingEnabled(boolean)} to be called with {@code
-   * offloadSchedulingEnabled = false} before interacting with the player.
+   * Player.EventListener#onExperimentalOffloadSchedulingEnabledChanged(boolean)} to be called with
+   * {@code offloadSchedulingEnabled = false} before interacting with the player.
    *
    * <p>This mode should save significant power when the phone is playing offload audio with the
    * screen off.
