@@ -23,6 +23,8 @@
 *   IMA extension: Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the
     media load timeout
     ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
+*   Demo app: Fix playback of ClearKey protected content on API level 26 and
+    earlier ([#7735](https://github.com/google/ExoPlayer/issues/7735)).
 
 ### 2.11.7 (2020-06-29) ###
 

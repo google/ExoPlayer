@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.demo;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaDrm;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
@@ -47,6 +46,7 @@ import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.DownloadHelper;
@@ -485,7 +485,7 @@ public class PlayerActivity extends AppCompatActivity
       drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
     } else if (Util.SDK_INT < 18) {
       errorStringId = R.string.error_drm_unsupported_before_api_18;
-    } else if (!MediaDrm.isCryptoSchemeSupported(drmInfo.drmScheme)) {
+    } else if (!FrameworkMediaDrm.isCryptoSchemeSupported(drmInfo.drmScheme)) {
       errorStringId = R.string.error_drm_unsupported_scheme;
     } else {
       MediaDrmCallback mediaDrmCallback =
