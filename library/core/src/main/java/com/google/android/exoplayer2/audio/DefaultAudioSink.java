@@ -31,7 +31,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -90,14 +89,6 @@ public final class DefaultAudioSink implements AudioSink {
      * during playback.
      */
     AudioProcessor[] getAudioProcessors();
-
-    /**
-     * @deprecated Use {@link #applyPlaybackSpeed(float)} and {@link
-     *     #applySkipSilenceEnabled(boolean)} instead.
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    PlaybackParameters applyPlaybackParameters(PlaybackParameters playbackParameters);
 
     /**
      * Configures audio processors to apply the specified playback speed immediately, returning the
@@ -177,17 +168,6 @@ public final class DefaultAudioSink implements AudioSink {
       return audioProcessors;
     }
 
-    /**
-     * @deprecated Use {@link #applyPlaybackSpeed(float)} and {@link
-     *     #applySkipSilenceEnabled(boolean)} instead.
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public PlaybackParameters applyPlaybackParameters(PlaybackParameters playbackParameters) {
-      return new PlaybackParameters(applyPlaybackSpeed(playbackParameters.speed));
-    }
-
     @Override
     public float applyPlaybackSpeed(float playbackSpeed) {
       return sonicAudioProcessor.setSpeed(playbackSpeed);
@@ -259,7 +239,7 @@ public final class DefaultAudioSink implements AudioSink {
   @SuppressLint("InlinedApi")
   private static final int WRITE_NON_BLOCKING = AudioTrack.WRITE_NON_BLOCKING;
   /** The default playback speed. */
-  private static final float DEFAULT_PLAYBACK_SPEED = 1.0f;
+  private static final float DEFAULT_PLAYBACK_SPEED = 1f;
   /** The default skip silence flag. */
   private static final boolean DEFAULT_SKIP_SILENCE = false;
 
@@ -424,7 +404,7 @@ public final class DefaultAudioSink implements AudioSink {
     Collections.addAll(toIntPcmAudioProcessors, audioProcessorChain.getAudioProcessors());
     toIntPcmAvailableAudioProcessors = toIntPcmAudioProcessors.toArray(new AudioProcessor[0]);
     toFloatPcmAvailableAudioProcessors = new AudioProcessor[] {new FloatResamplingAudioProcessor()};
-    volume = 1.0f;
+    volume = 1f;
     audioAttributes = AudioAttributes.DEFAULT;
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     auxEffectInfo = new AuxEffectInfo(AuxEffectInfo.NO_AUX_EFFECT_ID, 0f);
@@ -1004,26 +984,6 @@ public final class DefaultAudioSink implements AudioSink {
     return isInitialized() && audioTrackPositionTracker.hasPendingData(getWrittenFrames());
   }
 
-  /**
-   * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
-   *     instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    setPlaybackSpeedAndSkipSilence(playbackParameters.speed, getSkipSilenceEnabled());
-  }
-
-  /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  public PlaybackParameters getPlaybackParameters() {
-    MediaPositionParameters mediaPositionParameters = getMediaPositionParameters();
-    return new PlaybackParameters(mediaPositionParameters.playbackSpeed);
-  }
-
   @Override
   public void setPlaybackSpeed(float playbackSpeed) {
     setPlaybackSpeedAndSkipSilence(playbackSpeed, getSkipSilenceEnabled());
@@ -1435,6 +1395,10 @@ public final class DefaultAudioSink implements AudioSink {
     return notGapless || isOffloadedGaplessPlaybackSupported();
   }
 
+  private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
+    return Util.SDK_INT >= 29 && audioTrack.isOffloadedPlayback();
+  }
+
   /**
    * Returns whether the device supports gapless in offload playback.
    *
@@ -1444,10 +1408,6 @@ public final class DefaultAudioSink implements AudioSink {
   // TODO(internal b/158191844): Add an SDK API to query offload gapless support.
   private static boolean isOffloadedGaplessPlaybackSupported() {
     return Util.SDK_INT >= 30 && Util.MODEL.startsWith("Pixel");
-  }
-
-  private static boolean isOffloadedPlayback(AudioTrack audioTrack) {
-    return Util.SDK_INT >= 29 && audioTrack.isOffloadedPlayback();
   }
 
   private static AudioTrack initializeKeepSessionIdAudioTrack(int audioSessionId) {
@@ -1498,6 +1458,7 @@ public final class DefaultAudioSink implements AudioSink {
       case C.ENCODING_PCM_32BIT:
       case C.ENCODING_PCM_8BIT:
       case C.ENCODING_PCM_FLOAT:
+      case C.ENCODING_AAC_ER_BSAC:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:
@@ -1544,6 +1505,7 @@ public final class DefaultAudioSink implements AudioSink {
       case C.ENCODING_PCM_32BIT:
       case C.ENCODING_PCM_8BIT:
       case C.ENCODING_PCM_FLOAT:
+      case C.ENCODING_AAC_ER_BSAC:
       case C.ENCODING_INVALID:
       case Format.NO_VALUE:
       default:

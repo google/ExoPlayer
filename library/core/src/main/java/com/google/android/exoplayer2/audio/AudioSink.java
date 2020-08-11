@@ -20,7 +20,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -297,19 +296,6 @@ public interface AudioSink {
    * Returns whether the sink has data pending that has not been consumed yet.
    */
   boolean hasPendingData();
-
-  /**
-   * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
-   *     instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  void setPlaybackParameters(PlaybackParameters playbackParameters);
-
-  /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  PlaybackParameters getPlaybackParameters();
 
   /** Sets the playback speed. */
   void setPlaybackSpeed(float playbackSpeed);

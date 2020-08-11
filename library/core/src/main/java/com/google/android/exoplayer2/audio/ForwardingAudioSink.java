@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.audio;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import java.nio.ByteBuffer;
 
 /** An overridable {@link AudioSink} implementation forwarding all methods to another sink. */
@@ -86,25 +85,6 @@ public class ForwardingAudioSink implements AudioSink {
   @Override
   public boolean hasPendingData() {
     return sink.hasPendingData();
-  }
-
-  /**
-   * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
-   *     instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
-    sink.setPlaybackParameters(playbackParameters);
-  }
-
-  /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  public PlaybackParameters getPlaybackParameters() {
-    return sink.getPlaybackParameters();
   }
 
   @Override

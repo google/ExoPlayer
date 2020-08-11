@@ -318,7 +318,7 @@ import java.lang.reflect.Method;
 
     boolean hadData = hasData;
     hasData = hasPendingData(writtenFrames);
-    if (hadData && !hasData && playState != PLAYSTATE_STOPPED && listener != null) {
+    if (hadData && !hasData && playState != PLAYSTATE_STOPPED) {
       listener.onUnderrun(bufferSize, C.usToMs(bufferSizeUs));
     }
 
