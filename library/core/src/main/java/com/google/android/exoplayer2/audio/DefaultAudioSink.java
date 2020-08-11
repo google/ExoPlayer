@@ -562,8 +562,8 @@ public final class DefaultAudioSink implements AudioSink {
 
     Configuration pendingConfiguration =
         new Configuration(
+            inputFormat,
             inputPcmFrameSize,
-            inputFormat.sampleRate,
             outputMode,
             outputPcmFrameSize,
             outputSampleRate,
@@ -571,9 +571,7 @@ public final class DefaultAudioSink implements AudioSink {
             outputEncoding,
             specifiedBufferSize,
             canApplyPlaybackParameters,
-            availableAudioProcessors,
-            inputFormat.encoderDelay,
-            inputFormat.encoderPadding);
+            availableAudioProcessors);
     if (isInitialized()) {
       this.pendingConfiguration = pendingConfiguration;
     } else {
@@ -616,7 +614,8 @@ public final class DefaultAudioSink implements AudioSink {
     audioTrack = buildAudioTrack();
     if (isOffloadedPlayback(audioTrack)) {
       registerStreamEventCallbackV29(audioTrack);
-      audioTrack.setOffloadDelayPadding(configuration.trimStartFrames, configuration.trimEndFrames);
+      audioTrack.setOffloadDelayPadding(
+          configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
     }
     int audioSessionId = audioTrack.getAudioSessionId();
     if (enablePreV21AudioSessionWorkaround) {
@@ -698,7 +697,7 @@ public final class DefaultAudioSink implements AudioSink {
         if (isOffloadedPlayback(audioTrack)) {
           audioTrack.setOffloadEndOfStream();
           audioTrack.setOffloadDelayPadding(
-              configuration.trimStartFrames, configuration.trimEndFrames);
+              configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
         }
       }
       // Re-apply playback parameters.
@@ -1699,8 +1698,8 @@ public final class DefaultAudioSink implements AudioSink {
   /** Stores configuration relating to the audio format. */
   private static final class Configuration {
 
+    public final Format inputFormat;
     public final int inputPcmFrameSize;
-    public final int inputSampleRate;
     @OutputMode public final int outputMode;
     public final int outputPcmFrameSize;
     public final int outputSampleRate;
@@ -1709,12 +1708,10 @@ public final class DefaultAudioSink implements AudioSink {
     public final int bufferSize;
     public final boolean canApplyPlaybackParameters;
     public final AudioProcessor[] availableAudioProcessors;
-    public int trimStartFrames;
-    public int trimEndFrames;
 
     public Configuration(
+        Format inputFormat,
         int inputPcmFrameSize,
-        int inputSampleRate,
         @OutputMode int outputMode,
         int outputPcmFrameSize,
         int outputSampleRate,
@@ -1722,11 +1719,9 @@ public final class DefaultAudioSink implements AudioSink {
         int outputEncoding,
         int specifiedBufferSize,
         boolean canApplyPlaybackParameters,
-        AudioProcessor[] availableAudioProcessors,
-        int trimStartFrames,
-        int trimEndFrames) {
+        AudioProcessor[] availableAudioProcessors) {
+      this.inputFormat = inputFormat;
       this.inputPcmFrameSize = inputPcmFrameSize;
-      this.inputSampleRate = inputSampleRate;
       this.outputMode = outputMode;
       this.outputPcmFrameSize = outputPcmFrameSize;
       this.outputSampleRate = outputSampleRate;
@@ -1734,8 +1729,6 @@ public final class DefaultAudioSink implements AudioSink {
       this.outputEncoding = outputEncoding;
       this.canApplyPlaybackParameters = canApplyPlaybackParameters;
       this.availableAudioProcessors = availableAudioProcessors;
-      this.trimStartFrames = trimStartFrames;
-      this.trimEndFrames = trimEndFrames;
 
       // Call computeBufferSize() last as it depends on the other configuration values.
       this.bufferSize = computeBufferSize(specifiedBufferSize);
@@ -1751,7 +1744,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     public long inputFramesToDurationUs(long frameCount) {
-      return (frameCount * C.MICROS_PER_SECOND) / inputSampleRate;
+      return (frameCount * C.MICROS_PER_SECOND) / inputFormat.sampleRate;
     }
 
     public long framesToDurationUs(long frameCount) {
