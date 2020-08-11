@@ -26,6 +26,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StrikethroughSpan;
@@ -127,13 +128,39 @@ public class UtilTest {
     assertThat(Util.inferContentType("http://a.b/c.ism/Manifest")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.isml/manifest")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.isml/manifest(filter=x)")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType("http://a.b/c.isml/manifest_hd")).isEqualTo(C.TYPE_SS);
   }
 
   @Test
   public void inferContentType_handlesOtherIsmUris() {
     assertThat(Util.inferContentType("http://a.b/c.ism/video.mp4")).isEqualTo(C.TYPE_OTHER);
     assertThat(Util.inferContentType("http://a.b/c.ism/prefix-manifest")).isEqualTo(C.TYPE_OTHER);
-    assertThat(Util.inferContentType("http://a.b/c.ism/manifest-suffix")).isEqualTo(C.TYPE_OTHER);
+  }
+
+  @Test
+  public void fixSmoothStreamingIsmManifestUri_addsManifestSuffix() {
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest"));
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.isml")))
+        .isEqualTo(Uri.parse("http://a.b/c.isml/Manifest"));
+
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism/")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest"));
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.isml/")))
+        .isEqualTo(Uri.parse("http://a.b/c.isml/Manifest"));
+  }
+
+  @Test
+  public void fixSmoothStreamingIsmManifestUri_doesNotAlterManifestUri() {
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism/Manifest")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest"));
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.isml/Manifest")))
+        .isEqualTo(Uri.parse("http://a.b/c.isml/Manifest"));
+    assertThat(
+            Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism/Manifest(filter=x)")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest(filter=x)"));
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism/Manifest_hd")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest_hd"));
   }
 
   @Test
