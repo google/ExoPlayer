@@ -77,13 +77,49 @@ public class UtilTest {
   }
 
   @Test
-  public void testInferContentType() {
+  public void inferContentType_handlesHlsIsmUris() {
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl)"))
+        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl,quality=hd)"))
+        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(quality=hd,format=m3u8-aapl)"))
+        .isEqualTo(C.TYPE_HLS);
+  }
+
+  @Test
+  public void inferContentType_handlesHlsIsmV3Uris() {
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl-v3)"))
+        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl-v3,quality=hd)"))
+        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(quality=hd,format=m3u8-aapl-v3)"))
+        .isEqualTo(C.TYPE_HLS);
+  }
+
+  @Test
+  public void inferContentType_handlesDashIsmUris() {
+    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(format=mpd-time-csf)"))
+        .isEqualTo(C.TYPE_DASH);
+    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(format=mpd-time-csf,quality=hd)"))
+        .isEqualTo(C.TYPE_DASH);
+    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(quality=hd,format=mpd-time-csf)"))
+        .isEqualTo(C.TYPE_DASH);
+  }
+
+  @Test
+  public void inferContentType_handlesSmoothStreamingIsmUris() {
     assertThat(Util.inferContentType("http://a.b/c.ism")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.isml")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType("http://a.b/c.isml/")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.ism/Manifest")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.isml/manifest")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.isml/manifest(filter=x)")).isEqualTo(C.TYPE_SS);
+  }
 
+  @Test
+  public void inferContentType_handlesOtherIsmUris() {
+    assertThat(Util.inferContentType("http://a.b/c.ism/video.mp4")).isEqualTo(C.TYPE_OTHER);
     assertThat(Util.inferContentType("http://a.b/c.ism/prefix-manifest")).isEqualTo(C.TYPE_OTHER);
     assertThat(Util.inferContentType("http://a.b/c.ism/manifest-suffix")).isEqualTo(C.TYPE_OTHER);
   }

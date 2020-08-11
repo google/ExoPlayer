@@ -135,6 +135,12 @@ public final class Util {
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
+  // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs.
+  private static final Pattern ISM_URL_PATTERN =
+      Pattern.compile(".*\\.ism(?:l)?(?:/(?:manifest(?:\\((.+)\\))?)?)?");
+  private static final String ISM_HLS_FORMAT_EXTENSION = "format=m3u8-aapl";
+  private static final String ISM_DASH_FORMAT_EXTENSION = "format=mpd-time-csf";
+
   // Replacement map of ISO language codes used for normalization.
   @Nullable private static HashMap<String, String> languageTagReplacementMap;
 
@@ -1599,11 +1605,20 @@ public final class Util {
       return C.TYPE_DASH;
     } else if (fileName.endsWith(".m3u8")) {
       return C.TYPE_HLS;
-    } else if (fileName.matches(".*\\.ism(l)?(/manifest(\\(.+\\))?)?")) {
-      return C.TYPE_SS;
-    } else {
-      return C.TYPE_OTHER;
     }
+    Matcher ismMatcher = ISM_URL_PATTERN.matcher(fileName);
+    if (ismMatcher.matches()) {
+      @Nullable String extensions = ismMatcher.group(1);
+      if (extensions != null) {
+        if (extensions.contains(ISM_DASH_FORMAT_EXTENSION)) {
+          return C.TYPE_DASH;
+        } else if (extensions.contains(ISM_HLS_FORMAT_EXTENSION)) {
+          return C.TYPE_HLS;
+        }
+      }
+      return C.TYPE_SS;
+    }
+    return C.TYPE_OTHER;
   }
 
   /**
