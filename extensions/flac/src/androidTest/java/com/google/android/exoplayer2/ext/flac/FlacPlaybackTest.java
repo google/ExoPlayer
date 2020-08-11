@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.testutil.CapturingAudioSink;
+import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,8 +81,8 @@ public class FlacPlaybackTest {
       throw testPlaybackRunnable.playbackException;
     }
 
-    audioSink.assertOutput(
-        ApplicationProvider.getApplicationContext(), fileName + ".audiosink.dump");
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(), audioSink, fileName + ".audiosink.dump");
   }
 
   private static class TestPlaybackRunnable implements Player.EventListener, Runnable {

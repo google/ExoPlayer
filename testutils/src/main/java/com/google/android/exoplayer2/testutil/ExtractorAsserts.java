@@ -326,9 +326,11 @@ public final class ExtractorAsserts {
     FakeExtractorOutput extractorOutput =
         consumeTestData(extractor, input, 0, true, deduplicateConsecutiveFormats);
     if (simulateUnknownLength) {
-      extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
+      DumpFileAsserts.assertOutput(
+          context, extractorOutput, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
     } else {
-      extractorOutput.assertOutput(context, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
+      DumpFileAsserts.assertOutput(
+          context, extractorOutput, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
     }
 
     // Seeking to (timeUs=0, position=0) should always work, and cause the same data to be output.
@@ -336,9 +338,11 @@ public final class ExtractorAsserts {
     input.reset();
     consumeTestData(extractor, input, /* timeUs= */ 0, extractorOutput, false);
     if (simulateUnknownLength) {
-      extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
+      DumpFileAsserts.assertOutput(
+          context, extractorOutput, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
     } else {
-      extractorOutput.assertOutput(context, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
+      DumpFileAsserts.assertOutput(
+          context, extractorOutput, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
     }
 
     SeekMap seekMap = Assertions.checkNotNull(extractorOutput.seekMap);
@@ -357,9 +361,11 @@ public final class ExtractorAsserts {
       extractorOutput.clearTrackOutputs();
       consumeTestData(extractor, input, timeUs, extractorOutput, false);
       if (simulateUnknownLength && timeUs == 0) {
-        extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
+        DumpFileAsserts.assertOutput(
+            context, extractorOutput, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
       } else {
-        extractorOutput.assertOutput(context, dumpFilesPrefix + '.' + j + DUMP_EXTENSION);
+        DumpFileAsserts.assertOutput(
+            context, extractorOutput, dumpFilesPrefix + '.' + j + DUMP_EXTENSION);
       }
     }
   }

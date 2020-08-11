@@ -15,18 +15,11 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import static com.google.common.truth.Truth.assertWithMessage;
-
-import android.content.Context;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.ForwardingAudioSink;
-import com.google.android.exoplayer2.util.Assertions;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,15 +27,6 @@ import java.util.List;
 
 /** A {@link ForwardingAudioSink} that captures configuration, discontinuity and buffer events. */
 public final class CapturingAudioSink extends ForwardingAudioSink implements Dumper.Dumpable {
-
-  /**
-   * If true, makes {@link #assertOutput(Context, String)} method write the output to a file, rather
-   * than validating that the output matches the dump file.
-   *
-   * <p>The output file is written to the test apk's external storage directory, which is typically:
-   * {@code /sdcard/Android/data/${package-under-test}.test/files/}.
-   */
-  private static final boolean WRITE_DUMP = false;
 
   private final List<Dumper.Dumpable> interceptedData;
   @Nullable private ByteBuffer currentBuffer;
@@ -96,30 +80,6 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
   public void reset() {
     currentBuffer = null;
     super.reset();
-  }
-
-  /**
-   * Asserts that dump of this sink is equal to expected dump which is read from {@code dumpFile}.
-   *
-   * <p>If assertion fails because of an intended change in the output or a new dump file needs to
-   * be created, set {@link #WRITE_DUMP} flag to true and run the test again. Instead of assertion,
-   * actual dump will be written to {@code dumpFile}. This new dump file needs to be copied to the
-   * project, {@code library/src/androidTest/assets} folder manually.
-   */
-  public void assertOutput(Context context, String dumpFile) throws IOException {
-    String actual = new Dumper().add(this).toString();
-
-    if (WRITE_DUMP) {
-      File directory = context.getExternalFilesDir(null);
-      File file = new File(directory, dumpFile);
-      Assertions.checkStateNotNull(file.getParentFile()).mkdirs();
-      PrintWriter out = new PrintWriter(file);
-      out.print(actual);
-      out.close();
-    } else {
-      String expected = TestUtil.getString(context, dumpFile);
-      assertWithMessage(dumpFile).that(actual).isEqualTo(expected);
-    }
   }
 
   @Override
