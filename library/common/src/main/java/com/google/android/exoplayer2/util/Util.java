@@ -142,8 +142,7 @@ public final class Util {
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
 
   // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs.
-  private static final Pattern ISM_URL_PATTERN =
-      Pattern.compile(".*\\.ism(?:l)?(?:/(?:manifest(?:\\((.+)\\))?)?)?");
+  private static final Pattern ISM_URL_PATTERN = Pattern.compile(".*\\.isml?(?:/(manifest(.*))?)?");
   private static final String ISM_HLS_FORMAT_EXTENSION = "format=m3u8-aapl";
   private static final String ISM_DASH_FORMAT_EXTENSION = "format=mpd-time-csf";
 
@@ -1723,7 +1722,7 @@ public final class Util {
     }
     Matcher ismMatcher = ISM_URL_PATTERN.matcher(fileName);
     if (ismMatcher.matches()) {
-      @Nullable String extensions = ismMatcher.group(1);
+      @Nullable String extensions = ismMatcher.group(2);
       if (extensions != null) {
         if (extensions.contains(ISM_DASH_FORMAT_EXTENSION)) {
           return C.TYPE_DASH;
@@ -1777,6 +1776,27 @@ public final class Util {
       default:
         return null;
     }
+  }
+
+  /**
+   * If the provided URI is an ISM Presentation URI, returns the URI with "Manifest" appended to its
+   * path (i.e., the corresponding default manifest URI). Else returns the provided URI without
+   * modification. See [MS-SSTR] v20180912, section 2.2.1.
+   *
+   * @param uri The original URI.
+   * @return The fixed URI.
+   */
+  public static Uri fixSmoothStreamingIsmManifestUri(Uri uri) {
+    @Nullable String path = toLowerInvariant(uri.getPath());
+    if (path == null) {
+      return uri;
+    }
+    Matcher ismMatcher = ISM_URL_PATTERN.matcher(path);
+    if (ismMatcher.matches() && ismMatcher.group(1) == null) {
+      // Add missing "Manifest" suffix.
+      return Uri.withAppendedPath(uri, "Manifest");
+    }
+    return uri;
   }
 
   /**

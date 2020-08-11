@@ -24,11 +24,11 @@ import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -112,7 +112,9 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
     this(
         mediaItem
             .buildUpon()
-            .setUri(SsUtil.fixManifestUri(checkNotNull(mediaItem.playbackProperties).uri))
+            .setUri(
+                Util.fixSmoothStreamingIsmManifestUri(
+                    checkNotNull(mediaItem.playbackProperties).uri))
             .build(),
         new SsManifestParser(),
         cacheDataSourceFactory,

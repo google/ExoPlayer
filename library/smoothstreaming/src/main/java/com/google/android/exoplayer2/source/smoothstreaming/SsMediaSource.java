@@ -47,7 +47,6 @@ import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
@@ -581,7 +580,7 @@ public final class SsMediaSource extends BaseMediaSource
     this.manifestUri =
         playbackProperties.uri.equals(Uri.EMPTY)
             ? null
-            : SsUtil.fixManifestUri(playbackProperties.uri);
+            : Util.fixSmoothStreamingIsmManifestUri(playbackProperties.uri);
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
     this.chunkSourceFactory = chunkSourceFactory;
