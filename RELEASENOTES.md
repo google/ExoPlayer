@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released)
 
+
+### 2.12.0 (not yet released - targeted for 2020-08-TBD) ###
+
 *   Core library:
     *   Implement getTag for SilenceMediaSource.
     *   Added `TextComponent.getCurrentCues` because the current cues are no
@@ -109,51 +112,47 @@
         bitrate and frame rate
         ([#4511](https://github.com/google/ExoPlayer/issues/4511)).
 *   Text:
-    *   Parse `<ruby>` and `<rt>` tags in WebVTT subtitles (rendering is coming
-        later).
-    *   Parse `text-combine-upright` CSS property (i.e. tate-chu-yoko) in WebVTT
-        subtitles (rendering is coming later).
-    *   Parse `tts:combineText` property (i.e. tate-chu-yoko) in TTML subtitles
-        (rendering is coming later).
-    *   Add support for WebVTT default
-        [text](https://www.w3.org/TR/webvtt1/#default-text-color) and
-        [background](https://www.w3.org/TR/webvtt1/#default-text-background)
-        colors ([PR #4178](https://github.com/google/ExoPlayer/pull/4178),
-        [issue #6581](https://github.com/google/ExoPlayer/issues/6581)).
-    *   Parse `tts:ruby` and `tts:rubyPosition` properties in TTML subtitles
-        (rendering is coming later).
-    *   Update WebVTT position alignment parsing to recognise `line-left`,
-        `center` and `line-right` as per the
-        [released spec](https://www.w3.org/TR/webvtt1/#webvtt-position-cue-setting)
-        (a
-        [previous draft](https://www.w3.org/TR/2014/WD-webvtt1-20141111/#dfn-webvtt-text-position-cue-setting)
-        used `start`, `middle` and `end`).
-    *   Implement timing-out of stuck CEA-608 captions (as permitted by
-        ANSI/CTA-608-E R-2014 Annex C.9) and set the default timeout to 16
-        seconds ([#7181](https://github.com/google/ExoPlayer/issues/7181)).
-    *   Add special-case positioning behaviour for vertical cues being rendered
-        horizontally.
-    *   Implement steps 4-10 of the
-        [WebVTT line computation algorithm](https://www.w3.org/TR/webvtt1/#cue-computed-line).
-    *   Stop parsing unsupported WebVTT CSS properties. The spec provides an
-        [exhaustive list](https://www.w3.org/TR/webvtt1/#the-cue-pseudo-element)
-        of which are supported.
-    *   Ignore excess characters in CEA-608 lines (max length is 32)
-        ([#7341](https://github.com/google/ExoPlayer/issues/7341)).
-    *   Add support for WebVTT's `ruby-position` CSS property.
-    *   Fix positioning for CEA-608 roll-up captions in the top half of screen
-        ([#7475](https://github.com/google/ExoPlayer/issues/7475)).
+    *   Recreate the decoder when handling and swallowing decode errors in
+        `TextRenderer`. This fixes a case where playback would never end when
+        playing content with malformed subtitles
+        ([#7590](https://github.com/google/ExoPlayer/issues/790)).
+    *   Only apply `CaptionManager` font scaling in
+        `SubtitleView.setUserDefaultTextSize` if the `CaptionManager` is
+        enabled.
+    *   Improve positioning of vertical cues being rendered horizontally.
     *   Redefine `Cue.lineType=LINE_TYPE_NUMBER` in terms of aligning the cue
         text lines to grid of viewport lines, and ignore `Cue.lineAnchor`.
-    *   Check `CaptionManager.isEnabled()` before using it for user-specified
-        font-scaling.
-    *   Recreate the decoder when handling & swallowing decode errors in
-        `TextRenderer`
-        ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
-    *   Stop auto-generating a CEA-608 track when playing standalone Transport
-        Stream files. Users that require Closed Captions tracks being
-        auto-generated should manually inject a customized
-        `DefaultTsPayloadReaderFactory` into their `TsExtractor`.
+    *   WebVTT
+        *   Add support for default
+            [text](https://www.w3.org/TR/webvtt1/#default-text-color) and
+            [background](https://www.w3.org/TR/webvtt1/#default-text-background)
+            colors ([PR #4178](https://github.com/google/ExoPlayer/pull/4178),
+            [issue #6581](https://github.com/google/ExoPlayer/issues/6581)).
+        *   Update position alignment parsing to recognise `line-left`, `center`
+            and `line-right`.
+        *   Implement steps 4-10 of the
+            [WebVTT line computation algorithm](https://www.w3.org/TR/webvtt1/#cue-computed-line).
+        *   Stop parsing unsupported CSS properties. The spec provides an
+            [exhaustive list](https://www.w3.org/TR/webvtt1/#the-cue-pseudo-element)
+            of which properties are supported.
+        *   Add support for the `ruby-position` CSS property.
+        *   Parse `text-combine-upright` CSS property (i.e., tate-chu-yoko).
+        *   Parse `<ruby>` and `<rt>` tags.
+    *   TTML
+        *   Parse `tts:combineText` property (i.e., tate-chu-yoko).
+        *   Parse `tts:ruby` and `tts:rubyPosition` properties.
+    *   CEA-608
+        *   Implement timing-out of stuck captions, as permitted by
+            ANSI/CTA-608-E R-2014 Annex C.9. The default timeout is set to 16
+            seconds ([#7181](https://github.com/google/ExoPlayer/issues/7181)).
+        *   Trim lines that exceed the maximum length of 32 characters
+            ([#7341](https://github.com/google/ExoPlayer/issues/7341)).
+        *   Fix positioning of roll-up captions in the top half of the screen
+            ([#7475](https://github.com/google/ExoPlayer/issues/7475)).
+        *   Stop automatically generating a CEA-608 track when playing
+            standalone MPEG-TS files. The previous behavior can still be
+            obtained by manually injecting a customized
+            `DefaultTsPayloadReaderFactory` into `TsExtractor`.
 *   DRM:
     *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Remove `DrmSessionManager` references from all renderers.
