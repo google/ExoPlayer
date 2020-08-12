@@ -110,7 +110,6 @@ public class PlayerActivity extends AppCompatActivity
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
-    Intent intent = getIntent();
     super.onCreate(savedInstanceState);
     dataSourceFactory = DemoUtil.getDataSourceFactory(/* context= */ this);
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
