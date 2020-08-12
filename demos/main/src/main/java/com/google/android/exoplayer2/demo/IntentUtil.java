@@ -35,18 +35,6 @@ import java.util.Map;
 /** Util to read from and populate an intent. */
 public class IntentUtil {
 
-  /** A tag to hold custom playback configuration attributes. */
-  public static class Tag {
-
-    /** Whether the stream is a live stream. */
-    public final boolean isLive;
-
-    /** Creates an instance. */
-    public Tag(boolean isLive) {
-      this.isLive = isLive;
-    }
-  }
-
   // Actions.
 
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";

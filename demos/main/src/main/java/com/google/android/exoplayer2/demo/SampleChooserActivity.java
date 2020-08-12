@@ -253,9 +253,6 @@ public class SampleChooserActivity extends AppCompatActivity
     }
     MediaItem.PlaybackProperties playbackProperties =
         checkNotNull(playlistHolder.mediaItems.get(0).playbackProperties);
-    if (((IntentUtil.Tag) checkNotNull(playbackProperties.tag)).isLive) {
-      return R.string.download_live_unsupported;
-    }
     if (playbackProperties.adTagUri != null) {
       return R.string.download_ads_unsupported;
     }
@@ -347,7 +344,6 @@ public class SampleChooserActivity extends AppCompatActivity
       Uri uri = null;
       String extension = null;
       String title = null;
-      boolean isLive = false;
       ArrayList<PlaylistHolder> children = null;
       Uri subtitleUri = null;
       String subtitleMimeType = null;
@@ -375,9 +371,6 @@ public class SampleChooserActivity extends AppCompatActivity
             break;
           case "ad_tag_uri":
             mediaItem.setAdTagUri(reader.nextString());
-            break;
-          case "is_live":
-            isLive = reader.nextBoolean();
             break;
           case "drm_scheme":
             mediaItem.setDrmUuid(Util.getDrmUuid(reader.nextString()));
@@ -443,8 +436,7 @@ public class SampleChooserActivity extends AppCompatActivity
         mediaItem
             .setUri(uri)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
-            .setMimeType(adaptiveMimeType)
-            .setTag(new IntentUtil.Tag(isLive));
+            .setMimeType(adaptiveMimeType);
         if (subtitleUri != null) {
           MediaItem.Subtitle subtitle =
               new MediaItem.Subtitle(

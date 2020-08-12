@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.drm.OfflineLicenseHelper;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadCursor;
 import com.google.android.exoplayer2.offline.DownloadHelper;
+import com.google.android.exoplayer2.offline.DownloadHelper.LiveContentUnsupportedException;
 import com.google.android.exoplayer2.offline.DownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadRequest;
@@ -248,13 +249,13 @@ public class DownloadTracker {
 
     @Override
     public void onPrepareError(@NonNull DownloadHelper helper, @NonNull IOException e) {
-      Toast.makeText(context, R.string.download_start_error, Toast.LENGTH_LONG).show();
-      Log.e(
-          TAG,
-          e instanceof DownloadHelper.LiveContentUnsupportedException
-              ? "Downloading live content unsupported"
-              : "Failed to start download",
-          e);
+      boolean isLiveContent = e instanceof LiveContentUnsupportedException;
+      int toastStringId =
+          isLiveContent ? R.string.download_live_unsupported : R.string.download_start_error;
+      String logMessage =
+          isLiveContent ? "Downloading live content unsupported" : "Failed to start download";
+      Toast.makeText(context, toastStringId, Toast.LENGTH_LONG).show();
+      Log.e(TAG, logMessage, e);
     }
 
     // DialogInterface.OnClickListener implementation.
