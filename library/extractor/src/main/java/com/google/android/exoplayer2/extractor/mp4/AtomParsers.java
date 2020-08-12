@@ -1260,8 +1260,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           if (initializationDataBytes != null) {
             if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
               // Update sampleRate and channelCount from the AudioSpecificConfig initialization
-              // data,
-              // which is more reliable. See [Internal: b/10903778].
+              // data, which is more reliable. See [Internal: b/10903778].
               AacUtil.Config aacConfig = AacUtil.parseAudioSpecificConfig(initializationDataBytes);
               sampleRate = aacConfig.sampleRateHz;
               channelCount = aacConfig.channelCount;

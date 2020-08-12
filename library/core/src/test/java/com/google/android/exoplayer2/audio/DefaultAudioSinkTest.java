@@ -33,18 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
-/**
- * Unit tests for {@link DefaultAudioSink}.
- *
- * <p>Note: the Robolectric-provided AudioTrack instantiated in the audio sink uses only the Java
- * part of AudioTrack with a {@code ShadowPlayerBase} underneath. This means it will not consume
- * data (i.e., the {@link android.media.AudioTrack#write} methods just return 0), so these tests are
- * currently limited to verifying behavior that doesn't rely on consuming data, and the position
- * will stay at its initial value. For example, we can't verify {@link
- * AudioSink#handleBuffer(ByteBuffer, long, int)} handling a complete buffer, or queueing audio then
- * draining to the end of the stream. This could be worked around by having a test-only mode where
- * {@link DefaultAudioSink} automatically treats audio as consumed.
- */
+/** Unit tests for {@link DefaultAudioSink}. */
 @RunWith(AndroidJUnit4.class)
 public final class DefaultAudioSinkTest {
 
