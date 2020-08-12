@@ -55,7 +55,7 @@ public class IntentUtil {
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
 
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
-  public static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
+  public static final String DRM_LICENSE_URI_EXTRA = "drm_license_uri";
   public static final String DRM_KEY_REQUEST_PROPERTIES_EXTRA = "drm_key_request_properties";
   public static final String DRM_SESSION_FOR_CLEAR_CONTENT = "drm_session_for_clear_content";
   public static final String DRM_MULTI_SESSION_EXTRA = "drm_multi_session";
@@ -155,7 +155,7 @@ public class IntentUtil {
     }
     builder
         .setDrmUuid(Util.getDrmUuid(Util.castNonNull(drmSchemeExtra)))
-        .setDrmLicenseUri(intent.getStringExtra(DRM_LICENSE_URL_EXTRA + extrasKeySuffix))
+        .setDrmLicenseUri(intent.getStringExtra(DRM_LICENSE_URI_EXTRA + extrasKeySuffix))
         .setDrmMultiSession(
             intent.getBooleanExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, false))
         .setDrmForceDefaultLicenseUri(
@@ -190,7 +190,7 @@ public class IntentUtil {
       MediaItem.DrmConfiguration drmConfiguration, Intent intent, String extrasKeySuffix) {
     intent.putExtra(DRM_SCHEME_EXTRA + extrasKeySuffix, drmConfiguration.uuid.toString());
     intent.putExtra(
-        DRM_LICENSE_URL_EXTRA + extrasKeySuffix,
+        DRM_LICENSE_URI_EXTRA + extrasKeySuffix,
         drmConfiguration.licenseUri != null ? drmConfiguration.licenseUri.toString() : null);
     intent.putExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, drmConfiguration.multiSession);
     intent.putExtra(

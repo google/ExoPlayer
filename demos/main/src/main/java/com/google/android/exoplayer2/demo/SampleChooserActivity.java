@@ -375,7 +375,8 @@ public class SampleChooserActivity extends AppCompatActivity
           case "drm_scheme":
             mediaItem.setDrmUuid(Util.getDrmUuid(reader.nextString()));
             break;
-          case "drm_license_url":
+          case "drm_license_uri":
+          case "drm_license_url": // For backward compatibility only.
             mediaItem.setDrmLicenseUri(reader.nextString());
             break;
           case "drm_key_request_properties":
