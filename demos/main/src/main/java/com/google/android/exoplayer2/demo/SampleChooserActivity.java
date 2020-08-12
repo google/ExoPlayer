@@ -56,6 +56,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -63,7 +64,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -367,11 +367,20 @@ public class SampleChooserActivity extends AppCompatActivity
           case "extension":
             extension = reader.nextString();
             break;
-          case "drm_scheme":
-            mediaItem.setDrmUuid(Util.getDrmUuid(reader.nextString()));
+          case "clip_start_position_ms":
+            mediaItem.setClipStartPositionMs(reader.nextLong());
+            break;
+          case "clip_end_position_ms":
+            mediaItem.setClipEndPositionMs(reader.nextLong());
+            break;
+          case "ad_tag_uri":
+            mediaItem.setAdTagUri(reader.nextString());
             break;
           case "is_live":
             isLive = reader.nextBoolean();
+            break;
+          case "drm_scheme":
+            mediaItem.setDrmUuid(Util.getDrmUuid(reader.nextString()));
             break;
           case "drm_license_url":
             mediaItem.setDrmLicenseUri(reader.nextString());
@@ -385,38 +394,17 @@ public class SampleChooserActivity extends AppCompatActivity
             reader.endObject();
             mediaItem.setDrmLicenseRequestHeaders(requestHeaders);
             break;
-          case "drm_session_for_clear_types":
-            HashSet<Integer> drmSessionForClearTypes = new HashSet<>();
-            reader.beginArray();
-            while (reader.hasNext()) {
-              drmSessionForClearTypes.add(toTrackType(reader.nextString()));
+          case "drm_session_for_clear_content":
+            if (reader.nextBoolean()) {
+              mediaItem.setDrmSessionForClearTypes(
+                  ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO));
             }
-            reader.endArray();
-            mediaItem.setDrmSessionForClearTypes(new ArrayList<>(drmSessionForClearTypes));
             break;
           case "drm_multi_session":
             mediaItem.setDrmMultiSession(reader.nextBoolean());
             break;
           case "drm_force_default_license_uri":
             mediaItem.setDrmForceDefaultLicenseUri(reader.nextBoolean());
-            break;
-          case "playlist":
-            checkState(!insidePlaylist, "Invalid nesting of playlists");
-            children = new ArrayList<>();
-            reader.beginArray();
-            while (reader.hasNext()) {
-              children.add(readEntry(reader, /* insidePlaylist= */ true));
-            }
-            reader.endArray();
-            break;
-          case "clip_start_position_ms":
-            mediaItem.setClipStartPositionMs(reader.nextLong());
-            break;
-          case "clip_end_position_ms":
-            mediaItem.setClipEndPositionMs(reader.nextLong());
-            break;
-          case "ad_tag_uri":
-            mediaItem.setAdTagUri(reader.nextString());
             break;
           case "subtitle_uri":
             subtitleUri = Uri.parse(reader.nextString());
@@ -426,6 +414,15 @@ public class SampleChooserActivity extends AppCompatActivity
             break;
           case "subtitle_language":
             subtitleLanguage = reader.nextString();
+            break;
+          case "playlist":
+            checkState(!insidePlaylist, "Invalid nesting of playlists");
+            children = new ArrayList<>();
+            reader.beginArray();
+            while (reader.hasNext()) {
+              children.add(readEntry(reader, /* insidePlaylist= */ true));
+            }
+            reader.endArray();
             break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
@@ -470,17 +467,6 @@ public class SampleChooserActivity extends AppCompatActivity
       PlaylistGroup group = new PlaylistGroup(groupName);
       groups.add(group);
       return group;
-    }
-
-    private int toTrackType(String trackTypeString) {
-      switch (Util.toLowerInvariant(trackTypeString)) {
-        case "audio":
-          return C.TRACK_TYPE_AUDIO;
-        case "video":
-          return C.TRACK_TYPE_VIDEO;
-        default:
-          throw new IllegalArgumentException("Invalid track type: " + trackTypeString);
-      }
     }
   }
 

@@ -25,10 +25,10 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -55,27 +55,27 @@ public class IntentUtil {
 
   // Activity extras.
 
+  public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
+
   // Media item configuration extras.
 
   public static final String URI_EXTRA = "uri";
-  public static final String IS_LIVE_EXTRA = "is_live";
   public static final String MIME_TYPE_EXTRA = "mime_type";
   public static final String CLIP_START_POSITION_MS_EXTRA = "clip_start_position_ms";
   public static final String CLIP_END_POSITION_MS_EXTRA = "clip_end_position_ms";
 
+  public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
+
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
   public static final String DRM_KEY_REQUEST_PROPERTIES_EXTRA = "drm_key_request_properties";
-  public static final String DRM_SESSION_FOR_CLEAR_TYPES_EXTRA = "drm_session_for_clear_types";
+  public static final String DRM_SESSION_FOR_CLEAR_CONTENT = "drm_session_for_clear_content";
   public static final String DRM_MULTI_SESSION_EXTRA = "drm_multi_session";
   public static final String DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA = "drm_force_default_license_uri";
 
-  public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
   public static final String SUBTITLE_URI_EXTRA = "subtitle_uri";
   public static final String SUBTITLE_MIME_TYPE_EXTRA = "subtitle_mime_type";
   public static final String SUBTITLE_LANGUAGE_EXTRA = "subtitle_language";
-
-  public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
 
   /** Creates a list of {@link MediaItem media items} from an {@link Intent}. */
   public static List<MediaItem> createMediaItemsFromIntent(Intent intent) {
@@ -156,9 +156,6 @@ public class IntentUtil {
     if (drmSchemeExtra == null) {
       return builder;
     }
-    @Nullable
-    String[] drmSessionForClearTypesExtra =
-        intent.getStringArrayExtra(DRM_SESSION_FOR_CLEAR_TYPES_EXTRA + extrasKeySuffix);
     Map<String, String> headers = new HashMap<>();
     @Nullable
     String[] keyRequestPropertiesArray =
@@ -171,48 +168,24 @@ public class IntentUtil {
     builder
         .setDrmUuid(Util.getDrmUuid(Util.castNonNull(drmSchemeExtra)))
         .setDrmLicenseUri(intent.getStringExtra(DRM_LICENSE_URL_EXTRA + extrasKeySuffix))
-        .setDrmSessionForClearTypes(toTrackTypeList(drmSessionForClearTypesExtra))
         .setDrmMultiSession(
             intent.getBooleanExtra(DRM_MULTI_SESSION_EXTRA + extrasKeySuffix, false))
         .setDrmForceDefaultLicenseUri(
             intent.getBooleanExtra(DRM_FORCE_DEFAULT_LICENSE_URI_EXTRA + extrasKeySuffix, false))
         .setDrmLicenseRequestHeaders(headers);
+    if (intent.getBooleanExtra(DRM_SESSION_FOR_CLEAR_CONTENT + extrasKeySuffix, false)) {
+      builder.setDrmSessionForClearTypes(ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO));
+    }
     return builder;
-  }
-
-  private static List<Integer> toTrackTypeList(@Nullable String[] trackTypeStringsArray) {
-    if (trackTypeStringsArray == null) {
-      return Collections.emptyList();
-    }
-    HashSet<Integer> trackTypes = new HashSet<>();
-    for (String trackTypeString : trackTypeStringsArray) {
-      switch (Util.toLowerInvariant(trackTypeString)) {
-        case "audio":
-          trackTypes.add(C.TRACK_TYPE_AUDIO);
-          break;
-        case "video":
-          trackTypes.add(C.TRACK_TYPE_VIDEO);
-          break;
-        default:
-          throw new IllegalArgumentException("Invalid track type: " + trackTypeString);
-      }
-    }
-    return new ArrayList<>(trackTypes);
   }
 
   private static void addPlaybackPropertiesToIntent(
       MediaItem.PlaybackProperties playbackProperties, Intent intent, String extrasKeySuffix) {
-    boolean isLive = false;
-    if (playbackProperties.tag instanceof Tag) {
-      Tag tag = (Tag) playbackProperties.tag;
-      isLive = tag.isLive;
-    }
     intent
         .putExtra(MIME_TYPE_EXTRA + extrasKeySuffix, playbackProperties.mimeType)
         .putExtra(
             AD_TAG_URI_EXTRA + extrasKeySuffix,
-            playbackProperties.adTagUri != null ? playbackProperties.adTagUri.toString() : null)
-        .putExtra(IS_LIVE_EXTRA + extrasKeySuffix, isLive);
+            playbackProperties.adTagUri != null ? playbackProperties.adTagUri.toString() : null);
     if (playbackProperties.drmConfiguration != null) {
       addDrmConfigurationToIntent(playbackProperties.drmConfiguration, intent, extrasKeySuffix);
     }
@@ -244,14 +217,15 @@ public class IntentUtil {
     }
     intent.putExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA + extrasKeySuffix, drmKeyRequestProperties);
 
-    ArrayList<String> typeStrings = new ArrayList<>();
-    for (int type : drmConfiguration.sessionForClearTypes) {
-      // Only audio and video are supported.
-      Assertions.checkState(type == C.TRACK_TYPE_AUDIO || type == C.TRACK_TYPE_VIDEO);
-      typeStrings.add(type == C.TRACK_TYPE_AUDIO ? "audio" : "video");
+    List<Integer> drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
+    if (!drmSessionForClearTypes.isEmpty()) {
+      // Only video and audio together are supported.
+      Assertions.checkState(
+          drmSessionForClearTypes.size() == 2
+              && drmSessionForClearTypes.contains(C.TRACK_TYPE_VIDEO)
+              && drmSessionForClearTypes.contains(C.TRACK_TYPE_AUDIO));
+      intent.putExtra(DRM_SESSION_FOR_CLEAR_CONTENT + extrasKeySuffix, true);
     }
-    intent.putExtra(
-        DRM_SESSION_FOR_CLEAR_TYPES_EXTRA + extrasKeySuffix, typeStrings.toArray(new String[0]));
   }
 
   private static void addClippingPropertiesToIntent(
