@@ -203,38 +203,46 @@
         and `LibopusAudioRenderer`.
     *   Do not use a MediaCodec for PCM formats if AudioTrack supports it.
 *   DASH:
-    *   Enable support for embedded CEA-708.
-    *   Add support for load cancelation when discarding upstream
+    *   Add support for canceling in-progress segment fetches
+        ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
+    *   Add support for CEA-708 embedded in FMP4.
+*   SmoothStreaming:
+    *   Add support for canceling in-progress segment fetches
         ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
 *   HLS:
-    *   Add support for upstream discard including cancelation of ongoing load
+    *   Add support for discarding buffered media (e.g., to allow faster
+        adaptation to a higher quality variant)
         ([#6322](https://github.com/google/ExoPlayer/issues/6322)).
+    *   Add support for canceling in-progress segment fetches
+        ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
     *   Respect 33-bit PTS wrapping when applying `X-TIMESTAMP-MAP` to WebVTT
         timestamps ([#7464](https://github.com/google/ExoPlayer/issues/7464)).
-*   Ogg: Allow non-contiguous pages
-    ([#7230](https://github.com/google/ExoPlayer/issues/7230)).
-*   MP4: Fix playback of MP4 containing Opus.
-*   Matroska: Remove support for "Invisible" block header flag.
-*   FMP4: Fix handling of `traf` boxes containing multiple `sbgp` or `sgpd`
-    boxes.
-*   FLV: Ignore SCRIPTDATA segments with invalid name types, rather than failing
-    playback ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
 *   Extractors:
-    *   Add `IndexSeeker` for accurate seeks in VBR MP3 streams
-        ([#6787](https://github.com/google/ExoPlayer/issues/6787)). This seeker
-        is enabled by passing `FLAG_ENABLE_INDEX_SEEKING` to the `Mp3Extractor`.
-        It may require to scan a significant portion of the file for seeking,
-        which may be costly on large files.
-    *   Change the order of extractors for sniffing to reduce start-up latency
+    *   Optimize the `Extractor` sniffing order to reduce start-up latency
         in `DefaultExtractorsFactory` and `DefaultHlsExtractorsFactory`
         ([#6410](https://github.com/google/ExoPlayer/issues/6410)).
-    *   Select first extractors based on the filename extension and the response
-        headers mime type in `DefaultExtractorsFactory`.
-    *   Add support for partially fragmented MP4s
-        ([#7308](https://github.com/google/ExoPlayer/issues/7308)).
-    *   Add support for MPEG-4 Part 2 and H.263 in MPEG-TS
+    *   Use filename extensions and response header MIME types to further
+        optimize `Extractor` sniffing order on a per-media basis.
+    *   MP3: Add `IndexSeeker` for accurate seeks in VBR MP3 streams
+        ([#6787](https://github.com/google/ExoPlayer/issues/6787)). This seeker
+        can be enabled by passing `FLAG_ENABLE_INDEX_SEEKING` to the
+        `Mp3Extractor`. A significant portion of the file may need to be scanned
+        when a seek is performed, which may be costly for large files.
+    *   MP4: Fix playback of MP4 streams that contain Opus audio.
+    *   FMP4:
+        *   Add support for partially fragmented MP4s
+            ([#7308](https://github.com/google/ExoPlayer/issues/7308)).
+        *   Fix handling of `traf` boxes containing multiple `sbgp` or `sgpd`
+            boxes ([#7716](https://github.com/google/ExoPlayer/issues/7716)).
+    *   Matroska: Remove support for the `Invisible` block header flag.
+    *   MPEG-TS: Add support for MPEG-4 Part 2 and H.263
         ([#1603](https://github.com/google/ExoPlayer/issues/1603),
         [#5107](https://github.com/google/ExoPlayer/issues/5107)).
+    *   Ogg: Fix handling of non-contiguous pages
+        ([#7230](https://github.com/google/ExoPlayer/issues/7230)).
+    *   FLV: Ignore `SCRIPTDATA` segments with invalid name types, rather than
+        failing playback
+        ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
 *   Testing
     *   Add `TestExoPlayer`, a utility class with APIs to create
         `SimpleExoPlayer` instances with fake components for testing.
