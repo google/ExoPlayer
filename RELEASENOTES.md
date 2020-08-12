@@ -104,13 +104,24 @@
         `AnalyticsListener.onPlayerError`.
     *   Remove onMediaPeriodCreated/Released/ReadingStarted from
         `MediaSourceEventListener` and `AnalyticsListener`.
+    *   Add Guava dependency.
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
-*   Track selection:
-    *   Add `Player.getTrackSelector`.
-    *   Remove deprecated members in `DefaultTrackSelector`.
-    *   Add `DefaultTrackSelector` constraints for minimum video resolution,
-        bitrate and frame rate
-        ([#4511](https://github.com/google/ExoPlayer/issues/4511)).
+*   Audio:
+    *   Add a sample count parameter to `MediaCodecRenderer.processOutputBuffer`
+        and `AudioSink.handleBuffer` to allow batching multiple encoded frames
+        in one buffer.
+    *   No longer use a `MediaCodec` in audio passthrough mode.
+    *   Check `DefaultAudioSink` supports passthrough, in addition to checking
+        the `AudioCapabilities`
+    *   Add an experimental scheduling mode to save power in offload.
+        ([#7404](https://github.com/google/ExoPlayer/issues/7404)).
+    *   Adjust input timestamps in `MediaCodecRenderer` to account for the
+        Codec2 MP3 decoder having lower timestamps on the output side.
+    *   Propagate gapless audio metadata without the need to recreate the audio
+        decoders.
+    *   Add floating point PCM output capability in `MediaCodecAudioRenderer`,
+        and `LibopusAudioRenderer`.
+    *   Do not use a MediaCodec for PCM formats if AudioTrack supports it.
 *   Text:
     *   Recreate the decoder when handling and swallowing decode errors in
         `TextRenderer`. This fixes a case where playback would never end when
@@ -153,55 +164,7 @@
             standalone MPEG-TS files. The previous behavior can still be
             obtained by manually injecting a customized
             `DefaultTsPayloadReaderFactory` into `TsExtractor`.
-*   DRM:
-    *   Add support for attaching DRM sessions to clear content in the demo app.
-    *   Remove `DrmSessionManager` references from all renderers.
-        `DrmSessionManager` must be injected into the MediaSources using the
-        MediaSources factories.
-    *   Add option to inject a custom `DefaultDrmSessionManager` into
-        `OfflineLicenseHelper`
-        ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
-    *   Remove generics from DRM components.
-    *   Keep DRM sessions alive for a short time before fully releasing them
-        ([#7011](https://github.com/google/ExoPlayer/issues/7011),
-        [#6725](https://github.com/google/ExoPlayer/issues/6725),
-        [#7066](https://github.com/google/ExoPlayer/issues/7066)).
-*   Downloads and caching:
-    *   Add support for offline DRM playbacks.
-    *   Add builder in `DownloadRequest`.
-    *   Support passing an `Executor` to `DefaultDownloaderFactory` on which
-        data downloads are performed.
-    *   Parallelize and merge downloads in `SegmentDownloader` to improve
-        overall download speed
-        ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
-    *   Support multiple non-overlapping write locks for the same key in
-        `SimpleCache`.
-    *   Replace `CacheDataSinkFactory` and `CacheDataSourceFactory` with
-        `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
-    *   Remove `DownloadConstructorHelper` and use `CacheDataSource.Factory`
-        directly instead.
-    *   Update `CachedContentIndex` to use `SecureRandom` for generating the
-        initialization vector used to encrypt the cache contents.
-    *   Add `Requirements.DEVICE_STORAGE_NOT_LOW`, which can be specified as a
-        requirement to a `DownloadManager` for it to proceed with downloading.
-    *   For failed downloads, propagate the `Exception` that caused the failure
-        to `DownloadManager.Listener.onDownloadChanged`.
-*   Audio:
-    *   Add a sample count parameter to `MediaCodecRenderer.processOutputBuffer`
-        and `AudioSink.handleBuffer` to allow batching multiple encoded frames
-        in one buffer.
-    *   No longer use a `MediaCodec` in audio passthrough mode.
-    *   Check `DefaultAudioSink` supports passthrough, in addition to checking
-        the `AudioCapabilities`
-    *   Add an experimental scheduling mode to save power in offload.
-        ([#7404](https://github.com/google/ExoPlayer/issues/7404)).
-    *   Adjust input timestamps in `MediaCodecRenderer` to account for the
-        Codec2 MP3 decoder having lower timestamps on the output side.
-    *   Propagate gapless audio metadata without the need to recreate the audio
-        decoders.
-    *   Add floating point PCM output capability in `MediaCodecAudioRenderer`,
-        and `LibopusAudioRenderer`.
-    *   Do not use a MediaCodec for PCM formats if AudioTrack supports it.
+*   Metadata: Add minimal DVB Application Information Table (AIT) support.
 *   DASH:
     *   Add support for canceling in-progress segment fetches
         ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
@@ -243,11 +206,6 @@
     *   FLV: Ignore `SCRIPTDATA` segments with invalid name types, rather than
         failing playback
         ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
-*   Testing
-    *   Add `TestExoPlayer`, a utility class with APIs to create
-        `SimpleExoPlayer` instances with fake components for testing.
-    *   Upgrade Truth dependency from 0.44 to 1.0.
-    *   Upgrade to JUnit 4.13-rc-2.
 *   UI
     *   Add `StyledPlayerView` and `StyledPlayerControlView`.
     *   Remove `SimpleExoPlayerView` and `PlaybackControlView`.
@@ -260,8 +218,49 @@
         ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
     *   Update `TrackSelectionDialogBuilder` to use AndroidX Compat Dialog
         ([#7357](https://github.com/google/ExoPlayer/issues/7357)).
-*   Metadata: Add minimal DVB Application Information Table (AIT) support
-    ([#6922](https://github.com/google/ExoPlayer/pull/6922)).
+*   Track selection:
+    *   Add `Player.getTrackSelector`.
+    *   Remove deprecated members in `DefaultTrackSelector`.
+    *   Add `DefaultTrackSelector` constraints for minimum video resolution,
+        bitrate and frame rate
+        ([#4511](https://github.com/google/ExoPlayer/issues/4511)).
+*   Downloads and caching:
+    *   Add support for offline DRM playbacks.
+    *   Add builder in `DownloadRequest`.
+    *   Support passing an `Executor` to `DefaultDownloaderFactory` on which
+        data downloads are performed.
+    *   Parallelize and merge downloads in `SegmentDownloader` to improve
+        overall download speed
+        ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
+    *   Support multiple non-overlapping write locks for the same key in
+        `SimpleCache`.
+    *   Replace `CacheDataSinkFactory` and `CacheDataSourceFactory` with
+        `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
+    *   Remove `DownloadConstructorHelper` and use `CacheDataSource.Factory`
+        directly instead.
+    *   Update `CachedContentIndex` to use `SecureRandom` for generating the
+        initialization vector used to encrypt the cache contents.
+    *   Add `Requirements.DEVICE_STORAGE_NOT_LOW`, which can be specified as a
+        requirement to a `DownloadManager` for it to proceed with downloading.
+    *   For failed downloads, propagate the `Exception` that caused the failure
+        to `DownloadManager.Listener.onDownloadChanged`.
+*   DRM:
+    *   Remove `DrmSessionManager` references from all renderers.
+        `DrmSessionManager` must be injected into the MediaSources using the
+        MediaSources factories.
+    *   Add option to inject a custom `DefaultDrmSessionManager` into
+        `OfflineLicenseHelper`
+        ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
+    *   Remove generics from DRM components.
+    *   Keep DRM sessions alive for a short time before fully releasing them
+        ([#7011](https://github.com/google/ExoPlayer/issues/7011),
+        [#6725](https://github.com/google/ExoPlayer/issues/6725),
+        [#7066](https://github.com/google/ExoPlayer/issues/7066)).
+*   Testing
+    *   Add `TestExoPlayer`, a utility class with APIs to create
+        `SimpleExoPlayer` instances with fake components for testing.
+    *   Upgrade Truth dependency from 0.44 to 1.0.
+    *   Upgrade to JUnit 4.13-rc-2.
 *   Media2 extension: Publish media2 extension for integrating ExoPlayer with
     `androidx.media2.common.SessionPlayer` and
     `androidx.media2.session.MediaSession`.
@@ -281,6 +280,7 @@
         companion ad slots without accessing the `AdDisplayContainer`.
     *   Add missing notification of `VideoAdPlayerCallback.onLoaded`.
 *   Demo app:
+    *   Add support for attaching DRM sessions to clear content in the demo app.
     *   Support clip start/end points in `exolist.json` and demostrate manual ad
         insertion.
     *   Retain previous position in list of samples.
@@ -291,7 +291,6 @@
     *   Removed support for playing back in spherical stereo mode
     *   Fix playback of ClearKey protected content on API level 26 and earlier
         ([#7735](https://github.com/google/ExoPlayer/issues/7735)).
-*   Add Guava dependency.
 
 ### 2.11.7 (2020-06-29) ###
 
