@@ -141,7 +141,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_SET_SHUFFLE_ORDER = 21;
   private static final int MSG_PLAYLIST_UPDATE_REQUESTED = 22;
   private static final int MSG_SET_PAUSE_AT_END_OF_WINDOW = 23;
-  private static final int MSG_SET_OFFLOAD_SCHEDULING = 24;
+  private static final int MSG_SET_OFFLOAD_SCHEDULING_ENABLED = 24;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
@@ -188,7 +188,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean shuffleModeEnabled;
   private boolean foregroundMode;
   private boolean requestForRendererSleep;
-  private boolean enableOffloadScheduling;
+  private boolean offloadSchedulingEnabled;
 
   private int enabledRendererCount;
   @Nullable private SeekPosition pendingInitialSeekPosition;
@@ -263,9 +263,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
     throwWhenStuckBuffering = false;
   }
 
-  public void experimentalEnableOffloadScheduling(boolean enableOffloadScheduling) {
+  public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
     handler
-        .obtainMessage(MSG_SET_OFFLOAD_SCHEDULING, enableOffloadScheduling ? 1 : 0, /* unused */ 0)
+        .obtainMessage(
+            MSG_SET_OFFLOAD_SCHEDULING_ENABLED, offloadSchedulingEnabled ? 1 : 0, /* unused */ 0)
         .sendToTarget();
   }
 
@@ -518,7 +519,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         case MSG_SET_PAUSE_AT_END_OF_WINDOW:
           setPauseAtEndOfWindowInternal(msg.arg1 != 0);
           break;
-        case MSG_SET_OFFLOAD_SCHEDULING:
+        case MSG_SET_OFFLOAD_SCHEDULING_ENABLED:
           setOffloadSchedulingEnabledInternal(msg.arg1 == 1);
           break;
         case MSG_RELEASE:
@@ -739,14 +740,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
     handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
   }
 
-  private void setOffloadSchedulingEnabledInternal(boolean enableOffloadScheduling) {
-    if (enableOffloadScheduling == this.enableOffloadScheduling) {
+  private void setOffloadSchedulingEnabledInternal(boolean offloadSchedulingEnabled) {
+    if (offloadSchedulingEnabled == this.offloadSchedulingEnabled) {
       return;
     }
-    this.enableOffloadScheduling = enableOffloadScheduling;
+    this.offloadSchedulingEnabled = offloadSchedulingEnabled;
     @Player.State int state = playbackInfo.playbackState;
-    if (enableOffloadScheduling || state == Player.STATE_ENDED || state == Player.STATE_IDLE) {
-      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(enableOffloadScheduling);
+    if (offloadSchedulingEnabled || state == Player.STATE_ENDED || state == Player.STATE_IDLE) {
+      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(offloadSchedulingEnabled);
     } else {
       handler.sendEmptyMessage(MSG_DO_SOME_WORK);
     }
@@ -953,8 +954,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         throw new IllegalStateException("Playback stuck buffering and not loading");
       }
     }
-    if (enableOffloadScheduling != playbackInfo.offloadSchedulingEnabled) {
-      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(enableOffloadScheduling);
+    if (offloadSchedulingEnabled != playbackInfo.offloadSchedulingEnabled) {
+      playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(offloadSchedulingEnabled);
     }
 
     if ((shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY)
@@ -976,7 +977,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void maybeScheduleWakeup(long operationStartTimeMs, long intervalMs) {
-    if (enableOffloadScheduling && requestForRendererSleep) {
+    if (offloadSchedulingEnabled && requestForRendererSleep) {
       return;
     }
 
@@ -1304,7 +1305,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             startPositionUs,
             /* totalBufferedDurationUs= */ 0,
             startPositionUs,
-            enableOffloadScheduling);
+            offloadSchedulingEnabled);
     if (releaseMediaSourceList) {
       mediaSourceList.release();
     }

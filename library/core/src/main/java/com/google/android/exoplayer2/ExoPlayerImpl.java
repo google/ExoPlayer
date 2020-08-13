@@ -210,8 +210,8 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void experimentalEnableOffloadScheduling(boolean enableOffloadScheduling) {
-    internalPlayer.experimentalEnableOffloadScheduling(enableOffloadScheduling);
+  public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
+    internalPlayer.experimentalSetOffloadSchedulingEnabled(offloadSchedulingEnabled);
   }
 
   @Override
@@ -1366,7 +1366,7 @@ import java.util.concurrent.TimeoutException;
     private final boolean playbackSuppressionReasonChanged;
     private final boolean isPlayingChanged;
     private final boolean playbackSpeedChanged;
-    private final boolean offloadSchedulingChanged;
+    private final boolean offloadSchedulingEnabledChanged;
 
     public PlaybackInfoUpdate(
         PlaybackInfo playbackInfo,
@@ -1405,7 +1405,7 @@ import java.util.concurrent.TimeoutException;
           previousPlaybackInfo.playbackSuppressionReason != playbackInfo.playbackSuppressionReason;
       isPlayingChanged = isPlaying(previousPlaybackInfo) != isPlaying(playbackInfo);
       playbackSpeedChanged = previousPlaybackInfo.playbackSpeed != playbackInfo.playbackSpeed;
-      offloadSchedulingChanged =
+      offloadSchedulingEnabledChanged =
           previousPlaybackInfo.offloadSchedulingEnabled != playbackInfo.offloadSchedulingEnabled;
     }
 
@@ -1484,7 +1484,7 @@ import java.util.concurrent.TimeoutException;
       if (seekProcessed) {
         invokeAll(listenerSnapshot, EventListener::onSeekProcessed);
       }
-      if (offloadSchedulingChanged) {
+      if (offloadSchedulingEnabledChanged) {
         invokeAll(
             listenerSnapshot,
             listener ->

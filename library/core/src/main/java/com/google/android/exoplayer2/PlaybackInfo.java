@@ -65,7 +65,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   @PlaybackSuppressionReason public final int playbackSuppressionReason;
   /** The playback speed. */
   public final float playbackSpeed;
-  /** Whether the player is in offloadScheduling. */
+  /** Whether offload scheduling is enabled for the main player loop. */
   public final boolean offloadSchedulingEnabled;
 
   /**

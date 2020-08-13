@@ -467,7 +467,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void experimentalEnableOffloadScheduling(boolean enableOffloadScheduling) {
+  public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
     throw new UnsupportedOperationException();
   }
 }

@@ -242,8 +242,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * Sets whether audio should be played using the offload path.
    *
    * <p>Audio offload disables ExoPlayer audio processing, but significantly reduces the energy
-   * consumption of the playback when {@link ExoPlayer#experimentalEnableOffloadScheduling(boolean)}
-   * is enabled.
+   * consumption of the playback when {@link
+   * ExoPlayer#experimentalSetOffloadSchedulingEnabled(boolean) offload scheduling} is enabled.
    *
    * <p>Most Android devices can only support one offload {@link android.media.AudioTrack} at a time
    * and can invalidate it at any time. Thus an app can never be guaranteed that it will be able to
