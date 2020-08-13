@@ -25,6 +25,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -223,8 +225,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   }
 
   /**
-   * Signals that the {@link DrmInitData} passed to {@link #acquireSession} does not contain does
-   * not contain scheme data for the required UUID.
+   * Signals that the {@link Format#drmInitData} passed to {@link #acquireSession} does not contain
+   * scheme data for the required UUID.
    */
   public static final class MissingSchemeDataException extends Exception {
 
@@ -406,8 +408,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   /**
    * Sets the mode, which determines the role of sessions acquired from the instance. This must be
-   * called before {@link #acquireSession(Looper, DrmSessionEventListener.EventDispatcher,
-   * DrmInitData)} or {@link #acquirePlaceholderSession} is called.
+   * called before {@link #acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)}
+   * or {@link #acquirePlaceholderSession} is called.
    *
    * <p>By default, the mode is {@link #MODE_PLAYBACK} and a streaming license is requested when
    * required.
@@ -498,13 +500,13 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   public DrmSession acquireSession(
       Looper playbackLooper,
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
-      DrmInitData drmInitData) {
+      Format format) {
     initPlaybackLooper(playbackLooper);
     maybeCreateMediaDrmHandler(playbackLooper);
 
     @Nullable List<SchemeData> schemeDatas = null;
     if (offlineLicenseKeySetId == null) {
-      schemeDatas = getSchemeDatas(drmInitData, uuid, false);
+      schemeDatas = getSchemeDatas(Assertions.checkNotNull(format.drmInitData), uuid, false);
       if (schemeDatas.isEmpty()) {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
         if (eventDispatcher != null) {
@@ -546,16 +548,18 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   @Override
   @Nullable
-  public Class<? extends ExoMediaCrypto> getExoMediaCryptoType(
-      @Nullable DrmInitData drmInitData, int trackType) {
+  public Class<? extends ExoMediaCrypto> getExoMediaCryptoType(Format format) {
     Class<? extends ExoMediaCrypto> exoMediaCryptoType =
         Assertions.checkNotNull(exoMediaDrm).getExoMediaCryptoType();
-    if (drmInitData == null) {
+    if (format.drmInitData == null) {
+      int trackType = MimeTypes.getTrackType(format.sampleMimeType);
       return Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) != C.INDEX_UNSET
           ? exoMediaCryptoType
           : null;
     } else {
-      return canAcquireSession(drmInitData) ? exoMediaCryptoType : UnsupportedMediaCrypto.class;
+      return canAcquireSession(format.drmInitData)
+          ? exoMediaCryptoType
+          : UnsupportedMediaCrypto.class;
     }
   }
 

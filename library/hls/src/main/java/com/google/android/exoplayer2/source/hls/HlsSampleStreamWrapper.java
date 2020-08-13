@@ -1319,9 +1319,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       for (int j = 0; j < trackGroup.length; j++) {
         Format format = trackGroup.getFormat(j);
         exposedFormats[j] =
-            format.copyWithExoMediaCryptoType(
-                drmSessionManager.getExoMediaCryptoType(
-                    format.drmInitData, MimeTypes.getTrackType(format.sampleMimeType)));
+            format.copyWithExoMediaCryptoType(drmSessionManager.getExoMediaCryptoType(format));
       }
       trackGroups[i] = new TrackGroup(exposedFormats);
     }

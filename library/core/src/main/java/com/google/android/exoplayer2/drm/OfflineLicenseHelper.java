@@ -22,6 +22,7 @@ import android.os.HandlerThread;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -34,7 +35,8 @@ import java.util.UUID;
 @RequiresApi(18)
 public final class OfflineLicenseHelper {
 
-  private static final DrmInitData EMPTY_DRM_INIT_DATA = new DrmInitData();
+  private static final Format FORMAT_WITH_EMPTY_DRM_INIT_DATA =
+      new Format.Builder().setDrmInitData(new DrmInitData()).build();
 
   private final ConditionVariable conditionVariable;
   private final DefaultDrmSessionManager drmSessionManager;
@@ -182,13 +184,13 @@ public final class OfflineLicenseHelper {
   /**
    * Downloads an offline license.
    *
-   * @param drmInitData The {@link DrmInitData} for the content whose license is to be downloaded.
+   * @param format The {@link Format} of the content whose license is to be downloaded.
    * @return The key set id for the downloaded license.
    * @throws DrmSessionException Thrown when a DRM session error occurs.
    */
-  public synchronized byte[] downloadLicense(DrmInitData drmInitData) throws DrmSessionException {
-    Assertions.checkArgument(drmInitData != null);
-    return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, null, drmInitData);
+  public synchronized byte[] downloadLicense(Format format) throws DrmSessionException {
+    Assertions.checkArgument(format.drmInitData != null);
+    return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, null, format);
   }
 
   /**
@@ -202,7 +204,9 @@ public final class OfflineLicenseHelper {
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
     return blockingKeyRequest(
-        DefaultDrmSessionManager.MODE_DOWNLOAD, offlineLicenseKeySetId, EMPTY_DRM_INIT_DATA);
+        DefaultDrmSessionManager.MODE_DOWNLOAD,
+        offlineLicenseKeySetId,
+        FORMAT_WITH_EMPTY_DRM_INIT_DATA);
   }
 
   /**
@@ -215,7 +219,9 @@ public final class OfflineLicenseHelper {
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
     blockingKeyRequest(
-        DefaultDrmSessionManager.MODE_RELEASE, offlineLicenseKeySetId, EMPTY_DRM_INIT_DATA);
+        DefaultDrmSessionManager.MODE_RELEASE,
+        offlineLicenseKeySetId,
+        FORMAT_WITH_EMPTY_DRM_INIT_DATA);
   }
 
   /**
@@ -231,7 +237,9 @@ public final class OfflineLicenseHelper {
     drmSessionManager.prepare();
     DrmSession drmSession =
         openBlockingKeyRequest(
-            DefaultDrmSessionManager.MODE_QUERY, offlineLicenseKeySetId, EMPTY_DRM_INIT_DATA);
+            DefaultDrmSessionManager.MODE_QUERY,
+            offlineLicenseKeySetId,
+            FORMAT_WITH_EMPTY_DRM_INIT_DATA);
     DrmSessionException error = drmSession.getError();
     Pair<Long, Long> licenseDurationRemainingSec =
         WidevineUtil.getLicenseDurationRemainingSec(drmSession);
@@ -254,11 +262,10 @@ public final class OfflineLicenseHelper {
   }
 
   private byte[] blockingKeyRequest(
-      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, DrmInitData drmInitData)
+      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format)
       throws DrmSessionException {
     drmSessionManager.prepare();
-    DrmSession drmSession =
-        openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId, drmInitData);
+    DrmSession drmSession = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId, format);
     DrmSessionException error = drmSession.getError();
     byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
     drmSession.release(eventDispatcher);
@@ -270,11 +277,11 @@ public final class OfflineLicenseHelper {
   }
 
   private DrmSession openBlockingKeyRequest(
-      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, DrmInitData drmInitData) {
+      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format) {
     drmSessionManager.setMode(licenseMode, offlineLicenseKeySetId);
     conditionVariable.close();
     DrmSession drmSession =
-        drmSessionManager.acquireSession(handlerThread.getLooper(), eventDispatcher, drmInitData);
+        drmSessionManager.acquireSession(handlerThread.getLooper(), eventDispatcher, format);
     // Block current thread until key loading is finished
     conditionVariable.block();
     return drmSession;

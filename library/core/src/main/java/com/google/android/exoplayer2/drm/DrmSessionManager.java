@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.drm;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
+import com.google.android.exoplayer2.Format;
 
 /** Manages a DRM session. */
 public interface DrmSessionManager {
@@ -36,7 +36,7 @@ public interface DrmSessionManager {
         public DrmSession acquireSession(
             Looper playbackLooper,
             @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
-            DrmInitData drmInitData) {
+            Format format) {
           return new ErrorStateDrmSession(
               new DrmSession.DrmSessionException(
                   new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME)));
@@ -44,9 +44,8 @@ public interface DrmSessionManager {
 
         @Override
         @Nullable
-        public Class<UnsupportedMediaCrypto> getExoMediaCryptoType(
-            @Nullable DrmInitData drmInitData, int trackType) {
-          return drmInitData != null ? UnsupportedMediaCrypto.class : null;
+        public Class<UnsupportedMediaCrypto> getExoMediaCryptoType(Format format) {
+          return format.drmInitData != null ? UnsupportedMediaCrypto.class : null;
         }
       };
 
@@ -86,41 +85,37 @@ public interface DrmSessionManager {
   }
 
   /**
-   * Returns a {@link DrmSession} for the specified {@link DrmInitData}, with an incremented
-   * reference count. When the caller no longer needs to use the instance, it must call {@link
+   * Returns a {@link DrmSession} for the specified {@link Format}, with an incremented reference
+   * count. When the caller no longer needs to use the instance, it must call {@link
    * DrmSession#release(DrmSessionEventListener.EventDispatcher)} to decrement the reference count.
    *
    * @param playbackLooper The looper associated with the media playback thread.
    * @param eventDispatcher The {@link DrmSessionEventListener.EventDispatcher} used to distribute
    *     events, and passed on to {@link
    *     DrmSession#acquire(DrmSessionEventListener.EventDispatcher)}.
-   * @param drmInitData DRM initialization data. All contained {@link SchemeData}s must contain
-   *     non-null {@link SchemeData#data}.
+   * @param format The {@link Format} for which to acquire a {@link DrmSession}. Must contain a
+   *     non-null {@link Format#drmInitData}.
    * @return The DRM session.
    */
   DrmSession acquireSession(
       Looper playbackLooper,
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
-      DrmInitData drmInitData);
+      Format format);
 
   /**
-   * Returns the {@link ExoMediaCrypto} type associated to sessions acquired using the given
-   * parameters. Returns the {@link UnsupportedMediaCrypto} type if this DRM session manager does
-   * not support the given {@link DrmInitData}. If {@code drmInitData} is null, returns an {@link
-   * ExoMediaCrypto} type if this DRM session manager would associate a {@link
-   * #acquirePlaceholderSession placeholder session} to the given {@code trackType}, or null
-   * otherwise.
+   * Returns the {@link ExoMediaCrypto} type associated to sessions acquired for the given {@link
+   * Format}. Returns the {@link UnsupportedMediaCrypto} type if this DRM session manager does not
+   * support "any of the DRM schemes defined in the given {@link Format}. If the {@link Format}
+   * describes unencrypted content, returns an {@link ExoMediaCrypto} type if this DRM session
+   * manager would associate a {@link #acquirePlaceholderSession placeholder session} to the given
+   * {@link Format}, or null otherwise.
    *
-   * @param drmInitData The {@link DrmInitData} to acquire sessions with. May be null for
-   *     unencrypted content (See {@link #acquirePlaceholderSession placeholder sessions}).
-   * @param trackType The type of the track to which {@code drmInitData} belongs. Must be one of the
-   *     {@link C}{@code .TRACK_TYPE_*} constants.
+   * @param format The {@link Format} for which to return the {@link ExoMediaCrypto} type.
    * @return The {@link ExoMediaCrypto} type associated to sessions acquired using the given
    *     parameters, or the {@link UnsupportedMediaCrypto} type if the provided {@code drmInitData}
    *     is not supported, or {@code null} if {@code drmInitData} is null and no DRM session will be
    *     associated to the given {@code trackType}.
    */
   @Nullable
-  Class<? extends ExoMediaCrypto> getExoMediaCryptoType(
-      @Nullable DrmInitData drmInitData, int trackType);
+  Class<? extends ExoMediaCrypto> getExoMediaCryptoType(Format format);
 }

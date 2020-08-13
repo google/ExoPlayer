@@ -24,8 +24,8 @@ import android.net.Uri;
 import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.OfflineLicenseHelper;
@@ -213,8 +213,8 @@ public final class DashWidevineOfflineTest {
     DataSource dataSource = httpDataSourceFactory.createDataSource();
     DashManifest dashManifest = DashUtil.loadManifest(dataSource,
         Uri.parse(DashTestData.WIDEVINE_H264_MANIFEST));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(dataSource, dashManifest.getPeriod(0));
-    offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(drmInitData);
+    Format format = DashUtil.loadFormatWithDrmInitData(dataSource, dashManifest.getPeriod(0));
+    offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(format);
     assertThat(offlineLicenseKeySetId).isNotNull();
     assertThat(offlineLicenseKeySetId.length).isGreaterThan(0);
     testRunner.setOfflineLicenseKeySetId(offlineLicenseKeySetId);

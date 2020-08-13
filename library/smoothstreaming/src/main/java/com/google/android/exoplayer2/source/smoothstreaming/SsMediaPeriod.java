@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -267,9 +266,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         Format manifestFormat = manifestFormats[j];
         exposedFormats[j] =
             manifestFormat.copyWithExoMediaCryptoType(
-                drmSessionManager.getExoMediaCryptoType(
-                    manifestFormat.drmInitData,
-                    MimeTypes.getTrackType(manifestFormat.sampleMimeType)));
+                drmSessionManager.getExoMediaCryptoType(manifestFormat));
       }
       trackGroups[i] = new TrackGroup(exposedFormats);
     }

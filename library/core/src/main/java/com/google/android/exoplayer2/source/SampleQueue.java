@@ -832,9 +832,7 @@ public class SampleQueue implements TrackOutput {
     @Nullable DrmInitData newDrmInitData = newFormat.drmInitData;
 
     outputFormatHolder.format =
-        newFormat.copyWithExoMediaCryptoType(
-            drmSessionManager.getExoMediaCryptoType(
-                newFormat.drmInitData, MimeTypes.getTrackType(newFormat.sampleMimeType)));
+        newFormat.copyWithExoMediaCryptoType(drmSessionManager.getExoMediaCryptoType(newFormat));
     outputFormatHolder.drmSession = currentDrmSession;
     if (!isFirstFormat && Util.areEqual(oldDrmInitData, newDrmInitData)) {
       // Nothing to do.
@@ -845,7 +843,7 @@ public class SampleQueue implements TrackOutput {
     @Nullable DrmSession previousSession = currentDrmSession;
     currentDrmSession =
         newDrmInitData != null
-            ? drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newDrmInitData)
+            ? drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newFormat)
             : drmSessionManager.acquirePlaceholderSession(
                 playbackLooper, MimeTypes.getTrackType(newFormat.sampleMimeType));
     outputFormatHolder.drmSession = currentDrmSession;

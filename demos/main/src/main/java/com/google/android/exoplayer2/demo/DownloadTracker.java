@@ -191,8 +191,8 @@ public class DownloadTracker {
 
     @Override
     public void onPrepared(@NonNull DownloadHelper helper) {
-      @Nullable DrmInitData drmInitData = findDrmInitData(helper);
-      if (drmInitData != null) {
+      @Nullable Format format = getFirstFormatWithDrmInitData(helper);
+      if (format != null) {
         if (Util.SDK_INT < 18) {
           Toast.makeText(context, R.string.error_drm_unsupported_before_api_18, Toast.LENGTH_LONG)
               .show();
@@ -200,7 +200,7 @@ public class DownloadTracker {
           return;
         }
         // TODO(internal b/163107948): Support cases where DrmInitData are not in the manifest.
-        if (!hasSchemaData(drmInitData)) {
+        if (!hasSchemaData(format.drmInitData)) {
           Toast.makeText(context, R.string.download_start_error_offline_license, Toast.LENGTH_LONG)
               .show();
           Log.e(
@@ -212,7 +212,7 @@ public class DownloadTracker {
         try {
           // TODO(internal b/163107948): Download the license on another thread to keep the UI
           //  thread unblocked.
-          fetchOfflineLicense(drmInitData);
+          fetchOfflineLicense(format);
         } catch (DrmSession.DrmSessionException e) {
           Toast.makeText(context, R.string.download_start_error_offline_license, Toast.LENGTH_LONG)
               .show();
@@ -308,14 +308,13 @@ public class DownloadTracker {
     }
 
     @RequiresApi(18)
-    private void fetchOfflineLicense(DrmInitData drmInitData)
-        throws DrmSession.DrmSessionException {
+    private void fetchOfflineLicense(Format format) throws DrmSession.DrmSessionException {
       OfflineLicenseHelper offlineLicenseHelper =
           OfflineLicenseHelper.newWidevineInstance(
               mediaItem.playbackProperties.drmConfiguration.licenseUri.toString(),
               httpDataSourceFactory,
               new DrmSessionEventListener.EventDispatcher());
-      keySetId = offlineLicenseHelper.downloadLicense(drmInitData);
+      keySetId = offlineLicenseHelper.downloadLicense(format);
     }
   }
 
@@ -333,11 +332,11 @@ public class DownloadTracker {
   }
 
   /**
-   * Returns the first non-null {@link DrmInitData} found in the content's tracks, or null if no
-   * {@link DrmInitData} are found.
+   * Returns the first {@link Format} with a non-null {@link Format#drmInitData} found in the
+   * content's tracks, or null if none is found.
    */
   @Nullable
-  private DrmInitData findDrmInitData(DownloadHelper helper) {
+  private Format getFirstFormatWithDrmInitData(DownloadHelper helper) {
     for (int periodIndex = 0; periodIndex < helper.getPeriodCount(); periodIndex++) {
       MappedTrackInfo mappedTrackInfo = helper.getMappedTrackInfo(periodIndex);
       for (int rendererIndex = 0;
@@ -349,7 +348,7 @@ public class DownloadTracker {
           for (int formatIndex = 0; formatIndex < trackGroup.length; formatIndex++) {
             Format format = trackGroup.getFormat(formatIndex);
             if (format.drmInitData != null) {
-              return format.drmInitData;
+              return format;
             }
           }
         }

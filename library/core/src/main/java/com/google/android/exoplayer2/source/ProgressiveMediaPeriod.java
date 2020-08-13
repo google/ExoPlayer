@@ -782,8 +782,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
       trackFormat =
           trackFormat.copyWithExoMediaCryptoType(
-              drmSessionManager.getExoMediaCryptoType(
-                  trackFormat.drmInitData, MimeTypes.getTrackType(trackFormat.sampleMimeType)));
+              drmSessionManager.getExoMediaCryptoType(trackFormat));
       trackArray[i] = new TrackGroup(trackFormat);
     }
     trackState = new TrackState(new TrackGroupArray(trackArray), trackIsAudioVideoFlags);

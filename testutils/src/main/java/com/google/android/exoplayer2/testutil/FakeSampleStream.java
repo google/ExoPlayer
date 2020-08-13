@@ -275,7 +275,7 @@ public class FakeSampleStream implements SampleStream {
     Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
     currentDrmSession =
         newDrmInitData != null
-            ? drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newDrmInitData)
+            ? drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newFormat)
             : drmSessionManager.acquirePlaceholderSession(
                 playbackLooper, MimeTypes.getTrackType(newFormat.sampleMimeType));
     outputFormatHolder.drmSession = currentDrmSession;

@@ -19,7 +19,6 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
@@ -75,15 +74,15 @@ public final class DashUtil {
   }
 
   /**
-   * Loads {@link DrmInitData} for a given period in a DASH manifest.
+   * Loads a {@link Format} for acquiring keys for a given period in a DASH manifest.
    *
    * @param dataSource The {@link HttpDataSource} from which data should be loaded.
    * @param period The {@link Period}.
-   * @return The loaded {@link DrmInitData}, or null if none is defined.
+   * @return The loaded {@link Format}, or null if none is defined.
    * @throws IOException Thrown when there is an error while loading.
    */
   @Nullable
-  public static DrmInitData loadDrmInitData(DataSource dataSource, Period period)
+  public static Format loadFormatWithDrmInitData(DataSource dataSource, Period period)
       throws IOException {
     int primaryTrackType = C.TRACK_TYPE_VIDEO;
     Representation representation = getFirstRepresentation(period, primaryTrackType);
@@ -97,8 +96,8 @@ public final class DashUtil {
     Format manifestFormat = representation.format;
     Format sampleFormat = DashUtil.loadSampleFormat(dataSource, primaryTrackType, representation);
     return sampleFormat == null
-        ? manifestFormat.drmInitData
-        : sampleFormat.withManifestFormatInfo(manifestFormat).drmInitData;
+        ? manifestFormat
+        : sampleFormat.withManifestFormatInfo(manifestFormat);
   }
 
   /**
