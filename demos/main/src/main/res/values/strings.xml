@@ -51,7 +51,7 @@
 
   <string name="sample_list_load_error">One or more sample lists failed to load</string>
 
-  <string name="unsupported_ads_in_concatenation">Playing sample without ads, as ads are not supported in concatenations</string>
+  <string name="unsupported_ads_in_playlist">Playing without ads, as ads are not supported in playlists</string>
 
   <string name="download_start_error">Failed to start download</string>
 

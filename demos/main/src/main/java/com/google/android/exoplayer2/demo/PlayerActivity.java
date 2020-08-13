@@ -520,7 +520,7 @@ public class PlayerActivity extends AppCompatActivity
     @Override
     public AdsLoader getAdsLoader(Uri adTagUri) {
       if (mediaItems.size() > 1) {
-        showToast(R.string.unsupported_ads_in_concatenation);
+        showToast(R.string.unsupported_ads_in_playlist);
         releaseAdsLoader();
         return null;
       }
