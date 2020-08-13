@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer2.demo;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.JsonReader;
 import android.view.Menu;
@@ -37,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -73,9 +76,15 @@ public class SampleChooserActivity extends AppCompatActivity
   private MenuItem randomAbrMenuItem;
   private MenuItem tunnelingMenuItem;
 
+  @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+      requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+    }
+
     setContentView(R.layout.sample_chooser_activity);
     sampleAdapter = new SampleAdapter();
     ExpandableListView sampleListView = findViewById(R.id.sample_list);
@@ -118,6 +127,9 @@ public class SampleChooserActivity extends AppCompatActivity
     } catch (IllegalStateException e) {
       DownloadService.startForeground(this, DemoDownloadService.class);
     }
+
+    //this.onChildClick(sampleListView, this.getView(), 13, 0, 0 );
+    //sampleListView.performItemClick(this.getIntent)
   }
 
   @Override

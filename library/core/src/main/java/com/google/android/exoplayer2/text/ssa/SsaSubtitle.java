@@ -15,29 +15,38 @@
  */
 package com.google.android.exoplayer2.text.ssa;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.TAG;
+
 /**
  * A representation of an SSA/ASS subtitle.
  */
-/* package */ final class SsaSubtitle implements Subtitle {
+/* package */ public final class SsaSubtitle implements Subtitle {
 
   private final List<List<Cue>> cues;
   private final List<Long> cueTimesUs;
+  private final SsaDialogueFormat format;
+  public SsaDecoder decoder;
 
   /**
    * @param cues The cues in the subtitle.
    * @param cueTimesUs The cue times, in microseconds.
    */
-  public SsaSubtitle(List<List<Cue>> cues, List<Long> cueTimesUs) {
+  public SsaSubtitle(List<List<Cue>> cues, List<Long> cueTimesUs, SsaDialogueFormat format) {
     this.cues = cues;
     this.cueTimesUs = cueTimesUs;
+    this.format = format;
   }
 
   @Override
@@ -66,6 +75,19 @@ import java.util.List;
       return Collections.emptyList();
     } else {
       return cues.get(index);
+    }
+  }
+
+  public void addSubtitles(ParsableByteArray data) {
+    @Nullable String currentLine;
+    while ((currentLine = data.readLine()) != null) {
+      if (currentLine.startsWith("Dialogue:")) {
+        if (format == null) {
+          Log.w(TAG, "Skipping dialogue line before complete format: " + currentLine);
+          continue;
+        }
+        decoder.parseDialogueLine(currentLine, format, cues, cueTimesUs);
+      }
     }
   }
 }

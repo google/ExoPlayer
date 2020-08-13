@@ -19,6 +19,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,6 +76,10 @@ public final class TrackSelectionDialog extends DialogFragment {
     return false;
   }
 
+  public interface OnSubtitleSelectionChangedListener {
+    public void onSubtitleSelectionChanged(boolean isDiabled);
+  }
+
   /**
    * Creates a dialog for a given {@link DefaultTrackSelector}, whose parameters will be
    * automatically updated when tracks are selected.
@@ -84,7 +89,7 @@ public final class TrackSelectionDialog extends DialogFragment {
    *     dismissed.
    */
   public static TrackSelectionDialog createForTrackSelector(
-      DefaultTrackSelector trackSelector, DialogInterface.OnDismissListener onDismissListener) {
+      DefaultTrackSelector trackSelector, DialogInterface.OnDismissListener onDismissListener, OnSubtitleSelectionChangedListener onTextChangedListener) {
     MappedTrackInfo mappedTrackInfo =
         Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo());
     TrackSelectionDialog trackSelectionDialog = new TrackSelectionDialog();
@@ -98,6 +103,10 @@ public final class TrackSelectionDialog extends DialogFragment {
         /* onClickListener= */ (dialog, which) -> {
           DefaultTrackSelector.ParametersBuilder builder = parameters.buildUpon();
           for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+            if (i == 2) {
+              onTextChangedListener.onSubtitleSelectionChanged(trackSelectionDialog.getIsDisabled(i));
+              continue;
+            }
             builder
                 .clearSelectionOverrides(/* rendererIndex= */ i)
                 .setRendererDisabled(

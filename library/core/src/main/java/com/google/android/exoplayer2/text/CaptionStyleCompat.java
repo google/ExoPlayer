@@ -77,7 +77,7 @@ public final class CaptionStyleCompat {
   public static final CaptionStyleCompat DEFAULT =
       new CaptionStyleCompat(
           Color.WHITE,
-          Color.BLACK,
+          /*Color.BLACK,//*/ Color.TRANSPARENT,
           Color.TRANSPARENT,
           EDGE_TYPE_NONE,
           Color.WHITE,
@@ -156,7 +156,8 @@ public final class CaptionStyleCompat {
     this.windowColor = windowColor;
     this.edgeType = edgeType;
     this.edgeColor = edgeColor;
-    this.typeface = typeface;
+    // this.typeface = typeface;
+    this.typeface = Typeface.create("sans-serif-light", Typeface.NORMAL);
   }
 
   @TargetApi(19)

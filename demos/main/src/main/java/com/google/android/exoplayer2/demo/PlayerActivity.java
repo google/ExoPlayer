@@ -15,11 +15,15 @@
  */
 package com.google.android.exoplayer2.demo;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaDrm;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -30,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
@@ -47,6 +52,7 @@ import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
+import com.google.android.exoplayer2.extractor.CceLibrary;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.DownloadHelper;
@@ -64,6 +70,8 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -78,15 +86,21 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
+import com.google.android.exoplayer2.util.HandlerWrapper;
+import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.List;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
-    implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
+    implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener, Runnable {
+
+  public static final String TAG = "PlayerActivity";
 
   // Activity extras.
 
@@ -144,6 +158,7 @@ public class PlayerActivity extends AppCompatActivity
   private Button selectTracksButton;
   private TextView debugTextView;
   private boolean isShowingTrackSelectionDialog;
+  private TextView subtitlesView;
 
   private DataSource.Factory dataSourceFactory;
   private SimpleExoPlayer player;
@@ -164,13 +179,16 @@ public class PlayerActivity extends AppCompatActivity
 
   // Activity lifecycle
 
+  @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   public void onCreate(Bundle savedInstanceState) {
+
     Intent intent = getIntent();
     String sphericalStereoMode = intent.getStringExtra(SPHERICAL_STEREO_MODE_EXTRA);
     if (sphericalStereoMode != null) {
       setTheme(R.style.PlayerTheme_Spherical);
     }
+
     super.onCreate(savedInstanceState);
     dataSourceFactory = buildDataSourceFactory();
     if (CookieHandler.getDefault() != DEFAULT_COOKIE_MANAGER) {
@@ -187,6 +205,10 @@ public class PlayerActivity extends AppCompatActivity
     playerView.setControllerVisibilityListener(this);
     playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
+
+    subtitlesView = findViewById(R.id.subtitle);
+
+
     if (sphericalStereoMode != null) {
       int stereoMode;
       if (SPHERICAL_STEREO_MODE_MONO.equals(sphericalStereoMode)) {
@@ -218,6 +240,8 @@ public class PlayerActivity extends AppCompatActivity
       trackSelectorParameters = builder.build();
       clearStartPosition();
     }
+
+    this.run();
   }
 
   @Override
@@ -232,6 +256,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onStart() {
     super.onStart();
+
     if (Util.SDK_INT > 23) {
       initializePlayer();
       if (playerView != null) {
@@ -243,6 +268,7 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onResume() {
     super.onResume();
+
     if (Util.SDK_INT <= 23 || player == null) {
       initializePlayer();
       if (playerView != null) {
@@ -254,6 +280,9 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onPause() {
     super.onPause();
+
+    Log.i(TAG, "onPause() function called.");
+
     if (Util.SDK_INT <= 23) {
       if (playerView != null) {
         playerView.onPause();
@@ -265,6 +294,9 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onStop() {
     super.onStop();
+
+    Log.i(TAG, "onStop() function called.");
+
     if (Util.SDK_INT > 23) {
       if (playerView != null) {
         playerView.onPause();
@@ -325,7 +357,8 @@ public class PlayerActivity extends AppCompatActivity
       TrackSelectionDialog trackSelectionDialog =
           TrackSelectionDialog.createForTrackSelector(
               trackSelector,
-              /* onDismissListener= */ dismissedDialog -> isShowingTrackSelectionDialog = false);
+              /* onDismissListener= */ dismissedDialog -> isShowingTrackSelectionDialog = false,
+              isDiabled -> subtitlesView.setVisibility(isDiabled ? View.INVISIBLE : View.VISIBLE));
       trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
     }
   }
@@ -386,6 +419,19 @@ public class PlayerActivity extends AppCompatActivity
       player.addAnalyticsListener(new EventLogger(trackSelector));
       playerView.setPlayer(player);
       playerView.setPlaybackPreparer(this);
+
+
+      TextOutput listener = new TextOutput() {
+        @Override
+        public void onCues(List<Cue> cues) {
+          if (cues == null || cues.size() < 2)
+            return;
+          else
+            subtitlesView.setText(cues.get(1).text);
+        }
+      };
+      player.addTextOutput(listener);
+
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
       if (adsLoader != null) {
@@ -451,6 +497,7 @@ public class PlayerActivity extends AppCompatActivity
         mediaSources[i] = new MergingMediaSource(mediaSources[i], subtitleMediaSource);
       }
     }
+
     MediaSource mediaSource =
         mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
 
@@ -686,6 +733,28 @@ public class PlayerActivity extends AppCompatActivity
       cause = cause.getCause();
     }
     return false;
+  }
+
+  private String oldSubtitle = "";
+  private Handler h2 = new Handler();
+  @Override
+  public void run() {
+
+    if (player != null) {
+      long currentPos = player.getCurrentPosition();
+      Log.i(TAG, "Current Position : " + currentPos/60000 + "m " + (currentPos%60000)/1000 + "." + (currentPos%1000)/100 + "s");
+    }
+
+    // For Ads Sceen
+    String subtitle = subtitlesView.getText().toString();
+    if (subtitle.length() != 0) {
+      if (subtitle.equals(oldSubtitle) == true) {
+        subtitlesView.setText("");
+      }
+      oldSubtitle = subtitle;
+    }
+
+    h2.postDelayed(this, 5000);
   }
 
   private class PlayerEventListener implements Player.EventListener {

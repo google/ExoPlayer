@@ -593,6 +593,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         if (renderer.getState() == Renderer.STATE_DISABLED) {
           continue;
         }
+
         // TODO: Each renderer should return the maximum delay before which it wishes to be called
         // again. The minimum of these values should then be used as the delay before the next
         // invocation of this method.

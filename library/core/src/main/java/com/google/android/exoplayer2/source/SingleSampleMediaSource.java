@@ -294,7 +294,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
             durationUs,
             /* isSeekable= */ true,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* isLive= */ true,
             /* manifest= */ null,
             tag);
   }

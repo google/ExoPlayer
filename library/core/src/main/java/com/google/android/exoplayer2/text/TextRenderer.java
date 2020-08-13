@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -152,6 +153,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) {
+
     if (outputStreamEnded) {
       return;
     }
@@ -185,11 +187,19 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     if (nextSubtitle != null) {
       if (nextSubtitle.isEndOfStream()) {
         if (!textRendererNeedsUpdate && getNextEventTime() == Long.MAX_VALUE) {
-          if (decoderReplacementState == REPLACEMENT_STATE_WAIT_END_OF_STREAM) {
+          /*if (decoderReplacementState == REPLACEMENT_STATE_WAIT_END_OF_STREAM) {
             replaceDecoder();
           } else {
             releaseBuffers();
             outputStreamEnded = true;
+          }*/
+          while (getNextEventTime() == Long.MAX_VALUE) {
+            try {
+              Log.i(TAG, "Waiting the next event by 1 second.");
+              Thread.sleep(1000);
+            } catch (InterruptedException e) {
+
+            }
           }
         }
       } else if (nextSubtitle.timeUs <= positionUs) {
@@ -345,6 +355,7 @@ public final class TextRenderer extends BaseRenderer implements Callback {
     } else {
       releaseBuffers();
       decoder.flush();
+
     }
   }
 }

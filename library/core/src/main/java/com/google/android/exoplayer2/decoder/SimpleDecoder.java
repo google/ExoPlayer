@@ -19,6 +19,8 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
+
 import java.util.ArrayDeque;
 
 /** Base class for {@link Decoder}s that use their own decode thread. */

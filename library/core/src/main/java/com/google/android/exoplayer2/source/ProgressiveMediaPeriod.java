@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.extractor.CceLibrary;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -50,6 +51,7 @@ import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.upstream.StatsDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -473,6 +475,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (suppressRead()) {
       return C.RESULT_NOTHING_READ;
     }
+
     maybeNotifyDownstreamFormat(sampleQueueIndex);
     int result =
         sampleQueues[sampleQueueIndex].read(

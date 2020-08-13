@@ -18,9 +18,11 @@ package com.google.android.exoplayer2.extractor;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -261,6 +263,15 @@ public final class DefaultExtractorInput implements ExtractorInput {
     peekBuffer = newPeekBuffer;
   }
 
+  private final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+  private String byteTohexString(byte data) {
+    int v = data & 0xFF;
+    byte[] hexChars = new byte[2];
+    hexChars[0] = (byte)HEX_ARRAY[v >>> 4];
+    hexChars[1] = (byte)HEX_ARRAY[v & 0x0F];
+    return new String(hexChars, StandardCharsets.UTF_8);
+  }
+
   /**
    * Starts or continues a read from the data source.
    *
@@ -285,6 +296,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
       throw new InterruptedException();
     }
     int bytesRead = dataSource.read(target, offset + bytesAlreadyRead, length - bytesAlreadyRead);
+
     if (bytesRead == C.RESULT_END_OF_INPUT) {
       if (bytesAlreadyRead == 0 && allowEndOfInput) {
         return C.RESULT_END_OF_INPUT;

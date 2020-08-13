@@ -15,7 +15,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+  xmlns:tools="http://schemas.android.com/tools"
     package="com.google.android.exoplayer2.demo">
 
   <uses-permission android:name="android.permission.INTERNET"/>
@@ -33,10 +33,11 @@
       android:icon="@mipmap/ic_launcher"
       android:banner="@drawable/ic_banner"
       android:largeHeap="true"
-      android:allowBackup="false"
+      android:allowBackup="true"
       android:requestLegacyExternalStorage="true"
+      android:debuggable="true"
       android:name="com.google.android.exoplayer2.demo.DemoApplication"
-      tools:ignore="UnusedAttribute">
+      tools:ignore="HardcodedDebugMode,UnusedAttribute">
 
     <activity android:name="com.google.android.exoplayer2.demo.SampleChooserActivity"
         android:configChanges="keyboardHidden"

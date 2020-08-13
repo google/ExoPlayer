@@ -23,6 +23,7 @@ import android.util.SparseIntArray;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.extractor.CceLibrary;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.DvbSubtitleInf
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +58,6 @@ public final class TsExtractor implements Extractor {
 
   /** Factory for {@link TsExtractor} instances. */
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new TsExtractor()};
-
   /**
    * Modes for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT} or {@link
    * #MODE_HLS}.
@@ -181,6 +183,14 @@ public final class TsExtractor implements Extractor {
     durationReader = new TsDurationReader();
     pcrPid = -1;
     resetPayloadReaders();
+
+    initCCExtractor();
+  }
+
+  public void initCCExtractor() {
+     CceLibrary.cceLib.init();
+     lengthForLib = 0;
+     firstPacket = true;
   }
 
   // Extractor implementation.
@@ -189,6 +199,7 @@ public final class TsExtractor implements Extractor {
   public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
     byte[] buffer = tsPacketBuffer.data;
     input.peekFully(buffer, 0, TS_PACKET_SIZE * SNIFF_TS_PACKET_COUNT);
+
     for (int startPosCandidate = 0; startPosCandidate < TS_PACKET_SIZE; startPosCandidate++) {
       // Try to identify at least SNIFF_TS_PACKET_COUNT packets starting with TS_SYNC_BYTE.
       boolean isSyncBytePatternCorrect = true;
@@ -245,7 +256,12 @@ public final class TsExtractor implements Extractor {
   @Override
   public void release() {
     // Do nothing
+    CceLibrary.cceLib.finish();
   }
+
+  private static boolean firstPacket = true;
+  private byte[] bytesForLib = new byte[188 * 50];
+  private int lengthForLib = 0;
 
   @Override
   public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
@@ -284,6 +300,20 @@ public final class TsExtractor implements Extractor {
 
     @TsPayloadReader.Flags int packetHeaderFlags = 0;
 
+    System.arraycopy(tsPacketBuffer.data, tsPacketBuffer.getPosition(), bytesForLib, lengthForLib, 188);
+    lengthForLib += 188;
+
+    if (lengthForLib == 1880) {
+      CceLibrary.cceLib.write(bytesForLib, lengthForLib);
+
+      if (firstPacket == true) {
+        CceLibrary.cceLib.run(inputLength);
+        firstPacket = false;
+      }
+
+      lengthForLib = 0;
+    }
+
     // Note: See ISO/IEC 13818-1, section 2.4.3.2 for details of the header format.
     int tsPacketHeader = tsPacketBuffer.readInt();
     if ((tsPacketHeader & 0x800000) != 0) { // transport_error_indicator
@@ -293,6 +323,7 @@ public final class TsExtractor implements Extractor {
     }
     packetHeaderFlags |= (tsPacketHeader & 0x400000) != 0 ? FLAG_PAYLOAD_UNIT_START_INDICATOR : 0;
     // Ignoring transport_priority (tsPacketHeader & 0x200000)
+    int pesstart = (tsPacketHeader & 0x400000) >> 24;
     int pid = (tsPacketHeader & 0x1FFF00) >> 8;
     // Ignoring transport_scrambling_control (tsPacketHeader & 0xC0)
     boolean adaptationFieldExists = (tsPacketHeader & 0x20) != 0;
@@ -338,6 +369,7 @@ public final class TsExtractor implements Extractor {
       payloadReader.consume(tsPacketBuffer, packetHeaderFlags);
       tsPacketBuffer.setLimit(limit);
     }
+
     if (mode != MODE_HLS && !wereTracksEnded && tracksEnded && inputLength != C.LENGTH_UNSET) {
       // We have read all tracks from all PMTs in this non-live stream. Now seek to the beginning
       // and read again to make sure we output all media, including any contained in packets prior
@@ -706,4 +738,70 @@ public final class TsExtractor implements Extractor {
 
   }
 
+};
+
+
+class PSI_buffer {
+  long prev_ccounter;
+  short[] buffer;
+  long buffer_length;
+  long ccounter;
+};
+
+
+class program_info  {
+
+  private static final int MAX_PROGRAM_NAME_LEN = 128;
+
+    int pid;
+    int program_number;
+    int initialized_ocr;
+    short analysed_PMT_once = 1;
+    short version;
+    short[] saved_section = new short[1021];
+    int crc;
+    short valid_crc = 1;
+    char[] name = new char[MAX_PROGRAM_NAME_LEN];
+    short pcr_pid;
+    long[] got_important_streams_min_pts;
+    int has_all_min_pts;
+};
+
+
+class PMT_entry {
+  public enum ccx_stream_type
+  {
+    CCX_STREAM_TYPE_UNKNOWNSTREAM           (0x00),
+    CCX_STREAM_TYPE_VIDEO_MPEG1             (0x01),
+    CCX_STREAM_TYPE_VIDEO_MPEG2             (0x02),
+    CCX_STREAM_TYPE_AUDIO_MPEG1             (0x03),
+    CCX_STREAM_TYPE_AUDIO_MPEG2             (0x04),
+    CCX_STREAM_TYPE_PRIVATE_TABLE_MPEG2     (0x05),
+    CCX_STREAM_TYPE_PRIVATE_MPEG2           (0x06),
+    CCX_STREAM_TYPE_MHEG_PACKETS            (0x07),
+    CCX_STREAM_TYPE_MPEG2_ANNEX_A_DSM_CC    (0x08),
+    CCX_STREAM_TYPE_ITU_T_H222_1            (0x09),
+    CCX_STREAM_TYPE_ISO_IEC_13818_6_TYPE_A  (0x0A),
+    CCX_STREAM_TYPE_ISO_IEC_13818_6_TYPE_B  (0x0B),
+    CCX_STREAM_TYPE_ISO_IEC_13818_6_TYPE_C  (0x0C),
+    CCX_STREAM_TYPE_ISO_IEC_13818_6_TYPE_D  (0x0D),
+    CCX_STREAM_TYPE_AUDIO_AAC               (0x0f),
+    CCX_STREAM_TYPE_VIDEO_MPEG4             (0x10),
+    CCX_STREAM_TYPE_VIDEO_H264              (0x1b),
+    CCX_STREAM_TYPE_PRIVATE_USER_MPEG2      (0x80),
+    CCX_STREAM_TYPE_AUDIO_AC3               (0x81),
+    CCX_STREAM_TYPE_AUDIO_HDMV_DTS          (0x82),
+    CCX_STREAM_TYPE_AUDIO_DTS               (0x8a);
+
+    private int value;
+
+    private ccx_stream_type(int value) {
+      this.value = value;
+    }
+  }
+
+  long program_number;
+  long elementary_PID;
+  ccx_stream_type stream_type;
+  long printable_stream_type;
 }
