@@ -40,6 +40,7 @@
     *   Add `Player.EventListener.onMediaItemTransition` with reasons.
     *   Add `Player.setAudioSessionId` to set the session ID attached to the
         `AudioTrack`.
+    *   Add `Player.getTrackSelector`.
     *   Deprecate and rename `getPlaybackError` to `getPlayerError` for
         consistency.
     *   Deprecate and rename `onLoadingChanged` to `onIsLoadingChanged` for
@@ -81,6 +82,9 @@
     *   Add media item based playlist API to `Player`.
     *   Add `getCurrentMediaItem` to `Player`.
     *   Remove deprecated members in `DefaultTrackSelector`.
+    *   Add `DefaultTrackSelector` constraints for minimum video resolution,
+        bitrate and frame rate
+        ([#4511](https://github.com/google/ExoPlayer/issues/4511)).
     *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
         that the device volume can be controlled by player.
     *   Parse track titles from Matroska files
@@ -104,6 +108,9 @@
         `AnalyticsListener.onPlayerError`.
     *   Remove onMediaPeriodCreated/Released/ReadingStarted from
         `MediaSourceEventListener` and `AnalyticsListener`.
+    *   Dispatch previous, next, fast forward and rewind actions through
+        `ControlDispatcher`
+        ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
     *   Add Guava dependency.
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Audio:
@@ -210,55 +217,52 @@
         failing playback
         ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
 *   UI
-    *   Add `StyledPlayerView` and `StyledPlayerControlView`.
-    *   Remove `SimpleExoPlayerView` and `PlaybackControlView`.
-    *   Remove deperecated `exo_simple_player_view.xml` and
-        `exo_playback_control_view.xml` from resource.
+    *   Add `StyledPlayerView` and `StyledPlayerControlView`, which provide a
+        more polished user experience than `PlayerView` and `PlayerControlView`
+        at the cost of decreased customizability.
+    *   Remove the previously deprecated `SimpleExoPlayerView` and
+        `PlaybackControlView` classes, along with the corresponding
+        `exo_simple_player_view.xml` and `exo_playback_control_view.xml` layout
+        resources. Use the equivalent `PlayerView`, `PlayerControlView`,
+        `exo_player_view.xml` and `exo_player_control_view.xml` instead.
     *   Add setter methods to `PlayerView` and `PlayerControlView` to set
         whether the rewind, fast forward, previous and next buttons are shown
         ([#7410](https://github.com/google/ExoPlayer/issues/7410)).
-    *   Move logic of prev, next, fast forward and rewind to ControlDispatcher
-        ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
-    *   Update `TrackSelectionDialogBuilder` to use AndroidX Compat Dialog
+    *   Update `TrackSelectionDialogBuilder` to use the AndroidX app compat
+        `AlertDialog` rather than the platform version, if available
         ([#7357](https://github.com/google/ExoPlayer/issues/7357)).
-*   Track selection:
-    *   Add `Player.getTrackSelector`.
-    *   Remove deprecated members in `DefaultTrackSelector`.
-    *   Add `DefaultTrackSelector` constraints for minimum video resolution,
-        bitrate and frame rate
-        ([#4511](https://github.com/google/ExoPlayer/issues/4511)).
 *   Downloads and caching:
-    *   Add support for offline DRM playbacks.
-    *   Add builder in `DownloadRequest`.
+    *   Add `DownloadRequest.Builder`.
+    *   Add `DownloadRequest.keySetId` to make it easier to store an offline
+        license keyset identifier alongside the other information that's
+        persisted in `DownloadIndex`.
     *   Support passing an `Executor` to `DefaultDownloaderFactory` on which
         data downloads are performed.
     *   Parallelize and merge downloads in `SegmentDownloader` to improve
-        overall download speed
+        download speeds
         ([#5978](https://github.com/google/ExoPlayer/issues/5978)).
-    *   Support multiple non-overlapping write locks for the same key in
-        `SimpleCache`.
     *   Replace `CacheDataSinkFactory` and `CacheDataSourceFactory` with
         `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
-    *   Remove `DownloadConstructorHelper` and use `CacheDataSource.Factory`
-        directly instead.
-    *   Update `CachedContentIndex` to use `SecureRandom` for generating the
-        initialization vector used to encrypt the cache contents.
+    *   Remove `DownloadConstructorHelper` and instead use
+        `CacheDataSource.Factory` directly.
     *   Add `Requirements.DEVICE_STORAGE_NOT_LOW`, which can be specified as a
         requirement to a `DownloadManager` for it to proceed with downloading.
     *   For failed downloads, propagate the `Exception` that caused the failure
         to `DownloadManager.Listener.onDownloadChanged`.
+    *   Support multiple non-overlapping write locks for the same key in
+        `SimpleCache`.
 *   DRM:
-    *   Remove `DrmSessionManager` references from all renderers.
-        `DrmSessionManager` must be injected into the MediaSources using the
-        MediaSources factories.
-    *   Add option to inject a custom `DefaultDrmSessionManager` into
+    *   Remove previously deprecated APIs to inject `DrmSessionManager` into
+        `Renderer` instances. `DrmSessionManager` must now be injected into
+        `MediaSource` instances via the `MediaSource` factories.
+    *   Add the ability to inject a custom `DefaultDrmSessionManager` into
         `OfflineLicenseHelper`
         ([#7078](https://github.com/google/ExoPlayer/issues/7078)).
-    *   Remove generics from DRM components.
     *   Keep DRM sessions alive for a short time before fully releasing them
         ([#7011](https://github.com/google/ExoPlayer/issues/7011),
         [#6725](https://github.com/google/ExoPlayer/issues/6725),
         [#7066](https://github.com/google/ExoPlayer/issues/7066)).
+    *   Remove generic types from DRM components.
 *   Test utils: Add `TestExoPlayer`, a utility class with APIs to create
     `SimpleExoPlayer` instances with fake components for testing.
 *   Media2 extension: This is a new extension that makes it easy to use
@@ -289,6 +293,7 @@
             to clear audio and video tracks.
         *   Add `clip_start_position_ms` and `clip_end_position_ms` to allow
             clipped samples.
+    *   Use `StyledPlayerControlView` rather than `PlayerView`.
     *   Remove support for media tunneling, random ABR and playback of
         spherical video. Developers wishing to experiment with these features
         can enable them by modifying the demo app source code.
