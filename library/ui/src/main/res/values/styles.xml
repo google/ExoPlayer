@@ -56,42 +56,46 @@
     <item name="android:contentDescription">@string/exo_controls_vr_description</item>
   </style>
 
-  <style name="ExoStyledControls" />
+  <style name="ExoStyledControls"/>
 
   <style name="ExoStyledControls.Button">
     <item name="android:background">?android:attr/selectableItemBackground</item>
     <item name="android:scaleType">fitXY</item>
+    <item name="android:layout_marginLeft">@dimen/exo_icon_margin</item>
+    <item name="android:layout_marginRight">@dimen/exo_icon_margin</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Center">
     <item name="android:layout_width">@dimen/exo_icon_size</item>
     <item name="android:layout_height">@dimen/exo_icon_size</item>
   </style>
 
-  <style name="ExoStyledControls.Button.Previous">
+  <style name="ExoStyledControls.Button.Center.Previous">
     <item name="android:src">@drawable/exo_styled_controls_previous</item>
     <item name="android:contentDescription">@string/exo_controls_previous_description</item>
     <item name="android:padding">@dimen/exo_icon_padding</item>
   </style>
 
-  <style name="ExoStyledControls.Button.Next">
+  <style name="ExoStyledControls.Button.Center.Next">
     <item name="android:src">@drawable/exo_styled_controls_next</item>
     <item name="android:contentDescription">@string/exo_controls_next_description</item>
     <item name="android:padding">@dimen/exo_icon_padding</item>
   </style>
 
-  <style name="ExoStyledControls.Button.PlayPause">
+  <style name="ExoStyledControls.Button.Center.PlayPause">
     <item name="android:src">@drawable/exo_styled_controls_play</item>
     <item name="android:contentDescription">@string/exo_controls_play_description</item>
-    <item name="android:padding">@dimen/exo_pause_icon_padding</item>
+    <item name="android:padding">@dimen/exo_icon_padding</item>
   </style>
 
-  <style name="ExoStyledControls.Button.FfwdWithAmount">
+  <style name="ExoStyledControls.Button.Center.FfwdWithAmount">
     <item name="android:background">@drawable/exo_ripple_ffwd</item>
     <item name="android:contentDescription">@string/exo_controls_fastforward_by_amount_description</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
   </style>
-
-  <style name="ExoStyledControls.Button.RewWithAmount">
+  <style name="ExoStyledControls.Button.Center.RewWithAmount">
     <item name="android:background">@drawable/exo_ripple_rew</item>
     <item name="android:contentDescription">@string/exo_controls_rewind_by_amount_description</item>
     <item name="android:gravity">center|bottom</item>
@@ -133,7 +137,12 @@
 
   <style name="ExoStyledControls.Button.Bottom">
     <item name="android:gravity">center_horizontal</item>
-    <item name="android:padding">@dimen/exo_icon_padding</item>
+    <item name="android:layout_width">@dimen/exo_small_button_width</item>
+    <item name="android:layout_height">@dimen/exo_small_button_height</item>
+    <item name="android:paddingLeft">@dimen/exo_small_icon_padding_horizontal</item>
+    <item name="android:paddingRight">@dimen/exo_small_icon_padding_horizontal</item>
+    <item name="android:paddingTop">@dimen/exo_small_icon_padding_vertical</item>
+    <item name="android:paddingBottom">@dimen/exo_small_icon_padding_vertical</item>
   </style>
 
   <style name="ExoStyledControls.Button.Bottom.Shuffle">

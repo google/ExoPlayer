@@ -16,25 +16,29 @@
 -->
 <resources>
     <dimen name="exo_setting_width">150dp</dimen>
-    <dimen name="exo_settings_height">48dp</dimen>
+    <dimen name="exo_settings_height">52dp</dimen>
     <dimen name="exo_settings_icon_size">24dp</dimen>
     <dimen name="exo_settings_text_height">24dp</dimen>
     <dimen name="exo_settings_main_text_size">14sp</dimen>
     <dimen name="exo_settings_sub_text_size">12sp</dimen>
     <dimen name="exo_settings_offset">8dp</dimen>
 
-    <dimen name="exo_icon_size">48dp</dimen>
-    <dimen name="exo_icon_margin">10dp</dimen>
-    <dimen name="exo_pause_icon_padding">6dp</dimen>
-    <dimen name="exo_icon_padding">12dp</dimen>
-    <dimen name="exo_icon_text_size">8dp</dimen>
-    <dimen name="exo_icon_padding_bottom">18.5dp</dimen>
+    <dimen name="exo_icon_size">52dp</dimen>
+    <dimen name="exo_icon_margin">5dp</dimen>
+    <dimen name="exo_icon_padding">2dp</dimen>
+    <dimen name="exo_icon_text_size">9dp</dimen>
+    <dimen name="exo_icon_padding_bottom">18dp</dimen>
+
+    <dimen name="exo_small_button_width">48dp</dimen>
+    <dimen name="exo_small_button_height">32dp</dimen>
+    <dimen name="exo_small_icon_padding_horizontal">12dp</dimen>
+    <dimen name="exo_small_icon_padding_vertical">4dp</dimen>
 
     <dimen name="exo_custom_progress_max_size">2dp</dimen>
-    <dimen name="exo_custom_progress_thumb_size">16dp</dimen>
-    <dimen name="exo_custom_progress_margin_bottom">41dp</dimen>
+    <dimen name="exo_custom_progress_thumb_size">24dp</dimen>
+    <dimen name="exo_custom_progress_margin_bottom">40dp</dimen>
 
-    <dimen name="exo_bottom_bar_height">48dp</dimen>
+    <dimen name="exo_bottom_bar_height">32dp</dimen>
 
     <dimen name="exo_time_view_padding">10dp</dimen>
     <dimen name="exo_time_view_width">170sp</dimen>
