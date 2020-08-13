@@ -20,6 +20,7 @@ import static java.lang.Math.max;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
+import android.media.MediaFormat;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -32,9 +33,11 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 /**
@@ -42,6 +45,7 @@ import java.util.ArrayList;
  * video buffer timestamp assertions, and modifies the default value for {@link
  * #setAllowedVideoJoiningTimeMs(long)} to be {@code 0}.
  */
+// TODO: Move this class to `testutils` and add basic tests.
 /* package */ final class DebugRenderersFactory extends DefaultRenderersFactory {
 
   public DebugRenderersFactory(Context context) {
@@ -78,13 +82,19 @@ import java.util.ArrayList;
     private static final String TAG = "DebugMediaCodecVideoRenderer";
     private static final int ARRAY_SIZE = 1000;
 
-    private final long[] timestampsList = new long[ARRAY_SIZE];
+    private final long[] timestampsList;
+    private final ArrayDeque<Long> inputFormatChangeTimesUs;
+    private final boolean enableMediaFormatChangeTimeCheck;
 
     private int startIndex;
     private int queueSize;
     private int bufferCount;
     private int minimumInsertIndex;
     private boolean skipToPositionBeforeRenderingFirstFrame;
+    private boolean inputFormatChanged;
+    private boolean outputMediaFormatChanged;
+
+    @Nullable private MediaFormat currentMediaFormat;
 
     public DebugMediaCodecVideoRenderer(
         Context context,
@@ -100,6 +110,12 @@ import java.util.ArrayList;
           eventHandler,
           eventListener,
           maxDroppedFrameCountToNotify);
+      timestampsList = new long[ARRAY_SIZE];
+      inputFormatChangeTimesUs = new ArrayDeque<>();
+
+      // As per [Internal ref: b/149818050, b/149751672], MediaFormat changes can occur early for
+      // SDK 29 and 30. Should be fixed for SDK 31 onwards.
+      enableMediaFormatChangeTimeCheck = Util.SDK_INT < 29 || Util.SDK_INT >= 31;
     }
 
     @Override
@@ -127,6 +143,13 @@ import java.util.ArrayList;
     protected void resetCodecStateForFlush() {
       super.resetCodecStateForFlush();
       clearTimestamps();
+
+      if (inputFormatChangeTimesUs != null) {
+        inputFormatChangeTimesUs.clear();
+      }
+      inputFormatChanged = false;
+      outputMediaFormatChanged = false;
+      currentMediaFormat = null;
     }
 
     @Override
@@ -141,6 +164,7 @@ import java.util.ArrayList;
       // Ensure timestamps of buffers queued after this format change are never inserted into the
       // queue of expected output timestamps before those of buffers that have already been queued.
       minimumInsertIndex = startIndex + queueSize;
+      inputFormatChanged = true;
     }
 
     @Override
@@ -148,6 +172,19 @@ import java.util.ArrayList;
       super.onQueueInputBuffer(buffer);
       insertTimestamp(buffer.timeUs);
       maybeShiftTimestampsList();
+      if (inputFormatChanged) {
+        inputFormatChangeTimesUs.add(buffer.timeUs);
+        inputFormatChanged = false;
+      }
+    }
+
+    @Override
+    protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat) {
+      super.onOutputFormatChanged(format, mediaFormat);
+      if (mediaFormat != null && !mediaFormat.equals(currentMediaFormat)) {
+        outputMediaFormatChanged = true;
+        currentMediaFormat = mediaFormat;
+      }
     }
 
     @Override
@@ -207,6 +244,20 @@ import java.util.ArrayList;
         throw new IllegalStateException("Expected to dequeue video buffer with presentation "
             + "timestamp: " + expectedTimestampUs + ". Instead got: " + presentationTimeUs
             + " (Processed buffers since last flush: " + bufferCount + ").");
+      }
+
+      if (outputMediaFormatChanged) {
+        long inputFormatChangeTimeUs = inputFormatChangeTimesUs.remove();
+        outputMediaFormatChanged = false;
+
+        if (enableMediaFormatChangeTimeCheck && presentationTimeUs != inputFormatChangeTimeUs) {
+          throw new IllegalStateException(
+              "Expected output MediaFormat change timestamp ("
+                  + presentationTimeUs
+                  + " us) to match input Format change timestamp ("
+                  + inputFormatChangeTimeUs
+                  + " us).");
+        }
       }
     }
 
