@@ -259,14 +259,10 @@
         ([#7011](https://github.com/google/ExoPlayer/issues/7011),
         [#6725](https://github.com/google/ExoPlayer/issues/6725),
         [#7066](https://github.com/google/ExoPlayer/issues/7066)).
-*   Testing
-    *   Add `TestExoPlayer`, a utility class with APIs to create
-        `SimpleExoPlayer` instances with fake components for testing.
-    *   Upgrade Truth dependency from 0.44 to 1.0.
-    *   Upgrade to JUnit 4.13-rc-2.
-*   Media2 extension: Publish media2 extension for integrating ExoPlayer with
-    `androidx.media2.common.SessionPlayer` and
-    `androidx.media2.session.MediaSession`.
+*   Test utils: Add `TestExoPlayer`, a utility class with APIs to create
+    `SimpleExoPlayer` instances with fake components for testing.
+*   Media2 extension: This is a new extension that makes it easy to use
+    ExoPlayer together with AndroidX Media2.
 *   Cast extension: Implement playlist API and deprecate the old queue
     manipulation API.
 *   IMA extension:
@@ -283,15 +279,19 @@
         companion ad slots without accessing the `AdDisplayContainer`.
     *   Add missing notification of `VideoAdPlayerCallback.onLoaded`.
 *   Demo app:
-    *   Add support for attaching DRM sessions to clear content in the demo app.
-    *   Support clip start/end points in `exolist.json` and demostrate manual ad
-        insertion.
-    *   Retain previous position in list of samples.
-    *   Replace the `extensions` variant with `decoderExtensions` and make the
+    *   Replace the `extensions` variant with `decoderExtensions` and update the
         demo app use the Cronet and IMA extensions by default.
-    *   Removed support for media tunneling
-    *   Removed support for random ABR (random track selection)
-    *   Removed support for playing back in spherical stereo mode
+    *   Expand the `exolist.json` schema, as well the structure of intents that
+        can be used to launch `PlayerActivity`. See the
+        [Demo application page](https://exoplayer.dev/demo-application.html#playing-your-own-content)
+        for the latest versions. Changes include:
+        *   Add `drm_session_for_clear_content` to allow attaching DRM sessions
+            to clear audio and video tracks.
+        *   Add `clip_start_position_ms` and `clip_end_position_ms` to allow
+            clipped samples.
+    *   Remove support for media tunneling, random ABR and playback of
+        spherical video. Developers wishing to experiment with these features
+        can enable them by modifying the demo app source code.
     *   Fix playback of ClearKey protected content on API level 26 and earlier
         ([#7735](https://github.com/google/ExoPlayer/issues/7735)).
 
