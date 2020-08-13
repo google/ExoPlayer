@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
@@ -53,7 +54,6 @@ import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.media2.test.R;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -176,6 +176,10 @@ public class SessionPlayerConnectorTest {
   @LargeTest
   @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
   public void play_withCustomControlDispatcher_isSkipped() throws Exception {
+    if (Looper.myLooper() == null) {
+      Looper.prepare();
+    }
+
     ControlDispatcher controlDispatcher =
         new DefaultControlDispatcher() {
           @Override
@@ -183,17 +187,22 @@ public class SessionPlayerConnectorTest {
             return false;
           }
         };
-    SimpleExoPlayer simpleExoPlayer = playerTestRule.getSimpleExoPlayer();
-    ConcatenatingMediaSource concatenatingMediaSource = new ConcatenatingMediaSource();
-    TimelinePlaylistManager timelinePlaylistManager =
-        new TimelinePlaylistManager(context, concatenatingMediaSource);
-    ConcatenatingMediaSourcePlaybackPreparer playbackPreparer =
-        new ConcatenatingMediaSourcePlaybackPreparer(simpleExoPlayer, concatenatingMediaSource);
-
-    try (SessionPlayerConnector player =
-        new SessionPlayerConnector(
-            simpleExoPlayer, timelinePlaylistManager, playbackPreparer, controlDispatcher)) {
-      assertPlayerResult(player.play(), RESULT_INFO_SKIPPED);
+    DefaultMediaItemConverter converter = new DefaultMediaItemConverter(context);
+    SimpleExoPlayer simpleExoPlayer = null;
+    try {
+      simpleExoPlayer =
+          new SimpleExoPlayer.Builder(context)
+              .setLooper(Looper.myLooper())
+              .setMediaSourceFactory(converter)
+              .build();
+      try (SessionPlayerConnector player =
+          new SessionPlayerConnector(simpleExoPlayer, converter, controlDispatcher)) {
+        assertPlayerResult(player.play(), RESULT_INFO_SKIPPED);
+      }
+    } finally {
+      if (simpleExoPlayer != null) {
+        simpleExoPlayer.release();
+      }
     }
   }
 

@@ -31,7 +31,6 @@ import androidx.media2.common.SessionPlayer;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -101,30 +100,23 @@ public final class SessionPlayerConnector extends SessionPlayer {
    * Creates an instance using {@link DefaultControlDispatcher} to dispatch player commands.
    *
    * @param player The player to wrap.
-   * @param playlistManager The {@link PlaylistManager}.
-   * @param playbackPreparer The {@link PlaybackPreparer}.
+   * @param mediaItemConverter The {@link MediaItemConverter}.
    */
-  public SessionPlayerConnector(
-      Player player, PlaylistManager playlistManager, PlaybackPreparer playbackPreparer) {
-    this(player, playlistManager, playbackPreparer, new DefaultControlDispatcher());
+  public SessionPlayerConnector(Player player, MediaItemConverter mediaItemConverter) {
+    this(player, mediaItemConverter, new DefaultControlDispatcher());
   }
 
   /**
    * Creates an instance using the provided {@link ControlDispatcher} to dispatch player commands.
    *
    * @param player The player to wrap.
-   * @param playlistManager The {@link PlaylistManager}.
-   * @param playbackPreparer The {@link PlaybackPreparer}.
+   * @param mediaItemConverter The {@link MediaItemConverter}.
    * @param controlDispatcher The {@link ControlDispatcher}.
    */
   public SessionPlayerConnector(
-      Player player,
-      PlaylistManager playlistManager,
-      PlaybackPreparer playbackPreparer,
-      ControlDispatcher controlDispatcher) {
+      Player player, MediaItemConverter mediaItemConverter, ControlDispatcher controlDispatcher) {
     Assertions.checkNotNull(player);
-    Assertions.checkNotNull(playlistManager);
-    Assertions.checkNotNull(playbackPreparer);
+    Assertions.checkNotNull(mediaItemConverter);
     Assertions.checkNotNull(controlDispatcher);
 
     state = PLAYER_STATE_IDLE;
@@ -132,8 +124,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
     taskHandlerExecutor = taskHandler::postOrRun;
     ExoPlayerWrapperListener playerListener = new ExoPlayerWrapperListener();
     PlayerWrapper playerWrapper =
-        new PlayerWrapper(
-            playerListener, player, playlistManager, playbackPreparer, controlDispatcher);
+        new PlayerWrapper(playerListener, player, mediaItemConverter, controlDispatcher);
     this.player = playerWrapper;
     playerCommandQueue = new PlayerCommandQueue(this.player, taskHandler);
 
@@ -393,7 +384,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
   @Override
   @Nullable
   public List<MediaItem> getPlaylist() {
-    return runPlayerCallableBlockingWithNullOnException(/* callable= */ player::getPlaylist);
+    return runPlayerCallableBlockingWithNullOnException(/* callable= */ player::getCachedPlaylist);
   }
 
   @Override
@@ -566,7 +557,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
   }
 
   private void handlePlaylistChangedOnHandler() {
-    List<MediaItem> currentPlaylist = player.getPlaylist();
+    List<MediaItem> currentPlaylist = player.getCachedPlaylist();
     boolean notifyCurrentPlaylist = !ObjectsCompat.equals(this.currentPlaylist, currentPlaylist);
     this.currentPlaylist = currentPlaylist;
     MediaMetadata playlistMetadata = player.getPlaylistMetadata();

@@ -54,9 +54,9 @@ import com.google.android.exoplayer2.util.Util;
    * as the tag of the source.
    */
   public static MediaSource createUnclippedMediaSource(
-      Context context, DataSource.Factory dataSourceFactory, MediaItem mediaItem) {
-    if (mediaItem instanceof UriMediaItem) {
-      Uri uri = ((UriMediaItem) mediaItem).getUri();
+      Context context, DataSource.Factory dataSourceFactory, MediaItem androidXMediaItem) {
+    if (androidXMediaItem instanceof UriMediaItem) {
+      Uri uri = ((UriMediaItem) androidXMediaItem).getUri();
       if (ContentResolver.SCHEME_ANDROID_RESOURCE.equals(uri.getScheme())) {
         String path = Assertions.checkNotNull(uri.getPath());
         int resourceIdentifier;
@@ -74,16 +74,16 @@ import com.google.android.exoplayer2.util.Util;
         Assertions.checkState(resourceIdentifier != 0);
         uri = RawResourceDataSource.buildRawResourceUri(resourceIdentifier);
       }
-      return createMediaSource(uri, dataSourceFactory, /* tag= */ mediaItem);
-    } else if (mediaItem instanceof CallbackMediaItem) {
-      CallbackMediaItem callbackMediaItem = (CallbackMediaItem) mediaItem;
+      return createMediaSource(uri, dataSourceFactory, /* tag= */ androidXMediaItem);
+    } else if (androidXMediaItem instanceof CallbackMediaItem) {
+      CallbackMediaItem callbackMediaItem = (CallbackMediaItem) androidXMediaItem;
       dataSourceFactory =
           DataSourceCallbackDataSource.getFactory(callbackMediaItem.getDataSourceCallback());
       return new ProgressiveMediaSource.Factory(dataSourceFactory, sExtractorsFactory)
           .createMediaSource(
               new com.google.android.exoplayer2.MediaItem.Builder()
                   .setUri(Uri.EMPTY)
-                  .setTag(mediaItem)
+                  .setTag(androidXMediaItem)
                   .build());
     } else {
       throw new IllegalStateException();

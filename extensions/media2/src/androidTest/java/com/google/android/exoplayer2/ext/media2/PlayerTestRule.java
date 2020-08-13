@@ -22,7 +22,6 @@ import android.os.Looper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.rules.ExternalResource;
@@ -52,14 +51,13 @@ public class PlayerTestRule extends ExternalResource {
               AudioManager audioManager =
                   (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
-              exoPlayer = new SimpleExoPlayer.Builder(context).setLooper(Looper.myLooper()).build();
-              ConcatenatingMediaSource concatenatingMediaSource = new ConcatenatingMediaSource();
-              TimelinePlaylistManager manager =
-                  new TimelinePlaylistManager(context, concatenatingMediaSource);
-              ConcatenatingMediaSourcePlaybackPreparer playbackPreparer =
-                  new ConcatenatingMediaSourcePlaybackPreparer(exoPlayer, concatenatingMediaSource);
-              sessionPlayerConnector =
-                  new SessionPlayerConnector(exoPlayer, manager, playbackPreparer);
+              DefaultMediaItemConverter converter = new DefaultMediaItemConverter(context);
+              exoPlayer =
+                  new SimpleExoPlayer.Builder(context)
+                      .setLooper(Looper.myLooper())
+                      .setMediaSourceFactory(converter)
+                      .build();
+              sessionPlayerConnector = new SessionPlayerConnector(exoPlayer, converter);
             });
   }
 
