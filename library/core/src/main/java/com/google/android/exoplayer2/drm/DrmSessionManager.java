@@ -105,7 +105,7 @@ public interface DrmSessionManager {
   /**
    * Returns the {@link ExoMediaCrypto} type associated to sessions acquired for the given {@link
    * Format}. Returns the {@link UnsupportedMediaCrypto} type if this DRM session manager does not
-   * support "any of the DRM schemes defined in the given {@link Format}. If the {@link Format}
+   * support any of the DRM schemes defined in the given {@link Format}. If the {@link Format}
    * describes unencrypted content, returns an {@link ExoMediaCrypto} type if this DRM session
    * manager would associate a {@link #acquirePlaceholderSession placeholder session} to the given
    * {@link Format}, or null otherwise.
