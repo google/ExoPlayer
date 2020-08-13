@@ -1098,7 +1098,7 @@ public class StyledPlayerControlView extends FrameLayout {
       return;
     }
     if (playPauseButton != null) {
-      if (player != null && player.isPlaying()) {
+      if (player != null && player.getPlayWhenReady()) {
         ((ImageView) playPauseButton)
             .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_pause));
         playPauseButton.setContentDescription(
@@ -1811,7 +1811,7 @@ public class StyledPlayerControlView extends FrameLayout {
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
           seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
         }
-        controlDispatcher.dispatchSetPlayWhenReady(player, !player.isPlaying());
+        controlDispatcher.dispatchSetPlayWhenReady(player, !player.getPlayWhenReady());
       } else if (repeatToggleButton == view) {
         controlDispatcher.dispatchSetRepeatMode(
             player, RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));
