@@ -38,17 +38,4 @@
 
     <dimen name="exo_time_view_padding">10dp</dimen>
     <dimen name="exo_time_view_width">170sp</dimen>
-
-    <!-- Rounded corner radius for video subtitles. -->
-    <dimen name="exo_subtitle_corner_radius">2dp</dimen>
-
-    <!-- Shadow radius for video subtitles. -->
-    <dimen name="exo_subtitle_shadow_radius">2dp</dimen>
-
-    <!-- Shadow offset for video subtitles. -->
-    <dimen name="exo_subtitle_shadow_offset">2dp</dimen>
-
-    <!-- Outline width for video subtitles. -->
-    <dimen name="exo_subtitle_outline_width">2dp</dimen>
-
 </resources>

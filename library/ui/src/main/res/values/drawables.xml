@@ -39,7 +39,6 @@
 
   <drawable name="exo_styled_controls_play">@drawable/exo_ic_play_circle_filled</drawable>
   <drawable name="exo_styled_controls_pause">@drawable/exo_ic_pause_circle_filled</drawable>
-  <drawable name="exo_styled_controls_replay">@drawable/exo_ic_replay_circle_filled</drawable>
   <drawable name="exo_styled_controls_next">@drawable/exo_ic_skip_next</drawable>
   <drawable name="exo_styled_controls_previous">@drawable/exo_ic_skip_previous</drawable>
   <drawable name="exo_styled_controls_fastforward">@drawable/exo_ic_forward</drawable>

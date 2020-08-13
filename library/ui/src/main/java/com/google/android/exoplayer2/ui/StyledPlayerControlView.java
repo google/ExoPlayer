@@ -1667,13 +1667,6 @@ public class StyledPlayerControlView extends FrameLayout {
     return true;
   }
 
-  private boolean shouldShowPauseButton() {
-    return player != null
-        && player.getPlaybackState() != Player.STATE_ENDED
-        && player.getPlaybackState() != Player.STATE_IDLE
-        && player.getPlayWhenReady();
-  }
-
   @SuppressLint("InlinedApi")
   private static boolean isHandledMediaKey(int keyCode) {
     return keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
