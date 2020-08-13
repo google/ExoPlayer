@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.media.PlaybackParams;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -273,6 +274,7 @@ public final class DefaultAudioSink implements AudioSink {
   private final ConditionVariable releasingConditionVariable;
   private final AudioTrackPositionTracker audioTrackPositionTracker;
   private final ArrayDeque<MediaPositionParameters> mediaPositionParametersCheckpoints;
+  private final boolean enableAudioTrackPlaybackParams;
   private final boolean enableOffload;
   @MonotonicNonNull private StreamEventCallbackV29 offloadStreamEventCallbackV29;
 
@@ -287,6 +289,7 @@ public final class DefaultAudioSink implements AudioSink {
   private AudioAttributes audioAttributes;
   @Nullable private MediaPositionParameters afterDrainParameters;
   private MediaPositionParameters mediaPositionParameters;
+  private float audioTrackPlaybackSpeed;
 
   @Nullable private ByteBuffer avSyncHeader;
   private int bytesUntilNextAvSync;
@@ -359,6 +362,7 @@ public final class DefaultAudioSink implements AudioSink {
         audioCapabilities,
         new DefaultAudioProcessorChain(audioProcessors),
         enableFloatOutput,
+        /* enableAudioTrackPlaybackParams= */ false,
         /* enableOffload= */ false);
   }
 
@@ -375,6 +379,8 @@ public final class DefaultAudioSink implements AudioSink {
    *     (24-bit or 32-bit) integer PCM. Float output is supported from API level 21. Audio
    *     processing (for example, speed adjustment) will not be available when float output is in
    *     use.
+   * @param enableAudioTrackPlaybackParams Whether to enable setting playback speed using {@link
+   *     android.media.AudioTrack#setPlaybackParams(PlaybackParams)}, if supported.
    * @param enableOffload Whether to enable audio offload. If an audio format can be both played
    *     with offload and encoded audio passthrough, it will be played in offload. Audio offload is
    *     supported from API level 29. Most Android devices can only support one offload {@link
@@ -386,10 +392,12 @@ public final class DefaultAudioSink implements AudioSink {
       @Nullable AudioCapabilities audioCapabilities,
       AudioProcessorChain audioProcessorChain,
       boolean enableFloatOutput,
+      boolean enableAudioTrackPlaybackParams,
       boolean enableOffload) {
     this.audioCapabilities = audioCapabilities;
     this.audioProcessorChain = Assertions.checkNotNull(audioProcessorChain);
     this.enableFloatOutput = Util.SDK_INT >= 21 && enableFloatOutput;
+    this.enableAudioTrackPlaybackParams = Util.SDK_INT >= 23 && enableAudioTrackPlaybackParams;
     this.enableOffload = Util.SDK_INT >= 29 && enableOffload;
     releasingConditionVariable = new ConditionVariable(true);
     audioTrackPositionTracker = new AudioTrackPositionTracker(new PositionTrackerListener());
@@ -414,6 +422,7 @@ public final class DefaultAudioSink implements AudioSink {
             DEFAULT_SKIP_SILENCE,
             /* mediaTimeUs= */ 0,
             /* audioTrackPositionUs= */ 0);
+    audioTrackPlaybackSpeed = 1f;
     drainingAudioProcessorIndex = C.INDEX_UNSET;
     activeAudioProcessors = new AudioProcessor[0];
     outputBuffers = new ByteBuffer[0];
@@ -641,7 +650,10 @@ public final class DefaultAudioSink implements AudioSink {
     startMediaTimeUs = max(0, presentationTimeUs);
     startMediaTimeUsNeedsSync = false;
 
-    applyPlaybackSpeedAndSkipSilence(presentationTimeUs);
+    if (enableAudioTrackPlaybackParams && Util.SDK_INT >= 23) {
+      setAudioTrackPlaybackSpeedV23(audioTrackPlaybackSpeed);
+    }
+    applyAudioProcessorPlaybackSpeedAndSkipSilence(presentationTimeUs);
 
     audioTrackPositionTracker.setAudioTrack(
         audioTrack,
@@ -701,7 +713,7 @@ public final class DefaultAudioSink implements AudioSink {
         }
       }
       // Re-apply playback parameters.
-      applyPlaybackSpeedAndSkipSilence(presentationTimeUs);
+      applyAudioProcessorPlaybackSpeedAndSkipSilence(presentationTimeUs);
     }
 
     if (!isInitialized()) {
@@ -740,7 +752,7 @@ public final class DefaultAudioSink implements AudioSink {
           // Don't process any more input until draining completes.
           return false;
         }
-        applyPlaybackSpeedAndSkipSilence(presentationTimeUs);
+        applyAudioProcessorPlaybackSpeedAndSkipSilence(presentationTimeUs);
         afterDrainParameters = null;
       }
 
@@ -771,7 +783,7 @@ public final class DefaultAudioSink implements AudioSink {
         startMediaTimeUs += adjustmentUs;
         startMediaTimeUsNeedsSync = false;
         // Re-apply playback parameters because the startMediaTimeUs changed.
-        applyPlaybackSpeedAndSkipSilence(presentationTimeUs);
+        applyAudioProcessorPlaybackSpeedAndSkipSilence(presentationTimeUs);
         if (listener != null && adjustmentUs != 0) {
           listener.onPositionDiscontinuity();
         }
@@ -985,17 +997,24 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void setPlaybackSpeed(float playbackSpeed) {
-    setPlaybackSpeedAndSkipSilence(playbackSpeed, getSkipSilenceEnabled());
+    if (enableAudioTrackPlaybackParams && Util.SDK_INT >= 23) {
+      setAudioTrackPlaybackSpeedV23(playbackSpeed);
+    } else {
+      setAudioProcessorPlaybackSpeedAndSkipSilence(playbackSpeed, getSkipSilenceEnabled());
+    }
   }
 
   @Override
   public float getPlaybackSpeed() {
-    return getMediaPositionParameters().playbackSpeed;
+    // We use either audio processor speed adjustment or AudioTrack playback parameters, so one of
+    // the operands is always 1f.
+    return getAudioProcessorPlaybackSpeed() * audioTrackPlaybackSpeed;
   }
 
   @Override
   public void setSkipSilenceEnabled(boolean skipSilenceEnabled) {
-    setPlaybackSpeedAndSkipSilence(getPlaybackSpeed(), skipSilenceEnabled);
+    setAudioProcessorPlaybackSpeedAndSkipSilence(
+        getAudioProcessorPlaybackSpeed(), skipSilenceEnabled);
   }
 
   @Override
@@ -1147,7 +1166,7 @@ public final class DefaultAudioSink implements AudioSink {
     framesPerEncodedSample = 0;
     mediaPositionParameters =
         new MediaPositionParameters(
-            getPlaybackSpeed(),
+            getAudioProcessorPlaybackSpeed(),
             getSkipSilenceEnabled(),
             /* mediaTimeUs= */ 0,
             /* audioTrackPositionUs= */ 0);
@@ -1183,7 +1202,28 @@ public final class DefaultAudioSink implements AudioSink {
     }.start();
   }
 
-  private void setPlaybackSpeedAndSkipSilence(float playbackSpeed, boolean skipSilence) {
+  @RequiresApi(23)
+  private void setAudioTrackPlaybackSpeedV23(float audioTrackPlaybackSpeed) {
+    if (isInitialized()) {
+      PlaybackParams playbackParams =
+          new PlaybackParams()
+              .allowDefaults()
+              .setSpeed(audioTrackPlaybackSpeed)
+              .setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_FAIL);
+      try {
+        audioTrack.setPlaybackParams(playbackParams);
+      } catch (IllegalArgumentException e) {
+        Log.w(TAG, "Failed to set playback params", e);
+      }
+      // Update the speed using the actual effective speed from the audio track.
+      audioTrackPlaybackSpeed = audioTrack.getPlaybackParams().getSpeed();
+      audioTrackPositionTracker.setAudioTrackPlaybackSpeed(audioTrackPlaybackSpeed);
+    }
+    this.audioTrackPlaybackSpeed = audioTrackPlaybackSpeed;
+  }
+
+  private void setAudioProcessorPlaybackSpeedAndSkipSilence(
+      float playbackSpeed, boolean skipSilence) {
     MediaPositionParameters currentMediaPositionParameters = getMediaPositionParameters();
     if (playbackSpeed != currentMediaPositionParameters.playbackSpeed
         || skipSilence != currentMediaPositionParameters.skipSilence) {
@@ -1205,6 +1245,10 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
+  private float getAudioProcessorPlaybackSpeed() {
+    return getMediaPositionParameters().playbackSpeed;
+  }
+
   private MediaPositionParameters getMediaPositionParameters() {
     // Mask the already set parameters.
     return afterDrainParameters != null
@@ -1214,10 +1258,10 @@ public final class DefaultAudioSink implements AudioSink {
             : mediaPositionParameters;
   }
 
-  private void applyPlaybackSpeedAndSkipSilence(long presentationTimeUs) {
+  private void applyAudioProcessorPlaybackSpeedAndSkipSilence(long presentationTimeUs) {
     float playbackSpeed =
         configuration.canApplyPlaybackParameters
-            ? audioProcessorChain.applyPlaybackSpeed(getPlaybackSpeed())
+            ? audioProcessorChain.applyPlaybackSpeed(getAudioProcessorPlaybackSpeed())
             : DEFAULT_PLAYBACK_SPEED;
     boolean skipSilenceEnabled =
         configuration.canApplyPlaybackParameters

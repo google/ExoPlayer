@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import android.content.Context;
 import android.media.MediaCodec;
+import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.IntDef;
@@ -94,6 +95,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private @MediaCodecRenderer.MediaCodecOperationMode int audioMediaCodecOperationMode;
   private @MediaCodecRenderer.MediaCodecOperationMode int videoMediaCodecOperationMode;
   private boolean enableFloatOutput;
+  private boolean enableAudioTrackPlaybackParams;
   private boolean enableOffload;
 
   /** @param context A {@link Context}. */
@@ -259,6 +261,30 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
+   * Sets whether to enable setting playback speed using {@link
+   * android.media.AudioTrack#setPlaybackParams(PlaybackParams)}, which is supported from API level
+   * 23, rather than using application-level audio speed adjustment. This setting has no effect on
+   * builds before API level 23 (application-level speed adjustment will be used in all cases).
+   *
+   * <p>If enabled and supported, new playback speed settings will take effect more quickly because
+   * they are applied at the audio mixer, rather than at the point of writing data to the track.
+   *
+   * <p>When using this mode, the maximum supported playback speed is limited by the size of the
+   * audio track's buffer. If the requested speed is not supported the player's event listener will
+   * be notified twice on setting playback speed, once with the requested speed, then again with the
+   * old playback speed reflecting the fact that the requested speed was not supported.
+   *
+   * @param enableAudioTrackPlaybackParams Whether to enable setting playback speed using {@link
+   *     android.media.AudioTrack#setPlaybackParams(PlaybackParams)}.
+   * @return This factory, for convenience.
+   */
+  public DefaultRenderersFactory setEnableAudioTrackPlaybackParams(
+      boolean enableAudioTrackPlaybackParams) {
+    this.enableAudioTrackPlaybackParams = enableAudioTrackPlaybackParams;
+    return this;
+  }
+
+  /**
    * Sets the maximum duration for which video renderers can attempt to seamlessly join an ongoing
    * playback.
    *
@@ -290,7 +316,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
         videoRendererEventListener,
         allowedVideoJoiningTimeMs,
         renderersList);
-    @Nullable AudioSink audioSink = buildAudioSink(context, enableFloatOutput, enableOffload);
+    @Nullable
+    AudioSink audioSink =
+        buildAudioSink(context, enableFloatOutput, enableAudioTrackPlaybackParams, enableOffload);
     if (audioSink != null) {
       buildAudioRenderers(
           context,
@@ -611,6 +639,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
    *
    * @param context The {@link Context} associated with the player.
    * @param enableFloatOutput Whether to enable use of floating point audio output, if available.
+   * @param enableAudioTrackPlaybackParams Whether to enable setting playback speed using {@link
+   *     android.media.AudioTrack#setPlaybackParams(PlaybackParams)}, if supported.
    * @param enableOffload Whether to enable use of audio offload for supported formats, if
    *     available.
    * @return The {@link AudioSink} to which the audio renderers will output. May be {@code null} if
@@ -619,11 +649,15 @@ public class DefaultRenderersFactory implements RenderersFactory {
    */
   @Nullable
   protected AudioSink buildAudioSink(
-      Context context, boolean enableFloatOutput, boolean enableOffload) {
+      Context context,
+      boolean enableFloatOutput,
+      boolean enableAudioTrackPlaybackParams,
+      boolean enableOffload) {
     return new DefaultAudioSink(
         AudioCapabilities.getCapabilities(context),
         new DefaultAudioProcessorChain(),
         enableFloatOutput,
+        enableAudioTrackPlaybackParams,
         enableOffload);
   }
 }

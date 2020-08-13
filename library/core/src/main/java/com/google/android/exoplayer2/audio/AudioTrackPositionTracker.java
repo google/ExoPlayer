@@ -144,6 +144,7 @@ import java.lang.reflect.Method;
   private int outputSampleRate;
   private boolean needsPassthroughWorkarounds;
   private long bufferSizeUs;
+  private float audioTrackPlaybackSpeed;
 
   private long smoothedPlayheadOffsetUs;
   private long lastPlayheadSampleTimeUs;
@@ -223,6 +224,16 @@ import java.lang.reflect.Method;
     forceResetWorkaroundTimeMs = C.TIME_UNSET;
     lastLatencySampleTimeUs = 0;
     latencyUs = 0;
+    audioTrackPlaybackSpeed = 1f;
+  }
+
+  public void setAudioTrackPlaybackSpeed(float audioTrackPlaybackSpeed) {
+    this.audioTrackPlaybackSpeed = audioTrackPlaybackSpeed;
+    // Extrapolation from the last audio timestamp relies on the audio rate being constant, so we
+    // reset audio timestamp tracking and wait for a new timestamp.
+    if (audioTimestampPoller != null) {
+      audioTimestampPoller.reset();
+    }
   }
 
   public long getCurrentPositionUs(boolean sourceEnded) {
@@ -241,6 +252,8 @@ import java.lang.reflect.Method;
       long timestampPositionFrames = audioTimestampPoller.getTimestampPositionFrames();
       long timestampPositionUs = framesToDurationUs(timestampPositionFrames);
       long elapsedSinceTimestampUs = systemTimeUs - audioTimestampPoller.getTimestampSystemTimeUs();
+      elapsedSinceTimestampUs =
+          Util.getMediaDurationForPlayoutDuration(elapsedSinceTimestampUs, audioTrackPlaybackSpeed);
       positionUs = timestampPositionUs + elapsedSinceTimestampUs;
     } else {
       if (playheadOffsetCount == 0) {

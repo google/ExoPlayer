@@ -122,6 +122,9 @@
     *   Add floating point PCM output capability in `MediaCodecAudioRenderer`,
         and `LibopusAudioRenderer`.
     *   Do not use a MediaCodec for PCM formats if AudioTrack supports it.
+    *   Add optional support for using framework audio speed adjustment instead
+        of application-level audio speed adjustment
+        ([#7502](https://github.com/google/ExoPlayer/issues/7502)).
 *   Text:
     *   Recreate the decoder when handling and swallowing decode errors in
         `TextRenderer`. This fixes a case where playback would never end when

@@ -625,7 +625,7 @@ public interface ExoPlayer extends Player {
    *   <li>audio offload rendering is enabled in {@link
    *       DefaultRenderersFactory#setEnableAudioOffload} or the equivalent option passed to {@link
    *       com.google.android.exoplayer2.audio.DefaultAudioSink#DefaultAudioSink(AudioCapabilities,
-   *       DefaultAudioSink.AudioProcessorChain, boolean, boolean)}.
+   *       DefaultAudioSink.AudioProcessorChain, boolean, boolean, boolean)}.
    *   <li>an audio track is playing in a format which the device supports offloading (for example
    *       MP3 or AAC).
    *   <li>The {@link com.google.android.exoplayer2.audio.AudioSink} is playing with an offload
