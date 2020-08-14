@@ -16,7 +16,6 @@
 
 package com.google.android.exoplayer2.ext.media2;
 
-import android.util.Log;
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
@@ -33,6 +32,7 @@ import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.HashMap;
@@ -73,6 +73,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
   }
 
   private static final String TAG = "SessionPlayerConnector";
+  private static final boolean DEBUG = false;
 
   private static final int END_OF_PLAYLIST = -1;
   private final Object stateLock = new Object();
@@ -636,9 +637,10 @@ public final class SessionPlayerConnector extends SessionPlayer {
           // We always wait for player calls to return.
           wasInterrupted = true;
         } catch (ExecutionException e) {
-          @Nullable Throwable cause = e.getCause();
-          Log.e(TAG, "Internal player error", new RuntimeException(cause));
-          throw new IllegalStateException(cause);
+          if (DEBUG) {
+            Log.d(TAG, "Internal player error", e);
+          }
+          throw new IllegalStateException(e.getCause());
         }
       }
     } finally {
