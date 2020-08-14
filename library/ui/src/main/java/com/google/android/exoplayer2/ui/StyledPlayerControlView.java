@@ -408,12 +408,6 @@ public class StyledPlayerControlView extends FrameLayout {
   private int showTimeoutMs;
   private int timeBarMinUpdateIntervalMs;
   private @RepeatModeUtil.RepeatToggleModes int repeatToggleModes;
-  private boolean showRewindButton;
-  private boolean showFastForwardButton;
-  private boolean showPreviousButton;
-  private boolean showNextButton;
-  private boolean showShuffleButton;
-  private boolean showSubtitleButton;
   private long[] adGroupTimesMs;
   private boolean[] playedAdGroups;
   private long[] extraAdGroupTimesMs;
@@ -478,12 +472,12 @@ public class StyledPlayerControlView extends FrameLayout {
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
     timeBarMinUpdateIntervalMs = DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS;
-    showRewindButton = true;
-    showFastForwardButton = true;
-    showPreviousButton = true;
-    showNextButton = true;
-    showShuffleButton = false;
-    showSubtitleButton = false;
+    boolean showRewindButton = true;
+    boolean showFastForwardButton = true;
+    boolean showPreviousButton = true;
+    boolean showNextButton = true;
+    boolean showShuffleButton = false;
+    boolean showSubtitleButton = false;
     boolean animationEnabled = true;
     boolean showVrButton = false;
 
@@ -530,7 +524,6 @@ public class StyledPlayerControlView extends FrameLayout {
         a.recycle();
       }
     }
-
     controlViewLayoutManager = new StyledPlayerControlViewLayoutManager();
     controlViewLayoutManager.setAnimationEnabled(animationEnabled);
     visibilityListeners = new CopyOnWriteArrayList<>();
@@ -558,7 +551,6 @@ public class StyledPlayerControlView extends FrameLayout {
     subtitleButton = findViewById(R.id.exo_subtitle);
     if (subtitleButton != null) {
       subtitleButton.setOnClickListener(componentListener);
-      subtitleButton.setVisibility(showSubtitleButton ? VISIBLE : GONE);
     }
     fullScreenButton = findViewById(R.id.exo_fullscreen);
     if (fullScreenButton != null) {
@@ -712,6 +704,16 @@ public class StyledPlayerControlView extends FrameLayout {
     shuffleOffContentDescription =
         resources.getString(R.string.exo_controls_shuffle_off_description);
 
+    // TODO(insun) : Make showing bottomBar configurable. (ex. show_bottom_bar attribute).
+    ViewGroup bottomBar = findViewById(R.id.exo_bottom_bar);
+    controlViewLayoutManager.setShowButton(bottomBar, true);
+    controlViewLayoutManager.setShowButton(fastForwardButton, showFastForwardButton);
+    controlViewLayoutManager.setShowButton(rewindButton, showRewindButton);
+    controlViewLayoutManager.setShowButton(previousButton, showPreviousButton);
+    controlViewLayoutManager.setShowButton(nextButton, showNextButton);
+    controlViewLayoutManager.setShowButton(shuffleButton, showShuffleButton);
+    controlViewLayoutManager.setShowButton(subtitleButton, showSubtitleButton);
+    controlViewLayoutManager.setShowButton(vrButton, showVrButton);
     addOnLayoutChangeListener(this::onLayoutChange);
   }
 
@@ -853,7 +855,7 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param showRewindButton Whether the rewind button is shown.
    */
   public void setShowRewindButton(boolean showRewindButton) {
-    this.showRewindButton = showRewindButton;
+    controlViewLayoutManager.setShowButton(rewindButton, showRewindButton);
     updateNavigation();
   }
 
@@ -863,7 +865,7 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param showFastForwardButton Whether the fast forward button is shown.
    */
   public void setShowFastForwardButton(boolean showFastForwardButton) {
-    this.showFastForwardButton = showFastForwardButton;
+    controlViewLayoutManager.setShowButton(fastForwardButton, showFastForwardButton);
     updateNavigation();
   }
 
@@ -873,7 +875,7 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param showPreviousButton Whether the previous button is shown.
    */
   public void setShowPreviousButton(boolean showPreviousButton) {
-    this.showPreviousButton = showPreviousButton;
+    controlViewLayoutManager.setShowButton(previousButton, showPreviousButton);
     updateNavigation();
   }
 
@@ -883,7 +885,7 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param showNextButton Whether the next button is shown.
    */
   public void setShowNextButton(boolean showNextButton) {
-    this.showNextButton = showNextButton;
+    controlViewLayoutManager.setShowButton(nextButton, showNextButton);
     updateNavigation();
   }
 
@@ -941,12 +943,14 @@ public class StyledPlayerControlView extends FrameLayout {
         controlDispatcher.dispatchSetRepeatMode(player, Player.REPEAT_MODE_ALL);
       }
     }
+    controlViewLayoutManager.setShowButton(
+        repeatToggleButton, repeatToggleModes != RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE);
     updateRepeatModeButton();
   }
 
   /** Returns whether the shuffle button is shown. */
   public boolean getShowShuffleButton() {
-    return showShuffleButton;
+    return controlViewLayoutManager.getShowButton(shuffleButton);
   }
 
   /**
@@ -955,13 +959,13 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param showShuffleButton Whether the shuffle button is shown.
    */
   public void setShowShuffleButton(boolean showShuffleButton) {
-    this.showShuffleButton = showShuffleButton;
+    controlViewLayoutManager.setShowButton(shuffleButton, showShuffleButton);
     updateShuffleButton();
   }
 
   /** Returns whether the subtitle button is shown. */
   public boolean getShowSubtitleButton() {
-    return showSubtitleButton;
+    return controlViewLayoutManager.getShowButton(subtitleButton);
   }
 
   /**
@@ -970,15 +974,12 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param showSubtitleButton Whether the subtitle button is shown.
    */
   public void setShowSubtitleButton(boolean showSubtitleButton) {
-    this.showSubtitleButton = showSubtitleButton;
-    if (subtitleButton != null) {
-      subtitleButton.setVisibility(showSubtitleButton ? VISIBLE : GONE);
-    }
+    controlViewLayoutManager.setShowButton(subtitleButton, showSubtitleButton);
   }
 
   /** Returns whether the VR button is shown. */
   public boolean getShowVrButton() {
-    return vrButton != null && vrButton.getVisibility() == VISIBLE;
+    return controlViewLayoutManager.getShowButton(vrButton);
   }
 
   /**
@@ -987,9 +988,7 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param showVrButton Whether the VR button is shown.
    */
   public void setShowVrButton(boolean showVrButton) {
-    if (vrButton != null) {
-      updateButton(showVrButton, vrButton.hasOnClickListeners(), vrButton);
-    }
+    controlViewLayoutManager.setShowButton(vrButton, showVrButton);
   }
 
   /**
@@ -1000,7 +999,7 @@ public class StyledPlayerControlView extends FrameLayout {
   public void setVrButtonListener(@Nullable OnClickListener onClickListener) {
     if (vrButton != null) {
       vrButton.setOnClickListener(onClickListener);
-      updateButton(getShowVrButton(), onClickListener != null, vrButton);
+      updateButton(onClickListener != null, vrButton);
     }
   }
 
@@ -1143,10 +1142,10 @@ public class StyledPlayerControlView extends FrameLayout {
       updateFastForwardButton();
     }
 
-    updateButton(showPreviousButton, enablePrevious, previousButton);
-    updateButton(showRewindButton, enableRewind, rewindButton);
-    updateButton(showFastForwardButton, enableFastForward, fastForwardButton);
-    updateButton(showNextButton, enableNext, nextButton);
+    updateButton(enablePrevious, previousButton);
+    updateButton(enableRewind, rewindButton);
+    updateButton(enableFastForward, fastForwardButton);
+    updateButton(enableNext, nextButton);
     if (timeBar != null) {
       timeBar.setEnabled(enableSeeking);
     }
@@ -1187,19 +1186,19 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     if (repeatToggleModes == RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE) {
-      updateButton(/* visible= */ false, /* enabled= */ false, repeatToggleButton);
+      updateButton(/* enabled= */ false, repeatToggleButton);
       return;
     }
 
     @Nullable Player player = this.player;
     if (player == null) {
-      updateButton(/* visible= */ true, /* enabled= */ false, repeatToggleButton);
+      updateButton(/* enabled= */ false, repeatToggleButton);
       repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
       repeatToggleButton.setContentDescription(repeatOffButtonContentDescription);
       return;
     }
 
-    updateButton(/* visible= */ true, /* enabled= */ true, repeatToggleButton);
+    updateButton(/* enabled= */ true, repeatToggleButton);
     switch (player.getRepeatMode()) {
       case Player.REPEAT_MODE_OFF:
         repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
@@ -1224,14 +1223,14 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Nullable Player player = this.player;
-    if (!showShuffleButton) {
-      updateButton(/* visible= */ false, /* enabled= */ false, shuffleButton);
+    if (!controlViewLayoutManager.getShowButton(shuffleButton)) {
+      updateButton(/* enabled= */ false, shuffleButton);
     } else if (player == null) {
-      updateButton(/* visible= */ true, /* enabled= */ false, shuffleButton);
+      updateButton(/* enabled= */ false, shuffleButton);
       shuffleButton.setImageDrawable(shuffleOffButtonDrawable);
       shuffleButton.setContentDescription(shuffleOffContentDescription);
     } else {
-      updateButton(/* visible= */ true, /* enabled= */ true, shuffleButton);
+      updateButton(/* enabled= */ true, shuffleButton);
       shuffleButton.setImageDrawable(
           player.getShuffleModeEnabled() ? shuffleOnButtonDrawable : shuffleOffButtonDrawable);
       shuffleButton.setContentDescription(
@@ -1243,7 +1242,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private void updateTrackLists() {
     initTrackSelectionAdapter();
-    updateButton(showSubtitleButton, textTrackSelectionAdapter.getItemCount() > 0, subtitleButton);
+    updateButton(textTrackSelectionAdapter.getItemCount() > 0, subtitleButton);
   }
 
   private void initTrackSelectionAdapter() {
@@ -1265,7 +1264,7 @@ public class StyledPlayerControlView extends FrameLayout {
         rendererIndex < mappedTrackInfo.getRendererCount();
         rendererIndex++) {
       if (mappedTrackInfo.getRendererType(rendererIndex) == C.TRACK_TYPE_TEXT
-          && showSubtitleButton) {
+          && controlViewLayoutManager.getShowButton(subtitleButton)) {
         // Get TrackSelection at the corresponding renderer index.
         gatherTrackInfosForAdapter(mappedTrackInfo, rendererIndex, textTracks);
         textRendererIndices.add(rendererIndex);
@@ -1491,13 +1490,12 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  private void updateButton(boolean visible, boolean enabled, @Nullable View view) {
+  private void updateButton(boolean enabled, @Nullable View view) {
     if (view == null) {
       return;
     }
     view.setEnabled(enabled);
     view.setAlpha(enabled ? buttonAlphaEnabled : buttonAlphaDisabled);
-    view.setVisibility(visible ? VISIBLE : GONE);
   }
 
   private void seekToTimeBarPosition(Player player, long positionMs) {

@@ -28,6 +28,7 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.LinearInterpolator;
 import androidx.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.List;
 
 /* package */ final class StyledPlayerControlViewLayoutManager {
   private static final long ANIMATION_INTERVAL_MS = 2_000;
@@ -52,6 +53,8 @@ import java.util.ArrayList;
   private final Runnable hideMainBarsRunnable;
   private final Runnable hideControllerRunnable;
   private final OnLayoutChangeListener onLayoutChangeListener;
+
+  private final List<View> shownButtons;
 
   private int uxState;
   private boolean initiallyHidden;
@@ -88,6 +91,7 @@ import java.util.ArrayList;
     onLayoutChangeListener = this::onLayoutChange;
     animationEnabled = true;
     uxState = UX_STATE_ALL_VISIBLE;
+    shownButtons = new ArrayList<>();
   }
 
   public void show() {
@@ -157,6 +161,7 @@ import java.util.ArrayList;
     styledPlayerControlView.removeCallbacks(hideProgressBarRunnable);
   }
 
+  // TODO(insun): Pass StyledPlayerControlView to constructor and reduce multiple nullchecks.
   public void onViewAttached(StyledPlayerControlView v) {
     styledPlayerControlView = v;
 
@@ -426,6 +431,27 @@ import java.util.ArrayList;
     return uxState == UX_STATE_ALL_VISIBLE && styledPlayerControlView.isVisible();
   }
 
+  public void setShowButton(@Nullable View button, boolean showButton) {
+    if (button == null) {
+      return;
+    }
+    if (!showButton) {
+      button.setVisibility(View.GONE);
+      shownButtons.remove(button);
+      return;
+    }
+    if (isMinimalMode && shouldHideInMinimalMode(button)) {
+      button.setVisibility(View.INVISIBLE);
+    } else {
+      button.setVisibility(View.VISIBLE);
+    }
+    shownButtons.add(button);
+  }
+
+  public boolean getShowButton(@Nullable View button) {
+    return button != null && shownButtons.contains(button);
+  }
+
   private void setUxState(int uxState) {
     int prevUxState = this.uxState;
     this.uxState = uxState;
@@ -573,9 +599,7 @@ import java.util.ArrayList;
         Math.max(
             getWidth(embeddedTransportControls), getWidth(timeView) + getWidth(overflowShowButton));
     int defaultModeHeight =
-        getHeight(embeddedTransportControls)
-            + getHeight(timeBar)
-            + getHeight(bottomBar);
+        getHeight(embeddedTransportControls) + getHeight(timeBar) + getHeight(bottomBar);
 
     return (width <= defaultModeWidth || height <= defaultModeHeight);
   }
@@ -584,7 +608,7 @@ import java.util.ArrayList;
     if (this.styledPlayerControlView == null) {
       return;
     }
-    ViewGroup playerControlView = this.styledPlayerControlView;
+    StyledPlayerControlView playerControlView = this.styledPlayerControlView;
 
     if (minimalControls != null) {
       minimalControls.setVisibility(isMinimalMode ? View.VISIBLE : View.INVISIBLE);
@@ -624,21 +648,20 @@ import java.util.ArrayList;
       }
     }
 
-    int[] idsToHideInMinimalMode = {
-      R.id.exo_bottom_bar,
-      R.id.exo_prev,
-      R.id.exo_next,
-      R.id.exo_rew,
-      R.id.exo_rew_with_amount,
-      R.id.exo_ffwd,
-      R.id.exo_ffwd_with_amount
-    };
-    for (int id : idsToHideInMinimalMode) {
-      View v = playerControlView.findViewById(id);
-      if (v != null) {
-        v.setVisibility(isMinimalMode ? View.INVISIBLE : View.VISIBLE);
-      }
+    for (View v : shownButtons) {
+      v.setVisibility(isMinimalMode && shouldHideInMinimalMode(v) ? View.INVISIBLE : View.VISIBLE);
     }
+  }
+
+  private boolean shouldHideInMinimalMode(View button) {
+    int id = button.getId();
+    return (id == R.id.exo_bottom_bar
+        || id == R.id.exo_prev
+        || id == R.id.exo_next
+        || id == R.id.exo_rew
+        || id == R.id.exo_rew_with_amount
+        || id == R.id.exo_ffwd
+        || id == R.id.exo_ffwd_with_amount);
   }
 
   private void onLayoutWidthChanged() {
