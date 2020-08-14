@@ -191,6 +191,16 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
+  /** The default playback speed. */
+  public static final float DEFAULT_PLAYBACK_SPEED = 1f;
+  /** The minimum allowed playback speed. Lower values will be constrained to fall in range. */
+  public static final float MIN_PLAYBACK_SPEED = 0.1f;
+  /** The maximum allowed playback speed. Higher values will be constrained to fall in range. */
+  public static final float MAX_PLAYBACK_SPEED = 8f;
+
+  /** The default skip silence flag. */
+  private static final boolean DEFAULT_SKIP_SILENCE = false;
+
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({OUTPUT_MODE_PCM, OUTPUT_MODE_OFFLOAD, OUTPUT_MODE_PASSTHROUGH})
@@ -210,11 +220,10 @@ public final class DefaultAudioSink implements AudioSink {
   private static final long OFFLOAD_BUFFER_DURATION_US = 50_000_000;
 
   /**
-   * A multiplication factor to apply to the minimum buffer size requested by the underlying
-   * {@link AudioTrack}.
+   * A multiplication factor to apply to the minimum buffer size requested by the underlying {@link
+   * AudioTrack}.
    */
   private static final int BUFFER_MULTIPLICATION_FACTOR = 4;
-
   /** To avoid underruns on some devices (e.g., Broadcom 7271), scale up the AC3 buffer duration. */
   private static final int AC3_BUFFER_MULTIPLICATION_FACTOR = 2;
 
@@ -239,10 +248,6 @@ public final class DefaultAudioSink implements AudioSink {
    */
   @SuppressLint("InlinedApi")
   private static final int WRITE_NON_BLOCKING = AudioTrack.WRITE_NON_BLOCKING;
-  /** The default playback speed. */
-  private static final float DEFAULT_PLAYBACK_SPEED = 1f;
-  /** The default skip silence flag. */
-  private static final boolean DEFAULT_SKIP_SILENCE = false;
 
   private static final String TAG = "AudioTrack";
 
@@ -582,6 +587,7 @@ public final class DefaultAudioSink implements AudioSink {
             outputChannelConfig,
             outputEncoding,
             specifiedBufferSize,
+            enableAudioTrackPlaybackParams,
             canApplyPlaybackParameters,
             availableAudioProcessors);
     if (isAudioTrackInitialized()) {
@@ -1007,6 +1013,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void setPlaybackSpeed(float playbackSpeed) {
+    playbackSpeed = Util.constrainValue(playbackSpeed, MIN_PLAYBACK_SPEED, MAX_PLAYBACK_SPEED);
     if (enableAudioTrackPlaybackParams && Util.SDK_INT >= 23) {
       setAudioTrackPlaybackSpeedV23(playbackSpeed);
     } else {
@@ -1802,6 +1809,7 @@ public final class DefaultAudioSink implements AudioSink {
         int outputChannelConfig,
         int outputEncoding,
         int specifiedBufferSize,
+        boolean enableAudioTrackPlaybackParams,
         boolean canApplyPlaybackParameters,
         AudioProcessor[] availableAudioProcessors) {
       this.inputFormat = inputFormat;
@@ -1815,7 +1823,7 @@ public final class DefaultAudioSink implements AudioSink {
       this.availableAudioProcessors = availableAudioProcessors;
 
       // Call computeBufferSize() last as it depends on the other configuration values.
-      this.bufferSize = computeBufferSize(specifiedBufferSize);
+      this.bufferSize = computeBufferSize(specifiedBufferSize, enableAudioTrackPlaybackParams);
     }
 
     /** Returns if the configurations are sufficiently compatible to reuse the audio track. */
@@ -1925,13 +1933,15 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
 
-    private int computeBufferSize(int specifiedBufferSize) {
+    private int computeBufferSize(
+        int specifiedBufferSize, boolean enableAudioTrackPlaybackParameters) {
       if (specifiedBufferSize != 0) {
         return specifiedBufferSize;
       }
       switch (outputMode) {
         case OUTPUT_MODE_PCM:
-          return getPcmDefaultBufferSize();
+          return getPcmDefaultBufferSize(
+              enableAudioTrackPlaybackParameters ? MAX_PLAYBACK_SPEED : DEFAULT_PLAYBACK_SPEED);
         case OUTPUT_MODE_OFFLOAD:
           return getEncodedDefaultBufferSize(OFFLOAD_BUFFER_DURATION_US);
         case OUTPUT_MODE_PASSTHROUGH:
@@ -1949,7 +1959,7 @@ public final class DefaultAudioSink implements AudioSink {
       return (int) (bufferDurationUs * rate / C.MICROS_PER_SECOND);
     }
 
-    private int getPcmDefaultBufferSize() {
+    private int getPcmDefaultBufferSize(float maxAudioTrackPlaybackSpeed) {
       int minBufferSize =
           AudioTrack.getMinBufferSize(outputSampleRate, outputChannelConfig, outputEncoding);
       Assertions.checkState(minBufferSize != ERROR_BAD_VALUE);
@@ -1957,7 +1967,13 @@ public final class DefaultAudioSink implements AudioSink {
       int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * outputPcmFrameSize;
       int maxAppBufferSize =
           max(minBufferSize, (int) durationUsToFrames(MAX_BUFFER_DURATION_US) * outputPcmFrameSize);
-      return Util.constrainValue(multipliedBufferSize, minAppBufferSize, maxAppBufferSize);
+      int bufferSize =
+          Util.constrainValue(multipliedBufferSize, minAppBufferSize, maxAppBufferSize);
+      if (maxAudioTrackPlaybackSpeed != 1f) {
+        // Maintain the buffer duration by scaling the size accordingly.
+        bufferSize = Math.round(bufferSize * maxAudioTrackPlaybackSpeed);
+      }
+      return bufferSize;
     }
 
     @RequiresApi(21)
