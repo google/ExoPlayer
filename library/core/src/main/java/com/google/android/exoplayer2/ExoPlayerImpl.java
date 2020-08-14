@@ -683,9 +683,9 @@ import java.util.concurrent.TimeoutException;
         notifyListeners(
             listener ->
                 listener.onPlayerError(
-                    ExoPlaybackException.createForUnexpected(
-                        new RuntimeException(
-                            new TimeoutException("Setting foreground mode timed out.")))));
+                    ExoPlaybackException.createForTimeoutError(
+                        new TimeoutException("Setting foreground mode timed out."),
+                        ExoPlaybackException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE)));
       }
     }
   }
@@ -724,8 +724,9 @@ import java.util.concurrent.TimeoutException;
       notifyListeners(
           listener ->
               listener.onPlayerError(
-                  ExoPlaybackException.createForUnexpected(
-                      new RuntimeException(new TimeoutException("Player release timed out.")))));
+                  ExoPlaybackException.createForTimeoutError(
+                      new TimeoutException("Player release timed out."),
+                      ExoPlaybackException.TIMEOUT_OPERATION_RELEASE)));
     }
     playbackInfoUpdateHandler.removeCallbacksAndMessages(null);
     if (analyticsCollector != null) {
