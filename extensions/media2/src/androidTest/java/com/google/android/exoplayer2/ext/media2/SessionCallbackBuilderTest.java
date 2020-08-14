@@ -168,8 +168,8 @@ public class SessionCallbackBuilderTest {
   @Test
   public void allowedCommand_whenPlaylistSet_allowsSkipTo() throws Exception {
     List<MediaItem> testPlaylist = new ArrayList<>();
-    testPlaylist.add(TestUtils.createMediaItem(context, R.raw.testvideo));
-    testPlaylist.add(TestUtils.createMediaItem(context, R.raw.sample_not_seekable));
+    testPlaylist.add(TestUtils.createMediaItem(context, R.raw.video_desks));
+    testPlaylist.add(TestUtils.createMediaItem(context, R.raw.video_not_seekable));
     int testRewindIncrementMs = 100;
     int testFastForwardIncrementMs = 100;
 
@@ -238,9 +238,9 @@ public class SessionCallbackBuilderTest {
   public void allowedCommand_afterCurrentMediaItemPrepared_notifiesSeekToAvailable()
       throws Exception {
     List<MediaItem> testPlaylist = new ArrayList<>();
-    testPlaylist.add(TestUtils.createMediaItem(context, R.raw.testvideo));
+    testPlaylist.add(TestUtils.createMediaItem(context));
 
-    int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
+    int resid = R.raw.video_big_buck_bunny;
     TestDataSourceCallback source =
         TestDataSourceCallback.fromAssetFd(context.getResources().openRawResourceFd(resid));
     CountDownLatch readAllowedLatch = new CountDownLatch(1);
@@ -382,7 +382,7 @@ public class SessionCallbackBuilderTest {
   @LargeTest
   @Test
   public void setRewindIncrementMs_withPositiveRewindIncrement_rewinds() throws Exception {
-    int testResId = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
+    int testResId = R.raw.video_big_buck_bunny;
     int testDuration = 10_000;
     int tolerance = 100;
     int testSeekPosition = 2_000;
@@ -426,7 +426,7 @@ public class SessionCallbackBuilderTest {
   @Test
   public void setFastForwardIncrementMs_withPositiveFastForwardIncrement_fastsForward()
       throws Exception {
-    int testResId = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
+    int testResId = R.raw.video_big_buck_bunny;
     int testDuration = 10_000;
     int tolerance = 100;
     int testSeekPosition = 2_000;
@@ -469,7 +469,7 @@ public class SessionCallbackBuilderTest {
   @Test
   public void setMediaItemProvider_withMediaItemProvider_receivesOnCreateMediaItem()
       throws Exception {
-    int testResId = R.raw.testmp3_2;
+    int testResId = R.raw.audio;
     Uri testMediaIdUri = TestUtils.createResourceUri(context, testResId);
 
     CountDownLatch providerLatch = new CountDownLatch(1);

@@ -29,12 +29,14 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.common.UriMediaItem;
+import com.google.android.exoplayer2.ext.media2.test.R;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
 /** Utilities for tests. */
-public final class TestUtils {
+/* package */ final class TestUtils {
+
   private static final long PLAYER_STATE_CHANGE_WAIT_TIME_MS = 5_000;
 
   public static Uri createResourceUri(Context context, int resId) {
@@ -48,17 +50,17 @@ public final class TestUtils {
   }
 
   public static MediaItem createMediaItem(Context context) {
-    return createMediaItem(context, com.google.android.exoplayer2.ext.media2.test.R.raw.testvideo);
+    return createMediaItem(context, R.raw.video_desks);
   }
 
   public static MediaItem createMediaItem(Context context, int resId) {
-    Uri testVideoUri = createResourceUri(context, resId);
+    Uri resourceUri = createResourceUri(context, resId);
     String resourceName = context.getResources().getResourceName(resId);
     MediaMetadata metadata =
         new MediaMetadata.Builder()
             .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, resourceName)
             .build();
-    return new UriMediaItem.Builder(testVideoUri).setMetadata(metadata).build();
+    return new UriMediaItem.Builder(resourceUri).setMetadata(metadata).build();
   }
 
   public static List<MediaItem> createPlaylist(Context context, int size) {
@@ -71,7 +73,6 @@ public final class TestUtils {
 
   public static void loadResource(Context context, int resId, SessionPlayer sessionPlayer)
       throws Exception {
-    Uri testUri = TestUtils.createResourceUri(context, resId);
     MediaItem mediaItem = createMediaItem(context, resId);
     assertPlayerResultSuccess(sessionPlayer.setMediaItem(mediaItem));
   }
