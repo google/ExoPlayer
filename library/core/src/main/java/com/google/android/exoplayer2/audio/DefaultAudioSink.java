@@ -279,7 +279,9 @@ public final class DefaultAudioSink implements AudioSink {
   @MonotonicNonNull private StreamEventCallbackV29 offloadStreamEventCallbackV29;
 
   @Nullable private Listener listener;
-  /** Used to keep the audio session active on pre-V21 builds (see {@link #initialize(long)}). */
+  /**
+   * Used to keep the audio session active on pre-V21 builds (see {@link #initializeAudioTrack()}).
+   */
   @Nullable private AudioTrack keepSessionIdAudioTrack;
 
   @Nullable private Configuration pendingConfiguration;
@@ -300,6 +302,7 @@ public final class DefaultAudioSink implements AudioSink {
   private long writtenEncodedFrames;
   private int framesPerEncodedSample;
   private boolean startMediaTimeUsNeedsSync;
+  private boolean startMediaTimeUsNeedsInit;
   private long startMediaTimeUs;
   private float volume;
 
@@ -470,7 +473,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public long getCurrentPositionUs(boolean sourceEnded) {
-    if (!isInitialized()) {
+    if (!isAudioTrackInitialized() || startMediaTimeUsNeedsInit) {
       return CURRENT_POSITION_NOT_SET;
     }
     long positionUs = audioTrackPositionTracker.getCurrentPositionUs(sourceEnded);
@@ -581,7 +584,7 @@ public final class DefaultAudioSink implements AudioSink {
             specifiedBufferSize,
             canApplyPlaybackParameters,
             availableAudioProcessors);
-    if (isInitialized()) {
+    if (isAudioTrackInitialized()) {
       this.pendingConfiguration = pendingConfiguration;
     } else {
       configuration = pendingConfiguration;
@@ -612,7 +615,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
-  private void initialize(long presentationTimeUs) throws InitializationException {
+  private void initializeAudioTrack() throws InitializationException {
     // If we're asynchronously releasing a previous audio track then we block until it has been
     // released. This guarantees that we cannot end up in a state where we have multiple audio
     // track instances. Without this guarantee it would be possible, in extreme cases, to exhaust
@@ -647,17 +650,9 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
 
-    startMediaTimeUs = max(0, presentationTimeUs);
-    startMediaTimeUsNeedsSync = false;
-
-    if (enableAudioTrackPlaybackParams && Util.SDK_INT >= 23) {
-      setAudioTrackPlaybackSpeedV23(audioTrackPlaybackSpeed);
-    }
-    applyAudioProcessorPlaybackSpeedAndSkipSilence(presentationTimeUs);
-
     audioTrackPositionTracker.setAudioTrack(
         audioTrack,
-        configuration.outputMode == OUTPUT_MODE_PASSTHROUGH,
+        /* isPassthrough= */ configuration.outputMode == OUTPUT_MODE_PASSTHROUGH,
         configuration.outputEncoding,
         configuration.outputPcmFrameSize,
         configuration.bufferSize);
@@ -667,12 +662,14 @@ public final class DefaultAudioSink implements AudioSink {
       audioTrack.attachAuxEffect(auxEffectInfo.effectId);
       audioTrack.setAuxEffectSendLevel(auxEffectInfo.sendLevel);
     }
+
+    startMediaTimeUsNeedsInit = true;
   }
 
   @Override
   public void play() {
     playing = true;
-    if (isInitialized()) {
+    if (isAudioTrackInitialized()) {
       audioTrackPositionTracker.start();
       audioTrack.play();
     }
@@ -716,8 +713,20 @@ public final class DefaultAudioSink implements AudioSink {
       applyAudioProcessorPlaybackSpeedAndSkipSilence(presentationTimeUs);
     }
 
-    if (!isInitialized()) {
-      initialize(presentationTimeUs);
+    if (!isAudioTrackInitialized()) {
+      initializeAudioTrack();
+    }
+
+    if (startMediaTimeUsNeedsInit) {
+      startMediaTimeUs = max(0, presentationTimeUs);
+      startMediaTimeUsNeedsSync = false;
+      startMediaTimeUsNeedsInit = false;
+
+      if (enableAudioTrackPlaybackParams && Util.SDK_INT >= 23) {
+        setAudioTrackPlaybackSpeedV23(audioTrackPlaybackSpeed);
+      }
+      applyAudioProcessorPlaybackSpeedAndSkipSilence(presentationTimeUs);
+
       if (playing) {
         play();
       }
@@ -945,7 +954,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public void playToEndOfStream() throws WriteException {
-    if (!handledEndOfStream && isInitialized() && drainToEndOfStream()) {
+    if (!handledEndOfStream && isAudioTrackInitialized() && drainToEndOfStream()) {
       playPendingData();
       handledEndOfStream = true;
     }
@@ -987,12 +996,13 @@ public final class DefaultAudioSink implements AudioSink {
 
   @Override
   public boolean isEnded() {
-    return !isInitialized() || (handledEndOfStream && !hasPendingData());
+    return !isAudioTrackInitialized() || (handledEndOfStream && !hasPendingData());
   }
 
   @Override
   public boolean hasPendingData() {
-    return isInitialized() && audioTrackPositionTracker.hasPendingData(getWrittenFrames());
+    return isAudioTrackInitialized()
+        && audioTrackPositionTracker.hasPendingData(getWrittenFrames());
   }
 
   @Override
@@ -1090,7 +1100,7 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private void setVolumeInternal() {
-    if (!isInitialized()) {
+    if (!isAudioTrackInitialized()) {
       // Do nothing.
     } else if (Util.SDK_INT >= 21) {
       setVolumeInternalV21(audioTrack, volume);
@@ -1102,14 +1112,14 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   public void pause() {
     playing = false;
-    if (isInitialized() && audioTrackPositionTracker.pause()) {
+    if (isAudioTrackInitialized() && audioTrackPositionTracker.pause()) {
       audioTrack.pause();
     }
   }
 
   @Override
   public void flush() {
-    if (isInitialized()) {
+    if (isAudioTrackInitialized()) {
       resetSinkStateForFlush();
 
       if (audioTrackPositionTracker.isPlaying()) {
@@ -1139,6 +1149,36 @@ public final class DefaultAudioSink implements AudioSink {
         }
       }.start();
     }
+  }
+
+  @Override
+  public void experimentalFlushWithoutAudioTrackRelease() {
+    // Prior to SDK 25, AudioTrack flush does not work as intended, and therefore it must be
+    // released and reinitialized. (Internal reference: b/143500232)
+    if (Util.SDK_INT < 25) {
+      flush();
+      return;
+    }
+
+    if (!isAudioTrackInitialized()) {
+      return;
+    }
+
+    resetSinkStateForFlush();
+    if (audioTrackPositionTracker.isPlaying()) {
+      audioTrack.pause();
+    }
+    audioTrack.flush();
+
+    audioTrackPositionTracker.reset();
+    audioTrackPositionTracker.setAudioTrack(
+        audioTrack,
+        /* isPassthrough= */ configuration.outputMode == OUTPUT_MODE_PASSTHROUGH,
+        configuration.outputEncoding,
+        configuration.outputPcmFrameSize,
+        configuration.bufferSize);
+
+    startMediaTimeUsNeedsInit = true;
   }
 
   @Override
@@ -1204,7 +1244,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @RequiresApi(23)
   private void setAudioTrackPlaybackSpeedV23(float audioTrackPlaybackSpeed) {
-    if (isInitialized()) {
+    if (isAudioTrackInitialized()) {
       PlaybackParams playbackParams =
           new PlaybackParams()
               .allowDefaults()
@@ -1233,7 +1273,7 @@ public final class DefaultAudioSink implements AudioSink {
               skipSilence,
               /* mediaTimeUs= */ C.TIME_UNSET,
               /* audioTrackPositionUs= */ C.TIME_UNSET);
-      if (isInitialized()) {
+      if (isAudioTrackInitialized()) {
         // Drain the audio processors so we can determine the frame position at which the new
         // parameters apply.
         this.afterDrainParameters = mediaPositionParameters;
@@ -1313,7 +1353,7 @@ public final class DefaultAudioSink implements AudioSink {
         + configuration.framesToDurationUs(audioProcessorChain.getSkippedOutputFrameCount());
   }
 
-  private boolean isInitialized() {
+  private boolean isAudioTrackInitialized() {
     return audioTrack != null;
   }
 

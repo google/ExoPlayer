@@ -362,6 +362,18 @@ public interface AudioSink {
    */
   void flush();
 
+  /**
+   * Flushes the sink, after which it is ready to receive buffers from a new playback position.
+   *
+   * <p>Does not release the {@link AudioTrack} held by the sink.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * <p>Only for experimental use as part of {@link
+   * MediaCodecAudioRenderer#experimentalSetEnableKeepAudioTrackOnSeek(boolean)}.
+   */
+  void experimentalFlushWithoutAudioTrackRelease();
+
   /** Resets the renderer, releasing any resources that it currently holds. */
   void reset();
 }
