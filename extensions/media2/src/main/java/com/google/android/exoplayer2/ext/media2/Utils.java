@@ -15,80 +15,13 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.net.Uri;
-import android.text.TextUtils;
-import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.common.CallbackMediaItem;
-import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.UriMediaItem;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ExtractorsFactory;
-import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.RawResourceDataSource;
-import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
 
-/**
- * Utility methods for the media2 extension (primarily for translating between the media2 and
- * ExoPlayer {@link Player} APIs).
- */
+/** Utility methods for translating between the media2 and ExoPlayer APIs. */
 /* package */ final class Utils {
-
-  private static final ExtractorsFactory sExtractorsFactory =
-      new DefaultExtractorsFactory()
-          .setAdtsExtractorFlags(AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
-
-  /**
-   * Returns an ExoPlayer media source for the given media item. The given {@link MediaItem} is set
-   * as the tag of the source.
-   */
-  public static MediaSource createUnclippedMediaSource(
-      Context context, DataSource.Factory dataSourceFactory, MediaItem androidXMediaItem) {
-    if (androidXMediaItem instanceof UriMediaItem) {
-      Uri uri = ((UriMediaItem) androidXMediaItem).getUri();
-      if (ContentResolver.SCHEME_ANDROID_RESOURCE.equals(uri.getScheme())) {
-        String path = Assertions.checkNotNull(uri.getPath());
-        int resourceIdentifier;
-        if (uri.getPathSegments().size() == 1 && uri.getPathSegments().get(0).matches("\\d+")) {
-          resourceIdentifier = Integer.parseInt(uri.getPathSegments().get(0));
-        } else {
-          if (path.startsWith("/")) {
-            path = path.substring(1);
-          }
-          @Nullable String host = uri.getHost();
-          String resourceName = (TextUtils.isEmpty(host) ? "" : (host + ":")) + path;
-          resourceIdentifier =
-              context.getResources().getIdentifier(resourceName, "raw", context.getPackageName());
-        }
-        Assertions.checkState(resourceIdentifier != 0);
-        uri = RawResourceDataSource.buildRawResourceUri(resourceIdentifier);
-      }
-      return createMediaSource(uri, dataSourceFactory, /* tag= */ androidXMediaItem);
-    } else if (androidXMediaItem instanceof CallbackMediaItem) {
-      CallbackMediaItem callbackMediaItem = (CallbackMediaItem) androidXMediaItem;
-      dataSourceFactory =
-          DataSourceCallbackDataSource.getFactory(callbackMediaItem.getDataSourceCallback());
-      return new ProgressiveMediaSource.Factory(dataSourceFactory, sExtractorsFactory)
-          .createMediaSource(
-              new com.google.android.exoplayer2.MediaItem.Builder()
-                  .setUri(Uri.EMPTY)
-                  .setTag(androidXMediaItem)
-                  .build());
-    } else {
-      throw new IllegalStateException();
-    }
-  }
 
   /** Returns ExoPlayer audio attributes for the given audio attributes. */
   public static AudioAttributes getAudioAttributes(AudioAttributesCompat audioAttributesCompat) {
@@ -156,49 +89,6 @@ import com.google.android.exoplayer2.util.Util;
     }
   }
 
-  private static MediaSource createMediaSource(
-      Uri uri, DataSource.Factory dataSourceFactory, Object tag) {
-    // TODO: Deduplicate with DefaultMediaSource once MediaItem support in ExoPlayer has been
-    // released. See [Internal: b/150857202].
-    @Nullable Class<? extends MediaSourceFactory> factoryClazz = null;
-    try {
-      // LINT.IfChange
-      switch (Util.inferContentType(uri)) {
-        case C.TYPE_DASH:
-          factoryClazz =
-              Class.forName("com.google.android.exoplayer2.source.dash.DashMediaSource$Factory")
-                  .asSubclass(MediaSourceFactory.class);
-          break;
-        case C.TYPE_HLS:
-          factoryClazz =
-              Class.forName("com.google.android.exoplayer2.source.hls.HlsMediaSource$Factory")
-                  .asSubclass(MediaSourceFactory.class);
-          break;
-        case C.TYPE_SS:
-          factoryClazz =
-              Class.forName(
-                      "com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource$Factory")
-                  .asSubclass(MediaSourceFactory.class);
-          break;
-        case C.TYPE_OTHER:
-        default:
-          break;
-      }
-      if (factoryClazz != null) {
-        MediaSourceFactory mediaSourceFactory =
-            factoryClazz.getConstructor(DataSource.Factory.class).newInstance(dataSourceFactory);
-        factoryClazz.getMethod("setTag", Object.class).invoke(mediaSourceFactory, tag);
-        return mediaSourceFactory.createMediaSource(
-            com.google.android.exoplayer2.MediaItem.fromUri(uri));
-      }
-      // LINT.ThenChange(../../../../../../../../../proguard-rules.txt)
-    } catch (Exception e) {
-      // Expected if the app was built without the corresponding module.
-    }
-    return new ProgressiveMediaSource.Factory(dataSourceFactory)
-        .createMediaSource(
-            new com.google.android.exoplayer2.MediaItem.Builder().setUri(uri).setTag(tag).build());
-  }
 
   private Utils() {
     // Prevent instantiation.

@@ -126,7 +126,7 @@ import java.util.List;
    * @param mediaItemConverter The {@link MediaItemConverter}.
    * @param controlDispatcher A {@link ControlDispatcher}.
    */
-  PlayerWrapper(
+  public PlayerWrapper(
       Listener listener,
       Player player,
       MediaItemConverter mediaItemConverter,

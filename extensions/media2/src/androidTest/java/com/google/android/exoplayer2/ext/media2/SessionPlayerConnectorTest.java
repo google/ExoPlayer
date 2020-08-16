@@ -183,7 +183,6 @@ public class SessionPlayerConnectorTest {
             return false;
           }
         };
-    DefaultMediaItemConverter converter = new DefaultMediaItemConverter(context);
     SimpleExoPlayer simpleExoPlayer = null;
     try {
       simpleExoPlayer =
@@ -191,7 +190,8 @@ public class SessionPlayerConnectorTest {
               .setLooper(Looper.myLooper())
               .build();
       try (SessionPlayerConnector player =
-          new SessionPlayerConnector(simpleExoPlayer, converter, controlDispatcher)) {
+          new SessionPlayerConnector(
+              simpleExoPlayer, new DefaultMediaItemConverter(), controlDispatcher)) {
         assertPlayerResult(player.play(), RESULT_INFO_SKIPPED);
       }
     } finally {

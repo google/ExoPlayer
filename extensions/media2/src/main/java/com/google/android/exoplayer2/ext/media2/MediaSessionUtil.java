@@ -19,15 +19,15 @@ import android.annotation.SuppressLint;
 import android.support.v4.media.session.MediaSessionCompat;
 import androidx.media2.session.MediaSession;
 
-/** Utility methods to use {@link MediaSession} with other existing Exo modules. */
+/** Utility methods to use {@link MediaSession} with other ExoPlayer modules. */
 public final class MediaSessionUtil {
 
   /** Gets the {@link MediaSessionCompat.Token} from the {@link MediaSession}. */
   // TODO(b/152764014): Deprecate this API when MediaSession#getSessionCompatToken() is released.
-  public static MediaSessionCompat.Token getSessionCompatToken(MediaSession session2) {
+  public static MediaSessionCompat.Token getSessionCompatToken(MediaSession mediaSession) {
     @SuppressLint("RestrictedApi")
     @SuppressWarnings("RestrictTo")
-    MediaSessionCompat sessionCompat = session2.getSessionCompat();
+    MediaSessionCompat sessionCompat = mediaSession.getSessionCompat();
     return sessionCompat.getSessionToken();
   }
 
