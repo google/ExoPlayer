@@ -58,7 +58,7 @@ public class MediaSessionUtilTest {
     SessionPlayerConnector sessionPlayerConnector = playerTestRule.getSessionPlayerConnector();
     MediaSession.SessionCallback sessionCallback =
         new SessionCallbackBuilder(context, sessionPlayerConnector).build();
-    TestUtils.loadResource(context, R.raw.audio, sessionPlayerConnector);
+    TestUtils.loadResource(R.raw.audio, sessionPlayerConnector);
     ListenableFuture<PlayerResult> prepareResult = sessionPlayerConnector.prepare();
     CountDownLatch latch = new CountDownLatch(1);
     sessionPlayerConnector.registerPlayerCallback(

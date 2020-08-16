@@ -27,7 +27,8 @@ import com.google.android.exoplayer2.ext.media2.test.R;
 import com.google.android.exoplayer2.util.Util;
 
 /** Stub activity to play media contents on. */
-public class MediaStubActivity extends Activity {
+public final class MediaStubActivity extends Activity {
+
   private static final String TAG = "MediaStubActivity";
 
   @Override

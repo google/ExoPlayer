@@ -20,60 +20,45 @@ import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.res.Resources;
-import android.net.Uri;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.common.UriMediaItem;
 import com.google.android.exoplayer2.ext.media2.test.R;
+import com.google.android.exoplayer2.upstream.RawResourceDataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
 /** Utilities for tests. */
 /* package */ final class TestUtils {
-
   private static final long PLAYER_STATE_CHANGE_WAIT_TIME_MS = 5_000;
 
-  public static Uri createResourceUri(Context context, int resId) {
-    Resources resources = context.getResources();
-    return new Uri.Builder()
-        .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-        .authority(resources.getResourcePackageName(resId))
-        .appendPath(resources.getResourceTypeName(resId))
-        .appendPath(resources.getResourceEntryName(resId))
+  public static UriMediaItem createMediaItem() {
+    return createMediaItem(R.raw.video_desks);
+  }
+
+  public static UriMediaItem createMediaItem(int resId) {
+    MediaMetadata metadata =
+        new MediaMetadata.Builder()
+            .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, Integer.toString(resId))
+            .build();
+    return new UriMediaItem.Builder(RawResourceDataSource.buildRawResourceUri(resId))
+        .setMetadata(metadata)
         .build();
   }
 
-  public static MediaItem createMediaItem(Context context) {
-    return createMediaItem(context, R.raw.video_desks);
-  }
-
-  public static MediaItem createMediaItem(Context context, int resId) {
-    Uri resourceUri = createResourceUri(context, resId);
-    String resourceName = context.getResources().getResourceName(resId);
-    MediaMetadata metadata =
-        new MediaMetadata.Builder()
-            .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, resourceName)
-            .build();
-    return new UriMediaItem.Builder(resourceUri).setMetadata(metadata).build();
-  }
-
-  public static List<MediaItem> createPlaylist(Context context, int size) {
+  public static List<MediaItem> createPlaylist(int size) {
     List<MediaItem> items = new ArrayList<>();
     for (int i = 0; i < size; ++i) {
-      items.add(createMediaItem(context));
+      items.add(createMediaItem());
     }
     return items;
   }
 
-  public static void loadResource(Context context, int resId, SessionPlayer sessionPlayer)
-      throws Exception {
-    MediaItem mediaItem = createMediaItem(context, resId);
+  public static void loadResource(int resId, SessionPlayer sessionPlayer) throws Exception {
+    MediaItem mediaItem = createMediaItem(resId);
     assertPlayerResultSuccess(sessionPlayer.setMediaItem(mediaItem));
   }
 
