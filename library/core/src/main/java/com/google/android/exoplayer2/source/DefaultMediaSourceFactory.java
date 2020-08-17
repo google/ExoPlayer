@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaItem.DrmConfiguration;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
@@ -80,9 +81,9 @@ import java.util.Map;
  *
  * <h3>DrmSessionManager creation for protected content</h3>
  *
- * <p>For a media item with a valid {@link
- * com.google.android.exoplayer2.MediaItem.DrmConfiguration}, a {@link DefaultDrmSessionManager} is
- * created. The following setter can be used to optionally configure the creation:
+ * <p>For a media item with a {@link DrmConfiguration}, a {@link DefaultDrmSessionManager} is
+ * created based on that configuration. The following setter can be used to optionally configure the
+ * creation:
  *
  * <ul>
  *   <li>{@link #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}: Sets the data source factory
@@ -90,10 +91,8 @@ import java.util.Map;
  *       DefaultHttpDataSourceFactory}).
  * </ul>
  *
- * <p>For media items without a drm configuration {@link DrmSessionManager#DUMMY} is used. To use an
- * alternative dummy, apps can pass a drm session manager to {@link
- * #setDrmSessionManager(DrmSessionManager)} which will be used for all items without a drm
- * configuration.
+ * <p>For media items without a {@link DrmConfiguration}, the {@link DrmSessionManager} passed to
+ * {@link #setDrmSessionManager(DrmSessionManager)} will be used.
  *
  * <h3>Ad support for media items with ad tag uri</h3>
  *
@@ -235,6 +234,13 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
+  /**
+   * Sets the {@link DrmSessionManager} to use for media items that do not specify a {@link
+   * DrmConfiguration}. The default value is {@link DrmSessionManager#DUMMY}.
+   *
+   * @param drmSessionManager The {@link DrmSessionManager}.
+   * @return This factory, for convenience.
+   */
   @Override
   public DefaultMediaSourceFactory setDrmSessionManager(
       @Nullable DrmSessionManager drmSessionManager) {
