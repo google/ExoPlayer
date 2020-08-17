@@ -133,6 +133,10 @@
         of application-level audio speed adjustment
         ([#7502](https://github.com/google/ExoPlayer/issues/7502)).
 *   Text:
+    *   Add a WebView-based output option to `SubtitleView`. This can display
+        some features not supported by the existing Canvas-based output such as
+        vertical text and rubies. It can be enabled by calling
+        `SubtitleView#setViewType(VIEW_TYPE_WEB)`.
     *   Recreate the decoder when handling and swallowing decode errors in
         `TextRenderer`. This fixes a case where playback would never end when
         playing content with malformed subtitles
@@ -140,9 +144,10 @@
     *   Only apply `CaptionManager` font scaling in
         `SubtitleView.setUserDefaultTextSize` if the `CaptionManager` is
         enabled.
-    *   Improve positioning of vertical cues being rendered horizontally.
+    *   Improve positioning of vertical cues when rendered horizontally.
     *   Redefine `Cue.lineType=LINE_TYPE_NUMBER` in terms of aligning the cue
-        text lines to grid of viewport lines, and ignore `Cue.lineAnchor`.
+        text lines to grid of viewport lines. Only consider `Cue.lineAnchor`
+        when `Cue.lineType=LINE_TYPE_FRACTION`.
     *   WebVTT
         *   Add support for default
             [text](https://www.w3.org/TR/webvtt1/#default-text-color) and
@@ -156,12 +161,12 @@
         *   Stop parsing unsupported CSS properties. The spec provides an
             [exhaustive list](https://www.w3.org/TR/webvtt1/#the-cue-pseudo-element)
             of which properties are supported.
-        *   Add support for the `ruby-position` CSS property.
-        *   Parse `text-combine-upright` CSS property (i.e., tate-chu-yoko).
-        *   Parse `<ruby>` and `<rt>` tags.
+        *   Parse the `ruby-position` CSS property.
+        *   Parse the `text-combine-upright` CSS property (i.e., tate-chu-yoko).
+        *   Parse the `<ruby>` and `<rt>` tags.
     *   TTML
-        *   Parse `tts:combineText` property (i.e., tate-chu-yoko).
-        *   Parse `tts:ruby` and `tts:rubyPosition` properties.
+        *   Parse the `tts:combineText` property (i.e., tate-chu-yoko).
+        *   Parse t`tts:ruby` and `tts:rubyPosition` properties.
     *   CEA-608
         *   Implement timing-out of stuck captions, as permitted by
             ANSI/CTA-608-E R-2014 Annex C.9. The default timeout is set to 16
@@ -191,8 +196,8 @@
     *   Respect 33-bit PTS wrapping when applying `X-TIMESTAMP-MAP` to WebVTT
         timestamps ([#7464](https://github.com/google/ExoPlayer/issues/7464)).
 *   Extractors:
-    *   Optimize the `Extractor` sniffing order to reduce start-up latency
-        in `DefaultExtractorsFactory` and `DefaultHlsExtractorsFactory`
+    *   Optimize the `Extractor` sniffing order to reduce start-up latency in
+        `DefaultExtractorsFactory` and `DefaultHlsExtractorsFactory`
         ([#6410](https://github.com/google/ExoPlayer/issues/6410)).
     *   Use filename extensions and response header MIME types to further
         optimize `Extractor` sniffing order on a per-media basis.
