@@ -484,8 +484,10 @@ public final class TsExtractor implements Extractor {
           patScratch.skipBits(13); // network_PID (13)
         } else {
           int pid = patScratch.readBits(13);
-          tsPayloadReaders.put(pid, new SectionReader(new PmtReader(pid)));
-          remainingPmts++;
+          if (tsPayloadReaders.get(pid) == null) {
+            tsPayloadReaders.put(pid, new SectionReader(new PmtReader(pid)));
+            remainingPmts++;
+          }
         }
       }
       if (mode != MODE_HLS) {
