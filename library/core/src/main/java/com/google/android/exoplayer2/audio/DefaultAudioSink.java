@@ -327,15 +327,7 @@ public final class DefaultAudioSink implements AudioSink {
   private AuxEffectInfo auxEffectInfo;
   private boolean tunneling;
   private long lastFeedElapsedRealtimeMs;
-  /**
-   * Do not retrying offload if it just failed.
-   *
-   * <p>{@link AudioManager#isOffloadedPlaybackSupported(AudioFormat,
-   * android.media.AudioAttributes)} does not guaranty that offload is available (eg: using {@link
-   * android.media.AudioPlaybackCaptureConfiguration}) will disable offload. As a result only try
-   * once per track/seek to play in offload mode.
-   */
-  private boolean disableOffloadAfterFailureUntilNextConfiguration;
+  private boolean offloadDisabledUntilNextConfiguration;
 
   /**
    * Creates a new default audio sink.
@@ -466,7 +458,7 @@ public final class DefaultAudioSink implements AudioSink {
       return SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
     }
     if (enableOffload
-        && !disableOffloadAfterFailureUntilNextConfiguration
+        && !offloadDisabledUntilNextConfiguration
         && isOffloadedPlaybackSupported(format, audioAttributes)) {
       return SINK_FORMAT_SUPPORTED_DIRECTLY;
     }
@@ -575,8 +567,7 @@ public final class DefaultAudioSink implements AudioSink {
           "Invalid output channel config (mode=" + outputMode + ") for: " + inputFormat);
     }
 
-    disableOffloadAfterFailureUntilNextConfiguration = false;
-
+    offloadDisabledUntilNextConfiguration = false;
     Configuration pendingConfiguration =
         new Configuration(
             inputFormat,
@@ -836,9 +827,7 @@ public final class DefaultAudioSink implements AudioSink {
       return Assertions.checkNotNull(configuration)
           .buildAudioTrack(tunneling, audioAttributes, audioSessionId);
     } catch (InitializationException e) {
-      if (configuration.outputModeIsOffload()) {
-        disableOffloadAfterFailureUntilNextConfiguration = true;
-      }
+      maybeDisableOffload();
       throw e;
     }
   }
@@ -929,8 +918,8 @@ public final class DefaultAudioSink implements AudioSink {
 
     if (bytesWritten < 0) {
       boolean isRecoverable = isAudioTrackDeadObject(bytesWritten);
-      if (isRecoverable && configuration.outputModeIsOffload()) {
-        disableOffloadAfterFailureUntilNextConfiguration = true;
+      if (isRecoverable) {
+        maybeDisableOffload();
       }
       throw new WriteException(bytesWritten);
     }
@@ -964,6 +953,16 @@ public final class DefaultAudioSink implements AudioSink {
       playPendingData();
       handledEndOfStream = true;
     }
+  }
+
+  private void maybeDisableOffload() {
+    if (!configuration.outputModeIsOffload()) {
+      return;
+    }
+    // Offload was requested, but may not be available. There are cases when this can occur even if
+    // AudioManager.isOffloadedPlaybackSupported returned true. For example, due to use of an
+    // AudioPlaybackCaptureConfiguration. Disable offload until the sink is next configured.
+    offloadDisabledUntilNextConfiguration = true;
   }
 
   private static boolean isAudioTrackDeadObject(int status) {
@@ -1200,7 +1199,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
     audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     playing = false;
-    disableOffloadAfterFailureUntilNextConfiguration = false;
+    offloadDisabledUntilNextConfiguration = false;
   }
 
   // Internal methods.
