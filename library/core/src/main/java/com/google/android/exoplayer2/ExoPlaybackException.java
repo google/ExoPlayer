@@ -204,7 +204,7 @@ public final class ExoPlaybackException extends Exception {
    * @param cause The cause of the failure.
    * @return The created instance.
    */
-  public static ExoPlaybackException createForOutOfMemoryError(OutOfMemoryError cause) {
+  public static ExoPlaybackException createForOutOfMemory(OutOfMemoryError cause) {
     return new ExoPlaybackException(TYPE_OUT_OF_MEMORY, cause);
   }
 
@@ -215,7 +215,7 @@ public final class ExoPlaybackException extends Exception {
    * @param timeoutOperation The operation that caused this timeout.
    * @return The created instance.
    */
-  public static ExoPlaybackException createForTimeoutError(
+  public static ExoPlaybackException createForTimeout(
       TimeoutException cause, @TimeoutOperation int timeoutOperation) {
     return new ExoPlaybackException(
         TYPE_OUT_OF_MEMORY,
@@ -348,7 +348,7 @@ public final class ExoPlaybackException extends Exception {
    *
    * @throws IllegalStateException If {@link #type} is not {@link #TYPE_TIMEOUT}.
    */
-  public TimeoutException getTimeoutError() {
+  public TimeoutException getTimeoutException() {
     Assertions.checkState(type == TYPE_TIMEOUT);
     return (TimeoutException) Assertions.checkNotNull(cause);
   }

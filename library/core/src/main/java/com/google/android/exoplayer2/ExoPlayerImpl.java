@@ -683,7 +683,7 @@ import java.util.concurrent.TimeoutException;
         notifyListeners(
             listener ->
                 listener.onPlayerError(
-                    ExoPlaybackException.createForTimeoutError(
+                    ExoPlaybackException.createForTimeout(
                         new TimeoutException("Setting foreground mode timed out."),
                         ExoPlaybackException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE)));
       }
@@ -724,7 +724,7 @@ import java.util.concurrent.TimeoutException;
       notifyListeners(
           listener ->
               listener.onPlayerError(
-                  ExoPlaybackException.createForTimeoutError(
+                  ExoPlaybackException.createForTimeout(
                       new TimeoutException("Player release timed out."),
                       ExoPlaybackException.TIMEOUT_OPERATION_RELEASE)));
     }

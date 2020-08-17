@@ -557,7 +557,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     } catch (RuntimeException | OutOfMemoryError e) {
       ExoPlaybackException error =
           e instanceof OutOfMemoryError
-              ? ExoPlaybackException.createForOutOfMemoryError((OutOfMemoryError) e)
+              ? ExoPlaybackException.createForOutOfMemory((OutOfMemoryError) e)
               : ExoPlaybackException.createForUnexpected((RuntimeException) e);
       Log.e(TAG, "Playback error", error);
       stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
