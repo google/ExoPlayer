@@ -71,7 +71,7 @@ public class FlacPlaybackTest {
 
     TestPlaybackRunnable testPlaybackRunnable =
         new TestPlaybackRunnable(
-            Uri.parse("asset:///" + fileName),
+            Uri.parse("asset:///media/" + fileName),
             ApplicationProvider.getApplicationContext(),
             audioSink);
     Thread thread = new Thread(testPlaybackRunnable);
@@ -82,7 +82,9 @@ public class FlacPlaybackTest {
     }
 
     DumpFileAsserts.assertOutput(
-        ApplicationProvider.getApplicationContext(), audioSink, fileName + ".audiosink.dump");
+        ApplicationProvider.getApplicationContext(),
+        audioSink,
+        "audiosinkdumps/" + fileName + ".audiosink.dump");
   }
 
   private static class TestPlaybackRunnable implements Player.EventListener, Runnable {

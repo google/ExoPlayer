@@ -58,7 +58,7 @@ public final class DashMediaPeriodTest {
     //  - Embedded track groups.
     // All cases are deliberately combined in one test to catch potential indexing problems which
     // only occur in combination.
-    DashManifest manifest = parseManifest("mpd/sample_mpd_stream_keys");
+    DashManifest manifest = parseManifest("media/mpd/sample_mpd_stream_keys");
 
     // Ignore embedded metadata as we don't want to select primary group just to get embedded track.
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
@@ -70,7 +70,7 @@ public final class DashMediaPeriodTest {
 
   @Test
   public void adaptationSetSwitchingProperty_mergesTrackGroups() throws IOException {
-    DashManifest manifest = parseManifest("mpd/sample_mpd_switching_property");
+    DashManifest manifest = parseManifest("media/mpd/sample_mpd_switching_property");
     DashMediaPeriod dashMediaPeriod = createDashMediaPeriod(manifest, 0);
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
 
@@ -91,7 +91,7 @@ public final class DashMediaPeriodTest {
 
   @Test
   public void trickPlayProperty_mergesTrackGroups() throws IOException {
-    DashManifest manifest = parseManifest("mpd/sample_mpd_trick_play_property");
+    DashManifest manifest = parseManifest("media/mpd/sample_mpd_trick_play_property");
     DashMediaPeriod dashMediaPeriod = createDashMediaPeriod(manifest, 0);
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
 
@@ -114,7 +114,7 @@ public final class DashMediaPeriodTest {
   @Test
   public void adaptationSetSwitchingProperty_andTrickPlayProperty_mergesTrackGroups()
       throws IOException {
-    DashManifest manifest = parseManifest("mpd/sample_mpd_switching_and_trick_play_property");
+    DashManifest manifest = parseManifest("media/mpd/sample_mpd_switching_and_trick_play_property");
     DashMediaPeriod dashMediaPeriod = createDashMediaPeriod(manifest, 0);
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
 
@@ -135,7 +135,7 @@ public final class DashMediaPeriodTest {
 
   @Test
   public void cea608AccessibilityDescriptor_createsCea608TrackGroup() throws IOException {
-    DashManifest manifest = parseManifest("mpd/sample_mpd_cea_608_accessibility");
+    DashManifest manifest = parseManifest("media/mpd/sample_mpd_cea_608_accessibility");
     DashMediaPeriod dashMediaPeriod = createDashMediaPeriod(manifest, 0);
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
 
@@ -165,7 +165,7 @@ public final class DashMediaPeriodTest {
 
   @Test
   public void cea708AccessibilityDescriptor_createsCea708TrackGroup() throws IOException {
-    DashManifest manifest = parseManifest("mpd/sample_mpd_cea_708_accessibility");
+    DashManifest manifest = parseManifest("media/mpd/sample_mpd_cea_708_accessibility");
     DashMediaPeriod dashMediaPeriod = createDashMediaPeriod(manifest, 0);
     List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
 

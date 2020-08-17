@@ -57,7 +57,7 @@ public class ActionFileTest {
 
   @Test
   public void loadNoDataThrowsIOException() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_no_data.exi");
+    ActionFile actionFile = getActionFile("media/offline/action_file_no_data.exi");
     try {
       actionFile.load();
       Assert.fail();
@@ -68,7 +68,7 @@ public class ActionFileTest {
 
   @Test
   public void loadIncompleteHeaderThrowsIOException() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_incomplete_header.exi");
+    ActionFile actionFile = getActionFile("media/offline/action_file_incomplete_header.exi");
     try {
       actionFile.load();
       Assert.fail();
@@ -79,7 +79,7 @@ public class ActionFileTest {
 
   @Test
   public void loadZeroActions() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_zero_actions.exi");
+    ActionFile actionFile = getActionFile("media/offline/action_file_zero_actions.exi");
     DownloadRequest[] actions = actionFile.load();
     assertThat(actions).isNotNull();
     assertThat(actions).hasLength(0);
@@ -87,7 +87,7 @@ public class ActionFileTest {
 
   @Test
   public void loadOneAction() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_one_action.exi");
+    ActionFile actionFile = getActionFile("media/offline/action_file_one_action.exi");
     DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(1);
     assertThat(actions[0]).isEqualTo(expectedAction1);
@@ -95,7 +95,7 @@ public class ActionFileTest {
 
   @Test
   public void loadTwoActions() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_two_actions.exi");
+    ActionFile actionFile = getActionFile("media/offline/action_file_two_actions.exi");
     DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(2);
     assertThat(actions[0]).isEqualTo(expectedAction1);
@@ -104,7 +104,7 @@ public class ActionFileTest {
 
   @Test
   public void loadUnsupportedVersion() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_unsupported_version.exi");
+    ActionFile actionFile = getActionFile("media/offline/action_file_unsupported_version.exi");
     try {
       actionFile.load();
       Assert.fail();

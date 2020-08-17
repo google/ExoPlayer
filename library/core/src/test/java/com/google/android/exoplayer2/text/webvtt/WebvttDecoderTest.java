@@ -41,23 +41,25 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class WebvttDecoderTest {
 
-  private static final String TYPICAL_FILE = "webvtt/typical";
-  private static final String TYPICAL_WITH_BAD_TIMESTAMPS = "webvtt/typical_with_bad_timestamps";
-  private static final String TYPICAL_WITH_IDS_FILE = "webvtt/typical_with_identifiers";
-  private static final String TYPICAL_WITH_COMMENTS_FILE = "webvtt/typical_with_comments";
-  private static final String WITH_POSITIONING_FILE = "webvtt/with_positioning";
+  private static final String TYPICAL_FILE = "media/webvtt/typical";
+  private static final String TYPICAL_WITH_BAD_TIMESTAMPS =
+      "media/webvtt/typical_with_bad_timestamps";
+  private static final String TYPICAL_WITH_IDS_FILE = "media/webvtt/typical_with_identifiers";
+  private static final String TYPICAL_WITH_COMMENTS_FILE = "media/webvtt/typical_with_comments";
+  private static final String WITH_POSITIONING_FILE = "media/webvtt/with_positioning";
   private static final String WITH_OVERLAPPING_TIMESTAMPS_FILE =
-      "webvtt/with_overlapping_timestamps";
-  private static final String WITH_VERTICAL_FILE = "webvtt/with_vertical";
-  private static final String WITH_RUBIES_FILE = "webvtt/with_rubies";
-  private static final String WITH_BAD_CUE_HEADER_FILE = "webvtt/with_bad_cue_header";
-  private static final String WITH_TAGS_FILE = "webvtt/with_tags";
-  private static final String WITH_CSS_STYLES = "webvtt/with_css_styles";
-  private static final String WITH_CSS_COMPLEX_SELECTORS = "webvtt/with_css_complex_selectors";
+      "media/webvtt/with_overlapping_timestamps";
+  private static final String WITH_VERTICAL_FILE = "media/webvtt/with_vertical";
+  private static final String WITH_RUBIES_FILE = "media/webvtt/with_rubies";
+  private static final String WITH_BAD_CUE_HEADER_FILE = "media/webvtt/with_bad_cue_header";
+  private static final String WITH_TAGS_FILE = "media/webvtt/with_tags";
+  private static final String WITH_CSS_STYLES = "media/webvtt/with_css_styles";
+  private static final String WITH_CSS_COMPLEX_SELECTORS =
+      "media/webvtt/with_css_complex_selectors";
   private static final String WITH_CSS_TEXT_COMBINE_UPRIGHT =
-      "webvtt/with_css_text_combine_upright";
-  private static final String WITH_BOM = "webvtt/with_bom";
-  private static final String EMPTY_FILE = "webvtt/empty";
+      "media/webvtt/with_css_text_combine_upright";
+  private static final String WITH_BOM = "media/webvtt/with_bom";
+  private static final String EMPTY_FILE = "media/webvtt/empty";
 
   @Rule public final Expect expect = Expect.create();
 

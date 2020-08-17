@@ -40,29 +40,31 @@ public final class OggExtractorParameterizedTest {
 
   @Test
   public void opus() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear.opus", simulationConfig);
+    ExtractorAsserts.assertBehavior(OggExtractor::new, "media/ogg/bear.opus", simulationConfig);
   }
 
   @Test
   public void flac() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_flac.ogg", simulationConfig);
+    ExtractorAsserts.assertBehavior(OggExtractor::new, "media/ogg/bear_flac.ogg", simulationConfig);
   }
 
   @Test
   public void flacNoSeektable() throws Exception {
     ExtractorAsserts.assertBehavior(
-        OggExtractor::new, "ogg/bear_flac_noseektable.ogg", simulationConfig);
+        OggExtractor::new, "media/ogg/bear_flac_noseektable.ogg", simulationConfig);
   }
 
   @Test
   public void vorbis() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_vorbis.ogg", simulationConfig);
+    ExtractorAsserts.assertBehavior(
+        OggExtractor::new, "media/ogg/bear_vorbis.ogg", simulationConfig);
   }
 
   // Ensure the extractor can handle non-contiguous pages by using a file with 10 bytes of garbage
   // data before the start of the second page.
   @Test
   public void vorbisWithGapBeforeSecondPage() throws Exception {
-    ExtractorAsserts.assertBehavior(OggExtractor::new, "ogg/bear_vorbis_gap.ogg", simulationConfig);
+    ExtractorAsserts.assertBehavior(
+        OggExtractor::new, "media/ogg/bear_vorbis_gap.ogg", simulationConfig);
   }
 }

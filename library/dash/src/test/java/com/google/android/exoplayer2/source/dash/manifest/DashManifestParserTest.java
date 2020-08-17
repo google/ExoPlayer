@@ -42,14 +42,15 @@ import org.xmlpull.v1.XmlPullParserFactory;
 @RunWith(AndroidJUnit4.class)
 public class DashManifestParserTest {
 
-  private static final String SAMPLE_MPD = "mpd/sample_mpd";
-  private static final String SAMPLE_MPD_UNKNOWN_MIME_TYPE = "mpd/sample_mpd_unknown_mime_type";
-  private static final String SAMPLE_MPD_SEGMENT_TEMPLATE = "mpd/sample_mpd_segment_template";
-  private static final String SAMPLE_MPD_EVENT_STREAM = "mpd/sample_mpd_event_stream";
-  private static final String SAMPLE_MPD_LABELS = "mpd/sample_mpd_labels";
-  private static final String SAMPLE_MPD_ASSET_IDENTIFIER = "mpd/sample_mpd_asset_identifier";
-  private static final String SAMPLE_MPD_TEXT = "mpd/sample_mpd_text";
-  private static final String SAMPLE_MPD_TRICK_PLAY = "mpd/sample_mpd_trick_play";
+  private static final String SAMPLE_MPD = "media/mpd/sample_mpd";
+  private static final String SAMPLE_MPD_UNKNOWN_MIME_TYPE =
+      "media/mpd/sample_mpd_unknown_mime_type";
+  private static final String SAMPLE_MPD_SEGMENT_TEMPLATE = "media/mpd/sample_mpd_segment_template";
+  private static final String SAMPLE_MPD_EVENT_STREAM = "media/mpd/sample_mpd_event_stream";
+  private static final String SAMPLE_MPD_LABELS = "media/mpd/sample_mpd_labels";
+  private static final String SAMPLE_MPD_ASSET_IDENTIFIER = "media/mpd/sample_mpd_asset_identifier";
+  private static final String SAMPLE_MPD_TEXT = "media/mpd/sample_mpd_text";
+  private static final String SAMPLE_MPD_TRICK_PLAY = "media/mpd/sample_mpd_trick_play";
 
   private static final String NEXT_TAG_NAME = "Next";
   private static final String NEXT_TAG = "<" + NEXT_TAG_NAME + "/>";

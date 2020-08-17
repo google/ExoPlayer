@@ -36,16 +36,17 @@ public final class Ac3ExtractorTest {
 
   @Test
   public void ac3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.ac3", simulationConfig);
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "media/ts/sample.ac3", simulationConfig);
   }
 
   @Test
   public void eAc3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.eac3", simulationConfig);
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "media/ts/sample.eac3", simulationConfig);
   }
 
   @Test
   public void eAc3jocSample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample_eac3joc.ec3", simulationConfig);
+    ExtractorAsserts.assertBehavior(
+        Ac3Extractor::new, "media/ts/sample_eac3joc.ec3", simulationConfig);
   }
 }

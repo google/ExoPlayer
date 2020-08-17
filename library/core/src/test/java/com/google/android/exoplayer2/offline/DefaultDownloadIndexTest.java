@@ -224,7 +224,7 @@ public class DefaultDownloadIndexTest {
     Context context = ApplicationProvider.getApplicationContext();
     File databaseFile = context.getDatabasePath(ExoDatabaseProvider.DATABASE_NAME);
     try (FileOutputStream output = new FileOutputStream(databaseFile)) {
-      output.write(TestUtil.getByteArray(context, "offline/exoplayer_internal_v2.db"));
+      output.write(TestUtil.getByteArray(context, "media/offline/exoplayer_internal_v2.db"));
     }
     Download dashDownload =
         createDownload(

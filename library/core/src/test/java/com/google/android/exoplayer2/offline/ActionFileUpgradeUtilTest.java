@@ -61,7 +61,7 @@ public class ActionFileUpgradeUtilTest {
     byte[] actionFileBytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(),
-            "offline/action_file_for_download_index_upgrade_progressive.exi");
+            "media/offline/action_file_for_download_index_upgrade_progressive.exi");
     try (FileOutputStream output = new FileOutputStream(tempFile)) {
       output.write(actionFileBytes);
     }
@@ -96,7 +96,7 @@ public class ActionFileUpgradeUtilTest {
     byte[] actionFileBytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(),
-            "offline/action_file_for_download_index_upgrade_dash.exi");
+            "media/offline/action_file_for_download_index_upgrade_dash.exi");
     try (FileOutputStream output = new FileOutputStream(tempFile)) {
       output.write(actionFileBytes);
     }
@@ -135,7 +135,7 @@ public class ActionFileUpgradeUtilTest {
     byte[] actionFileBytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(),
-            "offline/action_file_for_download_index_upgrade_hls.exi");
+            "media/offline/action_file_for_download_index_upgrade_hls.exi");
     try (FileOutputStream output = new FileOutputStream(tempFile)) {
       output.write(actionFileBytes);
     }
@@ -174,7 +174,7 @@ public class ActionFileUpgradeUtilTest {
     byte[] actionFileBytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(),
-            "offline/action_file_for_download_index_upgrade_ss.exi");
+            "media/offline/action_file_for_download_index_upgrade_ss.exi");
     try (FileOutputStream output = new FileOutputStream(tempFile)) {
       output.write(actionFileBytes);
     }

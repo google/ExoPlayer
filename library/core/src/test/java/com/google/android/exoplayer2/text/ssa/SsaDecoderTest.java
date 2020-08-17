@@ -34,16 +34,16 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class SsaDecoderTest {
 
-  private static final String EMPTY = "ssa/empty";
-  private static final String TYPICAL = "ssa/typical";
-  private static final String TYPICAL_HEADER_ONLY = "ssa/typical_header";
-  private static final String TYPICAL_DIALOGUE_ONLY = "ssa/typical_dialogue";
-  private static final String TYPICAL_FORMAT_ONLY = "ssa/typical_format";
-  private static final String OVERLAPPING_TIMECODES = "ssa/overlapping_timecodes";
-  private static final String POSITIONS = "ssa/positioning";
-  private static final String INVALID_TIMECODES = "ssa/invalid_timecodes";
-  private static final String INVALID_POSITIONS = "ssa/invalid_positioning";
-  private static final String POSITIONS_WITHOUT_PLAYRES = "ssa/positioning_without_playres";
+  private static final String EMPTY = "media/ssa/empty";
+  private static final String TYPICAL = "media/ssa/typical";
+  private static final String TYPICAL_HEADER_ONLY = "media/ssa/typical_header";
+  private static final String TYPICAL_DIALOGUE_ONLY = "media/ssa/typical_dialogue";
+  private static final String TYPICAL_FORMAT_ONLY = "media/ssa/typical_format";
+  private static final String OVERLAPPING_TIMECODES = "media/ssa/overlapping_timecodes";
+  private static final String POSITIONS = "media/ssa/positioning";
+  private static final String INVALID_TIMECODES = "media/ssa/invalid_timecodes";
+  private static final String INVALID_POSITIONS = "media/ssa/invalid_positioning";
+  private static final String POSITIONS_WITHOUT_PLAYRES = "media/ssa/positioning_without_playres";
 
   @Test
   public void decodeEmpty() throws IOException {

@@ -40,30 +40,33 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TtmlDecoderTest {
 
-  private static final String INLINE_ATTRIBUTES_TTML_FILE = "ttml/inline_style_attributes.xml";
-  private static final String INHERIT_STYLE_TTML_FILE = "ttml/inherit_style.xml";
+  private static final String INLINE_ATTRIBUTES_TTML_FILE =
+      "media/ttml/inline_style_attributes.xml";
+  private static final String INHERIT_STYLE_TTML_FILE = "media/ttml/inherit_style.xml";
   private static final String INHERIT_STYLE_OVERRIDE_TTML_FILE =
-      "ttml/inherit_and_override_style.xml";
+      "media/ttml/inherit_and_override_style.xml";
   private static final String INHERIT_GLOBAL_AND_PARENT_TTML_FILE =
-      "ttml/inherit_global_and_parent.xml";
+      "media/ttml/inherit_global_and_parent.xml";
   private static final String INHERIT_MULTIPLE_STYLES_TTML_FILE =
-      "ttml/inherit_multiple_styles.xml";
-  private static final String CHAIN_MULTIPLE_STYLES_TTML_FILE = "ttml/chain_multiple_styles.xml";
-  private static final String MULTIPLE_REGIONS_TTML_FILE = "ttml/multiple_regions.xml";
+      "media/ttml/inherit_multiple_styles.xml";
+  private static final String CHAIN_MULTIPLE_STYLES_TTML_FILE =
+      "media/ttml/chain_multiple_styles.xml";
+  private static final String MULTIPLE_REGIONS_TTML_FILE = "media/ttml/multiple_regions.xml";
   private static final String NO_UNDERLINE_LINETHROUGH_TTML_FILE =
-      "ttml/no_underline_linethrough.xml";
-  private static final String FONT_SIZE_TTML_FILE = "ttml/font_size.xml";
-  private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE = "ttml/font_size_no_unit.xml";
-  private static final String FONT_SIZE_INVALID_TTML_FILE = "ttml/font_size_invalid.xml";
-  private static final String FONT_SIZE_EMPTY_TTML_FILE = "ttml/font_size_empty.xml";
-  private static final String FRAME_RATE_TTML_FILE = "ttml/frame_rate.xml";
-  private static final String BITMAP_REGION_FILE = "ttml/bitmap_percentage_region.xml";
-  private static final String BITMAP_PIXEL_REGION_FILE = "ttml/bitmap_pixel_region.xml";
-  private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
-  private static final String TEXT_ALIGN_FILE = "ttml/text_align.xml";
-  private static final String VERTICAL_TEXT_FILE = "ttml/vertical_text.xml";
-  private static final String TEXT_COMBINE_FILE = "ttml/text_combine.xml";
-  private static final String RUBIES_FILE = "ttml/rubies.xml";
+      "media/ttml/no_underline_linethrough.xml";
+  private static final String FONT_SIZE_TTML_FILE = "media/ttml/font_size.xml";
+  private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE = "media/ttml/font_size_no_unit.xml";
+  private static final String FONT_SIZE_INVALID_TTML_FILE = "media/ttml/font_size_invalid.xml";
+  private static final String FONT_SIZE_EMPTY_TTML_FILE = "media/ttml/font_size_empty.xml";
+  private static final String FRAME_RATE_TTML_FILE = "media/ttml/frame_rate.xml";
+  private static final String BITMAP_REGION_FILE = "media/ttml/bitmap_percentage_region.xml";
+  private static final String BITMAP_PIXEL_REGION_FILE = "media/ttml/bitmap_pixel_region.xml";
+  private static final String BITMAP_UNSUPPORTED_REGION_FILE =
+      "media/ttml/bitmap_unsupported_region.xml";
+  private static final String TEXT_ALIGN_FILE = "media/ttml/text_align.xml";
+  private static final String VERTICAL_TEXT_FILE = "media/ttml/vertical_text.xml";
+  private static final String TEXT_COMBINE_FILE = "media/ttml/text_combine.xml";
+  private static final String RUBIES_FILE = "media/ttml/rubies.xml";
 
   @Test
   public void inlineAttributes() throws IOException, SubtitleDecoderException {

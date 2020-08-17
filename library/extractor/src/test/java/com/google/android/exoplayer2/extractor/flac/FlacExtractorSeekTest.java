@@ -37,9 +37,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class FlacExtractorSeekTest {
 
-  private static final String TEST_FILE_SEEK_TABLE = "flac/bear.flac";
-  private static final String TEST_FILE_BINARY_SEARCH = "flac/bear_one_metadata_block.flac";
-  private static final String TEST_FILE_UNSEEKABLE = "flac/bear_no_seek_table_no_num_samples.flac";
+  private static final String TEST_FILE_SEEK_TABLE = "media/flac/bear.flac";
+  private static final String TEST_FILE_BINARY_SEARCH = "media/flac/bear_one_metadata_block.flac";
+  private static final String TEST_FILE_UNSEEKABLE =
+      "media/flac/bear_no_seek_table_no_num_samples.flac";
   private static final int DURATION_US = 2_741_000;
 
   private FlacExtractor extractor = new FlacExtractor();

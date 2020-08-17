@@ -61,7 +61,7 @@ public final class VorbisReaderTest {
     // identification, comment and setup header.
     byte[] data =
         TestUtil.getByteArray(
-            ApplicationProvider.getApplicationContext(), "binary/ogg/vorbis_header_pages");
+            ApplicationProvider.getApplicationContext(), "media/binary/ogg/vorbis_header_pages");
     ExtractorInput input = new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
         .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
 

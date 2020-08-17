@@ -79,7 +79,7 @@ public class WebvttExtractorTest {
         TestUtil.extractAllSamplesFromFile(
             extractor,
             ApplicationProvider.getApplicationContext(),
-            "webvtt/with_x-timestamp-map_header");
+            "media/webvtt/with_x-timestamp-map_header");
 
     // The output has a ~5s sampleTime and a large, negative subsampleOffset because the cue
     // timestamps are ~10 days ahead of the PTS (due to wrapping) so the offset is used to ensure
@@ -87,7 +87,7 @@ public class WebvttExtractorTest {
     DumpFileAsserts.assertOutput(
         ApplicationProvider.getApplicationContext(),
         output,
-        "webvtt/with_x-timestamp-map_header.dump");
+        "extractordumps/webvtt/with_x-timestamp-map_header.dump");
   }
 
   private static boolean sniffData(byte[] data) throws IOException {

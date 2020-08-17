@@ -39,9 +39,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class OpusPlaybackTest {
 
-  private static final String BEAR_OPUS_URI = "asset:///mka/bear-opus.mka";
+  private static final String BEAR_OPUS_URI = "asset:///media/mka/bear-opus.mka";
   private static final String BEAR_OPUS_NEGATIVE_GAIN_URI =
-      "asset:///mka/bear-opus-negative-gain.mka";
+      "asset:///media/mka/bear-opus-negative-gain.mka";
 
   @Before
   public void setUp() {

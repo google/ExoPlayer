@@ -36,6 +36,6 @@ public final class Ac4ExtractorTest {
 
   @Test
   public void ac4Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac4Extractor::new, "ts/sample.ac4", simulationConfig);
+    ExtractorAsserts.assertBehavior(Ac4Extractor::new, "media/ts/sample.ac4", simulationConfig);
   }
 }

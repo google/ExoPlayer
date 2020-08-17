@@ -39,7 +39,7 @@ public final class AdtsExtractorSeekTest {
 
   private static final Random random = new Random(1234L);
 
-  private static final String TEST_FILE = "ts/sample.adts";
+  private static final String TEST_FILE = "media/ts/sample.adts";
   private static final int FILE_DURATION_US = 3_356_772;
   private static final long DELTA_TIMESTAMP_THRESHOLD_US = 200_000;
 

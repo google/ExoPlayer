@@ -38,34 +38,39 @@ public final class Mp3ExtractorTest {
   @Test
   public void mp3SampleWithXingHeader() throws Exception {
     ExtractorAsserts.assertBehavior(
-        Mp3Extractor::new, "mp3/bear-vbr-xing-header.mp3", simulationConfig);
+        Mp3Extractor::new, "media/mp3/bear-vbr-xing-header.mp3", simulationConfig);
   }
 
   @Test
   public void mp3SampleWithCbrSeeker() throws Exception {
     ExtractorAsserts.assertBehavior(
-        Mp3Extractor::new, "mp3/bear-cbr-variable-frame-size-no-seek-table.mp3", simulationConfig);
+        Mp3Extractor::new,
+        "media/mp3/bear-cbr-variable-frame-size-no-seek-table.mp3",
+        simulationConfig);
   }
 
   @Test
   public void mp3SampleWithIndexSeeker() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new Mp3Extractor(Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING),
-        "mp3/bear-vbr-no-seek-table.mp3",
+        "media/mp3/bear-vbr-no-seek-table.mp3",
         simulationConfig);
   }
 
   @Test
   public void trimmedMp3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp3Extractor::new, "mp3/play-trimmed.mp3", simulationConfig);
+    ExtractorAsserts.assertBehavior(
+        Mp3Extractor::new, "media/mp3/play-trimmed.mp3", simulationConfig);
   }
 
   @Test
   public void mp3SampleWithId3Enabled() throws Exception {
     ExtractorAsserts.assertBehavior(
         Mp3Extractor::new,
-        "mp3/bear-id3.mp3",
-        new AssertionConfig.Builder().setDumpFilesPrefix("mp3/bear-id3-enabled").build(),
+        "media/mp3/bear-id3.mp3",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("extractordumps/mp3/bear-id3-enabled")
+            .build(),
         simulationConfig);
   }
 
@@ -73,8 +78,10 @@ public final class Mp3ExtractorTest {
   public void mp3SampleWithId3Disabled() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new Mp3Extractor(Mp3Extractor.FLAG_DISABLE_ID3_METADATA),
-        "mp3/bear-id3.mp3",
-        new AssertionConfig.Builder().setDumpFilesPrefix("mp3/bear-id3-disabled").build(),
+        "media/mp3/bear-id3.mp3",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("extractordumps/mp3/bear-id3-disabled")
+            .build(),
         simulationConfig);
   }
 }

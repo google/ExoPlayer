@@ -63,7 +63,7 @@ public class DefaultHlsExtractorFactoryTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "webvtt/typical"))
+                    ApplicationProvider.getApplicationContext(), "media/webvtt/typical"))
             .build();
 
     BundledHlsMediaChunkExtractor result =
@@ -86,7 +86,8 @@ public class DefaultHlsExtractorFactoryTest {
     ExtractorInput ac3ExtractorInput =
         new FakeExtractorInput.Builder()
             .setData(
-                TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "ts/sample.ac3"))
+                TestUtil.getByteArray(
+                    ApplicationProvider.getApplicationContext(), "media/ts/sample.ac3"))
             .build();
 
     BundledHlsMediaChunkExtractor result =
@@ -108,7 +109,7 @@ public class DefaultHlsExtractorFactoryTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "ts/sample_ac3.ts"))
+                    ApplicationProvider.getApplicationContext(), "media/ts/sample_ac3.ts"))
             .build();
 
     BundledHlsMediaChunkExtractor result =
@@ -131,7 +132,7 @@ public class DefaultHlsExtractorFactoryTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "mp3/bear-id3.mp3"))
+                    ApplicationProvider.getApplicationContext(), "media/mp3/bear-id3.mp3"))
             .build();
 
     BundledHlsMediaChunkExtractor result =

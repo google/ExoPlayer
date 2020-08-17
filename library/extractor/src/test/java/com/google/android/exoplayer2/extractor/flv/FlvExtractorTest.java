@@ -36,6 +36,6 @@ public final class FlvExtractorTest {
 
   @Test
   public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(FlvExtractor::new, "flv/sample.flv", simulationConfig);
+    ExtractorAsserts.assertBehavior(FlvExtractor::new, "media/flv/sample.flv", simulationConfig);
   }
 }

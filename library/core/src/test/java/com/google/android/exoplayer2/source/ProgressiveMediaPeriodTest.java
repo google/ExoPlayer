@@ -46,7 +46,7 @@ public final class ProgressiveMediaPeriodTest {
     MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
     ProgressiveMediaPeriod mediaPeriod =
         new ProgressiveMediaPeriod(
-            Uri.parse("asset://android_asset/mp4/sample.mp4"),
+            Uri.parse("asset://android_asset/media/mp4/sample.mp4"),
             new AssetDataSource(ApplicationProvider.getApplicationContext()),
             () -> new Extractor[] {new Mp4Extractor()},
             DrmSessionManager.DUMMY,
