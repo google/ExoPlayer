@@ -42,4 +42,10 @@
 
     <dimen name="exo_time_view_padding">10dp</dimen>
     <dimen name="exo_time_view_width">170sp</dimen>
+
+    <dimen name="exo_error_message_height">32dp</dimen>
+    <dimen name="exo_error_message_margin_bottom">64dp</dimen>
+    <dimen name="exo_error_message_text_size">14sp</dimen>
+    <dimen name="exo_error_message_text_padding_horizontal">12dp</dimen>
+    <dimen name="exo_error_message_text_padding_vertical">4dp</dimen>
 </resources>

@@ -192,10 +192,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <h3>Overriding the layout file</h3>
  *
  * To customize the layout of StyledPlayerView throughout your app, or just for certain
- * configurations, you can define {@code exo_player_view.xml} layout files in your application
- * {@code res/layout*} directories. These layouts will override the one provided by the ExoPlayer
- * library, and will be inflated for use by StyledPlayerView. The view identifies and binds its
- * children by looking for the following ids:
+ * configurations, you can define {@code exo_styled_player_view.xml} layout files in your
+ * application {@code res/layout*} directories. These layouts will override the one provided by the
+ * ExoPlayer library, and will be inflated for use by StyledPlayerView. The view identifies and
+ * binds its children by looking for the following ids:
  *
  * <ul>
  *   <li><b>{@code exo_content_frame}</b> - A frame whose aspect ratio is resized based on the video
@@ -365,7 +365,7 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
 
     boolean shutterColorSet = false;
     int shutterColor = 0;
-    int playerLayoutId = R.layout.exo_player_view;
+    int playerLayoutId = R.layout.exo_styled_player_view;
     boolean useArtwork = true;
     int defaultArtworkId = 0;
     boolean useController = true;
