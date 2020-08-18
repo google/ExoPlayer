@@ -29,27 +29,27 @@ import com.google.android.exoplayer2.util.Assertions;
 public final class DefaultMediaItemConverter implements MediaItemConverter {
 
   @Override
-  public MediaItem convertToExoPlayerMediaItem(androidx.media2.common.MediaItem androidXMediaItem) {
-    if (androidXMediaItem instanceof FileMediaItem) {
+  public MediaItem convertToExoPlayerMediaItem(androidx.media2.common.MediaItem media2MediaItem) {
+    if (media2MediaItem instanceof FileMediaItem) {
       throw new IllegalStateException("FileMediaItem isn't supported");
     }
-    if (androidXMediaItem instanceof CallbackMediaItem) {
+    if (media2MediaItem instanceof CallbackMediaItem) {
       throw new IllegalStateException("CallbackMediaItem isn't supported");
     }
 
     MediaItem.Builder exoPlayerMediaItemBuilder = new MediaItem.Builder();
 
     // Set mediaItem as tag for creating MediaSource via MediaSourceFactory methods.
-    exoPlayerMediaItemBuilder.setTag(androidXMediaItem);
+    exoPlayerMediaItemBuilder.setTag(media2MediaItem);
 
-    // Media ID or URI must be present. Get it from androidx.MediaItem if possible.
+    // Media ID or URI must be present. Get it from media2 MediaItem if possible.
     @Nullable Uri uri = null;
     @Nullable String mediaId = null;
-    if (androidXMediaItem instanceof UriMediaItem) {
-      UriMediaItem uriMediaItem = (UriMediaItem) androidXMediaItem;
+    if (media2MediaItem instanceof UriMediaItem) {
+      UriMediaItem uriMediaItem = (UriMediaItem) media2MediaItem;
       uri = uriMediaItem.getUri();
     }
-    @Nullable MediaMetadata metadata = androidXMediaItem.getMetadata();
+    @Nullable MediaMetadata metadata = media2MediaItem.getMetadata();
     if (metadata != null) {
       mediaId = metadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID);
       @Nullable String uriString = metadata.getString(MediaMetadata.METADATA_KEY_MEDIA_URI);
@@ -59,17 +59,17 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
     }
     if (uri == null) {
       // Generate a Uri to make it non-null. If not, tag will be ignored.
-      uri = Uri.parse("exoplayer://" + androidXMediaItem.hashCode());
+      uri = Uri.parse("exoplayer://" + media2MediaItem.hashCode());
     }
     exoPlayerMediaItemBuilder.setUri(uri);
     exoPlayerMediaItemBuilder.setMediaId(mediaId);
 
-    if (androidXMediaItem.getStartPosition() != androidx.media2.common.MediaItem.POSITION_UNKNOWN) {
-      exoPlayerMediaItemBuilder.setClipStartPositionMs(androidXMediaItem.getStartPosition());
+    if (media2MediaItem.getStartPosition() != androidx.media2.common.MediaItem.POSITION_UNKNOWN) {
+      exoPlayerMediaItemBuilder.setClipStartPositionMs(media2MediaItem.getStartPosition());
       exoPlayerMediaItemBuilder.setClipRelativeToDefaultPosition(true);
     }
-    if (androidXMediaItem.getEndPosition() != androidx.media2.common.MediaItem.POSITION_UNKNOWN) {
-      exoPlayerMediaItemBuilder.setClipEndPositionMs(androidXMediaItem.getEndPosition());
+    if (media2MediaItem.getEndPosition() != androidx.media2.common.MediaItem.POSITION_UNKNOWN) {
+      exoPlayerMediaItemBuilder.setClipEndPositionMs(media2MediaItem.getEndPosition());
       exoPlayerMediaItemBuilder.setClipRelativeToDefaultPosition(true);
     }
 
@@ -77,7 +77,7 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
   }
 
   @Override
-  public androidx.media2.common.MediaItem convertToAndroidXMediaItem(MediaItem exoPlayerMediaItem) {
+  public androidx.media2.common.MediaItem convertToMedia2MediaItem(MediaItem exoPlayerMediaItem) {
     Assertions.checkNotNull(exoPlayerMediaItem);
     MediaItem.PlaybackProperties playbackProperties =
         Assertions.checkNotNull(exoPlayerMediaItem.playbackProperties);

@@ -56,30 +56,30 @@ import java.util.List;
     void onPlayerStateChanged(/* @SessionPlayer.PlayerState */ int playerState);
 
     /** Called when the player is prepared. */
-    void onPrepared(androidx.media2.common.MediaItem androidXMediaItem, int bufferingPercentage);
+    void onPrepared(androidx.media2.common.MediaItem media2MediaItem, int bufferingPercentage);
 
     /** Called when a seek request has completed. */
     void onSeekCompleted();
 
     /** Called when the player rebuffers. */
-    void onBufferingStarted(androidx.media2.common.MediaItem androidXMediaItem);
+    void onBufferingStarted(androidx.media2.common.MediaItem media2MediaItem);
 
     /** Called when the player becomes ready again after rebuffering. */
     void onBufferingEnded(
-        androidx.media2.common.MediaItem androidXMediaItem, int bufferingPercentage);
+        androidx.media2.common.MediaItem media2MediaItem, int bufferingPercentage);
 
     /** Called periodically with the player's buffered position as a percentage. */
     void onBufferingUpdate(
-        androidx.media2.common.MediaItem androidXMediaItem, int bufferingPercentage);
+        androidx.media2.common.MediaItem media2MediaItem, int bufferingPercentage);
 
     /** Called when current media item is changed. */
-    void onCurrentMediaItemChanged(androidx.media2.common.MediaItem androidXMediaItem);
+    void onCurrentMediaItemChanged(androidx.media2.common.MediaItem media2MediaItem);
 
     /** Called when playback of the item list has ended. */
     void onPlaybackEnded();
 
     /** Called when the player encounters an error. */
-    void onError(@Nullable androidx.media2.common.MediaItem androidXMediaItem);
+    void onError(@Nullable androidx.media2.common.MediaItem media2MediaItem);
 
     /** Called when the playlist is changed. */
     void onPlaylistChanged();
@@ -111,7 +111,7 @@ import java.util.List;
   @Nullable private MediaMetadata playlistMetadata;
 
   // These should be only updated in TimelineChanges.
-  private final List<androidx.media2.common.MediaItem> androidXPlaylist;
+  private final List<androidx.media2.common.MediaItem> media2Playlist;
   private final List<MediaItem> exoPlayerPlaylist;
 
   private boolean prepared;
@@ -147,7 +147,7 @@ import java.util.List;
     handler = new PlayerHandler(player.getApplicationLooper());
     pollBufferRunnable = new PollBufferRunnable();
 
-    androidXPlaylist = new ArrayList<>();
+    media2Playlist = new ArrayList<>();
     exoPlayerPlaylist = new ArrayList<>();
     currentWindowIndex = C.INDEX_UNSET;
 
@@ -157,25 +157,24 @@ import java.util.List;
     updatePlaylist(player.getCurrentTimeline());
   }
 
-  public boolean setMediaItem(androidx.media2.common.MediaItem androidXMediaItem) {
-    return setPlaylist(Collections.singletonList(androidXMediaItem), /* metadata= */ null);
+  public boolean setMediaItem(androidx.media2.common.MediaItem media2MediaItem) {
+    return setPlaylist(Collections.singletonList(media2MediaItem), /* metadata= */ null);
   }
 
   public boolean setPlaylist(
       List<androidx.media2.common.MediaItem> playlist, @Nullable MediaMetadata metadata) {
     // Check for duplication.
     for (int i = 0; i < playlist.size(); i++) {
-      androidx.media2.common.MediaItem androidXMediaItem = playlist.get(i);
-      Assertions.checkArgument(playlist.indexOf(androidXMediaItem) == i);
+      androidx.media2.common.MediaItem media2MediaItem = playlist.get(i);
+      Assertions.checkArgument(playlist.indexOf(media2MediaItem) == i);
     }
 
     this.playlistMetadata = metadata;
     List<MediaItem> exoPlayerMediaItems = new ArrayList<>();
     for (int i = 0; i < playlist.size(); i++) {
-      androidx.media2.common.MediaItem androidXMediaItem = playlist.get(i);
+      androidx.media2.common.MediaItem media2MediaItem = playlist.get(i);
       MediaItem exoPlayerMediaItem =
-          Assertions.checkNotNull(
-              mediaItemConverter.convertToExoPlayerMediaItem(androidXMediaItem));
+          Assertions.checkNotNull(mediaItemConverter.convertToExoPlayerMediaItem(media2MediaItem));
       exoPlayerMediaItems.add(exoPlayerMediaItem);
     }
 
@@ -185,12 +184,12 @@ import java.util.List;
     return true;
   }
 
-  public boolean addPlaylistItem(int index, androidx.media2.common.MediaItem androidXMediaItem) {
-    Assertions.checkArgument(!androidXPlaylist.contains(androidXMediaItem));
-    index = Util.constrainValue(index, 0, androidXPlaylist.size());
+  public boolean addPlaylistItem(int index, androidx.media2.common.MediaItem media2MediaItem) {
+    Assertions.checkArgument(!media2Playlist.contains(media2MediaItem));
+    index = Util.constrainValue(index, 0, media2Playlist.size());
 
     MediaItem exoPlayerMediaItem =
-        Assertions.checkNotNull(mediaItemConverter.convertToExoPlayerMediaItem(androidXMediaItem));
+        Assertions.checkNotNull(mediaItemConverter.convertToExoPlayerMediaItem(media2MediaItem));
     player.addMediaItem(index, exoPlayerMediaItem);
     return true;
   }
@@ -200,13 +199,12 @@ import java.util.List;
     return true;
   }
 
-  public boolean replacePlaylistItem(
-      int index, androidx.media2.common.MediaItem androidXMediaItem) {
-    Assertions.checkArgument(!androidXPlaylist.contains(androidXMediaItem));
-    index = Util.constrainValue(index, 0, androidXPlaylist.size());
+  public boolean replacePlaylistItem(int index, androidx.media2.common.MediaItem media2MediaItem) {
+    Assertions.checkArgument(!media2Playlist.contains(media2MediaItem));
+    index = Util.constrainValue(index, 0, media2Playlist.size());
 
     MediaItem exoPlayerMediaItemToAdd =
-        Assertions.checkNotNull(mediaItemConverter.convertToExoPlayerMediaItem(androidXMediaItem));
+        Assertions.checkNotNull(mediaItemConverter.convertToExoPlayerMediaItem(media2MediaItem));
 
     ignoreTimelineUpdates = true;
     player.removeMediaItem(index);
@@ -266,7 +264,7 @@ import java.util.List;
 
   @Nullable
   public List<androidx.media2.common.MediaItem> getPlaylist() {
-    return new ArrayList<>(androidXPlaylist);
+    return new ArrayList<>(media2Playlist);
   }
 
   @Nullable
@@ -283,7 +281,7 @@ import java.util.List;
   }
 
   public int getCurrentMediaItemIndex() {
-    return androidXPlaylist.isEmpty() ? C.INDEX_UNSET : player.getCurrentWindowIndex();
+    return media2Playlist.isEmpty() ? C.INDEX_UNSET : player.getCurrentWindowIndex();
   }
 
   public int getPreviousMediaItemIndex() {
@@ -297,7 +295,7 @@ import java.util.List;
   @Nullable
   public androidx.media2.common.MediaItem getCurrentMediaItem() {
     int index = getCurrentMediaItemIndex();
-    return (index != C.INDEX_UNSET) ? androidXPlaylist.get(index) : null;
+    return (index != C.INDEX_UNSET) ? media2Playlist.get(index) : null;
   }
 
   public boolean prepare() {
@@ -522,9 +520,9 @@ import java.util.List;
   }
 
   private void updatePlaylist(Timeline timeline) {
-    List<androidx.media2.common.MediaItem> androidXMediaItemToBeRemoved =
-        new ArrayList<>(androidXPlaylist);
-    androidXPlaylist.clear();
+    List<androidx.media2.common.MediaItem> media2MediaItemToBeRemoved =
+        new ArrayList<>(media2Playlist);
+    media2Playlist.clear();
     exoPlayerPlaylist.clear();
 
     Timeline.Window window = new Timeline.Window();
@@ -532,15 +530,14 @@ import java.util.List;
     for (int i = 0; i < windowCount; i++) {
       timeline.getWindow(i, window);
       MediaItem exoPlayerMediaItem = window.mediaItem;
-      androidx.media2.common.MediaItem androidXMediaItem =
-          Assertions.checkNotNull(
-              mediaItemConverter.convertToAndroidXMediaItem(exoPlayerMediaItem));
+      androidx.media2.common.MediaItem media2MediaItem =
+          Assertions.checkNotNull(mediaItemConverter.convertToMedia2MediaItem(exoPlayerMediaItem));
       exoPlayerPlaylist.add(exoPlayerMediaItem);
-      androidXPlaylist.add(androidXMediaItem);
-      androidXMediaItemToBeRemoved.remove(androidXMediaItem);
+      media2Playlist.add(media2MediaItem);
+      media2MediaItemToBeRemoved.remove(media2MediaItem);
     }
 
-    for (androidx.media2.common.MediaItem item : androidXMediaItemToBeRemoved) {
+    for (androidx.media2.common.MediaItem item : media2MediaItemToBeRemoved) {
       releaseMediaItem(item);
     }
   }
@@ -550,35 +547,35 @@ import java.util.List;
   }
 
   private void updateBufferingAndScheduleNextPollBuffer() {
-    androidx.media2.common.MediaItem androidXMediaItem =
+    androidx.media2.common.MediaItem media2MediaItem =
         Assertions.checkNotNull(getCurrentMediaItem());
-    listener.onBufferingUpdate(androidXMediaItem, player.getBufferedPercentage());
+    listener.onBufferingUpdate(media2MediaItem, player.getBufferedPercentage());
     handler.removeCallbacks(pollBufferRunnable);
     handler.postDelayed(pollBufferRunnable, POLL_BUFFER_INTERVAL_MS);
   }
 
   private void maybeNotifyBufferingEvents() {
-    androidx.media2.common.MediaItem androidXMediaItem =
+    androidx.media2.common.MediaItem media2MediaItem =
         Assertions.checkNotNull(getCurrentMediaItem());
     if (prepared && !rebuffering) {
       rebuffering = true;
-      listener.onBufferingStarted(androidXMediaItem);
+      listener.onBufferingStarted(media2MediaItem);
     }
   }
 
   private void maybeNotifyReadyEvents() {
-    androidx.media2.common.MediaItem androidXMediaItem =
+    androidx.media2.common.MediaItem media2MediaItem =
         Assertions.checkNotNull(getCurrentMediaItem());
     boolean prepareComplete = !prepared;
     if (prepareComplete) {
       prepared = true;
       handlePositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
       listener.onPlayerStateChanged(SessionPlayer.PLAYER_STATE_PAUSED);
-      listener.onPrepared(androidXMediaItem, player.getBufferedPercentage());
+      listener.onPrepared(media2MediaItem, player.getBufferedPercentage());
     }
     if (rebuffering) {
       rebuffering = false;
-      listener.onBufferingEnded(androidXMediaItem, player.getBufferedPercentage());
+      listener.onBufferingEnded(media2MediaItem, player.getBufferedPercentage());
     }
   }
 
@@ -590,13 +587,13 @@ import java.util.List;
     }
   }
 
-  private void releaseMediaItem(androidx.media2.common.MediaItem androidXMediaItem) {
+  private void releaseMediaItem(androidx.media2.common.MediaItem media2MediaItem) {
     try {
-      if (androidXMediaItem instanceof CallbackMediaItem) {
-        ((CallbackMediaItem) androidXMediaItem).getDataSourceCallback().close();
+      if (media2MediaItem instanceof CallbackMediaItem) {
+        ((CallbackMediaItem) media2MediaItem).getDataSourceCallback().close();
       }
     } catch (IOException e) {
-      Log.w(TAG, "Error releasing media item " + androidXMediaItem, e);
+      Log.w(TAG, "Error releasing media item " + media2MediaItem, e);
     }
   }
 

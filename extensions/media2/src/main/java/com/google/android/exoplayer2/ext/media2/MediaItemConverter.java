@@ -19,19 +19,19 @@ package com.google.android.exoplayer2.ext.media2;
 import com.google.android.exoplayer2.MediaItem;
 
 /**
- * Converter for between {@link MediaItem AndroidX MediaItem} and {@link
+ * Converter between {@link MediaItem Media2 MediaItem} and {@link
  * com.google.android.exoplayer2.MediaItem ExoPlayer MediaItem}.
  */
 public interface MediaItemConverter {
   /**
-   * Converts {@link androidx.media2.common.MediaItem AndroidX MediaItem} to {@link MediaItem
+   * Converts {@link androidx.media2.common.MediaItem Media2 MediaItem} to {@link MediaItem
    * ExoPlayer MediaItem}.
    */
-  MediaItem convertToExoPlayerMediaItem(androidx.media2.common.MediaItem androidXMediaItem);
+  MediaItem convertToExoPlayerMediaItem(androidx.media2.common.MediaItem media2MediaItem);
 
   /**
    * Converts {@link MediaItem ExoPlayer MediaItem} to {@link androidx.media2.common.MediaItem
-   * AndroidX MediaItem}.
+   * Media2 MediaItem}.
    */
-  androidx.media2.common.MediaItem convertToAndroidXMediaItem(MediaItem exoPlayerMediaItem);
+  androidx.media2.common.MediaItem convertToMedia2MediaItem(MediaItem exoPlayerMediaItem);
 }
