@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.ext.media2;
 
 import android.Manifest;
@@ -45,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Builds {@link MediaSession.SessionCallback} with various collaborators.
+ * Builds a {@link MediaSession.SessionCallback} with various collaborators.
  *
  * @see MediaSession.SessionCallback
  */
