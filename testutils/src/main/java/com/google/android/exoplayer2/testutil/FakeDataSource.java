@@ -217,8 +217,7 @@ public class FakeDataSource extends BaseDataSource {
    * this method.
    */
   public final DataSpec[] getAndClearOpenedDataSpecs() {
-    DataSpec[] dataSpecs = new DataSpec[openedDataSpecs.size()];
-    openedDataSpecs.toArray(dataSpecs);
+    DataSpec[] dataSpecs = openedDataSpecs.toArray(new DataSpec[0]);
     openedDataSpecs.clear();
     return dataSpecs;
   }
