@@ -1272,7 +1272,7 @@ public class SessionPlayerConnectorTest {
               simpleExoPlayer.setMediaItems(exoMediaItems);
 
               try (SessionPlayerConnector sessionPlayer =
-                  new SessionPlayerConnector(simpleExoPlayer, converter)) {
+                  new SessionPlayerConnector(simpleExoPlayer)) {
                 List<MediaItem> playlist = sessionPlayer.getPlaylist();
                 playlistFromSessionPlayer.set(playlist);
               }

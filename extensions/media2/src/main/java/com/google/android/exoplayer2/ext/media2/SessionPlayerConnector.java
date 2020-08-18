@@ -96,13 +96,13 @@ public final class SessionPlayerConnector extends SessionPlayer {
   @Nullable private MediaItem currentMediaItem;
 
   /**
-   * Creates an instance using {@link DefaultControlDispatcher} to dispatch player commands.
+   * Creates an instance using {@link DefaultMediaItemConverter} to convert between ExoPlayer and
+   * media2 MediaItems and {@link DefaultControlDispatcher} to dispatch player commands.
    *
    * @param player The player to wrap.
-   * @param mediaItemConverter The {@link MediaItemConverter}.
    */
-  public SessionPlayerConnector(Player player, MediaItemConverter mediaItemConverter) {
-    this(player, mediaItemConverter, new DefaultControlDispatcher());
+  public SessionPlayerConnector(Player player) {
+    this(player, new DefaultMediaItemConverter(), new DefaultControlDispatcher());
   }
 
   /**

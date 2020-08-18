@@ -83,8 +83,7 @@ import org.junit.rules.ExternalResource;
                       .setLooper(Looper.myLooper())
                       .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory, null))
                       .build();
-              sessionPlayerConnector =
-                  new SessionPlayerConnector(exoPlayer, new DefaultMediaItemConverter());
+              sessionPlayerConnector = new SessionPlayerConnector(exoPlayer);
             });
   }
 
