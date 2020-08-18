@@ -269,6 +269,10 @@
         ([#7011](https://github.com/google/ExoPlayer/issues/7011),
         [#6725](https://github.com/google/ExoPlayer/issues/6725),
         [#7066](https://github.com/google/ExoPlayer/issues/7066)).
+    *   Remove support for `cbc1` and `cens` encrytion schemes. Support for
+        these schemes was removed from the Android platform from API level 30,
+        and the range of API levels for which they are supported is too small to
+        be useful.
     *   Remove generic types from DRM components.
 *   Test utils: Add `TestExoPlayer`, a utility class with APIs to create
     `SimpleExoPlayer` instances with fake components for testing.

@@ -585,12 +585,16 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     if (schemeType == null || C.CENC_TYPE_cenc.equals(schemeType)) {
       // If there is no scheme information, assume patternless AES-CTR.
       return true;
-    } else if (C.CENC_TYPE_cbc1.equals(schemeType)
-        || C.CENC_TYPE_cbcs.equals(schemeType)
-        || C.CENC_TYPE_cens.equals(schemeType)) {
-      // API support for AES-CBC and pattern encryption was added in API 24. However, the
+    } else if (C.CENC_TYPE_cbcs.equals(schemeType)) {
+      // Support for cbcs (AES-CBC with pattern encryption) was added in API 24. However, the
       // implementation was not stable until API 25.
       return Util.SDK_INT >= 25;
+    } else if (C.CENC_TYPE_cbc1.equals(schemeType) || C.CENC_TYPE_cens.equals(schemeType)) {
+      // Support for cbc1 (AES-CTR with pattern encryption) and cens (AES-CBC without pattern
+      // encryption) was also added in API 24 and made stable from API 25, however support was
+      // removed from API 30. Since the range of API levels for which these modes are usable is too
+      // small to be useful, we don't indicate support on any API level.
+      return false;
     }
     // Unknown schemes, assume one of them is supported.
     return true;
