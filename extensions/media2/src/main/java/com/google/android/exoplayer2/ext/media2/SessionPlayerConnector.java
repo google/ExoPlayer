@@ -46,19 +46,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 /**
  * An implementation of {@link SessionPlayer} that wraps a given ExoPlayer {@link Player} instance.
  *
- * <h3>Ownership</h3>
- *
- * <p>{@code SessionPlayerConnector} takes ownership of the provided ExoPlayer {@link Player}
- * instance between when it's constructed and when it's {@link #close() closed}. No other components
- * should interact with the wrapped player (otherwise, unexpected event callbacks from the wrapped
- * player may put the session player in an inconsistent state).
- *
- * <p>Call {@link SessionPlayer#close()} when the {@code SessionPlayerConnector} is no longer needed
- * to regain ownership of the wrapped player. It is the caller's responsibility to release the
- * wrapped player via {@link Player#release()}.
- *
- * <h3>Threading model</h3>
- *
  * <p>Internally this implementation posts operations to and receives callbacks on the thread
  * associated with {@link Player#getApplicationLooper()}, so it is important not to block this
  * thread. In particular, when awaiting the result of an asynchronous session player operation, apps
