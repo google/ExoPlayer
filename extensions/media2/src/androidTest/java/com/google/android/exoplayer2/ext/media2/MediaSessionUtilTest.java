@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
-import android.os.Looper;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.NonNull;
@@ -46,13 +45,6 @@ public class MediaSessionUtilTest {
 
   @Test
   public void getSessionCompatToken_withMediaControllerCompat_returnsValidToken() throws Exception {
-    // Workaround to instantiate MediaSession with public androidx.media dependency.
-    // TODO(b/146536708): Remove this workaround when the relevant change is released via
-    //                    androidx.media 1.2.0.
-    if (Looper.myLooper() == null) {
-      Looper.prepare();
-    }
-
     Context context = ApplicationProvider.getApplicationContext();
 
     SessionPlayerConnector sessionPlayerConnector = playerTestRule.getSessionPlayerConnector();
