@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.common.CallbackMediaItem;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -225,16 +226,27 @@ public final class SessionPlayerConnector extends SessionPlayer {
     return runPlayerCallableBlockingWithNullOnException(/* callable= */ player::getAudioAttributes);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>{@link FileMediaItem} and {@link CallbackMediaItem} are not supported.
+   */
   @Override
   public ListenableFuture<PlayerResult> setMediaItem(MediaItem item) {
     Assertions.checkNotNull(item);
     Assertions.checkArgument(!(item instanceof FileMediaItem));
+    Assertions.checkArgument(!(item instanceof CallbackMediaItem));
     ListenableFuture<PlayerResult> result =
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, () -> player.setMediaItem(item));
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>{@link FileMediaItem} and {@link CallbackMediaItem} are not supported.
+   */
   @Override
   public ListenableFuture<PlayerResult> setPlaylist(
       final List<MediaItem> playlist, @Nullable MediaMetadata metadata) {
@@ -244,6 +256,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
       MediaItem item = playlist.get(i);
       Assertions.checkNotNull(item);
       Assertions.checkArgument(!(item instanceof FileMediaItem));
+      Assertions.checkArgument(!(item instanceof CallbackMediaItem));
       for (int j = 0; j < i; j++) {
         Assertions.checkArgument(
             item != playlist.get(j),
@@ -257,11 +270,17 @@ public final class SessionPlayerConnector extends SessionPlayer {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>{@link FileMediaItem} and {@link CallbackMediaItem} are not supported.
+   */
   @Override
   public ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem item) {
     Assertions.checkArgument(index >= 0);
     Assertions.checkNotNull(item);
     Assertions.checkArgument(!(item instanceof FileMediaItem));
+    Assertions.checkArgument(!(item instanceof CallbackMediaItem));
     ListenableFuture<PlayerResult> result =
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
@@ -279,11 +298,17 @@ public final class SessionPlayerConnector extends SessionPlayer {
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>{@link FileMediaItem} and {@link CallbackMediaItem} are not supported.
+   */
   @Override
   public ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem item) {
     Assertions.checkArgument(index >= 0);
     Assertions.checkNotNull(item);
     Assertions.checkArgument(!(item instanceof FileMediaItem));
+    Assertions.checkArgument(!(item instanceof CallbackMediaItem));
     ListenableFuture<PlayerResult> result =
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
