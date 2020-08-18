@@ -6,7 +6,6 @@
 ### 2.12.0 (not yet released - targeted for 2020-08-TBD) ###
 
 *   Core library:
-    *   Implement getTag for SilenceMediaSource.
     *   Added `TextComponent.getCurrentCues` because the current cues are no
         longer forwarded to a new `TextOutput` in `SimpleExoPlayer`
         automatically.
@@ -56,18 +55,10 @@
         `AudioListener.onSkipSilenceEnabledChanged`.
     *   Make `MediaSourceEventListener.LoadEventInfo` and
         `MediaSourceEventListener.MediaLoadData` top-level classes.
-    *   Rename `MediaCodecRenderer.onOutputFormatChanged` to
-        `MediaCodecRenderer.onOutputMediaFormatChanged`, further clarifying the
-        distinction between `Format` and `MediaFormat`.
-    *   Improve `Format` propagation within the media codec renderer
-        ([#6646](https://github.com/google/ExoPlayer/issues/6646)).
     *   Move player message-related constants from `C` to `Renderer`, to avoid
         having the constants class depend on player/renderer classes.
     *   Split out `common` and `extractor` submodules.
     *   Allow to explicitly send `PlayerMessage`s at the end of a stream.
-    *   Add `DataSpec.Builder` and deprecate most `DataSpec` constructors.
-    *   Add `DataSpec.customData` to allow applications to pass custom data
-        through `DataSource` chains.
     *   Add a `Format.Builder` and deprecate all `Format.create*` methods and
         most `Format.copyWith*` methods.
     *   Split `Format.bitrate` into `Format.averageBitrate` and
@@ -81,29 +72,13 @@
         generalized to work with `Decoder` rather than `SimpleDecoder`.
     *   Add media item based playlist API to `Player`.
     *   Add `getCurrentMediaItem` to `Player`.
-    *   Remove deprecated members in `DefaultTrackSelector`.
-    *   Add `DefaultTrackSelector` constraints for minimum video resolution,
-        bitrate and frame rate
-        ([#4511](https://github.com/google/ExoPlayer/issues/4511)).
     *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
         that the device volume can be controlled by player.
-    *   Parse track titles from Matroska files
-        ([#7247](https://github.com/google/ExoPlayer/pull/7247)).
-    *   Replace `CacheDataSinkFactory` and `CacheDataSourceFactory` with
-        `CacheDataSink.Factory` and `CacheDataSource.Factory` respectively.
     *   Extend `EventTime` with more details about the current player state for
         easier access
         ([#7332](https://github.com/google/ExoPlayer/issues/7332)).
-    *   Add `HttpDataSource.InvalidResponseCodeException#responseBody` field
-        ([#6853](https://github.com/google/ExoPlayer/issues/6853)).
-    *   Add `TrackSelection.shouldCancelMediaChunkLoad` to check whether an
-        ongoing load should be canceled. Only supported by HLS streams so far.
-        ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
-    *   Remove throws clause from Renderer.stop.
     *   Don't clear `exception` in `SimpleDecoder#flush()`
         ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
-    *   Remove `AdaptiveTrackSelection.minTimeBetweenBufferReevaluationMs`
-        parameter ([#7582](https://github.com/google/ExoPlayer/issues/7582)).
     *   Fix wrong `MediaPeriodId` for some renderer errors reported by
         `AnalyticsListener.onPlayerError`.
     *   Remove onMediaPeriodCreated/Released/ReadingStarted from
@@ -114,6 +89,9 @@
     *   Add Guava dependency.
     *   Add MetadataRetriever API to retrieve the static metadata of a media
         item ([#3609](https://github.com/google/ExoPlayer/issues/3609)).
+    *   Fix incorrect aspect ratio when transitioning from one video to another
+        that has the same resolution, but a different pixel aspect ratio.
+        ([#6646](https://github.com/google/ExoPlayer/issues/6646)).
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Audio:
     *   Add a sample count parameter to `MediaCodecRenderer.processOutputBuffer`
@@ -214,7 +192,9 @@
             ([#7308](https://github.com/google/ExoPlayer/issues/7308)).
         *   Fix handling of `traf` boxes containing multiple `sbgp` or `sgpd`
             boxes ([#7716](https://github.com/google/ExoPlayer/issues/7716)).
-    *   Matroska: Remove support for the `Invisible` block header flag.
+    *   Matroska:
+        *   Populate `Format.label` with track titles.
+        *   Remove support for the `Invisible` block header flag.
     *   MPEG-TS: Add support for MPEG-4 Part 2 and H.263
         ([#1603](https://github.com/google/ExoPlayer/issues/1603),
         [#5107](https://github.com/google/ExoPlayer/issues/5107)).
@@ -274,6 +254,23 @@
         and the range of API levels for which they are supported is too small to
         be useful.
     *   Remove generic types from DRM components.
+*   Track selection
+    *   Add `TrackSelection.shouldCancelMediaChunkLoad` to check whether an
+        ongoing load should be canceled
+        ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
+    *   Add `DefaultTrackSelector` constraints for minimum video resolution,
+        bitrate and frame rate
+        ([#4511](https://github.com/google/ExoPlayer/issues/4511)).
+    *   Remove previously deprecated `DefaultTrackSelector` members.
+*   Data sources
+    *   Add `HttpDataSource.InvalidResponseCodeException#responseBody` field
+        ([#6853](https://github.com/google/ExoPlayer/issues/6853)).
+    *   Add `DataSpec.Builder` and deprecate most `DataSpec` constructors.
+    *   Add `DataSpec.customData` to allow applications to pass custom data
+        through `DataSource` chains.
+    *   Deprecate `CacheDataSinkFactory` and `CacheDataSourceFactory`, which are
+        replaced by `CacheDataSink.Factory` and `CacheDataSource.Factory`
+        respectively.
 *   Test utils: Add `TestExoPlayer`, a utility class with APIs to create
     `SimpleExoPlayer` instances with fake components for testing.
 *   Media2 extension: This is a new extension that makes it easy to use
