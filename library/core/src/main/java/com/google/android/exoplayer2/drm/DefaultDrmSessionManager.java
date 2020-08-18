@@ -551,7 +551,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     // Avoid attaching a session to sparse formats.
     if (avoidPlaceholderDrmSessions
         || Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) == C.INDEX_UNSET
-        || exoMediaDrm.getExoMediaCryptoType() == null) {
+        || UnsupportedMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())) {
       return null;
     }
     if (placeholderDrmSession == null) {
