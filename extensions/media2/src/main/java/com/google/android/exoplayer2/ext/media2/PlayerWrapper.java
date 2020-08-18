@@ -294,7 +294,7 @@ import java.util.List;
   @Nullable
   public androidx.media2.common.MediaItem getCurrentMediaItem() {
     int index = getCurrentMediaItemIndex();
-    return (index != C.INDEX_UNSET) ? media2Playlist.get(index) : null;
+    return index == C.INDEX_UNSET ? null : media2Playlist.get(index);
   }
 
   public boolean prepare() {
@@ -307,9 +307,9 @@ import java.util.List;
 
   public boolean play() {
     if (player.getPlaybackState() == Player.STATE_ENDED) {
-      int currentWindowIndex = getCurrentMediaItemIndex();
       boolean seekHandled =
-          controlDispatcher.dispatchSeekTo(player, currentWindowIndex, /* positionMs= */ 0);
+          controlDispatcher.dispatchSeekTo(
+              player, player.getCurrentWindowIndex(), /* positionMs= */ 0);
       if (!seekHandled) {
         return false;
       }
@@ -332,8 +332,7 @@ import java.util.List;
   }
 
   public boolean seekTo(long position) {
-    int currentWindowIndex = getCurrentMediaItemIndex();
-    return controlDispatcher.dispatchSeekTo(player, currentWindowIndex, position);
+    return controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), position);
   }
 
   public long getCurrentPosition() {
