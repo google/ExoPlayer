@@ -112,6 +112,8 @@
         `ControlDispatcher`
         ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
     *   Add Guava dependency.
+    *   Add MetadataRetriever API to retrieve the static metadata of a media
+        item ([#3609](https://github.com/google/ExoPlayer/issues/3609)).
 *   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
 *   Audio:
     *   Add a sample count parameter to `MediaCodecRenderer.processOutputBuffer`
