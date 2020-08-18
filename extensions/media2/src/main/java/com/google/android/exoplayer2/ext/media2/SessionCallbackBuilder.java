@@ -19,7 +19,6 @@ import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -30,7 +29,6 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.UriMediaItem;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -38,8 +36,6 @@ import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionResult;
 import com.google.android.exoplayer2.util.Assertions;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -350,10 +346,8 @@ public final class SessionCallbackBuilder {
     }
   }
 
-  /**
-   * Default implementation of {@link MediaItemProvider} that assumes the media id is a URI string.
-   */
-  public static final class DefaultMediaItemProvider implements MediaItemProvider {
+  /** A {@link MediaItemProvider} that creates media items containing only a media ID. */
+  public static final class MediaIdMediaItemProvider implements MediaItemProvider {
     @Override
     @Nullable
     public MediaItem onCreateMediaItem(
@@ -361,17 +355,11 @@ public final class SessionCallbackBuilder {
       if (TextUtils.isEmpty(mediaId)) {
         return null;
       }
-      try {
-        new URI(mediaId);
-      } catch (URISyntaxException e) {
-        // Ignore if mediaId isn't a URI.
-        return null;
-      }
       MediaMetadata metadata =
           new MediaMetadata.Builder()
               .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId)
               .build();
-      return new UriMediaItem.Builder(Uri.parse(mediaId)).setMetadata(metadata).build();
+      return new MediaItem.Builder().setMetadata(metadata).build();
     }
   }
 
