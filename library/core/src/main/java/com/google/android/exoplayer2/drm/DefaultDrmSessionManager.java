@@ -409,7 +409,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   /**
    * Sets the mode, which determines the role of sessions acquired from the instance. This must be
    * called before {@link #acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)}
-   * or {@link #acquirePlaceholderSession} is called.
+   * is called.
    *
    * <p>By default, the mode is {@link #MODE_PLAYBACK} and a streaming license is requested when
    * required.
@@ -469,40 +469,17 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   @Override
   @Nullable
-  public DrmSession acquirePlaceholderSession(Looper playbackLooper, int trackType) {
-    initPlaybackLooper(playbackLooper);
-    ExoMediaDrm exoMediaDrm = Assertions.checkNotNull(this.exoMediaDrm);
-    boolean avoidPlaceholderDrmSessions =
-        FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
-            && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
-    // Avoid attaching a session to sparse formats.
-    if (avoidPlaceholderDrmSessions
-        || Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) == C.INDEX_UNSET
-        || exoMediaDrm.getExoMediaCryptoType() == null) {
-      return null;
-    }
-    maybeCreateMediaDrmHandler(playbackLooper);
-    if (placeholderDrmSession == null) {
-      DefaultDrmSession placeholderDrmSession =
-          createAndAcquireSessionWithRetry(
-              /* schemeDatas= */ ImmutableList.of(),
-              /* isPlaceholderSession= */ true,
-              /* eventDispatcher= */ null);
-      sessions.add(placeholderDrmSession);
-      this.placeholderDrmSession = placeholderDrmSession;
-    } else {
-      placeholderDrmSession.acquire(/* eventDispatcher= */ null);
-    }
-    return placeholderDrmSession;
-  }
-
-  @Override
   public DrmSession acquireSession(
       Looper playbackLooper,
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
       Format format) {
     initPlaybackLooper(playbackLooper);
     maybeCreateMediaDrmHandler(playbackLooper);
+
+    if (format.drmInitData == null) {
+      // Content is not encrypted.
+      return maybeAcquirePlaceholderSession(MimeTypes.getTrackType(format.sampleMimeType));
+    }
 
     @Nullable List<SchemeData> schemeDatas = null;
     if (offlineLicenseKeySetId == null) {
@@ -564,6 +541,32 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   }
 
   // Internal methods.
+
+  @Nullable
+  private DrmSession maybeAcquirePlaceholderSession(int trackType) {
+    ExoMediaDrm exoMediaDrm = Assertions.checkNotNull(this.exoMediaDrm);
+    boolean avoidPlaceholderDrmSessions =
+        FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
+            && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
+    // Avoid attaching a session to sparse formats.
+    if (avoidPlaceholderDrmSessions
+        || Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) == C.INDEX_UNSET
+        || exoMediaDrm.getExoMediaCryptoType() == null) {
+      return null;
+    }
+    if (placeholderDrmSession == null) {
+      DefaultDrmSession placeholderDrmSession =
+          createAndAcquireSessionWithRetry(
+              /* schemeDatas= */ ImmutableList.of(),
+              /* isPlaceholderSession= */ true,
+              /* eventDispatcher= */ null);
+      sessions.add(placeholderDrmSession);
+      this.placeholderDrmSession = placeholderDrmSession;
+    } else {
+      placeholderDrmSession.acquire(/* eventDispatcher= */ null);
+    }
+    return placeholderDrmSession;
+  }
 
   private boolean canAcquireSession(DrmInitData drmInitData) {
     if (offlineLicenseKeySetId != null) {

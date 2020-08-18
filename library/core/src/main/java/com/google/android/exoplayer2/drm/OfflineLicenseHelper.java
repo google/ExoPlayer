@@ -184,7 +184,8 @@ public final class OfflineLicenseHelper {
   /**
    * Downloads an offline license.
    *
-   * @param format The {@link Format} of the content whose license is to be downloaded.
+   * @param format The {@link Format} of the content whose license is to be downloaded. Must contain
+   *     a non-null {@link Format#drmInitData}.
    * @return The key set id for the downloaded license.
    * @throws DrmSessionException Thrown when a DRM session error occurs.
    */
@@ -278,13 +279,14 @@ public final class OfflineLicenseHelper {
 
   private DrmSession openBlockingKeyRequest(
       @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format) {
+    Assertions.checkNotNull(format.drmInitData);
     drmSessionManager.setMode(licenseMode, offlineLicenseKeySetId);
     conditionVariable.close();
     DrmSession drmSession =
         drmSessionManager.acquireSession(handlerThread.getLooper(), eventDispatcher, format);
     // Block current thread until key loading is finished
     conditionVariable.block();
-    return drmSession;
+    return Assertions.checkNotNull(drmSession);
   }
 
 }

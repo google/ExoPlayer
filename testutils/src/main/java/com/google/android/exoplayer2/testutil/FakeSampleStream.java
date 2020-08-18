@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
@@ -274,10 +273,7 @@ public class FakeSampleStream implements SampleStream {
     @Nullable DrmSession previousSession = currentDrmSession;
     Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
     currentDrmSession =
-        newDrmInitData != null
-            ? drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newFormat)
-            : drmSessionManager.acquirePlaceholderSession(
-                playbackLooper, MimeTypes.getTrackType(newFormat.sampleMimeType));
+        drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newFormat);
     outputFormatHolder.drmSession = currentDrmSession;
 
     if (previousSession != null) {
