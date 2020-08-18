@@ -33,5 +33,5 @@ public interface MediaItemConverter {
    * Converts {@link MediaItem ExoPlayer MediaItem} to {@link androidx.media2.common.MediaItem
    * AndroidX MediaItem}.
    */
-  androidx.media2.common.MediaItem convertToAndroidXMediaItem(MediaItem exoplayerMediaItem);
+  androidx.media2.common.MediaItem convertToAndroidXMediaItem(MediaItem exoPlayerMediaItem);
 }

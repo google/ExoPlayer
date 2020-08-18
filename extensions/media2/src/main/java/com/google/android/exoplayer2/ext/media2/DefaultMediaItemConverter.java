@@ -37,10 +37,10 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
       throw new IllegalStateException("CallbackMediaItem isn't supported");
     }
 
-    MediaItem.Builder exoplayerMediaItemBuilder = new MediaItem.Builder();
+    MediaItem.Builder exoPlayerMediaItemBuilder = new MediaItem.Builder();
 
     // Set mediaItem as tag for creating MediaSource via MediaSourceFactory methods.
-    exoplayerMediaItemBuilder.setTag(androidXMediaItem);
+    exoPlayerMediaItemBuilder.setTag(androidXMediaItem);
 
     // Media ID or URI must be present. Get it from androidx.MediaItem if possible.
     @Nullable Uri uri = null;
@@ -61,31 +61,31 @@ public final class DefaultMediaItemConverter implements MediaItemConverter {
       // Generate a Uri to make it non-null. If not, tag will be ignored.
       uri = Uri.parse("exoplayer://" + androidXMediaItem.hashCode());
     }
-    exoplayerMediaItemBuilder.setUri(uri);
-    exoplayerMediaItemBuilder.setMediaId(mediaId);
+    exoPlayerMediaItemBuilder.setUri(uri);
+    exoPlayerMediaItemBuilder.setMediaId(mediaId);
 
     if (androidXMediaItem.getStartPosition() != androidx.media2.common.MediaItem.POSITION_UNKNOWN) {
-      exoplayerMediaItemBuilder.setClipStartPositionMs(androidXMediaItem.getStartPosition());
-      exoplayerMediaItemBuilder.setClipRelativeToDefaultPosition(true);
+      exoPlayerMediaItemBuilder.setClipStartPositionMs(androidXMediaItem.getStartPosition());
+      exoPlayerMediaItemBuilder.setClipRelativeToDefaultPosition(true);
     }
     if (androidXMediaItem.getEndPosition() != androidx.media2.common.MediaItem.POSITION_UNKNOWN) {
-      exoplayerMediaItemBuilder.setClipEndPositionMs(androidXMediaItem.getEndPosition());
-      exoplayerMediaItemBuilder.setClipRelativeToDefaultPosition(true);
+      exoPlayerMediaItemBuilder.setClipEndPositionMs(androidXMediaItem.getEndPosition());
+      exoPlayerMediaItemBuilder.setClipRelativeToDefaultPosition(true);
     }
 
-    return exoplayerMediaItemBuilder.build();
+    return exoPlayerMediaItemBuilder.build();
   }
 
   @Override
-  public androidx.media2.common.MediaItem convertToAndroidXMediaItem(MediaItem exoplayerMediaItem) {
-    Assertions.checkNotNull(exoplayerMediaItem);
+  public androidx.media2.common.MediaItem convertToAndroidXMediaItem(MediaItem exoPlayerMediaItem) {
+    Assertions.checkNotNull(exoPlayerMediaItem);
     MediaItem.PlaybackProperties playbackProperties =
-        Assertions.checkNotNull(exoplayerMediaItem.playbackProperties);
+        Assertions.checkNotNull(exoPlayerMediaItem.playbackProperties);
     @Nullable Object tag = playbackProperties.tag;
-    if (!(tag instanceof androidx.media2.common.MediaItem)) {
-      throw new IllegalStateException(
-          "MediaItem tag must be an instance of androidx.media2.common.MediaItem");
+    if (tag instanceof androidx.media2.common.MediaItem) {
+      return (androidx.media2.common.MediaItem) tag;
     }
-    return (androidx.media2.common.MediaItem) tag;
+
+    return new UriMediaItem.Builder(playbackProperties.uri).build();
   }
 }

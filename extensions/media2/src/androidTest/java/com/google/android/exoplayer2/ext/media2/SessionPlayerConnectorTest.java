@@ -33,6 +33,7 @@ import android.os.Build.VERSION_CODES;
 import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -61,6 +62,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -798,6 +800,73 @@ public class SessionPlayerConnectorTest {
   @Test
   @LargeTest
   @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+  public void setPlaylist_byUnderlyingPlayerBeforePrepare_notifiesOnPlaylistChanged()
+      throws Exception {
+    List<MediaItem> playlistToSessionPlayer = TestUtils.createPlaylist(2);
+    List<MediaItem> playlistToExoPlayer = TestUtils.createPlaylist(4);
+    DefaultMediaItemConverter converter = new DefaultMediaItemConverter();
+    List<com.google.android.exoplayer2.MediaItem> exoMediaItems = new ArrayList<>();
+    for (MediaItem mediaItem : playlistToExoPlayer) {
+      exoMediaItems.add(converter.convertToExoPlayerMediaItem(mediaItem));
+    }
+
+    CountDownLatch onPlaylistChangedLatch = new CountDownLatch(1);
+    sessionPlayerConnector.registerPlayerCallback(
+        executor,
+        new SessionPlayer.PlayerCallback() {
+          @Override
+          public void onPlaylistChanged(
+              @NonNull SessionPlayer player,
+              @Nullable List<MediaItem> list,
+              @Nullable MediaMetadata metadata) {
+            if (ObjectsCompat.equals(list, playlistToExoPlayer)) {
+              onPlaylistChangedLatch.countDown();
+            }
+          }
+        });
+    sessionPlayerConnector.setPlaylist(playlistToSessionPlayer, /* metadata= */ null);
+    InstrumentationRegistry.getInstrumentation()
+        .runOnMainSync(() -> playerTestRule.getSimpleExoPlayer().setMediaItems(exoMediaItems));
+    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
+  }
+
+  @Test
+  @LargeTest
+  @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+  public void setPlaylist_byUnderlyingPlayerAfterPrepare_notifiesOnPlaylistChanged()
+      throws Exception {
+    List<MediaItem> playlistToSessionPlayer = TestUtils.createPlaylist(2);
+    List<MediaItem> playlistToExoPlayer = TestUtils.createPlaylist(4);
+    DefaultMediaItemConverter converter = new DefaultMediaItemConverter();
+    List<com.google.android.exoplayer2.MediaItem> exoMediaItems = new ArrayList<>();
+    for (MediaItem mediaItem : playlistToExoPlayer) {
+      exoMediaItems.add(converter.convertToExoPlayerMediaItem(mediaItem));
+    }
+
+    CountDownLatch onPlaylistChangedLatch = new CountDownLatch(1);
+    sessionPlayerConnector.registerPlayerCallback(
+        executor,
+        new SessionPlayer.PlayerCallback() {
+          @Override
+          public void onPlaylistChanged(
+              @NonNull SessionPlayer player,
+              @Nullable List<MediaItem> list,
+              @Nullable MediaMetadata metadata) {
+            if (ObjectsCompat.equals(list, playlistToExoPlayer)) {
+              onPlaylistChangedLatch.countDown();
+            }
+          }
+        });
+    sessionPlayerConnector.prepare();
+    sessionPlayerConnector.setPlaylist(playlistToSessionPlayer, /* metadata= */ null);
+    InstrumentationRegistry.getInstrumentation()
+        .runOnMainSync(() -> playerTestRule.getSimpleExoPlayer().setMediaItems(exoMediaItems));
+    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
+  }
+
+  @Test
+  @LargeTest
+  @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
   public void addPlaylistItem_calledOnlyOnce_notifiesPlaylistChangeOnlyOnce() throws Exception {
     List<MediaItem> playlist = TestUtils.createPlaylist(10);
     assertPlayerResultSuccess(sessionPlayerConnector.setPlaylist(playlist, /* metadata= */ null));
@@ -862,7 +931,7 @@ public class SessionPlayerConnectorTest {
 
     CountDownLatch onPlaylistChangedLatch = new CountDownLatch(2);
     int replaceIndex = 2;
-    MediaItem newMediaItem = TestUtils.createMediaItem();
+    MediaItem newMediaItem = TestUtils.createMediaItem(R.raw.video_big_buck_bunny);
     playlist.set(replaceIndex, newMediaItem);
     sessionPlayerConnector.registerPlayerCallback(
         executor,
@@ -1183,6 +1252,32 @@ public class SessionPlayerConnectorTest {
         .isEqualTo(SessionPlayer.PLAYER_STATE_PAUSED);
     assertPlayerResultSuccess(sessionPlayerConnector.play());
     assertThat(sessionPlayerConnector.getPlayerState()).isEqualTo(PLAYER_STATE_PLAYING);
+  }
+
+  @Test
+  @LargeTest
+  public void getPlaylist_returnsPlaylistInUnderlyingPlayer() {
+    List<MediaItem> playlistToExoPlayer = TestUtils.createPlaylist(4);
+    DefaultMediaItemConverter converter = new DefaultMediaItemConverter();
+    List<com.google.android.exoplayer2.MediaItem> exoMediaItems = new ArrayList<>();
+    for (MediaItem mediaItem : playlistToExoPlayer) {
+      exoMediaItems.add(converter.convertToExoPlayerMediaItem(mediaItem));
+    }
+
+    AtomicReference<List<MediaItem>> playlistFromSessionPlayer = new AtomicReference<>();
+    InstrumentationRegistry.getInstrumentation()
+        .runOnMainSync(
+            () -> {
+              SimpleExoPlayer simpleExoPlayer = playerTestRule.getSimpleExoPlayer();
+              simpleExoPlayer.setMediaItems(exoMediaItems);
+
+              try (SessionPlayerConnector sessionPlayer =
+                  new SessionPlayerConnector(simpleExoPlayer, converter)) {
+                List<MediaItem> playlist = sessionPlayer.getPlaylist();
+                playlistFromSessionPlayer.set(playlist);
+              }
+            });
+    assertThat(playlistFromSessionPlayer.get()).isEqualTo(playlistToExoPlayer);
   }
 
   private class PlayerCallbackForPlaylist extends SessionPlayer.PlayerCallback {

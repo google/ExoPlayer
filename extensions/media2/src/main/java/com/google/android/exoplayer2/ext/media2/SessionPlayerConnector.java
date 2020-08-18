@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import org.checkerframework.checker.initialization.qual.Initialized;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
@@ -95,7 +94,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
   // Should be only accessed on the executor, which is currently single-threaded.
   @Nullable private MediaItem currentMediaItem;
-  @Nullable private List<MediaItem> currentPlaylist;
 
   /**
    * Creates an instance using {@link DefaultControlDispatcher} to dispatch player commands.
@@ -124,19 +122,8 @@ public final class SessionPlayerConnector extends SessionPlayer {
     taskHandler = new PlayerHandler(player.getApplicationLooper());
     taskHandlerExecutor = taskHandler::postOrRun;
     ExoPlayerWrapperListener playerListener = new ExoPlayerWrapperListener();
-    PlayerWrapper playerWrapper =
-        new PlayerWrapper(playerListener, player, mediaItemConverter, controlDispatcher);
-    this.player = playerWrapper;
+    this.player = new PlayerWrapper(playerListener, player, mediaItemConverter, controlDispatcher);
     playerCommandQueue = new PlayerCommandQueue(this.player, taskHandler);
-
-    @SuppressWarnings("assignment.type.incompatible")
-    @Initialized
-    SessionPlayerConnector initializedThis = this;
-    initializedThis.<Void>runPlayerCallableBlocking(
-        /* callable= */ () -> {
-          playerWrapper.reset();
-          return null;
-        });
   }
 
   @Override
@@ -258,7 +245,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
     ListenableFuture<PlayerResult> result =
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, () -> player.setMediaItem(item));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
@@ -281,7 +267,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_SET_PLAYLIST,
             /* command= */ () -> player.setPlaylist(playlist, metadata));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
@@ -294,7 +279,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
             /* command= */ () -> player.addPlaylistItem(index, item));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
@@ -305,7 +289,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
             /* command= */ () -> player.removePlaylistItem(index));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
@@ -318,7 +301,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
             /* command= */ () -> player.replacePlaylistItem(index, item));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
@@ -385,7 +367,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
   @Override
   @Nullable
   public List<MediaItem> getPlaylist() {
-    return runPlayerCallableBlockingWithNullOnException(/* callable= */ player::getCachedPlaylist);
+    return runPlayerCallableBlockingWithNullOnException(/* callable= */ player::getPlaylist);
   }
 
   @Override
@@ -558,25 +540,18 @@ public final class SessionPlayerConnector extends SessionPlayer {
   }
 
   private void handlePlaylistChangedOnHandler() {
-    List<MediaItem> currentPlaylist = player.getCachedPlaylist();
-    boolean notifyCurrentPlaylist = !ObjectsCompat.equals(this.currentPlaylist, currentPlaylist);
-    this.currentPlaylist = currentPlaylist;
+    List<MediaItem> currentPlaylist = player.getPlaylist();
     MediaMetadata playlistMetadata = player.getPlaylistMetadata();
 
     MediaItem currentMediaItem = player.getCurrentMediaItem();
     boolean notifyCurrentMediaItem = !ObjectsCompat.equals(this.currentMediaItem, currentMediaItem);
     this.currentMediaItem = currentMediaItem;
 
-    if (!notifyCurrentMediaItem && !notifyCurrentPlaylist) {
-      return;
-    }
     long currentPosition = getCurrentPosition();
     notifySessionPlayerCallback(
         callback -> {
-          if (notifyCurrentPlaylist) {
-            callback.onPlaylistChanged(
-                SessionPlayerConnector.this, currentPlaylist, playlistMetadata);
-          }
+          callback.onPlaylistChanged(
+              SessionPlayerConnector.this, currentPlaylist, playlistMetadata);
           if (notifyCurrentMediaItem) {
             Assertions.checkNotNull(
                 currentMediaItem, "PlaylistManager#currentMediaItem() cannot be changed to null");
