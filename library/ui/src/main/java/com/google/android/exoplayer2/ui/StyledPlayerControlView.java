@@ -1097,7 +1097,7 @@ public class StyledPlayerControlView extends FrameLayout {
       return;
     }
     if (playPauseButton != null) {
-      if (player != null && player.getPlayWhenReady()) {
+      if (shouldShowPauseButton()) {
         ((ImageView) playPauseButton)
             .setImageDrawable(resources.getDrawable(R.drawable.exo_styled_controls_pause));
         playPauseButton.setContentDescription(
@@ -1663,6 +1663,13 @@ public class StyledPlayerControlView extends FrameLayout {
       }
     }
     return true;
+  }
+
+  private boolean shouldShowPauseButton() {
+    return player != null
+        && player.getPlaybackState() != Player.STATE_ENDED
+        && player.getPlaybackState() != Player.STATE_IDLE
+        && player.getPlayWhenReady();
   }
 
   @SuppressLint("InlinedApi")
