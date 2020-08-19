@@ -52,7 +52,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     DefaultAudioSink.failOnSpuriousAudioTimestamp = true;
   }
 
-  public static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 2000;
+  public static final long MAX_PLAYING_TIME_DISCREPANCY_MS = 5000;
   public static final long EXPECTED_PLAYING_TIME_MEDIA_DURATION_MS = -2;
   public static final long EXPECTED_PLAYING_TIME_UNSET = -1;
 
