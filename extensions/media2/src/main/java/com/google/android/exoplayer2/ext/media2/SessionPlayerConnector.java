@@ -440,7 +440,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
     }
     reset();
 
-    this.<Void>runPlayerCallableBlockingInternal(
+    this.<Void>runPlayerCallableBlocking(
         /* callable= */ () -> {
           player.close();
           return null;
@@ -504,7 +504,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
       state = PLAYER_STATE_IDLE;
       mediaItemToBuffState.clear();
     }
-    this.<Void>runPlayerCallableBlockingInternal(
+    this.<Void>runPlayerCallableBlocking(
         /* callable= */ () -> {
           player.reset();
           return null;
@@ -596,13 +596,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
   }
 
   private <T> T runPlayerCallableBlocking(Callable<T> callable) {
-    synchronized (stateLock) {
-      Assertions.checkState(!closed);
-    }
-    return runPlayerCallableBlockingInternal(callable);
-  }
-
-  private <T> T runPlayerCallableBlockingInternal(Callable<T> callable) {
     SettableFuture<T> future = SettableFuture.create();
     boolean success =
         taskHandler.postOrRun(

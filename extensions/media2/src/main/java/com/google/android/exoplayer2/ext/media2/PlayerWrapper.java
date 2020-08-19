@@ -336,18 +336,15 @@ import java.util.List;
   }
 
   public long getCurrentPosition() {
-    Assertions.checkState(getState() != SessionPlayer.PLAYER_STATE_IDLE);
-    return Math.max(0, player.getCurrentPosition());
+    return player.getCurrentPosition();
   }
 
   public long getDuration() {
-    Assertions.checkState(getState() != SessionPlayer.PLAYER_STATE_IDLE);
     long duration = player.getDuration();
-    return duration == C.TIME_UNSET ? -1 : duration;
+    return duration == C.TIME_UNSET ? SessionPlayer.UNKNOWN_TIME : duration;
   }
 
   public long getBufferedPosition() {
-    Assertions.checkState(getState() != SessionPlayer.PLAYER_STATE_IDLE);
     return player.getBufferedPosition();
   }
 

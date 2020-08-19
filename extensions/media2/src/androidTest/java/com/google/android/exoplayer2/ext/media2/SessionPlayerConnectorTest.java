@@ -274,17 +274,17 @@ public class SessionPlayerConnectorTest {
   @Test
   @SmallTest
   @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-  public void getCurrentPosition_whenIdleState_returnsUnknownTime() {
+  public void getCurrentPosition_whenIdleState_returnsDefaultPosition() {
     assertThat(sessionPlayerConnector.getPlayerState()).isEqualTo(SessionPlayer.PLAYER_STATE_IDLE);
-    assertThat(sessionPlayerConnector.getCurrentPosition()).isEqualTo(SessionPlayer.UNKNOWN_TIME);
+    assertThat(sessionPlayerConnector.getCurrentPosition()).isEqualTo(0);
   }
 
   @Test
   @SmallTest
   @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-  public void getBufferedPosition_whenIdleState_returnsUnknownTime() {
+  public void getBufferedPosition_whenIdleState_returnsDefaultPosition() {
     assertThat(sessionPlayerConnector.getPlayerState()).isEqualTo(SessionPlayer.PLAYER_STATE_IDLE);
-    assertThat(sessionPlayerConnector.getBufferedPosition()).isEqualTo(SessionPlayer.UNKNOWN_TIME);
+    assertThat(sessionPlayerConnector.getBufferedPosition()).isEqualTo(0);
   }
 
   @Test
