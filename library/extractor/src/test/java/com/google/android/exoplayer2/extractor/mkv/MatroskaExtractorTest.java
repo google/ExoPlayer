@@ -64,8 +64,14 @@ public final class MatroskaExtractorTest {
   }
 
   @Test
-  public void webmSubsampleEncryptionWithAltrefFrames() throws Exception {
+  public void mkvSampleWithProfile5DolbyVision() throws Exception {
     ExtractorAsserts.assertBehavior(
-        MatroskaExtractor::new, "mkv/subsample_encrypted_altref.webm", simulationConfig);
+        MatroskaExtractor::new, "mkv/dvhe_05_05.mkv", simulationConfig);
+  }
+
+  @Test
+  public void mkvSampleWithProfile8DolbyVision() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "mkv/hev1_08_05.mkv", simulationConfig);
   }
 }
