@@ -11,7 +11,7 @@
 *   FMP4:
     *   Fix `saiz` and `senc` sample count checks, resolving a "length
         mismatch" `ParserException` when playing certain protected FMP4 streams
-       ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
+        ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
     *   Fix handling of `traf` boxes containing multiple `sbgp` or `sgpd`
         boxes.
 *   FLV: Ignore `SCRIPTDATA` segments with invalid name types, rather than
