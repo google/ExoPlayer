@@ -16,7 +16,7 @@
         boxes.
 *   FLV: Ignore `SCRIPTDATA` segments with invalid name types, rather than
     failing playback ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
-*   Better infer content type for `.ism` and `.isml` streaming URLs.
+*   Better infer the content type of `.ism` and `.isml` streaming URLs.
 *   Workaround an issue on Broadcom based devices where playbacks would not
     transition to `STATE_ENDED` when using video tunneling mode
     ([#7647](https://github.com/google/ExoPlayer/issues/7647)).
