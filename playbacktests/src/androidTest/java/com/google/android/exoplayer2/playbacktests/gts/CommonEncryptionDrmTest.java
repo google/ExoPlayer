@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static com.google.android.exoplayer2.playbacktests.gts.GtsTestUtil.shouldSkipWidevineTest;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.Player;
@@ -64,7 +66,7 @@ public final class CommonEncryptionDrmTest {
 
   @Test
   public void cencSchemeTypeV18() {
-    if (Util.SDK_INT < 18) {
+    if (Util.SDK_INT < 18 || shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
@@ -76,7 +78,7 @@ public final class CommonEncryptionDrmTest {
 
   @Test
   public void cbcsSchemeTypeV25() {
-    if (Util.SDK_INT < 25) {
+    if (Util.SDK_INT < 25 || shouldSkipWidevineTest(testRule.getActivity())) {
       // cbcs support was added in API 24, but it is stable from API 25 onwards.
       // See [internal: b/65634809].
       // Pass.
