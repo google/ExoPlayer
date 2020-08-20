@@ -90,37 +90,38 @@ public final class FormatTest {
             C.COLOR_TRANSFER_SDR,
             new byte[] {1, 2, 3, 4, 5, 6, 7});
 
-    return new Format(
-        "id",
-        "label",
-        "language",
-        C.SELECTION_FLAG_DEFAULT,
-        C.ROLE_FLAG_MAIN,
-        /* averageBitrate= */ 1024,
-        /* peakBitrate= */ 2048,
-        "codec",
-        metadata,
-        /* containerMimeType= */ MimeTypes.VIDEO_MP4,
-        /* sampleMimeType= */ MimeTypes.VIDEO_H264,
-        /* maxInputSize= */ 5000,
-        initializationData,
-        drmInitData,
-        Format.OFFSET_SAMPLE_RELATIVE,
-        /* width= */ 1920,
-        /* height= */ 1080,
-        /* frameRate= */ 24,
-        /* rotationDegrees= */ 90,
-        /* pixelWidthHeightRatio= */ 4,
-        projectionData,
-        C.STEREO_MODE_TOP_BOTTOM,
-        colorInfo,
-        /* channelCount= */ 6,
-        /* sampleRate= */ 44100,
-        C.ENCODING_PCM_24BIT,
-        /* encoderDelay= */ 1001,
-        /* encoderPadding= */ 1002,
-        /* accessibilityChannel= */ 2,
-        /* exoMediaCryptoType= */ ExoMediaCrypto.class);
+    return new Format.Builder()
+        .setId("id")
+        .setLabel("label")
+        .setLanguage("language")
+        .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+        .setRoleFlags(C.ROLE_FLAG_MAIN)
+        .setAverageBitrate(1024)
+        .setPeakBitrate(2048)
+        .setCodecs("codec")
+        .setMetadata(metadata)
+        .setContainerMimeType(MimeTypes.VIDEO_MP4)
+        .setSampleMimeType(MimeTypes.VIDEO_H264)
+        .setMaxInputSize(5000)
+        .setInitializationData(initializationData)
+        .setDrmInitData(drmInitData)
+        .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
+        .setWidth(1920)
+        .setHeight(1080)
+        .setFrameRate(24)
+        .setRotationDegrees(90)
+        .setPixelWidthHeightRatio(4)
+        .setProjectionData(projectionData)
+        .setStereoMode(C.STEREO_MODE_TOP_BOTTOM)
+        .setColorInfo(colorInfo)
+        .setChannelCount(6)
+        .setSampleRate(44100)
+        .setPcmEncoding(C.ENCODING_PCM_24BIT)
+        .setEncoderDelay(1001)
+        .setEncoderPadding(1002)
+        .setAccessibilityChannel(2)
+        .setExoMediaCryptoType(ExoMediaCrypto.class)
+        .build();
   }
 
   /** Generates an array of random bytes with the specified length. */
