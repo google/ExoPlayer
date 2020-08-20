@@ -322,7 +322,7 @@ public class EventLogger implements AnalyticsListener {
     loge(
         eventTime,
         "audioTrackUnderrun",
-        bufferSize + ", " + bufferSizeMs + ", " + elapsedSinceLastFeedMs + "]",
+        bufferSize + ", " + bufferSizeMs + ", " + elapsedSinceLastFeedMs,
         /* throwable= */ null);
   }
 
