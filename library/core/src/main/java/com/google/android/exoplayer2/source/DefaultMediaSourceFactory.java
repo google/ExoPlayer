@@ -15,28 +15,19 @@
  */
 package com.google.android.exoplayer2.source;
 
-import static com.google.android.exoplayer2.drm.DefaultDrmSessionManager.MODE_PLAYBACK;
-
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.MediaItem.DrmConfiguration;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
-import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -44,10 +35,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.primitives.Ints;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The default {@link MediaSourceFactory} implementation.
@@ -78,21 +67,6 @@ import java.util.Map;
  *       UnrecognizedInputFormatException} is thrown if none of the available extractors can read
  *       the stream.
  * </ul>
- *
- * <h3>DrmSessionManager creation for protected content</h3>
- *
- * <p>For a media item with a {@link DrmConfiguration}, a {@link DefaultDrmSessionManager} is
- * created based on that configuration. The following setter can be used to optionally configure the
- * creation:
- *
- * <ul>
- *   <li>{@link #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}: Sets the data source factory
- *       to be used by the {@link HttpMediaDrmCallback} for network requests (default: {@link
- *       DefaultHttpDataSourceFactory}).
- * </ul>
- *
- * <p>For media items without a {@link DrmConfiguration}, the {@link DrmSessionManager} passed to
- * {@link #setDrmSessionManager(DrmSessionManager)} will be used.
  *
  * <h3>Ad support for media items with ad tag uri</h3>
  *
@@ -167,21 +141,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   }
 
   private static final String TAG = "DefaultMediaSourceFactory";
-  private static final String DEFAULT_USER_AGENT =
-      ExoPlayerLibraryInfo.VERSION_SLASHY
-          + " (Linux;Android "
-          + Build.VERSION.RELEASE
-          + ") "
-          + ExoPlayerLibraryInfo.VERSION_SLASHY;
 
+  private final MediaSourceDrmHelper mediaSourceDrmHelper;
   private final DataSource.Factory dataSourceFactory;
   @Nullable private final AdSupportProvider adSupportProvider;
   private final SparseArray<MediaSourceFactory> mediaSourceFactories;
   @C.ContentType private final int[] supportedTypes;
 
-  private DrmSessionManager drmSessionManager;
-  @Nullable private HttpDataSource.Factory drmHttpDataSourceFactory;
-  private String userAgent;
+  @Nullable private DrmSessionManager drmSessionManager;
   @Nullable private List<StreamKey> streamKeys;
 
   /**
@@ -196,8 +163,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       DataSource.Factory dataSourceFactory, @Nullable AdSupportProvider adSupportProvider) {
     this.dataSourceFactory = dataSourceFactory;
     this.adSupportProvider = adSupportProvider;
-    drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
-    userAgent = DEFAULT_USER_AGENT;
+    mediaSourceDrmHelper = new MediaSourceDrmHelper();
     mediaSourceFactories = loadDelegates(dataSourceFactory);
     supportedTypes = new int[mediaSourceFactories.size()];
     for (int i = 0; i < mediaSourceFactories.size(); i++) {
@@ -205,49 +171,23 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     }
   }
 
-  /**
-   * Sets the {@link HttpDataSource.Factory} to be used for creating {@link HttpMediaDrmCallback
-   * HttpMediaDrmCallbacks} which executes key and provisioning requests over HTTP. If {@code null}
-   * is passed the {@link DefaultHttpDataSourceFactory} is used.
-   *
-   * @param drmHttpDataSourceFactory The HTTP data source factory or {@code null} to use {@link
-   *     DefaultHttpDataSourceFactory}.
-   * @return This factory, for convenience.
-   */
+  @Override
   public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-    this.drmHttpDataSourceFactory = drmHttpDataSourceFactory;
+    mediaSourceDrmHelper.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
     return this;
   }
 
-  /**
-   * Sets the optional user agent to be used for DRM requests.
-   *
-   * <p>In case a factory has been set by {@link
-   * #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}, this user agent is ignored.
-   *
-   * @param userAgent The user agent to be used for DRM requests.
-   * @return This factory, for convenience.
-   */
+  @Override
   public DefaultMediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
-    this.userAgent = userAgent != null ? userAgent : DEFAULT_USER_AGENT;
+    mediaSourceDrmHelper.setDrmUserAgent(userAgent);
     return this;
   }
 
-  /**
-   * Sets the {@link DrmSessionManager} to use for media items that do not specify a {@link
-   * DrmConfiguration}. The default value is {@link DrmSessionManager#DUMMY}.
-   *
-   * @param drmSessionManager The {@link DrmSessionManager}.
-   * @return This factory, for convenience.
-   */
   @Override
   public DefaultMediaSourceFactory setDrmSessionManager(
       @Nullable DrmSessionManager drmSessionManager) {
-    this.drmSessionManager =
-        drmSessionManager != null
-            ? drmSessionManager
-            : DrmSessionManager.getDummyDrmSessionManager();
+    this.drmSessionManager = drmSessionManager;
     return this;
   }
 
@@ -292,7 +232,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
     Assertions.checkNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);
-    mediaSourceFactory.setDrmSessionManager(createDrmSessionManager(mediaItem));
+    mediaSourceFactory.setDrmSessionManager(
+        drmSessionManager != null ? drmSessionManager : mediaSourceDrmHelper.create(mediaItem));
     mediaSourceFactory.setStreamKeys(
         !mediaItem.playbackProperties.streamKeys.isEmpty()
             ? mediaItem.playbackProperties.streamKeys
@@ -317,46 +258,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   }
 
   // internal methods
-
-  private DrmSessionManager createDrmSessionManager(MediaItem mediaItem) {
-    Assertions.checkNotNull(mediaItem.playbackProperties);
-    if (mediaItem.playbackProperties.drmConfiguration == null
-        || mediaItem.playbackProperties.drmConfiguration.licenseUri == null
-        || Util.SDK_INT < 18) {
-      return drmSessionManager;
-    }
-    DefaultDrmSessionManager drmSessionManager =
-        new DefaultDrmSessionManager.Builder()
-            .setUuidAndExoMediaDrmProvider(
-                mediaItem.playbackProperties.drmConfiguration.uuid,
-                FrameworkMediaDrm.DEFAULT_PROVIDER)
-            .setMultiSession(mediaItem.playbackProperties.drmConfiguration.multiSession)
-            .setPlayClearSamplesWithoutKeys(
-                mediaItem.playbackProperties.drmConfiguration.playClearContentWithoutKey)
-            .setUseDrmSessionsForClearContent(
-                Ints.toArray(mediaItem.playbackProperties.drmConfiguration.sessionForClearTypes))
-            .build(createHttpMediaDrmCallback(mediaItem.playbackProperties.drmConfiguration));
-
-    drmSessionManager.setMode(
-        MODE_PLAYBACK, mediaItem.playbackProperties.drmConfiguration.getKeySetId());
-
-    return drmSessionManager;
-  }
-
-  private MediaDrmCallback createHttpMediaDrmCallback(MediaItem.DrmConfiguration drmConfiguration) {
-    Assertions.checkNotNull(drmConfiguration.licenseUri);
-    HttpMediaDrmCallback drmCallback =
-        new HttpMediaDrmCallback(
-            drmConfiguration.licenseUri.toString(),
-            drmConfiguration.forceDefaultLicenseUri,
-            drmHttpDataSourceFactory != null
-                ? drmHttpDataSourceFactory
-                : new DefaultHttpDataSourceFactory(userAgent));
-    for (Map.Entry<String, String> entry : drmConfiguration.requestHeaders.entrySet()) {
-      drmCallback.setKeyRequestProperty(entry.getKey(), entry.getValue());
-    }
-    return drmCallback;
-  }
 
   private static MediaSource maybeClipMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
     if (mediaItem.clippingProperties.startPositionMs == 0

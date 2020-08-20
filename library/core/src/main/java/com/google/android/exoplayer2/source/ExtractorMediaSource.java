@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -165,6 +166,23 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
     @Deprecated
     @Override
     public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
+      throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link ProgressiveMediaSource.Factory#setDrmHttpDataSourceFactory} instead.
+     */
+    @Deprecated
+    @Override
+    public MediaSourceFactory setDrmHttpDataSourceFactory(
+        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
+      throw new UnsupportedOperationException();
+    }
+
+    /** @deprecated Use {@link ProgressiveMediaSource.Factory#setDrmUserAgent} instead. */
+    @Deprecated
+    @Override
+    public MediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
       throw new UnsupportedOperationException();
     }
 
