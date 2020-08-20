@@ -187,11 +187,8 @@
         `Mp3Extractor`. A significant portion of the file may need to be scanned
         when a seek is performed, which may be costly for large files.
     *   MP4: Fix playback of MP4 streams that contain Opus audio.
-    *   FMP4:
-        *   Add support for partially fragmented MP4s
-            ([#7308](https://github.com/google/ExoPlayer/issues/7308)).
-        *   Fix handling of `traf` boxes containing multiple `sbgp` or `sgpd`
-            boxes ([#7716](https://github.com/google/ExoPlayer/issues/7716)).
+    *   FMP4: Add support for partially fragmented MP4s
+        ([#7308](https://github.com/google/ExoPlayer/issues/7308)).
     *   Matroska:
         *   Populate `Format.label` with track titles.
         *   Remove support for the `Invisible` block header flag.
@@ -200,9 +197,6 @@
         [#5107](https://github.com/google/ExoPlayer/issues/5107)).
     *   Ogg: Fix handling of non-contiguous pages
         ([#7230](https://github.com/google/ExoPlayer/issues/7230)).
-    *   FLV: Ignore `SCRIPTDATA` segments with invalid name types, rather than
-        failing playback
-        ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
 *   UI
     *   Add `StyledPlayerView` and `StyledPlayerControlView`, which provide a
         more polished user experience than `PlayerView` and `PlayerControlView`
@@ -278,8 +272,6 @@
 *   Cast extension: Implement playlist API and deprecate the old queue
     manipulation API.
 *   IMA extension:
-    *   Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the media load
-        timeout ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
     *   Migrate to new 'friendly obstruction' IMA SDK APIs, and allow apps to
         register a purpose and detail reason for overlay views via
         `AdsLoader.AdViewProvider`.
@@ -305,8 +297,32 @@
     *   Remove support for media tunneling, random ABR and playback of
         spherical video. Developers wishing to experiment with these features
         can enable them by modifying the demo app source code.
-    *   Fix playback of ClearKey protected content on API level 26 and earlier
-        ([#7735](https://github.com/google/ExoPlayer/issues/7735)).
+
+### 2.11.8 (2020-08-25) ###
+
+*   Fix distorted playback of floating point audio when samples exceed the
+    `[-1, 1]` nominal range.
+*   MP4:
+    *   Add support for `piff` and `isml` brands
+        ([#7584](https://github.com/google/ExoPlayer/issues/7584)).
+    *   Fix playback of very short MP4 files.
+*   FMP4:
+    *   Fix `saiz` and `senc` sample count checks, resolving a "length
+        mismatch" `ParserException` when playing certain protected FMP4 streams
+        ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
+    *   Fix handling of `traf` boxes containing multiple `sbgp` or `sgpd`
+        boxes.
+*   FLV: Ignore `SCRIPTDATA` segments with invalid name types, rather than
+    failing playback ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
+*   Better infer the content type of `.ism` and `.isml` streaming URLs.
+*   Workaround an issue on Broadcom based devices where playbacks would not
+    transition to `STATE_ENDED` when using video tunneling mode
+    ([#7647](https://github.com/google/ExoPlayer/issues/7647)).
+*   IMA extension: Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the
+    media load timeout
+    ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
+*   Demo app: Fix playback of ClearKey protected content on API level 26 and
+    earlier ([#7735](https://github.com/google/ExoPlayer/issues/7735)).
 
 ### 2.11.7 (2020-06-29) ###
 
