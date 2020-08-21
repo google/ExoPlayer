@@ -136,13 +136,9 @@ import java.util.ArrayList;
       skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
       super.configureCodec(codecInfo, codecAdapter, format, crypto, operatingRate);
 
-      // Two separate issues affect whether MediaFormat changes occur at the correct time.
-      // As per [Internal ref: b/149818050, b/149751672], MediaFormat changes can occur early for
-      // SDK 29 and 30.
-      // [Internal ref: b/165786766] When using OMX software decoders, MediaFormat change timestamp
-      // appears to occur early up to API 30.
-      shouldMediaFormatChangeTimesBeChecked =
-          (Util.SDK_INT < 29 && !codecInfo.name.startsWith("OMX.google")) || Util.SDK_INT > 30;
+      // Output MediaFormat changes are known to occur too early until API 30 (see [internal:
+      // b/149818050, b/149751672]).
+      shouldMediaFormatChangeTimesBeChecked = Util.SDK_INT > 30;
     }
 
     @Override
