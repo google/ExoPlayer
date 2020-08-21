@@ -18,11 +18,6 @@
     *   The `DefaultLoadControl` default minimum buffer is set to 50 seconds,
         equal to the default maximum buffer. `DefaultLoadControl` applies the
         same behavior for audio and video.
-    *   Add API in `AnalyticsListener` to report video frame processing offset.
-        `MediaCodecVideoRenderer` reports the event.
-    *   Add fields `videoFrameProcessingOffsetUsSum` and
-        `videoFrameProcessingOffsetUsCount` in `DecoderCounters` to compute the
-        average video frame processing offset.
     *   Add playlist API
         ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
     *   Attach an identifier and extra information to load error events passed
@@ -70,7 +65,6 @@
     *   `SimpleDecoderVideoRenderer` and `SimpleDecoderAudioRenderer` renamed to
         `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
         generalized to work with `Decoder` rather than `SimpleDecoder`.
-    *   Add media item based playlist API to `Player`.
     *   Add `getCurrentMediaItem` to `Player`.
     *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
         that the device volume can be controlled by player.
@@ -79,20 +73,17 @@
         ([#7332](https://github.com/google/ExoPlayer/issues/7332)).
     *   Don't clear `exception` in `SimpleDecoder#flush()`
         ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
-    *   Fix wrong `MediaPeriodId` for some renderer errors reported by
-        `AnalyticsListener.onPlayerError`.
-    *   Remove onMediaPeriodCreated/Released/ReadingStarted from
-        `MediaSourceEventListener` and `AnalyticsListener`.
     *   Dispatch previous, next, fast forward and rewind actions through
         `ControlDispatcher`
         ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
     *   Add Guava dependency.
     *   Add MetadataRetriever API to retrieve the static metadata of a media
         item ([#3609](https://github.com/google/ExoPlayer/issues/3609)).
+*   Video:
+    *   Pass frame rate hint to `Surface.setFrameRate` on Android 11.
     *   Fix incorrect aspect ratio when transitioning from one video to another
-        that has the same resolution, but a different pixel aspect ratio.
+        with the same resolution, but a different pixel aspect ratio
         ([#6646](https://github.com/google/ExoPlayer/issues/6646)).
-*   Video: Pass frame rate hint to `Surface.setFrameRate` on Android 11.
 *   Audio:
     *   Add experimental support for power efficient playback using audio
         offload.
@@ -207,7 +198,7 @@
         [#5107](https://github.com/google/ExoPlayer/issues/5107)).
     *   Ogg: Fix handling of non-contiguous pages
         ([#7230](https://github.com/google/ExoPlayer/issues/7230)).
-*   UI
+*   UI:
     *   Add `StyledPlayerView` and `StyledPlayerControlView`, which provide a
         more polished user experience than `PlayerView` and `PlayerControlView`
         at the cost of decreased customizability.
@@ -258,7 +249,7 @@
         and the range of API levels for which they are supported is too small to
         be useful.
     *   Remove generic types from DRM components.
-*   Track selection
+*   Track selection:
     *   Add `TrackSelection.shouldCancelMediaChunkLoad` to check whether an
         ongoing load should be canceled
         ([#2848](https://github.com/google/ExoPlayer/issues/2848)).
@@ -266,7 +257,7 @@
         bitrate and frame rate
         ([#4511](https://github.com/google/ExoPlayer/issues/4511)).
     *   Remove previously deprecated `DefaultTrackSelector` members.
-*   Data sources
+*   Data sources:
     *   Add `HttpDataSource.InvalidResponseCodeException#responseBody` field
         ([#6853](https://github.com/google/ExoPlayer/issues/6853)).
     *   Add `DataSpec.Builder` and deprecate most `DataSpec` constructors.
@@ -275,6 +266,17 @@
     *   Deprecate `CacheDataSinkFactory` and `CacheDataSourceFactory`, which are
         replaced by `CacheDataSink.Factory` and `CacheDataSource.Factory`
         respectively.
+*   Analytics:
+    *   Add `AnalyticsListener.onVideoFrameProcessingOffset` to report how
+        early or late video frames are processed relative to them needing to be
+        presented. Video frame processing offset fields are also added to
+        `DecoderCounters`.
+    *   Add `onIsLoadingChanged` and `onSkipSilenceEnabledChanged` to
+        `AnalyticsListener`.
+    *   Remove `onMediaPeriodCreated`, `onMediaPeriodReleased` and
+        `onReadingStarted` from `AnalyticsListener`.
+    *   Fix incorrect `MediaPeriodId` for some renderer errors reported by
+        `AnalyticsListener.onPlayerError`.
 *   Test utils: Add `TestExoPlayer`, a utility class with APIs to create
     `SimpleExoPlayer` instances with fake components for testing.
 *   Media2 extension: This is a new extension that makes it easy to use
