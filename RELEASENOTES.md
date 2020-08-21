@@ -92,26 +92,36 @@
     *   Fix incorrect aspect ratio when transitioning from one video to another
         that has the same resolution, but a different pixel aspect ratio.
         ([#6646](https://github.com/google/ExoPlayer/issues/6646)).
-*   Video: Pass frame rate hint to `Surface.setFrameRate` on Android R devices.
+*   Video: Pass frame rate hint to `Surface.setFrameRate` on Android 11.
 *   Audio:
-    *   Add a sample count parameter to `MediaCodecRenderer.processOutputBuffer`
-        and `AudioSink.handleBuffer` to allow batching multiple encoded frames
-        in one buffer.
-    *   No longer use a `MediaCodec` in audio passthrough mode.
+    *   Add experimental support for power efficient playback using audio
+        offload.
+    *   Add support for using framework audio speed adjustment instead of
+        ExoPlayer's implementation
+        ([#7502](https://github.com/google/ExoPlayer/issues/7502)). This option
+        can be set using
+        `DefaultRenderersFactory.setEnableAudioTrackPlaybackParams`.
+    *   Generalize support for floating point audio.
+        *   Add an option to `DefaultAudioSink` for enabling floating point
+            output. This option can also be set using
+            `DefaultRenderersFactory.setEnableAudioFloatOutput`.
+        *   Add floating point output capability to `MediaCodecAudioRenderer`
+            and `LibopusAudioRenderer`, which is enabled automatically if the
+            audio sink supports floating point output and if it makes sense for
+            the content being played.
+        *   Enable the floating point output capability of `FfmpegAudioRenderer`
+            automatically if the audio sink supports floating point output and
+            if it makes sense for the content being played. The option to
+            manually enable floating point output has been removed, since this
+            now done with the generalized option on `DefaultAudioSink`.
+    *   In `MediaCodecAudioRenderer`, stop passing audio samples through
+        `MediaCodec` when playing PCM audio or encoded audio using passthrough
+        mode.
+    *   Reuse audio decoders when transitioning through playlists of gapless
+        audio, rather than reinstantiating them.
     *   Check `DefaultAudioSink` supports passthrough, in addition to checking
         the `AudioCapabilities`
-    *   Add an experimental scheduling mode to save power in offload.
         ([#7404](https://github.com/google/ExoPlayer/issues/7404)).
-    *   Adjust input timestamps in `MediaCodecRenderer` to account for the
-        Codec2 MP3 decoder having lower timestamps on the output side.
-    *   Propagate gapless audio metadata without the need to recreate the audio
-        decoders.
-    *   Add floating point PCM output capability in `MediaCodecAudioRenderer`,
-        and `LibopusAudioRenderer`.
-    *   Do not use a MediaCodec for PCM formats if AudioTrack supports it.
-    *   Add optional support for using framework audio speed adjustment instead
-        of application-level audio speed adjustment
-        ([#7502](https://github.com/google/ExoPlayer/issues/7502)).
 *   Text:
     *   Add a WebView-based output option to `SubtitleView`. This can display
         some features not supported by the existing Canvas-based output such as
