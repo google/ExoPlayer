@@ -2232,6 +2232,13 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
+    public void onAudioPositionAdvancing(long playoutStartSystemTimeMs) {
+      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
+        audioDebugListener.onAudioPositionAdvancing(playoutStartSystemTimeMs);
+      }
+    }
+
+    @Override
     public void onAudioUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
       for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
         audioDebugListener.onAudioUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);

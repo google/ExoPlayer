@@ -49,6 +49,15 @@ import java.lang.reflect.Method;
   public interface Listener {
 
     /**
+     * Called when the position tracker's position has increased for the first time since it was
+     * last paused or reset.
+     *
+     * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+     *     which playout started.
+     */
+    void onPositionAdvancing(long playoutStartSystemTimeMs);
+
+    /**
      * Called when the frame position is too far from the expected frame position.
      *
      * @param audioTimestampPositionFrames The frame position of the last known audio track
@@ -145,6 +154,7 @@ import java.lang.reflect.Method;
   private boolean needsPassthroughWorkarounds;
   private long bufferSizeUs;
   private float audioTrackPlaybackSpeed;
+  private boolean notifiedPositionIncreasing;
 
   private long smoothedPlayheadOffsetUs;
   private long lastPlayheadSampleTimeUs;
@@ -287,9 +297,21 @@ import java.lang.reflect.Method;
       positionUs /= 1000;
     }
 
+    if (!notifiedPositionIncreasing && positionUs > lastPositionUs) {
+      notifiedPositionIncreasing = true;
+      long mediaDurationSinceLastPositionUs = C.usToMs(positionUs - lastPositionUs);
+      long playoutDurationSinceLastPositionUs =
+          Util.getPlayoutDurationForMediaDuration(
+              mediaDurationSinceLastPositionUs, audioTrackPlaybackSpeed);
+      long playoutStartSystemTimeMs =
+          System.currentTimeMillis() - C.usToMs(playoutDurationSinceLastPositionUs);
+      listener.onPositionAdvancing(playoutStartSystemTimeMs);
+    }
+
     lastSystemTimeUs = systemTimeUs;
     lastPositionUs = positionUs;
     lastSampleUsedGetTimestampMode = useGetTimestampMode;
+
     return positionUs;
   }
 
@@ -512,6 +534,7 @@ import java.lang.reflect.Method;
     lastPlayheadSampleTimeUs = 0;
     lastSystemTimeUs = 0;
     previousModeSystemTimeUs = 0;
+    notifiedPositionIncreasing = false;
   }
 
   /**

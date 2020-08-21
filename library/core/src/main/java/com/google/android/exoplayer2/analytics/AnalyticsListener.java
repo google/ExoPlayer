@@ -480,6 +480,16 @@ public interface AnalyticsListener {
   default void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
 
   /**
+   * Called when the audio position has increased for the first time since the last pause or
+   * position reset.
+   *
+   * @param eventTime The event time.
+   * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+   *     which playout started.
+   */
+  default void onAudioPositionAdvancing(EventTime eventTime, long playoutStartSystemTimeMs) {}
+
+  /**
    * Called when an audio underrun occurs.
    *
    * @param eventTime The event time.

@@ -73,9 +73,18 @@ public interface AudioSink {
     void onPositionDiscontinuity();
 
     /**
+     * Called when the audio sink's position has increased for the first time since it was last
+     * paused or flushed.
+     *
+     * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+     *     which playout started. Only valid if the audio track has not underrun.
+     */
+    default void onPositionAdvancing(long playoutStartSystemTimeMs) {}
+
+    /**
      * Called when the audio sink runs out of data.
-     * <p>
-     * An audio sink implementation may never call this method (for example, if audio data is
+     *
+     * <p>An audio sink implementation may never call this method (for example, if audio data is
      * consumed in batches rather than based on the sink's own clock).
      *
      * @param bufferSize The size of the sink's buffer, in bytes.

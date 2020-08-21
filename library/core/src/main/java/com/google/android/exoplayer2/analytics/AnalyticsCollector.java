@@ -206,6 +206,14 @@ public class AnalyticsCollector
   }
 
   @Override
+  public final void onAudioPositionAdvancing(long playoutStartSystemTimeMs) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onAudioPositionAdvancing(eventTime, playoutStartSystemTimeMs);
+    }
+  }
+
+  @Override
   public final void onAudioUnderrun(
       int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();

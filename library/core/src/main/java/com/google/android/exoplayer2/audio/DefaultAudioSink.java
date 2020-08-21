@@ -1777,6 +1777,13 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     @Override
+    public void onPositionAdvancing(long playoutStartSystemTimeMs) {
+      if (listener != null) {
+        listener.onPositionAdvancing(playoutStartSystemTimeMs);
+      }
+    }
+
+    @Override
     public void onUnderrun(int bufferSize, long bufferSizeMs) {
       if (listener != null) {
         long elapsedSinceLastFeedMs = SystemClock.elapsedRealtime() - lastFeedElapsedRealtimeMs;

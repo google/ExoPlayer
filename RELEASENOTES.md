@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released)
 
+*   Audio: Add an event for the audio position starting to advance, to make it
+    easier for apps to determine when audio playout started
+    ([#7577](https://github.com/google/ExoPlayer/issues/7577)).
 
 ### 2.12.0 (not yet released - targeted for 2020-08-TBD) ###
 

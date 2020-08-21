@@ -709,6 +709,11 @@ public abstract class DecoderAudioRenderer<
     }
 
     @Override
+    public void onPositionAdvancing(long playoutStartSystemTimeMs) {
+      eventDispatcher.positionAdvancing(playoutStartSystemTimeMs);
+    }
+
+    @Override
     public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
       eventDispatcher.underrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
     }
