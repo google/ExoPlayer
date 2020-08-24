@@ -733,11 +733,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void setPauseAtEndOfWindowInternal(boolean pauseAtEndOfWindow)
       throws ExoPlaybackException {
     this.pauseAtEndOfWindow = pauseAtEndOfWindow;
-    if (queue.getReadingPeriod() != queue.getPlayingPeriod()) {
-      seekToCurrentPosition(/* sendDiscontinuity= */ true);
-    }
     resetPendingPauseAtEndOfPeriod();
-    handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
+    if (pendingPauseAtEndOfPeriod && queue.getReadingPeriod() != queue.getPlayingPeriod()) {
+      // When pausing is required, we need to set the streams of the playing period final. If we
+      // already started reading the next period, we need to flush the renderers.
+      seekToCurrentPosition(/* sendDiscontinuity= */ true);
+      handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
+    }
   }
 
   private void setOffloadSchedulingEnabledInternal(boolean offloadSchedulingEnabled) {
