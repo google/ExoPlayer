@@ -33,6 +33,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
@@ -42,6 +43,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 /** Dialog to select tracks. */
@@ -53,6 +56,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   private int titleId;
   private DialogInterface.OnClickListener onClickListener;
   private DialogInterface.OnDismissListener onDismissListener;
+  private HashMap<Integer, Comparator<Format>> comparators = new HashMap<>();
 
   /**
    * Returns whether a track selection dialog will have content to display if initialized with the
@@ -85,7 +89,8 @@ public final class TrackSelectionDialog extends DialogFragment {
    *     dismissed.
    */
   public static TrackSelectionDialog createForTrackSelector(
-      DefaultTrackSelector trackSelector, DialogInterface.OnDismissListener onDismissListener) {
+      DefaultTrackSelector trackSelector, DialogInterface.OnDismissListener onDismissListener,
+      HashMap<Integer, Comparator<Format>> comparators) {
     MappedTrackInfo mappedTrackInfo =
         Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo());
     TrackSelectionDialog trackSelectionDialog = new TrackSelectionDialog();
@@ -115,7 +120,8 @@ public final class TrackSelectionDialog extends DialogFragment {
           }
           trackSelector.setParameters(builder);
         },
-        onDismissListener);
+        onDismissListener,
+        comparators);
     return trackSelectionDialog;
   }
 
@@ -140,7 +146,8 @@ public final class TrackSelectionDialog extends DialogFragment {
       boolean allowAdaptiveSelections,
       boolean allowMultipleOverrides,
       DialogInterface.OnClickListener onClickListener,
-      DialogInterface.OnDismissListener onDismissListener) {
+      DialogInterface.OnDismissListener onDismissListener,
+      @Nullable HashMap<Integer, Comparator<Format>> comparators) {
     TrackSelectionDialog trackSelectionDialog = new TrackSelectionDialog();
     trackSelectionDialog.init(
         titleId,
@@ -149,7 +156,8 @@ public final class TrackSelectionDialog extends DialogFragment {
         allowAdaptiveSelections,
         allowMultipleOverrides,
         onClickListener,
-        onDismissListener);
+        onDismissListener,
+        comparators);
     return trackSelectionDialog;
   }
 
@@ -167,10 +175,12 @@ public final class TrackSelectionDialog extends DialogFragment {
       boolean allowAdaptiveSelections,
       boolean allowMultipleOverrides,
       DialogInterface.OnClickListener onClickListener,
-      DialogInterface.OnDismissListener onDismissListener) {
+      DialogInterface.OnDismissListener onDismissListener,
+      HashMap<Integer, Comparator<Format>> comparators) {
     this.titleId = titleId;
     this.onClickListener = onClickListener;
     this.onDismissListener = onDismissListener;
+    this.comparators = comparators;
     for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
       if (showTabForRenderer(mappedTrackInfo, i)) {
         int trackType = mappedTrackInfo.getRendererType(/* rendererIndex= */ i);
@@ -182,7 +192,9 @@ public final class TrackSelectionDialog extends DialogFragment {
             initialParameters.getRendererDisabled(/* rendererIndex= */ i),
             initialParameters.getSelectionOverride(/* rendererIndex= */ i, trackGroupArray),
             allowAdaptiveSelections,
-            allowMultipleOverrides);
+            allowMultipleOverrides,
+            this.comparators.get(i) != null ? comparators.get(i) : null
+            );
         tabFragments.put(i, tabFragment);
         tabTrackTypes.add(trackType);
       }
@@ -314,6 +326,7 @@ public final class TrackSelectionDialog extends DialogFragment {
     private int rendererIndex;
     private boolean allowAdaptiveSelections;
     private boolean allowMultipleOverrides;
+    private Comparator<Format> comparator;
 
     /* package */ boolean isDisabled;
     /* package */ List<SelectionOverride> overrides;
@@ -329,10 +342,12 @@ public final class TrackSelectionDialog extends DialogFragment {
         boolean initialIsDisabled,
         @Nullable SelectionOverride initialOverride,
         boolean allowAdaptiveSelections,
-        boolean allowMultipleOverrides) {
+        boolean allowMultipleOverrides,
+        @Nullable Comparator<Format> comparator) {
       this.mappedTrackInfo = mappedTrackInfo;
       this.rendererIndex = rendererIndex;
       this.isDisabled = initialIsDisabled;
+      this.comparator = comparator;
       this.overrides =
           initialOverride == null
               ? Collections.emptyList()
@@ -354,7 +369,7 @@ public final class TrackSelectionDialog extends DialogFragment {
       trackSelectionView.setAllowMultipleOverrides(allowMultipleOverrides);
       trackSelectionView.setAllowAdaptiveSelections(allowAdaptiveSelections);
       trackSelectionView.init(
-          mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ this);
+          mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ this, comparator);
       return rootView;
     }
 

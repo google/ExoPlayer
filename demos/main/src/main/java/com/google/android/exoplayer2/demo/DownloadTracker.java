@@ -243,7 +243,7 @@ public class DownloadTracker {
               /* allowAdaptiveSelections =*/ false,
               /* allowMultipleOverrides= */ true,
               /* onClickListener= */ this,
-              /* onDismissListener= */ this);
+              /* onDismissListener= */ this, null);
       trackSelectionDialog.show(fragmentManager, /* tag= */ null);
     }
 

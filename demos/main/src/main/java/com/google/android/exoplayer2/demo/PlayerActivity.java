@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
@@ -64,6 +65,8 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
@@ -242,13 +245,28 @@ public class PlayerActivity extends AppCompatActivity
     if (view == selectTracksButton
         && !isShowingTrackSelectionDialog
         && TrackSelectionDialog.willHaveContent(trackSelector)) {
+      HashMap<Integer, Comparator<Format>> comparatorHashMap = new HashMap<>();
+      comparatorHashMap.put(getRendererTypeIndex(C.TRACK_TYPE_AUDIO), (o1, o2) -> o1.bitrate - o2.bitrate);
+      comparatorHashMap.put(getRendererTypeIndex(C.TRACK_TYPE_VIDEO), (o1, o2) -> o2.bitrate - o1.bitrate);
       isShowingTrackSelectionDialog = true;
       TrackSelectionDialog trackSelectionDialog =
           TrackSelectionDialog.createForTrackSelector(
               trackSelector,
-              /* onDismissListener= */ dismissedDialog -> isShowingTrackSelectionDialog = false);
+              /* onDismissListener= */ dismissedDialog -> isShowingTrackSelectionDialog = false, comparatorHashMap);
       trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
     }
+  }
+
+  private Integer getRendererTypeIndex(int trackType) {
+    MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+    for(int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+      TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
+      if(trackGroupArray.length == 0) return null;
+      if(trackType == mappedTrackInfo.getRendererType(i)) {
+        return i;
+      }
+    }
+    return null;
   }
 
   // PlaybackPreparer implementation

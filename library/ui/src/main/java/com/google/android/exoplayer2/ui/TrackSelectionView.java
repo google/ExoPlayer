@@ -26,6 +26,7 @@ import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import androidx.annotation.AttrRes;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedT
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -63,6 +65,9 @@ public class TrackSelectionView extends LinearLayout {
 
   private boolean allowAdaptiveSelections;
   private boolean allowMultipleOverrides;
+
+  @Nullable private Comparator<Format> comparator;
+  private TrackGroupArray sortedTrackGroups;
 
   private TrackNameProvider trackNameProvider;
   private CheckedTextView[][] trackViews;
@@ -203,11 +208,13 @@ public class TrackSelectionView extends LinearLayout {
       int rendererIndex,
       boolean isDisabled,
       List<SelectionOverride> overrides,
-      @Nullable TrackSelectionListener listener) {
+      @Nullable TrackSelectionListener listener,
+      @Nullable Comparator<Format> comparator) {
     this.mappedTrackInfo = mappedTrackInfo;
     this.rendererIndex = rendererIndex;
     this.isDisabled = isDisabled;
     this.listener = listener;
+    this.comparator = comparator;
     int maxOverrides = allowMultipleOverrides ? overrides.size() : Math.min(overrides.size(), 1);
     for (int i = 0; i < maxOverrides; i++) {
       SelectionOverride override = overrides.get(i);
@@ -251,12 +258,13 @@ public class TrackSelectionView extends LinearLayout {
     defaultView.setEnabled(true);
 
     trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+    sortedTrackGroups = initSortedTrackGroups(trackGroups);
 
     // Add per-track views.
-    trackViews = new CheckedTextView[trackGroups.length][];
+    trackViews = new CheckedTextView[sortedTrackGroups.length][];
     boolean enableMultipleChoiceForMultipleOverrides = shouldEnableMultiGroupSelection();
-    for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
-      TrackGroup group = trackGroups.get(groupIndex);
+    for (int groupIndex = 0; groupIndex < sortedTrackGroups.length; groupIndex++) {
+      TrackGroup group = sortedTrackGroups.get(groupIndex);
       boolean enableMultipleChoiceForAdaptiveSelections = shouldEnableAdaptiveSelection(groupIndex);
       trackViews[groupIndex] = new CheckedTextView[group.length];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
@@ -294,7 +302,12 @@ public class TrackSelectionView extends LinearLayout {
     for (int i = 0; i < trackViews.length; i++) {
       SelectionOverride override = overrides.get(i);
       for (int j = 0; j < trackViews[i].length; j++) {
-        trackViews[i][j].setChecked(override != null && override.containsTrack(j));
+        if(override != null) {
+          int sortedIndex = getSortedIndexFromInitialTrackGroup(override.groupIndex, j);
+          trackViews[i][j].setChecked(override.containsTrack(sortedIndex));
+        } else {
+          trackViews[i][j].setChecked(false);
+        }
       }
     }
   }
@@ -328,7 +341,7 @@ public class TrackSelectionView extends LinearLayout {
     @SuppressWarnings("unchecked")
     Pair<Integer, Integer> tag = (Pair<Integer, Integer>) Assertions.checkNotNull(view.getTag());
     int groupIndex = tag.first;
-    int trackIndex = tag.second;
+    int trackIndex = getSortedIndexFromInitialTrackGroup(tag.first, tag.second);
     SelectionOverride override = overrides.get(groupIndex);
     Assertions.checkNotNull(mappedTrackInfo);
     if (override == null) {
@@ -365,6 +378,48 @@ public class TrackSelectionView extends LinearLayout {
         }
       }
     }
+  }
+
+  private TrackGroupArray initSortedTrackGroups(TrackGroupArray trackGroups) {
+    TrackGroupArray trackGroupArray = trackGroups;
+    if(comparator != null) {
+      TrackGroupArray trackGroupsArray = mappedTrackInfo.getTrackGroups(rendererIndex);
+      for (int groupIndex = 0; groupIndex < trackGroupsArray.length; groupIndex++) {
+        TrackGroup group = trackGroupsArray.get(groupIndex);
+        Format[] listFormats = new Format[group.length];
+        for (int formatIndex = 0; formatIndex < group.length; formatIndex++) {
+          listFormats[formatIndex] = group.getFormat(formatIndex);
+        }
+        Arrays.sort(listFormats, comparator);
+        trackGroupArray = new TrackGroupArray(new TrackGroup(listFormats));
+      }
+    }
+    return trackGroupArray;
+  }
+
+  /**
+   * The correspondence between trackGroup and sortedTrackGroup indexes.
+   * initial array (only quality for this example) : [480,720,256,1080]
+   * asc sorted array (only quality for this example) : [256,480,720,1080]
+   * initial array index for 480 is 0, but for sorted array index is 1.
+   * Initial array index is @param trackIndex, and the @return result is sorted array index
+   * @param groupIndex which TrackGroup you want to browse into
+   * @param trackIndex which index of the initial array
+   * @return index of the sorted array that correspond to the same element in the initial array
+   */
+  private int getSortedIndexFromInitialTrackGroup(int groupIndex, int trackIndex) {
+    int sortedTrackIndex = trackIndex;
+    if(sortedTrackGroups != trackGroups) {
+      Format selectedFormat = sortedTrackGroups.get(rendererIndex).getFormat(trackIndex);
+      int trackHash = selectedFormat.hashCode();
+      for (int formatIndex = 0; formatIndex < trackGroups.get(groupIndex).length; formatIndex++) {
+        if(trackGroups.get(groupIndex).getFormat(formatIndex).hashCode() == trackHash) {
+          sortedTrackIndex = formatIndex;
+          break;
+        }
+      }
+    }
+    return sortedTrackIndex;
   }
 
   @RequiresNonNull("mappedTrackInfo")
