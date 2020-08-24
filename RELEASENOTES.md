@@ -1,5 +1,31 @@
 # Release notes #
 
+### 2.11.8 (2020-08-25) ###
+
+*   Fix distorted playback of floating point audio when samples exceed the
+    `[-1, 1]` nominal range.
+*   MP4:
+    *   Add support for `piff` and `isml` brands
+        ([#7584](https://github.com/google/ExoPlayer/issues/7584)).
+    *   Fix playback of very short MP4 files.
+*   FMP4:
+    *   Fix `saiz` and `senc` sample count checks, resolving a "length
+        mismatch" `ParserException` when playing certain protected FMP4 streams
+        ([#7592](https://github.com/google/ExoPlayer/issues/7592)).
+    *   Fix handling of `traf` boxes containing multiple `sbgp` or `sgpd`
+        boxes.
+*   FLV: Ignore `SCRIPTDATA` segments with invalid name types, rather than
+    failing playback ([#7675](https://github.com/google/ExoPlayer/issues/7675)).
+*   Better infer the content type of `.ism` and `.isml` streaming URLs.
+*   Workaround an issue on Broadcom based devices where playbacks would not
+    transition to `STATE_ENDED` when using video tunneling mode
+    ([#7647](https://github.com/google/ExoPlayer/issues/7647)).
+*   IMA extension: Upgrade to IMA SDK 3.19.4, bringing in a fix for setting the
+    media load timeout
+    ([#7170](https://github.com/google/ExoPlayer/issues/7170)).
+*   Demo app: Fix playback of ClearKey protected content on API level 26 and
+    earlier ([#7735](https://github.com/google/ExoPlayer/issues/7735)).
+
 ### 2.11.7 (2020-06-29) ###
 
 *   IMA extension: Fix the way postroll "content complete" notifications are

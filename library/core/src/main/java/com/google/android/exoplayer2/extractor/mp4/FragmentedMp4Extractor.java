@@ -735,12 +735,7 @@ public class FragmentedMp4Extractor implements Extractor {
       parseSenc(senc.data, fragment);
     }
 
-    LeafAtom sbgp = traf.getLeafAtomOfType(Atom.TYPE_sbgp);
-    LeafAtom sgpd = traf.getLeafAtomOfType(Atom.TYPE_sgpd);
-    if (sbgp != null && sgpd != null) {
-      parseSgpd(sbgp.data, sgpd.data, encryptionBox != null ? encryptionBox.schemeType : null,
-          fragment);
-    }
+    parseSampleGroups(traf, encryptionBox != null ? encryptionBox.schemeType : null, fragment);
 
     int leafChildrenSize = traf.leafChildren.size();
     for (int i = 0; i < leafChildrenSize; i++) {
@@ -798,8 +793,12 @@ public class FragmentedMp4Extractor implements Extractor {
     int defaultSampleInfoSize = saiz.readUnsignedByte();
 
     int sampleCount = saiz.readUnsignedIntToInt();
-    if (sampleCount != out.sampleCount) {
-      throw new ParserException("Length mismatch: " + sampleCount + ", " + out.sampleCount);
+    if (sampleCount > out.sampleCount) {
+      throw new ParserException(
+          "Saiz sample count "
+              + sampleCount
+              + " is greater than fragment sample count"
+              + out.sampleCount);
     }
 
     int totalSize = 0;
@@ -815,7 +814,10 @@ public class FragmentedMp4Extractor implements Extractor {
       totalSize += defaultSampleInfoSize * sampleCount;
       Arrays.fill(out.sampleHasSubsampleEncryptionTable, 0, sampleCount, subsampleEncryption);
     }
-    out.initEncryptionData(totalSize);
+    Arrays.fill(out.sampleHasSubsampleEncryptionTable, sampleCount, out.sampleCount, false);
+    if (totalSize > 0) {
+      out.initEncryptionData(totalSize);
+    }
   }
 
   /**
@@ -990,8 +992,10 @@ public class FragmentedMp4Extractor implements Extractor {
           checkNonNegative(sampleDurationsPresent ? trun.readInt() : defaultSampleValues.duration);
       int sampleSize =
           checkNonNegative(sampleSizesPresent ? trun.readInt() : defaultSampleValues.size);
-      int sampleFlags = (i == 0 && firstSampleFlagsPresent) ? firstSampleFlags
-          : sampleFlagsPresent ? trun.readInt() : defaultSampleValues.flags;
+      int sampleFlags =
+          sampleFlagsPresent
+              ? trun.readInt()
+              : (i == 0 && firstSampleFlagsPresent) ? firstSampleFlags : defaultSampleValues.flags;
       if (sampleCompositionTimeOffsetsPresent) {
         // The BMFF spec (ISO 14496-12) states that sample offsets should be unsigned integers in
         // version 0 trun boxes, however a significant number of streams violate the spec and use
@@ -1055,8 +1059,16 @@ public class FragmentedMp4Extractor implements Extractor {
 
     boolean subsampleEncryption = (flags & 0x02 /* use_subsample_encryption */) != 0;
     int sampleCount = senc.readUnsignedIntToInt();
-    if (sampleCount != out.sampleCount) {
-      throw new ParserException("Length mismatch: " + sampleCount + ", " + out.sampleCount);
+    if (sampleCount == 0) {
+      // Samples are unencrypted.
+      Arrays.fill(out.sampleHasSubsampleEncryptionTable, 0, out.sampleCount, false);
+      return;
+    } else if (sampleCount != out.sampleCount) {
+      throw new ParserException(
+          "Senc sample count "
+              + sampleCount
+              + " is different from fragment sample count"
+              + out.sampleCount);
     }
 
     Arrays.fill(out.sampleHasSubsampleEncryptionTable, 0, sampleCount, subsampleEncryption);
@@ -1064,28 +1076,43 @@ public class FragmentedMp4Extractor implements Extractor {
     out.fillEncryptionData(senc);
   }
 
-  private static void parseSgpd(ParsableByteArray sbgp, ParsableByteArray sgpd, String schemeType,
-      TrackFragment out) throws ParserException {
-    sbgp.setPosition(Atom.HEADER_SIZE);
-    int sbgpFullAtom = sbgp.readInt();
-    if (sbgp.readInt() != SAMPLE_GROUP_TYPE_seig) {
-      // Only seig grouping type is supported.
+  private static void parseSampleGroups(
+      ContainerAtom traf, @Nullable String schemeType, TrackFragment out) throws ParserException {
+    // Find sbgp and sgpd boxes with grouping_type == seig.
+    @Nullable ParsableByteArray sbgp = null;
+    @Nullable ParsableByteArray sgpd = null;
+    for (int i = 0; i < traf.leafChildren.size(); i++) {
+      LeafAtom leafAtom = traf.leafChildren.get(i);
+      ParsableByteArray leafAtomData = leafAtom.data;
+      if (leafAtom.type == Atom.TYPE_sbgp) {
+        leafAtomData.setPosition(Atom.FULL_HEADER_SIZE);
+        if (leafAtomData.readInt() == SAMPLE_GROUP_TYPE_seig) {
+          sbgp = leafAtomData;
+        }
+      } else if (leafAtom.type == Atom.TYPE_sgpd) {
+        leafAtomData.setPosition(Atom.FULL_HEADER_SIZE);
+        if (leafAtomData.readInt() == SAMPLE_GROUP_TYPE_seig) {
+          sgpd = leafAtomData;
+        }
+      }
+    }
+    if (sbgp == null || sgpd == null) {
       return;
     }
-    if (Atom.parseFullAtomVersion(sbgpFullAtom) == 1) {
-      sbgp.skipBytes(4); // default_length.
+
+    sbgp.setPosition(Atom.HEADER_SIZE);
+    int sbgpVersion = Atom.parseFullAtomVersion(sbgp.readInt());
+    sbgp.skipBytes(4); // grouping_type == seig.
+    if (sbgpVersion == 1) {
+      sbgp.skipBytes(4); // grouping_type_parameter.
     }
     if (sbgp.readInt() != 1) { // entry_count.
       throw new ParserException("Entry count in sbgp != 1 (unsupported).");
     }
 
     sgpd.setPosition(Atom.HEADER_SIZE);
-    int sgpdFullAtom = sgpd.readInt();
-    if (sgpd.readInt() != SAMPLE_GROUP_TYPE_seig) {
-      // Only seig grouping type is supported.
-      return;
-    }
-    int sgpdVersion = Atom.parseFullAtomVersion(sgpdFullAtom);
+    int sgpdVersion = Atom.parseFullAtomVersion(sgpd.readInt());
+    sgpd.skipBytes(4); // grouping_type == seig.
     if (sgpdVersion == 1) {
       if (sgpd.readUnsignedInt() == 0) {
         throw new ParserException("Variable length description in sgpd found (unsupported)");
@@ -1096,6 +1123,7 @@ public class FragmentedMp4Extractor implements Extractor {
     if (sgpd.readUnsignedInt() != 1) { // entry_count.
       throw new ParserException("Entry count in sgpd != 1 (unsupported).");
     }
+
     // CencSampleEncryptionInformationGroupEntry
     sgpd.skipBytes(1); // reserved = 0.
     int patternByte = sgpd.readUnsignedByte();

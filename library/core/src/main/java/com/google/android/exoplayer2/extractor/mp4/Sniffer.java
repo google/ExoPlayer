@@ -57,6 +57,8 @@ import java.io.IOException;
         0x71742020, // qt[space][space], Apple QuickTime
         0x4d534e56, // MSNV, Sony PSP
         0x64627931, // dby1, Dolby Vision
+        0x69736d6c, // isml
+        0x70696666, // piff
       };
 
   /**
@@ -101,7 +103,12 @@ import java.io.IOException;
       // Read an atom header.
       int headerSize = Atom.HEADER_SIZE;
       buffer.reset(headerSize);
-      input.peekFully(buffer.data, 0, headerSize);
+      boolean success =
+          input.peekFully(buffer.data, 0, headerSize, /* allowEndOfInput= */ true);
+      if (!success) {
+        // We've reached the end of the file.
+        break;
+      }
       long atomSize = buffer.readUnsignedInt();
       int atomType = buffer.readInt();
       if (atomSize == Atom.DEFINES_LARGE_SIZE) {

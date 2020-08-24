@@ -23,10 +23,10 @@ import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +64,7 @@ public final class SsDownloader extends SegmentDownloader<SsManifest> {
    */
   public SsDownloader(
       Uri manifestUri, List<StreamKey> streamKeys, DownloaderConstructorHelper constructorHelper) {
-    super(SsUtil.fixManifestUri(manifestUri), streamKeys, constructorHelper);
+    super(Util.fixSmoothStreamingIsmManifestUri(manifestUri), streamKeys, constructorHelper);
   }
 
   @Override
