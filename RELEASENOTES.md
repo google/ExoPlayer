@@ -12,43 +12,59 @@
 ### 2.12.0 (not yet released - targeted for 2020-08-TBD) ###
 
 *   Core library:
-    *   Added `TextComponent.getCurrentCues` because the current cues are no
-        longer forwarded to a new `TextOutput` in `SimpleExoPlayer`
-        automatically.
-    *   Add additional options to `SimpleExoPlayer.Builder` that were previously
-        only accessible via setters.
-    *   Add opt-in to verify correct thread usage with
-        `SimpleExoPlayer.setThrowsWhenUsingWrongThread(true)`
-        ([#4463](https://github.com/google/ExoPlayer/issues/4463)).
-    *   Add playlist API
-        ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
-    *   Add `play` and `pause` methods to `Player`.
-    *   Add `Player.getCurrentLiveOffset` to conveniently return the live
-        offset.
-    *   Add `Player.EventListener.onPlayWhenReadyChanged` with reasons.
-    *   Add `Player.EventListener.onPlaybackStateChanged` and deprecate
-        `Player.EventListener.onPlayerStateChanged`.
-    *   Add `Player.EventListener.onMediaItemTransition` with reasons.
-    *   Add `Player.setAudioSessionId` to set the session ID attached to the
-        `AudioTrack`.
-    *   Add `Player.getTrackSelector`.
-    *   Deprecate and rename `getPlaybackError` to `getPlayerError` for
-        consistency.
-    *   Deprecate and rename `onLoadingChanged` to `onIsLoadingChanged` for
-        consistency.
-    *   Deprecate `onSeekProcessed` because all seek changes happen instantly
-        now and listening to `onPositionDiscontinuity` is sufficient.
-    *   Add `ExoPlayer.setPauseAtEndOfMediaItems` to let the player pause at the
-        end of each media item
-        ([#5660](https://github.com/google/ExoPlayer/issues/5660)).
-    *   Split `setPlaybackParameter` into `setPlaybackSpeed` and
-        `AudioComponent.setSkipSilenceEnabled` with callbacks
-        `onPlaybackSpeedChanged` and
-        `AudioListener.onSkipSilenceEnabledChanged`.
-    *   Allow to explicitly send `PlayerMessage`s at the end of a stream.
-    *   Add `getCurrentMediaItem` to `Player`.
-    *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
-        that the device volume can be controlled by player.
+    *   `Player`:
+        *   Add a top level playlist API based on a new `MediaItem` class
+            ([#6161](https://github.com/google/ExoPlayer/issues/6161)). The
+            new methods for playlist manipulation are `setMediaItem(s)`,
+            `addMediaItem(s)`, `moveMediaItem(s)`, `removeMediaItem(s)` and
+            `clearMediaItems`.
+        *   Add `getCurrentMediaItem` for getting the currently playing item
+            in the playlist.
+        *   Add `EventListener.onMediaItemTransition` to report when
+            playback transitions from one item to another in the playlist.
+        *   Add `play` and `pause` convenience methods. They are equivalent to
+            `setPlayWhenReady(true)` and `setPlayWhenReady(false)` respectively.
+        *   Add `getCurrentLiveOffset` for getting the offset of the current
+            playback position from the live edge of a live stream.
+        *   Add `getTrackSelector` for getting the `TrackSelector` used by the
+            player.
+        *   Add `AudioComponent.setAudioSessionId` to set the audio session ID.
+            This method is also available on `SimpleExoPlayer`.
+        *   Add `TextComponent.getCurrentCues` to get the current cues. This
+            method is also available on `SimpleExoPlayer`. The current cues are
+            no longer automatically forwarded to a `TextOutput` when it's added
+            to a `SimpleExoPlayer`.
+        *   Add `Player.DeviceComponent` to query and control the device volume.
+            `SimpleExoPlayer` implements this interface.
+        *   Deprecate and rename `getPlaybackError` to `getPlayerError` for
+            consistency.
+        *   Deprecate and rename `onLoadingChanged` to `onIsLoadingChanged` for
+            consistency.
+        *   Deprecate `EventListener.onPlayerStateChanged`, replacing it with
+            `EventListener.onPlayWhenReadyChanged` and
+            `EventListener.onPlaybackStateChanged`.
+        *   Deprecate `EventListener.onSeekProcessed` because seek changes now
+            happen instantly and listening to `onPositionDiscontinuity` is
+            sufficient.
+    *   `ExoPlayer`:
+        *   Add `setMediaSource(s)` and `addMediaSource(s)` to `ExoPlayer`, for
+            adding `MediaSource` instances directly to the playlist.
+        *   Add `ExoPlayer.setPauseAtEndOfMediaItems` to let the player pause at
+            the end of each media item
+            ([#5660](https://github.com/google/ExoPlayer/issues/5660)).
+        *   Allow passing `C.TIME_END_OF_SOURCE` to `PlayerMessage.setPosition`
+            to send a `PlayerMessage` at the end of a stream.
+    *   `SimpleExoPlayer`:
+        *   `SimpleExoPlayer` implements the new `MediaItem` based playlist API,
+            using a `MediaSourceFactory` to convert `MediaItem` instances to
+            playable `MediaSource` instances. A `DefaultMediaSourceFactory` is
+            used by default. `Builder.setMediaSourceFactory` allows setting a
+            custom factory.
+        *   Add additional options to `Builder` that were previously only
+            accessible via setters.
+        *   Add opt-in to verify correct thread usage with
+            `setThrowsWhenUsingWrongThread(true)`
+            ([#4463](https://github.com/google/ExoPlayer/issues/4463)).
     *   `Format`:
         *   Add a `Builder` and deprecate all `create` methods and most
             `Format.copyWith` methods.
