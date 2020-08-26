@@ -20,17 +20,8 @@
     *   Add opt-in to verify correct thread usage with
         `SimpleExoPlayer.setThrowsWhenUsingWrongThread(true)`
         ([#4463](https://github.com/google/ExoPlayer/issues/4463)).
-    *   Add playbackPositionUs parameter to 'LoadControl.shouldContinueLoading'.
-    *   The `DefaultLoadControl` default minimum buffer is set to 50 seconds,
-        equal to the default maximum buffer. `DefaultLoadControl` applies the
-        same behavior for audio and video.
     *   Add playlist API
         ([#6161](https://github.com/google/ExoPlayer/issues/6161)).
-    *   Attach an identifier and extra information to load error events passed
-        to `LoadErrorHandlingPolicy`. `LoadErrorHandlingPolicy` implementations
-        must migrate to overriding the non-deprecated methods of the interface
-        in preparation for deprecated methods' removal in a future ExoPlayer
-        version ([#7309](https://github.com/google/ExoPlayer/issues/7309)).
     *   Add `play` and `pause` methods to `Player`.
     *   Add `Player.getCurrentLiveOffset` to conveniently return the live
         offset.
@@ -54,37 +45,45 @@
         `AudioComponent.setSkipSilenceEnabled` with callbacks
         `onPlaybackSpeedChanged` and
         `AudioListener.onSkipSilenceEnabledChanged`.
-    *   Make `MediaSourceEventListener.LoadEventInfo` and
-        `MediaSourceEventListener.MediaLoadData` top-level classes.
-    *   Move player message-related constants from `C` to `Renderer`, to avoid
-        having the constants class depend on player/renderer classes.
-    *   Split out `common` and `extractor` submodules.
     *   Allow to explicitly send `PlayerMessage`s at the end of a stream.
-    *   Add a `Format.Builder` and deprecate all `Format.create*` methods and
-        most `Format.copyWith*` methods.
-    *   Split `Format.bitrate` into `Format.averageBitrate` and
-        `Format.peakBitrate`
-        ([#2863](https://github.com/google/ExoPlayer/issues/2863)).
-    *   Add option to `MergingMediaSource` to adjust the time offsets between
-        the merged sources
-        ([#6103](https://github.com/google/ExoPlayer/issues/6103)).
-    *   `SimpleDecoderVideoRenderer` and `SimpleDecoderAudioRenderer` renamed to
-        `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
-        generalized to work with `Decoder` rather than `SimpleDecoder`.
     *   Add `getCurrentMediaItem` to `Player`.
     *   Add `Player.DeviceComponent` and implement it for `SimpleExoPlayer` so
         that the device volume can be controlled by player.
-    *   Extend `EventTime` with more details about the current player state for
-        easier access
-        ([#7332](https://github.com/google/ExoPlayer/issues/7332)).
-    *   Don't clear `exception` in `SimpleDecoder#flush()`
-        ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
-    *   Dispatch previous, next, fast forward and rewind actions through
-        `ControlDispatcher`
-        ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
-    *   Add Guava dependency.
-    *   Add MetadataRetriever API to retrieve the static metadata of a media
-        item ([#3609](https://github.com/google/ExoPlayer/issues/3609)).
+    *   `Format`:
+        *   Add a `Builder` and deprecate all `create` methods and most
+            `Format.copyWith` methods.
+        *   Split `bitrate` into `averageBitrate` and `peakBitrate`
+            ([#2863](https://github.com/google/ExoPlayer/issues/2863)).
+    *   `LoadControl`:
+        *   Add a `playbackPositionUs` parameter to `shouldContinueLoading`.
+        *   Set the default minimum buffer duration in `DefaultLoadControl` to
+            50 seconds (equal to the default maximum buffer), and treat audio
+            and video the same.
+    *   Add a `MetadataRetriever` API for retrieving track information and
+        static metadata for a media item
+        ([#3609](https://github.com/google/ExoPlayer/issues/3609)).
+    *   Attach an identifier and extra information to load error events passed
+        to `LoadErrorHandlingPolicy`
+        ([#7309](https://github.com/google/ExoPlayer/issues/7309)).
+        `LoadErrorHandlingPolicy` implementations should migrate to implementing
+        the non-deprecated methods of the interface.
+    *   Add an option to `MergingMediaSource` to adjust the time offsets
+        between the merged sources
+        ([#6103](https://github.com/google/ExoPlayer/issues/6103)).
+    *   Move `MediaSourceEventListener.LoadEventInfo` and
+        `MediaSourceEventListener.MediaLoadData` to be top-level classes in
+        `com.google.android.exoplayer2.source`.
+    *   Move `SimpleDecoderVideoRenderer` and `SimpleDecoderAudioRenderer` to
+        `DecoderVideoRenderer` and `DecoderAudioRenderer` respectively, and
+        generalize them to work with `Decoder` rather than `SimpleDecoder`.
+    *   Deprecate `C.MSG_*` constants, replacing them with constants in
+        `Renderer`.
+    *   Split the `library-core` module into `library-core`,
+        `library-common` and `library-extractor`. The `library-core` module
+        has an API dependency on both of the new modules, so this change
+        should be transparent to developers including ExoPlayer using Gradle
+        dependencies.
+    *   Add a dependency on Guava.
 *   Video:
     *   Pass frame rate hint to `Surface.setFrameRate` on Android 11.
     *   Fix incorrect aspect ratio when transitioning from one video to another
@@ -219,6 +218,9 @@
     *   Update `TrackSelectionDialogBuilder` to use the AndroidX app compat
         `AlertDialog` rather than the platform version, if available
         ([#7357](https://github.com/google/ExoPlayer/issues/7357)).
+    *   Make UI components dispatch previous, next, fast forward and rewind
+        actions via their `ControlDispatcher`
+        ([#6926](https://github.com/google/ExoPlayer/issues/6926)).
 *   Downloads and caching:
     *   Add `DownloadRequest.Builder`.
     *   Add `DownloadRequest.keySetId` to make it easier to store an offline
@@ -273,16 +275,16 @@
         replaced by `CacheDataSink.Factory` and `CacheDataSource.Factory`
         respectively.
 *   Analytics:
+    *   Extend `EventTime` with more details about the current player state
+        ([#7332](https://github.com/google/ExoPlayer/issues/7332)).
     *   Add `AnalyticsListener.onVideoFrameProcessingOffset` to report how
         early or late video frames are processed relative to them needing to be
         presented. Video frame processing offset fields are also added to
         `DecoderCounters`.
-    *   Add `onIsLoadingChanged` and `onSkipSilenceEnabledChanged` to
-        `AnalyticsListener`.
-    *   Remove `onMediaPeriodCreated`, `onMediaPeriodReleased` and
-        `onReadingStarted` from `AnalyticsListener`.
     *   Fix incorrect `MediaPeriodId` for some renderer errors reported by
         `AnalyticsListener.onPlayerError`.
+    *   Remove `onMediaPeriodCreated`, `onMediaPeriodReleased` and
+        `onReadingStarted` from `AnalyticsListener`.
 *   Test utils: Add `TestExoPlayer`, a utility class with APIs to create
     `SimpleExoPlayer` instances with fake components for testing.
 *   Media2 extension: This is a new extension that makes it easy to use
