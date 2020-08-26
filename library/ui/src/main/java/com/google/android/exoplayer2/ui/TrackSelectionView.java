@@ -258,7 +258,7 @@ public class TrackSelectionView extends LinearLayout {
     defaultView.setEnabled(true);
 
     trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-    sortedTrackGroups = initSortedTrackGroups(trackGroups);
+    sortedTrackGroups = sortedTrackGroups != null ? sortedTrackGroups : initSortedTrackGroups(trackGroups);
 
     // Add per-track views.
     trackViews = new CheckedTextView[sortedTrackGroups.length][];
