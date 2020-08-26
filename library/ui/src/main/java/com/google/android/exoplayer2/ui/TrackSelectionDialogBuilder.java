@@ -123,7 +123,12 @@ public final class TrackSelectionDialogBuilder {
                     newOverrides.isEmpty() ? null : newOverrides.get(0)));
   }
 
-  public TrackSelectionDialogBuilder setTheme(int themeResId) {
+  /**
+   * Sets the resource ID of the theme used to inflate this dialog.
+   * @param themeResId the resource ID to use
+   * @return This builder, for convenience.
+   */
+  public TrackSelectionDialogBuilder setTheme(@StyleRes  int themeResId) {
     this.themeResId = themeResId;
     return this;
   }

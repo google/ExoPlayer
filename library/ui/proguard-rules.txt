@@ -4,6 +4,7 @@
 -dontnote androidx.appcompat.app.AlertDialog.Builder
 -keepclassmembers class androidx.appcompat.app.AlertDialog$Builder {
   <init>(android.content.Context);
+  <init>(android.content.Context, int);
   public android.content.Context getContext();
   public androidx.appcompat.app.AlertDialog$Builder setTitle(java.lang.CharSequence);
   public androidx.appcompat.app.AlertDialog$Builder setView(android.view.View);
