@@ -1,6 +1,6 @@
 # Release notes
 
-### 2.12.0 (not yet released - targeted for 2020-08-03) ###
+### 2.12.0 (not yet released - targeted for 2020-09-03) ###
 
 *   Core library:
     *   `Player`:
@@ -206,7 +206,7 @@
     *   FMP4: Add support for partially fragmented MP4s
         ([#7308](https://github.com/google/ExoPlayer/issues/7308)).
     *   Matroska:
-        *   Support Dolby Vision extraction in Matroska
+        *   Support Dolby Vision
             ([#7267](https://github.com/google/ExoPlayer/issues/7267).
         *   Populate `Format.label` with track titles.
         *   Remove support for the `Invisible` block header flag.
