@@ -1030,18 +1030,23 @@ public class SimpleExoPlayer extends BasePlayer
     this.priorityTaskManager = priorityTaskManager;
   }
 
-  /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
+  /**
+   * Sets the {@link PlaybackParams} governing audio playback.
+   *
+   * @param params The {@link PlaybackParams}, or null to clear any previously set parameters.
+   * @deprecated Use {@link #setPlaybackParameters(PlaybackParameters)}.
+   */
   @Deprecated
   @RequiresApi(23)
   public void setPlaybackParams(@Nullable PlaybackParams params) {
-    float playbackSpeed;
+    PlaybackParameters playbackParameters;
     if (params != null) {
       params.allowDefaults();
-      playbackSpeed = params.getSpeed();
+      playbackParameters = new PlaybackParameters(params.getSpeed(), params.getPitch());
     } else {
-      playbackSpeed = 1.0f;
+      playbackParameters = null;
     }
-    setPlaybackSpeed(playbackSpeed);
+    setPlaybackParameters(playbackParameters);
   }
 
   /** Returns the video format currently being played, or null if no video is being played. */
@@ -1623,37 +1628,16 @@ public class SimpleExoPlayer extends BasePlayer
     player.seekTo(windowIndex, positionMs);
   }
 
-  /**
-   * @deprecated Use {@link #setPlaybackSpeed(float)} and {@link #setSkipSilenceEnabled(boolean)}
-   *     instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
   @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     verifyApplicationThread();
     player.setPlaybackParameters(playbackParameters);
   }
 
-  /** @deprecated Use {@link #getPlaybackSpeed()} and {@link #getSkipSilenceEnabled()} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
   @Override
   public PlaybackParameters getPlaybackParameters() {
     verifyApplicationThread();
     return player.getPlaybackParameters();
-  }
-
-  @Override
-  public void setPlaybackSpeed(float playbackSpeed) {
-    verifyApplicationThread();
-    player.setPlaybackSpeed(playbackSpeed);
-  }
-
-  @Override
-  public float getPlaybackSpeed() {
-    verifyApplicationThread();
-    return player.getPlaybackSpeed();
   }
 
   @Override

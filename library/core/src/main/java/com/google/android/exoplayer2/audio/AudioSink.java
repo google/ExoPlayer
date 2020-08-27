@@ -20,6 +20,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -306,16 +307,21 @@ public interface AudioSink {
    */
   boolean hasPendingData();
 
-  /** Sets the playback speed. */
-  void setPlaybackSpeed(float playbackSpeed);
+  /**
+   * Attempts to set the playback parameters. The audio sink may override these parameters if they
+   * are not supported.
+   *
+   * @param playbackParameters The new playback parameters to attempt to set.
+   */
+  void setPlaybackParameters(PlaybackParameters playbackParameters);
 
-  /** Gets the playback speed. */
-  float getPlaybackSpeed();
+  /** Returns the active {@link PlaybackParameters}. */
+  PlaybackParameters getPlaybackParameters();
 
   /** Sets whether silences should be skipped in the audio stream. */
   void setSkipSilenceEnabled(boolean skipSilenceEnabled);
 
-  /** Gets whether silences are skipped in the audio stream. */
+  /** Returns whether silences are skipped in the audio stream. */
   boolean getSkipSilenceEnabled();
 
   /**

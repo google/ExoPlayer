@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.IllegalSeekPositionException;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.PlayerMessage.Target;
@@ -608,26 +609,26 @@ public abstract class Action {
     }
   }
 
-  /** Calls {@link Player#setPlaybackSpeed(float)}. */
-  public static final class SetPlaybackSpeed extends Action {
+  /** Calls {@link Player#setPlaybackParameters(PlaybackParameters)}. */
+  public static final class SetPlaybackParameters extends Action {
 
-    private final float playbackSpeed;
+    private final PlaybackParameters playbackParameters;
 
     /**
-     * Creates a set playback speed action instance.
+     * Creates a set playback parameters action instance.
      *
      * @param tag A tag to use for logging.
-     * @param playbackSpeed The playback speed.
+     * @param playbackParameters The playback parameters.
      */
-    public SetPlaybackSpeed(String tag, float playbackSpeed) {
-      super(tag, "SetPlaybackSpeed:" + playbackSpeed);
-      this.playbackSpeed = playbackSpeed;
+    public SetPlaybackParameters(String tag, PlaybackParameters playbackParameters) {
+      super(tag, "SetPlaybackParameters:" + playbackParameters);
+      this.playbackParameters = playbackParameters;
     }
 
     @Override
     protected void doActionImpl(
         SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      player.setPlaybackSpeed(playbackSpeed);
+      player.setPlaybackParameters(playbackParameters);
     }
   }
 

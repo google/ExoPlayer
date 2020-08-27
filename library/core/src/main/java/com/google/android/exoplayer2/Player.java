@@ -583,20 +583,14 @@ public interface Player {
     default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
 
     /**
-     * @deprecated Use {@link #onPlaybackSpeedChanged(float)} and {@link
-     *     AudioListener#onSkipSilenceEnabledChanged(boolean)} instead.
+     * Called when the current playback parameters change. The playback parameters may change due to
+     * a call to {@link #setPlaybackParameters(PlaybackParameters)}, or the player itself may change
+     * them (for example, if audio playback switches to passthrough or offload mode, where speed
+     * adjustment is no longer possible).
+     *
+     * @param playbackParameters The playback parameters.
      */
-    @SuppressWarnings("deprecation")
-    @Deprecated
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
-
-    /**
-     * Called when the current playback speed changes. The normal playback speed is 1. The speed may
-     * change due to a call to {@link #setPlaybackSpeed(float)}, or the player itself may change it
-     * (for example, if audio playback switches to passthrough mode, where speed adjustment is no
-     * longer possible).
-     */
-    default void onPlaybackSpeedChanged(float playbackSpeed) {}
 
     /**
      * @deprecated Seeks are processed without delay. Listen to {@link
@@ -809,9 +803,6 @@ public interface Player {
    * after being empty.
    */
   int MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED = 3;
-
-  /** The default playback speed. */
-  float DEFAULT_PLAYBACK_SPEED = 1.0f;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
@@ -1161,38 +1152,23 @@ public interface Player {
   void next();
 
   /**
-   * @deprecated Use {@link #setPlaybackSpeed(float)} or {@link
-   *     AudioComponent#setSkipSilenceEnabled(boolean)} instead.
+   * Attempts to set the playback parameters. Passing {@code null} sets the parameters to the
+   * default, {@link PlaybackParameters#DEFAULT}, which means there is no speed or pitch adjustment.
+   *
+   * <p>Playback parameters changes may cause the player to buffer. {@link
+   * EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever the
+   * currently active playback parameters change.
+   *
+   * @param playbackParameters The playback parameters, or {@code null} to use the defaults.
    */
-  @SuppressWarnings("deprecation")
-  @Deprecated
   void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters);
 
   /**
-   * @deprecated Use {@link #getPlaybackSpeed()} or {@link AudioComponent#getSkipSilenceEnabled()}
-   *     instead.
+   * Returns the currently active playback parameters.
+   *
+   * @see EventListener#onPlaybackParametersChanged(PlaybackParameters)
    */
-  @SuppressWarnings("deprecation")
-  @Deprecated
   PlaybackParameters getPlaybackParameters();
-
-  /**
-   * Attempts to set the playback speed.
-   *
-   * <p>Playback speed changes may cause the player to buffer. {@link
-   * EventListener#onPlaybackSpeedChanged(float)} will be called whenever the currently active
-   * playback speed change.
-   *
-   * @param playbackSpeed The playback speed.
-   */
-  void setPlaybackSpeed(float playbackSpeed);
-
-  /**
-   * Returns the currently active playback speed.
-   *
-   * @see EventListener#onPlaybackSpeedChanged(float)
-   */
-  float getPlaybackSpeed();
 
   /**
    * Stops playback without resetting the player. Use {@link #pause()} rather than this method if

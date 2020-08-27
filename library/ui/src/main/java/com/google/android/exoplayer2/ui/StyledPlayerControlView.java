@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -1408,8 +1409,8 @@ public class StyledPlayerControlView extends FrameLayout {
       long mediaTimeUntilNextFullSecondMs = 1000 - position % 1000;
       mediaTimeDelayMs = Math.min(mediaTimeDelayMs, mediaTimeUntilNextFullSecondMs);
 
-      // Calculate the delay until the next update in real time, taking playbackSpeed into account.
-      float playbackSpeed = player.getPlaybackSpeed();
+      // Calculate the delay until the next update in real time, taking playback speed into account.
+      float playbackSpeed = player.getPlaybackParameters().speed;
       long delayMs =
           playbackSpeed > 0 ? (long) (mediaTimeDelayMs / playbackSpeed) : MAX_UPDATE_INTERVAL_MS;
 
@@ -1425,7 +1426,7 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player == null) {
       return;
     }
-    float speed = player.getPlaybackSpeed();
+    float speed = player.getPlaybackParameters().speed;
     int currentSpeedMultBy100 = Math.round(speed * 100);
     int indexForCurrentSpeed = playbackSpeedMultBy100List.indexOf(currentSpeedMultBy100);
     if (indexForCurrentSpeed == UNDEFINED_POSITION) {
@@ -1481,7 +1482,7 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player == null) {
       return;
     }
-    player.setPlaybackSpeed(speed);
+    player.setPlaybackParameters(new PlaybackParameters(speed));
   }
 
   /* package */ void requestPlayPauseFocus() {
@@ -1771,7 +1772,7 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void onPlaybackSpeedChanged(float playbackSpeed) {
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
       updateSettingsPlaybackSpeedLists();
     }
 

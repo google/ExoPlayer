@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -147,8 +148,9 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {
-    logd(eventTime, "playbackSpeed", Float.toString(playbackSpeed));
+  public void onPlaybackParametersChanged(
+      EventTime eventTime, PlaybackParameters playbackParameters) {
+    logd(eventTime, "playbackParameters", playbackParameters.toString());
   }
 
   @Override

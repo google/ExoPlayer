@@ -37,6 +37,7 @@ import java.util.Arrays;
   private final int inputSampleRateHz;
   private final int channelCount;
   private final float speed;
+  private final float pitch;
   private final float rate;
   private final int minPeriod;
   private final int maxPeriod;
@@ -63,12 +64,15 @@ import java.util.Arrays;
    * @param inputSampleRateHz The sample rate of input audio, in hertz.
    * @param channelCount The number of channels in the input audio.
    * @param speed The speedup factor for output audio.
+   * @param pitch The pitch factor for output audio.
    * @param outputSampleRateHz The sample rate for output audio, in hertz.
    */
-  public Sonic(int inputSampleRateHz, int channelCount, float speed, int outputSampleRateHz) {
+  public Sonic(
+      int inputSampleRateHz, int channelCount, float speed, float pitch, int outputSampleRateHz) {
     this.inputSampleRateHz = inputSampleRateHz;
     this.channelCount = channelCount;
     this.speed = speed;
+    this.pitch = pitch;
     rate = (float) inputSampleRateHz / outputSampleRateHz;
     minPeriod = inputSampleRateHz / MAXIMUM_PITCH;
     maxPeriod = inputSampleRateHz / MINIMUM_PITCH;
@@ -118,8 +122,10 @@ import java.util.Arrays;
    */
   public void queueEndOfStream() {
     int remainingFrameCount = inputFrameCount;
+    float s = speed / pitch;
+    float r = rate * pitch;
     int expectedOutputFrames =
-        outputFrameCount + (int) ((remainingFrameCount / speed + pitchFrameCount) / rate + 0.5f);
+        outputFrameCount + (int) ((remainingFrameCount / s + pitchFrameCount) / r + 0.5f);
 
     // Add enough silence to flush both input and pitch buffers.
     inputBuffer =
@@ -464,14 +470,16 @@ import java.util.Arrays;
   private void processStreamInput() {
     // Resample as many pitch periods as we have buffered on the input.
     int originalOutputFrameCount = outputFrameCount;
-    if (speed > 1.00001 || speed < 0.99999) {
-      changeSpeed(speed);
+    float s = speed / pitch;
+    float r = rate * pitch;
+    if (s > 1.00001 || s < 0.99999) {
+      changeSpeed(s);
     } else {
       copyToOutput(inputBuffer, 0, inputFrameCount);
       inputFrameCount = 0;
     }
-    if (rate != 1.0f) {
-      adjustRate(rate, originalOutputFrameCount);
+    if (r != 1.0f) {
+      adjustRate(r, originalOutputFrameCount);
     }
   }
 

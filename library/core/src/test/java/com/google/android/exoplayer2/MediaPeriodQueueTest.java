@@ -435,7 +435,7 @@ public final class MediaPeriodQueueTest {
             /* loadingMediaPeriodId= */ null,
             /* playWhenReady= */ false,
             Player.PLAYBACK_SUPPRESSION_REASON_NONE,
-            /* playbackSpeed= */ Player.DEFAULT_PLAYBACK_SPEED,
+            /* playbackParameters= */ PlaybackParameters.DEFAULT,
             /* bufferedPositionUs= */ 0,
             /* totalBufferedDurationUs= */ 0,
             /* positionUs= */ 0,

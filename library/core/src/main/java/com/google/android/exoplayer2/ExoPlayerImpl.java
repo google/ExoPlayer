@@ -619,32 +619,17 @@ import java.util.concurrent.TimeoutException;
         /* seekProcessed= */ true);
   }
 
-  /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
   @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
-    setPlaybackSpeed(
-        playbackParameters != null ? playbackParameters.speed : Player.DEFAULT_PLAYBACK_SPEED);
-  }
-
-  /** @deprecated Use {@link #getPlaybackSpeed()} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  @Override
-  public PlaybackParameters getPlaybackParameters() {
-    return new PlaybackParameters(playbackInfo.playbackSpeed);
-  }
-
-  @Override
-  public void setPlaybackSpeed(float playbackSpeed) {
-    checkState(playbackSpeed > 0);
-    if (playbackInfo.playbackSpeed == playbackSpeed) {
+    if (playbackParameters == null) {
+      playbackParameters = PlaybackParameters.DEFAULT;
+    }
+    if (playbackInfo.playbackParameters.equals(playbackParameters)) {
       return;
     }
-    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackSpeed(playbackSpeed);
+    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithPlaybackParameters(playbackParameters);
     pendingOperationAcks++;
-    internalPlayer.setPlaybackSpeed(playbackSpeed);
+    internalPlayer.setPlaybackParameters(playbackParameters);
     updatePlaybackInfo(
         newPlaybackInfo,
         /* positionDiscontinuity= */ false,
@@ -655,8 +640,8 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public float getPlaybackSpeed() {
-    return playbackInfo.playbackSpeed;
+  public PlaybackParameters getPlaybackParameters() {
+    return playbackInfo.playbackParameters;
   }
 
   @Override
@@ -1366,7 +1351,7 @@ import java.util.concurrent.TimeoutException;
     private final boolean playWhenReadyChanged;
     private final boolean playbackSuppressionReasonChanged;
     private final boolean isPlayingChanged;
-    private final boolean playbackSpeedChanged;
+    private final boolean playbackParametersChanged;
     private final boolean offloadSchedulingEnabledChanged;
 
     public PlaybackInfoUpdate(
@@ -1405,7 +1390,8 @@ import java.util.concurrent.TimeoutException;
       playbackSuppressionReasonChanged =
           previousPlaybackInfo.playbackSuppressionReason != playbackInfo.playbackSuppressionReason;
       isPlayingChanged = isPlaying(previousPlaybackInfo) != isPlaying(playbackInfo);
-      playbackSpeedChanged = previousPlaybackInfo.playbackSpeed != playbackInfo.playbackSpeed;
+      playbackParametersChanged =
+          !previousPlaybackInfo.playbackParameters.equals(playbackInfo.playbackParameters);
       offloadSchedulingEnabledChanged =
           previousPlaybackInfo.offloadSchedulingEnabled != playbackInfo.offloadSchedulingEnabled;
     }
@@ -1473,13 +1459,11 @@ import java.util.concurrent.TimeoutException;
         invokeAll(
             listenerSnapshot, listener -> listener.onIsPlayingChanged(isPlaying(playbackInfo)));
       }
-      if (playbackSpeedChanged) {
-        PlaybackParameters playbackParameters = new PlaybackParameters(playbackInfo.playbackSpeed);
+      if (playbackParametersChanged) {
         invokeAll(
             listenerSnapshot,
             listener -> {
-              listener.onPlaybackSpeedChanged(playbackInfo.playbackSpeed);
-              listener.onPlaybackParametersChanged(playbackParameters);
+              listener.onPlaybackParametersChanged(playbackInfo.playbackParameters);
             });
       }
       if (seekProcessed) {

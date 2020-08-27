@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -383,11 +384,11 @@ import java.util.List;
   }
 
   public void setPlaybackSpeed(float playbackSpeed) {
-    player.setPlaybackSpeed(playbackSpeed);
+    player.setPlaybackParameters(new PlaybackParameters(playbackSpeed));
   }
 
   public float getPlaybackSpeed() {
-    return player.getPlaybackSpeed();
+    return player.getPlaybackParameters().speed;
   }
 
   public void reset() {
@@ -483,8 +484,8 @@ import java.util.List;
     listener.onShuffleModeChanged(Utils.getShuffleMode(shuffleModeEnabled));
   }
 
-  private void handlePlaybackSpeedChanged(float playbackSpeed) {
-    listener.onPlaybackSpeedChanged(playbackSpeed);
+  private void handlePlaybackParametersChanged(PlaybackParameters playbackParameters) {
+    listener.onPlaybackSpeedChanged(playbackParameters.speed);
   }
 
   private void handleTimelineChanged(Timeline timeline) {
@@ -627,8 +628,8 @@ import java.util.List;
     }
 
     @Override
-    public void onPlaybackSpeedChanged(float playbackSpeed) {
-      handlePlaybackSpeedChanged(playbackSpeed);
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+      handlePlaybackParametersChanged(playbackParameters);
     }
 
     @Override
