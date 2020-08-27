@@ -8,7 +8,8 @@
             ([#6161](https://github.com/google/ExoPlayer/issues/6161)). The
             new methods for playlist manipulation are `setMediaItem(s)`,
             `addMediaItem(s)`, `moveMediaItem(s)`, `removeMediaItem(s)` and
-            `clearMediaItems`.
+            `clearMediaItems`. This API should be used instead of
+            `ConcatenatingMediaSource` in most cases.
         *   Add `getCurrentMediaItem` for getting the currently playing item
             in the playlist.
         *   Add `EventListener.onMediaItemTransition` to report when

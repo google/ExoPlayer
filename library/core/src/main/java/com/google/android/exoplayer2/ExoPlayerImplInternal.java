@@ -163,6 +163,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private final BandwidthMeter bandwidthMeter;
   private final HandlerWrapper handler;
   private final HandlerThread internalPlaybackThread;
+  private final Looper playbackLooper;
   private final Timeline.Window window;
   private final Timeline.Period period;
   private final long backBufferDurationUs;
@@ -252,7 +253,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // not normally change to this priority" is incorrect.
     internalPlaybackThread = new HandlerThread("ExoPlayer:Playback", Process.THREAD_PRIORITY_AUDIO);
     internalPlaybackThread.start();
-    handler = clock.createHandler(internalPlaybackThread.getLooper(), this);
+    playbackLooper = internalPlaybackThread.getLooper();
+    handler = clock.createHandler(playbackLooper, this);
   }
 
   public void experimentalSetReleaseTimeoutMs(long releaseTimeoutMs) {
@@ -403,7 +405,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   public Looper getPlaybackLooper() {
-    return internalPlaybackThread.getLooper();
+    return playbackLooper;
   }
 
   // Playlist.PlaylistInfoRefreshListener implementation.
@@ -1365,7 +1367,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void sendMessageToTarget(PlayerMessage message) throws ExoPlaybackException {
-    if (message.getHandler().getLooper() == handler.getLooper()) {
+    if (message.getHandler().getLooper() == playbackLooper) {
       deliverMessage(message);
       if (playbackInfo.playbackState == Player.STATE_READY
           || playbackInfo.playbackState == Player.STATE_BUFFERING) {
