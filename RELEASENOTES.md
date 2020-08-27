@@ -2,14 +2,9 @@
 
 ### dev-v2 (not yet released)
 
-*   Audio: Add an event for the audio position starting to advance, to make it
-    easier for apps to determine when audio playout started
-    ([#7577](https://github.com/google/ExoPlayer/issues/7577)).
-*   Extractors:
-    *   Support Dolby Vision extraction in Matroska
-        ([#7267](https://github.com/google/ExoPlayer/issues/7267).
+*   New release notes go here!
 
-### 2.12.0 (not yet released - targeted for 2020-08-TBD) ###
+### 2.12.0 (not yet released - targeted for 2020-09-03) ###
 
 *   Core library:
     *   `Player`:
@@ -17,7 +12,8 @@
             ([#6161](https://github.com/google/ExoPlayer/issues/6161)). The
             new methods for playlist manipulation are `setMediaItem(s)`,
             `addMediaItem(s)`, `moveMediaItem(s)`, `removeMediaItem(s)` and
-            `clearMediaItems`.
+            `clearMediaItems`. This API should be used instead of
+            `ConcatenatingMediaSource` in most cases.
         *   Add `getCurrentMediaItem` for getting the currently playing item
             in the playlist.
         *   Add `EventListener.onMediaItemTransition` to report when
@@ -113,6 +109,9 @@
         ([#7502](https://github.com/google/ExoPlayer/issues/7502)). This option
         can be set using
         `DefaultRenderersFactory.setEnableAudioTrackPlaybackParams`.
+    *   Add an event for the audio position starting to advance, to make it
+        easier for apps to determine when audio playout started
+        ([#7577](https://github.com/google/ExoPlayer/issues/7577)).
     *   Generalize support for floating point audio.
         *   Add an option to `DefaultAudioSink` for enabling floating point
             output. This option can also be set using
@@ -212,6 +211,8 @@
     *   FMP4: Add support for partially fragmented MP4s
         ([#7308](https://github.com/google/ExoPlayer/issues/7308)).
     *   Matroska:
+        *   Support Dolby Vision
+            ([#7267](https://github.com/google/ExoPlayer/issues/7267).
         *   Populate `Format.label` with track titles.
         *   Remove support for the `Invisible` block header flag.
     *   MPEG-TS: Add support for MPEG-4 Part 2 and H.263
