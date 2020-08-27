@@ -384,16 +384,17 @@ public class TrackSelectionView extends LinearLayout {
   private TrackGroupArray initSortedTrackGroups(TrackGroupArray trackGroups) {
     TrackGroupArray trackGroupArray = trackGroups;
     if(comparator != null) {
-      TrackGroupArray trackGroupsArray = mappedTrackInfo.getTrackGroups(rendererIndex);
-      for (int groupIndex = 0; groupIndex < trackGroupsArray.length; groupIndex++) {
-        TrackGroup group = trackGroupsArray.get(groupIndex);
+      TrackGroup[] tg = new TrackGroup[trackGroupArray.length];
+      for (int groupIndex = 0; groupIndex < trackGroupArray.length; groupIndex++) {
+        TrackGroup group = trackGroupArray.get(groupIndex);
         Format[] listFormats = new Format[group.length];
         for (int formatIndex = 0; formatIndex < group.length; formatIndex++) {
           listFormats[formatIndex] = group.getFormat(formatIndex);
         }
         Arrays.sort(listFormats, comparator);
-        trackGroupArray = new TrackGroupArray(new TrackGroup(listFormats));
+        tg[groupIndex] = new TrackGroup(listFormats);
       }
+      trackGroupArray = new TrackGroupArray(tg);
     }
     return trackGroupArray;
   }
