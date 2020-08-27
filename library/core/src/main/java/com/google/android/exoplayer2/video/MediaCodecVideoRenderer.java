@@ -1611,6 +1611,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             case "ELUGA_Prim":
             case "ELUGA_Ray_X":
             case "EverStar_S":
+            case "F02H":
+            case "F03H":
             case "F3111":
             case "F3113":
             case "F3116":
