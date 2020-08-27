@@ -304,7 +304,7 @@ public class TrackSelectionView extends LinearLayout {
       SelectionOverride override = overrides.get(i);
       for (int j = 0; j < trackViews[i].length; j++) {
         if(override != null) {
-          int sortedIndex = getSortedIndexFromInitialTrackGroup(override.groupIndex, j);
+          int sortedIndex = getSortedIndexFromInitialTrackGroup(j);
           trackViews[i][j].setChecked(override.containsTrack(sortedIndex));
         } else {
           trackViews[i][j].setChecked(false);
@@ -342,7 +342,7 @@ public class TrackSelectionView extends LinearLayout {
     @SuppressWarnings("unchecked")
     Pair<Integer, Integer> tag = (Pair<Integer, Integer>) Assertions.checkNotNull(view.getTag());
     int groupIndex = tag.first;
-    int trackIndex = getSortedIndexFromInitialTrackGroup(tag.first, tag.second);
+    int trackIndex = getSortedIndexFromInitialTrackGroup(tag.second);
     SelectionOverride override = overrides.get(groupIndex);
     Assertions.checkNotNull(mappedTrackInfo);
     if (override == null) {
@@ -404,20 +404,14 @@ public class TrackSelectionView extends LinearLayout {
    * asc sorted array (only quality for this example) : [256,480,720,1080]
    * initial array index for 480 is 0, but for sorted array index is 1.
    * Initial array index is @param trackIndex, and the @return result is sorted array index
-   * @param groupIndex which TrackGroup you want to browse into
    * @param trackIndex which index of the initial array
    * @return index of the sorted array that correspond to the same element in the initial array
    */
-  private int getSortedIndexFromInitialTrackGroup(int groupIndex, int trackIndex) {
+  private int getSortedIndexFromInitialTrackGroup(int trackIndex) {
     int sortedTrackIndex = trackIndex;
     if(sortedTrackGroups != trackGroups) {
       Format selectedFormat = sortedTrackGroups.get(rendererIndex).getFormat(trackIndex);
-      for (int formatIndex = 0; formatIndex < trackGroups.get(groupIndex).length; formatIndex++) {
-        if(trackGroups.get(groupIndex).getFormat(formatIndex) == selectedFormat) {
-          sortedTrackIndex = formatIndex;
-          break;
-        }
-      }
+      sortedTrackIndex = trackGroups.get(rendererIndex).indexOf(selectedFormat);
     }
     return sortedTrackIndex;
   }
