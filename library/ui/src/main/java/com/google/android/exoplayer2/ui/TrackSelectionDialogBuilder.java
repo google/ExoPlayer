@@ -62,7 +62,7 @@ public final class TrackSelectionDialogBuilder {
   @Nullable private TrackNameProvider trackNameProvider;
   private boolean isDisabled;
   private List<SelectionOverride> overrides;
-  private Comparator<Format> comparator;
+  @Nullable private Comparator<Format> comparator;
 
   /**
    * Creates a builder for a track selection dialog.
@@ -199,9 +199,7 @@ public final class TrackSelectionDialogBuilder {
   }
 
   public void setComparator(Comparator<Format> comparator) {
-    if(this.comparator != comparator) {
-      this.comparator = comparator;
-    }
+    this.comparator = comparator;
   }
 
   /**

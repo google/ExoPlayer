@@ -202,6 +202,7 @@ public class TrackSelectionView extends LinearLayout {
    *     one override for each track group. If {@link #setAllowMultipleOverrides(boolean)} hasn't
    *     been set to {@code true}, only the first override is used.
    * @param listener An optional listener for track selection updates.
+   * @param comparator An optional comparator to order track selection
    */
   public void init(
       MappedTrackInfo mappedTrackInfo,
@@ -258,7 +259,7 @@ public class TrackSelectionView extends LinearLayout {
     defaultView.setEnabled(true);
 
     trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-    sortedTrackGroups = sortedTrackGroups != null ? sortedTrackGroups : initSortedTrackGroups(trackGroups);
+    sortedTrackGroups = initSortedTrackGroups(trackGroups);
 
     // Add per-track views.
     trackViews = new CheckedTextView[sortedTrackGroups.length][];
@@ -411,9 +412,8 @@ public class TrackSelectionView extends LinearLayout {
     int sortedTrackIndex = trackIndex;
     if(sortedTrackGroups != trackGroups) {
       Format selectedFormat = sortedTrackGroups.get(rendererIndex).getFormat(trackIndex);
-      int trackHash = selectedFormat.hashCode();
       for (int formatIndex = 0; formatIndex < trackGroups.get(groupIndex).length; formatIndex++) {
-        if(trackGroups.get(groupIndex).getFormat(formatIndex).hashCode() == trackHash) {
+        if(trackGroups.get(groupIndex).getFormat(formatIndex) == selectedFormat) {
           sortedTrackIndex = formatIndex;
           break;
         }
