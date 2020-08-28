@@ -659,7 +659,7 @@ public class SampleQueue implements TrackOutput {
       upstreamFormat = format;
     }
     upstreamAllSamplesAreSyncSamples =
-        MimeTypes.allSamplesAreSyncSamples(upstreamFormat.sampleMimeType);
+        MimeTypes.allSamplesAreSyncSamples(upstreamFormat.sampleMimeType, upstreamFormat.codecs);
     loggedUnexpectedNonSyncSample = false;
     return true;
   }
