@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.AvcConfig;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.android.exoplayer2.video.DolbyVisionConfig;
 import com.google.android.exoplayer2.video.HevcConfig;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -170,6 +171,9 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_FLAG_FORCED = 0x55AA;
   private static final int ID_DEFAULT_DURATION = 0x23E383;
   private static final int ID_MAX_BLOCK_ADDITION_ID = 0x55EE;
+  private static final int ID_BLOCK_ADDITION_MAPPING = 0x41E4;
+  private static final int ID_BLOCK_ADD_ID_TYPE = 0x41E7;
+  private static final int ID_BLOCK_ADD_ID_EXTRA_DATA = 0x41ED;
   private static final int ID_NAME = 0x536E;
   private static final int ID_CODEC_ID = 0x86;
   private static final int ID_CODEC_PRIVATE = 0x63A2;
@@ -233,6 +237,17 @@ public class MatroskaExtractor implements Extractor {
    * https://www.webmproject.org/docs/container/.
    */
   private static final int BLOCK_ADDITIONAL_ID_VP9_ITU_T_35 = 4;
+
+  /**
+   * BlockAddIdType value for Dolby Vision configuration with profile <= 7. See also
+   * https://www.matroska.org/technical/codec_specs.html.
+   */
+  private static final int BLOCK_ADD_ID_TYPE_DVCC = 0x64766343;
+  /**
+   * BlockAddIdType value for Dolby Vision configuration with profile > 7. See also
+   * https://www.matroska.org/technical/codec_specs.html.
+   */
+  private static final int BLOCK_ADD_ID_TYPE_DVVC = 0x64767643;
 
   private static final int LACING_NONE = 0;
   private static final int LACING_XIPH = 1;
@@ -501,6 +516,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_CLUSTER:
       case ID_TRACKS:
       case ID_TRACK_ENTRY:
+      case ID_BLOCK_ADDITION_MAPPING:
       case ID_AUDIO:
       case ID_VIDEO:
       case ID_CONTENT_ENCODINGS:
@@ -535,6 +551,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_FLAG_FORCED:
       case ID_DEFAULT_DURATION:
       case ID_MAX_BLOCK_ADDITION_ID:
+      case ID_BLOCK_ADD_ID_TYPE:
       case ID_CODEC_DELAY:
       case ID_SEEK_PRE_ROLL:
       case ID_CHANNELS:
@@ -562,6 +579,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_LANGUAGE:
         return EbmlProcessor.ELEMENT_TYPE_STRING;
       case ID_SEEK_ID:
+      case ID_BLOCK_ADD_ID_EXTRA_DATA:
       case ID_CONTENT_COMPRESSION_SETTINGS:
       case ID_CONTENT_ENCRYPTION_KEY_ID:
       case ID_SIMPLE_BLOCK:
@@ -813,6 +831,9 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_MAX_BLOCK_ADDITION_ID:
         currentTrack.maxBlockAdditionId = (int) value;
+        break;
+      case ID_BLOCK_ADD_ID_TYPE:
+        currentTrack.blockAddIdType = (int) value;
         break;
       case ID_CODEC_DELAY:
         currentTrack.codecDelayNs = value;
@@ -1076,6 +1097,9 @@ public class MatroskaExtractor implements Extractor {
         seekEntryIdBytes.setPosition(0);
         seekEntryId = (int) seekEntryIdBytes.readUnsignedInt();
         break;
+      case ID_BLOCK_ADD_ID_EXTRA_DATA:
+        handleBlockAddIDExtraData(currentTrack, input, contentSize);
+        break;
       case ID_CODEC_PRIVATE:
         currentTrack.codecPrivate = new byte[contentSize];
         input.readFully(currentTrack.codecPrivate, 0, contentSize);
@@ -1241,6 +1265,18 @@ public class MatroskaExtractor implements Extractor {
         break;
       default:
         throw new ParserException("Unexpected id: " + id);
+    }
+  }
+
+  protected void handleBlockAddIDExtraData(Track track, ExtractorInput input, int contentSize)
+      throws IOException {
+    if (track.blockAddIdType == BLOCK_ADD_ID_TYPE_DVVC
+        || track.blockAddIdType == BLOCK_ADD_ID_TYPE_DVCC) {
+      track.dolbyVisionConfigBytes = new byte[contentSize];
+      input.readFully(track.dolbyVisionConfigBytes, 0, contentSize);
+    } else {
+      // Unhandled BlockAddIDExtraData.
+      input.skipFully(contentSize);
     }
   }
 
@@ -1883,6 +1919,7 @@ public class MatroskaExtractor implements Extractor {
     public int type;
     public int defaultSampleDurationNs;
     public int maxBlockAdditionId;
+    private int blockAddIdType;
     public boolean hasContentEncryption;
     public byte[] sampleStrippedBytes;
     public TrackOutput.CryptoData cryptoData;
@@ -1921,6 +1958,7 @@ public class MatroskaExtractor implements Extractor {
     public float whitePointChromaticityY = Format.NO_VALUE;
     public float maxMasteringLuminance = Format.NO_VALUE;
     public float minMasteringLuminance = Format.NO_VALUE;
+    @Nullable public byte[] dolbyVisionConfigBytes;
 
     // Audio elements. Initially set to their default values.
     public int channelCount = 1;
@@ -2089,6 +2127,16 @@ public class MatroskaExtractor implements Extractor {
           break;
         default:
           throw new ParserException("Unrecognized codec identifier.");
+      }
+
+      if (dolbyVisionConfigBytes != null) {
+        @Nullable
+        DolbyVisionConfig dolbyVisionConfig =
+            DolbyVisionConfig.parse(new ParsableByteArray(this.dolbyVisionConfigBytes));
+        if (dolbyVisionConfig != null) {
+          codecs = dolbyVisionConfig.codecs;
+          mimeType = MimeTypes.VIDEO_DOLBY_VISION;
+        }
       }
 
       @C.SelectionFlags int selectionFlags = 0;

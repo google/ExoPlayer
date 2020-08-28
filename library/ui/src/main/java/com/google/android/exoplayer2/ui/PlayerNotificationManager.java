@@ -37,6 +37,7 @@ import androidx.media.app.NotificationCompat.MediaStyle;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -923,7 +924,7 @@ public class PlayerNotificationManager {
    *   <li>The media is not {@link Player#isCurrentWindowDynamic() dynamically changing its
    *       duration} (like for example a live stream).
    *   <li>The media is not {@link Player#isPlayingAd() interrupted by an ad}.
-   *   <li>The media is played at {@link Player#getPlaybackSpeed() regular speed}.
+   *   <li>The media is played at {@link Player#getPlaybackParameters() regular speed}.
    *   <li>The device is running at least API 21 (Lollipop).
    * </ul>
    *
@@ -1086,7 +1087,7 @@ public class PlayerNotificationManager {
         && player.isPlaying()
         && !player.isPlayingAd()
         && !player.isCurrentWindowDynamic()
-        && player.getPlaybackSpeed() == 1f) {
+        && player.getPlaybackParameters().speed == 1f) {
       builder
           .setWhen(System.currentTimeMillis() - player.getContentPosition())
           .setShowWhen(true)
@@ -1336,7 +1337,7 @@ public class PlayerNotificationManager {
     }
 
     @Override
-    public void onPlaybackSpeedChanged(float playbackSpeed) {
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
       postStartOrUpdateNotification();
     }
 

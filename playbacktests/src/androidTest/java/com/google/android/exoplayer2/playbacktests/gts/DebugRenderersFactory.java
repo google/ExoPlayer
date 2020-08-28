@@ -24,6 +24,7 @@ import android.media.MediaFormat;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -84,13 +85,14 @@ import java.util.ArrayList;
 
     private final long[] timestampsList;
     private final ArrayDeque<Long> inputFormatChangeTimesUs;
-    private final boolean enableMediaFormatChangeTimeCheck;
+
+    private boolean skipToPositionBeforeRenderingFirstFrame;
+    private boolean shouldMediaFormatChangeTimesBeChecked;
 
     private int startIndex;
     private int queueSize;
     private int bufferCount;
     private int minimumInsertIndex;
-    private boolean skipToPositionBeforeRenderingFirstFrame;
     private boolean inputFormatChanged;
     private boolean outputMediaFormatChanged;
 
@@ -112,10 +114,6 @@ import java.util.ArrayList;
           maxDroppedFrameCountToNotify);
       timestampsList = new long[ARRAY_SIZE];
       inputFormatChangeTimesUs = new ArrayDeque<>();
-
-      // As per [Internal ref: b/149818050, b/149751672], MediaFormat changes can occur early for
-      // SDK 29 and 30. Should be fixed for SDK 31 onwards.
-      enableMediaFormatChangeTimeCheck = Util.SDK_INT < 29 || Util.SDK_INT >= 31;
     }
 
     @Override
@@ -137,6 +135,10 @@ import java.util.ArrayList;
       // frames up to the current playback position [Internal: b/66494991].
       skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
       super.configureCodec(codecInfo, codecAdapter, format, crypto, operatingRate);
+
+      // Output MediaFormat changes are known to occur too early until API 30 (see [internal:
+      // b/149818050, b/149751672]).
+      shouldMediaFormatChangeTimesBeChecked = Util.SDK_INT > 30;
     }
 
     @Override
@@ -247,10 +249,12 @@ import java.util.ArrayList;
       }
 
       if (outputMediaFormatChanged) {
-        long inputFormatChangeTimeUs = inputFormatChangeTimesUs.remove();
+        long inputFormatChangeTimeUs =
+            inputFormatChangeTimesUs.isEmpty() ? C.TIME_UNSET : inputFormatChangeTimesUs.remove();
         outputMediaFormatChanged = false;
 
-        if (enableMediaFormatChangeTimeCheck && presentationTimeUs != inputFormatChangeTimeUs) {
+        if (shouldMediaFormatChangeTimesBeChecked
+            && presentationTimeUs != inputFormatChangeTimeUs) {
           throw new IllegalStateException(
               "Expected output MediaFormat change timestamp ("
                   + presentationTimeUs

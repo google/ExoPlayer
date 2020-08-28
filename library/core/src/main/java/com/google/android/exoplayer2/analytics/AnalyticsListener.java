@@ -279,21 +279,13 @@ public interface AnalyticsListener {
   default void onSeekProcessed(EventTime eventTime) {}
 
   /**
-   * @deprecated Use {@link #onPlaybackSpeedChanged(EventTime, float)} and {@link
-   *     #onSkipSilenceEnabledChanged(EventTime, boolean)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  default void onPlaybackParametersChanged(
-      EventTime eventTime, PlaybackParameters playbackParameters) {}
-
-  /**
-   * Called when the playback speed changes.
+   * Called when the playback parameters changed.
    *
    * @param eventTime The event time.
-   * @param playbackSpeed The playback speed.
+   * @param playbackParameters The new playback parameters.
    */
-  default void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {}
+  default void onPlaybackParametersChanged(
+      EventTime eventTime, PlaybackParameters playbackParameters) {}
 
   /**
    * Called when the repeat mode changed.
@@ -478,6 +470,16 @@ public interface AnalyticsListener {
    * @param format The new format.
    */
   default void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
+
+  /**
+   * Called when the audio position has increased for the first time since the last pause or
+   * position reset.
+   *
+   * @param eventTime The event time.
+   * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+   *     which playout started.
+   */
+  default void onAudioPositionAdvancing(EventTime eventTime, long playoutStartSystemTimeMs) {}
 
   /**
    * Called when an audio underrun occurs.

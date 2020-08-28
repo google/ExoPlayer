@@ -66,6 +66,15 @@ public interface AudioRendererEventListener {
   default void onAudioInputFormatChanged(Format format) {}
 
   /**
+   * Called when the audio position has increased for the first time since the last pause or
+   * position reset.
+   *
+   * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+   *     which playout started.
+   */
+  default void onAudioPositionAdvancing(long playoutStartSystemTimeMs) {}
+
+  /**
    * Called when an audio underrun occurs.
    *
    * @param bufferSize The size of the audio output buffer, in bytes.
@@ -89,7 +98,7 @@ public interface AudioRendererEventListener {
    */
   default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
 
-  /** Dispatches events to a {@link AudioRendererEventListener}. */
+  /** Dispatches events to an {@link AudioRendererEventListener}. */
   final class EventDispatcher {
 
     @Nullable private final Handler handler;
@@ -106,20 +115,16 @@ public interface AudioRendererEventListener {
       this.listener = listener;
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioEnabled(DecoderCounters)}.
-     */
-    public void enabled(final DecoderCounters decoderCounters) {
+    /** Invokes {@link AudioRendererEventListener#onAudioEnabled(DecoderCounters)}. */
+    public void enabled(DecoderCounters decoderCounters) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onAudioEnabled(decoderCounters));
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioDecoderInitialized(String, long, long)}.
-     */
-    public void decoderInitialized(final String decoderName,
-        final long initializedTimestampMs, final long initializationDurationMs) {
+    /** Invokes {@link AudioRendererEventListener#onAudioDecoderInitialized(String, long, long)}. */
+    public void decoderInitialized(
+        String decoderName, long initializedTimestampMs, long initializationDurationMs) {
       if (handler != null) {
         handler.post(
             () ->
@@ -129,18 +134,23 @@ public interface AudioRendererEventListener {
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioInputFormatChanged(Format)}.
-     */
-    public void inputFormatChanged(final Format format) {
+    /** Invokes {@link AudioRendererEventListener#onAudioInputFormatChanged(Format)}. */
+    public void inputFormatChanged(Format format) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onAudioInputFormatChanged(format));
       }
     }
 
+    /** Invokes {@link AudioRendererEventListener#onAudioPositionAdvancing(long)}. */
+    public void positionAdvancing(long playoutStartSystemTimeMs) {
+      if (handler != null) {
+        handler.post(
+            () -> castNonNull(listener).onAudioPositionAdvancing(playoutStartSystemTimeMs));
+      }
+    }
+
     /** Invokes {@link AudioRendererEventListener#onAudioUnderrun(int, long, long)}. */
-    public void underrun(
-        final int bufferSize, final long bufferSizeMs, final long elapsedSinceLastFeedMs) {
+    public void underrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
       if (handler != null) {
         handler.post(
             () ->
@@ -149,10 +159,8 @@ public interface AudioRendererEventListener {
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioDisabled(DecoderCounters)}.
-     */
-    public void disabled(final DecoderCounters counters) {
+    /** Invokes {@link AudioRendererEventListener#onAudioDisabled(DecoderCounters)}. */
+    public void disabled(DecoderCounters counters) {
       counters.ensureUpdated();
       if (handler != null) {
         handler.post(
@@ -163,17 +171,15 @@ public interface AudioRendererEventListener {
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioSessionId(int)}.
-     */
-    public void audioSessionId(final int audioSessionId) {
+    /** Invokes {@link AudioRendererEventListener#onAudioSessionId(int)}. */
+    public void audioSessionId(int audioSessionId) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onAudioSessionId(audioSessionId));
       }
     }
 
     /** Invokes {@link AudioRendererEventListener#onSkipSilenceEnabledChanged(boolean)}. */
-    public void skipSilenceEnabledChanged(final boolean skipSilenceEnabled) {
+    public void skipSilenceEnabledChanged(boolean skipSilenceEnabled) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onSkipSilenceEnabledChanged(skipSilenceEnabled));
       }

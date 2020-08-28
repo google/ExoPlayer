@@ -63,8 +63,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public final boolean playWhenReady;
   /** Reason why playback is suppressed even though {@link #playWhenReady} is {@code true}. */
   @PlaybackSuppressionReason public final int playbackSuppressionReason;
-  /** The playback speed. */
-  public final float playbackSpeed;
+  /** The playback parameters. */
+  public final PlaybackParameters playbackParameters;
   /** Whether offload scheduling is enabled for the main player loop. */
   public final boolean offloadSchedulingEnabled;
 
@@ -105,7 +105,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         PLACEHOLDER_MEDIA_PERIOD_ID,
         /* playWhenReady= */ false,
         Player.PLAYBACK_SUPPRESSION_REASON_NONE,
-        Player.DEFAULT_PLAYBACK_SPEED,
+        PlaybackParameters.DEFAULT,
         /* bufferedPositionUs= */ 0,
         /* totalBufferedDurationUs= */ 0,
         /* positionUs= */ 0,
@@ -119,10 +119,14 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * @param periodId See {@link #periodId}.
    * @param requestedContentPositionUs See {@link #requestedContentPositionUs}.
    * @param playbackState See {@link #playbackState}.
+   * @param playbackError See {@link #playbackError}.
    * @param isLoading See {@link #isLoading}.
    * @param trackGroups See {@link #trackGroups}.
    * @param trackSelectorResult See {@link #trackSelectorResult}.
    * @param loadingMediaPeriodId See {@link #loadingMediaPeriodId}.
+   * @param playWhenReady See {@link #playWhenReady}.
+   * @param playbackSuppressionReason See {@link #playbackSuppressionReason}.
+   * @param playbackParameters See {@link #playbackParameters}.
    * @param bufferedPositionUs See {@link #bufferedPositionUs}.
    * @param totalBufferedDurationUs See {@link #totalBufferedDurationUs}.
    * @param positionUs See {@link #positionUs}.
@@ -140,7 +144,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       MediaPeriodId loadingMediaPeriodId,
       boolean playWhenReady,
       @PlaybackSuppressionReason int playbackSuppressionReason,
-      float playbackSpeed,
+      PlaybackParameters playbackParameters,
       long bufferedPositionUs,
       long totalBufferedDurationUs,
       long positionUs,
@@ -156,7 +160,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.loadingMediaPeriodId = loadingMediaPeriodId;
     this.playWhenReady = playWhenReady;
     this.playbackSuppressionReason = playbackSuppressionReason;
-    this.playbackSpeed = playbackSpeed;
+    this.playbackParameters = playbackParameters;
     this.bufferedPositionUs = bufferedPositionUs;
     this.totalBufferedDurationUs = totalBufferedDurationUs;
     this.positionUs = positionUs;
@@ -201,7 +205,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
-        playbackSpeed,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
@@ -228,7 +232,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
-        playbackSpeed,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
@@ -255,7 +259,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
-        playbackSpeed,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
@@ -282,7 +286,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
-        playbackSpeed,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
@@ -309,7 +313,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
-        playbackSpeed,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
@@ -336,7 +340,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
-        playbackSpeed,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
@@ -367,7 +371,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
-        playbackSpeed,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
@@ -375,13 +379,13 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   }
 
   /**
-   * Copies playback info with new playback speed.
+   * Copies playback info with new playback parameters.
    *
-   * @param playbackSpeed New playback speed. See {@link #playbackSpeed}.
-   * @return Copied playback info with new playback speed.
+   * @param playbackParameters New playback parameters. See {@link #playbackParameters}.
+   * @return Copied playback info with new playback parameters.
    */
   @CheckResult
-  public PlaybackInfo copyWithPlaybackSpeed(float playbackSpeed) {
+  public PlaybackInfo copyWithPlaybackParameters(PlaybackParameters playbackParameters) {
     return new PlaybackInfo(
         timeline,
         periodId,
@@ -394,7 +398,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
-        playbackSpeed,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
@@ -422,7 +426,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
-        playbackSpeed,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,

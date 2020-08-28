@@ -43,6 +43,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   private int pendingOutputSampleRate;
   private float speed;
+  private float pitch;
 
   private AudioFormat pendingInputAudioFormat;
   private AudioFormat pendingOutputAudioFormat;
@@ -61,6 +62,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   /** Creates a new Sonic audio processor. */
   public SonicAudioProcessor() {
     speed = 1f;
+    pitch = 1f;
     pendingInputAudioFormat = AudioFormat.NOT_SET;
     pendingOutputAudioFormat = AudioFormat.NOT_SET;
     inputAudioFormat = AudioFormat.NOT_SET;
@@ -85,6 +87,22 @@ public final class SonicAudioProcessor implements AudioProcessor {
       pendingSonicRecreation = true;
     }
     return speed;
+  }
+
+  /**
+   * Sets the playback pitch. This method may only be called after draining data through the
+   * processor. The value returned by {@link #isActive()} may change, and the processor must be
+   * {@link #flush() flushed} before queueing more data.
+   *
+   * @param pitch The requested new pitch.
+   * @return The actual new pitch.
+   */
+  public float setPitch(float pitch) {
+    if (this.pitch != pitch) {
+      this.pitch = pitch;
+      pendingSonicRecreation = true;
+    }
+    return pitch;
   }
 
   /**
@@ -140,6 +158,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   public boolean isActive() {
     return pendingOutputAudioFormat.sampleRate != Format.NO_VALUE
         && (Math.abs(speed - 1f) >= CLOSE_THRESHOLD
+            || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD
             || pendingOutputAudioFormat.sampleRate != pendingInputAudioFormat.sampleRate);
   }
 
@@ -200,6 +219,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
                 inputAudioFormat.sampleRate,
                 inputAudioFormat.channelCount,
                 speed,
+                pitch,
                 outputAudioFormat.sampleRate);
       } else if (sonic != null) {
         sonic.flush();
@@ -214,6 +234,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   @Override
   public void reset() {
     speed = 1f;
+    pitch = 1f;
     pendingInputAudioFormat = AudioFormat.NOT_SET;
     pendingOutputAudioFormat = AudioFormat.NOT_SET;
     inputAudioFormat = AudioFormat.NOT_SET;

@@ -125,18 +125,6 @@
         "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "Secure (cbc1)",
-        "uri": "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure UHD (cbc1)",
-        "uri": "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1_uhd.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
         "name": "Secure (cbcs)",
         "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd",
         "drm_scheme": "widevine",

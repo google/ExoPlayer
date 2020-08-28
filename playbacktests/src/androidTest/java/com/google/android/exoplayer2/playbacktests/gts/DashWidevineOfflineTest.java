@@ -100,7 +100,7 @@ public final class DashWidevineOfflineTest {
 
   @Test
   public void widevineOfflineLicenseV22() throws Exception {
-    if (Util.SDK_INT < 22) {
+    if (Util.SDK_INT < 22 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
@@ -113,7 +113,9 @@ public final class DashWidevineOfflineTest {
 
   @Test
   public void widevineOfflineReleasedLicenseV22() throws Throwable {
-    if (Util.SDK_INT < 22 || Util.SDK_INT > 28) {
+    if (Util.SDK_INT < 22
+        || Util.SDK_INT > 28
+        || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
@@ -136,7 +138,7 @@ public final class DashWidevineOfflineTest {
 
   @Test
   public void widevineOfflineReleasedLicenseV29() throws Throwable {
-    if (Util.SDK_INT < 29) {
+    if (Util.SDK_INT < 29 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
@@ -158,7 +160,7 @@ public final class DashWidevineOfflineTest {
 
   @Test
   public void widevineOfflineExpiredLicenseV22() throws Exception {
-    if (Util.SDK_INT < 22) {
+    if (Util.SDK_INT < 22 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
@@ -188,7 +190,7 @@ public final class DashWidevineOfflineTest {
 
   @Test
   public void widevineOfflineLicenseExpiresOnPauseV22() throws Exception {
-    if (Util.SDK_INT < 22) {
+    if (Util.SDK_INT < 22 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
@@ -198,7 +200,7 @@ public final class DashWidevineOfflineTest {
         offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId);
     long licenseDuration = licenseDurationRemainingSec.first;
     assertWithMessage(
-            "License duration should be less than 30 sec. " + "Server settings might have changed.")
+            "License duration should be less than 30 sec. Server settings might have changed.")
         .that(licenseDuration < 30)
         .isTrue();
     ActionSchedule schedule = new ActionSchedule.Builder(TAG)

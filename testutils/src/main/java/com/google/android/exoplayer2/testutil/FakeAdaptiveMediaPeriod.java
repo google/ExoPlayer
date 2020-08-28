@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -48,7 +49,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
   @Nullable private final TransferListener transferListener;
   private final long durationUs;
 
-  @MonotonicNonNull private Callback callback;
+  private @MonotonicNonNull Callback callback;
   private ChunkSampleStream<FakeChunkSource>[] sampleStreams;
   private SequenceableLoader sequenceableLoader;
 
@@ -99,7 +100,7 @@ public class FakeAdaptiveMediaPeriod extends FakeMediaPeriod
       }
     }
     sampleStreams = newSampleStreamArray(validStreams.size());
-    validStreams.toArray(sampleStreams);
+    Util.nullSafeListToArray(validStreams, sampleStreams);
     this.sequenceableLoader = new CompositeSequenceableLoader(sampleStreams);
     return returnPositionUs;
   }

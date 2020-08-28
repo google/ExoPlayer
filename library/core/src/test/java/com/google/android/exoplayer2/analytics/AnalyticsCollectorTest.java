@@ -26,6 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -82,7 +83,7 @@ public final class AnalyticsCollectorTest {
   private static final int EVENT_POSITION_DISCONTINUITY = 2;
   private static final int EVENT_SEEK_STARTED = 3;
   private static final int EVENT_SEEK_PROCESSED = 4;
-  private static final int EVENT_PLAYBACK_SPEED_CHANGED = 5;
+  private static final int EVENT_PLAYBACK_PARAMETERS_CHANGED = 5;
   private static final int EVENT_REPEAT_MODE_CHANGED = 6;
   private static final int EVENT_SHUFFLE_MODE_CHANGED = 7;
   private static final int EVENT_LOADING_CHANGED = 8;
@@ -106,21 +107,22 @@ public final class AnalyticsCollectorTest {
   private static final int EVENT_AUDIO_INPUT_FORMAT_CHANGED = 26;
   private static final int EVENT_AUDIO_DISABLED = 27;
   private static final int EVENT_AUDIO_SESSION_ID = 28;
-  private static final int EVENT_AUDIO_UNDERRUN = 29;
-  private static final int EVENT_VIDEO_ENABLED = 30;
-  private static final int EVENT_VIDEO_DECODER_INIT = 31;
-  private static final int EVENT_VIDEO_INPUT_FORMAT_CHANGED = 32;
-  private static final int EVENT_DROPPED_FRAMES = 33;
-  private static final int EVENT_VIDEO_DISABLED = 34;
-  private static final int EVENT_RENDERED_FIRST_FRAME = 35;
-  private static final int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 36;
-  private static final int EVENT_VIDEO_SIZE_CHANGED = 37;
-  private static final int EVENT_DRM_KEYS_LOADED = 38;
-  private static final int EVENT_DRM_ERROR = 39;
-  private static final int EVENT_DRM_KEYS_RESTORED = 40;
-  private static final int EVENT_DRM_KEYS_REMOVED = 41;
-  private static final int EVENT_DRM_SESSION_ACQUIRED = 42;
-  private static final int EVENT_DRM_SESSION_RELEASED = 43;
+  private static final int EVENT_AUDIO_POSITION_ADVANCING = 29;
+  private static final int EVENT_AUDIO_UNDERRUN = 30;
+  private static final int EVENT_VIDEO_ENABLED = 31;
+  private static final int EVENT_VIDEO_DECODER_INIT = 32;
+  private static final int EVENT_VIDEO_INPUT_FORMAT_CHANGED = 33;
+  private static final int EVENT_DROPPED_FRAMES = 34;
+  private static final int EVENT_VIDEO_DISABLED = 35;
+  private static final int EVENT_RENDERED_FIRST_FRAME = 36;
+  private static final int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 37;
+  private static final int EVENT_VIDEO_SIZE_CHANGED = 38;
+  private static final int EVENT_DRM_KEYS_LOADED = 39;
+  private static final int EVENT_DRM_ERROR = 40;
+  private static final int EVENT_DRM_KEYS_RESTORED = 41;
+  private static final int EVENT_DRM_KEYS_REMOVED = 42;
+  private static final int EVENT_DRM_SESSION_ACQUIRED = 43;
+  private static final int EVENT_DRM_SESSION_RELEASED = 44;
 
   private static final UUID DRM_SCHEME_UUID =
       UUID.nameUUIDFromBytes(TestUtil.createByteArray(7, 8, 9));
@@ -226,6 +228,7 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_AUDIO_DECODER_INIT)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
@@ -305,6 +308,7 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period0, period1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period0);
+    assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT))
         .containsExactly(period0, period1)
@@ -380,6 +384,7 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_AUDIO_DECODER_INIT)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period1);
+    assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INIT)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
@@ -474,6 +479,9 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period0, period1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID))
+        .containsExactly(period0, period1)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING))
         .containsExactly(period0, period1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_DISABLED)).containsExactly(period0);
@@ -574,6 +582,9 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period1Seq1, period1Seq2)
         .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID))
+        .containsExactly(period1Seq1, period1Seq2)
+        .inOrder();
+    assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING))
         .containsExactly(period1Seq1, period1Seq2)
         .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_DISABLED)).containsExactly(period0);
@@ -1785,8 +1796,9 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {
-      reportedEvents.add(new ReportedEvent(EVENT_PLAYBACK_SPEED_CHANGED, eventTime));
+    public void onPlaybackParametersChanged(
+        EventTime eventTime, PlaybackParameters playbackParameters) {
+      reportedEvents.add(new ReportedEvent(EVENT_PLAYBACK_PARAMETERS_CHANGED, eventTime));
     }
 
     @Override
@@ -1920,6 +1932,11 @@ public final class AnalyticsCollectorTest {
     @Override
     public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
       reportedEvents.add(new ReportedEvent(EVENT_AUDIO_SESSION_ID, eventTime));
+    }
+
+    @Override
+    public void onAudioPositionAdvancing(EventTime eventTime, long playoutStartSystemTimeMs) {
+      reportedEvents.add(new ReportedEvent(EVENT_AUDIO_POSITION_ADVANCING, eventTime));
     }
 
     @Override

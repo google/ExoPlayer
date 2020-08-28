@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.drm;
 
 import android.os.Looper;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 
 /** Manages a DRM session. */
@@ -33,13 +32,19 @@ public interface DrmSessionManager {
       new DrmSessionManager() {
 
         @Override
+        @Nullable
         public DrmSession acquireSession(
             Looper playbackLooper,
             @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
             Format format) {
-          return new ErrorStateDrmSession(
-              new DrmSession.DrmSessionException(
-                  new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME)));
+          if (format.drmInitData == null) {
+            return null;
+          } else {
+            return new ErrorStateDrmSession(
+                new DrmSession.DrmSessionException(
+                    new UnsupportedDrmException(
+                        UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME)));
+          }
         }
 
         @Override
@@ -65,38 +70,26 @@ public interface DrmSessionManager {
   }
 
   /**
-   * Returns a {@link DrmSession} that does not execute key requests, with an incremented reference
-   * count. When the caller no longer needs to use the instance, it must call {@link
-   * DrmSession#release(DrmSessionEventListener.EventDispatcher)} to decrement the reference count.
-   *
-   * <p>Placeholder {@link DrmSession DrmSessions} may be used to configure secure decoders for
-   * playback of clear content periods. This can reduce the cost of transitioning between clear and
-   * encrypted content periods.
-   *
-   * @param playbackLooper The looper associated with the media playback thread.
-   * @param trackType The type of the track to acquire a placeholder session for. Must be one of the
-   *     {@link C}{@code .TRACK_TYPE_*} constants.
-   * @return The placeholder DRM session, or null if this DRM session manager does not support
-   *     placeholder sessions.
-   */
-  @Nullable
-  default DrmSession acquirePlaceholderSession(Looper playbackLooper, int trackType) {
-    return null;
-  }
-
-  /**
    * Returns a {@link DrmSession} for the specified {@link Format}, with an incremented reference
-   * count. When the caller no longer needs to use the instance, it must call {@link
+   * count. May return null if the {@link Format#drmInitData} is null and the DRM session manager is
+   * not configured to attach a {@link DrmSession} to clear content. When the caller no longer needs
+   * to use a returned {@link DrmSession}, it must call {@link
    * DrmSession#release(DrmSessionEventListener.EventDispatcher)} to decrement the reference count.
+   *
+   * <p>If the provided {@link Format} contains a null {@link Format#drmInitData}, the returned
+   * {@link DrmSession} (if not null) will be a placeholder session which does not execute key
+   * requests, and cannot be used to handle encrypted content. However, a placeholder session may be
+   * used to configure secure decoders for playback of clear content periods, which can reduce the
+   * cost of transitioning between clear and encrypted content.
    *
    * @param playbackLooper The looper associated with the media playback thread.
    * @param eventDispatcher The {@link DrmSessionEventListener.EventDispatcher} used to distribute
    *     events, and passed on to {@link
    *     DrmSession#acquire(DrmSessionEventListener.EventDispatcher)}.
-   * @param format The {@link Format} for which to acquire a {@link DrmSession}. Must contain a
-   *     non-null {@link Format#drmInitData}.
-   * @return The DRM session.
+   * @param format The {@link Format} for which to acquire a {@link DrmSession}.
+   * @return The DRM session. May be null if the given {@link Format#drmInitData} is null.
    */
+  @Nullable
   DrmSession acquireSession(
       Looper playbackLooper,
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
@@ -105,16 +98,16 @@ public interface DrmSessionManager {
   /**
    * Returns the {@link ExoMediaCrypto} type associated to sessions acquired for the given {@link
    * Format}. Returns the {@link UnsupportedMediaCrypto} type if this DRM session manager does not
-   * support any of the DRM schemes defined in the given {@link Format}. If the {@link Format}
-   * describes unencrypted content, returns an {@link ExoMediaCrypto} type if this DRM session
-   * manager would associate a {@link #acquirePlaceholderSession placeholder session} to the given
-   * {@link Format}, or null otherwise.
+   * support any of the DRM schemes defined in the given {@link Format}. Returns null if {@link
+   * Format#drmInitData} is null and {@link #acquireSession} would return null for the given {@link
+   * Format}.
    *
    * @param format The {@link Format} for which to return the {@link ExoMediaCrypto} type.
-   * @return The {@link ExoMediaCrypto} type associated to sessions acquired using the given
-   *     parameters, or the {@link UnsupportedMediaCrypto} type if the provided {@code drmInitData}
-   *     is not supported, or {@code null} if {@code drmInitData} is null and no DRM session will be
-   *     associated to the given {@code trackType}.
+   * @return The {@link ExoMediaCrypto} type associated to sessions acquired using the given {@link
+   *     Format}, or {@link UnsupportedMediaCrypto} if this DRM session manager does not support any
+   *     of the DRM schemes defined in the given {@link Format}. May be null if {@link
+   *     Format#drmInitData} is null and {@link #acquireSession} would return null for the given
+   *     {@link Format}.
    */
   @Nullable
   Class<? extends ExoMediaCrypto> getExoMediaCryptoType(Format format);

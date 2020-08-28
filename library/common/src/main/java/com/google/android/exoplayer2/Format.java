@@ -592,37 +592,7 @@ public final class Format implements Parcelable {
     // Build.
 
     public Format build() {
-      return new Format(
-          id,
-          label,
-          language,
-          selectionFlags,
-          roleFlags,
-          averageBitrate,
-          peakBitrate,
-          codecs,
-          metadata,
-          containerMimeType,
-          sampleMimeType,
-          maxInputSize,
-          initializationData,
-          drmInitData,
-          subsampleOffsetUs,
-          width,
-          height,
-          frameRate,
-          rotationDegrees,
-          pixelWidthHeightRatio,
-          projectionData,
-          stereoMode,
-          colorInfo,
-          channelCount,
-          sampleRate,
-          pcmEncoding,
-          encoderDelay,
-          encoderPadding,
-          accessibilityChannel,
-          exoMediaCryptoType);
+      return new Format(/* builder= */ this);
     }
   }
 
@@ -1211,86 +1181,51 @@ public final class Format implements Parcelable {
     return new Builder().setId(id).setSampleMimeType(sampleMimeType).build();
   }
 
-  // Some fields are deprecated but they're still assigned below.
-  /* package */ Format(
-      @Nullable String id,
-      @Nullable String label,
-      @Nullable String language,
-      @C.SelectionFlags int selectionFlags,
-      @C.RoleFlags int roleFlags,
-      int averageBitrate,
-      int peakBitrate,
-      @Nullable String codecs,
-      @Nullable Metadata metadata,
-      // Container specific.
-      @Nullable String containerMimeType,
-      // Sample specific.
-      @Nullable String sampleMimeType,
-      int maxInputSize,
-      @Nullable List<byte[]> initializationData,
-      @Nullable DrmInitData drmInitData,
-      long subsampleOffsetUs,
-      // Video specific.
-      int width,
-      int height,
-      float frameRate,
-      int rotationDegrees,
-      float pixelWidthHeightRatio,
-      @Nullable byte[] projectionData,
-      @C.StereoMode int stereoMode,
-      @Nullable ColorInfo colorInfo,
-      // Audio specific.
-      int channelCount,
-      int sampleRate,
-      @C.PcmEncoding int pcmEncoding,
-      int encoderDelay,
-      int encoderPadding,
-      // Text specific.
-      int accessibilityChannel,
-      // Provided by source.
-      @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
-    this.id = id;
-    this.label = label;
-    this.language = Util.normalizeLanguageCode(language);
-    this.selectionFlags = selectionFlags;
-    this.roleFlags = roleFlags;
-    this.averageBitrate = averageBitrate;
-    this.peakBitrate = peakBitrate;
-    this.bitrate = peakBitrate != NO_VALUE ? peakBitrate : averageBitrate;
-    this.codecs = codecs;
-    this.metadata = metadata;
+  private Format(Builder builder) {
+    id = builder.id;
+    label = builder.label;
+    language = Util.normalizeLanguageCode(builder.language);
+    selectionFlags = builder.selectionFlags;
+    roleFlags = builder.roleFlags;
+    averageBitrate = builder.averageBitrate;
+    peakBitrate = builder.peakBitrate;
+    bitrate = peakBitrate != NO_VALUE ? peakBitrate : averageBitrate;
+    codecs = builder.codecs;
+    metadata = builder.metadata;
     // Container specific.
-    this.containerMimeType = containerMimeType;
+    containerMimeType = builder.containerMimeType;
     // Sample specific.
-    this.sampleMimeType = sampleMimeType;
-    this.maxInputSize = maxInputSize;
-    this.initializationData =
-        initializationData == null ? Collections.emptyList() : initializationData;
-    this.drmInitData = drmInitData;
-    this.subsampleOffsetUs = subsampleOffsetUs;
+    sampleMimeType = builder.sampleMimeType;
+    maxInputSize = builder.maxInputSize;
+    initializationData =
+        builder.initializationData == null ? Collections.emptyList() : builder.initializationData;
+    drmInitData = builder.drmInitData;
+    subsampleOffsetUs = builder.subsampleOffsetUs;
     // Video specific.
-    this.width = width;
-    this.height = height;
-    this.frameRate = frameRate;
-    this.rotationDegrees = rotationDegrees == NO_VALUE ? 0 : rotationDegrees;
-    this.pixelWidthHeightRatio = pixelWidthHeightRatio == NO_VALUE ? 1 : pixelWidthHeightRatio;
-    this.projectionData = projectionData;
-    this.stereoMode = stereoMode;
-    this.colorInfo = colorInfo;
+    width = builder.width;
+    height = builder.height;
+    frameRate = builder.frameRate;
+    rotationDegrees = builder.rotationDegrees == NO_VALUE ? 0 : builder.rotationDegrees;
+    pixelWidthHeightRatio =
+        builder.pixelWidthHeightRatio == NO_VALUE ? 1 : builder.pixelWidthHeightRatio;
+    projectionData = builder.projectionData;
+    stereoMode = builder.stereoMode;
+    colorInfo = builder.colorInfo;
     // Audio specific.
-    this.channelCount = channelCount;
-    this.sampleRate = sampleRate;
-    this.pcmEncoding = pcmEncoding;
-    this.encoderDelay = encoderDelay == NO_VALUE ? 0 : encoderDelay;
-    this.encoderPadding = encoderPadding == NO_VALUE ? 0 : encoderPadding;
+    channelCount = builder.channelCount;
+    sampleRate = builder.sampleRate;
+    pcmEncoding = builder.pcmEncoding;
+    encoderDelay = builder.encoderDelay == NO_VALUE ? 0 : builder.encoderDelay;
+    encoderPadding = builder.encoderPadding == NO_VALUE ? 0 : builder.encoderPadding;
     // Text specific.
-    this.accessibilityChannel = accessibilityChannel;
+    accessibilityChannel = builder.accessibilityChannel;
     // Provided by source.
-    if (exoMediaCryptoType == null && drmInitData != null) {
+    if (builder.exoMediaCryptoType == null && drmInitData != null) {
       // Encrypted content must always have a non-null exoMediaCryptoType.
       exoMediaCryptoType = UnsupportedMediaCrypto.class;
+    } else {
+      exoMediaCryptoType = builder.exoMediaCryptoType;
     }
-    this.exoMediaCryptoType = exoMediaCryptoType;
   }
 
   // Some fields are deprecated but they're still assigned below.

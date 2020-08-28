@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -54,7 +55,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 /** Test for {@link SampleQueue}. */
@@ -69,6 +69,8 @@ public final class SampleQueueTest {
   private static final Format FORMAT_SPLICED = buildFormat(/* id= */ "spliced");
   private static final Format FORMAT_ENCRYPTED =
       new Format.Builder().setId(/* id= */ "encrypted").setDrmInitData(new DrmInitData()).build();
+  private static final Format FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE =
+      FORMAT_ENCRYPTED.copyWithExoMediaCryptoType(MockExoMediaCrypto.class);
   private static final byte[] DATA = TestUtil.buildTestData(ALLOCATION_SIZE * 10);
 
   /*
@@ -128,7 +130,7 @@ public final class SampleQueueTest {
       new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, new byte[16], 0, 0);
 
   private Allocator allocator;
-  private DrmSessionManager mockDrmSessionManager;
+  private MockDrmSessionManager mockDrmSessionManager;
   private DrmSession mockDrmSession;
   private DrmSessionEventListener.EventDispatcher eventDispatcher;
   private SampleQueue sampleQueue;
@@ -138,11 +140,8 @@ public final class SampleQueueTest {
   @Before
   public void setUp() {
     allocator = new DefaultAllocator(false, ALLOCATION_SIZE);
-    mockDrmSessionManager = Mockito.mock(DrmSessionManager.class);
     mockDrmSession = Mockito.mock(DrmSession.class);
-    when(mockDrmSessionManager.acquireSession(
-            ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(mockDrmSession);
+    mockDrmSessionManager = new MockDrmSessionManager(mockDrmSession);
     eventDispatcher = new DrmSessionEventListener.EventDispatcher();
     sampleQueue =
         new SampleQueue(
@@ -399,7 +398,7 @@ public final class SampleQueueTest {
   @Test
   public void isReadyReturnsTrueForValidDrmSession() {
     writeTestDataWithEncryptedSections();
-    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE);
     assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isFalse();
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     assertThat(sampleQueue.isReady(/* loadingFinished= */ false)).isTrue();
@@ -424,7 +423,7 @@ public final class SampleQueueTest {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
     writeTestDataWithEncryptedSections();
 
-    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE);
     assertReadNothing(/* formatRequired= */ false);
     assertThat(inputBuffer.waitingForKeys).isTrue();
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
@@ -464,9 +463,7 @@ public final class SampleQueueTest {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     DrmSession mockPlaceholderDrmSession = Mockito.mock(DrmSession.class);
     when(mockPlaceholderDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
-    when(mockDrmSessionManager.acquirePlaceholderSession(
-            ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
-        .thenReturn(mockPlaceholderDrmSession);
+    mockDrmSessionManager.mockPlaceholderDrmSession = mockPlaceholderDrmSession;
     writeTestDataWithEncryptedSections();
 
     int result =
@@ -497,9 +494,7 @@ public final class SampleQueueTest {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
     DrmSession mockPlaceholderDrmSession = Mockito.mock(DrmSession.class);
     when(mockPlaceholderDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED_WITH_KEYS);
-    when(mockDrmSessionManager.acquirePlaceholderSession(
-            ArgumentMatchers.any(), ArgumentMatchers.anyInt()))
-        .thenReturn(mockPlaceholderDrmSession);
+    mockDrmSessionManager.mockPlaceholderDrmSession = mockPlaceholderDrmSession;
 
     writeFormat(ENCRYPTED_SAMPLE_FORMATS[0]);
     byte[] sampleData = new byte[] {0, 1, 2};
@@ -540,7 +535,7 @@ public final class SampleQueueTest {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
     writeTestDataWithEncryptedSections();
 
-    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE);
     assertReadNothing(/* formatRequired= */ false);
     sampleQueue.maybeThrowError();
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_ERROR);
@@ -569,7 +564,7 @@ public final class SampleQueueTest {
     when(mockDrmSession.getState()).thenReturn(DrmSession.STATE_OPENED);
     writeTestDataWithEncryptedSections();
 
-    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED);
+    assertReadFormat(/* formatRequired= */ false, FORMAT_ENCRYPTED_WITH_EXO_MEDIA_CRYPTO_TYPE);
     assertReadEncryptedSample(/* sampleIndex= */ 0);
   }
 
@@ -1496,5 +1491,34 @@ public final class SampleQueueTest {
 
   private static Format copyWithLabel(Format format, String label) {
     return format.buildUpon().setLabel(label).build();
+  }
+
+  private static final class MockExoMediaCrypto implements ExoMediaCrypto {}
+
+  private static final class MockDrmSessionManager implements DrmSessionManager {
+
+    private final DrmSession mockDrmSession;
+    @Nullable private DrmSession mockPlaceholderDrmSession;
+
+    private MockDrmSessionManager(DrmSession mockDrmSession) {
+      this.mockDrmSession = mockDrmSession;
+    }
+
+    @Nullable
+    @Override
+    public DrmSession acquireSession(
+        Looper playbackLooper,
+        @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
+        Format format) {
+      return format.drmInitData != null ? mockDrmSession : mockPlaceholderDrmSession;
+    }
+
+    @Nullable
+    @Override
+    public Class<? extends ExoMediaCrypto> getExoMediaCryptoType(Format format) {
+      return mockPlaceholderDrmSession != null || format.drmInitData != null
+          ? MockExoMediaCrypto.class
+          : null;
+    }
   }
 }

@@ -406,6 +406,21 @@ public final class Util {
   }
 
   /**
+   * Copies the contents of {@code list} into {@code array}.
+   *
+   * <p>{@code list.size()} must be the same as {@code array.length} to ensure the contents can be
+   * copied into {@code array} without leaving any nulls at the end.
+   *
+   * @param list The list to copy items from.
+   * @param array The array to copy items to.
+   */
+  @SuppressWarnings("nullness:toArray.nullable.elements.not.newarray")
+  public static <T> void nullSafeListToArray(List<T> list, T[] array) {
+    Assertions.checkState(list.size() == array.length);
+    list.toArray(array);
+  }
+
+  /**
    * Creates a {@link Handler} on the current {@link Looper} thread.
    *
    * @throws IllegalStateException If the current thread doesn't have a {@link Looper}.
@@ -2362,7 +2377,7 @@ public final class Util {
       case TelephonyManager.NETWORK_TYPE_LTE:
         return C.NETWORK_TYPE_4G;
       case TelephonyManager.NETWORK_TYPE_NR:
-        return C.NETWORK_TYPE_5G;
+        return SDK_INT >= 29 ? C.NETWORK_TYPE_5G : C.NETWORK_TYPE_UNKNOWN;
       case TelephonyManager.NETWORK_TYPE_IWLAN:
         return C.NETWORK_TYPE_WIFI;
       case TelephonyManager.NETWORK_TYPE_GSM:

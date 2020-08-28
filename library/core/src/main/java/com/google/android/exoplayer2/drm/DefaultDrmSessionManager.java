@@ -409,7 +409,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   /**
    * Sets the mode, which determines the role of sessions acquired from the instance. This must be
    * called before {@link #acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)}
-   * or {@link #acquirePlaceholderSession} is called.
+   * is called.
    *
    * <p>By default, the mode is {@link #MODE_PLAYBACK} and a streaming license is requested when
    * required.
@@ -469,40 +469,17 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   @Override
   @Nullable
-  public DrmSession acquirePlaceholderSession(Looper playbackLooper, int trackType) {
-    initPlaybackLooper(playbackLooper);
-    ExoMediaDrm exoMediaDrm = Assertions.checkNotNull(this.exoMediaDrm);
-    boolean avoidPlaceholderDrmSessions =
-        FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
-            && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
-    // Avoid attaching a session to sparse formats.
-    if (avoidPlaceholderDrmSessions
-        || Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) == C.INDEX_UNSET
-        || exoMediaDrm.getExoMediaCryptoType() == null) {
-      return null;
-    }
-    maybeCreateMediaDrmHandler(playbackLooper);
-    if (placeholderDrmSession == null) {
-      DefaultDrmSession placeholderDrmSession =
-          createAndAcquireSessionWithRetry(
-              /* schemeDatas= */ ImmutableList.of(),
-              /* isPlaceholderSession= */ true,
-              /* eventDispatcher= */ null);
-      sessions.add(placeholderDrmSession);
-      this.placeholderDrmSession = placeholderDrmSession;
-    } else {
-      placeholderDrmSession.acquire(/* eventDispatcher= */ null);
-    }
-    return placeholderDrmSession;
-  }
-
-  @Override
   public DrmSession acquireSession(
       Looper playbackLooper,
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
       Format format) {
     initPlaybackLooper(playbackLooper);
     maybeCreateMediaDrmHandler(playbackLooper);
+
+    if (format.drmInitData == null) {
+      // Content is not encrypted.
+      return maybeAcquirePlaceholderSession(MimeTypes.getTrackType(format.sampleMimeType));
+    }
 
     @Nullable List<SchemeData> schemeDatas = null;
     if (offlineLicenseKeySetId == null) {
@@ -565,6 +542,32 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   // Internal methods.
 
+  @Nullable
+  private DrmSession maybeAcquirePlaceholderSession(int trackType) {
+    ExoMediaDrm exoMediaDrm = Assertions.checkNotNull(this.exoMediaDrm);
+    boolean avoidPlaceholderDrmSessions =
+        FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
+            && FrameworkMediaCrypto.WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC;
+    // Avoid attaching a session to sparse formats.
+    if (avoidPlaceholderDrmSessions
+        || Util.linearSearch(useDrmSessionsForClearContentTrackTypes, trackType) == C.INDEX_UNSET
+        || UnsupportedMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())) {
+      return null;
+    }
+    if (placeholderDrmSession == null) {
+      DefaultDrmSession placeholderDrmSession =
+          createAndAcquireSessionWithRetry(
+              /* schemeDatas= */ ImmutableList.of(),
+              /* isPlaceholderSession= */ true,
+              /* eventDispatcher= */ null);
+      sessions.add(placeholderDrmSession);
+      this.placeholderDrmSession = placeholderDrmSession;
+    } else {
+      placeholderDrmSession.acquire(/* eventDispatcher= */ null);
+    }
+    return placeholderDrmSession;
+  }
+
   private boolean canAcquireSession(DrmInitData drmInitData) {
     if (offlineLicenseKeySetId != null) {
       // An offline license can be restored so a session can always be acquired.
@@ -585,12 +588,16 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     if (schemeType == null || C.CENC_TYPE_cenc.equals(schemeType)) {
       // If there is no scheme information, assume patternless AES-CTR.
       return true;
-    } else if (C.CENC_TYPE_cbc1.equals(schemeType)
-        || C.CENC_TYPE_cbcs.equals(schemeType)
-        || C.CENC_TYPE_cens.equals(schemeType)) {
-      // API support for AES-CBC and pattern encryption was added in API 24. However, the
+    } else if (C.CENC_TYPE_cbcs.equals(schemeType)) {
+      // Support for cbcs (AES-CBC with pattern encryption) was added in API 24. However, the
       // implementation was not stable until API 25.
       return Util.SDK_INT >= 25;
+    } else if (C.CENC_TYPE_cbc1.equals(schemeType) || C.CENC_TYPE_cens.equals(schemeType)) {
+      // Support for cbc1 (AES-CTR with pattern encryption) and cens (AES-CBC without pattern
+      // encryption) was also added in API 24 and made stable from API 25, however support was
+      // removed from API 30. Since the range of API levels for which these modes are usable is too
+      // small to be useful, we don't indicate support on any API level.
+      return false;
     }
     // Unknown schemes, assume one of them is supported.
     return true;

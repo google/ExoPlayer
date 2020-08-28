@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.ext.media2;
 
 import static com.google.android.exoplayer2.ext.media2.TestUtils.assertPlayerResultSuccess;
@@ -29,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.UriMediaItem;
@@ -136,7 +136,7 @@ public class SessionCallbackBuilderTest {
                         SessionResult.RESULT_ERROR_BAD_VALUE)
                 .setRewindIncrementMs(testRewindIncrementMs)
                 .setFastForwardIncrementMs(testFastForwardIncrementMs)
-                .setMediaItemProvider(new SessionCallbackBuilder.DefaultMediaItemProvider())
+                .setMediaItemProvider(new SessionCallbackBuilder.MediaIdMediaItemProvider())
                 .build())) {
       assertPlayerResultSuccess(sessionPlayerConnector.setMediaItem(TestUtils.createMediaItem()));
       assertPlayerResultSuccess(sessionPlayerConnector.prepare());
@@ -179,7 +179,7 @@ public class SessionCallbackBuilderTest {
                         SessionResult.RESULT_ERROR_BAD_VALUE)
                 .setRewindIncrementMs(testRewindIncrementMs)
                 .setFastForwardIncrementMs(testFastForwardIncrementMs)
-                .setMediaItemProvider(new SessionCallbackBuilder.DefaultMediaItemProvider())
+                .setMediaItemProvider(new SessionCallbackBuilder.MediaIdMediaItemProvider())
                 .build())) {
 
       assertPlayerResultSuccess(sessionPlayerConnector.setPlaylist(testPlaylist, null));
@@ -455,13 +455,13 @@ public class SessionCallbackBuilderTest {
     Uri testMediaUri = RawResourceDataSource.buildRawResourceUri(R.raw.audio);
 
     CountDownLatch providerLatch = new CountDownLatch(1);
-    SessionCallbackBuilder.DefaultMediaItemProvider defaultMediaItemProvider =
-        new SessionCallbackBuilder.DefaultMediaItemProvider();
+    SessionCallbackBuilder.MediaIdMediaItemProvider mediaIdMediaItemProvider =
+        new SessionCallbackBuilder.MediaIdMediaItemProvider();
     SessionCallbackBuilder.MediaItemProvider provider =
         (session, controllerInfo, mediaId) -> {
           assertThat(mediaId).isEqualTo(testMediaUri.toString());
           providerLatch.countDown();
-          return defaultMediaItemProvider.onCreateMediaItem(session, controllerInfo, mediaId);
+          return mediaIdMediaItemProvider.onCreateMediaItem(session, controllerInfo, mediaId);
         };
 
     CountDownLatch currentMediaItemChangedLatch = new CountDownLatch(1);
@@ -471,7 +471,9 @@ public class SessionCallbackBuilderTest {
           @Override
           public void onCurrentMediaItemChanged(
               @NonNull SessionPlayer player, @NonNull MediaItem item) {
-            assertThat(((UriMediaItem) item).getUri()).isEqualTo(testMediaUri);
+            MediaMetadata metadata = item.getMetadata();
+            assertThat(metadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID))
+                .isEqualTo(testMediaUri.toString());
             currentMediaItemChangedLatch.countDown();
           }
         });

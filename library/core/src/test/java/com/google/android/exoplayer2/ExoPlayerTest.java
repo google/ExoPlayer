@@ -328,11 +328,11 @@ public final class ExoPlayerTest {
           }
 
           @Override
-          public void setPlaybackSpeed(float playbackSpeed) {}
+          public void setPlaybackParameters(PlaybackParameters playbackParameters) {}
 
           @Override
-          public float getPlaybackSpeed() {
-            return Player.DEFAULT_PLAYBACK_SPEED;
+          public PlaybackParameters getPlaybackParameters() {
+            return PlaybackParameters.DEFAULT;
           }
 
           @Override
@@ -1010,7 +1010,7 @@ public final class ExoPlayerTest {
                   }
                 })
             // Set playback speed (while the fake media period is not yet prepared).
-            .setPlaybackSpeed(2f)
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 2f))
             // Complete preparation of the fake media period.
             .executeRunnable(() -> fakeMediaPeriodHolder[0].setPreparationComplete())
             .build();
@@ -3378,18 +3378,18 @@ public final class ExoPlayerTest {
               SimpleExoPlayer player,
               DefaultTrackSelector trackSelector,
               @Nullable Surface surface) {
-            maskedPlaybackSpeeds.add(player.getPlaybackSpeed());
+            maskedPlaybackSpeeds.add(player.getPlaybackParameters().speed);
           }
         };
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .setPlaybackSpeed(1.1f)
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.1f))
             .apply(getPlaybackSpeedAction)
-            .setPlaybackSpeed(1.2f)
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.2f))
             .apply(getPlaybackSpeedAction)
-            .setPlaybackSpeed(1.3f)
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.3f))
             .apply(getPlaybackSpeedAction)
             .play()
             .build();
@@ -3397,8 +3397,8 @@ public final class ExoPlayerTest {
     EventListener listener =
         new EventListener() {
           @Override
-          public void onPlaybackSpeedChanged(float playbackSpeed) {
-            reportedPlaybackSpeeds.add(playbackSpeed);
+          public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+            reportedPlaybackSpeeds.add(playbackParameters.speed);
           }
         };
     new ExoPlayerTestRunner.Builder(context)
@@ -3424,28 +3424,28 @@ public final class ExoPlayerTest {
           }
 
           @Override
-          public void setPlaybackSpeed(float playbackSpeed) {}
+          public void setPlaybackParameters(PlaybackParameters playbackParameters) {}
 
           @Override
-          public float getPlaybackSpeed() {
-            return Player.DEFAULT_PLAYBACK_SPEED;
+          public PlaybackParameters getPlaybackParameters() {
+            return PlaybackParameters.DEFAULT;
           }
         };
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
             .waitForPlaybackState(Player.STATE_READY)
-            .setPlaybackSpeed(1.1f)
-            .setPlaybackSpeed(1.2f)
-            .setPlaybackSpeed(1.3f)
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.1f))
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.2f))
+            .setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.3f))
             .play()
             .build();
-    List<Float> reportedPlaybackParameters = new ArrayList<>();
+    List<PlaybackParameters> reportedPlaybackParameters = new ArrayList<>();
     EventListener listener =
         new EventListener() {
           @Override
-          public void onPlaybackSpeedChanged(float playbackSpeed) {
-            reportedPlaybackParameters.add(playbackSpeed);
+          public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+            reportedPlaybackParameters.add(playbackParameters);
           }
         };
     new ExoPlayerTestRunner.Builder(context)
@@ -3458,7 +3458,11 @@ public final class ExoPlayerTest {
         .blockUntilEnded(TIMEOUT_MS);
 
     assertThat(reportedPlaybackParameters)
-        .containsExactly(1.1f, 1.2f, 1.3f, Player.DEFAULT_PLAYBACK_SPEED)
+        .containsExactly(
+            new PlaybackParameters(/* speed= */ 1.1f),
+            new PlaybackParameters(/* speed= */ 1.2f),
+            new PlaybackParameters(/* speed= */ 1.3f),
+            PlaybackParameters.DEFAULT)
         .inOrder();
   }
 

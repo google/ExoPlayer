@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -219,9 +220,9 @@ import java.util.TreeSet;
   public SimpleCacheSpan setLastTouchTimestamp(
       SimpleCacheSpan cacheSpan, long lastTouchTimestamp, boolean updateFile) {
     checkState(cachedSpans.remove(cacheSpan));
-    File file = cacheSpan.file;
+    File file = checkNotNull(cacheSpan.file);
     if (updateFile) {
-      File directory = file.getParentFile();
+      File directory = checkNotNull(file.getParentFile());
       long position = cacheSpan.position;
       File newFile = SimpleCacheSpan.getCacheFile(directory, id, position, lastTouchTimestamp);
       if (file.renameTo(newFile)) {
@@ -244,7 +245,9 @@ import java.util.TreeSet;
   /** Removes the given span from cache. */
   public boolean removeSpan(CacheSpan span) {
     if (cachedSpans.remove(span)) {
-      span.file.delete();
+      if (span.file != null) {
+        span.file.delete();
+      }
       return true;
     }
     return false;

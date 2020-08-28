@@ -134,6 +134,7 @@
       android:layout_height="wrap_content"
       android:orientation="vertical"
       android:layout_gravity="bottom|end"
+      android:layout_marginBottom="@dimen/exo_custom_progress_thumb_size"
       android:visibility="invisible">
   </LinearLayout>
 

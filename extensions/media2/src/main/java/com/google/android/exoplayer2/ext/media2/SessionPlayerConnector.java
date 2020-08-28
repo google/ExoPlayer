@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.ext.media2;
 
 import androidx.annotation.FloatRange;
@@ -23,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.common.CallbackMediaItem;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -41,24 +41,10 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import org.checkerframework.checker.initialization.qual.Initialized;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * An implementation of {@link SessionPlayer} that wraps a given ExoPlayer {@link Player} instance.
- *
- * <h3>Ownership</h3>
- *
- * <p>{@code SessionPlayerConnector} takes ownership of the provided ExoPlayer {@link Player}
- * instance between when it's constructed and when it's {@link #close() closed}. No other components
- * should interact with the wrapped player (otherwise, unexpected event callbacks from the wrapped
- * player may put the session player in an inconsistent state).
- *
- * <p>Call {@link SessionPlayer#close()} when the {@code SessionPlayerConnector} is no longer needed
- * to regain ownership of the wrapped player. It is the caller's responsibility to release the
- * wrapped player via {@link Player#release()}.
- *
- * <h3>Threading model</h3>
  *
  * <p>Internally this implementation posts operations to and receives callbacks on the thread
  * associated with {@link Player#getApplicationLooper()}, so it is important not to block this
@@ -95,16 +81,15 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
   // Should be only accessed on the executor, which is currently single-threaded.
   @Nullable private MediaItem currentMediaItem;
-  @Nullable private List<MediaItem> currentPlaylist;
 
   /**
-   * Creates an instance using {@link DefaultControlDispatcher} to dispatch player commands.
+   * Creates an instance using {@link DefaultMediaItemConverter} to convert between ExoPlayer and
+   * media2 MediaItems and {@link DefaultControlDispatcher} to dispatch player commands.
    *
    * @param player The player to wrap.
-   * @param mediaItemConverter The {@link MediaItemConverter}.
    */
-  public SessionPlayerConnector(Player player, MediaItemConverter mediaItemConverter) {
-    this(player, mediaItemConverter, new DefaultControlDispatcher());
+  public SessionPlayerConnector(Player player) {
+    this(player, new DefaultMediaItemConverter(), new DefaultControlDispatcher());
   }
 
   /**
@@ -124,19 +109,8 @@ public final class SessionPlayerConnector extends SessionPlayer {
     taskHandler = new PlayerHandler(player.getApplicationLooper());
     taskHandlerExecutor = taskHandler::postOrRun;
     ExoPlayerWrapperListener playerListener = new ExoPlayerWrapperListener();
-    PlayerWrapper playerWrapper =
-        new PlayerWrapper(playerListener, player, mediaItemConverter, controlDispatcher);
-    this.player = playerWrapper;
+    this.player = new PlayerWrapper(playerListener, player, mediaItemConverter, controlDispatcher);
     playerCommandQueue = new PlayerCommandQueue(this.player, taskHandler);
-
-    @SuppressWarnings("assignment.type.incompatible")
-    @Initialized
-    SessionPlayerConnector initializedThis = this;
-    initializedThis.<Void>runPlayerCallableBlocking(
-        /* callable= */ () -> {
-          playerWrapper.reset();
-          return null;
-        });
   }
 
   @Override
@@ -251,17 +225,27 @@ public final class SessionPlayerConnector extends SessionPlayer {
     return runPlayerCallableBlockingWithNullOnException(/* callable= */ player::getAudioAttributes);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>{@link FileMediaItem} and {@link CallbackMediaItem} are not supported.
+   */
   @Override
   public ListenableFuture<PlayerResult> setMediaItem(MediaItem item) {
     Assertions.checkNotNull(item);
     Assertions.checkArgument(!(item instanceof FileMediaItem));
+    Assertions.checkArgument(!(item instanceof CallbackMediaItem));
     ListenableFuture<PlayerResult> result =
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, () -> player.setMediaItem(item));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>{@link FileMediaItem} and {@link CallbackMediaItem} are not supported.
+   */
   @Override
   public ListenableFuture<PlayerResult> setPlaylist(
       final List<MediaItem> playlist, @Nullable MediaMetadata metadata) {
@@ -271,6 +255,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
       MediaItem item = playlist.get(i);
       Assertions.checkNotNull(item);
       Assertions.checkArgument(!(item instanceof FileMediaItem));
+      Assertions.checkArgument(!(item instanceof CallbackMediaItem));
       for (int j = 0; j < i; j++) {
         Assertions.checkArgument(
             item != playlist.get(j),
@@ -281,20 +266,24 @@ public final class SessionPlayerConnector extends SessionPlayer {
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_SET_PLAYLIST,
             /* command= */ () -> player.setPlaylist(playlist, metadata));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>{@link FileMediaItem} and {@link CallbackMediaItem} are not supported.
+   */
   @Override
   public ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem item) {
     Assertions.checkArgument(index >= 0);
     Assertions.checkNotNull(item);
     Assertions.checkArgument(!(item instanceof FileMediaItem));
+    Assertions.checkArgument(!(item instanceof CallbackMediaItem));
     ListenableFuture<PlayerResult> result =
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
             /* command= */ () -> player.addPlaylistItem(index, item));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
@@ -305,20 +294,24 @@ public final class SessionPlayerConnector extends SessionPlayer {
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
             /* command= */ () -> player.removePlaylistItem(index));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>{@link FileMediaItem} and {@link CallbackMediaItem} are not supported.
+   */
   @Override
   public ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem item) {
     Assertions.checkArgument(index >= 0);
     Assertions.checkNotNull(item);
     Assertions.checkArgument(!(item instanceof FileMediaItem));
+    Assertions.checkArgument(!(item instanceof CallbackMediaItem));
     ListenableFuture<PlayerResult> result =
         playerCommandQueue.addCommand(
             PlayerCommandQueue.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
             /* command= */ () -> player.replacePlaylistItem(index, item));
-    result.addListener(this::handlePlaylistChangedOnHandler, taskHandlerExecutor);
     return result;
   }
 
@@ -385,7 +378,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
   @Override
   @Nullable
   public List<MediaItem> getPlaylist() {
-    return runPlayerCallableBlockingWithNullOnException(/* callable= */ player::getCachedPlaylist);
+    return runPlayerCallableBlockingWithNullOnException(/* callable= */ player::getPlaylist);
   }
 
   @Override
@@ -447,7 +440,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
     }
     reset();
 
-    this.<Void>runPlayerCallableBlockingInternal(
+    this.<Void>runPlayerCallableBlocking(
         /* callable= */ () -> {
           player.close();
           return null;
@@ -511,7 +504,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
       state = PLAYER_STATE_IDLE;
       mediaItemToBuffState.clear();
     }
-    this.<Void>runPlayerCallableBlockingInternal(
+    this.<Void>runPlayerCallableBlocking(
         /* callable= */ () -> {
           player.reset();
           return null;
@@ -558,25 +551,18 @@ public final class SessionPlayerConnector extends SessionPlayer {
   }
 
   private void handlePlaylistChangedOnHandler() {
-    List<MediaItem> currentPlaylist = player.getCachedPlaylist();
-    boolean notifyCurrentPlaylist = !ObjectsCompat.equals(this.currentPlaylist, currentPlaylist);
-    this.currentPlaylist = currentPlaylist;
+    List<MediaItem> currentPlaylist = player.getPlaylist();
     MediaMetadata playlistMetadata = player.getPlaylistMetadata();
 
     MediaItem currentMediaItem = player.getCurrentMediaItem();
     boolean notifyCurrentMediaItem = !ObjectsCompat.equals(this.currentMediaItem, currentMediaItem);
     this.currentMediaItem = currentMediaItem;
 
-    if (!notifyCurrentMediaItem && !notifyCurrentPlaylist) {
-      return;
-    }
     long currentPosition = getCurrentPosition();
     notifySessionPlayerCallback(
         callback -> {
-          if (notifyCurrentPlaylist) {
-            callback.onPlaylistChanged(
-                SessionPlayerConnector.this, currentPlaylist, playlistMetadata);
-          }
+          callback.onPlaylistChanged(
+              SessionPlayerConnector.this, currentPlaylist, playlistMetadata);
           if (notifyCurrentMediaItem) {
             Assertions.checkNotNull(
                 currentMediaItem, "PlaylistManager#currentMediaItem() cannot be changed to null");
@@ -610,13 +596,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
   }
 
   private <T> T runPlayerCallableBlocking(Callable<T> callable) {
-    synchronized (stateLock) {
-      Assertions.checkState(!closed);
-    }
-    return runPlayerCallableBlockingInternal(callable);
-  }
-
-  private <T> T runPlayerCallableBlockingInternal(Callable<T> callable) {
     SettableFuture<T> future = SettableFuture.create();
     boolean success =
         taskHandler.postOrRun(

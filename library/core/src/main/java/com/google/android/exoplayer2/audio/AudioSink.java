@@ -20,6 +20,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -73,9 +74,18 @@ public interface AudioSink {
     void onPositionDiscontinuity();
 
     /**
+     * Called when the audio sink's position has increased for the first time since it was last
+     * paused or flushed.
+     *
+     * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+     *     which playout started. Only valid if the audio track has not underrun.
+     */
+    default void onPositionAdvancing(long playoutStartSystemTimeMs) {}
+
+    /**
      * Called when the audio sink runs out of data.
-     * <p>
-     * An audio sink implementation may never call this method (for example, if audio data is
+     *
+     * <p>An audio sink implementation may never call this method (for example, if audio data is
      * consumed in batches rather than based on the sink's own clock).
      *
      * @param bufferSize The size of the sink's buffer, in bytes.
@@ -297,16 +307,21 @@ public interface AudioSink {
    */
   boolean hasPendingData();
 
-  /** Sets the playback speed. */
-  void setPlaybackSpeed(float playbackSpeed);
+  /**
+   * Attempts to set the playback parameters. The audio sink may override these parameters if they
+   * are not supported.
+   *
+   * @param playbackParameters The new playback parameters to attempt to set.
+   */
+  void setPlaybackParameters(PlaybackParameters playbackParameters);
 
-  /** Gets the playback speed. */
-  float getPlaybackSpeed();
+  /** Returns the active {@link PlaybackParameters}. */
+  PlaybackParameters getPlaybackParameters();
 
   /** Sets whether silences should be skipped in the audio stream. */
   void setSkipSilenceEnabled(boolean skipSilenceEnabled);
 
-  /** Gets whether silences are skipped in the audio stream. */
+  /** Returns whether silences are skipped in the audio stream. */
   boolean getSkipSilenceEnabled();
 
   /**

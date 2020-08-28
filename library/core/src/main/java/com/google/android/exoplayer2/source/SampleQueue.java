@@ -327,13 +327,7 @@ public class SampleQueue implements TrackOutput {
    * Attempts to read from the queue.
    *
    * <p>{@link Format Formats} read from this method may be associated to a {@link DrmSession}
-   * through {@link FormatHolder#drmSession}, which is populated in two scenarios:
-   *
-   * <ul>
-   *   <li>The {@link Format} has a non-null {@link Format#drmInitData}.
-   *   <li>The {@link DrmSessionManager} provides placeholder sessions for this queue's track type.
-   *       See {@link DrmSessionManager#acquirePlaceholderSession(Looper, int)}.
-   * </ul>
+   * through {@link FormatHolder#drmSession}.
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
@@ -842,10 +836,7 @@ public class SampleQueue implements TrackOutput {
     // is being used for both DrmInitData.
     @Nullable DrmSession previousSession = currentDrmSession;
     currentDrmSession =
-        newDrmInitData != null
-            ? drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newFormat)
-            : drmSessionManager.acquirePlaceholderSession(
-                playbackLooper, MimeTypes.getTrackType(newFormat.sampleMimeType));
+        drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newFormat);
     outputFormatHolder.drmSession = currentDrmSession;
 
     if (previousSession != null) {

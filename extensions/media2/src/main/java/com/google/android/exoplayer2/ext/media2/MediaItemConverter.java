@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.ext.media2;
 
 import com.google.android.exoplayer2.MediaItem;
 
 /**
- * Converter for between {@link MediaItem AndroidX MediaItem} and {@link
- * com.google.android.exoplayer2.MediaItem ExoPlayer MediaItem}.
+ * Converts between {@link androidx.media2.common.MediaItem Media2 MediaItem} and {@link MediaItem
+ * ExoPlayer MediaItem}.
  */
 public interface MediaItemConverter {
   /**
-   * Converts {@link androidx.media2.common.MediaItem AndroidX MediaItem} to {@link MediaItem
+   * Converts an {@link androidx.media2.common.MediaItem Media2 MediaItem} to an {@link MediaItem
    * ExoPlayer MediaItem}.
    */
-  MediaItem convertToExoPlayerMediaItem(androidx.media2.common.MediaItem androidXMediaItem);
+  MediaItem convertToExoPlayerMediaItem(androidx.media2.common.MediaItem media2MediaItem);
 
   /**
-   * Converts {@link MediaItem ExoPlayer MediaItem} to {@link androidx.media2.common.MediaItem
-   * AndroidX MediaItem}.
+   * Converts an {@link MediaItem ExoPlayer MediaItem} to an {@link androidx.media2.common.MediaItem
+   * Media2 MediaItem}.
    */
-  androidx.media2.common.MediaItem convertToAndroidXMediaItem(MediaItem exoplayerMediaItem);
+  androidx.media2.common.MediaItem convertToMedia2MediaItem(MediaItem exoPlayerMediaItem);
 }
