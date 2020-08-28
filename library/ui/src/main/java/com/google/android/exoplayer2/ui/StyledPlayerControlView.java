@@ -1644,6 +1644,7 @@ public class StyledPlayerControlView extends FrameLayout {
       } else if (event.getRepeatCount() == 0) {
         switch (keyCode) {
           case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+          case KeyEvent.KEYCODE_HEADSETHOOK:
             controlDispatcher.dispatchSetPlayWhenReady(player, !player.getPlayWhenReady());
             break;
           case KeyEvent.KEYCODE_MEDIA_PLAY:
@@ -1678,6 +1679,7 @@ public class StyledPlayerControlView extends FrameLayout {
     return keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD
         || keyCode == KeyEvent.KEYCODE_MEDIA_REWIND
         || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
+        || keyCode == KeyEvent.KEYCODE_HEADSETHOOK
         || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY
         || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE
         || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
