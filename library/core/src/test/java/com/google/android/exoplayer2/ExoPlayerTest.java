@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
+import static com.google.android.exoplayer2.testutil.TestExoPlayer.playUntilStartOfWindow;
 import static com.google.android.exoplayer2.testutil.TestExoPlayer.runUntilPlaybackState;
 import static com.google.android.exoplayer2.testutil.TestExoPlayer.runUntilTimelineChanged;
 import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil;
@@ -114,9 +115,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
@@ -439,49 +442,41 @@ public final class ExoPlayerTest {
   public void repeatModeChanges() throws Exception {
     Timeline timeline = new FakeTimeline(/* windowCount= */ 3);
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForTimelineChanged(
-                timeline, /* expectedReason */ Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE)
-            .playUntilStartOfWindow(/* windowIndex= */ 1)
-            .setRepeatMode(Player.REPEAT_MODE_ONE)
-            .playUntilStartOfWindow(/* windowIndex= */ 1)
-            .setRepeatMode(Player.REPEAT_MODE_OFF)
-            .playUntilStartOfWindow(/* windowIndex= */ 2)
-            .setRepeatMode(Player.REPEAT_MODE_ONE)
-            .playUntilStartOfWindow(/* windowIndex= */ 2)
-            .setRepeatMode(Player.REPEAT_MODE_ALL)
-            .playUntilStartOfWindow(/* windowIndex= */ 0)
-            .setRepeatMode(Player.REPEAT_MODE_ONE)
-            .playUntilStartOfWindow(/* windowIndex= */ 0)
-            .playUntilStartOfWindow(/* windowIndex= */ 0)
-            .setRepeatMode(Player.REPEAT_MODE_OFF)
-            .play()
-            .build();
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setTimeline(timeline)
-            .setRenderers(renderer)
-            .setActionSchedule(actionSchedule)
-            .build()
-            .start()
-            .blockUntilEnded(TIMEOUT_MS);
-    testRunner.assertPlayedPeriodIndices(0, 1, 1, 2, 2, 0, 0, 0, 1, 2);
-    testRunner.assertPositionDiscontinuityReasonsEqual(
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
-    testRunner.assertTimelinesSame(new FakeMediaSource.InitialTimeline(timeline), timeline);
-    testRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(renderer).build();
+    AnalyticsListener mockAnalyticsListener = mock(AnalyticsListener.class);
+    player.addAnalyticsListener(mockAnalyticsListener);
+
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.prepare();
+    runUntilTimelineChanged(player);
+    playUntilStartOfWindow(player, /* windowIndex= */ 1);
+    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+    playUntilStartOfWindow(player, /* windowIndex= */ 1);
+    player.setRepeatMode(Player.REPEAT_MODE_OFF);
+    playUntilStartOfWindow(player, /* windowIndex= */ 2);
+    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+    playUntilStartOfWindow(player, /* windowIndex= */ 2);
+    player.setRepeatMode(Player.REPEAT_MODE_ALL);
+    playUntilStartOfWindow(player, /* windowIndex= */ 0);
+    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+    playUntilStartOfWindow(player, /* windowIndex= */ 0);
+    playUntilStartOfWindow(player, /* windowIndex= */ 0);
+    player.setRepeatMode(Player.REPEAT_MODE_OFF);
+    playUntilStartOfWindow(player, /* windowIndex= */ 1);
+    playUntilStartOfWindow(player, /* windowIndex= */ 2);
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<AnalyticsListener.EventTime> eventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(mockAnalyticsListener, times(10))
+        .onMediaItemTransition(eventTimes.capture(), any(), anyInt());
+    assertThat(
+            eventTimes.getAllValues().stream()
+                .map(eventTime -> eventTime.currentWindowIndex)
+                .collect(Collectors.toList()))
+        .containsExactly(0, 1, 1, 2, 2, 0, 0, 0, 1, 2)
+        .inOrder();
     assertThat(renderer.isEnded).isTrue();
   }
 

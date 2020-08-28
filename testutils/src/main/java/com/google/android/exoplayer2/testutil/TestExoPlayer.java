@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -37,6 +38,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import java.util.concurrent.TimeoutException;
@@ -396,6 +398,7 @@ public class TestExoPlayer {
    */
   public static void runUntilPositionDiscontinuity(
       Player player, @Player.DiscontinuityReason int expectedReason) throws TimeoutException {
+    verifyMainTestThread(player);
     AtomicBoolean receivedCallback = new AtomicBoolean(false);
     Player.EventListener listener =
         new Player.EventListener() {
@@ -456,6 +459,59 @@ public class TestExoPlayer {
         };
     player.addVideoListener(listener);
     runMainLooperUntil(receivedCallback::get);
+  }
+
+  /**
+   * Calls {@link Player#play()}, runs tasks of the main {@link Looper} until the {@code player}
+   * reaches the specified position and then pauses the {@code player}.
+   *
+   * @param player The {@link Player}.
+   * @param windowIndex The window.
+   * @param positionMs The position within the window, in milliseconds.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
+   */
+  public static void playUntilPosition(ExoPlayer player, int windowIndex, long positionMs)
+      throws TimeoutException {
+    verifyMainTestThread(player);
+    Handler testHandler = Util.createHandlerForCurrentOrMainLooper();
+
+    AtomicBoolean messageHandled = new AtomicBoolean();
+    player
+        .createMessage(
+            (messageType, payload) -> {
+              // Block playback thread until pause command has been sent from test thread.
+              ConditionVariable blockPlaybackThreadCondition = new ConditionVariable();
+              testHandler.post(
+                  () -> {
+                    player.pause();
+                    messageHandled.set(true);
+                    blockPlaybackThreadCondition.open();
+                  });
+              try {
+                blockPlaybackThreadCondition.block();
+              } catch (InterruptedException e) {
+                // Ignore.
+              }
+            })
+        .setPosition(windowIndex, positionMs)
+        .send();
+    player.play();
+    runMainLooperUntil(messageHandled::get);
+  }
+
+  /**
+   * Calls {@link Player#play()}, runs tasks of the main {@link Looper} until the {@code player}
+   * reaches the specified window and then pauses the {@code player}.
+   *
+   * @param player The {@link Player}.
+   * @param windowIndex The window.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
+   */
+  public static void playUntilStartOfWindow(ExoPlayer player, int windowIndex)
+      throws TimeoutException {
+    playUntilPosition(player, windowIndex, /* positionMs= */ 0);
   }
 
   /**
