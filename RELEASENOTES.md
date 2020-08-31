@@ -2,7 +2,10 @@
 
 ### dev-v2 (not yet released)
 
-*   New release notes go here!
+*   Core library:
+    *   Add `SampleQueue.discardUpstreamFrom` so upstream samples can be
+        discarded by timestamp.
+    *   Add `SampleQueue.getLargestReadTimestampUs`.
 
 ### 2.12.0 (not yet released - targeted for 2020-09-03) ###
 
