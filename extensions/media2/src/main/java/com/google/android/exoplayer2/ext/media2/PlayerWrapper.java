@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
+import static com.google.android.exoplayer2.util.Util.postOrRun;
+
+import android.os.Handler;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
@@ -100,7 +103,7 @@ import java.util.List;
   private static final int POLL_BUFFER_INTERVAL_MS = 1000;
 
   private final Listener listener;
-  private final PlayerHandler handler;
+  private final Handler handler;
   private final Runnable pollBufferRunnable;
 
   private final Player player;
@@ -144,7 +147,7 @@ import java.util.List;
       audioComponent.addAudioListener(componentListener);
     }
 
-    handler = new PlayerHandler(player.getApplicationLooper());
+    handler = new Handler(player.getApplicationLooper());
     pollBufferRunnable = new PollBufferRunnable();
 
     media2Playlist = new ArrayList<>();
@@ -436,7 +439,7 @@ import java.util.List;
 
   private void handlePlayerStateChanged(@Player.State int state) {
     if (state == Player.STATE_READY || state == Player.STATE_BUFFERING) {
-      handler.postOrRun(pollBufferRunnable);
+      postOrRun(handler, pollBufferRunnable);
     } else {
       handler.removeCallbacks(pollBufferRunnable);
     }

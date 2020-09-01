@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
+import static com.google.android.exoplayer2.util.Util.postOrRun;
+
+import android.os.Handler;
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
@@ -64,7 +67,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
   private static final int END_OF_PLAYLIST = -1;
   private final Object stateLock = new Object();
 
-  private final PlayerHandler taskHandler;
+  private final Handler taskHandler;
   private final Executor taskHandlerExecutor;
   private final PlayerWrapper player;
   private final PlayerCommandQueue playerCommandQueue;
@@ -106,8 +109,8 @@ public final class SessionPlayerConnector extends SessionPlayer {
     Assertions.checkNotNull(controlDispatcher);
 
     state = PLAYER_STATE_IDLE;
-    taskHandler = new PlayerHandler(player.getApplicationLooper());
-    taskHandlerExecutor = taskHandler::postOrRun;
+    taskHandler = new Handler(player.getApplicationLooper());
+    taskHandlerExecutor = (runnable) -> postOrRun(taskHandler, runnable);
     ExoPlayerWrapperListener playerListener = new ExoPlayerWrapperListener();
     this.player = new PlayerWrapper(playerListener, player, mediaItemConverter, controlDispatcher);
     playerCommandQueue = new PlayerCommandQueue(this.player, taskHandler);
@@ -598,7 +601,8 @@ public final class SessionPlayerConnector extends SessionPlayer {
   private <T> T runPlayerCallableBlocking(Callable<T> callable) {
     SettableFuture<T> future = SettableFuture.create();
     boolean success =
-        taskHandler.postOrRun(
+        postOrRun(
+            taskHandler,
             () -> {
               try {
                 future.set(callable.call());

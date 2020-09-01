@@ -494,6 +494,24 @@ public final class Util {
   }
 
   /**
+   * Posts the {@link Runnable} if the calling thread differs with the {@link Looper} of the {@link
+   * Handler}. Otherwise, runs the {@link Runnable} directly.
+   *
+   * @param handler The handler to which the {@link Runnable} will be posted.
+   * @param runnable The runnable to either post or run.
+   * @return {@code true} if the {@link Runnable} was successfully posted to the {@link Handler} or
+   *     run. {@code false} otherwise.
+   */
+  public static boolean postOrRun(Handler handler, Runnable runnable) {
+    if (handler.getLooper() == Looper.myLooper()) {
+      runnable.run();
+      return true;
+    } else {
+      return handler.post(runnable);
+    }
+  }
+
+  /**
    * Returns the {@link Looper} associated with the current thread, or the {@link Looper} of the
    * application's main thread if the current thread doesn't have a {@link Looper}.
    */
