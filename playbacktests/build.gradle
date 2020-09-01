@@ -13,6 +13,12 @@
 // limitations under the License.
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+}
+
 dependencies {
     androidTestImplementation 'androidx.test:rules:' + androidxTestRulesVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
