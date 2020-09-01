@@ -17,11 +17,12 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.fail;
 
 import android.media.MediaDrm.MediaDrmStateException;
 import android.net.Uri;
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.Format;
@@ -121,19 +122,19 @@ public final class DashWidevineOfflineTest {
     downloadLicense();
     releaseLicense(); // keySetId no longer valid.
 
-    Throwable error =
-        assertThrows(
-            "Playback should fail because the license has been released.",
-            Throwable.class,
-            () -> testRunner.run());
-
-    // Get the root cause
-    Throwable cause = error.getCause();
-    while (cause != null && cause != error) {
-      error = cause;
-      cause = error.getCause();
+    try {
+      testRunner.run();
+      fail("Playback should fail because the license has been released.");
+    } catch (RuntimeException expected) {
+      // Get the root cause
+      Throwable error = expected;
+      @Nullable Throwable cause = error.getCause();
+      while (cause != null && cause != error) {
+        error = cause;
+        cause = error.getCause();
+      }
+      assertThat(error).isInstanceOf(MediaDrmStateException.class);
     }
-    assertThat(error).isInstanceOf(MediaDrmStateException.class);
   }
 
   @Test
@@ -144,18 +145,19 @@ public final class DashWidevineOfflineTest {
     downloadLicense();
     releaseLicense(); // keySetId no longer valid.
 
-    Throwable error =
-        assertThrows(
-            "Playback should fail because the license has been released.",
-            Throwable.class,
-            () -> testRunner.run());
-    // Get the root cause
-    Throwable cause = error.getCause();
-    while (cause != null && cause != error) {
-      error = cause;
-      cause = error.getCause();
+    try {
+      testRunner.run();
+      fail("Playback should fail because the license has been released.");
+    } catch (RuntimeException expected) {
+      // Get the root cause
+      Throwable error = expected;
+      @Nullable Throwable cause = error.getCause();
+      while (cause != null && cause != error) {
+        error = cause;
+        cause = error.getCause();
+      }
+      assertThat(error).isInstanceOf(IllegalArgumentException.class);
     }
-    assertThat(error).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
