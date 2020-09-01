@@ -322,6 +322,8 @@
     *   Add `ImaAdsLoader.Builder.setCompanionAdSlots` so it's possible to set
         companion ad slots without accessing the `AdDisplayContainer`.
     *   Add missing notification of `VideoAdPlayerCallback.onLoaded`.
+    *   Fix handling of incompatible VPAID ads
+        ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
 *   Demo app:
     *   Replace the `extensions` variant with `decoderExtensions` and update the
         demo app use the Cronet and IMA extensions by default.
