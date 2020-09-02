@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.State;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -1649,10 +1650,10 @@ public class StyledPlayerControlView extends FrameLayout {
             dispatchPlayPause(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_PLAY:
-            controlDispatcher.dispatchSetPlayWhenReady(player, true);
+            dispatchPlay(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_PAUSE:
-            controlDispatcher.dispatchSetPlayWhenReady(player, false);
+            dispatchPause(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_NEXT:
             controlDispatcher.dispatchNext(player);
@@ -1673,6 +1674,31 @@ public class StyledPlayerControlView extends FrameLayout {
         && player.getPlaybackState() != Player.STATE_ENDED
         && player.getPlaybackState() != Player.STATE_IDLE
         && player.getPlayWhenReady();
+  }
+
+  private void dispatchPlayPause(Player player) {
+    @State int state = player.getPlaybackState();
+    if (state == Player.STATE_IDLE || state == Player.STATE_ENDED || !player.getPlayWhenReady()) {
+      dispatchPlay(player);
+    } else {
+      dispatchPause(player);
+    }
+  }
+
+  private void dispatchPlay(Player player) {
+    @State int state = player.getPlaybackState();
+    if (state == Player.STATE_IDLE) {
+      if (playbackPreparer != null) {
+        playbackPreparer.preparePlayback();
+      }
+    } else if (state == Player.STATE_ENDED) {
+      seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+    }
+    controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
+  }
+
+  private void dispatchPause(Player player) {
+    controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
   }
 
   @SuppressLint("InlinedApi")
@@ -1828,20 +1854,6 @@ public class StyledPlayerControlView extends FrameLayout {
         controlViewLayoutManager.removeHideCallbacks();
         displaySettingsWindow(textTrackSelectionAdapter);
       }
-    }
-  }
-
-  private void dispatchPlayPause(Player player) {
-    if (player.getPlaybackState() == Player.STATE_IDLE) {
-      if (playbackPreparer != null) {
-        playbackPreparer.preparePlayback();
-      }
-      controlDispatcher.dispatchSetPlayWhenReady(player, true);
-    } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-      seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
-      controlDispatcher.dispatchSetPlayWhenReady(player, true);
-    } else {
-      controlDispatcher.dispatchSetPlayWhenReady(player, !player.getPlayWhenReady());
     }
   }
 
