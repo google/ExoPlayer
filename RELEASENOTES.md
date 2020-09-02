@@ -144,7 +144,7 @@
     *   Recreate the decoder when handling and swallowing decode errors in
         `TextRenderer`. This fixes a case where playback would never end when
         playing content with malformed subtitles
-        ([#7590](https://github.com/google/ExoPlayer/issues/790)).
+        ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
     *   Only apply `CaptionManager` font scaling in
         `SubtitleView.setUserDefaultTextSize` if the `CaptionManager` is
         enabled.
