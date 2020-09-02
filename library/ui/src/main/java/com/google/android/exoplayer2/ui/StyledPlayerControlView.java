@@ -1646,7 +1646,7 @@ public class StyledPlayerControlView extends FrameLayout {
         switch (keyCode) {
           case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
           case KeyEvent.KEYCODE_HEADSETHOOK:
-            controlDispatcher.dispatchSetPlayWhenReady(player, !player.getPlayWhenReady());
+            dispatchPlayPause(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_PLAY:
             controlDispatcher.dispatchSetPlayWhenReady(player, true);
@@ -1815,14 +1815,7 @@ public class StyledPlayerControlView extends FrameLayout {
       } else if (rewindButton == view) {
         controlDispatcher.dispatchRewind(player);
       } else if (playPauseButton == view) {
-        if (player.getPlaybackState() == Player.STATE_IDLE) {
-          if (playbackPreparer != null) {
-            playbackPreparer.preparePlayback();
-          }
-        } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
-        }
-        controlDispatcher.dispatchSetPlayWhenReady(player, !player.getPlayWhenReady());
+        dispatchPlayPause(player);
       } else if (repeatToggleButton == view) {
         controlDispatcher.dispatchSetRepeatMode(
             player, RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));
@@ -1835,6 +1828,20 @@ public class StyledPlayerControlView extends FrameLayout {
         controlViewLayoutManager.removeHideCallbacks();
         displaySettingsWindow(textTrackSelectionAdapter);
       }
+    }
+  }
+
+  private void dispatchPlayPause(Player player) {
+    if (player.getPlaybackState() == Player.STATE_IDLE) {
+      if (playbackPreparer != null) {
+        playbackPreparer.preparePlayback();
+      }
+      controlDispatcher.dispatchSetPlayWhenReady(player, true);
+    } else if (player.getPlaybackState() == Player.STATE_ENDED) {
+      seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+      controlDispatcher.dispatchSetPlayWhenReady(player, true);
+    } else {
+      controlDispatcher.dispatchSetPlayWhenReady(player, !player.getPlayWhenReady());
     }
   }
 
