@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doAnswer;
 
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.os.HandlerThread;
 import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -31,7 +32,6 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +54,8 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
   @Before
   public void setUp() throws IOException {
     codec = MediaCodec.createByCodecName("h264");
+    codec.configure(new MediaFormat(), /* surface= */ null, /* crypto= */ null, /* flags= */ 0);
+    codec.start();
     handlerThread = new TestHandlerThread("TestHandlerThread");
     enqueuer =
         new AsynchronousMediaCodecBufferEnqueuer(codec, handlerThread, mockConditionVariable);
@@ -62,7 +64,8 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
   @After
   public void tearDown() {
     enqueuer.shutdown();
-
+    codec.stop();
+    codec.release();
     assertThat(TestHandlerThread.INSTANCES_STARTED.get()).isEqualTo(0);
   }
 
@@ -98,7 +101,6 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
                 /* flags= */ 0));
   }
 
-  @Ignore
   @Test
   public void queueInputBuffer_multipleTimes_limitsObjectsAllocation() {
     enqueuer.start();
@@ -159,7 +161,6 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
                 /* flags= */ 0));
   }
 
-  @Ignore
   @Test
   public void queueSecureInputBuffer_multipleTimes_limitsObjectsAllocation() {
     enqueuer.start();
