@@ -85,9 +85,9 @@ import java.util.ArrayList;
 
     private final long[] timestampsList;
     private final ArrayDeque<Long> inputFormatChangeTimesUs;
+    private final boolean shouldMediaFormatChangeTimesBeChecked;
 
     private boolean skipToPositionBeforeRenderingFirstFrame;
-    private boolean shouldMediaFormatChangeTimesBeChecked;
 
     private int startIndex;
     private int queueSize;
@@ -114,6 +114,10 @@ import java.util.ArrayList;
           maxDroppedFrameCountToNotify);
       timestampsList = new long[ARRAY_SIZE];
       inputFormatChangeTimesUs = new ArrayDeque<>();
+
+      // Output MediaFormat changes are known to occur too early until API 30 (see [internal:
+      // b/149818050, b/149751672]).
+      shouldMediaFormatChangeTimesBeChecked = Util.SDK_INT > 30;
     }
 
     @Override
@@ -135,10 +139,6 @@ import java.util.ArrayList;
       // frames up to the current playback position [Internal: b/66494991].
       skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
       super.configureCodec(codecInfo, codecAdapter, format, crypto, operatingRate);
-
-      // Output MediaFormat changes are known to occur too early until API 30 (see [internal:
-      // b/149818050, b/149751672]).
-      shouldMediaFormatChangeTimesBeChecked = Util.SDK_INT > 30;
     }
 
     @Override
