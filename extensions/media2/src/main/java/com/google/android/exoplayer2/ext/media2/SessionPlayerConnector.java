@@ -92,7 +92,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
    * @param player The player to wrap.
    */
   public SessionPlayerConnector(Player player) {
-    this(player, new DefaultMediaItemConverter(), new DefaultControlDispatcher());
+    this(player, new DefaultMediaItemConverter());
   }
 
   /**
@@ -100,20 +100,26 @@ public final class SessionPlayerConnector extends SessionPlayer {
    *
    * @param player The player to wrap.
    * @param mediaItemConverter The {@link MediaItemConverter}.
-   * @param controlDispatcher The {@link ControlDispatcher}.
    */
-  public SessionPlayerConnector(
-      Player player, MediaItemConverter mediaItemConverter, ControlDispatcher controlDispatcher) {
+  public SessionPlayerConnector(Player player, MediaItemConverter mediaItemConverter) {
     Assertions.checkNotNull(player);
     Assertions.checkNotNull(mediaItemConverter);
-    Assertions.checkNotNull(controlDispatcher);
 
     state = PLAYER_STATE_IDLE;
     taskHandler = new Handler(player.getApplicationLooper());
     taskHandlerExecutor = (runnable) -> postOrRun(taskHandler, runnable);
-    ExoPlayerWrapperListener playerListener = new ExoPlayerWrapperListener();
-    this.player = new PlayerWrapper(playerListener, player, mediaItemConverter, controlDispatcher);
+
+    this.player = new PlayerWrapper(new ExoPlayerWrapperListener(), player, mediaItemConverter);
     playerCommandQueue = new PlayerCommandQueue(this.player, taskHandler);
+  }
+
+  /**
+   * Sets the {@link ControlDispatcher}.
+   *
+   * @param controlDispatcher The {@link ControlDispatcher}.
+   */
+  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
+    player.setControlDispatcher(controlDispatcher);
   }
 
   @Override
