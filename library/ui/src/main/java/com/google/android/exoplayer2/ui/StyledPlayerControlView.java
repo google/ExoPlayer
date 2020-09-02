@@ -396,7 +396,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private final String fullScreenEnterContentDescription;
 
   @Nullable private Player player;
-  private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
+  private ControlDispatcher controlDispatcher;
   @Nullable private ProgressUpdateListener progressUpdateListener;
   @Nullable private PlaybackPreparer playbackPreparer;
 
@@ -537,8 +537,7 @@ public class StyledPlayerControlView extends FrameLayout {
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
     componentListener = new ComponentListener();
-    controlDispatcher =
-        new com.google.android.exoplayer2.DefaultControlDispatcher(fastForwardMs, rewindMs);
+    controlDispatcher = new DefaultControlDispatcher(fastForwardMs, rewindMs);
     updateProgressAction = this::updateProgress;
 
     LayoutInflater.from(context).inflate(controllerLayoutId, /* root= */ this);
@@ -839,9 +838,9 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   /**
-   * Sets the {@link com.google.android.exoplayer2.ControlDispatcher}.
+   * Sets the {@link ControlDispatcher}.
    *
-   * @param controlDispatcher The {@link com.google.android.exoplayer2.ControlDispatcher}.
+   * @param controlDispatcher The {@link ControlDispatcher}.
    */
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {
     if (this.controlDispatcher != controlDispatcher) {
