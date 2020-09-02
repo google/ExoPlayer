@@ -271,13 +271,14 @@ public class PlayerActivity extends AppCompatActivity
     setContentView(R.layout.player_activity);
   }
 
-  protected void initializePlayer() {
+  /** @return Whether initialization was successful. */
+  protected boolean initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();
 
       mediaItems = createMediaItems(intent);
       if (mediaItems.isEmpty()) {
-        return;
+        return false;
       }
 
       boolean preferExtensionDecoders =
@@ -312,6 +313,7 @@ public class PlayerActivity extends AppCompatActivity
     player.setMediaItems(mediaItems, /* resetPosition= */ !haveStartPosition);
     player.prepare();
     updateButtonVisibility();
+    return true;
   }
 
   private List<MediaItem> createMediaItems(Intent intent) {
