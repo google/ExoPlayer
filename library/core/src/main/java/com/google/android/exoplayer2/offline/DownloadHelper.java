@@ -448,14 +448,7 @@ public final class DownloadHelper {
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
     return createMediaSourceInternal(
-        new MediaItem.Builder()
-            .setUri(downloadRequest.uri)
-            .setCustomCacheKey(downloadRequest.customCacheKey)
-            .setMimeType(downloadRequest.mimeType)
-            .setStreamKeys(downloadRequest.streamKeys)
-            .build(),
-        dataSourceFactory,
-        drmSessionManager);
+        downloadRequest.toMediaItem(), dataSourceFactory, drmSessionManager);
   }
 
   private final MediaItem.PlaybackProperties playbackProperties;
