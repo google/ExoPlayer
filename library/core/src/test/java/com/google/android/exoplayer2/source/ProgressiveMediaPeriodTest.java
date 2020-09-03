@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.upstream.AssetDataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import java.util.concurrent.TimeoutException;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +73,8 @@ public final class ProgressiveMediaPeriodTest {
                 .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
             sourceInfoRefreshListener,
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
-            /* customCacheKey= */ null,
+            /* headers= */ Collections.emptyMap(),
+            /* customCacheKey= */null,
             ProgressiveMediaSource.DEFAULT_LOADING_CHECK_INTERVAL_BYTES);
 
     AtomicBoolean prepareCallbackCalled = new AtomicBoolean(false);

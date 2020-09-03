@@ -18,10 +18,12 @@ package com.google.android.exoplayer2.source.hls.playlist;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Tracks playlists associated to an HLS stream and provides snapshots.
@@ -49,6 +51,7 @@ public interface HlsPlaylistTracker {
      */
     HlsPlaylistTracker createTracker(
         HlsDataSourceFactory dataSourceFactory,
+        MediaItem.PlaybackProperties playbackProperties,
         LoadErrorHandlingPolicy loadErrorHandlingPolicy,
         HlsPlaylistParserFactory playlistParserFactory);
   }
@@ -123,11 +126,13 @@ public interface HlsPlaylistTracker {
    *
    * @param initialPlaylistUri Uri of the HLS stream. Can point to a media playlist or a master
    *     playlist.
+   * @param headers Headers to be added to HTTP requests
    * @param eventDispatcher A dispatcher to notify of events.
    * @param listener A callback for the primary playlist change events.
    */
   void start(
-      Uri initialPlaylistUri, EventDispatcher eventDispatcher, PrimaryPlaylistListener listener);
+      Uri initialPlaylistUri, Map<String, String> headers, EventDispatcher eventDispatcher,
+      PrimaryPlaylistListener listener);
 
   /**
    * Stops the playlist tracker and releases any acquired resources.

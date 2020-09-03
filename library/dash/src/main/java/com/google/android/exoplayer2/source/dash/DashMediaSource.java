@@ -860,6 +860,8 @@ public final class DashMediaSource extends BaseMediaSource {
   private void resolveUtcTimingElementHttp(UtcTimingElement timingElement,
       ParsingLoadable.Parser<Long> parser) {
     startLoading(new ParsingLoadable<>(dataSource, Uri.parse(timingElement.value),
+        // TODO: headers here
+        Collections.emptyMap(),
         C.DATA_TYPE_TIME_SYNCHRONIZATION, parser), new UtcTimestampCallback(), 1);
   }
 
@@ -1072,7 +1074,8 @@ public final class DashMediaSource extends BaseMediaSource {
     }
     manifestLoadPending = false;
     startLoading(
-        new ParsingLoadable<>(dataSource, manifestUri, C.DATA_TYPE_MANIFEST, manifestParser),
+        // TODO: Headers here
+        new ParsingLoadable<>(dataSource, manifestUri, Collections.emptyMap(), C.DATA_TYPE_MANIFEST, manifestParser),
         manifestCallback,
         loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_MANIFEST));
   }

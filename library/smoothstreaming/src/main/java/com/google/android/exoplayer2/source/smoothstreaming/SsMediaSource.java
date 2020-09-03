@@ -667,7 +667,7 @@ public final class SsMediaSource extends BaseMediaSource
       return;
     }
     ParsingLoadable<SsManifest> loadable = new ParsingLoadable<>(manifestDataSource,
-        manifestUri, C.DATA_TYPE_MANIFEST, manifestParser);
+        manifestUri, playbackProperties.headers, C.DATA_TYPE_MANIFEST, manifestParser);
     long elapsedRealtimeMs =
         manifestLoader.startLoading(
             loadable, this, loadErrorHandlingPolicy.getMinimumLoadableRetryCount(loadable.type));

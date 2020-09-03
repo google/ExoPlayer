@@ -81,6 +81,7 @@ public final class HlsMediaPeriodTest {
               mock(HlsExtractorFactory.class),
               mockPlaylistTracker,
               mockDataSourceFactory,
+              Collections.emptyMap(),
               mock(TransferListener.class),
               mock(DrmSessionManager.class),
               new DrmSessionEventListener.EventDispatcher()

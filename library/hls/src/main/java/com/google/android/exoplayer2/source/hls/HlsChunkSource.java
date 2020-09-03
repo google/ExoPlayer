@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Source of Hls (possibly adaptive) chunks. */
@@ -123,6 +124,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final DataSource encryptionDataSource;
   private final TimestampAdjusterProvider timestampAdjusterProvider;
   private final Uri[] playlistUrls;
+  private final Map<String, String> headers;
   private final Format[] playlistFormats;
   private final HlsPlaylistTracker playlistTracker;
   private final TrackGroup trackGroup;
@@ -148,6 +150,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
    * @param playlistUrls The {@link Uri}s of the media playlists that can be adapted between by this
    *     chunk source.
+   * @param headers The headers to be added to requests.
    * @param playlistFormats The {@link Format Formats} corresponding to the media playlists.
    * @param dataSourceFactory An {@link HlsDataSourceFactory} to create {@link DataSource}s for the
    *     chunks.
@@ -163,6 +166,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       HlsExtractorFactory extractorFactory,
       HlsPlaylistTracker playlistTracker,
       Uri[] playlistUrls,
+      Map<String, String> headers,
       Format[] playlistFormats,
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
@@ -171,6 +175,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.playlistUrls = playlistUrls;
+    this.headers = headers;
     this.playlistFormats = playlistFormats;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
     this.muxedCaptionFormats = muxedCaptionFormats;
@@ -446,6 +451,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             mediaPlaylist,
             segmentBaseHolder,
             selectedPlaylistUrl,
+            headers,
             muxedCaptionFormats,
             trackSelection.getSelectionReason(),
             trackSelection.getSelectionData(),
@@ -768,7 +774,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return null;
     }
     DataSpec dataSpec =
-        new DataSpec.Builder().setUri(keyUri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
+        new DataSpec.Builder()
+            .setUri(keyUri)
+            .setHttpRequestHeaders(headers)
+            .setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
     return new EncryptionKeyChunk(
         encryptionDataSource,
         dataSpec,

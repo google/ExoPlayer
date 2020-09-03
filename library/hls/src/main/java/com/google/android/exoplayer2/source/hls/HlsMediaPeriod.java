@@ -68,6 +68,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private final HlsExtractorFactory extractorFactory;
   private final HlsPlaylistTracker playlistTracker;
   private final HlsDataSourceFactory dataSourceFactory;
+  private final Map<String, String> headers;
   @Nullable private final TransferListener mediaTransferListener;
   private final DrmSessionManager drmSessionManager;
   private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
@@ -114,6 +115,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       HlsExtractorFactory extractorFactory,
       HlsPlaylistTracker playlistTracker,
       HlsDataSourceFactory dataSourceFactory,
+      Map<String, String> headers,
       @Nullable TransferListener mediaTransferListener,
       DrmSessionManager drmSessionManager,
       DrmSessionEventListener.EventDispatcher drmEventDispatcher,
@@ -127,6 +129,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.dataSourceFactory = dataSourceFactory;
+    this.headers = headers;
     this.mediaTransferListener = mediaTransferListener;
     this.drmSessionManager = drmSessionManager;
     this.drmEventDispatcher = drmEventDispatcher;
@@ -754,6 +757,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
             extractorFactory,
             playlistTracker,
             playlistUrls,
+            headers,
             playlistFormats,
             dataSourceFactory,
             mediaTransferListener,
