@@ -23,7 +23,6 @@ import static org.mockito.Mockito.doAnswer;
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.os.HandlerThread;
-import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
@@ -38,8 +37,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.Shadows;
-import org.robolectric.shadows.ShadowLooper;
 
 /** Unit tests for {@link AsynchronousMediaCodecBufferEnqueuer}. */
 @RunWith(AndroidJUnit4.class)
@@ -102,31 +99,6 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
   }
 
   @Test
-  public void queueInputBuffer_multipleTimes_limitsObjectsAllocation() {
-    enqueuer.start();
-    Looper looper = handlerThread.getLooper();
-    ShadowLooper shadowLooper = Shadows.shadowOf(looper);
-
-    for (int cycle = 0; cycle < 100; cycle++) {
-      // This test assumes that the shadow MediaCodec implementation can dequeue at least
-      // 10 input buffers before queueing them back.
-      for (int i = 0; i < 10; i++) {
-        int inputBufferIndex = codec.dequeueInputBuffer(0);
-        enqueuer.queueInputBuffer(
-            /* index= */ inputBufferIndex,
-            /* offset= */ 0,
-            /* size= */ 0,
-            /* presentationTimeUs= */ i,
-            /* flags= */ 0);
-      }
-      // Execute all messages, queues input buffers back to MediaCodec.
-      shadowLooper.idle();
-    }
-
-    assertThat(AsynchronousMediaCodecBufferEnqueuer.getInstancePoolSize()).isEqualTo(10);
-  }
-
-  @Test
   public void queueSecureInputBuffer_withPendingCryptoException_throwsCryptoException() {
     enqueuer.setPendingRuntimeException(
         new MediaCodec.CryptoException(/* errorCode= */ 0, /* detailMessage= */ null));
@@ -159,32 +131,6 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
                 /* info= */ info,
                 /* presentationTimeUs= */ 0,
                 /* flags= */ 0));
-  }
-
-  @Test
-  public void queueSecureInputBuffer_multipleTimes_limitsObjectsAllocation() {
-    enqueuer.start();
-    Looper looper = handlerThread.getLooper();
-    CryptoInfo info = createCryptoInfo();
-    ShadowLooper shadowLooper = Shadows.shadowOf(looper);
-
-    for (int cycle = 0; cycle < 100; cycle++) {
-      // This test assumes that the shadow MediaCodec implementation can dequeue at least
-      // 10 input buffers before queueing them back.
-      int inputBufferIndex = codec.dequeueInputBuffer(0);
-      for (int i = 0; i < 10; i++) {
-        enqueuer.queueSecureInputBuffer(
-            /* index= */ inputBufferIndex,
-            /* offset= */ 0,
-            /* info= */ info,
-            /* presentationTimeUs= */ i,
-            /* flags= */ 0);
-      }
-      // Execute all messages, queues input buffers back to MediaCodec.
-      shadowLooper.idle();
-    }
-
-    assertThat(AsynchronousMediaCodecBufferEnqueuer.getInstancePoolSize()).isEqualTo(10);
   }
 
   @Test
