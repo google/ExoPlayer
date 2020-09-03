@@ -635,6 +635,7 @@ public class StyledPlayerControlView extends FrameLayout {
     vrButton = findViewById(R.id.exo_vr);
     if (vrButton != null) {
       setShowVrButton(showVrButton);
+      updateButton(/* enabled= */ false, vrButton);
     }
 
     // Related to Settings List View
