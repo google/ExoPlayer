@@ -79,6 +79,7 @@ public final class MediaItem implements Bundleable {
     private List<Integer> drmSessionForClearTypes;
     @Nullable private byte[] drmKeySetId;
     private List<StreamKey> streamKeys;
+    private Map<String, String> headers;
     @Nullable private String customCacheKey;
     private List<Subtitle> subtitles;
     @Nullable private Uri adTagUri;
@@ -97,6 +98,7 @@ public final class MediaItem implements Bundleable {
       drmSessionForClearTypes = Collections.emptyList();
       drmLicenseRequestHeaders = Collections.emptyMap();
       streamKeys = Collections.emptyList();
+      headers = Collections.emptyMap();
       subtitles = Collections.emptyList();
       liveTargetOffsetMs = C.TIME_UNSET;
       liveMinOffsetMs = C.TIME_UNSET;
@@ -125,6 +127,7 @@ public final class MediaItem implements Bundleable {
         mimeType = playbackProperties.mimeType;
         uri = playbackProperties.uri;
         streamKeys = playbackProperties.streamKeys;
+        headers = playbackProperties.headers;
         subtitles = playbackProperties.subtitles;
         tag = playbackProperties.tag;
         @Nullable DrmConfiguration drmConfiguration = playbackProperties.drmConfiguration;
@@ -394,6 +397,22 @@ public final class MediaItem implements Bundleable {
     }
 
     /**
+     * Sets the optional headers for HTTP requests
+     *
+     * <p>{@code null} or an empty {@link List} can be used for a reset.
+     *
+     * <p>If {@link #setUri} is passed a non-null {@code uri}, the headers will be added to a
+     * {@link PlaybackProperties} object. Otherwise they will be ignored.
+     */
+    public Builder setHeaders(@Nullable Map<String, String> headers) {
+      this.headers =
+          headers != null && !headers.isEmpty()
+              ? Collections.unmodifiableMap(new HashMap<>(headers))
+              : Collections.emptyMap();
+      return this;
+    }
+
+    /**
      * Sets the optional custom cache key (only used for progressive streams).
      *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the custom cache key is used to
@@ -584,6 +603,7 @@ public final class MediaItem implements Bundleable {
                     : null,
                 adTagUri != null ? new AdsConfiguration(adTagUri, adsId) : null,
                 streamKeys,
+                headers,
                 customCacheKey,
                 subtitles,
                 tag);
@@ -773,6 +793,9 @@ public final class MediaItem implements Bundleable {
     /** Optional stream keys by which the manifest is filtered. */
     public final List<StreamKey> streamKeys;
 
+    /** Optional headers to be included in requests */
+    public final Map<String, String> headers;
+
     /** Optional custom cache key (only used for progressive streams). */
     @Nullable public final String customCacheKey;
 
@@ -792,6 +815,7 @@ public final class MediaItem implements Bundleable {
         @Nullable DrmConfiguration drmConfiguration,
         @Nullable AdsConfiguration adsConfiguration,
         List<StreamKey> streamKeys,
+        Map<String, String> headers,
         @Nullable String customCacheKey,
         List<Subtitle> subtitles,
         @Nullable Object tag) {
@@ -800,6 +824,7 @@ public final class MediaItem implements Bundleable {
       this.drmConfiguration = drmConfiguration;
       this.adsConfiguration = adsConfiguration;
       this.streamKeys = streamKeys;
+      this.headers = headers;
       this.customCacheKey = customCacheKey;
       this.subtitles = subtitles;
       this.tag = tag;
@@ -820,6 +845,7 @@ public final class MediaItem implements Bundleable {
           && Util.areEqual(drmConfiguration, other.drmConfiguration)
           && Util.areEqual(adsConfiguration, other.adsConfiguration)
           && streamKeys.equals(other.streamKeys)
+          && headers.equals(other.headers)
           && Util.areEqual(customCacheKey, other.customCacheKey)
           && subtitles.equals(other.subtitles)
           && Util.areEqual(tag, other.tag);
@@ -832,6 +858,7 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + (drmConfiguration == null ? 0 : drmConfiguration.hashCode());
       result = 31 * result + (adsConfiguration == null ? 0 : adsConfiguration.hashCode());
       result = 31 * result + streamKeys.hashCode();
+      result = 31 * result + headers.hashCode();
       result = 31 * result + (customCacheKey == null ? 0 : customCacheKey.hashCode());
       result = 31 * result + subtitles.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
