@@ -1442,6 +1442,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     if (codec == null) {
+      if (!legacyKeepAvailableCodecInfosWithoutCodec()) {
+        availableCodecInfos = null;
+      }
       maybeInitCodecOrBypass();
       return;
     }
@@ -1504,6 +1507,14 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       default:
         throw new IllegalStateException(); // Never happens.
     }
+  }
+
+  /**
+   * Returns whether to keep available codec infos when the codec hasn't been initialized, which is
+   * the behavior before a bug fix. See also [Internal: b/162837741].
+   */
+  protected boolean legacyKeepAvailableCodecInfosWithoutCodec() {
+    return false;
   }
 
   /**
