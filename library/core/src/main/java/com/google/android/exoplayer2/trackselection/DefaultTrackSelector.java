@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
 import java.util.ArrayList;
@@ -445,14 +446,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     // Audio
 
     @Override
-    public ParametersBuilder setPreferredAudioLanguage(@Nullable String preferredAudioLanguage) {
-      super.setPreferredAudioLanguage(preferredAudioLanguage);
-      return this;
-    }
-
-    @Override
-    public ParametersBuilder setPreferredAudioLanguage(String[] preferredAudioLanguage) {
-      super.setPreferredAudioLanguage(preferredAudioLanguage);
+    public ParametersBuilder setPreferredAudioLanguages(@Nullable String... preferredAudioLanguages) {
+      super.setPreferredAudioLanguages(preferredAudioLanguages);
       return this;
     }
 
@@ -547,8 +542,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     @Override
-    public ParametersBuilder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
-      super.setPreferredTextLanguage(preferredTextLanguage);
+    public ParametersBuilder setPreferredTextLanguages(@Nullable String... preferredTextLanguages) {
+      super.setPreferredTextLanguages(preferredTextLanguages);
       return this;
     }
 
@@ -773,7 +768,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           viewportHeight,
           viewportOrientationMayChange,
           // Audio
-          preferredAudioLanguage,
+          preferredAudioLanguages,
           maxAudioChannelCount,
           maxAudioBitrate,
           exceedAudioConstraintsIfNecessary,
@@ -781,7 +776,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           allowAudioMixedSampleRateAdaptiveness,
           allowAudioMixedChannelCountAdaptiveness,
           // Text
-          preferredTextLanguage,
+          preferredTextLanguages,
           preferredTextRoleFlags,
           selectUndeterminedTextLanguage,
           disabledTextTrackSelectionFlags,
@@ -1021,7 +1016,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         int viewportHeight,
         boolean viewportOrientationMayChange,
         // Audio
-        String[] preferredAudioLanguage,
+        ImmutableList<String> preferredAudioLanguage,
         int maxAudioChannelCount,
         int maxAudioBitrate,
         boolean exceedAudioConstraintsIfNecessary,
@@ -1029,7 +1024,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean allowAudioMixedSampleRateAdaptiveness,
         boolean allowAudioMixedChannelCountAdaptiveness,
         // Text
-        String[] preferredTextLanguage,
+        ImmutableList<String> preferredTextLanguage,
         @C.RoleFlags int preferredTextRoleFlags,
         boolean selectUndeterminedTextLanguage,
         @C.SelectionFlags int disabledTextTrackSelectionFlags,
@@ -2613,6 +2608,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final Parameters parameters;
     private final boolean isWithinRendererCapabilities;
     private final int preferredLanguageScore;
+    private final int preferredLanguageIndex;
     private final int localeLanguageMatchIndex;
     private final int localeLanguageScore;
     private final boolean isDefaultSelectionFlag;
@@ -2626,14 +2622,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       isWithinRendererCapabilities =
           isSupported(formatSupport, /* allowExceedsCapabilities= */ false);
       int bestLanguageScore = 0;
-      for (int i = 0; i < parameters.preferredAudioLanguage.length; i++) {
+      int bestLanguageIndex = 0;
+      for (int i = 0; i < parameters.preferredAudioLanguages.size(); i++) {
         int score = getFormatLanguageScore(
             format,
-            parameters.preferredAudioLanguage[i],
+            parameters.preferredAudioLanguages.get(i),
             /* allowUndeterminedFormatLanguage= */ false);
-        score = 1000 * score + parameters.preferredAudioLanguage.length - i; // Priorise the first items in array
-        bestLanguageScore = Math.max(bestLanguageScore, score);
+        if (score > 0) {
+          bestLanguageIndex = i;
+          bestLanguageScore = score;
+        }
       }
+      preferredLanguageIndex = bestLanguageIndex;
       preferredLanguageScore = bestLanguageScore;
       isDefaultSelectionFlag = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
       channelCount = format.channelCount;
@@ -2677,6 +2677,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               : FORMAT_VALUE_ORDERING.reverse();
       return ComparisonChain.start()
           .compareFalseFirst(this.isWithinRendererCapabilities, other.isWithinRendererCapabilities)
+          .compare(
+              this.preferredLanguageIndex,
+              other.preferredLanguageIndex,
+              Ordering.natural().reverse())
           .compare(this.preferredLanguageScore, other.preferredLanguageScore)
           .compareFalseFirst(this.isWithinConstraints, other.isWithinConstraints)
           .compare(
@@ -2729,10 +2733,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       isDefault = (maskedSelectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
       isForced = (maskedSelectionFlags & C.SELECTION_FLAG_FORCED) != 0;
       int bestLanguageScore = 0;
-      for (int i = 0; i < parameters.preferredTextLanguage.length; i++) {
+      for (int i = 0; i < parameters.preferredTextLanguages.size(); i++) {
         int score = getFormatLanguageScore(
-            format, parameters.preferredTextLanguage[i], parameters.selectUndeterminedTextLanguage);
-        score = 1000 * score + parameters.preferredTextLanguage.length - i; // Priorise the first items in array
+            format, parameters.preferredTextLanguages.get(i), parameters.selectUndeterminedTextLanguage);
+        score = 1000 * score + parameters.preferredTextLanguages.size() - i; // Priorise the first items in array
         bestLanguageScore = Math.max(bestLanguageScore, score);
       }
       preferredLanguageScore = bestLanguageScore;
@@ -2746,7 +2750,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           getFormatLanguageScore(format, selectedAudioLanguage, selectedAudioLanguageUndetermined);
       isWithinConstraints =
           preferredLanguageScore > 0
-              || (parameters.preferredTextLanguage.length == 0 && preferredRoleFlagsScore > 0)
+              || (parameters.preferredTextLanguages.size() == 0 && preferredRoleFlagsScore > 0)
               || isDefault
               || (isForced && selectedAudioLanguageScore > 0);
     }

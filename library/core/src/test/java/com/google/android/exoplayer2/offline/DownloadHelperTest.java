@@ -251,8 +251,8 @@ public class DownloadHelperTest {
     prepareDownloadHelper(downloadHelper);
     DefaultTrackSelector.Parameters parameters =
         new DefaultTrackSelector.ParametersBuilder(ApplicationProvider.getApplicationContext())
-            .setPreferredAudioLanguage("ZH")
-            .setPreferredTextLanguage("ZH")
+            .setPreferredAudioLanguages("ZH")
+            .setPreferredTextLanguages("ZH")
             .setRendererDisabled(/* rendererIndex= */ 2, true)
             .build();
 
@@ -288,8 +288,8 @@ public class DownloadHelperTest {
     // all video tracks to initial video single track selection.
     DefaultTrackSelector.Parameters parameters =
         new DefaultTrackSelector.ParametersBuilder(ApplicationProvider.getApplicationContext())
-            .setPreferredAudioLanguage("ZH")
-            .setPreferredTextLanguage("US")
+            .setPreferredAudioLanguages("ZH")
+            .setPreferredTextLanguages("US")
             .build();
 
     // Add only to one period selection to verify second period selection is untouched.
@@ -392,8 +392,8 @@ public class DownloadHelperTest {
     // also renderers without any track groups.
     DefaultTrackSelector.Parameters parameters =
         new DefaultTrackSelector.ParametersBuilder(ApplicationProvider.getApplicationContext())
-            .setPreferredAudioLanguage("ZH")
-            .setPreferredTextLanguage("US")
+            .setPreferredAudioLanguages("ZH")
+            .setPreferredTextLanguages("US")
             .build();
     downloadHelper.addTrackSelection(/* periodIndex= */ 0, parameters);
     byte[] data = new byte[10];

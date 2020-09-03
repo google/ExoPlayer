@@ -24,6 +24,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -36,8 +38,8 @@ public class TrackSelectionParameters implements Parcelable {
    */
   public static class Builder {
 
-    /* package */ String[] preferredAudioLanguage;
-    /* package */ String[] preferredTextLanguage;
+    /* package */ ImmutableList<String> preferredAudioLanguages;
+    /* package */ ImmutableList<String> preferredTextLanguages;
     @C.RoleFlags /* package */ int preferredTextRoleFlags;
     /* package */ boolean selectUndeterminedTextLanguage;
     @C.SelectionFlags /* package */ int disabledTextTrackSelectionFlags;
@@ -59,8 +61,8 @@ public class TrackSelectionParameters implements Parcelable {
      */
     @Deprecated
     public Builder() {
-      preferredAudioLanguage = new String[0];
-      preferredTextLanguage = new String[0];
+      preferredAudioLanguages = ImmutableList.of();
+      preferredTextLanguages = ImmutableList.of();
       preferredTextRoleFlags = 0;
       selectUndeterminedTextLanguage = false;
       disabledTextTrackSelectionFlags = 0;
@@ -71,8 +73,8 @@ public class TrackSelectionParameters implements Parcelable {
      *     the builder are obtained.
      */
     /* package */ Builder(TrackSelectionParameters initialValues) {
-      preferredAudioLanguage = initialValues.preferredAudioLanguage;
-      preferredTextLanguage = initialValues.preferredTextLanguage;
+      preferredAudioLanguages = initialValues.preferredAudioLanguages;
+      preferredTextLanguages = initialValues.preferredTextLanguages;
       preferredTextRoleFlags = initialValues.preferredTextRoleFlags;
       selectUndeterminedTextLanguage = initialValues.selectUndeterminedTextLanguage;
       disabledTextTrackSelectionFlags = initialValues.disabledTextTrackSelectionFlags;
@@ -81,20 +83,16 @@ public class TrackSelectionParameters implements Parcelable {
     /**
      * Sets the preferred language for audio and forced text tracks.
      *
-     * @param preferredAudioLanguage Preferred audio language as an IETF BCP 47 conformant tag, or
+     * @param preferredAudioLanguages Preferred audio language as an IETF BCP 47 conformant tag, or
      *     {@code null} to select the default track, or the first track if there's no default.
      * @return This builder.
      */
-    public Builder setPreferredAudioLanguage(@Nullable String preferredAudioLanguage) {
-      if (preferredAudioLanguage == null) {
-        return setPreferredAudioLanguage(new String[0]);
+    public Builder setPreferredAudioLanguages(@Nullable String... preferredAudioLanguages) {
+      if (preferredAudioLanguages == null) {
+        this.preferredAudioLanguages = ImmutableList.of();
       } else {
-        return setPreferredAudioLanguage(new String[] { preferredAudioLanguage });
+        this.preferredAudioLanguages = ImmutableList.copyOf(preferredAudioLanguages);
       }
-    }
-
-    public Builder setPreferredAudioLanguage(String[] preferredAudioLanguage) {
-      this.preferredAudioLanguage = preferredAudioLanguage;
       return this;
     }
 
@@ -118,20 +116,16 @@ public class TrackSelectionParameters implements Parcelable {
     /**
      * Sets the preferred language for text tracks.
      *
-     * @param preferredTextLanguage Preferred text language as an IETF BCP 47 conformant tag, or
+     * @param preferredTextLanguages Preferred text language as an IETF BCP 47 conformant tag, or
      *     {@code null} to select the default track if there is one, or no track otherwise.
      * @return This builder.
      */
-    public Builder setPreferredTextLanguage(@Nullable String preferredTextLanguage) {
-      if (preferredTextLanguage == null) {
-        return setPreferredTextLanguage(new String[0]);
+    public Builder setPreferredTextLanguages(@Nullable String... preferredTextLanguages) {
+      if (preferredTextLanguages == null) {
+        this.preferredTextLanguages = ImmutableList.of();
       } else {
-        return setPreferredTextLanguage(new String[]{preferredTextLanguage});
+        this.preferredTextLanguages = ImmutableList.copyOf(preferredTextLanguages);
       }
-    }
-
-    public Builder setPreferredTextLanguage(String[] preferredTextLanguage) {
-      this.preferredTextLanguage = preferredTextLanguage;
       return this;
     }
 
@@ -148,7 +142,7 @@ public class TrackSelectionParameters implements Parcelable {
 
     /**
      * Sets whether a text track with undetermined language should be selected if no track with
-     * {@link #setPreferredTextLanguage(String)} is available, or if the preferred language is
+     * {@link #setPreferredTextLanguages(String...)} is available, or if the preferred language is
      * unset.
      *
      * @param selectUndeterminedTextLanguage Whether a text track with undetermined language should
@@ -177,9 +171,9 @@ public class TrackSelectionParameters implements Parcelable {
     public TrackSelectionParameters build() {
       return new TrackSelectionParameters(
           // Audio
-          preferredAudioLanguage,
+          preferredAudioLanguages,
           // Text
-          preferredTextLanguage,
+          preferredTextLanguages,
           preferredTextRoleFlags,
           selectUndeterminedTextLanguage,
           disabledTextTrackSelectionFlags);
@@ -201,7 +195,7 @@ public class TrackSelectionParameters implements Parcelable {
       preferredTextRoleFlags = C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND;
       Locale preferredLocale = captioningManager.getLocale();
       if (preferredLocale != null) {
-        preferredTextLanguage = new String[] { Util.getLocaleLanguageTag(preferredLocale) };
+        preferredTextLanguages = ImmutableList.of(Util.getLocaleLanguageTag(preferredLocale));
       }
     }
   }
@@ -238,13 +232,13 @@ public class TrackSelectionParameters implements Parcelable {
    * {@code null} selects the default track, or the first track if there's no default. The default
    * value is {@code null}.
    */
-  public final String[] preferredAudioLanguage;
+  public final ImmutableList<String> preferredAudioLanguages;
   /**
    * The preferred language for text tracks as an IETF BCP 47 conformant tag. {@code null} selects
    * the default track if there is one, or no track otherwise. The default value is {@code null}, or
    * the language of the accessibility {@link CaptioningManager} if enabled.
    */
-  public final String[] preferredTextLanguage;
+  public final ImmutableList<String> preferredTextLanguages;
   /**
    * The preferred {@link C.RoleFlags} for text tracks. {@code 0} selects the default track if there
    * is one, or no track otherwise. The default value is {@code 0}, or {@link C#ROLE_FLAG_SUBTITLE}
@@ -254,7 +248,7 @@ public class TrackSelectionParameters implements Parcelable {
   @C.RoleFlags public final int preferredTextRoleFlags;
   /**
    * Whether a text track with undetermined language should be selected if no track with {@link
-   * #preferredTextLanguage} is available, or if {@link #preferredTextLanguage} is unset. The
+   * #preferredTextLanguages} is available, or if {@link #preferredTextLanguages} is unset. The
    * default value is {@code false}.
    */
   public final boolean selectUndeterminedTextLanguage;
@@ -265,21 +259,15 @@ public class TrackSelectionParameters implements Parcelable {
   @C.SelectionFlags public final int disabledTextTrackSelectionFlags;
 
   /* package */ TrackSelectionParameters(
-      String[] preferredAudioLanguage,
-      String[] preferredTextLanguage,
+      ImmutableList<String> preferredAudioLanguages,
+      ImmutableList<String> preferredTextLanguages,
       @C.RoleFlags int preferredTextRoleFlags,
       boolean selectUndeterminedTextLanguage,
       @C.SelectionFlags int disabledTextTrackSelectionFlags) {
     // Audio
-    this.preferredAudioLanguage = new String[preferredAudioLanguage.length];
-    for (int i = 0; i < preferredAudioLanguage.length; i++) {
-      this.preferredAudioLanguage[i] = Util.normalizeLanguageCode(preferredAudioLanguage[i]);
-    }
+    this.preferredAudioLanguages = preferredAudioLanguages;
     // Text
-    this.preferredTextLanguage = new String[preferredAudioLanguage.length];
-    for (int i = 0; i < preferredTextLanguage.length; i++) {
-      this.preferredTextLanguage[i] = Util.normalizeLanguageCode(preferredTextLanguage[i]);
-    }
+    this.preferredTextLanguages = preferredTextLanguages;
     this.preferredTextRoleFlags = preferredTextRoleFlags;
     this.selectUndeterminedTextLanguage = selectUndeterminedTextLanguage;
     this.disabledTextTrackSelectionFlags = disabledTextTrackSelectionFlags;
@@ -287,15 +275,17 @@ public class TrackSelectionParameters implements Parcelable {
 
   /* package */ TrackSelectionParameters(Parcel in) {
     int preferredAudioLanguageSize = in.readInt();
-    this.preferredAudioLanguage = new String[preferredAudioLanguageSize];
+    String[] preferredAudioLanguages = new String[preferredAudioLanguageSize];
     for (int i = 0; i < preferredAudioLanguageSize; i++) {
-      preferredAudioLanguage[i] = in.readString();
+      preferredAudioLanguages[i] = in.readString();
     }
+    this.preferredAudioLanguages = ImmutableList.copyOf(preferredAudioLanguages);
     int preferredTextLanguageSize = in.readInt();
-    this.preferredTextLanguage = new String[preferredTextLanguageSize];
+    String[] preferredTextLanguages = new String[preferredTextLanguageSize];
     for (int i = 0; i < preferredTextLanguageSize; i++) {
-      preferredTextLanguage[i] = in.readString();
+      preferredTextLanguages[i] = in.readString();
     }
+    this.preferredTextLanguages = ImmutableList.copyOf(preferredTextLanguages);
     this.preferredTextRoleFlags = in.readInt();
     this.selectUndeterminedTextLanguage = Util.readBoolean(in);
     this.disabledTextTrackSelectionFlags = in.readInt();
@@ -316,8 +306,8 @@ public class TrackSelectionParameters implements Parcelable {
       return false;
     }
     TrackSelectionParameters other = (TrackSelectionParameters) obj;
-    return Arrays.equals(preferredAudioLanguage, other.preferredAudioLanguage)
-        && Arrays.equals(preferredTextLanguage, other.preferredTextLanguage)
+    return preferredAudioLanguages.equals(other.preferredAudioLanguages)
+        && preferredTextLanguages.equals(other.preferredTextLanguages)
         && preferredTextRoleFlags == other.preferredTextRoleFlags
         && selectUndeterminedTextLanguage == other.selectUndeterminedTextLanguage
         && disabledTextTrackSelectionFlags == other.disabledTextTrackSelectionFlags;
@@ -326,8 +316,8 @@ public class TrackSelectionParameters implements Parcelable {
   @Override
   public int hashCode() {
     int result = 1;
-    result = 31 * result + Arrays.hashCode(preferredAudioLanguage);
-    result = 31 * result + Arrays.hashCode(preferredTextLanguage);
+    result = 31 * result + preferredAudioLanguages.hashCode();
+    result = 31 * result + preferredTextLanguages.hashCode();
     result = 31 * result + preferredTextRoleFlags;
     result = 31 * result + (selectUndeterminedTextLanguage ? 1 : 0);
     result = 31 * result + disabledTextTrackSelectionFlags;
@@ -343,12 +333,12 @@ public class TrackSelectionParameters implements Parcelable {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(preferredAudioLanguage.length);
-    for (String s : preferredAudioLanguage) {
+    dest.writeInt(preferredAudioLanguages.size());
+    for (String s : preferredAudioLanguages) {
       dest.writeString(s);
     }
-    dest.writeInt(preferredTextLanguage.length);
-    for (String s : preferredTextLanguage) {
+    dest.writeInt(preferredTextLanguages.size());
+    for (String s : preferredTextLanguages) {
       dest.writeString(s);
     }
     dest.writeInt(preferredTextRoleFlags);

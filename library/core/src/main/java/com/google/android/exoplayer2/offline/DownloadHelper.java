@@ -654,7 +654,7 @@ public final class DownloadHelper {
         }
       }
       for (String language : languages) {
-        parametersBuilder.setPreferredAudioLanguage(language);
+        parametersBuilder.setPreferredAudioLanguages(language);
         addTrackSelection(periodIndex, parametersBuilder.build());
       }
     }
@@ -685,7 +685,7 @@ public final class DownloadHelper {
       }
       parametersBuilder.setSelectUndeterminedTextLanguage(selectUndeterminedTextLanguage);
       for (String language : languages) {
-        parametersBuilder.setPreferredTextLanguage(language);
+        parametersBuilder.setPreferredTextLanguages(language);
         addTrackSelection(periodIndex, parametersBuilder.build());
       }
     }

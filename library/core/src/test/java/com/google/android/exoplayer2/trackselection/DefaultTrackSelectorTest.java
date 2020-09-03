@@ -283,7 +283,7 @@ public final class DefaultTrackSelectorTest {
    */
   @Test
   public void setParameterWithNonDefaultParameterNotifyInvalidationListener() {
-    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
+    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguages("eng");
     trackSelector.setParameters(builder);
     verify(invalidationListener).onTrackSelectionsInvalidated();
   }
@@ -295,7 +295,7 @@ public final class DefaultTrackSelectorTest {
    */
   @Test
   public void setParameterWithSameParametersDoesNotNotifyInvalidationListenerAgain() {
-    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguage("eng");
+    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredAudioLanguages("eng");
     trackSelector.setParameters(builder);
     trackSelector.setParameters(builder);
     verify(invalidationListener, times(1)).onTrackSelectionsInvalidated();
@@ -369,7 +369,7 @@ public final class DefaultTrackSelectorTest {
     Format enAudioFormat = formatBuilder.setLanguage("eng").build();
     TrackGroupArray trackGroups = wrapFormats(frAudioFormat, enAudioFormat);
 
-    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguages("eng"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
@@ -391,7 +391,7 @@ public final class DefaultTrackSelectorTest {
     Format enNonDefaultFormat = formatBuilder.setLanguage("eng").setSelectionFlags(0).build();
     TrackGroupArray trackGroups = wrapFormats(frDefaultFormat, enNonDefaultFormat);
 
-    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguages("eng"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
@@ -511,7 +511,7 @@ public final class DefaultTrackSelectorTest {
     RendererCapabilities mappedAudioRendererCapabilities =
         new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
 
-    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguages("eng"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {mappedAudioRendererCapabilities},
@@ -546,7 +546,7 @@ public final class DefaultTrackSelectorTest {
     RendererCapabilities mappedAudioRendererCapabilities =
         new FakeMappedRendererCapabilities(C.TRACK_TYPE_AUDIO, mappedCapabilities);
 
-    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("eng"));
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguages("eng"));
     TrackSelectorResult result =
         trackSelector.selectTracks(
             new RendererCapabilities[] {mappedAudioRendererCapabilities},
@@ -841,7 +841,7 @@ public final class DefaultTrackSelectorTest {
 
     // There is a preferred language, so a language-matching track flagged as default should
     // be selected, and the one without forced flag should be preferred.
-    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredTextLanguage("eng"));
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredTextLanguages("eng"));
     result = trackSelector.selectTracks(textRendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, defaultOnly);
 
@@ -929,7 +929,7 @@ public final class DefaultTrackSelectorTest {
     result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, undeterminedUnd);
 
-    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredTextLanguage("spa");
+    ParametersBuilder builder = defaultParameters.buildUpon().setPreferredTextLanguages("spa");
     trackSelector.setParameters(builder);
     result = trackSelector.selectTracks(textRendererCapabilites, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, spanish);
@@ -984,13 +984,13 @@ public final class DefaultTrackSelectorTest {
     assertNoSelection(result.selections.get(1));
 
     // Explicit language preference for english. First renderer should be used.
-    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredTextLanguage("en"));
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredTextLanguages("en"));
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, english);
     assertNoSelection(result.selections.get(1));
 
     // Explicit language preference for German. Second renderer should be used.
-    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredTextLanguage("de"));
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredTextLanguages("de"));
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections.get(0));
     assertFixedSelection(result.selections.get(1), trackGroups, german);
@@ -1290,13 +1290,13 @@ public final class DefaultTrackSelectorTest {
     assertNoSelection(result.selections.get(1));
 
     // Explicit language preference for english. First renderer should be used.
-    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("en"));
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguages("en"));
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
     assertFixedSelection(result.selections.get(0), trackGroups, english);
     assertNoSelection(result.selections.get(1));
 
     // Explicit language preference for German. Second renderer should be used.
-    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguage("de"));
+    trackSelector.setParameters(defaultParameters.buildUpon().setPreferredAudioLanguages("de"));
     result = trackSelector.selectTracks(rendererCapabilities, trackGroups, periodId, TIMELINE);
     assertNoSelection(result.selections.get(0));
     assertFixedSelection(result.selections.get(1), trackGroups, german);
