@@ -481,6 +481,7 @@ public class PlayerControlView extends FrameLayout {
     }
     vrButton = findViewById(R.id.exo_vr);
     setShowVrButton(false);
+    updateButton(false, false, vrButton);
 
     Resources resources = context.getResources();
 
@@ -794,6 +795,7 @@ public class PlayerControlView extends FrameLayout {
   public void setVrButtonListener(@Nullable OnClickListener onClickListener) {
     if (vrButton != null) {
       vrButton.setOnClickListener(onClickListener);
+      updateButton(getShowVrButton(), onClickListener != null, vrButton);
     }
   }
 
@@ -1205,7 +1207,9 @@ public class PlayerControlView extends FrameLayout {
     }
     if (event.getAction() == KeyEvent.ACTION_DOWN) {
       if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
-        controlDispatcher.dispatchFastForward(player);
+        if (player.getPlaybackState() != Player.STATE_ENDED) {
+          controlDispatcher.dispatchFastForward(player);
+        }
       } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
         controlDispatcher.dispatchRewind(player);
       } else if (event.getRepeatCount() == 0) {
@@ -1377,7 +1381,9 @@ public class PlayerControlView extends FrameLayout {
       } else if (previousButton == view) {
         controlDispatcher.dispatchPrevious(player);
       } else if (fastForwardButton == view) {
-        controlDispatcher.dispatchFastForward(player);
+        if (player.getPlaybackState() != Player.STATE_ENDED) {
+          controlDispatcher.dispatchFastForward(player);
+        }
       } else if (rewindButton == view) {
         controlDispatcher.dispatchRewind(player);
       } else if (playButton == view) {
