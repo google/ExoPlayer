@@ -6,6 +6,8 @@
     *   Add `SampleQueue.discardUpstreamFrom` so upstream samples can be
         discarded by timestamp.
     *   Add `SampleQueue.getLargestReadTimestampUs`.
+*   Track selection:
+    *   Add option to specify multiple preferred audio or text languages.
 
 ### 2.12.0 (not yet released - targeted for 2020-09-03) ###
 

@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SE
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE;
+import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.never;
@@ -37,6 +38,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -50,6 +52,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationLi
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -67,7 +70,8 @@ public final class DefaultTrackSelectorTest {
   private static final RendererCapabilities ALL_TEXT_FORMAT_SUPPORTED_RENDERER_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_TEXT);
   private static final RendererCapabilities ALL_AUDIO_FORMAT_EXCEEDED_RENDERER_CAPABILITIES =
-      new FakeRendererCapabilities(C.TRACK_TYPE_AUDIO, FORMAT_EXCEEDS_CAPABILITIES);
+      new FakeRendererCapabilities(
+          C.TRACK_TYPE_AUDIO, RendererCapabilities.create(FORMAT_EXCEEDS_CAPABILITIES));
 
   private static final RendererCapabilities VIDEO_CAPABILITIES =
       new FakeRendererCapabilities(C.TRACK_TYPE_VIDEO);
@@ -1318,7 +1322,10 @@ public final class DefaultTrackSelectorTest {
   @Test
   public void selectTracksWithMultipleVideoTracksWithNonSeamlessAdaptiveness() throws Exception {
     FakeRendererCapabilities nonSeamlessVideoCapabilities =
-        new FakeRendererCapabilities(C.TRACK_TYPE_VIDEO, FORMAT_HANDLED | ADAPTIVE_NOT_SEAMLESS);
+        new FakeRendererCapabilities(
+            C.TRACK_TYPE_VIDEO,
+            RendererCapabilities.create(
+                FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, TUNNELING_NOT_SUPPORTED));
 
     // Should do non-seamless adaptiveness by default, so expect an adaptive selection.
     Format.Builder formatBuilder = VIDEO_FORMAT.buildUpon();
@@ -1508,7 +1515,7 @@ public final class DefaultTrackSelectorTest {
         /* viewportHeight= */ 9,
         /* viewportOrientationMayChange= */ true,
         // Audio
-        /* preferredAudioLanguage= */ "en",
+        /* preferredAudioLanguages= */ ImmutableList.of("zh", "jp"),
         /* maxAudioChannelCount= */ 10,
         /* maxAudioBitrate= */ 11,
         /* exceedAudioConstraintsIfNecessary= */ false,
@@ -1516,10 +1523,10 @@ public final class DefaultTrackSelectorTest {
         /* allowAudioMixedSampleRateAdaptiveness= */ false,
         /* allowAudioMixedChannelCountAdaptiveness= */ true,
         // Text
-        /* preferredTextLanguage= */ "de",
+        /* preferredTextLanguages= */ ImmutableList.of("de", "en"),
         /* preferredTextRoleFlags= */ C.ROLE_FLAG_CAPTION,
         /* selectUndeterminedTextLanguage= */ true,
-        /* disabledTextTrackSelectionFlags= */ 12,
+        /* disabledTextTrackSelectionFlags= */ C.SELECTION_FLAG_AUTOSELECT,
         // General
         /* forceLowestBitrate= */ false,
         /* forceHighestSupportedBitrate= */ true,
