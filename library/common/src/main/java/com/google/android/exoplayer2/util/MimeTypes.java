@@ -170,15 +170,16 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns true if it is known that all samples in a stream of the given MIME type are guaranteed
-   * to be sync samples (i.e., {@link C#BUFFER_FLAG_KEY_FRAME} is guaranteed to be set on every
-   * sample).
+   * Returns true if it is known that all samples in a stream of the given MIME type and codec are
+   * guaranteed to be sync samples (i.e., {@link C#BUFFER_FLAG_KEY_FRAME} is guaranteed to be set on
+   * every sample).
    *
-   * @param mimeType A MIME type.
-   * @return True if it is known that all samples in a stream of the given MIME type are guaranteed
-   *     to be sync samples. False otherwise, including if {@code null} is passed.
+   * @param mimeType The MIME type of the stream.
+   * @param codec The RFC 6381 codec string of the stream, or {@code null} if unknown.
+   * @return Whether it is known that all samples in the stream are guaranteed to be sync samples.
    */
-  public static boolean allSamplesAreSyncSamples(@Nullable String mimeType) {
+  public static boolean allSamplesAreSyncSamples(
+      @Nullable String mimeType, @Nullable String codec) {
     if (mimeType == null) {
       return false;
     }
@@ -198,6 +199,20 @@ public final class MimeTypes {
       case AUDIO_E_AC3:
       case AUDIO_E_AC3_JOC:
         return true;
+      case AUDIO_AAC:
+        if (codec == null) {
+          return false;
+        }
+        @Nullable Mp4aObjectType objectType = getObjectTypeFromMp4aRFC6381CodecString(codec);
+        if (objectType == null) {
+          return false;
+        }
+        @C.Encoding
+        int encoding = AacUtil.getEncodingForAudioObjectType(objectType.audioObjectTypeIndication);
+        // xHE-AAC is an exception in which it's not true that all samples will be sync samples.
+        // Also return false for ENCODING_INVALID, which indicates we weren't able to parse the
+        // encoding from the codec string.
+        return encoding != C.ENCODING_INVALID && encoding != C.ENCODING_AAC_XHE;
       default:
         return false;
     }

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
+import static com.google.android.exoplayer2.util.Util.postOrRun;
+
+import android.os.Handler;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
@@ -24,6 +27,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
+import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -100,12 +104,11 @@ import java.util.List;
   private static final int POLL_BUFFER_INTERVAL_MS = 1000;
 
   private final Listener listener;
-  private final PlayerHandler handler;
+  private final Handler handler;
   private final Runnable pollBufferRunnable;
 
   private final Player player;
   private final MediaItemConverter mediaItemConverter;
-  private final ControlDispatcher controlDispatcher;
   private final ComponentListener componentListener;
 
   @Nullable private MediaMetadata playlistMetadata;
@@ -114,6 +117,7 @@ import java.util.List;
   private final List<androidx.media2.common.MediaItem> media2Playlist;
   private final List<MediaItem> exoPlayerPlaylist;
 
+  private ControlDispatcher controlDispatcher;
   private boolean prepared;
   private boolean rebuffering;
   private int currentWindowIndex;
@@ -125,18 +129,13 @@ import java.util.List;
    * @param listener A {@link Listener}.
    * @param player The {@link Player}.
    * @param mediaItemConverter The {@link MediaItemConverter}.
-   * @param controlDispatcher A {@link ControlDispatcher}.
    */
-  public PlayerWrapper(
-      Listener listener,
-      Player player,
-      MediaItemConverter mediaItemConverter,
-      ControlDispatcher controlDispatcher) {
+  public PlayerWrapper(Listener listener, Player player, MediaItemConverter mediaItemConverter) {
     this.listener = listener;
     this.player = player;
     this.mediaItemConverter = mediaItemConverter;
-    this.controlDispatcher = controlDispatcher;
 
+    controlDispatcher = new DefaultControlDispatcher();
     componentListener = new ComponentListener();
     player.addListener(componentListener);
     @Nullable Player.AudioComponent audioComponent = player.getAudioComponent();
@@ -144,7 +143,7 @@ import java.util.List;
       audioComponent.addAudioListener(componentListener);
     }
 
-    handler = new PlayerHandler(player.getApplicationLooper());
+    handler = new Handler(player.getApplicationLooper());
     pollBufferRunnable = new PollBufferRunnable();
 
     media2Playlist = new ArrayList<>();
@@ -155,6 +154,10 @@ import java.util.List;
     rebuffering = player.getPlaybackState() == Player.STATE_BUFFERING;
 
     updatePlaylist(player.getCurrentTimeline());
+  }
+
+  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
+    this.controlDispatcher = controlDispatcher;
   }
 
   public boolean setMediaItem(androidx.media2.common.MediaItem media2MediaItem) {
@@ -436,7 +439,7 @@ import java.util.List;
 
   private void handlePlayerStateChanged(@Player.State int state) {
     if (state == Player.STATE_READY || state == Player.STATE_BUFFERING) {
-      handler.postOrRun(pollBufferRunnable);
+      postOrRun(handler, pollBufferRunnable);
     } else {
       handler.removeCallbacks(pollBufferRunnable);
     }

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ui;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -876,6 +877,10 @@ public class PlayerNotificationManager {
    * Sets the priority of the notification required for API 25 and lower.
    *
    * <p>See {@link NotificationCompat.Builder#setPriority(int)}.
+   *
+   * <p>To set the priority for API levels above 25, you can create your own {@link
+   * NotificationChannel} with a given importance level and pass the id of the channel to the {@link
+   * #PlayerNotificationManager(Context, String, int, MediaDescriptionAdapter) constructor}.
    *
    * @param priority The priority which can be one of {@link NotificationCompat#PRIORITY_DEFAULT},
    *     {@link NotificationCompat#PRIORITY_MAX}, {@link NotificationCompat#PRIORITY_HIGH}, {@link

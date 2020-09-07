@@ -1,12 +1,10 @@
 # ExoPlayer Firebase JobDispatcher extension #
 
-**DEPRECATED - Please use [WorkManager extension][] or [PlatformScheduler][]
-instead.**
+**This extension is deprecated. Use the [WorkManager extension][] instead.**
 
 This extension provides a Scheduler implementation which uses [Firebase JobDispatcher][].
 
 [WorkManager extension]: https://github.com/google/ExoPlayer/blob/release-v2/extensions/workmanager/README.md
-[PlatformScheduler]: https://github.com/google/ExoPlayer/blob/release-v2/library/core/src/main/java/com/google/android/exoplayer2/scheduler/PlatformScheduler.java
 [Firebase JobDispatcher]: https://github.com/firebase/firebase-jobdispatcher-android
 
 ## Getting the extension ##

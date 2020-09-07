@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
+import static com.google.android.exoplayer2.util.Util.postOrRun;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+import android.os.Handler;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -129,7 +131,7 @@ import java.util.concurrent.Callable;
 
   // Should be only used on the handler.
   private final PlayerWrapper player;
-  private final PlayerHandler handler;
+  private final Handler handler;
   private final Object lock;
 
   @GuardedBy("lock")
@@ -141,7 +143,7 @@ import java.util.concurrent.Callable;
   // Should be only used on the handler.
   @Nullable private AsyncPlayerCommandResult pendingAsyncPlayerCommandResult;
 
-  public PlayerCommandQueue(PlayerWrapper player, PlayerHandler handler) {
+  public PlayerCommandQueue(PlayerWrapper player, Handler handler) {
     this.player = player;
     this.handler = handler;
     lock = new Object();
@@ -209,7 +211,7 @@ import java.util.concurrent.Callable;
             }
             processPendingCommandOnHandler();
           },
-          handler::postOrRun);
+          (runnable) -> postOrRun(handler, runnable));
       if (DEBUG) {
         Log.d(TAG, "adding " + playerCommand);
       }
@@ -220,7 +222,8 @@ import java.util.concurrent.Callable;
   }
 
   public void notifyCommandError() {
-    handler.postOrRun(
+    postOrRun(
+        handler,
         () -> {
           @Nullable AsyncPlayerCommandResult pendingResult = pendingAsyncPlayerCommandResult;
           if (pendingResult == null) {
@@ -243,7 +246,8 @@ import java.util.concurrent.Callable;
     if (DEBUG) {
       Log.d(TAG, "notifyCommandCompleted, completedCommandCode=" + completedCommandCode);
     }
-    handler.postOrRun(
+    postOrRun(
+        handler,
         () -> {
           @Nullable AsyncPlayerCommandResult pendingResult = pendingAsyncPlayerCommandResult;
           if (pendingResult == null || pendingResult.commandCode != completedCommandCode) {
@@ -267,7 +271,7 @@ import java.util.concurrent.Callable;
   }
 
   private void processPendingCommand() {
-    handler.postOrRun(this::processPendingCommandOnHandler);
+    postOrRun(handler, this::processPendingCommandOnHandler);
   }
 
   private void processPendingCommandOnHandler() {

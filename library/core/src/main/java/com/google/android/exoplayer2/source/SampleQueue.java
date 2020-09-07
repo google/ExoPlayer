@@ -215,6 +215,22 @@ public class SampleQueue implements TrackOutput {
     sampleDataQueue.discardUpstreamSampleBytes(discardUpstreamSampleMetadata(discardFromIndex));
   }
 
+  /**
+   * Discards samples from the write side of the queue.
+   *
+   * @param timeUs Samples will be discarded from the write end of the queue until a sample with a
+   *     timestamp smaller than timeUs is encountered (this sample is not discarded). Must be larger
+   *     than {@link #getLargestReadTimestampUs()}.
+   */
+  public final void discardUpstreamFrom(long timeUs) {
+    if (length == 0) {
+      return;
+    }
+    checkArgument(timeUs > getLargestReadTimestampUs());
+    int retainCount = countUnreadSamplesBefore(timeUs);
+    discardUpstreamSamples(absoluteFirstIndex + retainCount);
+  }
+
   // Called by the consuming thread.
 
   /** Calls {@link #discardToEnd()} and releases any resources owned by the queue. */
@@ -276,6 +292,16 @@ public class SampleQueue implements TrackOutput {
    */
   public final synchronized long getLargestQueuedTimestampUs() {
     return largestQueuedTimestampUs;
+  }
+
+  /**
+   * Returns the largest sample timestamp that has been read since the last {@link #reset}.
+   *
+   * @return The largest sample timestamp that has been read, or {@link Long#MIN_VALUE} if no
+   *     samples have been read.
+   */
+  public final synchronized long getLargestReadTimestampUs() {
+    return max(largestDiscardedTimestampUs, getLargestTimestamp(readPosition));
   }
 
   /**
@@ -659,7 +685,7 @@ public class SampleQueue implements TrackOutput {
       upstreamFormat = format;
     }
     upstreamAllSamplesAreSyncSamples =
-        MimeTypes.allSamplesAreSyncSamples(upstreamFormat.sampleMimeType);
+        MimeTypes.allSamplesAreSyncSamples(upstreamFormat.sampleMimeType, upstreamFormat.codecs);
     loggedUnexpectedNonSyncSample = false;
     return true;
   }
@@ -777,20 +803,10 @@ public class SampleQueue implements TrackOutput {
     if (length == 0) {
       return timeUs > largestDiscardedTimestampUs;
     }
-    long largestReadTimestampUs =
-        max(largestDiscardedTimestampUs, getLargestTimestamp(readPosition));
-    if (largestReadTimestampUs >= timeUs) {
+    if (getLargestReadTimestampUs() >= timeUs) {
       return false;
     }
-    int retainCount = length;
-    int relativeSampleIndex = getRelativeIndex(length - 1);
-    while (retainCount > readPosition && timesUs[relativeSampleIndex] >= timeUs) {
-      retainCount--;
-      relativeSampleIndex--;
-      if (relativeSampleIndex == -1) {
-        relativeSampleIndex = capacity - 1;
-      }
-    }
+    int retainCount = countUnreadSamplesBefore(timeUs);
     discardUpstreamSampleMetadata(absoluteFirstIndex + retainCount);
     return true;
   }
@@ -885,6 +901,26 @@ public class SampleQueue implements TrackOutput {
       }
     }
     return sampleCountToTarget;
+  }
+
+  /**
+   * Counts the number of samples that haven't been read that have a timestamp smaller than {@code
+   * timeUs}.
+   *
+   * @param timeUs The specified time.
+   * @return The number of unread samples with a timestamp smaller than {@code timeUs}.
+   */
+  private int countUnreadSamplesBefore(long timeUs) {
+    int count = length;
+    int relativeSampleIndex = getRelativeIndex(length - 1);
+    while (count > readPosition && timesUs[relativeSampleIndex] >= timeUs) {
+      count--;
+      relativeSampleIndex--;
+      if (relativeSampleIndex == -1) {
+        relativeSampleIndex = capacity - 1;
+      }
+    }
+    return count;
   }
 
   /**

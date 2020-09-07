@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.nio.ByteBuffer;
@@ -85,9 +84,9 @@ import java.util.ArrayList;
 
     private final long[] timestampsList;
     private final ArrayDeque<Long> inputFormatChangeTimesUs;
+    private final boolean shouldMediaFormatChangeTimesBeChecked;
 
     private boolean skipToPositionBeforeRenderingFirstFrame;
-    private boolean shouldMediaFormatChangeTimesBeChecked;
 
     private int startIndex;
     private int queueSize;
@@ -114,6 +113,16 @@ import java.util.ArrayList;
           maxDroppedFrameCountToNotify);
       timestampsList = new long[ARRAY_SIZE];
       inputFormatChangeTimesUs = new ArrayDeque<>();
+
+      /*
+      // Output MediaFormat changes are known to occur too early until API 30 (see [internal:
+      // b/149818050, b/149751672]).
+      shouldMediaFormatChangeTimesBeChecked = Util.SDK_INT > 30;
+      */
+
+      // [Internal ref: b/149751672] Seeking currently causes an unexpected MediaFormat change, so
+      // this check is disabled until that is deemed fixed.
+      shouldMediaFormatChangeTimesBeChecked = false;
     }
 
     @Override
@@ -135,10 +144,6 @@ import java.util.ArrayList;
       // frames up to the current playback position [Internal: b/66494991].
       skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
       super.configureCodec(codecInfo, codecAdapter, format, crypto, operatingRate);
-
-      // Output MediaFormat changes are known to occur too early until API 30 (see [internal:
-      // b/149818050, b/149751672]).
-      shouldMediaFormatChangeTimesBeChecked = Util.SDK_INT > 30;
     }
 
     @Override
@@ -186,6 +191,8 @@ import java.util.ArrayList;
       if (mediaFormat != null && !mediaFormat.equals(currentMediaFormat)) {
         outputMediaFormatChanged = true;
         currentMediaFormat = mediaFormat;
+      } else {
+        inputFormatChangeTimesUs.remove();
       }
     }
 

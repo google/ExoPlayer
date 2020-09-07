@@ -36,8 +36,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/exo_settings_height"
-        android:paddingStart="2dp"
-        android:paddingLeft="2dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
         android:gravity="center|start"
         android:textColor="@color/exo_white"
         android:textSize="@dimen/exo_settings_main_text_size"/>

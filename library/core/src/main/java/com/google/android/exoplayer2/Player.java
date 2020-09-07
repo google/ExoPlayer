@@ -374,8 +374,6 @@ public interface Player {
   }
 
   /** The device component of a {@link Player}. */
-  // Note: It's mostly from the androidx.media.VolumeProviderCompat and
-  //  androidx.media.MediaControllerCompat.PlaybackInfo.
   interface DeviceComponent {
 
     /** Adds a listener to receive device events. */

@@ -319,12 +319,6 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onAudioPositionAdvancing(EventTime eventTime, long playoutStartSystemTimeMs) {
-    long timeSincePlayoutStartMs = System.currentTimeMillis() - playoutStartSystemTimeMs;
-    logd(eventTime, "audioPositionAdvancing", "timeSincePlayoutStartMs=" + timeSincePlayoutStartMs);
-  }
-
-  @Override
   public void onAudioUnderrun(
       EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
     loge(

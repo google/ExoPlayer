@@ -271,13 +271,14 @@ public class PlayerActivity extends AppCompatActivity
     setContentView(R.layout.player_activity);
   }
 
-  protected void initializePlayer() {
+  /** @return Whether initialization was successful. */
+  protected boolean initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();
 
       mediaItems = createMediaItems(intent);
       if (mediaItems.isEmpty()) {
-        return;
+        return false;
       }
 
       boolean preferExtensionDecoders =
@@ -297,9 +298,9 @@ public class PlayerActivity extends AppCompatActivity
               .setTrackSelector(trackSelector)
               .build();
       player.addListener(new PlayerEventListener());
+      player.addAnalyticsListener(new EventLogger(trackSelector));
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
       player.setPlayWhenReady(startAutoPlay);
-      player.addAnalyticsListener(new EventLogger(trackSelector));
       playerView.setPlayer(player);
       playerView.setPlaybackPreparer(this);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
@@ -312,6 +313,7 @@ public class PlayerActivity extends AppCompatActivity
     player.setMediaItems(mediaItems, /* resetPosition= */ !haveStartPosition);
     player.prepare();
     updateButtonVisibility();
+    return true;
   }
 
   private List<MediaItem> createMediaItems(Intent intent) {
@@ -548,17 +550,7 @@ public class PlayerActivity extends AppCompatActivity
       @Nullable
       DownloadRequest downloadRequest =
           downloadTracker.getDownloadRequest(checkNotNull(item.playbackProperties).uri);
-      if (downloadRequest != null) {
-        MediaItem mediaItem =
-            item.buildUpon()
-                .setStreamKeys(downloadRequest.streamKeys)
-                .setCustomCacheKey(downloadRequest.customCacheKey)
-                .setDrmKeySetId(downloadRequest.keySetId)
-                .build();
-        mediaItems.add(mediaItem);
-      } else {
-        mediaItems.add(item);
-      }
+      mediaItems.add(downloadRequest != null ? downloadRequest.toMediaItem() : item);
     }
     return mediaItems;
   }
