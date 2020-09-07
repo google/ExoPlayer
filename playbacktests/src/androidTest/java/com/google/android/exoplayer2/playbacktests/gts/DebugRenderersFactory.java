@@ -191,6 +191,8 @@ import java.util.ArrayList;
       if (mediaFormat != null && !mediaFormat.equals(currentMediaFormat)) {
         outputMediaFormatChanged = true;
         currentMediaFormat = mediaFormat;
+      } else {
+        inputFormatChangeTimesUs.remove();
       }
     }
 
