@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -38,7 +39,7 @@ public class DefaultMediaSourceFactoryTest {
   @Test
   public void createMediaSource_withMimeType_smoothstreamingSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_MEDIA).setMimeType(MimeTypes.APPLICATION_SS).build();
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
@@ -49,7 +50,7 @@ public class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withTag_tagInSource() {
     Object tag = new Object();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(URI_MEDIA)
@@ -65,7 +66,7 @@ public class DefaultMediaSourceFactoryTest {
   @Test
   public void createMediaSource_withIsmPath_smoothstreamingSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.ism").build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
@@ -76,7 +77,7 @@ public class DefaultMediaSourceFactoryTest {
   @Test
   public void createMediaSource_withManifestPath_smoothstreamingSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + ".ism/Manifest").build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
@@ -87,7 +88,7 @@ public class DefaultMediaSourceFactoryTest {
   @Test
   public void createMediaSource_withNull_usesNonNullDefaults() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.ism").build();
 
     MediaSource mediaSource =
@@ -103,7 +104,7 @@ public class DefaultMediaSourceFactoryTest {
   @Test
   public void getSupportedTypes_smoothstreamingModule_containsTypeSS() {
     int[] supportedTypes =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext())
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .getSupportedTypes();
 
     assertThat(supportedTypes).asList().containsExactly(C.TYPE_OTHER, C.TYPE_SS);

@@ -194,7 +194,7 @@ public final class ExoPlayerFactory {
         context,
         renderersFactory,
         trackSelector,
-        DefaultMediaSourceFactory.newInstance(context),
+        new DefaultMediaSourceFactory(context),
         loadControl,
         bandwidthMeter,
         analyticsCollector,
@@ -250,7 +250,7 @@ public final class ExoPlayerFactory {
     return new ExoPlayerImpl(
         renderers,
         trackSelector,
-        DefaultMediaSourceFactory.newInstance(context),
+        new DefaultMediaSourceFactory(context),
         loadControl,
         bandwidthMeter,
         /* analyticsCollector= */ null,

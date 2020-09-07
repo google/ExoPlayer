@@ -80,7 +80,7 @@ import org.junit.rules.ExternalResource;
               exoPlayer =
                   new SimpleExoPlayer.Builder(context)
                       .setLooper(Looper.myLooper())
-                      .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory, null))
+                      .setMediaSourceFactory(new DefaultMediaSourceFactory(dataSourceFactory))
                       .build();
               sessionPlayerConnector = new SessionPlayerConnector(exoPlayer);
             });

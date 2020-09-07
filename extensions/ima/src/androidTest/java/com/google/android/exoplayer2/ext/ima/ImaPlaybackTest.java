@@ -243,8 +243,7 @@ public final class ImaPlaybackTest {
           new DefaultDataSourceFactory(
               context, Util.getUserAgent(context, ImaPlaybackTest.class.getSimpleName()));
       MediaSource contentMediaSource =
-          DefaultMediaSourceFactory.newInstance(context)
-              .createMediaSource(MediaItem.fromUri(contentUri));
+          new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(contentUri));
       return new AdsMediaSource(
           contentMediaSource,
           dataSourceFactory,
