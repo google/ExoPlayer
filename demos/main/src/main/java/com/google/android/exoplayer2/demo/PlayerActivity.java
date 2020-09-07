@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryExcep
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -285,16 +286,18 @@ public class PlayerActivity extends AppCompatActivity
           intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false);
       RenderersFactory renderersFactory =
           DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
+      MediaSourceFactory mediaSourceFactory =
+          new DefaultMediaSourceFactory(dataSourceFactory)
+              .setDrmUserAgent(DemoUtil.getUserAgent(this))
+              .setAdsLoaderProvider(this::getAdsLoader)
+              .setAdViewProvider(playerView);
 
       trackSelector = new DefaultTrackSelector(/* context= */ this);
       trackSelector.setParameters(trackSelectorParameters);
       lastSeenTrackGroupArray = null;
-
       player =
           new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
-              .setMediaSourceFactory(
-                  DefaultMediaSourceFactory.newInstance(
-                      /* context= */ this, dataSourceFactory, new AdSupportProvider()))
+              .setMediaSourceFactory(mediaSourceFactory)
               .setTrackSelector(trackSelector)
               .build();
       player.addListener(new PlayerEventListener());
@@ -359,6 +362,24 @@ public class PlayerActivity extends AppCompatActivity
       releaseAdsLoader();
     }
     return mediaItems;
+  }
+
+  private AdsLoader getAdsLoader(Uri adTagUri) {
+    if (mediaItems.size() > 1) {
+      showToast(R.string.unsupported_ads_in_playlist);
+      releaseAdsLoader();
+      return null;
+    }
+    if (!adTagUri.equals(loadedAdTagUri)) {
+      releaseAdsLoader();
+      loadedAdTagUri = adTagUri;
+    }
+    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
+    if (adsLoader == null) {
+      adsLoader = new ImaAdsLoader(/* context= */ PlayerActivity.this, adTagUri);
+    }
+    adsLoader.setPlayer(player);
+    return adsLoader;
   }
 
   protected void releasePlayer() {
@@ -514,33 +535,6 @@ public class PlayerActivity extends AppCompatActivity
         }
       }
       return Pair.create(0, errorString);
-    }
-  }
-
-  private class AdSupportProvider implements DefaultMediaSourceFactory.AdSupportProvider {
-
-    @Override
-    public AdsLoader getAdsLoader(Uri adTagUri) {
-      if (mediaItems.size() > 1) {
-        showToast(R.string.unsupported_ads_in_playlist);
-        releaseAdsLoader();
-        return null;
-      }
-      if (!adTagUri.equals(loadedAdTagUri)) {
-        releaseAdsLoader();
-        loadedAdTagUri = adTagUri;
-      }
-      // The ads loader is reused for multiple playbacks, so that ad playback can resume.
-      if (adsLoader == null) {
-        adsLoader = new ImaAdsLoader(/* context= */ PlayerActivity.this, adTagUri);
-      }
-      adsLoader.setPlayer(player);
-      return adsLoader;
-    }
-
-    @Override
-    public AdsLoader.AdViewProvider getAdViewProvider() {
-      return checkNotNull(playerView);
     }
   }
 

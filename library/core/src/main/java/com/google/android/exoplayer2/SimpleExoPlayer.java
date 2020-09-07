@@ -163,7 +163,7 @@ public class SimpleExoPlayer extends BasePlayer
           context,
           renderersFactory,
           new DefaultTrackSelector(context),
-          DefaultMediaSourceFactory.newInstance(context),
+          new DefaultMediaSourceFactory(context),
           new DefaultLoadControl(),
           DefaultBandwidthMeter.getSingletonInstance(context),
           new AnalyticsCollector(Clock.DEFAULT));

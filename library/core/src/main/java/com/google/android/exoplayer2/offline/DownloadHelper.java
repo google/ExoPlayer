@@ -889,7 +889,7 @@ public final class DownloadHelper {
       MediaItem mediaItem,
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
-    return new DefaultMediaSourceFactory(dataSourceFactory, /* adSupportProvider= */ null)
+    return new DefaultMediaSourceFactory(dataSourceFactory)
         .setDrmSessionManager(drmSessionManager)
         .createMediaSource(mediaItem);
   }
