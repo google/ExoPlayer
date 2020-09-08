@@ -46,8 +46,7 @@ public final class FlacExtractorSeekTest {
   private FlacExtractor extractor = new FlacExtractor();
   private FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
   private DefaultDataSource dataSource =
-      new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
-          .createDataSource();
+      new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext()).createDataSource();
 
   @Test
   public void flacExtractorReads_seekTable_returnSeekableSeekMap() throws IOException {

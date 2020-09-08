@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
+import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
@@ -34,6 +36,18 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
   @Nullable private final CacheControl cacheControl;
 
   /**
+   * Creates an instance.
+   *
+   * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
+   *     by the sources created by the factory.
+   */
+  public OkHttpDataSourceFactory(Call.Factory callFactory) {
+    this(callFactory, DEFAULT_USER_AGENT, /* listener= */ null, /* cacheControl= */ null);
+  }
+
+  /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the sources created by the factory.
    * @param userAgent An optional User-Agent string.
@@ -43,6 +57,8 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the sources created by the factory.
    * @param userAgent An optional User-Agent string.
@@ -54,6 +70,8 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the sources created by the factory.
    * @param userAgent An optional User-Agent string.
@@ -65,6 +83,8 @@ public final class OkHttpDataSourceFactory extends BaseFactory {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the sources created by the factory.
    * @param userAgent An optional User-Agent string.

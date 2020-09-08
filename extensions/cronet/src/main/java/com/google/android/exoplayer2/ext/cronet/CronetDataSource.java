@@ -150,6 +150,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   private volatile long currentConnectTimeoutMs;
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -168,6 +170,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -199,6 +203,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -233,6 +239,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -262,6 +270,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -301,6 +311,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread

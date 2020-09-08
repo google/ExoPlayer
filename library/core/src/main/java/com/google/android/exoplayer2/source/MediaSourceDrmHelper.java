@@ -15,12 +15,11 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
 import static com.google.android.exoplayer2.drm.DefaultDrmSessionManager.MODE_PLAYBACK;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
-import android.os.Build;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -35,13 +34,6 @@ import java.util.Map;
 
 /** A helper to create a {@link DrmSessionManager} from a {@link MediaItem}. */
 public final class MediaSourceDrmHelper {
-
-  private static final String DEFAULT_USER_AGENT =
-      ExoPlayerLibraryInfo.VERSION_SLASHY
-          + " (Linux;Android "
-          + Build.VERSION.RELEASE
-          + ") "
-          + ExoPlayerLibraryInfo.VERSION_SLASHY;
 
   @Nullable private HttpDataSource.Factory drmHttpDataSourceFactory;
   @Nullable private String userAgent;

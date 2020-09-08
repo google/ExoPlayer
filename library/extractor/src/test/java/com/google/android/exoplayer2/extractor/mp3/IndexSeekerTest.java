@@ -52,7 +52,7 @@ public class IndexSeekerTest {
     extractor = new Mp3Extractor(FLAG_ENABLE_INDEX_SEEKING);
     extractorOutput = new FakeExtractorOutput();
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

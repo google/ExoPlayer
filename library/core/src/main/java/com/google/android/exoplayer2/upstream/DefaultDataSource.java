@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.upstream;
 import android.content.Context;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -73,6 +74,20 @@ public final class DefaultDataSource implements DataSource {
   @Nullable private DataSource rawResourceDataSource;
 
   @Nullable private DataSource dataSource;
+
+  /**
+   * Constructs a new instance, optionally configured to follow cross-protocol redirects.
+   *
+   * @param context A context.
+   */
+  public DefaultDataSource(Context context, boolean allowCrossProtocolRedirects) {
+    this(
+        context,
+        ExoPlayerLibraryInfo.DEFAULT_USER_AGENT,
+        DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
+        DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
+        allowCrossProtocolRedirects);
+  }
 
   /**
    * Constructs a new instance, optionally configured to follow cross-protocol redirects.

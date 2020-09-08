@@ -62,7 +62,7 @@ public final class TsExtractorSeekTest {
             .get(AUDIO_TRACK_ID);
 
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

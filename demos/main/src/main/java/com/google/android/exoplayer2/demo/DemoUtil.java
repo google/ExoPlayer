@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -50,7 +49,6 @@ public final class DemoUtil {
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
 
-  private static @MonotonicNonNull String userAgent;
   private static DataSource.@MonotonicNonNull Factory dataSourceFactory;
   private static HttpDataSource.@MonotonicNonNull Factory httpDataSourceFactory;
   private static @MonotonicNonNull DatabaseProvider databaseProvider;
@@ -78,23 +76,12 @@ public final class DemoUtil {
         .setExtensionRendererMode(extensionRendererMode);
   }
 
-  public static synchronized String getUserAgent(Context context) {
-    if (userAgent == null) {
-      userAgent = Util.getUserAgent(context, "ExoPlayerDemo");
-    }
-    return userAgent;
-  }
-
   public static synchronized HttpDataSource.Factory getHttpDataSourceFactory(Context context) {
     if (httpDataSourceFactory == null) {
       context = context.getApplicationContext();
       CronetEngineWrapper cronetEngineWrapper = new CronetEngineWrapper(context);
       httpDataSourceFactory =
-          new CronetDataSourceFactory(
-              cronetEngineWrapper,
-              Executors.newSingleThreadExecutor(),
-              /* transferListener= */ null,
-              getUserAgent(context));
+          new CronetDataSourceFactory(cronetEngineWrapper, Executors.newSingleThreadExecutor());
     }
     return httpDataSourceFactory;
   }

@@ -258,12 +258,12 @@ import java.util.List;
     }
 
     @Override
-    protected DrmSessionManager buildDrmSessionManager(final String userAgent) {
+    protected DrmSessionManager buildDrmSessionManager() {
       if (widevineLicenseUrl == null) {
         return DrmSessionManager.getDummyDrmSessionManager();
       }
       MediaDrmCallback drmCallback =
-          new HttpMediaDrmCallback(widevineLicenseUrl, new DefaultHttpDataSourceFactory(userAgent));
+          new HttpMediaDrmCallback(widevineLicenseUrl, new DefaultHttpDataSourceFactory());
       DefaultDrmSessionManager drmSessionManager =
           new DefaultDrmSessionManager.Builder()
               .setUuidAndExoMediaDrmProvider(
@@ -301,13 +301,12 @@ import java.util.List;
     @Override
     protected MediaSource buildSource(
         HostActivity host,
-        String userAgent,
         DrmSessionManager drmSessionManager,
         FrameLayout overlayFrameLayout) {
       DataSource.Factory dataSourceFactory =
           this.dataSourceFactory != null
               ? this.dataSourceFactory
-              : new DefaultDataSourceFactory(host, userAgent);
+              : new DefaultDataSourceFactory(host);
       return new DashMediaSource.Factory(dataSourceFactory)
           .setDrmSessionManager(drmSessionManager)
           .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(MIN_LOADABLE_RETRY_COUNT))

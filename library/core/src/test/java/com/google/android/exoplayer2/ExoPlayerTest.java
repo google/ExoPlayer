@@ -102,7 +102,6 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -5552,8 +5551,7 @@ public final class ExoPlayerTest {
     AdsMediaSource adsMediaSource =
         new AdsMediaSource(
             new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1)),
-            new DefaultDataSourceFactory(
-                context, Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY)),
+            new DefaultDataSourceFactory(context),
             new FakeAdsLoader(),
             new FakeAdViewProvider());
     Exception[] exception = {null};
@@ -5590,8 +5588,7 @@ public final class ExoPlayerTest {
     AdsMediaSource adsMediaSource =
         new AdsMediaSource(
             mediaSource,
-            new DefaultDataSourceFactory(
-                context, Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY)),
+            new DefaultDataSourceFactory(context),
             new FakeAdsLoader(),
             new FakeAdViewProvider());
     final Exception[] exception = {null};
@@ -5630,8 +5627,7 @@ public final class ExoPlayerTest {
     AdsMediaSource adsMediaSource =
         new AdsMediaSource(
             mediaSource,
-            new DefaultDataSourceFactory(
-                context, Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY)),
+            new DefaultDataSourceFactory(context),
             new FakeAdsLoader(),
             new FakeAdViewProvider());
     final Exception[] exception = {null};

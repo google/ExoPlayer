@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
+
 import android.content.Context;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
@@ -28,6 +30,11 @@ public final class DefaultDataSourceFactory implements Factory {
   private final Context context;
   @Nullable private final TransferListener listener;
   private final DataSource.Factory baseDataSourceFactory;
+
+  /** @param context A context. */
+  public DefaultDataSourceFactory(Context context) {
+    this(context, DEFAULT_USER_AGENT, /* listener= */ null);
+  }
 
   /**
    * @param context A context.
