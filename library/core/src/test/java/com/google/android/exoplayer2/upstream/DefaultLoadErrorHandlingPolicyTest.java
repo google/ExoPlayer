@@ -77,8 +77,8 @@ public final class DefaultLoadErrorHandlingPolicyTest {
   public void getExclusionDurationMsFor_dontExcludeUnexpectedHttpCodes() {
     InvalidResponseCodeException exception =
         new InvalidResponseCodeException(
-            500,
-            "Internal Server Error",
+            418,
+            "I'm a teapot",
             Collections.emptyMap(),
             new DataSpec(Uri.EMPTY),
             /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
