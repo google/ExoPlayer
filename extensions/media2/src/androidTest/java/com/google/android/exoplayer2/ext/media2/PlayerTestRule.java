@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -128,8 +127,7 @@ import org.junit.rules.ExternalResource;
     private final DefaultDataSourceFactory defaultDataSourceFactory;
 
     public InstrumentingDataSourceFactory(Context context) {
-      defaultDataSourceFactory =
-          new DefaultDataSourceFactory(context, Util.getUserAgent(context, "media2-test"));
+      defaultDataSourceFactory = new DefaultDataSourceFactory(context);
     }
 
     @Override

@@ -111,8 +111,7 @@ public class FlacPlaybackTest {
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSourceFactory(context, "ExoPlayerExtFlacTest"),
-                  MatroskaExtractor.FACTORY)
+                  new DefaultDataSourceFactory(context), MatroskaExtractor.FACTORY)
               .createMediaSource(MediaItem.fromUri(uri));
       player.setMediaSource(mediaSource);
       player.prepare();

@@ -288,7 +288,6 @@ public class PlayerActivity extends AppCompatActivity
           DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
       MediaSourceFactory mediaSourceFactory =
           new DefaultMediaSourceFactory(dataSourceFactory)
-              .setDrmUserAgent(DemoUtil.getUserAgent(this))
               .setAdsLoaderProvider(this::getAdsLoader)
               .setAdViewProvider(playerView);
 

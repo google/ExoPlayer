@@ -51,7 +51,7 @@ public final class AmrExtractorSeekTest {
   @Before
   public void setUp() {
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

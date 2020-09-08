@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -97,12 +98,26 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private long bytesSkipped;
   private long bytesRead;
 
-  /** @param userAgent The User-Agent string that should be used. */
+  /** Creates an instance. */
+  public DefaultHttpDataSource() {
+    this(
+        ExoPlayerLibraryInfo.DEFAULT_USER_AGENT,
+        DEFAULT_CONNECT_TIMEOUT_MILLIS,
+        DEFAULT_READ_TIMEOUT_MILLIS);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param userAgent The User-Agent string that should be used.
+   */
   public DefaultHttpDataSource(String userAgent) {
     this(userAgent, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
    *     interpreted as an infinite timeout.
@@ -119,6 +134,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
    *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use the
@@ -146,6 +163,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
@@ -164,6 +183,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
@@ -192,6 +213,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link

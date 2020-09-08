@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -115,9 +114,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @param context Any context.
    */
   public DefaultMediaSourceFactory(Context context) {
-    this(
-        new DefaultDataSourceFactory(
-            context, Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY)));
+    this(new DefaultDataSourceFactory(context));
   }
 
   /**
