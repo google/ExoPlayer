@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import java.util.List;
@@ -59,7 +60,8 @@ public interface MediaSourceFactory {
    * Sets the {@link DrmSessionManager} to use for all media items regardless of their {@link
    * MediaItem.DrmConfiguration}.
    *
-   * @param drmSessionManager The {@link DrmSessionManager}.
+   * @param drmSessionManager The {@link DrmSessionManager}, or {@code null} to use the {@link
+   *     DefaultDrmSessionManager}.
    * @return This factory, for convenience.
    */
   MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager);
@@ -85,7 +87,8 @@ public interface MediaSourceFactory {
    * #setDrmHttpDataSourceFactory(HttpDataSource.Factory)} or a {@link DrmSessionManager} has been
    * set by {@link #setDrmSessionManager(DrmSessionManager)}, this user agent is ignored.
    *
-   * @param userAgent The user agent to be used for DRM requests.
+   * @param userAgent The user agent to be used for DRM requests, or {@code null} to use the
+   *     default.
    * @return This factory, for convenience.
    */
   MediaSourceFactory setDrmUserAgent(@Nullable String userAgent);
@@ -93,7 +96,8 @@ public interface MediaSourceFactory {
   /**
    * Sets an optional {@link LoadErrorHandlingPolicy}.
    *
-   * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
+   * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}, or {@code null} to use the
+   *     {@link DefaultLoadErrorHandlingPolicy}.
    * @return This factory, for convenience.
    */
   MediaSourceFactory setLoadErrorHandlingPolicy(

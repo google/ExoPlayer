@@ -23,13 +23,14 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
@@ -64,9 +65,10 @@ import java.util.List;
  *   <li>{@link ProgressiveMediaSource.Factory} serves as a fallback if the item's {@link
  *       MediaItem.PlaybackProperties#uri uri} doesn't match one of the above. It tries to infer the
  *       required extractor by using the {@link
- *       com.google.android.exoplayer2.extractor.DefaultExtractorsFactory}. An {@link
- *       UnrecognizedInputFormatException} is thrown if none of the available extractors can read
- *       the stream.
+ *       com.google.android.exoplayer2.extractor.DefaultExtractorsFactory} or the {@link
+ *       ExtractorsFactory} provided in {@link #DefaultMediaSourceFactory(DataSource.Factory,
+ *       ExtractorsFactory)}. An {@link UnrecognizedInputFormatException} is thrown if none of the
+ *       available extractors can read the stream.
  * </ul>
  *
  * <h3>Ad support for media items with ad tag URIs</h3>
@@ -105,6 +107,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @Nullable private AdViewProvider adViewProvider;
   @Nullable private DrmSessionManager drmSessionManager;
   @Nullable private List<StreamKey> streamKeys;
+  @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
   /**
    * Creates a new instance.
@@ -124,9 +127,22 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    *     for requesting media data.
    */
   public DefaultMediaSourceFactory(DataSource.Factory dataSourceFactory) {
+    this(dataSourceFactory, new DefaultExtractorsFactory());
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param dataSourceFactory A {@link DataSource.Factory} to create {@link DataSource} instances
+   *     for requesting media data.
+   * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
+   *     its container.
+   */
+  public DefaultMediaSourceFactory(
+      DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
     mediaSourceDrmHelper = new MediaSourceDrmHelper();
-    mediaSourceFactories = loadDelegates(dataSourceFactory);
+    mediaSourceFactories = loadDelegates(dataSourceFactory, extractorsFactory);
     supportedTypes = new int[mediaSourceFactories.size()];
     for (int i = 0; i < mediaSourceFactories.size(); i++) {
       supportedTypes[i] = mediaSourceFactories.keyAt(i);
@@ -180,13 +196,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @Override
   public DefaultMediaSourceFactory setLoadErrorHandlingPolicy(
       @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
-    LoadErrorHandlingPolicy newLoadErrorHandlingPolicy =
-        loadErrorHandlingPolicy != null
-            ? loadErrorHandlingPolicy
-            : new DefaultLoadErrorHandlingPolicy();
-    for (int i = 0; i < mediaSourceFactories.size(); i++) {
-      mediaSourceFactories.valueAt(i).setLoadErrorHandlingPolicy(newLoadErrorHandlingPolicy);
-    }
+    this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
     return this;
   }
 
@@ -224,6 +234,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         !mediaItem.playbackProperties.streamKeys.isEmpty()
             ? mediaItem.playbackProperties.streamKeys
             : streamKeys);
+    mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
 
     MediaSource mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
 
@@ -285,7 +296,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   }
 
   private static SparseArray<MediaSourceFactory> loadDelegates(
-      DataSource.Factory dataSourceFactory) {
+      DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     SparseArray<MediaSourceFactory> factories = new SparseArray<>();
     // LINT.IfChange
     try {
@@ -320,7 +331,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       // Expected if the app was built without the hls module.
     }
     // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
-    factories.put(C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory));
+    factories.put(
+        C.TYPE_OTHER, new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory));
     return factories;
   }
 }
