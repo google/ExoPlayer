@@ -1,5 +1,11 @@
 # Release notes
 
+### 2.12.1 ###
+
+*   Data sources:
+    *   Add support for `android.resource` URI scheme in `RawResourceDataSource`
+        ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
+
 ### 2.12.0 (2020-09-11) ###
 
 To learn more about what's new in 2.12, read the corresponding
