@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -58,11 +59,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Nullable private Callback callback;
   private SsManifest manifest;
+  private MediaItem.PlaybackProperties playbackProperties;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
 
   public SsMediaPeriod(
       SsManifest manifest,
+      MediaItem.PlaybackProperties playbackProperties,
       SsChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
@@ -73,6 +76,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       LoaderErrorThrower manifestLoaderErrorThrower,
       Allocator allocator) {
     this.manifest = manifest;
+    this.playbackProperties = playbackProperties;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
@@ -237,7 +241,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int streamElementIndex = trackGroups.indexOf(selection.getTrackGroup());
     SsChunkSource chunkSource =
         chunkSourceFactory.createChunkSource(
-            manifestLoaderErrorThrower, manifest, streamElementIndex, selection, transferListener);
+            manifestLoaderErrorThrower,
+            manifest,
+            playbackProperties,
+            streamElementIndex,
+            selection,
+            transferListener);
     return new ChunkSampleStream<>(
         manifest.streamElements[streamElementIndex].type,
         null,

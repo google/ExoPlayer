@@ -470,6 +470,7 @@ public final class SsMediaSource extends BaseMediaSource
     SsMediaPeriod period =
         new SsMediaPeriod(
             manifest,
+            playbackProperties,
             chunkSourceFactory,
             mediaTransferListener,
             compositeSequenceableLoaderFactory,
