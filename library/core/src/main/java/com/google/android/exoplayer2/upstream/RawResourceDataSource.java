@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.upstream;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
@@ -34,9 +35,20 @@ import java.io.InputStream;
 /**
  * A {@link DataSource} for reading a raw resource inside the APK.
  *
- * <p>URIs supported by this source are of the form {@code rawresource:///rawResourceId}, where
- * rawResourceId is the integer identifier of a raw resource. {@link #buildRawResourceUri(int)} can
- * be used to build {@link Uri}s in this format.
+ * <p>URIs supported by this source are of one of the forms:
+ *
+ * <ul>
+ *   <li>{@code rawresource:///id}, where {@code id} is the integer identifier of a raw resource.
+ *   <li>{@code android.resource:///id}, where {@code id} is the integer identifier of a raw
+ *       resource.
+ *   <li>{@code android.resource://[package]/[type/]name}, where {@code package} is the name of the
+ *       package in which the resource is located, {@code type} is the resource type and {@code
+ *       name} is the resource name. The package and the type are optional. Their default value is
+ *       the package of this application and "raw", respectively. Using the two other forms is more
+ *       efficient.
+ * </ul>
+ *
+ * <p>{@link #buildRawResourceUri(int)} can be used to build supported {@link Uri}s.
  */
 public final class RawResourceDataSource extends BaseDataSource {
 
@@ -67,6 +79,7 @@ public final class RawResourceDataSource extends BaseDataSource {
   public static final String RAW_RESOURCE_SCHEME = "rawresource";
 
   private final Resources resources;
+  private final String packageName;
 
   @Nullable private Uri uri;
   @Nullable private AssetFileDescriptor assetFileDescriptor;
@@ -80,33 +93,55 @@ public final class RawResourceDataSource extends BaseDataSource {
   public RawResourceDataSource(Context context) {
     super(/* isNetwork= */ false);
     this.resources = context.getResources();
+    this.packageName = context.getPackageName();
   }
 
   @Override
   public long open(DataSpec dataSpec) throws RawResourceDataSourceException {
-    try {
-      Uri uri = dataSpec.uri;
-      this.uri = uri;
-      if (!TextUtils.equals(RAW_RESOURCE_SCHEME, uri.getScheme())) {
-        throw new RawResourceDataSourceException("URI must use scheme " + RAW_RESOURCE_SCHEME);
-      }
+    Uri uri = dataSpec.uri;
+    this.uri = uri;
 
-      int resourceId;
+    int resourceId;
+    if (TextUtils.equals(RAW_RESOURCE_SCHEME, uri.getScheme())
+        || (TextUtils.equals(ContentResolver.SCHEME_ANDROID_RESOURCE, uri.getScheme())
+            && uri.getPathSegments().size() == 1
+            && Assertions.checkNotNull(uri.getLastPathSegment()).matches("\\d+"))) {
       try {
         resourceId = Integer.parseInt(Assertions.checkNotNull(uri.getLastPathSegment()));
       } catch (NumberFormatException e) {
         throw new RawResourceDataSourceException("Resource identifier must be an integer.");
       }
-
-      transferInitializing(dataSpec);
-      AssetFileDescriptor assetFileDescriptor = resources.openRawResourceFd(resourceId);
-      this.assetFileDescriptor = assetFileDescriptor;
-      if (assetFileDescriptor == null) {
-        throw new RawResourceDataSourceException("Resource is compressed: " + uri);
+    } else if (TextUtils.equals(ContentResolver.SCHEME_ANDROID_RESOURCE, uri.getScheme())) {
+      String path = Assertions.checkNotNull(uri.getPath());
+      if (path.startsWith("/")) {
+        path = path.substring(1);
       }
-      FileInputStream inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
-      this.inputStream = inputStream;
+      @Nullable String host = uri.getHost();
+      String resourceName = (TextUtils.isEmpty(host) ? "" : (host + ":")) + path;
+      resourceId =
+          resources.getIdentifier(
+              resourceName, /* defType= */ "raw", /* defPackage= */ packageName);
+      if (resourceId == 0) {
+        throw new RawResourceDataSourceException("Resource not found.");
+      }
+    } else {
+      throw new RawResourceDataSourceException(
+          "URI must either use scheme "
+              + RAW_RESOURCE_SCHEME
+              + " or "
+              + ContentResolver.SCHEME_ANDROID_RESOURCE);
+    }
 
+    transferInitializing(dataSpec);
+    AssetFileDescriptor assetFileDescriptor = resources.openRawResourceFd(resourceId);
+    this.assetFileDescriptor = assetFileDescriptor;
+    if (assetFileDescriptor == null) {
+      throw new RawResourceDataSourceException("Resource is compressed: " + uri);
+    }
+
+    FileInputStream inputStream = new FileInputStream(assetFileDescriptor.getFileDescriptor());
+    this.inputStream = inputStream;
+    try {
       inputStream.skip(assetFileDescriptor.getStartOffset());
       long skipped = inputStream.skip(dataSpec.position);
       if (skipped < dataSpec.position) {
@@ -114,16 +149,19 @@ public final class RawResourceDataSource extends BaseDataSource {
         // skip beyond the end of the data.
         throw new EOFException();
       }
-      if (dataSpec.length != C.LENGTH_UNSET) {
-        bytesRemaining = dataSpec.length;
-      } else {
-        long assetFileDescriptorLength = assetFileDescriptor.getLength();
-        // If the length is UNKNOWN_LENGTH then the asset extends to the end of the file.
-        bytesRemaining = assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH
-            ? C.LENGTH_UNSET : (assetFileDescriptorLength - dataSpec.position);
-      }
     } catch (IOException e) {
       throw new RawResourceDataSourceException(e);
+    }
+
+    if (dataSpec.length != C.LENGTH_UNSET) {
+      bytesRemaining = dataSpec.length;
+    } else {
+      long assetFileDescriptorLength = assetFileDescriptor.getLength();
+      // If the length is UNKNOWN_LENGTH then the asset extends to the end of the file.
+      bytesRemaining =
+          assetFileDescriptorLength == AssetFileDescriptor.UNKNOWN_LENGTH
+              ? C.LENGTH_UNSET
+              : (assetFileDescriptorLength - dataSpec.position);
     }
 
     opened = true;

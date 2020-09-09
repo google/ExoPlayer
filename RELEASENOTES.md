@@ -4,6 +4,9 @@
 
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
+*   Data sources:
+    *   Add support for `android.resource` URI scheme in `RawResourceDataSource`
+        ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
 
 ### 2.12.0 (not yet released - targeted for 2020-09-11) ###
 
