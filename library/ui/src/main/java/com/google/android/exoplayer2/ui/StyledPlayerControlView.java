@@ -716,6 +716,8 @@ public class StyledPlayerControlView extends FrameLayout {
     controlViewLayoutManager.setShowButton(shuffleButton, showShuffleButton);
     controlViewLayoutManager.setShowButton(subtitleButton, showSubtitleButton);
     controlViewLayoutManager.setShowButton(vrButton, showVrButton);
+    controlViewLayoutManager.setShowButton(
+        repeatToggleButton, repeatToggleModes != RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE);
     addOnLayoutChangeListener(this::onLayoutChange);
   }
 
