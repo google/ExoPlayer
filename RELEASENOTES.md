@@ -1,6 +1,6 @@
 # Release notes
 
-### 2.12.0 (not yet released - targeted for 2020-09-03) ###
+### 2.12.0 (2020-09-03) ###
 
 *   Core library:
     *   `Player`:
