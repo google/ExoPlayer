@@ -1096,6 +1096,11 @@ public final class ImaAdsLoader
     if (imaAdInfo != null) {
       adPlaybackState = adPlaybackState.withSkippedAdGroup(imaAdInfo.adGroupIndex);
       updateAdPlaybackState();
+    } else if (adPlaybackState.adGroupCount == 1 && adPlaybackState.adGroupTimesUs[0] == 0) {
+      // For incompatible VPAID ads with one preroll, content is resumed immediately. In this case
+      // we haven't received ad info (the ad never loaded), but there is only one ad group to skip.
+      adPlaybackState = adPlaybackState.withSkippedAdGroup(/* adGroupIndex= */ 0);
+      updateAdPlaybackState();
     }
   }
 

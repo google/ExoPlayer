@@ -48,62 +48,74 @@ import com.google.android.exoplayer2.util.Util;
  * <h3 id="single-file">Single media file or on-demand stream</h3>
  *
  * <p style="align:center"><img src="doc-files/timeline-single-file.svg" alt="Example timeline for a
- * single file"> A timeline for a single media file or on-demand stream consists of a single period
- * and window. The window spans the whole period, indicating that all parts of the media are
- * available for playback. The window's default position is typically at the start of the period
- * (indicated by the black dot in the figure above).
+ * single file">
+ *
+ * <p>A timeline for a single media file or on-demand stream consists of a single period and window.
+ * The window spans the whole period, indicating that all parts of the media are available for
+ * playback. The window's default position is typically at the start of the period (indicated by the
+ * black dot in the figure above).
  *
  * <h3>Playlist of media files or on-demand streams</h3>
  *
  * <p style="align:center"><img src="doc-files/timeline-playlist.svg" alt="Example timeline for a
- * playlist of files"> A timeline for a playlist of media files or on-demand streams consists of
- * multiple periods, each with its own window. Each window spans the whole of the corresponding
- * period, and typically has a default position at the start of the period. The properties of the
- * periods and windows (e.g. their durations and whether the window is seekable) will often only
- * become known when the player starts buffering the corresponding file or stream.
+ * playlist of files">
+ *
+ * <p>A timeline for a playlist of media files or on-demand streams consists of multiple periods,
+ * each with its own window. Each window spans the whole of the corresponding period, and typically
+ * has a default position at the start of the period. The properties of the periods and windows
+ * (e.g. their durations and whether the window is seekable) will often only become known when the
+ * player starts buffering the corresponding file or stream.
  *
  * <h3 id="live-limited">Live stream with limited availability</h3>
  *
  * <p style="align:center"><img src="doc-files/timeline-live-limited.svg" alt="Example timeline for
- * a live stream with limited availability"> A timeline for a live stream consists of a period whose
- * duration is unknown, since it's continually extending as more content is broadcast. If content
- * only remains available for a limited period of time then the window may start at a non-zero
- * position, defining the region of content that can still be played. The window will have {@link
- * Window#isLive} set to true to indicate it's a live stream and {@link Window#isDynamic} set to
- * true as long as we expect changes to the live window. Its default position is typically near to
- * the live edge (indicated by the black dot in the figure above).
+ * a live stream with limited availability">
+ *
+ * <p>A timeline for a live stream consists of a period whose duration is unknown, since it's
+ * continually extending as more content is broadcast. If content only remains available for a
+ * limited period of time then the window may start at a non-zero position, defining the region of
+ * content that can still be played. The window will have {@link Window#isLive} set to true to
+ * indicate it's a live stream and {@link Window#isDynamic} set to true as long as we expect changes
+ * to the live window. Its default position is typically near to the live edge (indicated by the
+ * black dot in the figure above).
  *
  * <h3>Live stream with indefinite availability</h3>
  *
  * <p style="align:center"><img src="doc-files/timeline-live-indefinite.svg" alt="Example timeline
- * for a live stream with indefinite availability"> A timeline for a live stream with indefinite
- * availability is similar to the <a href="#live-limited">Live stream with limited availability</a>
- * case, except that the window starts at the beginning of the period to indicate that all of the
- * previously broadcast content can still be played.
+ * for a live stream with indefinite availability">
+ *
+ * <p>A timeline for a live stream with indefinite availability is similar to the <a
+ * href="#live-limited">Live stream with limited availability</a> case, except that the window
+ * starts at the beginning of the period to indicate that all of the previously broadcast content
+ * can still be played.
  *
  * <h3 id="live-multi-period">Live stream with multiple periods</h3>
  *
  * <p style="align:center"><img src="doc-files/timeline-live-multi-period.svg" alt="Example timeline
- * for a live stream with multiple periods"> This case arises when a live stream is explicitly
- * divided into separate periods, for example at content boundaries. This case is similar to the <a
- * href="#live-limited">Live stream with limited availability</a> case, except that the window may
- * span more than one period. Multiple periods are also possible in the indefinite availability
- * case.
+ * for a live stream with multiple periods">
+ *
+ * <p>This case arises when a live stream is explicitly divided into separate periods, for example
+ * at content boundaries. This case is similar to the <a href="#live-limited">Live stream with
+ * limited availability</a> case, except that the window may span more than one period. Multiple
+ * periods are also possible in the indefinite availability case.
  *
  * <h3>On-demand stream followed by live stream</h3>
  *
  * <p style="align:center"><img src="doc-files/timeline-advanced.svg" alt="Example timeline for an
- * on-demand stream followed by a live stream"> This case is the concatenation of the <a
- * href="#single-file">Single media file or on-demand stream</a> and <a href="#multi-period">Live
- * stream with multiple periods</a> cases. When playback of the on-demand stream ends, playback of
- * the live stream will start from its default position near the live edge.
+ * on-demand stream followed by a live stream">
+ *
+ * <p>This case is the concatenation of the <a href="#single-file">Single media file or on-demand
+ * stream</a> and <a href="#multi-period">Live stream with multiple periods</a> cases. When playback
+ * of the on-demand stream ends, playback of the live stream will start from its default position
+ * near the live edge.
  *
  * <h3 id="single-file-midrolls">On-demand stream with mid-roll ads</h3>
  *
  * <p style="align:center"><img src="doc-files/timeline-single-file-midrolls.svg" alt="Example
- * timeline for an on-demand stream with mid-roll ad groups"> This case includes mid-roll ad groups,
- * which are defined as part of the timeline's single period. The period can be queried for
- * information about the ad groups and the ads they contain.
+ * timeline for an on-demand stream with mid-roll ad groups">
+ *
+ * <p>This case includes mid-roll ad groups, which are defined as part of the timeline's single
+ * period. The period can be queried for information about the ad groups and the ads they contain.
  */
 public abstract class Timeline {
 

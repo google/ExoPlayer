@@ -22,6 +22,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -218,6 +219,18 @@ public final class DownloadRequest implements Parcelable {
         newRequest.keySetId,
         newRequest.customCacheKey,
         newRequest.data);
+  }
+
+  /** Returns a {@link MediaItem} for the content defined by the request. */
+  public MediaItem toMediaItem() {
+    return new MediaItem.Builder()
+        .setMediaId(id)
+        .setUri(uri)
+        .setCustomCacheKey(customCacheKey)
+        .setMimeType(mimeType)
+        .setStreamKeys(streamKeys)
+        .setDrmKeySetId(keySetId)
+        .build();
   }
 
   @Override

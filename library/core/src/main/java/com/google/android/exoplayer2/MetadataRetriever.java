@@ -43,8 +43,8 @@ public final class MetadataRetriever {
   /**
    * Retrieves the {@link TrackGroupArray} corresponding to a {@link MediaItem}.
    *
-   * <p>This is equivalent to using {@code
-   * retrieveMetadata(DefaultMediaSourceFactory.newInstance(context), mediaItem)}.
+   * <p>This is equivalent to using {@code retrieveMetadata(new DefaultMediaSourceFactory(context),
+   * mediaItem)}.
    *
    * @param context The {@link Context}.
    * @param mediaItem The {@link MediaItem} whose metadata should be retrieved.
@@ -52,7 +52,7 @@ public final class MetadataRetriever {
    */
   public static ListenableFuture<TrackGroupArray> retrieveMetadata(
       Context context, MediaItem mediaItem) {
-    return retrieveMetadata(DefaultMediaSourceFactory.newInstance(context), mediaItem);
+    return retrieveMetadata(new DefaultMediaSourceFactory(context), mediaItem);
   }
 
   /**

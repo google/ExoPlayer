@@ -264,7 +264,8 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
       for (TrackSelection trackSelection : selections) {
         if (trackSelection != null) {
           Format selectedFormat = trackSelection.getSelectedFormat();
-          if (!MimeTypes.allSamplesAreSyncSamples(selectedFormat.sampleMimeType)) {
+          if (!MimeTypes.allSamplesAreSyncSamples(
+              selectedFormat.sampleMimeType, selectedFormat.codecs)) {
             return true;
           }
         }

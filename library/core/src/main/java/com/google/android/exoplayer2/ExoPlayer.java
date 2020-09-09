@@ -182,7 +182,7 @@ public interface ExoPlayer extends Player {
       this(
           renderers,
           new DefaultTrackSelector(context),
-          DefaultMediaSourceFactory.newInstance(context),
+          new DefaultMediaSourceFactory(context),
           new DefaultLoadControl(),
           DefaultBandwidthMeter.getSingletonInstance(context));
     }

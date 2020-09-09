@@ -185,17 +185,20 @@ public class SessionPlayerConnectorTest {
           }
         };
     SimpleExoPlayer simpleExoPlayer = null;
+    SessionPlayerConnector playerConnector = null;
     try {
       simpleExoPlayer =
           new SimpleExoPlayer.Builder(context)
               .setLooper(Looper.myLooper())
               .build();
-      try (SessionPlayerConnector player =
-          new SessionPlayerConnector(
-              simpleExoPlayer, new DefaultMediaItemConverter(), controlDispatcher)) {
-        assertPlayerResult(player.play(), RESULT_INFO_SKIPPED);
-      }
+      playerConnector =
+          new SessionPlayerConnector(simpleExoPlayer, new DefaultMediaItemConverter());
+      playerConnector.setControlDispatcher(controlDispatcher);
+      assertPlayerResult(playerConnector.play(), RESULT_INFO_SKIPPED);
     } finally {
+      if (playerConnector != null) {
+        playerConnector.close();
+      }
       if (simpleExoPlayer != null) {
         simpleExoPlayer.release();
       }

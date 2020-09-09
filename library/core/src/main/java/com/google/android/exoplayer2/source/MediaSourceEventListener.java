@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Util.postOrRun;
+
 import android.os.Handler;
-import android.os.Looper;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -469,14 +470,6 @@ public interface MediaSourceEventListener {
     private long adjustMediaTime(long mediaTimeUs) {
       long mediaTimeMs = C.usToMs(mediaTimeUs);
       return mediaTimeMs == C.TIME_UNSET ? C.TIME_UNSET : mediaTimeOffsetMs + mediaTimeMs;
-    }
-
-    private static void postOrRun(Handler handler, Runnable runnable) {
-      if (handler.getLooper() == Looper.myLooper()) {
-        runnable.run();
-      } else {
-        handler.post(runnable);
-      }
     }
 
     private static final class ListenerAndHandler {

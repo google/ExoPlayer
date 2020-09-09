@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -81,13 +80,8 @@ public final class DemoUtil {
     if (httpDataSourceFactory == null) {
       context = context.getApplicationContext();
       CronetEngineWrapper cronetEngineWrapper = new CronetEngineWrapper(context);
-      String userAgent = Util.getUserAgent(context, "ExoPlayerDemo");
       httpDataSourceFactory =
-          new CronetDataSourceFactory(
-              cronetEngineWrapper,
-              Executors.newSingleThreadExecutor(),
-              /* transferListener= */ null,
-              userAgent);
+          new CronetDataSourceFactory(cronetEngineWrapper, Executors.newSingleThreadExecutor());
     }
     return httpDataSourceFactory;
   }

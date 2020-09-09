@@ -81,6 +81,18 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   private long bytesRead;
 
   /**
+   * Creates an instance.
+   *
+   * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
+   *     by the source.
+   */
+  public OkHttpDataSource(Call.Factory callFactory) {
+    this(callFactory, ExoPlayerLibraryInfo.DEFAULT_USER_AGENT);
+  }
+
+  /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
    * @param userAgent An optional User-Agent string.
@@ -90,6 +102,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
    * @param userAgent An optional User-Agent string.
@@ -111,6 +125,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
    * @param userAgent An optional User-Agent string.
@@ -135,6 +151,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
    * @param userAgent An optional User-Agent string.

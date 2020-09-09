@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import static com.google.android.exoplayer2.util.Util.postOrRun;
+
 import android.os.Handler;
-import android.os.Looper;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Player;
@@ -204,15 +205,6 @@ public interface DrmSessionEventListener {
         postOrRun(
             listenerAndHandler.handler,
             () -> listener.onDrmSessionReleased(windowIndex, mediaPeriodId));
-      }
-    }
-
-    /** Dispatches {@link #onDrmSessionAcquired(int, MediaPeriodId)}. */
-    private static void postOrRun(Handler handler, Runnable runnable) {
-      if (handler.getLooper() == Looper.myLooper()) {
-        runnable.run();
-      } else {
-        handler.post(runnable);
       }
     }
 

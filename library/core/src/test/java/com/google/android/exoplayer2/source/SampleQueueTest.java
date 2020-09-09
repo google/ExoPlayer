@@ -879,6 +879,118 @@ public final class SampleQueueTest {
   }
 
   @Test
+  public void discardUpstreamFrom() {
+    writeTestData();
+    sampleQueue.discardUpstreamFrom(8000);
+    assertAllocationCount(10);
+    sampleQueue.discardUpstreamFrom(7000);
+    assertAllocationCount(9);
+    sampleQueue.discardUpstreamFrom(6000);
+    assertAllocationCount(7);
+    sampleQueue.discardUpstreamFrom(5000);
+    assertAllocationCount(5);
+    sampleQueue.discardUpstreamFrom(4000);
+    assertAllocationCount(4);
+    sampleQueue.discardUpstreamFrom(3000);
+    assertAllocationCount(3);
+    sampleQueue.discardUpstreamFrom(2000);
+    assertAllocationCount(2);
+    sampleQueue.discardUpstreamFrom(1000);
+    assertAllocationCount(1);
+    sampleQueue.discardUpstreamFrom(0);
+    assertAllocationCount(0);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void discardUpstreamFromMulti() {
+    writeTestData();
+    sampleQueue.discardUpstreamFrom(4000);
+    assertAllocationCount(4);
+    sampleQueue.discardUpstreamFrom(0);
+    assertAllocationCount(0);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void discardUpstreamFromNonSampleTimestamps() {
+    writeTestData();
+    sampleQueue.discardUpstreamFrom(3500);
+    assertAllocationCount(4);
+    sampleQueue.discardUpstreamFrom(500);
+    assertAllocationCount(1);
+    sampleQueue.discardUpstreamFrom(0);
+    assertAllocationCount(0);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void discardUpstreamFromBeforeRead() {
+    writeTestData();
+    sampleQueue.discardUpstreamFrom(4000);
+    assertAllocationCount(4);
+    assertReadTestData(null, 0, 4);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void discardUpstreamFromAfterRead() {
+    writeTestData();
+    assertReadTestData(null, 0, 3);
+    sampleQueue.discardUpstreamFrom(8000);
+    assertAllocationCount(10);
+    sampleQueue.discardToRead();
+    assertAllocationCount(7);
+    sampleQueue.discardUpstreamFrom(7000);
+    assertAllocationCount(6);
+    sampleQueue.discardUpstreamFrom(6000);
+    assertAllocationCount(4);
+    sampleQueue.discardUpstreamFrom(5000);
+    assertAllocationCount(2);
+    sampleQueue.discardUpstreamFrom(4000);
+    assertAllocationCount(1);
+    sampleQueue.discardUpstreamFrom(3000);
+    assertAllocationCount(0);
+    assertReadFormat(false, FORMAT_2);
+    assertNoSamplesToRead(FORMAT_2);
+  }
+
+  @Test
+  public void largestQueuedTimestampWithDiscardUpstreamFrom() {
+    writeTestData();
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
+    sampleQueue.discardUpstreamFrom(SAMPLE_TIMESTAMPS[SAMPLE_TIMESTAMPS.length - 1]);
+    // Discarding from upstream should reduce the largest timestamp.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs())
+        .isEqualTo(SAMPLE_TIMESTAMPS[SAMPLE_TIMESTAMPS.length - 2]);
+    sampleQueue.discardUpstreamFrom(0);
+    // Discarding everything from upstream without reading should unset the largest timestamp.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(MIN_VALUE);
+  }
+
+  @Test
+  public void largestQueuedTimestampWithDiscardUpstreamFromDecodeOrder() {
+    long[] decodeOrderTimestamps = new long[] {0, 3000, 2000, 1000, 4000, 7000, 6000, 5000};
+    writeTestData(
+        DATA, SAMPLE_SIZES, SAMPLE_OFFSETS, decodeOrderTimestamps, SAMPLE_FORMATS, SAMPLE_FLAGS);
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(7000);
+    sampleQueue.discardUpstreamFrom(SAMPLE_TIMESTAMPS[SAMPLE_TIMESTAMPS.length - 2]);
+    // Discarding the last two samples should not change the largest timestamp, due to the decode
+    // ordering of the timestamps.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(7000);
+    sampleQueue.discardUpstreamFrom(SAMPLE_TIMESTAMPS[SAMPLE_TIMESTAMPS.length - 3]);
+    // Once a third sample is discarded, the largest timestamp should have changed.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(4000);
+    sampleQueue.discardUpstreamFrom(0);
+    // Discarding everything from upstream without reading should unset the largest timestamp.
+    assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(MIN_VALUE);
+  }
+
+  @Test
   public void discardUpstream() {
     writeTestData();
     sampleQueue.discardUpstreamSamples(8);
@@ -984,6 +1096,43 @@ public final class SampleQueueTest {
     assertReadTestData();
     // Reading everything should not reduce the largest timestamp.
     assertThat(sampleQueue.getLargestQueuedTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
+  }
+
+  @Test
+  public void largestReadTimestampWithReadAll() {
+    writeTestData();
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(MIN_VALUE);
+    assertReadTestData();
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(LAST_SAMPLE_TIMESTAMP);
+  }
+
+  @Test
+  public void largestReadTimestampWithReads() {
+    writeTestData();
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(MIN_VALUE);
+
+    assertReadTestData(/* startFormat= */ null, 0, 2);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[1]);
+
+    assertReadTestData(SAMPLE_FORMATS[1], 2, 3);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[4]);
+  }
+
+  @Test
+  public void largestReadTimestampWithDiscard() {
+    // Discarding shouldn't change the read timestamp.
+    writeTestData();
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(MIN_VALUE);
+    sampleQueue.discardUpstreamSamples(5);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(MIN_VALUE);
+
+    assertReadTestData(/* startFormat= */ null, 0, 3);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[2]);
+
+    sampleQueue.discardUpstreamSamples(3);
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[2]);
+    sampleQueue.discardToRead();
+    assertThat(sampleQueue.getLargestReadTimestampUs()).isEqualTo(SAMPLE_TIMESTAMPS[2]);
   }
 
   @Test

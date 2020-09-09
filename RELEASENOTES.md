@@ -2,9 +2,10 @@
 
 ### dev-v2 (not yet released)
 
-*   New release notes go here!
+*   Track selection:
+    *   Add option to specify multiple preferred audio or text languages.
 
-### 2.12.0 (not yet released - targeted for 2020-09-03) ###
+### 2.12.0 (not yet released - targeted for 2020-09-11) ###
 
 *   Core library:
     *   `Player`:
@@ -141,7 +142,7 @@
     *   Recreate the decoder when handling and swallowing decode errors in
         `TextRenderer`. This fixes a case where playback would never end when
         playing content with malformed subtitles
-        ([#7590](https://github.com/google/ExoPlayer/issues/790)).
+        ([#7590](https://github.com/google/ExoPlayer/issues/7590)).
     *   Only apply `CaptionManager` font scaling in
         `SubtitleView.setUserDefaultTextSize` if the `CaptionManager` is
         enabled.
@@ -319,6 +320,8 @@
     *   Add `ImaAdsLoader.Builder.setCompanionAdSlots` so it's possible to set
         companion ad slots without accessing the `AdDisplayContainer`.
     *   Add missing notification of `VideoAdPlayerCallback.onLoaded`.
+    *   Fix handling of incompatible VPAID ads
+        ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
 *   Demo app:
     *   Replace the `extensions` variant with `decoderExtensions` and update the
         demo app use the Cronet and IMA extensions by default.

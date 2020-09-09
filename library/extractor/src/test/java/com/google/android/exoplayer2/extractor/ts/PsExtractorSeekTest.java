@@ -68,7 +68,7 @@ public final class PsExtractorSeekTest {
     expectedTrackOutput = expectedOutput.trackOutputs.get(VIDEO_TRACK_ID);
 
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
             .createDataSource();
     totalInputLength = readInputLength();
   }

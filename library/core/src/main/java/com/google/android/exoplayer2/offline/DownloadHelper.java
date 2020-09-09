@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -77,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <p>A typical usage of DownloadHelper follows these steps:
  *
  * <ol>
- *   <li>Build the helper using one of the {@code forXXX} methods.
+ *   <li>Build the helper using one of the {@code forMediaItem} methods.
  *   <li>Prepare the helper using {@link #prepare(Callback)} and wait for the callback.
  *   <li>Optional: Inspect the selected tracks using {@link #getMappedTrackInfo(int)} and {@link
  *       #getTrackSelections(int, int)}, and make adjustments using {@link
@@ -448,14 +449,7 @@ public final class DownloadHelper {
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
     return createMediaSourceInternal(
-        new MediaItem.Builder()
-            .setUri(downloadRequest.uri)
-            .setCustomCacheKey(downloadRequest.customCacheKey)
-            .setMimeType(downloadRequest.mimeType)
-            .setStreamKeys(downloadRequest.streamKeys)
-            .build(),
-        dataSourceFactory,
-        drmSessionManager);
+        downloadRequest.toMediaItem(), dataSourceFactory, drmSessionManager);
   }
 
   private final MediaItem.PlaybackProperties playbackProperties;
@@ -896,7 +890,7 @@ public final class DownloadHelper {
       MediaItem mediaItem,
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
-    return new DefaultMediaSourceFactory(dataSourceFactory, /* adSupportProvider= */ null)
+    return new DefaultMediaSourceFactory(dataSourceFactory, ExtractorsFactory.EMPTY)
         .setDrmSessionManager(drmSessionManager)
         .createMediaSource(mediaItem);
   }

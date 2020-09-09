@@ -53,7 +53,6 @@ import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -276,9 +275,7 @@ public class SampleChooserActivity extends AppCompatActivity
     protected List<PlaylistGroup> doInBackground(String... uris) {
       List<PlaylistGroup> result = new ArrayList<>();
       Context context = getApplicationContext();
-      String userAgent = Util.getUserAgent(context, "ExoPlayerDemo");
-      DataSource dataSource =
-          new DefaultDataSource(context, userAgent, /* allowCrossProtocolRedirects= */ false);
+      DataSource dataSource = DemoUtil.getDataSourceFactory(context).createDataSource();
       for (String uri : uris) {
         DataSpec dataSpec = new DataSpec(Uri.parse(uri));
         InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);

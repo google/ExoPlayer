@@ -35,6 +35,8 @@
         android:minHeight="@dimen/exo_settings_height"
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"
+        android:paddingEnd="4dp"
+        android:paddingRight="4dp"
         android:gravity="center|start"
         android:orientation="vertical">
 
