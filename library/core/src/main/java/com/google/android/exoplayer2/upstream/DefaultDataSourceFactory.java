@@ -31,12 +31,18 @@ public final class DefaultDataSourceFactory implements Factory {
   @Nullable private final TransferListener listener;
   private final DataSource.Factory baseDataSourceFactory;
 
-  /** @param context A context. */
+  /**
+   * Creates an instance.
+   *
+   * @param context A context.
+   */
   public DefaultDataSourceFactory(Context context) {
     this(context, DEFAULT_USER_AGENT, /* listener= */ null);
   }
 
   /**
+   * Creates an instance.
+   *
    * @param context A context.
    * @param userAgent The User-Agent string that should be used.
    */
@@ -45,6 +51,8 @@ public final class DefaultDataSourceFactory implements Factory {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param context A context.
    * @param userAgent The User-Agent string that should be used.
    * @param listener An optional listener.
@@ -55,6 +63,8 @@ public final class DefaultDataSourceFactory implements Factory {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param context A context.
    * @param baseDataSourceFactory A {@link Factory} to be used to create a base {@link DataSource}
    *     for {@link DefaultDataSource}.
@@ -65,6 +75,8 @@ public final class DefaultDataSourceFactory implements Factory {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param context A context.
    * @param listener An optional listener.
    * @param baseDataSourceFactory A {@link Factory} to be used to create a base {@link DataSource}
