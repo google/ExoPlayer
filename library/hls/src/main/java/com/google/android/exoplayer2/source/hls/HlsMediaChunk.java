@@ -21,6 +21,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -43,7 +44,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -65,7 +65,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param mediaPlaylist The media playlist from which this chunk was obtained.
    * @param segmentBaseHolder The segment holder.
    * @param playlistUrl The url of the playlist from which this chunk was obtained.
-   * @param headers The headers required to request this chunk.
+   * @param playbackProperties Playback data for the media item being played.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the master playlist.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
@@ -86,7 +86,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       HlsMediaPlaylist mediaPlaylist,
       HlsChunkSource.SegmentBaseHolder segmentBaseHolder,
       Uri playlistUrl,
-      Map<String, String> headers,
+      MediaItem.PlaybackProperties playbackProperties,
       @Nullable List<Format> muxedCaptionFormats,
       int trackSelectionReason,
       @Nullable Object trackSelectionData,
@@ -102,7 +102,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             .setUri(UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url))
             .setPosition(mediaSegment.byteRangeOffset)
             .setLength(mediaSegment.byteRangeLength)
-            .setHttpRequestHeaders(headers)
+            .setHttpRequestHeaders(playbackProperties.headers)
             .setFlags(segmentBaseHolder.isPreload ? FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED : 0)
             .build();
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;

@@ -489,7 +489,7 @@ public final class HlsMediaSource extends BaseMediaSource
         extractorFactory,
         playlistTracker,
         dataSourceFactory,
-        playbackProperties.headers,
+        playbackProperties,
         mediaTransferListener,
         drmSessionManager,
         drmEventDispatcher,
