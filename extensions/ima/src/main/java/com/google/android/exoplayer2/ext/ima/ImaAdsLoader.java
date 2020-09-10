@@ -124,6 +124,7 @@ public final class ImaAdsLoader
     private final Context context;
 
     @Nullable private ImaSdkSettings imaSdkSettings;
+    @Nullable private AdErrorListener adErrorListener;
     @Nullable private AdEventListener adEventListener;
     @Nullable private Set<UiElement> adUiElements;
     @Nullable private Collection<CompanionAdSlot> companionAdSlots;
@@ -162,6 +163,19 @@ public final class ImaAdsLoader
      */
     public Builder setImaSdkSettings(ImaSdkSettings imaSdkSettings) {
       this.imaSdkSettings = checkNotNull(imaSdkSettings);
+      return this;
+    }
+
+    /**
+     * Sets a listener for ad errors that will be passed to {@link
+     * AdsLoader#addAdErrorListener(AdErrorListener)} and {@link
+     * AdsManager#addAdErrorListener(AdErrorListener)}.
+     *
+     * @param adErrorListener The ad error listener.
+     * @return This builder, for convenience.
+     */
+    public Builder setAdErrorListener(AdErrorListener adErrorListener) {
+      this.adErrorListener = checkNotNull(adErrorListener);
       return this;
     }
 
@@ -316,6 +330,7 @@ public final class ImaAdsLoader
           playAdBeforeStartPosition,
           adUiElements,
           companionAdSlots,
+          adErrorListener,
           adEventListener,
           imaFactory);
     }
@@ -341,6 +356,7 @@ public final class ImaAdsLoader
           playAdBeforeStartPosition,
           adUiElements,
           companionAdSlots,
+          adErrorListener,
           adEventListener,
           imaFactory);
     }
@@ -408,6 +424,7 @@ public final class ImaAdsLoader
   private final int mediaBitrate;
   @Nullable private final Set<UiElement> adUiElements;
   @Nullable private final Collection<CompanionAdSlot> companionAdSlots;
+  @Nullable private final AdErrorListener adErrorListener;
   @Nullable private final AdEventListener adEventListener;
   private final ImaFactory imaFactory;
   private final ImaSdkSettings imaSdkSettings;
@@ -516,6 +533,7 @@ public final class ImaAdsLoader
         /* playAdBeforeStartPosition= */ true,
         /* adUiElements= */ null,
         /* companionAdSlots= */ null,
+        /* adErrorListener= */ null,
         /* adEventListener= */ null,
         /* imaFactory= */ new DefaultImaFactory());
   }
@@ -534,6 +552,7 @@ public final class ImaAdsLoader
       boolean playAdBeforeStartPosition,
       @Nullable Set<UiElement> adUiElements,
       @Nullable Collection<CompanionAdSlot> companionAdSlots,
+      @Nullable AdErrorListener adErrorListener,
       @Nullable AdEventListener adEventListener,
       ImaFactory imaFactory) {
     checkArgument(adTagUri != null || adsResponse != null);
@@ -548,6 +567,7 @@ public final class ImaAdsLoader
     this.playAdBeforeStartPosition = playAdBeforeStartPosition;
     this.adUiElements = adUiElements;
     this.companionAdSlots = companionAdSlots;
+    this.adErrorListener = adErrorListener;
     this.adEventListener = adEventListener;
     this.imaFactory = imaFactory;
     if (imaSdkSettings == null) {
@@ -629,6 +649,9 @@ public final class ImaAdsLoader
     }
     adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings, adDisplayContainer);
     adsLoader.addAdErrorListener(componentListener);
+    if (adErrorListener != null) {
+      adsLoader.addAdErrorListener(adErrorListener);
+    }
     adsLoader.addAdsLoadedListener(componentListener);
     AdsRequest request = imaFactory.createAdsRequest();
     if (adTagUri != null) {
@@ -759,6 +782,9 @@ public final class ImaAdsLoader
     if (adsLoader != null) {
       adsLoader.removeAdsLoadedListener(componentListener);
       adsLoader.removeAdErrorListener(componentListener);
+      if (adErrorListener != null) {
+        adsLoader.removeAdErrorListener(adErrorListener);
+      }
     }
     imaPausedContent = false;
     imaAdState = IMA_AD_STATE_NONE;
@@ -1582,6 +1608,9 @@ public final class ImaAdsLoader
   private void destroyAdsManager() {
     if (adsManager != null) {
       adsManager.removeAdErrorListener(componentListener);
+      if (adErrorListener != null) {
+        adsManager.removeAdErrorListener(adErrorListener);
+      }
       adsManager.removeAdEventListener(componentListener);
       if (adEventListener != null) {
         adsManager.removeAdEventListener(adEventListener);
@@ -1642,6 +1671,9 @@ public final class ImaAdsLoader
       pendingAdRequestContext = null;
       ImaAdsLoader.this.adsManager = adsManager;
       adsManager.addAdErrorListener(this);
+      if (adErrorListener != null) {
+        adsManager.addAdErrorListener(adErrorListener);
+      }
       adsManager.addAdEventListener(this);
       if (adEventListener != null) {
         adsManager.addAdEventListener(adEventListener);
