@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.testutil;
+package com.google.android.exoplayer2.e2etest.util;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
