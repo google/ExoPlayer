@@ -1696,7 +1696,15 @@ public final class ImaAdsLoader
     public VideoProgressUpdate getContentProgress() {
       VideoProgressUpdate videoProgressUpdate = getContentVideoProgressUpdate();
       if (DEBUG) {
-        Log.d(TAG, "Content progress: " + videoProgressUpdate);
+        if (VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(videoProgressUpdate)) {
+          Log.d(TAG, "Content progress: not ready");
+        } else {
+          Log.d(
+              TAG,
+              Util.formatInvariant(
+                  "Content progress: %.1f of %.1f s",
+                  videoProgressUpdate.getCurrentTime(), videoProgressUpdate.getDuration()));
+        }
       }
 
       if (waitingForPreloadElapsedRealtimeMs != C.TIME_UNSET) {
