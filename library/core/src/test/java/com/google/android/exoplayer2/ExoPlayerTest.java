@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSample
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static com.google.android.exoplayer2.testutil.TestExoPlayer.playUntilStartOfWindow;
 import static com.google.android.exoplayer2.testutil.TestExoPlayer.runUntilPlaybackState;
+import static com.google.android.exoplayer2.testutil.TestExoPlayer.runUntilReceiveOffloadSchedulingEnabledNewState;
 import static com.google.android.exoplayer2.testutil.TestExoPlayer.runUntilTimelineChanged;
 import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
@@ -110,6 +111,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -8208,6 +8210,109 @@ public final class ExoPlayerTest {
     assertThat(player.getCurrentWindowIndex()).isEqualTo(0);
   }
 
+  @Test
+  public void enableOffloadSchedulingWhileIdle_isToggled_isReported() throws Exception {
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).build();
+
+    player.experimentalSetOffloadSchedulingEnabled(true);
+    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isTrue();
+
+    player.experimentalSetOffloadSchedulingEnabled(false);
+    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
+  }
+
+  @Test
+  public void enableOffloadSchedulingWhilePlaying_isToggled_isReported() throws Exception {
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(sleepRenderer).build();
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.prepare();
+    player.play();
+
+    player.experimentalSetOffloadSchedulingEnabled(true);
+    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isTrue();
+
+    player.experimentalSetOffloadSchedulingEnabled(false);
+    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
+  }
+
+  @Test
+  public void enableOffloadSchedulingWhileSleepingForOffload_isDisabled_isReported()
+      throws Exception {
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(sleepRenderer).build();
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.experimentalSetOffloadSchedulingEnabled(true);
+    runUntilReceiveOffloadSchedulingEnabledNewState(player);
+    player.prepare();
+    player.play();
+    runMainLooperUntil(sleepRenderer::isSleeping);
+
+    player.experimentalSetOffloadSchedulingEnabled(false);
+
+    assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
+  }
+
+  @Test
+  public void enableOffloadScheduling_isEnable_playerSleeps() throws Exception {
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(sleepRenderer).build();
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.prepare();
+    player.play();
+
+    sleepRenderer.sleepOnNextRender();
+
+    runMainLooperUntil(sleepRenderer::isSleeping);
+    // TODO(b/163303129): There is currently no way to check that the player is sleeping for
+    // offload, for now use a timeout to check that the renderer is never woken up.
+    final int renderTimeoutMs = 500;
+    assertThrows(
+        TimeoutException.class,
+        () ->
+            runMainLooperUntil(() -> !sleepRenderer.isSleeping(), renderTimeoutMs, Clock.DEFAULT));
+  }
+
+  @Test
+  public void
+      experimentalEnableOffloadSchedulingWhileSleepingForOffload_isDisabled_renderingResumes()
+          throws Exception {
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(sleepRenderer).build();
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.prepare();
+    player.play();
+    runMainLooperUntil(sleepRenderer::isSleeping);
+
+    player.experimentalSetOffloadSchedulingEnabled(false); // Force the player to exit offload sleep
+
+    runMainLooperUntil(() -> !sleepRenderer.isSleeping());
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+  }
+
+  @Test
+  public void wakeupListenerWhileSleepingForOffload_isWokenUp_renderingResumes() throws Exception {
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).setRenderers(sleepRenderer).build();
+    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.prepare();
+    player.play();
+    runMainLooperUntil(sleepRenderer::isSleeping);
+
+    sleepRenderer.wakeup();
+
+    runMainLooperUntil(() -> !sleepRenderer.isSleeping());
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
@@ -8236,6 +8341,63 @@ public final class ExoPlayerTest {
   }
 
   // Internal classes.
+
+  /* {@link FakeRenderer} that can sleep and be woken-up. */
+  private static class FakeSleepRenderer extends FakeRenderer {
+    private static final long WAKEUP_DEADLINE_MS = 60 * C.MICROS_PER_SECOND;
+    private final AtomicBoolean sleepOnNextRender;
+    private final AtomicBoolean isSleeping;
+    private final AtomicReference<Renderer.WakeupListener> wakeupListenerReceiver;
+
+    public FakeSleepRenderer(int trackType) {
+      super(trackType);
+      sleepOnNextRender = new AtomicBoolean(false);
+      isSleeping = new AtomicBoolean(false);
+      wakeupListenerReceiver = new AtomicReference<>();
+    }
+
+    public void wakeup() {
+      wakeupListenerReceiver.get().onWakeup();
+    }
+
+    /**
+     * Call {@link Renderer.WakeupListener#onSleep(long)} on the next {@link #render(long, long)}
+     */
+    public FakeSleepRenderer sleepOnNextRender() {
+      sleepOnNextRender.set(true);
+      return this;
+    }
+
+    /**
+     * Returns whether {@link Renderer.WakeupListener#onSleep(long)} was called on the last {@link
+     * #render(long, long)}
+     */
+    public boolean isSleeping() {
+      return isSleeping.get();
+    }
+
+    @Override
+    public void handleMessage(int what, @Nullable Object object) throws ExoPlaybackException {
+      if (what == MSG_SET_WAKEUP_LISTENER) {
+        assertThat(object).isNotNull();
+        wakeupListenerReceiver.set((WakeupListener) object);
+      }
+      super.handleMessage(what, object);
+    }
+
+    @Override
+    public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
+      super.render(positionUs, elapsedRealtimeUs);
+      if (sleepOnNextRender.compareAndSet(/* expect= */ true, /* update= */ false)) {
+        wakeupListenerReceiver.get().onSleep(WAKEUP_DEADLINE_MS);
+        // TODO(b/163303129): Use an actual message from the player instead of guessing that the
+        // player will always sleep for offload after calling `onSleep`.
+        isSleeping.set(true);
+      } else {
+        isSleeping.set(false);
+      }
+    }
+  }
 
   private static final class CountingMessageTarget implements PlayerMessage.Target {
 

@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.video.VideoListener;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -436,6 +437,33 @@ public class TestExoPlayer {
     player.addListener(listener);
     runMainLooperUntil(() -> receivedError.get() != null);
     return receivedError.get();
+  }
+
+  /**
+   * Runs tasks of the main {@link Looper} until a {@link
+   * Player.EventListener#onExperimentalOffloadSchedulingEnabledChanged} callback occurred.
+   *
+   * @param player The {@link Player}.
+   * @return The new offloadSchedulingEnabled state.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
+   */
+  public static boolean runUntilReceiveOffloadSchedulingEnabledNewState(Player player)
+      throws TimeoutException {
+    verifyMainTestThread(player);
+    AtomicReference<@NullableType Boolean> offloadSchedulingEnabledReceiver =
+        new AtomicReference<>();
+    Player.EventListener listener =
+        new Player.EventListener() {
+          @Override
+          public void onExperimentalOffloadSchedulingEnabledChanged(
+              boolean offloadSchedulingEnabled) {
+            offloadSchedulingEnabledReceiver.set(offloadSchedulingEnabled);
+          }
+        };
+    player.addListener(listener);
+    runMainLooperUntil(() -> offloadSchedulingEnabledReceiver.get() != null);
+    return Assertions.checkNotNull(offloadSchedulingEnabledReceiver.get());
   }
 
   /**
