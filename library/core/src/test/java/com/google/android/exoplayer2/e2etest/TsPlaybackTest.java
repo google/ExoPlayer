@@ -55,6 +55,7 @@ public class TsPlaybackTest {
     player.prepare();
     player.play();
     TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
 
     DumpFileAsserts.assertOutput(
         ApplicationProvider.getApplicationContext(),
