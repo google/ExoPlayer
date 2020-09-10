@@ -54,7 +54,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Log;
@@ -118,11 +117,11 @@ public class SimpleExoPlayer extends BasePlayer
     /**
      * Creates a builder.
      *
-     * <p>Use {@link #Builder(Context, RenderersFactory)} or {@link #Builder(Context,
-     * RenderersFactory, ExtractorsFactory)} instead, if you intend to provide a custom {@link
-     * RenderersFactory} or a custom {@link ExtractorsFactory}. This is to ensure that ProGuard or
-     * R8 can remove ExoPlayer's {@link DefaultRenderersFactory} and {@link
-     * DefaultExtractorsFactory} from the APK.
+     * <p>Use {@link #Builder(Context, RenderersFactory)}, {@link #Builder(Context,
+     * RenderersFactory)} or {@link #Builder(Context, RenderersFactory, ExtractorsFactory)} instead,
+     * if you intend to provide a custom {@link RenderersFactory} or a custom {@link
+     * ExtractorsFactory}. This is to ensure that ProGuard or R8 can remove ExoPlayer's {@link
+     * DefaultRenderersFactory} and {@link DefaultExtractorsFactory} from the APK.
      *
      * <p>The builder uses the following default values:
      *
@@ -168,6 +167,19 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
+     * Creates a builder with a custom {@link ExtractorsFactory}.
+     *
+     * <p>See {@link #Builder(Context)} for a list of default values.
+     *
+     * @param context A {@link Context}.
+     * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
+     *     its container.
+     */
+    public Builder(Context context, ExtractorsFactory extractorsFactory) {
+      this(context, new DefaultRenderersFactory(context), extractorsFactory);
+    }
+
+    /**
      * Creates a builder with a custom {@link RenderersFactory} and {@link ExtractorsFactory}.
      *
      * <p>See {@link #Builder(Context)} for a list of default values.
@@ -184,10 +196,7 @@ public class SimpleExoPlayer extends BasePlayer
           context,
           renderersFactory,
           new DefaultTrackSelector(context),
-          new DefaultMediaSourceFactory(
-              new DefaultDataSourceFactory(
-                  context, Util.getUserAgent(context, ExoPlayerLibraryInfo.VERSION_SLASHY)),
-              extractorsFactory),
+          new DefaultMediaSourceFactory(context, extractorsFactory),
           new DefaultLoadControl(),
           DefaultBandwidthMeter.getSingletonInstance(context),
           new AnalyticsCollector(Clock.DEFAULT));
@@ -570,7 +579,7 @@ public class SimpleExoPlayer extends BasePlayer
       Clock clock,
       Looper applicationLooper) {
     this(
-        new Builder(context, renderersFactory, new DefaultExtractorsFactory())
+        new Builder(context, renderersFactory)
             .setTrackSelector(trackSelector)
             .setMediaSourceFactory(mediaSourceFactory)
             .setLoadControl(loadControl)

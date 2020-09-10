@@ -65,9 +65,8 @@ import java.util.List;
  *       MediaItem.PlaybackProperties#uri uri} doesn't match one of the above. It tries to infer the
  *       required extractor by using the {@link
  *       com.google.android.exoplayer2.extractor.DefaultExtractorsFactory} or the {@link
- *       ExtractorsFactory} provided in {@link #DefaultMediaSourceFactory(DataSource.Factory,
- *       ExtractorsFactory)}. An {@link UnrecognizedInputFormatException} is thrown if none of the
- *       available extractors can read the stream.
+ *       ExtractorsFactory} provided in the constructor. An {@link UnrecognizedInputFormatException}
+ *       is thrown if none of the available extractors can read the stream.
  * </ul>
  *
  * <h3>Ad support for media items with ad tag URIs</h3>
@@ -115,6 +114,17 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   public DefaultMediaSourceFactory(Context context) {
     this(new DefaultDataSourceFactory(context));
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param context Any context.
+   * @param extractorsFactory An {@link ExtractorsFactory} used to extract progressive media from
+   *     its container.
+   */
+  public DefaultMediaSourceFactory(Context context, ExtractorsFactory extractorsFactory) {
+    this(new DefaultDataSourceFactory(context), extractorsFactory);
   }
 
   /**
