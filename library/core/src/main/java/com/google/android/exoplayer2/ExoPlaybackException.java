@@ -218,7 +218,7 @@ public final class ExoPlaybackException extends Exception {
   public static ExoPlaybackException createForTimeout(
       TimeoutException cause, @TimeoutOperation int timeoutOperation) {
     return new ExoPlaybackException(
-        TYPE_OUT_OF_MEMORY,
+        TYPE_TIMEOUT,
         cause,
         /* customMessage= */ null,
         /* rendererName= */ null,
