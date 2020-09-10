@@ -345,7 +345,7 @@ public class SimpleExoPlayer extends BasePlayer
      * IllegalArgumentException}.
      *
      * @param audioAttributes {@link AudioAttributes}.
-     * @param handleAudioFocus Whether the player should hanlde audio focus.
+     * @param handleAudioFocus Whether the player should handle audio focus.
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
