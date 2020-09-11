@@ -2,15 +2,13 @@
 
 ### dev-v2 (not yet released)
 
-*   `Player`:
-    *   add `getMediaItemCount()` and `getMediaItemAt(int)`.
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   Data sources:
     *   Add support for `android.resource` URI scheme in `RawResourceDataSource`
         ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
 
-### 2.12.0 (not yet released - targeted for 2020-09-11) ###
+### 2.12.0 (2020-09-11) ###
 
 *   Core library:
     *   `Player`:
@@ -18,8 +16,9 @@
             ([#6161](https://github.com/google/ExoPlayer/issues/6161)). The
             new methods for playlist manipulation are `setMediaItem(s)`,
             `addMediaItem(s)`, `moveMediaItem(s)`, `removeMediaItem(s)` and
-            `clearMediaItems`. This API should be used instead of
-            `ConcatenatingMediaSource` in most cases.
+            `clearMediaItems`. The playlist can be queried using
+            `getMediaItemCount` and `getMediaItemAt`. This API should be used
+            instead of `ConcatenatingMediaSource` in most cases.
         *   Add `getCurrentMediaItem` for getting the currently playing item
             in the playlist.
         *   Add `EventListener.onMediaItemTransition` to report when
