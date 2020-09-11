@@ -317,6 +317,8 @@
     *   Add missing notification of `VideoAdPlayerCallback.onLoaded`.
     *   Fix handling of incompatible VPAID ads
         ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
+    *   Fix handling of empty ads at non-integer cue points
+        ([#7889](https://github.com/google/ExoPlayer/issues/7889)).
 *   Demo app:
     *   Replace the `extensions` variant with `decoderExtensions` and update the
         demo app use the Cronet and IMA extensions by default.
