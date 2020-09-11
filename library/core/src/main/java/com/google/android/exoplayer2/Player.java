@@ -1284,6 +1284,12 @@ public interface Player {
   @Nullable
   MediaItem getCurrentMediaItem();
 
+  /** Returns the number of {@link MediaItem media items} in the playlist. */
+  int getMediaItemCount();
+
+  /** Returns the {@link MediaItem} at the given index. */
+  MediaItem getMediaItemAt(int index);
+
   /**
    * Returns the duration of the current content window or ad in milliseconds, or {@link
    * C#TIME_UNSET} if the duration is not known.

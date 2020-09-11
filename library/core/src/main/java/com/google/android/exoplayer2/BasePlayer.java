@@ -186,6 +186,16 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public int getMediaItemCount() {
+    return getCurrentTimeline().getWindowCount();
+  }
+
+  @Override
+  public MediaItem getMediaItemAt(int index) {
+    return getCurrentTimeline().getWindow(index, window).mediaItem;
+  }
+
+  @Override
   @Nullable
   public final Object getCurrentManifest() {
     Timeline timeline = getCurrentTimeline();
