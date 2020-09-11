@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 public final class BatchBufferTest {
 
   /** Bigger than {@code BatchBuffer.BATCH_SIZE_BYTES} */
-  private static final int BUFFER_SIZE_LARGER_THAN_BATCH_SIZE_BYTES = 100 * 1000 * 1000;
+  private static final int BUFFER_SIZE_LARGER_THAN_BATCH_SIZE_BYTES = 6 * 1000 * 1024;
   /** Smaller than {@code BatchBuffer.BATCH_SIZE_BYTES} */
   private static final int BUFFER_SIZE_MUCH_SMALLER_THAN_BATCH_SIZE_BYTES = 100;
 
