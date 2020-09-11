@@ -584,6 +584,7 @@ public final class DashMediaSource extends BaseMediaSource {
         new DashMediaPeriod(
             firstPeriodId + periodIndex,
             manifest,
+            mediaItem.playbackProperties,
             periodIndex,
             chunkSourceFactory,
             mediaTransferListener,
@@ -1074,8 +1075,7 @@ public final class DashMediaSource extends BaseMediaSource {
     }
     manifestLoadPending = false;
     startLoading(
-        // TODO: Headers here
-        new ParsingLoadable<>(dataSource, manifestUri, Collections.emptyMap(), C.DATA_TYPE_MANIFEST, manifestParser),
+        new ParsingLoadable<>(dataSource, manifestUri, mediaItem.playbackProperties.headers, C.DATA_TYPE_MANIFEST, manifestParser),
         manifestCallback,
         loadErrorHandlingPolicy.getMinimumLoadableRetryCount(C.DATA_TYPE_MANIFEST));
   }

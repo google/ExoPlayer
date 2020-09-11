@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.dash;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.source.chunk.ChunkSource;
 import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
@@ -35,6 +36,7 @@ public interface DashChunkSource extends ChunkSource {
     /**
      * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
      * @param manifest The initial manifest.
+     * @param playbackProperties Data for the media item this chunk belongs to
      * @param periodIndex The index of the corresponding period in the manifest.
      * @param adaptationSetIndices The indices of the corresponding adaptation sets in the period.
      * @param trackSelection The track selection.
@@ -51,6 +53,7 @@ public interface DashChunkSource extends ChunkSource {
     DashChunkSource createDashChunkSource(
         LoaderErrorThrower manifestLoaderErrorThrower,
         DashManifest manifest,
+        MediaItem.PlaybackProperties playbackProperties,
         int periodIndex,
         int[] adaptationSetIndices,
         ExoTrackSelection trackSelection,

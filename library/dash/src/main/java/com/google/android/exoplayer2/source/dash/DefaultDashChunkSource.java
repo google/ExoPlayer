@@ -20,10 +20,12 @@ import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.SystemClock;
+import android.text.style.UpdateLayout;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
@@ -51,6 +53,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -101,6 +104,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     public DashChunkSource createDashChunkSource(
         LoaderErrorThrower manifestLoaderErrorThrower,
         DashManifest manifest,
+        MediaItem.PlaybackProperties playbackProperties,
         int periodIndex,
         int[] adaptationSetIndices,
         ExoTrackSelection trackSelection,
@@ -118,6 +122,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           chunkExtractorFactory,
           manifestLoaderErrorThrower,
           manifest,
+          playbackProperties,
           periodIndex,
           adaptationSetIndices,
           trackSelection,
@@ -144,6 +149,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   private ExoTrackSelection trackSelection;
   private DashManifest manifest;
+  private MediaItem.PlaybackProperties playbackProperties;
   private int periodIndex;
   @Nullable private IOException fatalError;
   private boolean missingLastSegment;
@@ -153,26 +159,27 @@ public class DefaultDashChunkSource implements DashChunkSource {
    *     chunks.
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
    * @param manifest The initial manifest.
+   * @param playbackProperties Data for the media item this chunk belongs to
    * @param periodIndex The index of the period in the manifest.
    * @param adaptationSetIndices The indices of the adaptation sets in the period.
    * @param trackSelection The track selection.
    * @param trackType The type of the tracks in the selection.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
    * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
-   *     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
-   *     as the server's unix time minus the local elapsed time. Or {@link C#TIME_UNSET} if unknown.
+*     server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
+*     as the server's unix time minus the local elapsed time. Or {@link C#TIME_UNSET} if unknown.
    * @param maxSegmentsPerLoad The maximum number of segments to combine into a single request. Note
-   *     that segments will only be combined if their {@link Uri}s are the same and if their data
-   *     ranges are adjacent.
+*     that segments will only be combined if their {@link Uri}s are the same and if their data
+*     ranges are adjacent.
    * @param enableEventMessageTrack Whether to output an event message track.
    * @param closedCaptionFormats The {@link Format Formats} of closed caption tracks to be output.
    * @param playerTrackEmsgHandler The {@link PlayerTrackEmsgHandler} instance to handle emsg
-   *     messages targeting the player. Maybe null if this is not necessary.
    */
   public DefaultDashChunkSource(
       ChunkExtractor.Factory chunkExtractorFactory,
       LoaderErrorThrower manifestLoaderErrorThrower,
       DashManifest manifest,
+      MediaItem.PlaybackProperties playbackProperties,
       int periodIndex,
       int[] adaptationSetIndices,
       ExoTrackSelection trackSelection,
@@ -185,6 +192,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       @Nullable PlayerTrackEmsgHandler playerTrackEmsgHandler) {
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
+    this.playbackProperties = playbackProperties;
     this.adaptationSetIndices = adaptationSetIndices;
     this.trackSelection = trackSelection;
     this.trackType = trackType;
@@ -551,7 +559,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     } else {
       requestUri = indexUri;
     }
-    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri, /* flags= */ 0);
+    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri, playbackProperties.headers, /* flags= */ 0);
     return new InitializationChunk(
         dataSource,
         dataSpec,
@@ -583,7 +591,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
                   firstSegmentNum, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
-      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, flags);
+      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, playbackProperties.headers, flags);
       return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
           trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum, trackType, trackFormat);
     } else {
@@ -609,7 +617,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           representationHolder.isSegmentAvailableAtFullNetworkSpeed(segmentNum, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
-      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, flags);
+      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, playbackProperties.headers, flags);
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(
           dataSource,
@@ -664,7 +672,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           representationHolder.isSegmentAvailableAtFullNetworkSpeed(currentIndex, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
-      return DashUtil.buildDataSpec(representationHolder.representation, segmentUri, flags);
+      return DashUtil.buildDataSpec(representationHolder.representation, segmentUri, Collections.emptyMap(), flags);
     }
 
     @Override

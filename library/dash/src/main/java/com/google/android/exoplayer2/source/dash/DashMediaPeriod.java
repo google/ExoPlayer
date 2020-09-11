@@ -24,6 +24,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -101,12 +102,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private EventSampleStream[] eventSampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
   private DashManifest manifest;
+  private MediaItem.PlaybackProperties playbackProperties;
   private int periodIndex;
   private List<EventStream> eventStreams;
 
   public DashMediaPeriod(
       int id,
       DashManifest manifest,
+      MediaItem.PlaybackProperties playbackProperties,
       int periodIndex,
       DashChunkSource.Factory chunkSourceFactory,
       @Nullable TransferListener transferListener,
@@ -121,6 +124,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       PlayerEmsgCallback playerEmsgCallback) {
     this.id = id;
     this.manifest = manifest;
+    this.playbackProperties = playbackProperties;
     this.periodIndex = periodIndex;
     this.chunkSourceFactory = chunkSourceFactory;
     this.transferListener = transferListener;
@@ -766,6 +770,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         chunkSourceFactory.createDashChunkSource(
             manifestLoaderErrorThrower,
             manifest,
+            playbackProperties,
             periodIndex,
             trackGroupInfo.adaptationSetIndices,
             selection,
