@@ -23,6 +23,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -113,7 +114,6 @@ public final class ImaAdsLoaderTest {
   @Mock private ImaFactory mockImaFactory;
   @Mock private AdPodInfo mockAdPodInfo;
   @Mock private Ad mockPrerollSingleAd;
-  @Mock private AdEvent mockPostrollFetchErrorAdEvent;
 
   private ViewGroup adViewGroup;
   private AdsLoader.AdViewProvider adViewProvider;
@@ -291,7 +291,32 @@ public final class ImaAdsLoaderTest {
   }
 
   @Test
+  public void playback_withMidrollFetchError_marksAdAsInErrorState() {
+    AdEvent mockMidrollFetchErrorAdEvent = mock(AdEvent.class);
+    when(mockMidrollFetchErrorAdEvent.getType()).thenReturn(AdEventType.AD_BREAK_FETCH_ERROR);
+    when(mockMidrollFetchErrorAdEvent.getAdData())
+        .thenReturn(ImmutableMap.of("adBreakTime", "20.5"));
+    setupPlayback(CONTENT_TIMELINE, ImmutableList.of(20.5f));
+
+    // Simulate loading an empty midroll ad.
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
+    adEventListener.onAdEvent(mockMidrollFetchErrorAdEvent);
+
+    assertThat(adsLoaderListener.adPlaybackState)
+        .isEqualTo(
+            new AdPlaybackState(/* adGroupTimesUs...= */ 20_500_000)
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
+                .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
+                .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+                .withAdLoadError(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0));
+  }
+
+  @Test
   public void playback_withPostrollFetchError_marksAdAsInErrorState() {
+    AdEvent mockPostrollFetchErrorAdEvent = mock(AdEvent.class);
+    when(mockPostrollFetchErrorAdEvent.getType()).thenReturn(AdEventType.AD_BREAK_FETCH_ERROR);
+    when(mockPostrollFetchErrorAdEvent.getAdData())
+        .thenReturn(ImmutableMap.of("adBreakTime", "-1"));
     setupPlayback(CONTENT_TIMELINE, ImmutableList.of(-1f));
 
     // Simulate loading an empty postroll ad.
@@ -808,10 +833,6 @@ public final class ImaAdsLoaderTest {
     when(mockAdPodInfo.getAdPosition()).thenReturn(1);
 
     when(mockPrerollSingleAd.getAdPodInfo()).thenReturn(mockAdPodInfo);
-
-    when(mockPostrollFetchErrorAdEvent.getType()).thenReturn(AdEventType.AD_BREAK_FETCH_ERROR);
-    when(mockPostrollFetchErrorAdEvent.getAdData())
-        .thenReturn(ImmutableMap.of("adBreakTime", "-1"));
   }
 
   private static AdEvent getAdEvent(AdEventType adEventType, @Nullable Ad ad) {
