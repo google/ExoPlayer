@@ -2,6 +2,8 @@
 
 ### dev-v2 (not yet released)
 
+*   `Player`:
+    *   add `getMediaItemCount()` and `getMediaItemAt(int)`.
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   Data sources:
