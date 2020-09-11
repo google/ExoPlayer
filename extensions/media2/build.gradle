@@ -18,7 +18,7 @@ android.defaultConfig.minSdkVersion 19
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
-    implementation 'androidx.concurrent:concurrent-futures:1.0.0'
+    implementation 'androidx.concurrent:concurrent-futures:1.1.0'
     implementation ('com.google.guava:guava:' + guavaVersion) {
         exclude group: 'com.google.code.findbugs', module: 'jsr305'
         exclude group: 'org.checkerframework', module: 'checker-compat-qual'
