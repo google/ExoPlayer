@@ -26,25 +26,30 @@ locally. Instructions for doing this can be found in ExoPlayer's
 
 ## Using the extension ##
 
-To play ads alongside a single-window content `MediaSource`, prepare the player
-with an `AdsMediaSource` constructed using an `ImaAdsLoader`, the content
-`MediaSource` and an overlay `ViewGroup` on top of the player. Pass an ad tag
-URI from your ad campaign when creating the `ImaAdsLoader`. The IMA
-documentation includes some [sample ad tags][] for testing. Note that the IMA
-extension only supports players which are accessed on the application's main
+To play a media item with an ad tag URI, you need to customize the
+`DefaultMediaSourceFactory` as
+[documented in the Developer Guide](https://exoplayer.dev/media-sources.html#customizing-media-source-creation).
+This way the player will build an `AdsMediaSource` and configure it with the
+`ImaAdsLoader` and an `AdViewProvider` automatically.
+
+[Pass an ad tag URI](https://exoplayer.dev/media-items.html#ad-insertion) from
+your ad campaign to the `MediaItem.Builder` when building your media item. The
+IMA documentation includes some [sample ad tags][] for testing. Note that the
+IMA extension only supports players which are accessed on the application's main
 thread.
 
 Resuming the player after entering the background requires some special handling
 when playing ads. The player and its media source are released on entering the
 background, and are recreated when the player returns to the foreground. When
 playing ads it is necessary to persist ad playback state while in the background
-by keeping a reference to the `ImaAdsLoader`. Reuse it when resuming playback of
-the same content/ads by passing it in when constructing the new
-`AdsMediaSource`. It is also important to persist the player position when
-entering the background by storing the value of `player.getContentPosition()`.
-On returning to the foreground, seek to that position before preparing the new
-player instance. Finally, it is important to call `ImaAdsLoader.release()` when
-playback of the content/ads has finished and will not be resumed.
+by keeping a reference to the `ImaAdsLoader`. Reuse this instance when your
+callback `AdsLoaderProvider.getAdsLoader(Uri adTagUri)` is called by the player
+to get an `ImaAdsLoader` for the same content/ads to be resumed. It is also
+important to persist the player position when entering the background by storing
+the value of `player.getContentPosition()`. On returning to the foreground, seek
+to that position before preparing the new player instance. Finally, it is
+important to call `ImaAdsLoader.release()` when playback of the content/ads has
+finished and will not be resumed.
 
 You can try the IMA extension in the ExoPlayer demo app, which has test content
 in the "IMA sample ad tags" section of the sample chooser. The demo app's
