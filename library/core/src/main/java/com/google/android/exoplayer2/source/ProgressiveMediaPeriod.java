@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -100,7 +101,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final Format ICY_FORMAT =
       new Format.Builder().setId("icy").setSampleMimeType(MimeTypes.APPLICATION_ICY).build();
 
-  private final Uri uri;
+  private final MediaItem.PlaybackProperties playbackProperties;
   private final DataSource dataSource;
   private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
@@ -108,7 +109,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   private final Listener listener;
   private final Allocator allocator;
-  @Nullable private final String customCacheKey;
   private final long continueLoadingCheckIntervalBytes;
   private final Loader loader;
   private final ProgressiveMediaExtractor progressiveMediaExtractor;
@@ -145,7 +145,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean released;
 
   /**
-   * @param uri The {@link Uri} of the media stream.
+   * @param playbackProperties The {@link com.google.android.exoplayer2.MediaItem.PlaybackProperties} of the media stream.
    * @param dataSource The data source to read the media.
    * @param progressiveMediaExtractor The {@link ProgressiveMediaExtractor} to use to read the data
    *     source.
@@ -156,8 +156,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     events.
    * @param listener A listener to notify when information about the period changes.
    * @param allocator An {@link Allocator} from which to obtain media buffer allocations.
-   * @param customCacheKey A custom key that uniquely identifies the original stream. Used for cache
-   *     indexing. May be null.
    * @param continueLoadingCheckIntervalBytes The number of bytes that should be loaded between each
    *     invocation of {@link Callback#onContinueLoadingRequested(SequenceableLoader)}.
    */
@@ -167,7 +165,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     "nullness:methodref.receiver.bound.invalid"
   })
   public ProgressiveMediaPeriod(
-      Uri uri,
+      MediaItem.PlaybackProperties playbackProperties,
       DataSource dataSource,
       ProgressiveMediaExtractor progressiveMediaExtractor,
       DrmSessionManager drmSessionManager,
@@ -176,9 +174,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       Listener listener,
       Allocator allocator,
-      @Nullable String customCacheKey,
       int continueLoadingCheckIntervalBytes) {
-    this.uri = uri;
+    this.playbackProperties = playbackProperties;
     this.dataSource = dataSource;
     this.drmSessionManager = drmSessionManager;
     this.drmEventDispatcher = drmEventDispatcher;
@@ -186,7 +183,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.listener = listener;
     this.allocator = allocator;
-    this.customCacheKey = customCacheKey;
     this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
     loader = new Loader("ProgressiveMediaPeriod");
     this.progressiveMediaExtractor = progressiveMediaExtractor;
@@ -802,7 +798,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void startLoading() {
     ExtractingLoadable loadable =
         new ExtractingLoadable(
-            uri, dataSource, progressiveMediaExtractor, /* extractorOutput= */ this, loadCondition);
+            playbackProperties.uri, dataSource, progressiveMediaExtractor, /* extractorOutput= */ this, loadCondition);
     if (prepared) {
       Assertions.checkState(isPendingReset());
       if (durationUs != C.TIME_UNSET && pendingResetPositionUs > durationUs) {
@@ -1085,13 +1081,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private DataSpec buildDataSpec(long position) {
       // Disable caching if the content length cannot be resolved, since this is indicative of a
       // progressive live stream.
+
+      // Combine ICY headers with media item headers
+      Map<String, String> headers = new HashMap<>();
+      headers.putAll(ICY_METADATA_HEADERS);
+      headers.putAll(playbackProperties.headers);
+
       return new DataSpec.Builder()
           .setUri(uri)
           .setPosition(position)
-          .setKey(customCacheKey)
+          .setKey(playbackProperties.customCacheKey)
           .setFlags(
               DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN | DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
-          .setHttpRequestHeaders(ICY_METADATA_HEADERS)
+          .setHttpRequestHeaders(Collections.unmodifiableMap(headers))
           .build();
     }
 
