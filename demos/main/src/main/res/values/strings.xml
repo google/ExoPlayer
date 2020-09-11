@@ -25,15 +25,9 @@
 
   <string name="error_generic">Playback failed</string>
 
-  <string name="error_unrecognized_abr_algorithm">Unrecognized ABR algorithm</string>
-
-  <string name="error_unrecognized_stereo_mode">Unrecognized stereo mode</string>
-
   <string name="error_drm_unsupported_before_api_18">DRM content not supported on API levels below 18</string>
 
   <string name="error_drm_unsupported_scheme">This device does not support the required DRM scheme</string>
-
-  <string name="error_drm_unknown">An unknown DRM error occurred</string>
 
   <string name="error_no_decoder">This device does not provide a decoder for <xliff:g id="mime_type">%1$s</xliff:g></string>
 

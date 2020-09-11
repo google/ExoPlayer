@@ -222,7 +222,11 @@ public class DownloadTracker {
       }
       widevineOfflineLicenseFetchTask =
           new WidevineOfflineLicenseFetchTask(
-              format, mediaItem.playbackProperties.drmConfiguration.licenseUri, this, helper);
+              format,
+              mediaItem.playbackProperties.drmConfiguration.licenseUri,
+              httpDataSourceFactory,
+              /* dialogHelper= */ this,
+              helper);
       widevineOfflineLicenseFetchTask.execute();
     }
 
@@ -271,6 +275,32 @@ public class DownloadTracker {
 
     // Internal methods.
 
+    /**
+     * Returns the first {@link Format} with a non-null {@link Format#drmInitData} found in the
+     * content's tracks, or null if none is found.
+     */
+    @Nullable
+    private Format getFirstFormatWithDrmInitData(DownloadHelper helper) {
+      for (int periodIndex = 0; periodIndex < helper.getPeriodCount(); periodIndex++) {
+        MappedTrackInfo mappedTrackInfo = helper.getMappedTrackInfo(periodIndex);
+        for (int rendererIndex = 0;
+            rendererIndex < mappedTrackInfo.getRendererCount();
+            rendererIndex++) {
+          TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+          for (int trackGroupIndex = 0; trackGroupIndex < trackGroups.length; trackGroupIndex++) {
+            TrackGroup trackGroup = trackGroups.get(trackGroupIndex);
+            for (int formatIndex = 0; formatIndex < trackGroup.length; formatIndex++) {
+              Format format = trackGroup.getFormat(formatIndex);
+              if (format.drmInitData != null) {
+                return format;
+              }
+            }
+          }
+        }
+      }
+      return null;
+    }
+
     private void onOfflineLicenseFetched(DownloadHelper helper, byte[] keySetId) {
       this.keySetId = keySetId;
       onDownloadPrepared(helper);
@@ -309,6 +339,19 @@ public class DownloadTracker {
       trackSelectionDialog.show(fragmentManager, /* tag= */ null);
     }
 
+    /**
+     * Returns whether any the {@link DrmInitData.SchemeData} contained in {@code drmInitData} has
+     * non-null {@link DrmInitData.SchemeData#data}.
+     */
+    private boolean hasSchemaData(DrmInitData drmInitData) {
+      for (int i = 0; i < drmInitData.schemeDataCount; i++) {
+        if (drmInitData.get(i).hasData()) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     private void startDownload() {
       startDownload(buildDownloadRequest());
     }
@@ -327,9 +370,11 @@ public class DownloadTracker {
 
   /** Downloads a Widevine offline license in a background thread. */
   @RequiresApi(18)
-  private final class WidevineOfflineLicenseFetchTask extends AsyncTask<Void, Void, Void> {
+  private static final class WidevineOfflineLicenseFetchTask extends AsyncTask<Void, Void, Void> {
+
     private final Format format;
     private final Uri licenseUri;
+    private final HttpDataSource.Factory httpDataSourceFactory;
     private final StartDownloadDialogHelper dialogHelper;
     private final DownloadHelper downloadHelper;
 
@@ -339,10 +384,12 @@ public class DownloadTracker {
     public WidevineOfflineLicenseFetchTask(
         Format format,
         Uri licenseUri,
+        HttpDataSource.Factory httpDataSourceFactory,
         StartDownloadDialogHelper dialogHelper,
         DownloadHelper downloadHelper) {
       this.format = format;
       this.licenseUri = licenseUri;
+      this.httpDataSourceFactory = httpDataSourceFactory;
       this.dialogHelper = dialogHelper;
       this.downloadHelper = downloadHelper;
     }
@@ -372,44 +419,5 @@ public class DownloadTracker {
         dialogHelper.onOfflineLicenseFetched(downloadHelper, checkStateNotNull(keySetId));
       }
     }
-  }
-
-  /**
-   * Returns whether any the {@link DrmInitData.SchemeData} contained in {@code drmInitData} has
-   * non-null {@link DrmInitData.SchemeData#data}.
-   */
-  private static boolean hasSchemaData(DrmInitData drmInitData) {
-    for (int i = 0; i < drmInitData.schemeDataCount; i++) {
-      if (drmInitData.get(i).hasData()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Returns the first {@link Format} with a non-null {@link Format#drmInitData} found in the
-   * content's tracks, or null if none is found.
-   */
-  @Nullable
-  private Format getFirstFormatWithDrmInitData(DownloadHelper helper) {
-    for (int periodIndex = 0; periodIndex < helper.getPeriodCount(); periodIndex++) {
-      MappedTrackInfo mappedTrackInfo = helper.getMappedTrackInfo(periodIndex);
-      for (int rendererIndex = 0;
-          rendererIndex < mappedTrackInfo.getRendererCount();
-          rendererIndex++) {
-        TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-        for (int trackGroupIndex = 0; trackGroupIndex < trackGroups.length; trackGroupIndex++) {
-          TrackGroup trackGroup = trackGroups.get(trackGroupIndex);
-          for (int formatIndex = 0; formatIndex < trackGroup.length; formatIndex++) {
-            Format format = trackGroup.getFormat(formatIndex);
-            if (format.drmInitData != null) {
-              return format;
-            }
-          }
-        }
-      }
-    }
-    return null;
   }
 }
