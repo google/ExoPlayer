@@ -58,8 +58,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * fallback {@link HttpDataSource.Factory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -87,8 +86,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * DefaultHttpDataSourceFactory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -104,8 +102,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * DefaultHttpDataSourceFactory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -201,8 +198,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * fallback {@link HttpDataSource.Factory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -232,8 +228,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * DefaultHttpDataSourceFactory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -253,8 +248,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * DefaultHttpDataSourceFactory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
