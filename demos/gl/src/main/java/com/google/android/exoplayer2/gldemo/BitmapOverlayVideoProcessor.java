@@ -88,18 +88,9 @@ import javax.microedition.khronos.opengles.GL10;
     GlUtil.Uniform[] uniforms = GlUtil.getUniforms(program);
     for (GlUtil.Attribute attribute : attributes) {
       if (attribute.name.equals("a_position")) {
-        attribute.setBuffer(
-            new float[] {
-              -1.0f, -1.0f, 0.0f, 1.0f, 1.0f, -1.0f, 0.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-              1.0f, 0.0f, 1.0f,
-            },
-            4);
+        attribute.setBuffer(new float[] {-1, -1, 1, -1, -1, 1, 1, 1}, 2);
       } else if (attribute.name.equals("a_texcoord")) {
-        attribute.setBuffer(
-            new float[] {
-              0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-            },
-            3);
+        attribute.setBuffer(new float[] {0, 1, 1, 1, 0, 0, 1, 0}, 2);
       }
     }
     this.attributes = attributes;

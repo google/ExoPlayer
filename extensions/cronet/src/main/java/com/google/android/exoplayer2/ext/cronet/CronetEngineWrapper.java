@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
+import static java.lang.Math.min;
+
 import android.content.Context;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -166,7 +168,8 @@ public final class CronetEngineWrapper {
     private final boolean preferGMSCoreCronet;
 
     // Multi-catch can only be used for API 19+ in this case.
-    @SuppressWarnings("UseMultiCatch")
+    // Field#get(null) is blocked by the null-checker, but is safe because the field is static.
+    @SuppressWarnings({"UseMultiCatch", "nullness:argument.type.incompatible"})
     public CronetProviderComparator(boolean preferGMSCoreCronet) {
       // GMSCore CronetProvider classes are only available in some configurations.
       // Thus, we use reflection to copy static name.
@@ -229,7 +232,7 @@ public final class CronetEngineWrapper {
       }
       String[] versionStringsLeft = Util.split(versionLeft, "\\.");
       String[] versionStringsRight = Util.split(versionRight, "\\.");
-      int minLength = Math.min(versionStringsLeft.length, versionStringsRight.length);
+      int minLength = min(versionStringsLeft.length, versionStringsRight.length);
       for (int i = 0; i < minLength; i++) {
         if (!versionStringsLeft[i].equals(versionStringsRight[i])) {
           try {

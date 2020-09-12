@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.LongArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -83,7 +84,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
         continue;
       }
 
-      // Parse the index line as a sanity check.
+      // Parse and check the index line.
       try {
         Integer.parseInt(currentLine);
       } catch (NumberFormatException e) {
@@ -134,8 +135,7 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       cues.add(Cue.EMPTY);
     }
 
-    Cue[] cuesArray = new Cue[cues.size()];
-    cues.toArray(cuesArray);
+    Cue[] cuesArray = cues.toArray(new Cue[0]);
     long[] cueTimesUsArray = cueTimesUs.toArray();
     return new SubripSubtitle(cuesArray, cueTimesUsArray);
   }
@@ -173,68 +173,62 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
    * @return Built cue
    */
   private Cue buildCue(Spanned text, @Nullable String alignmentTag) {
+    Cue.Builder cue = new Cue.Builder().setText(text);
     if (alignmentTag == null) {
-      return new Cue(text);
+      return cue.build();
     }
 
     // Horizontal alignment.
-    @Cue.AnchorType int positionAnchor;
     switch (alignmentTag) {
       case ALIGN_BOTTOM_LEFT:
       case ALIGN_MID_LEFT:
       case ALIGN_TOP_LEFT:
-        positionAnchor = Cue.ANCHOR_TYPE_START;
+        cue.setPositionAnchor(Cue.ANCHOR_TYPE_START);
         break;
       case ALIGN_BOTTOM_RIGHT:
       case ALIGN_MID_RIGHT:
       case ALIGN_TOP_RIGHT:
-        positionAnchor = Cue.ANCHOR_TYPE_END;
+        cue.setPositionAnchor(Cue.ANCHOR_TYPE_END);
         break;
       case ALIGN_BOTTOM_MID:
       case ALIGN_MID_MID:
       case ALIGN_TOP_MID:
       default:
-        positionAnchor = Cue.ANCHOR_TYPE_MIDDLE;
+        cue.setPositionAnchor(Cue.ANCHOR_TYPE_MIDDLE);
         break;
     }
 
     // Vertical alignment.
-    @Cue.AnchorType int lineAnchor;
     switch (alignmentTag) {
       case ALIGN_BOTTOM_LEFT:
       case ALIGN_BOTTOM_MID:
       case ALIGN_BOTTOM_RIGHT:
-        lineAnchor = Cue.ANCHOR_TYPE_END;
+        cue.setLineAnchor(Cue.ANCHOR_TYPE_END);
         break;
       case ALIGN_TOP_LEFT:
       case ALIGN_TOP_MID:
       case ALIGN_TOP_RIGHT:
-        lineAnchor = Cue.ANCHOR_TYPE_START;
+        cue.setLineAnchor(Cue.ANCHOR_TYPE_START);
         break;
       case ALIGN_MID_LEFT:
       case ALIGN_MID_MID:
       case ALIGN_MID_RIGHT:
       default:
-        lineAnchor = Cue.ANCHOR_TYPE_MIDDLE;
+        cue.setLineAnchor(Cue.ANCHOR_TYPE_MIDDLE);
         break;
     }
 
-    return new Cue(
-        text,
-        /* textAlignment= */ null,
-        getFractionalPositionForAnchorType(lineAnchor),
-        Cue.LINE_TYPE_FRACTION,
-        lineAnchor,
-        getFractionalPositionForAnchorType(positionAnchor),
-        positionAnchor,
-        Cue.DIMEN_UNSET);
+    return cue.setPosition(getFractionalPositionForAnchorType(cue.getPositionAnchor()))
+        .setLine(getFractionalPositionForAnchorType(cue.getLineAnchor()), Cue.LINE_TYPE_FRACTION)
+        .build();
   }
 
   private static long parseTimecode(Matcher matcher, int groupOffset) {
     @Nullable String hours = matcher.group(groupOffset + 1);
     long timestampMs = hours != null ? Long.parseLong(hours) * 60 * 60 * 1000 : 0;
-    timestampMs += Long.parseLong(matcher.group(groupOffset + 2)) * 60 * 1000;
-    timestampMs += Long.parseLong(matcher.group(groupOffset + 3)) * 1000;
+    timestampMs +=
+        Long.parseLong(Assertions.checkNotNull(matcher.group(groupOffset + 2))) * 60 * 1000;
+    timestampMs += Long.parseLong(Assertions.checkNotNull(matcher.group(groupOffset + 3))) * 1000;
     @Nullable String millis = matcher.group(groupOffset + 4);
     if (millis != null) {
       timestampMs += Long.parseLong(millis);

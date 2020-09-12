@@ -55,6 +55,7 @@ bazel-testlogs
 .DS_Store
 cmake-build-debug
 dist
+jacoco.exec
 tmp
 
 # VP9 extension
@@ -64,6 +65,7 @@ extensions/vp9/src/main/jni/libyuv
 
 # AV1 extension
 extensions/av1/src/main/jni/libgav1
+extensions/av1/src/main/jni/cpu_features
 
 # Opus extension
 extensions/opus/src/main/jni/libopus

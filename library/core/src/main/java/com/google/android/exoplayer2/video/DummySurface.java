@@ -19,15 +19,14 @@ import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_N
 import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_PROTECTED_PBUFFER;
 import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_SURFACELESS_CONTEXT;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
-import android.os.Handler.Callback;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.EGLSurfaceTexture;
 import com.google.android.exoplayer2.util.EGLSurfaceTexture.SecureMode;
@@ -37,7 +36,7 @@ import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A dummy {@link Surface}. */
-@TargetApi(17)
+@RequiresApi(17)
 public final class DummySurface extends Surface {
 
   private static final String TAG = "DummySurface";
@@ -70,17 +69,16 @@ public final class DummySurface extends Surface {
   /**
    * Returns a newly created dummy surface. The surface must be released by calling {@link #release}
    * when it's no longer required.
-   * <p>
-   * Must only be called if {@link Util#SDK_INT} is 17 or higher.
+   *
+   * <p>Must only be called if {@link Util#SDK_INT} is 17 or higher.
    *
    * @param context Any {@link Context}.
-   * @param secure Whether a secure surface is required. Must only be requested if
-   *     {@link #isSecureSupported(Context)} returns {@code true}.
-   * @throws IllegalStateException If a secure surface is requested on a device for which
-   *     {@link #isSecureSupported(Context)} returns {@code false}.
+   * @param secure Whether a secure surface is required. Must only be requested if {@link
+   *     #isSecureSupported(Context)} returns {@code true}.
+   * @throws IllegalStateException If a secure surface is requested on a device for which {@link
+   *     #isSecureSupported(Context)} returns {@code false}.
    */
   public static DummySurface newInstanceV17(Context context, boolean secure) {
-    assertApiLevel17OrHigher();
     Assertions.checkState(!secure || isSecureSupported(context));
     DummySurfaceThread thread = new DummySurfaceThread();
     return thread.init(secure ? secureMode : SECURE_MODE_NONE);
@@ -107,12 +105,6 @@ public final class DummySurface extends Surface {
     }
   }
 
-  private static void assertApiLevel17OrHigher() {
-    if (Util.SDK_INT < 17) {
-      throw new UnsupportedOperationException("Unsupported prior to API level 17");
-    }
-  }
-
   @SecureMode
   private static int getSecureMode(Context context) {
     if (GlUtil.isProtectedContentExtensionSupported(context)) {
@@ -130,7 +122,7 @@ public final class DummySurface extends Surface {
     }
   }
 
-  private static class DummySurfaceThread extends HandlerThread implements Callback {
+  private static class DummySurfaceThread extends HandlerThread implements Handler.Callback {
 
     private static final int MSG_INIT = 1;
     private static final int MSG_RELEASE = 2;
@@ -142,7 +134,7 @@ public final class DummySurface extends Surface {
     @Nullable private DummySurface surface;
 
     public DummySurfaceThread() {
-      super("dummySurface");
+      super("ExoPlayer:DummySurface");
     }
 
     public DummySurface init(@SecureMode int secureMode) {

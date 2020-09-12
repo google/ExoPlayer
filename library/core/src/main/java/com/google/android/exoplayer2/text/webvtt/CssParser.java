@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -31,14 +33,23 @@ import java.util.regex.Pattern;
  */
 /* package */ final class CssParser {
 
+  private static final String TAG = "CssParser";
+
+  private static final String RULE_START = "{";
+  private static final String RULE_END = "}";
+  private static final String PROPERTY_COLOR = "color";
   private static final String PROPERTY_BGCOLOR = "background-color";
   private static final String PROPERTY_FONT_FAMILY = "font-family";
   private static final String PROPERTY_FONT_WEIGHT = "font-weight";
+  private static final String PROPERTY_RUBY_POSITION = "ruby-position";
+  private static final String VALUE_OVER = "over";
+  private static final String VALUE_UNDER = "under";
+  private static final String PROPERTY_TEXT_COMBINE_UPRIGHT = "text-combine-upright";
+  private static final String VALUE_ALL = "all";
+  private static final String VALUE_DIGITS = "digits";
   private static final String PROPERTY_TEXT_DECORATION = "text-decoration";
   private static final String VALUE_BOLD = "bold";
   private static final String VALUE_UNDERLINE = "underline";
-  private static final String RULE_START = "{";
-  private static final String RULE_END = "}";
   private static final String PROPERTY_FONT_STYLE = "font-style";
   private static final String VALUE_ITALIC = "italic";
 
@@ -67,7 +78,7 @@ import java.util.regex.Pattern;
     stringBuilder.setLength(0);
     int initialInputPosition = input.getPosition();
     skipStyleBlock(input);
-    styleInput.reset(input.data, input.getPosition());
+    styleInput.reset(input.getData(), input.getPosition());
     styleInput.setPosition(initialInputPosition);
 
     List<WebvttCssStyle> styles = new ArrayList<>();
@@ -143,7 +154,7 @@ import java.util.regex.Pattern;
     int limit = input.limit();
     boolean cueTargetEndFound = false;
     while (position < limit && !cueTargetEndFound) {
-      char c = (char) input.data[position++];
+      char c = (char) input.getData()[position++];
       cueTargetEndFound = c == ')';
     }
     return input.readString(--position - input.getPosition()).trim();
@@ -178,10 +189,18 @@ import java.util.regex.Pattern;
       return;
     }
     // At this point we have a presumably valid declaration, we need to parse it and fill the style.
-    if ("color".equals(property)) {
+    if (PROPERTY_COLOR.equals(property)) {
       style.setFontColor(ColorParser.parseCssColor(value));
     } else if (PROPERTY_BGCOLOR.equals(property)) {
       style.setBackgroundColor(ColorParser.parseCssColor(value));
+    } else if (PROPERTY_RUBY_POSITION.equals(property)) {
+      if (VALUE_OVER.equals(value)) {
+        style.setRubyPosition(RubySpan.POSITION_OVER);
+      } else if (VALUE_UNDER.equals(value)) {
+        style.setRubyPosition(RubySpan.POSITION_UNDER);
+      }
+    } else if (PROPERTY_TEXT_COMBINE_UPRIGHT.equals(property)) {
+      style.setCombineUpright(VALUE_ALL.equals(value) || value.startsWith(VALUE_DIGITS));
     } else if (PROPERTY_TEXT_DECORATION.equals(property)) {
       if (VALUE_UNDERLINE.equals(value)) {
         style.setUnderline(true);
@@ -248,7 +267,7 @@ import java.util.regex.Pattern;
   }
 
   private static char peekCharAtPosition(ParsableByteArray input, int position) {
-    return (char) input.data[position];
+    return (char) input.getData()[position];
   }
 
   @Nullable
@@ -278,7 +297,7 @@ import java.util.regex.Pattern;
   private static boolean maybeSkipComment(ParsableByteArray input) {
     int position = input.getPosition();
     int limit = input.limit();
-    byte[] data = input.data;
+    byte[] data = input.getData();
     if (position + 2 <= limit && data[position++] == '/' && data[position++] == '*') {
       while (position + 1 < limit) {
         char skippedChar = (char) data[position++];
@@ -301,7 +320,7 @@ import java.util.regex.Pattern;
     int limit = input.limit();
     boolean identifierEndFound = false;
     while (position  < limit && !identifierEndFound) {
-      char c = (char) input.data[position];
+      char c = (char) input.getData()[position];
       if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '#'
           || c == '-' || c == '.' || c == '_') {
         position++;
@@ -315,8 +334,8 @@ import java.util.regex.Pattern;
   }
 
   /**
-   * Sets the target of a {@link WebvttCssStyle} by splitting a selector of the form
-   * {@code ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
+   * Sets the target of a {@link WebvttCssStyle} by splitting a selector of the form {@code
+   * ::cue(tag#id.class1.class2[voice="someone"]}, where every element is optional.
    */
   private void applySelectorToStyle(WebvttCssStyle style, String selector) {
     if ("".equals(selector)) {
@@ -326,7 +345,7 @@ import java.util.regex.Pattern;
     if (voiceStartIndex != -1) {
       Matcher matcher = VOICE_NAME_PATTERN.matcher(selector.substring(voiceStartIndex));
       if (matcher.matches()) {
-        style.setTargetVoice(matcher.group(1));
+        style.setTargetVoice(Assertions.checkNotNull(matcher.group(1)));
       }
       selector = selector.substring(0, voiceStartIndex);
     }

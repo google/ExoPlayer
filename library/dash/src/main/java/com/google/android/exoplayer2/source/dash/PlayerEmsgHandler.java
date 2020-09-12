@@ -24,8 +24,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -104,7 +105,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     this.allocator = allocator;
 
     manifestPublishTimeToExpiryTimeUs = new TreeMap<>();
-    handler = Util.createHandler(/* callback= */ this);
+    handler = Util.createHandlerForCurrentLooper(/* callback= */ this);
     decoder = new EventMessageDecoder();
     lastLoadedChunkEndTimeUs = C.TIME_UNSET;
     lastLoadedChunkEndTimeBeforeRefreshUs = C.TIME_UNSET;
@@ -284,10 +285,12 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     private final MetadataInputBuffer buffer;
 
     /* package */ PlayerTrackEmsgHandler(Allocator allocator) {
-      this.sampleQueue = new SampleQueue(
-          allocator,
-          /* playbackLooper= */ handler.getLooper(),
-          DrmSessionManager.getDummyDrmSessionManager());
+      this.sampleQueue =
+          new SampleQueue(
+              allocator,
+              /* playbackLooper= */ handler.getLooper(),
+              DrmSessionManager.getDummyDrmSessionManager(),
+              new DrmSessionEventListener.EventDispatcher());
       formatHolder = new FormatHolder();
       buffer = new MetadataInputBuffer();
     }
@@ -298,13 +301,14 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     }
 
     @Override
-    public int sampleData(ExtractorInput input, int length, boolean allowEndOfInput)
-        throws IOException, InterruptedException {
+    public int sampleData(
+        DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
+        throws IOException {
       return sampleQueue.sampleData(input, length, allowEndOfInput);
     }
 
     @Override
-    public void sampleData(ParsableByteArray data, int length) {
+    public void sampleData(ParsableByteArray data, int length, @SampleDataPart int sampleDataPart) {
       sampleQueue.sampleData(data, length);
     }
 
@@ -357,12 +361,15 @@ public final class PlayerEmsgHandler implements Handler.Callback {
 
     private void parseAndDiscardSamples() {
       while (sampleQueue.isReady(/* loadingFinished= */ false)) {
-        MetadataInputBuffer inputBuffer = dequeueSample();
+        @Nullable MetadataInputBuffer inputBuffer = dequeueSample();
         if (inputBuffer == null) {
           continue;
         }
         long eventTimeUs = inputBuffer.timeUs;
-        Metadata metadata = decoder.decode(inputBuffer);
+        @Nullable Metadata metadata = decoder.decode(inputBuffer);
+        if (metadata == null) {
+          continue;
+        }
         EventMessage eventMessage = (EventMessage) metadata.get(0);
         if (isPlayerEmsgEvent(eventMessage.schemeIdUri, eventMessage.value)) {
           parsePlayerEmsgEvent(eventTimeUs, eventMessage);
@@ -376,11 +383,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
       buffer.clear();
       int result =
           sampleQueue.read(
-              formatHolder,
-              buffer,
-              /* formatRequired= */ false,
-              /* loadingFinished= */ false,
-              /* decodeOnlyUntilUs= */ 0);
+              formatHolder, buffer, /* formatRequired= */ false, /* loadingFinished= */ false);
       if (result == C.RESULT_BUFFER_READ) {
         buffer.flip();
         return buffer;

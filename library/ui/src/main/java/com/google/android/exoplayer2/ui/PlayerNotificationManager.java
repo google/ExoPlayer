@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ui;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -94,14 +95,14 @@ import java.util.Map;
  *   <li><b>{@code rewindIncrementMs}</b> - Sets the rewind increment. If set to zero the rewind
  *       action is not displayed.
  *       <ul>
- *         <li>Corresponding setter: {@link #setRewindIncrementMs(long)}
- *         <li>Default: {@link #DEFAULT_REWIND_MS} (5000)
+ *         <li>Corresponding setter: {@link #setControlDispatcher(ControlDispatcher)}
+ *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_REWIND_MS} (5000)
  *       </ul>
  *   <li><b>{@code fastForwardIncrementMs}</b> - Sets the fast forward increment. If set to zero the
  *       fast forward action is not displayed.
  *       <ul>
- *         <li>Corresponding setter: {@link #setFastForwardIncrementMs(long)}
- *         <li>Default: {@link #DEFAULT_FAST_FORWARD_MS} (15000)
+ *         <li>Corresponding setter: {@link #setControlDispatcher(ControlDispatcher)}
+ *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_FAST_FORWARD_MS} (15000)
  *       </ul>
  * </ul>
  *
@@ -354,13 +355,6 @@ public class PlayerNotificationManager {
   })
   public @interface Priority {}
 
-  /** The default fast forward increment, in milliseconds. */
-  public static final int DEFAULT_FAST_FORWARD_MS = 15000;
-  /** The default rewind increment, in milliseconds. */
-  public static final int DEFAULT_REWIND_MS = 5000;
-
-  private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
-
   private static int instanceIdCounter;
 
   private final Context context;
@@ -380,7 +374,7 @@ public class PlayerNotificationManager {
   private final Timeline.Window window;
 
   @Nullable private NotificationCompat.Builder builder;
-  @Nullable private ArrayList<NotificationCompat.Action> builderActions;
+  @Nullable private List<NotificationCompat.Action> builderActions;
   @Nullable private Player player;
   @Nullable private PlaybackPreparer playbackPreparer;
   private ControlDispatcher controlDispatcher;
@@ -392,8 +386,6 @@ public class PlayerNotificationManager {
   private boolean useNavigationActionsInCompactView;
   private boolean usePlayPauseActions;
   private boolean useStopAction;
-  private long fastForwardMs;
-  private long rewindMs;
   private int badgeIconType;
   private boolean colorized;
   private int defaults;
@@ -634,8 +626,6 @@ public class PlayerNotificationManager {
     smallIconResourceId = R.drawable.exo_notification_small_icon;
     defaults = 0;
     priority = NotificationCompat.PRIORITY_LOW;
-    fastForwardMs = DEFAULT_FAST_FORWARD_MS;
-    rewindMs = DEFAULT_REWIND_MS;
     badgeIconType = NotificationCompat.BADGE_ICON_SMALL;
     visibility = NotificationCompat.VISIBILITY_PUBLIC;
 
@@ -701,12 +691,13 @@ public class PlayerNotificationManager {
   /**
    * Sets the {@link ControlDispatcher}.
    *
-   * @param controlDispatcher The {@link ControlDispatcher}, or null to use {@link
-   *     DefaultControlDispatcher}.
+   * @param controlDispatcher The {@link ControlDispatcher}.
    */
   public final void setControlDispatcher(ControlDispatcher controlDispatcher) {
-    this.controlDispatcher =
-        controlDispatcher != null ? controlDispatcher : new DefaultControlDispatcher();
+    if (this.controlDispatcher != controlDispatcher) {
+      this.controlDispatcher = controlDispatcher;
+      invalidate();
+    }
   }
 
   /**
@@ -725,31 +716,29 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Sets the fast forward increment in milliseconds.
-   *
-   * @param fastForwardMs The fast forward increment in milliseconds. A value of zero will cause the
-   *     fast forward action to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public final void setFastForwardIncrementMs(long fastForwardMs) {
-    if (this.fastForwardMs == fastForwardMs) {
-      return;
+    if (controlDispatcher instanceof DefaultControlDispatcher) {
+      ((DefaultControlDispatcher) controlDispatcher).setFastForwardIncrementMs(fastForwardMs);
+      invalidate();
     }
-    this.fastForwardMs = fastForwardMs;
-    invalidate();
   }
 
   /**
-   * Sets the rewind increment in milliseconds.
-   *
-   * @param rewindMs The rewind increment in milliseconds. A value of zero will cause the rewind
-   *     action to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public final void setRewindIncrementMs(long rewindMs) {
-    if (this.rewindMs == rewindMs) {
-      return;
+    if (controlDispatcher instanceof DefaultControlDispatcher) {
+      ((DefaultControlDispatcher) controlDispatcher).setRewindIncrementMs(rewindMs);
+      invalidate();
     }
-    this.rewindMs = rewindMs;
-    invalidate();
   }
 
   /**
@@ -889,6 +878,10 @@ public class PlayerNotificationManager {
    *
    * <p>See {@link NotificationCompat.Builder#setPriority(int)}.
    *
+   * <p>To set the priority for API levels above 25, you can create your own {@link
+   * NotificationChannel} with a given importance level and pass the id of the channel to the {@link
+   * #PlayerNotificationManager(Context, String, int, MediaDescriptionAdapter) constructor}.
+   *
    * @param priority The priority which can be one of {@link NotificationCompat#PRIORITY_DEFAULT},
    *     {@link NotificationCompat#PRIORITY_MAX}, {@link NotificationCompat#PRIORITY_HIGH}, {@link
    *     NotificationCompat#PRIORITY_LOW} or {@link NotificationCompat#PRIORITY_MIN}. If not set
@@ -984,6 +977,8 @@ public class PlayerNotificationManager {
     }
   }
 
+  // We're calling a deprecated listener method that we still want to notify.
+  @SuppressWarnings("deprecation")
   private void startOrUpdateNotification(Player player, @Nullable Bitmap bitmap) {
     boolean ongoing = getOngoing(player);
     builder = createNotification(player, builder, ongoing, bitmap);
@@ -1006,6 +1001,8 @@ public class PlayerNotificationManager {
     }
   }
 
+  // We're calling a deprecated listener method that we still want to notify.
+  @SuppressWarnings("deprecation")
   private void stopNotification(boolean dismissedByUser) {
     if (isNotificationStarted) {
       isNotificationStarted = false;
@@ -1031,8 +1028,6 @@ public class PlayerNotificationManager {
    *     NotificationCompat.Builder#build()} to obtain the notification, or {@code null} if no
    *     notification should be displayed.
    */
-  // incompatible types in argument.
-  @SuppressWarnings("nullness:argument.type.incompatible")
   @Nullable
   protected NotificationCompat.Builder createNotification(
       Player player,
@@ -1046,9 +1041,10 @@ public class PlayerNotificationManager {
     }
 
     List<String> actionNames = getActions(player);
-    ArrayList<NotificationCompat.Action> actions = new ArrayList<>(actionNames.size());
+    List<NotificationCompat.Action> actions = new ArrayList<>(actionNames.size());
     for (int i = 0; i < actionNames.size(); i++) {
       String actionName = actionNames.get(i);
+      @Nullable
       NotificationCompat.Action action =
           playbackActions.containsKey(actionName)
               ? playbackActions.get(actionName)
@@ -1148,8 +1144,8 @@ public class PlayerNotificationManager {
     if (!timeline.isEmpty() && !player.isPlayingAd()) {
       timeline.getWindow(player.getCurrentWindowIndex(), window);
       enablePrevious = window.isSeekable || !window.isDynamic || player.hasPrevious();
-      enableRewind = rewindMs > 0;
-      enableFastForward = fastForwardMs > 0;
+      enableRewind = controlDispatcher.isRewindEnabled();
+      enableFastForward = controlDispatcher.isFastForwardEnabled();
       enableNext = window.isDynamic || player.hasNext();
     }
 
@@ -1222,63 +1218,6 @@ public class PlayerNotificationManager {
     int playbackState = player.getPlaybackState();
     return (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY)
         && player.getPlayWhenReady();
-  }
-
-  private void previous(Player player) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    timeline.getWindow(windowIndex, window);
-    int previousWindowIndex = player.getPreviousWindowIndex();
-    if (previousWindowIndex != C.INDEX_UNSET
-        && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
-            || (window.isDynamic && !window.isSeekable))) {
-      seekTo(player, previousWindowIndex, C.TIME_UNSET);
-    } else {
-      seekTo(player, windowIndex, /* positionMs= */ 0);
-    }
-  }
-
-  private void next(Player player) {
-    Timeline timeline = player.getCurrentTimeline();
-    if (timeline.isEmpty() || player.isPlayingAd()) {
-      return;
-    }
-    int windowIndex = player.getCurrentWindowIndex();
-    int nextWindowIndex = player.getNextWindowIndex();
-    if (nextWindowIndex != C.INDEX_UNSET) {
-      seekTo(player, nextWindowIndex, C.TIME_UNSET);
-    } else if (timeline.getWindow(windowIndex, window).isDynamic) {
-      seekTo(player, windowIndex, C.TIME_UNSET);
-    }
-  }
-
-  private void rewind(Player player) {
-    if (player.isCurrentWindowSeekable() && rewindMs > 0) {
-      seekToOffset(player, /* offsetMs= */ -rewindMs);
-    }
-  }
-
-  private void fastForward(Player player) {
-    if (player.isCurrentWindowSeekable() && fastForwardMs > 0) {
-      seekToOffset(player, /* offsetMs= */ fastForwardMs);
-    }
-  }
-
-  private void seekToOffset(Player player, long offsetMs) {
-    long positionMs = player.getCurrentPosition() + offsetMs;
-    long durationMs = player.getDuration();
-    if (durationMs != C.TIME_UNSET) {
-      positionMs = Math.min(positionMs, durationMs);
-    }
-    positionMs = Math.max(positionMs, 0);
-    seekTo(player, player.getCurrentWindowIndex(), positionMs);
-  }
-
-  private void seekTo(Player player, int windowIndex, long positionMs) {
-    controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
   }
 
   private boolean shouldShowPauseButton(Player player) {
@@ -1382,7 +1321,13 @@ public class PlayerNotificationManager {
   private class PlayerListener implements Player.EventListener {
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
+      postStartOrUpdateNotification();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
       postStartOrUpdateNotification();
     }
 
@@ -1434,19 +1379,19 @@ public class PlayerNotificationManager {
             playbackPreparer.preparePlayback();
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
-          seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
+          controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
         }
         controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ true);
       } else if (ACTION_PAUSE.equals(action)) {
         controlDispatcher.dispatchSetPlayWhenReady(player, /* playWhenReady= */ false);
       } else if (ACTION_PREVIOUS.equals(action)) {
-        previous(player);
+        controlDispatcher.dispatchPrevious(player);
       } else if (ACTION_REWIND.equals(action)) {
-        rewind(player);
+        controlDispatcher.dispatchRewind(player);
       } else if (ACTION_FAST_FORWARD.equals(action)) {
-        fastForward(player);
+        controlDispatcher.dispatchFastForward(player);
       } else if (ACTION_NEXT.equals(action)) {
-        next(player);
+        controlDispatcher.dispatchNext(player);
       } else if (ACTION_STOP.equals(action)) {
         controlDispatcher.dispatchStop(player, /* reset= */ true);
       } else if (ACTION_DISMISS.equals(action)) {

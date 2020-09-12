@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
-import com.google.android.exoplayer2.util.FlacStreamMetadata;
+import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -63,7 +63,7 @@ import java.util.List;
       streamMetadata = decoderJni.decodeStreamMetadata();
     } catch (ParserException e) {
       throw new FlacDecoderException("Failed to decode StreamInfo", e);
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
       // Never happens.
       throw new IllegalStateException(e);
     }
@@ -85,7 +85,7 @@ import java.util.List;
 
   @Override
   protected SimpleOutputBuffer createOutputBuffer() {
-    return new SimpleOutputBuffer(this);
+    return new SimpleOutputBuffer(this::releaseOutputBuffer);
   }
 
   @Override
@@ -107,7 +107,7 @@ import java.util.List;
       decoderJni.decodeSample(outputData);
     } catch (FlacDecoderJni.FlacFrameDecodeException e) {
       return new FlacDecoderException("Frame decoding failed", e);
-    } catch (IOException | InterruptedException e) {
+    } catch (IOException e) {
       // Never happens.
       throw new IllegalStateException(e);
     }

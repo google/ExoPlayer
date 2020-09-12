@@ -178,7 +178,7 @@ public abstract class DownloadService extends Service {
   @StringRes private final int channelNameResourceId;
   @StringRes private final int channelDescriptionResourceId;
 
-  @MonotonicNonNull private DownloadManager downloadManager;
+  private @MonotonicNonNull DownloadManager downloadManager;
   private int lastStartId;
   private boolean startedInForeground;
   private boolean taskRemoved;
@@ -658,6 +658,22 @@ public abstract class DownloadService extends Service {
         if (requirements == null) {
           Log.e(TAG, "Ignored SET_REQUIREMENTS: Missing " + KEY_REQUIREMENTS + " extra");
         } else {
+          @Nullable Scheduler scheduler = getScheduler();
+          if (scheduler != null) {
+            Requirements supportedRequirements = scheduler.getSupportedRequirements(requirements);
+            if (!supportedRequirements.equals(requirements)) {
+              Log.w(
+                  TAG,
+                  "Ignoring requirements not supported by the Scheduler: "
+                      + (requirements.getRequirements() ^ supportedRequirements.getRequirements()));
+              // We need to make sure DownloadManager only uses requirements supported by the
+              // Scheduler. If we don't do this, DownloadManager can report itself as idle due to an
+              // unmet requirement that the Scheduler doesn't support. This can then lead to the
+              // service being destroyed, even though the Scheduler won't be able to restart it when
+              // the requirement is subsequently met.
+              requirements = supportedRequirements;
+            }
+          }
           downloadManager.setRequirements(requirements);
         }
         break;
@@ -697,8 +713,8 @@ public abstract class DownloadService extends Service {
   /**
    * Throws {@link UnsupportedOperationException} because this service is not designed to be bound.
    */
-  @Nullable
   @Override
+  @Nullable
   public final IBinder onBind(Intent intent) {
     throw new UnsupportedOperationException();
   }
@@ -934,7 +950,7 @@ public abstract class DownloadService extends Service {
         // DownloadService.getForegroundNotification, and concrete subclass implementations may
         // not anticipate the possibility of this method being called before their onCreate
         // implementation has finished executing.
-        new Handler()
+        Util.createHandlerForCurrentOrMainLooper()
             .postAtFrontOfQueue(
                 () -> downloadService.notifyDownloads(downloadManager.getCurrentDownloads()));
       }
@@ -958,7 +974,8 @@ public abstract class DownloadService extends Service {
     }
 
     @Override
-    public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+    public void onDownloadChanged(
+        DownloadManager downloadManager, Download download, @Nullable Exception finalException) {
       if (downloadService != null) {
         downloadService.notifyDownloadChanged(download);
       }

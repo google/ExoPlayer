@@ -18,14 +18,14 @@ its modules locally. Instructions for doing this can be found in ExoPlayer's
 [top level README][]. The extension is not provided via JCenter (see [#2781][]
 for more information).
 
-In addition, it's necessary to build the extension's native components as
-follows:
+In addition, it's necessary to manually build the FFmpeg library, so that gradle
+can bundle the FFmpeg binaries in the APK:
 
 * Set the following shell variable:
 
 ```
 cd "<path to exoplayer checkout>"
-FFMPEG_EXT_PATH="$(pwd)/extensions/ffmpeg/src/main/jni"
+FFMPEG_EXT_PATH="$(pwd)/extensions/ffmpeg/src/main"
 ```
 
 * Download the [Android NDK][] and set its location in a shell variable.
@@ -41,6 +41,21 @@ NDK_PATH="<path to Android NDK>"
 HOST_PLATFORM="linux-x86_64"
 ```
 
+* Fetch FFmpeg:
+
+```
+cd "${FFMPEG_EXT_PATH}/jni" && \
+git clone git://source.ffmpeg.org/ffmpeg ffmpeg
+```
+
+* Checkout an appropriate branch of FFmpeg. We cannot guarantee compatibility
+  with all versions of FFmpeg. We currently recommend version 4.2:
+
+```
+cd "${FFMPEG_EXT_PATH}/jni/ffmpeg" && \
+git checkout release/4.2
+```
+
 * Configure the decoders to include. See the [Supported formats][] page for
   details of the available decoders, and which formats they support.
 
@@ -48,22 +63,14 @@ HOST_PLATFORM="linux-x86_64"
 ENABLED_DECODERS=(vorbis opus flac)
 ```
 
-* Fetch and build FFmpeg. Executing `build_ffmpeg.sh` will fetch and build
-  FFmpeg 4.2 for `armeabi-v7a`, `arm64-v8a`, `x86` and `x86_64`. The script can
-  be edited if you need to build for different architectures.
+* Execute `build_ffmpeg.sh` to build FFmpeg for `armeabi-v7a`, `arm64-v8a`,
+  `x86` and `x86_64`. The script can be edited if you need to build for
+  different architectures:
 
 ```
-cd "${FFMPEG_EXT_PATH}" && \
+cd "${FFMPEG_EXT_PATH}/jni" && \
 ./build_ffmpeg.sh \
   "${FFMPEG_EXT_PATH}" "${NDK_PATH}" "${HOST_PLATFORM}" "${ENABLED_DECODERS[@]}"
-```
-
-* Build the JNI native libraries, setting `APP_ABI` to include the architectures
-  built in the previous step. For example:
-
-```
-cd "${FFMPEG_EXT_PATH}" && \
-${NDK_PATH}/ndk-build APP_ABI="armeabi-v7a arm64-v8a x86 x86_64" -j4
 ```
 
 ## Build instructions (Windows) ##

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -67,11 +69,12 @@ import java.util.Map;
 
   @Override
   public void addTransferListener(TransferListener transferListener) {
+    Assertions.checkNotNull(transferListener);
     upstream.addTransferListener(transferListener);
   }
 
   @Override
-  public long open(DataSpec dataSpec) throws IOException {
+  public long open(DataSpec dataSpec) {
     throw new UnsupportedOperationException();
   }
 
@@ -84,15 +87,15 @@ import java.util.Map;
         return C.RESULT_END_OF_INPUT;
       }
     }
-    int bytesRead = upstream.read(buffer, offset, Math.min(bytesUntilMetadata, readLength));
+    int bytesRead = upstream.read(buffer, offset, min(bytesUntilMetadata, readLength));
     if (bytesRead != C.RESULT_END_OF_INPUT) {
       bytesUntilMetadata -= bytesRead;
     }
     return bytesRead;
   }
 
-  @Nullable
   @Override
+  @Nullable
   public Uri getUri() {
     return upstream.getUri();
   }
@@ -103,7 +106,7 @@ import java.util.Map;
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     throw new UnsupportedOperationException();
   }
 

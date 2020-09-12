@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -27,10 +28,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.Nullable;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.upstream.ContentDataSource.ContentDataSourceException;
+import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,42 +46,42 @@ import org.junit.runner.RunWith;
 public final class ContentDataSourceTest {
 
   private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
-  private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
+  private static final String DATA_PATH = "media/mp3/1024_incrementing_bytes.mp3";
 
   @Test
-  public void testRead() throws Exception {
+  public void read() throws Exception {
     assertData(0, C.LENGTH_UNSET, false);
   }
 
   @Test
-  public void testReadPipeMode() throws Exception {
+  public void readPipeMode() throws Exception {
     assertData(0, C.LENGTH_UNSET, true);
   }
 
   @Test
-  public void testReadFixedLength() throws Exception {
+  public void readFixedLength() throws Exception {
     assertData(0, 100, false);
   }
 
   @Test
-  public void testReadFromOffsetToEndOfInput() throws Exception {
+  public void readFromOffsetToEndOfInput() throws Exception {
     assertData(1, C.LENGTH_UNSET, false);
   }
 
   @Test
-  public void testReadFromOffsetToEndOfInputPipeMode() throws Exception {
+  public void readFromOffsetToEndOfInputPipeMode() throws Exception {
     assertData(1, C.LENGTH_UNSET, true);
   }
 
   @Test
-  public void testReadFromOffsetFixedLength() throws Exception {
+  public void readFromOffsetFixedLength() throws Exception {
     assertData(1, 100, false);
   }
 
   @Test
-  public void testReadInvalidUri() throws Exception {
+  public void readInvalidUri() throws Exception {
     ContentDataSource dataSource =
-        new ContentDataSource(InstrumentationRegistry.getTargetContext());
+        new ContentDataSource(ApplicationProvider.getApplicationContext());
     Uri contentUri = TestContentProvider.buildUri("does/not.exist", false);
     DataSpec dataSpec = new DataSpec(contentUri);
     try {
@@ -92,14 +95,44 @@ public final class ContentDataSourceTest {
     }
   }
 
+  @Test
+  public void read_positionPastEndOfContent_throwsEOFException() throws Exception {
+    Uri contentUri = TestContentProvider.buildUri(DATA_PATH, /* pipeMode= */ false);
+    ContentDataSource dataSource =
+        new ContentDataSource(ApplicationProvider.getApplicationContext());
+    DataSpec dataSpec = new DataSpec(contentUri, /* position= */ 1025, C.LENGTH_UNSET);
+    try {
+      ContentDataSourceException exception =
+          assertThrows(ContentDataSourceException.class, () -> dataSource.open(dataSpec));
+      assertThat(exception).hasCauseThat().isInstanceOf(EOFException.class);
+    } finally {
+      dataSource.close();
+    }
+  }
+
+  @Test
+  public void readPipeMode_positionPastEndOfContent_throwsEOFException() throws Exception {
+    Uri contentUri = TestContentProvider.buildUri(DATA_PATH, /* pipeMode= */ true);
+    ContentDataSource dataSource =
+        new ContentDataSource(ApplicationProvider.getApplicationContext());
+    DataSpec dataSpec = new DataSpec(contentUri, /* position= */ 1025, C.LENGTH_UNSET);
+    try {
+      ContentDataSourceException exception =
+          assertThrows(ContentDataSourceException.class, () -> dataSource.open(dataSpec));
+      assertThat(exception).hasCauseThat().isInstanceOf(EOFException.class);
+    } finally {
+      dataSource.close();
+    }
+  }
+
   private static void assertData(int offset, int length, boolean pipeMode) throws IOException {
     Uri contentUri = TestContentProvider.buildUri(DATA_PATH, pipeMode);
     ContentDataSource dataSource =
-        new ContentDataSource(InstrumentationRegistry.getTargetContext());
+        new ContentDataSource(ApplicationProvider.getApplicationContext());
     try {
-      DataSpec dataSpec = new DataSpec(contentUri, offset, length, null);
+      DataSpec dataSpec = new DataSpec(contentUri, offset, length);
       byte[] completeData =
-          TestUtil.getByteArray(InstrumentationRegistry.getTargetContext(), DATA_PATH);
+          TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), DATA_PATH);
       byte[] expectedData = Arrays.copyOfRange(completeData, offset,
           length == C.LENGTH_UNSET ? completeData.length : offset + length);
       TestUtil.assertDataSourceContent(dataSource, dataSpec, expectedData, !pipeMode);

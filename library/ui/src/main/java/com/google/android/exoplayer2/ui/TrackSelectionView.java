@@ -326,7 +326,7 @@ public class TrackSelectionView extends LinearLayout {
   private void onTrackViewClicked(View view) {
     isDisabled = false;
     @SuppressWarnings("unchecked")
-    Pair<Integer, Integer> tag = (Pair<Integer, Integer>) view.getTag();
+    Pair<Integer, Integer> tag = (Pair<Integer, Integer>) Assertions.checkNotNull(view.getTag());
     int groupIndex = tag.first;
     int trackIndex = tag.second;
     SelectionOverride override = overrides.get(groupIndex);

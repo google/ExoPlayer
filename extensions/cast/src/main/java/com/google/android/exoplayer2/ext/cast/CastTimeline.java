@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import android.net.Uri;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import java.util.Arrays;
 
@@ -126,10 +128,11 @@ import java.util.Arrays;
     boolean isDynamic = durationUs == C.TIME_UNSET;
     return window.set(
         /* uid= */ ids[windowIndex],
-        /* tag= */ ids[windowIndex],
+        /* mediaItem= */ new MediaItem.Builder().setUri(Uri.EMPTY).setTag(ids[windowIndex]).build(),
         /* manifest= */ null,
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
         /* isSeekable= */ !isDynamic,
         isDynamic,
         isLive[windowIndex],

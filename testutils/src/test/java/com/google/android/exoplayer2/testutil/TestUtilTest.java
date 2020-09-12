@@ -16,9 +16,18 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.common.base.Supplier;
+import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -41,6 +50,45 @@ public class TestUtilTest {
     long startTimeMs = System.currentTimeMillis();
     assertThat(conditionVariable.block(/* timeoutMs= */ 500)).isFalse();
     long endTimeMs = System.currentTimeMillis();
-    assertThat(endTimeMs - startTimeMs).isAtLeast(500L);
+    assertThat(endTimeMs - startTimeMs).isAtLeast(500);
+  }
+
+  @Test
+  public void runMainLooperUntil_withConditionAlreadyTrue_returnsImmediately() throws Exception {
+    Clock mockClock = mock(Clock.class);
+
+    TestUtil.runMainLooperUntil(() -> true, /* timeoutMs= */ 0, mockClock);
+
+    verify(mockClock, atMost(1)).currentTimeMillis();
+  }
+
+  @Test
+  public void runMainLooperUntil_withConditionThatNeverBecomesTrue_timesOut() {
+    Clock mockClock = mock(Clock.class);
+    when(mockClock.currentTimeMillis()).thenReturn(0L, 41L, 42L);
+
+    assertThrows(
+        TimeoutException.class,
+        () -> TestUtil.runMainLooperUntil(() -> false, /* timeoutMs= */ 42, mockClock));
+
+    verify(mockClock, times(3)).currentTimeMillis();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void
+      runMainLooperUntil_whenConditionBecomesTrueAfterDelay_returnsWhenConditionBecomesTrue()
+          throws Exception {
+    Supplier<Boolean> mockCondition = mock(Supplier.class);
+    when(mockCondition.get())
+        .thenReturn(false)
+        .thenReturn(false)
+        .thenReturn(false)
+        .thenReturn(false)
+        .thenReturn(true);
+
+    TestUtil.runMainLooperUntil(mockCondition, /* timeoutMs= */ 5674, mock(Clock.class));
+
+    verify(mockCondition, times(5)).get();
   }
 }

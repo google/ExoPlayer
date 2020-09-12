@@ -26,10 +26,10 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class AssetDataSourceTest {
 
-  private static final String DATA_PATH = "binary/1024_incrementing_bytes.mp3";
+  private static final String DATA_PATH = "media/mp3/1024_incrementing_bytes.mp3";
 
   @Test
-  public void testReadFileUri() throws Exception {
+  public void readFileUri() throws Exception {
     AssetDataSource dataSource = new AssetDataSource(ApplicationProvider.getApplicationContext());
     DataSpec dataSpec = new DataSpec(Uri.parse("file:///android_asset/" + DATA_PATH));
     TestUtil.assertDataSourceContent(
@@ -40,7 +40,7 @@ public final class AssetDataSourceTest {
   }
 
   @Test
-  public void testReadAssetUri() throws Exception {
+  public void readAssetUri() throws Exception {
     AssetDataSource dataSource = new AssetDataSource(ApplicationProvider.getApplicationContext());
     DataSpec dataSpec = new DataSpec(Uri.parse("asset:///" + DATA_PATH));
     TestUtil.assertDataSourceContent(

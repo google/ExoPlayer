@@ -18,10 +18,14 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Unit test for {@link Timeline}. */
 public final class TimelineAsserts {
@@ -48,13 +52,16 @@ public final class TimelineAsserts {
    * @param expectedWindowTags A list of expected window tags. If a tag is unknown or not important
    *     {@code null} can be passed to skip this window.
    */
-  public static void assertWindowTags(Timeline timeline, Object... expectedWindowTags) {
+  public static void assertWindowTags(
+      Timeline timeline, @NullableType Object... expectedWindowTags) {
     Window window = new Window();
     assertThat(timeline.getWindowCount()).isEqualTo(expectedWindowTags.length);
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       timeline.getWindow(i, window);
       if (expectedWindowTags[i] != null) {
-        assertThat(window.tag).isEqualTo(expectedWindowTags[i]);
+        MediaItem.PlaybackProperties playbackProperties = window.mediaItem.playbackProperties;
+        assertThat(playbackProperties).isNotNull();
+        assertThat(Util.castNonNull(playbackProperties).tag).isEqualTo(expectedWindowTags[i]);
       }
     }
   }
@@ -140,8 +147,9 @@ public final class TimelineAsserts {
         expectedWindowIndex++;
       }
       assertThat(period.windowIndex).isEqualTo(expectedWindowIndex);
-      assertThat(timeline.getIndexOfPeriod(period.uid)).isEqualTo(i);
-      assertThat(timeline.getUidOfPeriod(i)).isEqualTo(period.uid);
+      Object periodUid = Assertions.checkNotNull(period.uid);
+      assertThat(timeline.getIndexOfPeriod(periodUid)).isEqualTo(i);
+      assertThat(timeline.getUidOfPeriod(i)).isEqualTo(periodUid);
       for (int repeatMode : REPEAT_MODES) {
         if (i < accumulatedPeriodCounts[expectedWindowIndex + 1] - 1) {
           assertThat(timeline.getNextPeriodIndex(i, period, window, repeatMode, false))

@@ -60,11 +60,15 @@ import com.google.android.exoplayer2.util.Util;
 @Deprecated
 public final class JobDispatcherScheduler implements Scheduler {
 
-  private static final boolean DEBUG = false;
   private static final String TAG = "JobDispatcherScheduler";
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
   private static final String KEY_REQUIREMENTS = "requirements";
+  private static final int SUPPORTED_REQUIREMENTS =
+      Requirements.NETWORK
+          | Requirements.NETWORK_UNMETERED
+          | Requirements.DEVICE_IDLE
+          | Requirements.DEVICE_CHARGING;
 
   private final String jobTag;
   private final FirebaseJobDispatcher jobDispatcher;
@@ -85,15 +89,18 @@ public final class JobDispatcherScheduler implements Scheduler {
   public boolean schedule(Requirements requirements, String servicePackage, String serviceAction) {
     Job job = buildJob(jobDispatcher, requirements, jobTag, servicePackage, serviceAction);
     int result = jobDispatcher.schedule(job);
-    logd("Scheduling job: " + jobTag + " result: " + result);
     return result == FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS;
   }
 
   @Override
   public boolean cancel() {
     int result = jobDispatcher.cancel(jobTag);
-    logd("Canceling job: " + jobTag + " result: " + result);
     return result == FirebaseJobDispatcher.CANCEL_RESULT_SUCCESS;
+  }
+
+  @Override
+  public Requirements getSupportedRequirements(Requirements requirements) {
+    return requirements.filterRequirements(SUPPORTED_REQUIREMENTS);
   }
 
   private static Job buildJob(
@@ -102,18 +109,24 @@ public final class JobDispatcherScheduler implements Scheduler {
       String tag,
       String servicePackage,
       String serviceAction) {
+    Requirements filteredRequirements = requirements.filterRequirements(SUPPORTED_REQUIREMENTS);
+    if (!filteredRequirements.equals(requirements)) {
+      Log.w(
+          TAG,
+          "Ignoring unsupported requirements: "
+              + (filteredRequirements.getRequirements() ^ requirements.getRequirements()));
+    }
+
     Job.Builder builder =
         dispatcher
             .newJobBuilder()
             .setService(JobDispatcherSchedulerService.class) // the JobService that will be called
             .setTag(tag);
-
     if (requirements.isUnmeteredNetworkRequired()) {
       builder.addConstraint(Constraint.ON_UNMETERED_NETWORK);
     } else if (requirements.isNetworkRequired()) {
       builder.addConstraint(Constraint.ON_ANY_NETWORK);
     }
-
     if (requirements.isIdleRequired()) {
       builder.addConstraint(Constraint.DEVICE_IDLE);
     }
@@ -131,31 +144,20 @@ public final class JobDispatcherScheduler implements Scheduler {
     return builder.build();
   }
 
-  private static void logd(String message) {
-    if (DEBUG) {
-      Log.d(TAG, message);
-    }
-  }
-
   /** A {@link JobService} that starts the target service if the requirements are met. */
   public static final class JobDispatcherSchedulerService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
-      logd("JobDispatcherSchedulerService is started");
-      Bundle extras = params.getExtras();
-      Assertions.checkNotNull(extras, "Service started without extras.");
+      Bundle extras = Assertions.checkNotNull(params.getExtras());
       Requirements requirements = new Requirements(extras.getInt(KEY_REQUIREMENTS));
-      if (requirements.checkRequirements(this)) {
-        logd("Requirements are met");
-        String serviceAction = extras.getString(KEY_SERVICE_ACTION);
-        String servicePackage = extras.getString(KEY_SERVICE_PACKAGE);
-        Assertions.checkNotNull(serviceAction, "Service action missing.");
-        Assertions.checkNotNull(servicePackage, "Service package missing.");
+      int notMetRequirements = requirements.getNotMetRequirements(this);
+      if (notMetRequirements == 0) {
+        String serviceAction = Assertions.checkNotNull(extras.getString(KEY_SERVICE_ACTION));
+        String servicePackage = Assertions.checkNotNull(extras.getString(KEY_SERVICE_PACKAGE));
         Intent intent = new Intent(serviceAction).setPackage(servicePackage);
-        logd("Starting service action: " + serviceAction + " package: " + servicePackage);
         Util.startForegroundService(this, intent);
       } else {
-        logd("Requirements are not met");
+        Log.w(TAG, "Requirements not met: " + notMetRequirements);
         jobFinished(params, /* needsReschedule */ true);
       }
       return false;

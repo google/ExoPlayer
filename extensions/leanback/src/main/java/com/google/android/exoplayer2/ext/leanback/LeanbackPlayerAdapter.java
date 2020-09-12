@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 
 /** Leanback {@code PlayerAdapter} implementation for {@link Player}. */
@@ -71,7 +72,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     this.context = context;
     this.player = player;
     this.updatePeriodMs = updatePeriodMs;
-    handler = new Handler();
+    handler = Util.createHandlerForCurrentOrMainLooper();
     componentListener = new ComponentListener();
     controlDispatcher = new DefaultControlDispatcher();
   }
@@ -271,7 +272,7 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     // Player.EventListener implementation.
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
       notifyStateChanged();
     }
 

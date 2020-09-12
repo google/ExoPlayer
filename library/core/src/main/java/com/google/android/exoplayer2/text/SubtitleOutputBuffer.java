@@ -66,9 +66,6 @@ public abstract class SubtitleOutputBuffer extends OutputBuffer implements Subti
   }
 
   @Override
-  public abstract void release();
-
-  @Override
   public void clear() {
     super.clear();
     subtitle = null;

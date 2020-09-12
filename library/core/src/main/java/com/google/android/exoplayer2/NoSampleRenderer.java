@@ -28,7 +28,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 public abstract class NoSampleRenderer implements Renderer, RendererCapabilities {
 
-  @MonotonicNonNull private RendererConfiguration configuration;
+  private @MonotonicNonNull RendererConfiguration configuration;
   private int index;
   private int state;
   @Nullable private SampleStream stream;
@@ -60,30 +60,22 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
     return state;
   }
 
-  /**
-   * Replaces the {@link SampleStream} that will be associated with this renderer.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_DISABLED}.
-   *
-   * @param configuration The renderer configuration.
-   * @param formats The enabled formats. Should be empty.
-   * @param stream The {@link SampleStream} from which the renderer should consume.
-   * @param positionUs The player's current position.
-   * @param joining Whether this renderer is being enabled to join an ongoing playback.
-   * @param offsetUs The offset that should be subtracted from {@code positionUs}
-   *     to get the playback position with respect to the media.
-   * @throws ExoPlaybackException If an error occurs.
-   */
   @Override
-  public final void enable(RendererConfiguration configuration, Format[] formats,
-      SampleStream stream, long positionUs, boolean joining, long offsetUs)
+  public final void enable(
+      RendererConfiguration configuration,
+      Format[] formats,
+      SampleStream stream,
+      long positionUs,
+      boolean joining,
+      boolean mayRenderStartOfStream,
+      long startPositionUs,
+      long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
     onEnabled(joining);
-    replaceStream(formats, stream, offsetUs);
+    replaceStream(formats, stream, startPositionUs, offsetUs);
     onPositionReset(positionUs, joining);
   }
 
@@ -94,20 +86,9 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
     onStarted();
   }
 
-  /**
-   * Replaces the {@link SampleStream} that will be associated with this renderer.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
-   *
-   * @param formats The enabled formats. Should be empty.
-   * @param stream The {@link SampleStream} to be associated with this renderer.
-   * @param offsetUs The offset that should be subtracted from {@code positionUs} in
-   *     {@link #render(long, long)} to get the playback position with respect to the media.
-   * @throws ExoPlaybackException If an error occurs.
-   */
   @Override
-  public final void replaceStream(Format[] formats, SampleStream stream, long offsetUs)
+  public final void replaceStream(
+      Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
@@ -151,7 +132,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void stop() throws ExoPlaybackException {
+  public final void stop() {
     Assertions.checkState(state == STATE_STARTED);
     state = STATE_ENABLED;
     onStopped();
@@ -258,12 +239,10 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
 
   /**
    * Called when the renderer is stopped.
-   * <p>
-   * The default implementation is a no-op.
    *
-   * @throws ExoPlaybackException If an error occurs.
+   * <p>The default implementation is a no-op.
    */
-  protected void onStopped() throws ExoPlaybackException {
+  protected void onStopped() {
     // Do nothing.
   }
 

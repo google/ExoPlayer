@@ -15,15 +15,25 @@
  */
 package com.google.android.exoplayer2.source;
 
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A stream of media samples (and associated format information).
  */
 public interface SampleStream {
+
+  /** Return values of {@link #readData(FormatHolder, DecoderInputBuffer, boolean)}. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({C.RESULT_NOTHING_READ, C.RESULT_FORMAT_READ, C.RESULT_BUFFER_READ})
+  @interface ReadDataResult {}
 
   /**
    * Returns whether data is available to be read.
@@ -62,9 +72,9 @@ public interface SampleStream {
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
-   * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
-   *     {@link C#RESULT_BUFFER_READ}.
+   * @return The status of read, one of {@link ReadDataResult}.
    */
+  @ReadDataResult
   int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired);
 
   /**

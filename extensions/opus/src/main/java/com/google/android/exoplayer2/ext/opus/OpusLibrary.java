@@ -68,7 +68,7 @@ public final class OpusLibrary {
    * protected content.
    */
   public static boolean matchesExpectedExoMediaCryptoType(
-      @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
+      Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
     return Util.areEqual(OpusLibrary.exoMediaCryptoType, exoMediaCryptoType);
   }
 

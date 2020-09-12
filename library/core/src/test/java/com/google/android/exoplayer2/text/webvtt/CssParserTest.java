@@ -21,6 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +41,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testSkipWhitespacesAndComments() {
+  public void skipWhitespacesAndComments() {
     // Skip only whitespaces
     String skipOnlyWhitespaces = " \t\r\n\f End of skip\n /*  */";
     assertSkipsToEndOfSkip("End of skip", skipOnlyWhitespaces);
@@ -61,7 +64,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testGetInputLimit() {
+  public void getInputLimit() {
     // \r After 3 lines.
     String threeLinesThen3Cr = "One Line\nThen other\rAnd finally\r\r\r";
     assertInputLimit("", threeLinesThen3Cr);
@@ -87,7 +90,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testParseMethodSimpleInput() {
+  public void parseMethodSimpleInput() {
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
     String styleBlock1 = " ::cue { color : black; background-color: PapayaWhip }";
     expectedStyle.setFontColor(0xFF000000);
@@ -106,7 +109,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testParseMethodMultipleRulesInBlockInput() {
+  public void parseMethodMultipleRulesInBlockInput() {
     String styleBlock =
         "::cue {\n background-color\n:#00fFFe}      \n::cue {\n background-color\n:#00000000}\n";
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
@@ -117,9 +120,10 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testMultiplePropertiesInBlock() {
-    String styleBlock = "::cue(#id){text-decoration:underline; background-color:green;"
-        + "color:red; font-family:Courier; font-weight:bold}";
+  public void multiplePropertiesInBlock() {
+    String styleBlock =
+        "::cue(#id){text-decoration:underline; background-color:green;"
+            + "color:red; font-family:Courier; font-weight:bold}";
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
     expectedStyle.setTargetId("id");
     expectedStyle.setUnderline(true);
@@ -132,9 +136,10 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testRgbaColorExpression() {
-    String styleBlock = "::cue(#rgb){background-color: rgba(\n10/* Ugly color */,11\t, 12\n,.1);"
-        + "color:rgb(1,1,\n1)}";
+  public void rgbaColorExpression() {
+    String styleBlock =
+        "::cue(#rgb){background-color: rgba(\n10/* Ugly color */,11\t, 12\n,.1);"
+            + "color:rgb(1,1,\n1)}";
     WebvttCssStyle expectedStyle = new WebvttCssStyle();
     expectedStyle.setTargetId("rgb");
     expectedStyle.setBackgroundColor(0x190A0B0C);
@@ -144,7 +149,7 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testGetNextToken() {
+  public void getNextToken() {
     String stringInput = " lorem:ipsum\n{dolor}#sit,amet;lorem:ipsum\r\t\f\ndolor(())\n";
     ParsableByteArray input = new ParsableByteArray(Util.getUtf8Bytes(stringInput));
     StringBuilder builder = new StringBuilder();
@@ -170,35 +175,57 @@ public final class CssParserTest {
   }
 
   @Test
-  public void testStyleScoreSystem() {
+  public void styleScoreSystem() {
     WebvttCssStyle style = new WebvttCssStyle();
     // Universal selector.
-    assertThat(style.getSpecificityScore("", "", new String[0], "")).isEqualTo(1);
+    assertThat(style.getSpecificityScore("", "", Collections.emptySet(), "")).isEqualTo(1);
     // Class match without tag match.
     style.setTargetClasses(new String[] { "class1", "class2"});
-    assertThat(style.getSpecificityScore("", "", new String[]{"class1", "class2", "class3"},
-        "")).isEqualTo(8);
+    assertThat(
+            style.getSpecificityScore(
+                "", "", new HashSet<>(Arrays.asList("class1", "class2", "class3")), ""))
+        .isEqualTo(8);
     // Class and tag match
     style.setTargetTagName("b");
-    assertThat(style.getSpecificityScore("", "b",
-        new String[]{"class1", "class2", "class3"}, "")).isEqualTo(10);
+    assertThat(
+            style.getSpecificityScore(
+                "", "b", new HashSet<>(Arrays.asList("class1", "class2", "class3")), ""))
+        .isEqualTo(10);
     // Class insufficiency.
-    assertThat(style.getSpecificityScore("", "b", new String[]{"class1", "class"}, ""))
+    assertThat(
+            style.getSpecificityScore("", "b", new HashSet<>(Arrays.asList("class1", "class")), ""))
         .isEqualTo(0);
     // Voice, classes and tag match.
     style.setTargetVoice("Manuel Cráneo");
-    assertThat(style.getSpecificityScore("", "b",
-        new String[]{"class1", "class2", "class3"}, "Manuel Cráneo")).isEqualTo(14);
+    assertThat(
+            style.getSpecificityScore(
+                "",
+                "b",
+                new HashSet<>(Arrays.asList("class1", "class2", "class3")),
+                "Manuel Cráneo"))
+        .isEqualTo(14);
     // Voice mismatch.
-    assertThat(style.getSpecificityScore(null, "b",
-        new String[]{"class1", "class2", "class3"}, "Manuel Craneo")).isEqualTo(0);
+    assertThat(
+            style.getSpecificityScore(
+                null,
+                "b",
+                new HashSet<>(Arrays.asList("class1", "class2", "class3")),
+                "Manuel Craneo"))
+        .isEqualTo(0);
     // Id, voice, classes and tag match.
     style.setTargetId("id");
-    assertThat(style.getSpecificityScore("id", "b",
-        new String[]{"class1", "class2", "class3"}, "Manuel Cráneo")).isEqualTo(0x40000000 + 14);
+    assertThat(
+            style.getSpecificityScore(
+                "id",
+                "b",
+                new HashSet<>(Arrays.asList("class1", "class2", "class3")),
+                "Manuel Cráneo"))
+        .isEqualTo(0x40000000 + 14);
     // Id mismatch.
-    assertThat(style.getSpecificityScore("id1", "b",
-        new String[]{"class1", "class2", "class3"}, "")).isEqualTo(0);
+    assertThat(
+            style.getSpecificityScore(
+                "id1", "b", new HashSet<>(Arrays.asList("class1", "class2", "class3")), ""))
+        .isEqualTo(0);
   }
 
   // Utility methods.
@@ -236,7 +263,6 @@ public final class CssParserTest {
       assertThat(actualElem.getStyle()).isEqualTo(expected.getStyle());
       assertThat(actualElem.isLinethrough()).isEqualTo(expected.isLinethrough());
       assertThat(actualElem.isUnderline()).isEqualTo(expected.isUnderline());
-      assertThat(actualElem.getTextAlign()).isEqualTo(expected.getTextAlign());
     }
   }
 

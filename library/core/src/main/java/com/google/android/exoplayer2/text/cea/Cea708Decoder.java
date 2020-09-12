@@ -34,12 +34,15 @@ import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoder;
 import com.google.android.exoplayer2.text.SubtitleInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A {@link SubtitleDecoder} for CEA-708 (also known as "EIA-708").
@@ -142,30 +145,34 @@ public final class Cea708Decoder extends CeaDecoder {
 
   private final ParsableByteArray ccData;
   private final ParsableBitArray serviceBlockPacket;
+  // TODO: Use isWideAspectRatio in decoding.
+  @SuppressWarnings({"unused", "FieldCanBeLocal"})
+  private final boolean isWideAspectRatio;
 
   private final int selectedServiceNumber;
-  private final CueBuilder[] cueBuilders;
+  private final CueInfoBuilder[] cueInfoBuilders;
 
-  private CueBuilder currentCueBuilder;
-  private List<Cue> cues;
-  private List<Cue> lastCues;
+  private CueInfoBuilder currentCueInfoBuilder;
+  @Nullable private List<Cue> cues;
+  @Nullable private List<Cue> lastCues;
 
-  private DtvCcPacket currentDtvCcPacket;
+  @Nullable private DtvCcPacket currentDtvCcPacket;
   private int currentWindow;
 
-  // TODO: Retrieve isWideAspectRatio from initializationData and use it.
   public Cea708Decoder(int accessibilityChannel, @Nullable List<byte[]> initializationData) {
     ccData = new ParsableByteArray();
     serviceBlockPacket = new ParsableBitArray();
     selectedServiceNumber = accessibilityChannel == Format.NO_VALUE ? 1 : accessibilityChannel;
+    isWideAspectRatio =
+        initializationData != null
+            && CodecSpecificDataUtil.parseCea708InitializationData(initializationData);
 
-    cueBuilders = new CueBuilder[NUM_WINDOWS];
+    cueInfoBuilders = new CueInfoBuilder[NUM_WINDOWS];
     for (int i = 0; i < NUM_WINDOWS; i++) {
-      cueBuilders[i] = new CueBuilder();
+      cueInfoBuilders[i] = new CueInfoBuilder();
     }
 
-    currentCueBuilder = cueBuilders[0];
-    resetCueBuilders();
+    currentCueInfoBuilder = cueInfoBuilders[0];
   }
 
   @Override
@@ -179,7 +186,7 @@ public final class Cea708Decoder extends CeaDecoder {
     cues = null;
     lastCues = null;
     currentWindow = 0;
-    currentCueBuilder = cueBuilders[currentWindow];
+    currentCueInfoBuilder = cueInfoBuilders[currentWindow];
     resetCueBuilders();
     currentDtvCcPacket = null;
   }
@@ -192,15 +199,16 @@ public final class Cea708Decoder extends CeaDecoder {
   @Override
   protected Subtitle createSubtitle() {
     lastCues = cues;
-    return new CeaSubtitle(cues);
+    return new CeaSubtitle(Assertions.checkNotNull(cues));
   }
 
   @Override
   protected void decode(SubtitleInputBuffer inputBuffer) {
     // Subtitle input buffers are non-direct and the position is zero, so calling array() is safe.
+    ByteBuffer subtitleData = Assertions.checkNotNull(inputBuffer.data);
     @SuppressWarnings("ByteBufferBackingArray")
-    byte[] inputBufferData = inputBuffer.data.array();
-    ccData.reset(inputBufferData, inputBuffer.data.limit());
+    byte[] inputBufferData = subtitleData.array();
+    ccData.reset(inputBufferData, subtitleData.limit());
     while (ccData.bytesLeft() >= 3) {
       int ccTypeAndValid = (ccData.readUnsignedByte() & 0x07);
 
@@ -259,6 +267,7 @@ public final class Cea708Decoder extends CeaDecoder {
     currentDtvCcPacket = null;
   }
 
+  @RequiresNonNull("currentDtvCcPacket")
   private void processCurrentPacket() {
     if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
       Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
@@ -348,13 +357,13 @@ public final class Cea708Decoder extends CeaDecoder {
         cues = getDisplayCues();
         break;
       case COMMAND_BS:
-        currentCueBuilder.backspace();
+        currentCueInfoBuilder.backspace();
         break;
       case COMMAND_FF:
         resetCueBuilders();
         break;
       case COMMAND_CR:
-        currentCueBuilder.append('\n');
+        currentCueInfoBuilder.append('\n');
         break;
       case COMMAND_HCR:
         // TODO: Add support for this command.
@@ -386,42 +395,42 @@ public final class Cea708Decoder extends CeaDecoder {
         window = (command - COMMAND_CW0);
         if (currentWindow != window) {
           currentWindow = window;
-          currentCueBuilder = cueBuilders[window];
+          currentCueInfoBuilder = cueInfoBuilders[window];
         }
         break;
       case COMMAND_CLW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
-            cueBuilders[NUM_WINDOWS - i].clear();
+            cueInfoBuilders[NUM_WINDOWS - i].clear();
           }
         }
         break;
       case COMMAND_DSW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
-            cueBuilders[NUM_WINDOWS - i].setVisibility(true);
+            cueInfoBuilders[NUM_WINDOWS - i].setVisibility(true);
           }
         }
         break;
       case COMMAND_HDW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
-            cueBuilders[NUM_WINDOWS - i].setVisibility(false);
+            cueInfoBuilders[NUM_WINDOWS - i].setVisibility(false);
           }
         }
         break;
       case COMMAND_TGW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
-            CueBuilder cueBuilder = cueBuilders[NUM_WINDOWS - i];
-            cueBuilder.setVisibility(!cueBuilder.isVisible());
+            CueInfoBuilder cueInfoBuilder = cueInfoBuilders[NUM_WINDOWS - i];
+            cueInfoBuilder.setVisibility(!cueInfoBuilder.isVisible());
           }
         }
         break;
       case COMMAND_DLW:
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
-            cueBuilders[NUM_WINDOWS - i].reset();
+            cueInfoBuilders[NUM_WINDOWS - i].reset();
           }
         }
         break;
@@ -436,7 +445,7 @@ public final class Cea708Decoder extends CeaDecoder {
         resetCueBuilders();
         break;
       case COMMAND_SPA:
-        if (!currentCueBuilder.isDefined()) {
+        if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
           serviceBlockPacket.skipBits(16);
         } else {
@@ -444,7 +453,7 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_SPC:
-        if (!currentCueBuilder.isDefined()) {
+        if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
           serviceBlockPacket.skipBits(24);
         } else {
@@ -452,7 +461,7 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_SPL:
-        if (!currentCueBuilder.isDefined()) {
+        if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
           serviceBlockPacket.skipBits(16);
         } else {
@@ -460,7 +469,7 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_SWA:
-        if (!currentCueBuilder.isDefined()) {
+        if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
           serviceBlockPacket.skipBits(32);
         } else {
@@ -480,7 +489,7 @@ public final class Cea708Decoder extends CeaDecoder {
         // We also set the current window to the newly defined window.
         if (currentWindow != window) {
           currentWindow = window;
-          currentCueBuilder = cueBuilders[window];
+          currentCueInfoBuilder = cueInfoBuilders[window];
         }
         break;
       default:
@@ -519,95 +528,95 @@ public final class Cea708Decoder extends CeaDecoder {
 
   private void handleG0Character(int characterCode) {
     if (characterCode == CHARACTER_MN) {
-      currentCueBuilder.append('\u266B');
+      currentCueInfoBuilder.append('\u266B');
     } else {
-      currentCueBuilder.append((char) (characterCode & 0xFF));
+      currentCueInfoBuilder.append((char) (characterCode & 0xFF));
     }
   }
 
   private void handleG1Character(int characterCode) {
-    currentCueBuilder.append((char) (characterCode & 0xFF));
+    currentCueInfoBuilder.append((char) (characterCode & 0xFF));
   }
 
   private void handleG2Character(int characterCode) {
     switch (characterCode) {
       case CHARACTER_TSP:
-        currentCueBuilder.append('\u0020');
+        currentCueInfoBuilder.append('\u0020');
         break;
       case CHARACTER_NBTSP:
-        currentCueBuilder.append('\u00A0');
+        currentCueInfoBuilder.append('\u00A0');
         break;
       case CHARACTER_ELLIPSIS:
-        currentCueBuilder.append('\u2026');
+        currentCueInfoBuilder.append('\u2026');
         break;
       case CHARACTER_BIG_CARONS:
-        currentCueBuilder.append('\u0160');
+        currentCueInfoBuilder.append('\u0160');
         break;
       case CHARACTER_BIG_OE:
-        currentCueBuilder.append('\u0152');
+        currentCueInfoBuilder.append('\u0152');
         break;
       case CHARACTER_SOLID_BLOCK:
-        currentCueBuilder.append('\u2588');
+        currentCueInfoBuilder.append('\u2588');
         break;
       case CHARACTER_OPEN_SINGLE_QUOTE:
-        currentCueBuilder.append('\u2018');
+        currentCueInfoBuilder.append('\u2018');
         break;
       case CHARACTER_CLOSE_SINGLE_QUOTE:
-        currentCueBuilder.append('\u2019');
+        currentCueInfoBuilder.append('\u2019');
         break;
       case CHARACTER_OPEN_DOUBLE_QUOTE:
-        currentCueBuilder.append('\u201C');
+        currentCueInfoBuilder.append('\u201C');
         break;
       case CHARACTER_CLOSE_DOUBLE_QUOTE:
-        currentCueBuilder.append('\u201D');
+        currentCueInfoBuilder.append('\u201D');
         break;
       case CHARACTER_BOLD_BULLET:
-        currentCueBuilder.append('\u2022');
+        currentCueInfoBuilder.append('\u2022');
         break;
       case CHARACTER_TM:
-        currentCueBuilder.append('\u2122');
+        currentCueInfoBuilder.append('\u2122');
         break;
       case CHARACTER_SMALL_CARONS:
-        currentCueBuilder.append('\u0161');
+        currentCueInfoBuilder.append('\u0161');
         break;
       case CHARACTER_SMALL_OE:
-        currentCueBuilder.append('\u0153');
+        currentCueInfoBuilder.append('\u0153');
         break;
       case CHARACTER_SM:
-        currentCueBuilder.append('\u2120');
+        currentCueInfoBuilder.append('\u2120');
         break;
       case CHARACTER_DIAERESIS_Y:
-        currentCueBuilder.append('\u0178');
+        currentCueInfoBuilder.append('\u0178');
         break;
       case CHARACTER_ONE_EIGHTH:
-        currentCueBuilder.append('\u215B');
+        currentCueInfoBuilder.append('\u215B');
         break;
       case CHARACTER_THREE_EIGHTHS:
-        currentCueBuilder.append('\u215C');
+        currentCueInfoBuilder.append('\u215C');
         break;
       case CHARACTER_FIVE_EIGHTHS:
-        currentCueBuilder.append('\u215D');
+        currentCueInfoBuilder.append('\u215D');
         break;
       case CHARACTER_SEVEN_EIGHTHS:
-        currentCueBuilder.append('\u215E');
+        currentCueInfoBuilder.append('\u215E');
         break;
       case CHARACTER_VERTICAL_BORDER:
-        currentCueBuilder.append('\u2502');
+        currentCueInfoBuilder.append('\u2502');
         break;
       case CHARACTER_UPPER_RIGHT_BORDER:
-        currentCueBuilder.append('\u2510');
+        currentCueInfoBuilder.append('\u2510');
         break;
       case CHARACTER_LOWER_LEFT_BORDER:
-        currentCueBuilder.append('\u2514');
+        currentCueInfoBuilder.append('\u2514');
         break;
       case CHARACTER_HORIZONTAL_BORDER:
-        currentCueBuilder.append('\u2500');
+        currentCueInfoBuilder.append('\u2500');
         break;
       case CHARACTER_LOWER_RIGHT_BORDER:
-        currentCueBuilder.append('\u2518');
+        currentCueInfoBuilder.append('\u2518');
         break;
       case CHARACTER_UPPER_LEFT_BORDER:
-        currentCueBuilder.append('\u250C');
+        currentCueInfoBuilder.append('\u250C');
         break;
       default:
         Log.w(TAG, "Invalid G2 character: " + characterCode);
@@ -618,11 +627,11 @@ public final class Cea708Decoder extends CeaDecoder {
 
   private void handleG3Character(int characterCode) {
     if (characterCode == 0xA0) {
-      currentCueBuilder.append('\u33C4');
+      currentCueInfoBuilder.append('\u33C4');
     } else {
       Log.w(TAG, "Invalid G3 character: " + characterCode);
       // Substitute any unsupported G3 character with an underscore as per CEA-708 specification.
-      currentCueBuilder.append('_');
+      currentCueInfoBuilder.append('_');
     }
   }
 
@@ -638,8 +647,8 @@ public final class Cea708Decoder extends CeaDecoder {
     int edgeType = serviceBlockPacket.readBits(3);
     int fontStyle = serviceBlockPacket.readBits(3);
 
-    currentCueBuilder.setPenAttributes(textTag, offset, penSize, italicsToggle, underlineToggle,
-        edgeType, fontStyle);
+    currentCueInfoBuilder.setPenAttributes(
+        textTag, offset, penSize, italicsToggle, underlineToggle, edgeType, fontStyle);
   }
 
   private void handleSetPenColor() {
@@ -649,23 +658,23 @@ public final class Cea708Decoder extends CeaDecoder {
     int foregroundR = serviceBlockPacket.readBits(2);
     int foregroundG = serviceBlockPacket.readBits(2);
     int foregroundB = serviceBlockPacket.readBits(2);
-    int foregroundColor = CueBuilder.getArgbColorFromCeaColor(foregroundR, foregroundG, foregroundB,
-        foregroundO);
+    int foregroundColor =
+        CueInfoBuilder.getArgbColorFromCeaColor(foregroundR, foregroundG, foregroundB, foregroundO);
     // second byte
     int backgroundO = serviceBlockPacket.readBits(2);
     int backgroundR = serviceBlockPacket.readBits(2);
     int backgroundG = serviceBlockPacket.readBits(2);
     int backgroundB = serviceBlockPacket.readBits(2);
-    int backgroundColor = CueBuilder.getArgbColorFromCeaColor(backgroundR, backgroundG, backgroundB,
-        backgroundO);
+    int backgroundColor =
+        CueInfoBuilder.getArgbColorFromCeaColor(backgroundR, backgroundG, backgroundB, backgroundO);
     // third byte
     serviceBlockPacket.skipBits(2); // null padding
     int edgeR = serviceBlockPacket.readBits(2);
     int edgeG = serviceBlockPacket.readBits(2);
     int edgeB = serviceBlockPacket.readBits(2);
-    int edgeColor = CueBuilder.getArgbColorFromCeaColor(edgeR, edgeG, edgeB);
+    int edgeColor = CueInfoBuilder.getArgbColorFromCeaColor(edgeR, edgeG, edgeB);
 
-    currentCueBuilder.setPenColor(foregroundColor, backgroundColor, edgeColor);
+    currentCueInfoBuilder.setPenColor(foregroundColor, backgroundColor, edgeColor);
   }
 
   private void handleSetPenLocation() {
@@ -677,7 +686,7 @@ public final class Cea708Decoder extends CeaDecoder {
     serviceBlockPacket.skipBits(2);
     int column = serviceBlockPacket.readBits(6);
 
-    currentCueBuilder.setPenLocation(row, column);
+    currentCueInfoBuilder.setPenLocation(row, column);
   }
 
   private void handleSetWindowAttributes() {
@@ -687,13 +696,13 @@ public final class Cea708Decoder extends CeaDecoder {
     int fillR = serviceBlockPacket.readBits(2);
     int fillG = serviceBlockPacket.readBits(2);
     int fillB = serviceBlockPacket.readBits(2);
-    int fillColor = CueBuilder.getArgbColorFromCeaColor(fillR, fillG, fillB, fillO);
+    int fillColor = CueInfoBuilder.getArgbColorFromCeaColor(fillR, fillG, fillB, fillO);
     // second byte
     int borderType = serviceBlockPacket.readBits(2); // only the lower 2 bits of borderType
     int borderR = serviceBlockPacket.readBits(2);
     int borderG = serviceBlockPacket.readBits(2);
     int borderB = serviceBlockPacket.readBits(2);
-    int borderColor = CueBuilder.getArgbColorFromCeaColor(borderR, borderG, borderB);
+    int borderColor = CueInfoBuilder.getArgbColorFromCeaColor(borderR, borderG, borderB);
     // third byte
     if (serviceBlockPacket.readBit()) {
       borderType |= 0x04; // set the top bit of the 3-bit borderType
@@ -706,12 +715,18 @@ public final class Cea708Decoder extends CeaDecoder {
     // Note that we don't intend to support display effects
     serviceBlockPacket.skipBits(8); // effectSpeed(4), effectDirection(2), displayEffect(2)
 
-    currentCueBuilder.setWindowAttributes(fillColor, borderColor, wordWrapToggle, borderType,
-        printDirection, scrollDirection, justification);
+    currentCueInfoBuilder.setWindowAttributes(
+        fillColor,
+        borderColor,
+        wordWrapToggle,
+        borderType,
+        printDirection,
+        scrollDirection,
+        justification);
   }
 
   private void handleDefineWindow(int window) {
-    CueBuilder cueBuilder = cueBuilders[window];
+    CueInfoBuilder cueInfoBuilder = cueInfoBuilders[window];
 
     // the DefineWindow command contains 6 bytes of data
     // first byte
@@ -736,24 +751,44 @@ public final class Cea708Decoder extends CeaDecoder {
     int windowStyle = serviceBlockPacket.readBits(3);
     int penStyle = serviceBlockPacket.readBits(3);
 
-    cueBuilder.defineWindow(visible, rowLock, columnLock, priority, relativePositioning,
-        verticalAnchor, horizontalAnchor, rowCount, columnCount, anchorId, windowStyle, penStyle);
+    cueInfoBuilder.defineWindow(
+        visible,
+        rowLock,
+        columnLock,
+        priority,
+        relativePositioning,
+        verticalAnchor,
+        horizontalAnchor,
+        rowCount,
+        columnCount,
+        anchorId,
+        windowStyle,
+        penStyle);
   }
 
   private List<Cue> getDisplayCues() {
-    List<Cea708Cue> displayCues = new ArrayList<>();
+    List<Cea708CueInfo> displayCueInfos = new ArrayList<>();
     for (int i = 0; i < NUM_WINDOWS; i++) {
-      if (!cueBuilders[i].isEmpty() && cueBuilders[i].isVisible()) {
-        displayCues.add(cueBuilders[i].build());
+      if (!cueInfoBuilders[i].isEmpty() && cueInfoBuilders[i].isVisible()) {
+        @Nullable Cea708CueInfo cueInfo = cueInfoBuilders[i].build();
+        if (cueInfo != null) {
+          displayCueInfos.add(cueInfo);
+        }
       }
     }
-    Collections.sort(displayCues);
+    Collections.sort(
+        displayCueInfos,
+        (thisInfo, thatInfo) -> Integer.compare(thisInfo.priority, thatInfo.priority));
+    List<Cue> displayCues = new ArrayList<>(displayCueInfos.size());
+    for (int i = 0; i < displayCueInfos.size(); i++) {
+      displayCues.add(displayCueInfos.get(i).cue);
+    }
     return Collections.unmodifiableList(displayCues);
   }
 
   private void resetCueBuilders() {
     for (int i = 0; i < NUM_WINDOWS; i++) {
-      cueBuilders[i].reset();
+      cueInfoBuilders[i].reset();
     }
   }
 
@@ -774,9 +809,9 @@ public final class Cea708Decoder extends CeaDecoder {
 
   }
 
-  // TODO: There is a lot of overlap between Cea708Decoder.CueBuilder and Cea608Decoder.CueBuilder
-  // which could be refactored into a separate class.
-  private static final class CueBuilder {
+  // TODO: There is a lot of overlap between Cea708Decoder.CueInfoBuilder and
+  // Cea608Decoder.CueBuilder which could be refactored into a separate class.
+  private static final class CueInfoBuilder {
 
     private static final int RELATIVE_CUE_SIZE = 99;
     private static final int VERTICAL_SIZE = 74;
@@ -885,7 +920,7 @@ public final class Cea708Decoder extends CeaDecoder {
     private int backgroundColor;
     private int row;
 
-    public CueBuilder() {
+    public CueInfoBuilder() {
       rolledUpCaptions = new ArrayList<>();
       captionStringBuilder = new SpannableStringBuilder();
       reset();
@@ -1134,7 +1169,8 @@ public final class Cea708Decoder extends CeaDecoder {
       return new SpannableString(spannableStringBuilder);
     }
 
-    public Cea708Cue build() {
+    @Nullable
+    public Cea708CueInfo build() {
       if (isEmpty()) {
         // The cue is empty.
         return null;
@@ -1209,8 +1245,17 @@ public final class Cea708Decoder extends CeaDecoder {
 
       boolean windowColorSet = (windowFillColor != COLOR_SOLID_BLACK);
 
-      return new Cea708Cue(cueString, alignment, line, Cue.LINE_TYPE_FRACTION, verticalAnchorType,
-          position, horizontalAnchorType, Cue.DIMEN_UNSET, windowColorSet, windowFillColor,
+      return new Cea708CueInfo(
+          cueString,
+          alignment,
+          line,
+          Cue.LINE_TYPE_FRACTION,
+          verticalAnchorType,
+          position,
+          horizontalAnchorType,
+          Cue.DIMEN_UNSET,
+          windowColorSet,
+          windowFillColor,
           priority);
     }
 
@@ -1249,7 +1294,55 @@ public final class Cea708Decoder extends CeaDecoder {
           (green > 1 ? 255 : 0),
           (blue > 1 ? 255 : 0));
     }
-
   }
 
+  /** A {@link Cue} for CEA-708. */
+  private static final class Cea708CueInfo {
+
+    public final Cue cue;
+
+    /** The priority of the cue box. */
+    public final int priority;
+
+    /**
+     * @param text See {@link Cue#text}.
+     * @param textAlignment See {@link Cue#textAlignment}.
+     * @param line See {@link Cue#line}.
+     * @param lineType See {@link Cue#lineType}.
+     * @param lineAnchor See {@link Cue#lineAnchor}.
+     * @param position See {@link Cue#position}.
+     * @param positionAnchor See {@link Cue#positionAnchor}.
+     * @param size See {@link Cue#size}.
+     * @param windowColorSet See {@link Cue#windowColorSet}.
+     * @param windowColor See {@link Cue#windowColor}.
+     * @param priority See (@link #priority}.
+     */
+    public Cea708CueInfo(
+        CharSequence text,
+        Alignment textAlignment,
+        float line,
+        @Cue.LineType int lineType,
+        @AnchorType int lineAnchor,
+        float position,
+        @AnchorType int positionAnchor,
+        float size,
+        boolean windowColorSet,
+        int windowColor,
+        int priority) {
+      Cue.Builder cueBuilder =
+          new Cue.Builder()
+              .setText(text)
+              .setTextAlignment(textAlignment)
+              .setLine(line, lineType)
+              .setLineAnchor(lineAnchor)
+              .setPosition(position)
+              .setPositionAnchor(positionAnchor)
+              .setSize(size);
+      if (windowColorSet) {
+        cueBuilder.setWindowColor(windowColor);
+      }
+      this.cue = cueBuilder.build();
+      this.priority = priority;
+    }
+  }
 }

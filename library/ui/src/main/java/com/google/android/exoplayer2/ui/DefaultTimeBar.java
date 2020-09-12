@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import android.annotation.TargetApi;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
@@ -55,8 +54,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <h3>Attributes</h3>
  *
  * The following attributes can be set on a DefaultTimeBar when used in a layout XML file:
- *
- * <p>
  *
  * <ul>
  *   <li><b>{@code bar_height}</b> - Dimension for the height of the time bar.
@@ -205,7 +202,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   private int keyCountIncrement;
   private long keyTimeIncrement;
   private int lastCoarseScrubXPosition;
-  @MonotonicNonNull private Rect lastExclusionRectangle;
+  private @MonotonicNonNull Rect lastExclusionRectangle;
 
   private ValueAnimator scrubberScalingAnimator;
   private float scrubberScale;
@@ -231,11 +228,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   }
 
   // Suppress warnings due to usage of View methods in the constructor.
-  // the constructor does not initialize fields: adGroupTimesMs, playedAdGroups
-  @SuppressWarnings({
-    "nullness:method.invocation.invalid",
-    "nullness:initialization.fields.uninitialized"
-  })
+  @SuppressWarnings("nullness:method.invocation.invalid")
   public DefaultTimeBar(
       Context context,
       @Nullable AttributeSet attrs,
@@ -457,6 +450,7 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   @Override
   public void addListener(OnScrubListener listener) {
+    Assertions.checkNotNull(listener);
     listeners.add(listener);
   }
 
@@ -679,7 +673,6 @@ public class DefaultTimeBar extends View implements TimeBar {
     event.setClassName(ACCESSIBILITY_CLASS_NAME);
   }
 
-  @TargetApi(21)
   @Override
   public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
     super.onInitializeAccessibilityNodeInfo(info);

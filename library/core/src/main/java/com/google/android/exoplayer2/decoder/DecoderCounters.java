@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import static java.lang.Math.max;
+
 /**
  * Maintains decoder event counts, for debugging purposes only.
- * <p>
- * Counters should be written from the playback thread only. Counters may be read from any thread.
- * To ensure that the counter values are made visible across threads, users of this class should
- * invoke {@link #ensureUpdated()} prior to reading and after writing.
+ *
+ * <p>Counters should be written from the playback thread only. Counters may be read from any
+ * thread. To ensure that the counter values are made visible across threads, users of this class
+ * should invoke {@link #ensureUpdated()} prior to reading and after writing.
  */
 public final class DecoderCounters {
 
@@ -73,6 +75,26 @@ public final class DecoderCounters {
    * dropped from the source to advance to the keyframe.
    */
   public int droppedToKeyframeCount;
+  /**
+   * The sum of the video frame processing offsets in microseconds.
+   *
+   * <p>The processing offset for a video frame is the difference between the time at which the
+   * frame became available to render, and the time at which it was scheduled to be rendered. A
+   * positive value indicates the frame became available early enough, whereas a negative value
+   * indicates that the frame wasn't available until after the time at which it should have been
+   * rendered.
+   *
+   * <p>Note: Use {@link #addVideoFrameProcessingOffset(long)} to update this field instead of
+   * updating it directly.
+   */
+  public long totalVideoFrameProcessingOffsetUs;
+  /**
+   * The number of video frame processing offsets added.
+   *
+   * <p>Note: Use {@link #addVideoFrameProcessingOffset(long)} to update this field instead of
+   * updating it directly.
+   */
+  public int videoFrameProcessingOffsetCount;
 
   /**
    * Should be called to ensure counter values are made visible across threads. The playback thread
@@ -97,9 +119,27 @@ public final class DecoderCounters {
     renderedOutputBufferCount += other.renderedOutputBufferCount;
     skippedOutputBufferCount += other.skippedOutputBufferCount;
     droppedBufferCount += other.droppedBufferCount;
-    maxConsecutiveDroppedBufferCount = Math.max(maxConsecutiveDroppedBufferCount,
-        other.maxConsecutiveDroppedBufferCount);
+    maxConsecutiveDroppedBufferCount =
+        max(maxConsecutiveDroppedBufferCount, other.maxConsecutiveDroppedBufferCount);
     droppedToKeyframeCount += other.droppedToKeyframeCount;
+    addVideoFrameProcessingOffsets(
+        other.totalVideoFrameProcessingOffsetUs, other.videoFrameProcessingOffsetCount);
   }
 
+  /**
+   * Adds a video frame processing offset to {@link #totalVideoFrameProcessingOffsetUs} and
+   * increases {@link #videoFrameProcessingOffsetCount} by one.
+   *
+   * <p>Convenience method to ensure both fields are updated when adding a single offset.
+   *
+   * @param processingOffsetUs The video frame processing offset in microseconds.
+   */
+  public void addVideoFrameProcessingOffset(long processingOffsetUs) {
+    addVideoFrameProcessingOffsets(processingOffsetUs, /* count= */ 1);
+  }
+
+  private void addVideoFrameProcessingOffsets(long totalProcessingOffsetUs, int count) {
+    totalVideoFrameProcessingOffsetUs += totalProcessingOffsetUs;
+    videoFrameProcessingOffsetCount += count;
+  }
 }

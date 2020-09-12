@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
+import static com.google.android.exoplayer2.playbacktests.gts.GtsTestUtil.shouldSkipWidevineTest;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.Player;
@@ -63,8 +65,8 @@ public final class CommonEncryptionDrmTest {
   }
 
   @Test
-  public void testCencSchemeTypeV18() {
-    if (Util.SDK_INT < 18) {
+  public void cencSchemeTypeV18() {
+    if (Util.SDK_INT < 18 || shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
@@ -75,22 +77,8 @@ public final class CommonEncryptionDrmTest {
   }
 
   @Test
-  public void testCbc1SchemeTypeV25() {
-    if (Util.SDK_INT < 25) {
-      // cbc1 support was added in API 24, but it is stable from API 25 onwards.
-      // See [internal: b/65634809].
-      // Pass.
-      return;
-    }
-    testRunner
-        .setStreamName("test_widevine_h264_scheme_cbc1")
-        .setManifestUrl(DashTestData.WIDEVINE_SCHEME_CBC1)
-        .run();
-  }
-
-  @Test
-  public void testCbcsSchemeTypeV25() {
-    if (Util.SDK_INT < 25) {
+  public void cbcsSchemeTypeV25() {
+    if (Util.SDK_INT < 25 || shouldSkipWidevineTest(testRule.getActivity())) {
       // cbcs support was added in API 24, but it is stable from API 25 onwards.
       // See [internal: b/65634809].
       // Pass.
@@ -100,10 +88,5 @@ public final class CommonEncryptionDrmTest {
         .setStreamName("test_widevine_h264_scheme_cbcs")
         .setManifestUrl(DashTestData.WIDEVINE_SCHEME_CBCS)
         .run();
-  }
-
-  @Test
-  public void testCensSchemeTypeV25() {
-    // TODO: Implement once content is available. Track [internal: b/31219813].
   }
 }

@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Looper;
 import android.os.Parcel;
@@ -23,6 +22,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.view.accessibility.CaptioningManager;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Locale;
@@ -47,7 +47,7 @@ public class TrackSelectionParameters implements Parcelable {
      *
      * @param context Any context.
      */
-    @SuppressWarnings({"deprecation", "initialization:method.invocation.invalid"})
+    @SuppressWarnings({"deprecation", "nullness:method.invocation.invalid"})
     public Builder(Context context) {
       this();
       setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettings(context);
@@ -169,7 +169,7 @@ public class TrackSelectionParameters implements Parcelable {
           disabledTextTrackSelectionFlags);
     }
 
-    @TargetApi(19)
+    @RequiresApi(19)
     private void setPreferredTextLanguageAndRoleFlagsToCaptioningManagerSettingsV19(
         Context context) {
       if (Util.SDK_INT < 23 && Looper.myLooper() == null) {

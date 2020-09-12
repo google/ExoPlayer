@@ -65,9 +65,11 @@ static jfieldID dataField;
 static jfieldID outputModeField;
 static jfieldID decoderPrivateField;
 
-// android.graphics.ImageFormat.YV12.
-static const int kHalPixelFormatYV12 = 0x32315659;
+// Android YUV format. See:
+// https://developer.android.com/reference/android/graphics/ImageFormat.html#YV12.
+static const int kImageFormatYV12 = 0x32315659;
 static const int kDecoderPrivateBase = 0x100;
+
 static int errorCode;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved) {
@@ -535,7 +537,7 @@ DECODER_FUNC(jint, vpxGetFrame, jlong jContext, jobject jOutputBuffer) {
   // LINT.IfChange
   const int kOutputModeYuv = 0;
   const int kOutputModeSurfaceYuv = 1;
-  // LINT.ThenChange(../../../../../library/core/src/main/java/com/google/android/exoplayer2/C.java)
+  // LINT.ThenChange(../../../../../library/common/src/main/java/com/google/android/exoplayer2/C.java)
 
   int outputMode = env->GetIntField(jOutputBuffer, outputModeField);
   if (outputMode == kOutputModeYuv) {
@@ -635,7 +637,7 @@ DECODER_FUNC(jint, vpxRenderFrame, jlong jContext, jobject jSurface,
   }
   if (context->width != srcBuffer->d_w || context->height != srcBuffer->d_h) {
     ANativeWindow_setBuffersGeometry(context->native_window, srcBuffer->d_w,
-                                     srcBuffer->d_h, kHalPixelFormatYV12);
+                                     srcBuffer->d_h, kImageFormatYV12);
     context->width = srcBuffer->d_w;
     context->height = srcBuffer->d_h;
   }

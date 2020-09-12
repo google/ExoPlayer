@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public abstract class BaseMediaSource implements MediaSource {
   private final ArrayList<MediaSourceCaller> mediaSourceCallers;
   private final HashSet<MediaSourceCaller> enabledMediaSourceCallers;
   private final MediaSourceEventListener.EventDispatcher eventDispatcher;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
 
   @Nullable private Looper looper;
   @Nullable private Timeline timeline;
@@ -44,6 +46,7 @@ public abstract class BaseMediaSource implements MediaSource {
     mediaSourceCallers = new ArrayList<>(/* initialCapacity= */ 1);
     enabledMediaSourceCallers = new HashSet<>(/* initialCapacity= */ 1);
     eventDispatcher = new MediaSourceEventListener.EventDispatcher();
+    drmEventDispatcher = new DrmSessionEventListener.EventDispatcher();
   }
 
   /**
@@ -106,7 +109,7 @@ public abstract class BaseMediaSource implements MediaSource {
    */
   protected final MediaSourceEventListener.EventDispatcher createEventDispatcher(
       MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
-    Assertions.checkArgument(mediaPeriodId != null);
+    Assertions.checkNotNull(mediaPeriodId);
     return eventDispatcher.withParameters(/* windowIndex= */ 0, mediaPeriodId, mediaTimeOffsetMs);
   }
 
@@ -125,6 +128,33 @@ public abstract class BaseMediaSource implements MediaSource {
     return eventDispatcher.withParameters(windowIndex, mediaPeriodId, mediaTimeOffsetMs);
   }
 
+  /**
+   * Returns a {@link DrmSessionEventListener.EventDispatcher} which dispatches all events to the
+   * registered listeners with the specified media period id.
+   *
+   * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
+   *     the events do not belong to a specific media period.
+   * @return An event dispatcher with pre-configured media period id.
+   */
+  protected final DrmSessionEventListener.EventDispatcher createDrmEventDispatcher(
+      @Nullable MediaPeriodId mediaPeriodId) {
+    return drmEventDispatcher.withParameters(/* windowIndex= */ 0, mediaPeriodId);
+  }
+
+  /**
+   * Returns a {@link DrmSessionEventListener.EventDispatcher} which dispatches all events to the
+   * registered listeners with the specified window index and media period id.
+   *
+   * @param windowIndex The timeline window index to be reported with the events.
+   * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
+   *     the events do not belong to a specific media period.
+   * @return An event dispatcher with pre-configured media period id and time offset.
+   */
+  protected final DrmSessionEventListener.EventDispatcher createDrmEventDispatcher(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    return drmEventDispatcher.withParameters(windowIndex, mediaPeriodId);
+  }
+
   /** Returns whether the source is enabled. */
   protected final boolean isEnabled() {
     return !enabledMediaSourceCallers.isEmpty();
@@ -132,6 +162,8 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
+    Assertions.checkNotNull(handler);
+    Assertions.checkNotNull(eventListener);
     eventDispatcher.addEventListener(handler, eventListener);
   }
 
@@ -141,11 +173,23 @@ public abstract class BaseMediaSource implements MediaSource {
   }
 
   @Override
+  public final void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener) {
+    Assertions.checkNotNull(handler);
+    Assertions.checkNotNull(eventListener);
+    drmEventDispatcher.addEventListener(handler, eventListener);
+  }
+
+  @Override
+  public final void removeDrmEventListener(DrmSessionEventListener eventListener) {
+    drmEventDispatcher.removeEventListener(eventListener);
+  }
+
+  @Override
   public final void prepareSource(
       MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener) {
     Looper looper = Looper.myLooper();
     Assertions.checkArgument(this.looper == null || this.looper == looper);
-    Timeline timeline = this.timeline;
+    @Nullable Timeline timeline = this.timeline;
     mediaSourceCallers.add(caller);
     if (this.looper == null) {
       this.looper = looper;

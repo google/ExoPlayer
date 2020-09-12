@@ -31,9 +31,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -90,17 +89,23 @@ public final class FakeChunkSource implements ChunkSource {
         firstSyncUs < positionUs && chunkIndex < dataSet.getChunkCount() - 1
             ? dataSet.getStartTime(chunkIndex + 1)
             : firstSyncUs;
-    return Util.resolveSeekPositionUs(positionUs, seekParameters, firstSyncUs, secondSyncUs);
+    return seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
   }
 
   @Override
-  public void maybeThrowError() throws IOException {
+  public void maybeThrowError() {
     // Do nothing.
   }
 
   @Override
   public int getPreferredQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
     return trackSelection.evaluateQueueSize(playbackPositionUs, queue);
+  }
+
+  @Override
+  public boolean shouldCancelLoad(
+      long playbackPositionUs, Chunk loadingChunk, List<? extends MediaChunk> queue) {
+    return trackSelection.shouldCancelChunkLoad(playbackPositionUs, loadingChunk, queue);
   }
 
   @Override
@@ -129,9 +134,10 @@ public final class FakeChunkSource implements ChunkSource {
       long endTimeUs = startTimeUs + dataSet.getChunkDuration(chunkIndex);
       int trackGroupIndex = trackSelection.getIndexInTrackGroup(trackSelection.getSelectedIndex());
       String uri = dataSet.getUri(trackGroupIndex);
-      Segment fakeDataChunk = dataSet.getData(uri).getSegments().get(chunkIndex);
-      DataSpec dataSpec = new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset,
-          fakeDataChunk.length, null);
+      Segment fakeDataChunk =
+          Assertions.checkStateNotNull(dataSet.getData(uri)).getSegments().get(chunkIndex);
+      DataSpec dataSpec =
+          new DataSpec(Uri.parse(uri), fakeDataChunk.byteOffset, fakeDataChunk.length);
       int trackType = MimeTypes.getTrackType(selectedFormat.sampleMimeType);
       out.chunk = new SingleSampleMediaChunk(dataSource, dataSpec, selectedFormat,
           trackSelection.getSelectionReason(), trackSelection.getSelectionData(), startTimeUs,
@@ -146,8 +152,12 @@ public final class FakeChunkSource implements ChunkSource {
 
   @Override
   public boolean onChunkLoadError(
-      Chunk chunk, boolean cancelable, Exception e, long blacklistDurationMs) {
+      Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs) {
     return false;
   }
 
+  @Override
+  public void release() {
+    // Do nothing.
+  }
 }

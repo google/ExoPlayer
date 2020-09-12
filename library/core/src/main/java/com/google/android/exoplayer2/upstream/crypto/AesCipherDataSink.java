@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream.crypto;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSink;
@@ -68,8 +69,9 @@ public final class AesCipherDataSink implements DataSink {
   public void open(DataSpec dataSpec) throws IOException {
     wrappedDataSink.open(dataSpec);
     long nonce = CryptoUtil.getFNV64Hash(dataSpec.key);
-    cipher = new AesFlushingCipher(Cipher.ENCRYPT_MODE, secretKey, nonce,
-        dataSpec.absoluteStreamPosition);
+    cipher =
+        new AesFlushingCipher(
+            Cipher.ENCRYPT_MODE, secretKey, nonce, dataSpec.uriPositionOffset + dataSpec.position);
   }
 
   @Override
@@ -82,7 +84,7 @@ public final class AesCipherDataSink implements DataSink {
       // Use scratch space. The original data remains intact.
       int bytesProcessed = 0;
       while (bytesProcessed < length) {
-        int bytesToProcess = Math.min(length - bytesProcessed, scratch.length);
+        int bytesToProcess = min(length - bytesProcessed, scratch.length);
         castNonNull(cipher)
             .update(data, offset + bytesProcessed, bytesToProcess, scratch, /* outOffset= */ 0);
         wrappedDataSink.write(scratch, /* offset= */ 0, bytesToProcess);

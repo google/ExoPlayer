@@ -22,10 +22,11 @@ import static org.mockito.Mockito.mock;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.testutil.MediaPeriodAsserts;
 import com.google.android.exoplayer2.testutil.MediaPeriodAsserts.FilterableManifestMediaPeriodFactory;
@@ -36,11 +37,9 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link SsMediaPeriod}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public class SsMediaPeriodTest {
 
   @Test
@@ -61,62 +60,48 @@ public class SsMediaPeriodTest {
             createStreamElement(
                 /* name= */ "text", C.TRACK_TYPE_TEXT, createTextFormat(/* language= */ "eng")));
     FilterableManifestMediaPeriodFactory<SsManifest> mediaPeriodFactory =
-        (manifest, periodIndex) ->
-            new SsMediaPeriod(
-                manifest,
-                mock(SsChunkSource.Factory.class),
-                mock(TransferListener.class),
-                mock(CompositeSequenceableLoaderFactory.class),
-                mock(DrmSessionManager.class),
-                mock(LoadErrorHandlingPolicy.class),
-                new EventDispatcher()
-                    .withParameters(
-                        /* windowIndex= */ 0,
-                        /* mediaPeriodId= */ new MediaPeriodId(/* periodUid= */ new Object()),
-                        /* mediaTimeOffsetMs= */ 0),
-                mock(LoaderErrorThrower.class),
-                mock(Allocator.class));
+        (manifest, periodIndex) -> {
+          MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
+          return new SsMediaPeriod(
+              manifest,
+              mock(SsChunkSource.Factory.class),
+              mock(TransferListener.class),
+              mock(CompositeSequenceableLoaderFactory.class),
+              mock(DrmSessionManager.class),
+              new DrmSessionEventListener.EventDispatcher()
+                  .withParameters(/* windowIndex= */ 0, mediaPeriodId),
+              mock(LoadErrorHandlingPolicy.class),
+              new MediaSourceEventListener.EventDispatcher()
+                  .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
+              mock(LoaderErrorThrower.class),
+              mock(Allocator.class));
+        };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(
         mediaPeriodFactory, testManifest);
   }
 
   private static Format createVideoFormat(int bitrate) {
-    return Format.createContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        MimeTypes.VIDEO_MP4,
-        MimeTypes.VIDEO_H264,
-        /* codecs= */ null,
-        bitrate,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.VIDEO_MP4)
+        .setSampleMimeType(MimeTypes.VIDEO_H264)
+        .setAverageBitrate(bitrate)
+        .build();
   }
 
   private static Format createAudioFormat(int bitrate) {
-    return Format.createContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        MimeTypes.AUDIO_MP4,
-        MimeTypes.AUDIO_AAC,
-        /* codecs= */ null,
-        bitrate,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        /* language= */ null);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.AUDIO_MP4)
+        .setSampleMimeType(MimeTypes.AUDIO_AAC)
+        .setAverageBitrate(bitrate)
+        .build();
   }
 
   private static Format createTextFormat(String language) {
-    return Format.createContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        MimeTypes.APPLICATION_MP4,
-        MimeTypes.TEXT_VTT,
-        /* codecs= */ null,
-        /* bitrate= */ Format.NO_VALUE,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        language);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.APPLICATION_MP4)
+        .setSampleMimeType(MimeTypes.TEXT_VTT)
+        .setLanguage(language)
+        .build();
   }
 }

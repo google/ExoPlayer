@@ -16,30 +16,34 @@
 package com.google.android.exoplayer2.audio;
 
 import android.media.AudioTrack;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 
 /**
  * A sink that consumes audio data.
  *
- * <p>Before starting playback, specify the input audio format by calling {@link #configure(int,
- * int, int, int, int[], int, int)}.
+ * <p>Before starting playback, specify the input audio format by calling {@link #configure(Format,
+ * int, int[])}.
  *
- * <p>Call {@link #handleBuffer(ByteBuffer, long)} to write data, and {@link #handleDiscontinuity()}
- * when the data being fed is discontinuous. Call {@link #play()} to start playing the written data.
+ * <p>Call {@link #handleBuffer(ByteBuffer, long, int)} to write data, and {@link
+ * #handleDiscontinuity()} when the data being fed is discontinuous. Call {@link #play()} to start
+ * playing the written data.
  *
- * <p>Call {@link #configure(int, int, int, int, int[], int, int)} whenever the input format
- * changes. The sink will be reinitialized on the next call to {@link #handleBuffer(ByteBuffer,
- * long)}.
+ * <p>Call {@link #configure(Format, int, int[])} whenever the input format changes. The sink will
+ * be reinitialized on the next call to {@link #handleBuffer(ByteBuffer, long, int)}.
  *
  * <p>Call {@link #flush()} to prepare the sink to receive audio data from a new playback position.
  *
  * <p>Call {@link #playToEndOfStream()} repeatedly to play out all data when no more input buffers
- * will be provided via {@link #handleBuffer(ByteBuffer, long)} until the next {@link #flush()}.
- * Call {@link #reset()} when the instance is no longer required.
+ * will be provided via {@link #handleBuffer(ByteBuffer, long, int)} until the next {@link
+ * #flush()}. Call {@link #reset()} when the instance is no longer required.
  *
  * <p>The implementation may be backed by a platform {@link AudioTrack}. In this case, {@link
  * #setAudioSessionId(int)}, {@link #setAudioAttributes(AudioAttributes)}, {@link
@@ -70,9 +74,18 @@ public interface AudioSink {
     void onPositionDiscontinuity();
 
     /**
+     * Called when the audio sink's position has increased for the first time since it was last
+     * paused or flushed.
+     *
+     * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+     *     which playout started. Only valid if the audio track has not underrun.
+     */
+    default void onPositionAdvancing(long playoutStartSystemTimeMs) {}
+
+    /**
      * Called when the audio sink runs out of data.
-     * <p>
-     * An audio sink implementation may never call this method (for example, if audio data is
+     *
+     * <p>An audio sink implementation may never call this method (for example, if audio data is
      * consumed in batches rather than based on the sink's own clock).
      *
      * @param bufferSize The size of the sink's buffer, in bytes.
@@ -83,6 +96,23 @@ public interface AudioSink {
      */
     void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs);
 
+    /**
+     * Called when skipping silences is enabled or disabled.
+     *
+     * @param skipSilenceEnabled Whether skipping silences is enabled.
+     */
+    void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled);
+
+    /** Called when the offload buffer has been partially emptied. */
+    default void onOffloadBufferEmptying() {}
+
+    /**
+     * Called when the offload buffer has been filled completely.
+     *
+     * @param bufferEmptyingDeadlineMs Maximum time in milliseconds until {@link
+     *     #onOffloadBufferEmptying()} will be called.
+     */
+    default void onOffloadBufferFull(long bufferEmptyingDeadlineMs) {}
   }
 
   /**
@@ -155,8 +185,29 @@ public interface AudioSink {
   }
 
   /**
-   * Returned by {@link #getCurrentPositionUs(boolean)} when the position is not set.
+   * The level of support the sink provides for a format. One of {@link
+   * #SINK_FORMAT_SUPPORTED_DIRECTLY}, {@link #SINK_FORMAT_SUPPORTED_WITH_TRANSCODING} or {@link
+   * #SINK_FORMAT_UNSUPPORTED}.
    */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    SINK_FORMAT_SUPPORTED_DIRECTLY,
+    SINK_FORMAT_SUPPORTED_WITH_TRANSCODING,
+    SINK_FORMAT_UNSUPPORTED
+  })
+  @interface SinkFormatSupport {}
+  /** The sink supports the format directly, without the need for internal transcoding. */
+  int SINK_FORMAT_SUPPORTED_DIRECTLY = 2;
+  /**
+   * The sink supports the format, but needs to transcode it internally to do so. Internal
+   * transcoding may result in lower quality and higher CPU load in some cases.
+   */
+  int SINK_FORMAT_SUPPORTED_WITH_TRANSCODING = 1;
+  /** The sink does not support the format. */
+  int SINK_FORMAT_UNSUPPORTED = 0;
+
+  /** Returned by {@link #getCurrentPositionUs(boolean)} when the position is not set. */
   long CURRENT_POSITION_NOT_SET = Long.MIN_VALUE;
 
   /**
@@ -167,17 +218,25 @@ public interface AudioSink {
   void setListener(Listener listener);
 
   /**
-   * Returns whether the sink supports the audio format.
+   * Returns whether the sink supports a given {@link Format}.
    *
-   * @param channelCount The number of channels, or {@link Format#NO_VALUE} if not known.
-   * @param encoding The audio encoding, or {@link Format#NO_VALUE} if not known.
-   * @return Whether the sink supports the audio format.
+   * @param format The format.
+   * @return Whether the sink supports the format.
    */
-  boolean supportsOutput(int channelCount, @C.Encoding int encoding);
+  boolean supportsFormat(Format format);
 
   /**
-   * Returns the playback position in the stream starting at zero, in microseconds, or
-   * {@link #CURRENT_POSITION_NOT_SET} if it is not yet available.
+   * Returns the level of support that the sink provides for a given {@link Format}.
+   *
+   * @param format The format.
+   * @return The level of support provided.
+   */
+  @SinkFormatSupport
+  int getFormatSupport(Format format);
+
+  /**
+   * Returns the playback position in the stream starting at zero, in microseconds, or {@link
+   * #CURRENT_POSITION_NOT_SET} if it is not yet available.
    *
    * @param sourceEnded Specify {@code true} if no more input buffers will be provided.
    * @return The playback position relative to the start of playback, in microseconds.
@@ -187,9 +246,7 @@ public interface AudioSink {
   /**
    * Configures (or reconfigures) the sink.
    *
-   * @param inputEncoding The encoding of audio data provided in the input buffers.
-   * @param inputChannelCount The number of channels.
-   * @param inputSampleRate The sample rate in Hz.
+   * @param inputFormat The format of audio data provided in the input buffers.
    * @param specifiedBufferSize A specific size for the playback buffer in bytes, or 0 to infer a
    *     suitable buffer size.
    * @param outputChannels A mapping from input to output channels that is applied to this sink's
@@ -197,20 +254,9 @@ public interface AudioSink {
    *     input unchanged. Otherwise, the element at index {@code i} specifies index of the input
    *     channel to map to output channel {@code i} when preprocessing input buffers. After the map
    *     is applied the audio data will have {@code outputChannels.length} channels.
-   * @param trimStartFrames The number of audio frames to trim from the start of data written to the
-   *     sink after this call.
-   * @param trimEndFrames The number of audio frames to trim from data written to the sink
-   *     immediately preceding the next call to {@link #flush()} or this method.
    * @throws ConfigurationException If an error occurs configuring the sink.
    */
-  void configure(
-      @C.Encoding int inputEncoding,
-      int inputChannelCount,
-      int inputSampleRate,
-      int specifiedBufferSize,
-      @Nullable int[] outputChannels,
-      int trimStartFrames,
-      int trimEndFrames)
+  void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException;
 
   /**
@@ -229,16 +275,19 @@ public interface AudioSink {
    *
    * <p>Returns whether the data was handled in full. If the data was not handled in full then the
    * same {@link ByteBuffer} must be provided to subsequent calls until it has been fully consumed,
-   * except in the case of an intervening call to {@link #flush()} (or to {@link #configure(int,
-   * int, int, int, int[], int, int)} that causes the sink to be flushed).
+   * except in the case of an intervening call to {@link #flush()} (or to {@link #configure(Format,
+   * int, int[])} that causes the sink to be flushed).
    *
    * @param buffer The buffer containing audio data.
    * @param presentationTimeUs The presentation timestamp of the buffer in microseconds.
+   * @param encodedAccessUnitCount The number of encoded access units in the buffer, or 1 if the
+   *     buffer contains PCM audio. This allows batching multiple encoded access units in one
+   *     buffer.
    * @return Whether the buffer was handled fully.
    * @throws InitializationException If an error occurs initializing the sink.
    * @throws WriteException If an error occurs writing the audio data.
    */
-  boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
+  boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs, int encodedAccessUnitCount)
       throws InitializationException, WriteException;
 
   /**
@@ -266,10 +315,14 @@ public interface AudioSink {
    */
   void setPlaybackParameters(PlaybackParameters playbackParameters);
 
-  /**
-   * Gets the active {@link PlaybackParameters}.
-   */
+  /** Returns the active {@link PlaybackParameters}. */
   PlaybackParameters getPlaybackParameters();
+
+  /** Sets whether silences should be skipped in the audio stream. */
+  void setSkipSilenceEnabled(boolean skipSilenceEnabled);
+
+  /** Returns whether silences are skipped in the audio stream. */
+  boolean getSkipSilenceEnabled();
 
   /**
    * Sets attributes for audio playback. If the attributes have changed and if the sink is not
@@ -323,6 +376,18 @@ public interface AudioSink {
    * <p>The audio session may remain active until {@link #reset()} is called.
    */
   void flush();
+
+  /**
+   * Flushes the sink, after which it is ready to receive buffers from a new playback position.
+   *
+   * <p>Does not release the {@link AudioTrack} held by the sink.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * <p>Only for experimental use as part of {@link
+   * MediaCodecAudioRenderer#experimentalSetEnableKeepAudioTrackOnSeek(boolean)}.
+   */
+  void experimentalFlushWithoutAudioTrackRelease();
 
   /** Resets the renderer, releasing any resources that it currently holds. */
   void reset();

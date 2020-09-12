@@ -18,7 +18,9 @@ package com.google.android.exoplayer2.source;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
@@ -91,8 +93,8 @@ public interface MediaSource {
     public final int nextAdGroupIndex;
 
     /**
-     * Creates a media period identifier for a dummy period which is not part of a buffered sequence
-     * of windows.
+     * Creates a media period identifier for a period which is not part of a buffered sequence of
+     * windows.
      *
      * @param periodUid The unique id of the timeline period.
      */
@@ -228,11 +230,61 @@ public interface MediaSource {
    */
   void removeEventListener(MediaSourceEventListener eventListener);
 
-  /** Returns the tag set on the media source, or null if none was set. */
+  /**
+   * Adds a {@link DrmSessionEventListener} to the list of listeners which are notified of DRM
+   * events for this media source.
+   *
+   * @param handler A handler on the which listener events will be posted.
+   * @param eventListener The listener to be added.
+   */
+  void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener);
+
+  /**
+   * Removes a {@link DrmSessionEventListener} from the list of listeners which are notified of DRM
+   * events for this media source.
+   *
+   * @param eventListener The listener to be removed.
+   */
+  void removeDrmEventListener(DrmSessionEventListener eventListener);
+
+  /**
+   * Returns the initial placeholder timeline that is returned immediately when the real timeline is
+   * not yet known, or null to let the player create an initial timeline.
+   *
+   * <p>The initial timeline must use the same uids for windows and periods that the real timeline
+   * will use. It also must provide windows which are marked as dynamic to indicate that the window
+   * is expected to change when the real timeline arrives.
+   *
+   * <p>Any media source which has multiple windows should typically provide such an initial
+   * timeline to make sure the player reports the correct number of windows immediately.
+   */
+  @Nullable
+  default Timeline getInitialTimeline() {
+    return null;
+  }
+
+  /**
+   * Returns true if the media source is guaranteed to never have zero or more than one window.
+   *
+   * <p>The default implementation returns {@code true}.
+   *
+   * @return true if the source has exactly one window.
+   */
+  default boolean isSingleWindow() {
+    return true;
+  }
+
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @Deprecated
   @Nullable
   default Object getTag() {
     return null;
   }
+
+  /** Returns the {@link MediaItem} whose media is provided by the source. */
+  MediaItem getMediaItem();
 
   /**
    * Registers a {@link MediaSourceCaller}. Starts source preparation if needed and enables the

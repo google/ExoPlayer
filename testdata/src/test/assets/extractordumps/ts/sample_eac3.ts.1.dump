@@ -1,0 +1,185 @@
+seekMap:
+  isSeekable = true
+  duration = 250077
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+  getPosition(125038) = [[timeUs=125038, position=109918]]
+  getPosition(250077) = [[timeUs=250077, position=220025]]
+numberOfTracks = 1
+track 1900:
+  total output bytes = 168000
+  sample count = 42
+  format 0:
+    id = 1/1900
+    sampleMimeType = audio/eac3
+    channelCount = 6
+    sampleRate = 48000
+  sample 0:
+    time = 64000
+    flags = 1
+    data = length 4000, hash 1D5E6AAC
+  sample 1:
+    time = 69333
+    flags = 1
+    data = length 4000, hash 30058F51
+  sample 2:
+    time = 74666
+    flags = 1
+    data = length 4000, hash 15DD0E4A
+  sample 3:
+    time = 79999
+    flags = 1
+    data = length 4000, hash 37BE7C15
+  sample 4:
+    time = 85332
+    flags = 1
+    data = length 4000, hash 7CFDD34B
+  sample 5:
+    time = 90665
+    flags = 1
+    data = length 4000, hash 27F20D29
+  sample 6:
+    time = 96000
+    flags = 1
+    data = length 4000, hash 6F565894
+  sample 7:
+    time = 101333
+    flags = 1
+    data = length 4000, hash A6F07C4A
+  sample 8:
+    time = 106666
+    flags = 1
+    data = length 4000, hash 3A0CA15C
+  sample 9:
+    time = 111999
+    flags = 1
+    data = length 4000, hash DB365414
+  sample 10:
+    time = 117332
+    flags = 1
+    data = length 4000, hash 31E08469
+  sample 11:
+    time = 122665
+    flags = 1
+    data = length 4000, hash 315F5C28
+  sample 12:
+    time = 128000
+    flags = 1
+    data = length 4000, hash CC65DF80
+  sample 13:
+    time = 133333
+    flags = 1
+    data = length 4000, hash 503FB64C
+  sample 14:
+    time = 138666
+    flags = 1
+    data = length 4000, hash 817CF735
+  sample 15:
+    time = 143999
+    flags = 1
+    data = length 4000, hash 37391ADA
+  sample 16:
+    time = 149332
+    flags = 1
+    data = length 4000, hash 37391ADA
+  sample 17:
+    time = 154665
+    flags = 1
+    data = length 4000, hash 64DBF751
+  sample 18:
+    time = 160000
+    flags = 1
+    data = length 4000, hash 81AE828E
+  sample 19:
+    time = 165333
+    flags = 1
+    data = length 4000, hash 767D6C98
+  sample 20:
+    time = 170666
+    flags = 1
+    data = length 4000, hash A5F6D4E
+  sample 21:
+    time = 175999
+    flags = 1
+    data = length 4000, hash EABC6B0D
+  sample 22:
+    time = 181332
+    flags = 1
+    data = length 4000, hash F47EF742
+  sample 23:
+    time = 186665
+    flags = 1
+    data = length 4000, hash 9B2549DA
+  sample 24:
+    time = 192000
+    flags = 1
+    data = length 4000, hash A12733C9
+  sample 25:
+    time = 197333
+    flags = 1
+    data = length 4000, hash 95F62E99
+  sample 26:
+    time = 202666
+    flags = 1
+    data = length 4000, hash A4D858
+  sample 27:
+    time = 207999
+    flags = 1
+    data = length 4000, hash A4D858
+  sample 28:
+    time = 213332
+    flags = 1
+    data = length 4000, hash 22C1A129
+  sample 29:
+    time = 218665
+    flags = 1
+    data = length 4000, hash 2C51E4A1
+  sample 30:
+    time = 224000
+    flags = 1
+    data = length 4000, hash 3782E8BB
+  sample 31:
+    time = 229333
+    flags = 1
+    data = length 4000, hash 2C51E4A1
+  sample 32:
+    time = 234666
+    flags = 1
+    data = length 4000, hash BDB3D129
+  sample 33:
+    time = 239999
+    flags = 1
+    data = length 4000, hash F642A55
+  sample 34:
+    time = 245332
+    flags = 1
+    data = length 4000, hash 32F259F4
+  sample 35:
+    time = 250665
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 36:
+    time = 256000
+    flags = 1
+    data = length 4000, hash 57C98E1C
+  sample 37:
+    time = 261333
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 38:
+    time = 266666
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 39:
+    time = 271999
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 40:
+    time = 277332
+    flags = 1
+    data = length 4000, hash 4C987B7C
+  sample 41:
+    time = 282665
+    flags = 1
+    data = length 4000, hash 4C987B7C
+tracksEnded = true

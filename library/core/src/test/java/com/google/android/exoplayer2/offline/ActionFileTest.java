@@ -21,11 +21,11 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collections;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -56,8 +56,8 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadNoDataThrowsIOException() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_no_data.exi");
+  public void loadNoDataThrowsIOException() throws Exception {
+    ActionFile actionFile = getActionFile("media/offline/action_file_no_data.exi");
     try {
       actionFile.load();
       Assert.fail();
@@ -67,8 +67,8 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadIncompleteHeaderThrowsIOException() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_incomplete_header.exi");
+  public void loadIncompleteHeaderThrowsIOException() throws Exception {
+    ActionFile actionFile = getActionFile("media/offline/action_file_incomplete_header.exi");
     try {
       actionFile.load();
       Assert.fail();
@@ -78,24 +78,24 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadZeroActions() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_zero_actions.exi");
+  public void loadZeroActions() throws Exception {
+    ActionFile actionFile = getActionFile("media/offline/action_file_zero_actions.exi");
     DownloadRequest[] actions = actionFile.load();
     assertThat(actions).isNotNull();
     assertThat(actions).hasLength(0);
   }
 
   @Test
-  public void testLoadOneAction() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_one_action.exi");
+  public void loadOneAction() throws Exception {
+    ActionFile actionFile = getActionFile("media/offline/action_file_one_action.exi");
     DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(1);
     assertThat(actions[0]).isEqualTo(expectedAction1);
   }
 
   @Test
-  public void testLoadTwoActions() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_two_actions.exi");
+  public void loadTwoActions() throws Exception {
+    ActionFile actionFile = getActionFile("media/offline/action_file_two_actions.exi");
     DownloadRequest[] actions = actionFile.load();
     assertThat(actions).hasLength(2);
     assertThat(actions[0]).isEqualTo(expectedAction1);
@@ -103,8 +103,8 @@ public class ActionFileTest {
   }
 
   @Test
-  public void testLoadUnsupportedVersion() throws Exception {
-    ActionFile actionFile = getActionFile("offline/action_file_unsupported_version.exi");
+  public void loadUnsupportedVersion() throws Exception {
+    ActionFile actionFile = getActionFile("media/offline/action_file_unsupported_version.exi");
     try {
       actionFile.load();
       Assert.fail();
@@ -125,12 +125,9 @@ public class ActionFileTest {
   }
 
   private static DownloadRequest buildExpectedRequest(Uri uri, byte[] data) {
-    return new DownloadRequest(
-        /* id= */ uri.toString(),
-        DownloadRequest.TYPE_PROGRESSIVE,
-        uri,
-        /* streamKeys= */ Collections.emptyList(),
-        /* customCacheKey= */ null,
-        data);
+    return new DownloadRequest.Builder(/* id= */ uri.toString(), uri)
+        .setMimeType(MimeTypes.VIDEO_UNKNOWN)
+        .setData(data)
+        .build();
   }
 }

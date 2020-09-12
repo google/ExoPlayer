@@ -45,38 +45,11 @@ public class ConditionVariableTest {
     long startTimeMs = System.currentTimeMillis();
     assertThat(conditionVariable.block(/* timeoutMs= */ 500)).isFalse();
     long endTimeMs = System.currentTimeMillis();
-    assertThat(endTimeMs - startTimeMs).isAtLeast(500L);
+    assertThat(endTimeMs - startTimeMs).isAtLeast(500);
   }
 
   @Test
-  public void blockWithoutTimeout_blocks() throws InterruptedException {
-    ConditionVariable conditionVariable = buildTestConditionVariable();
-
-    AtomicBoolean blockReturned = new AtomicBoolean();
-    AtomicBoolean blockWasInterrupted = new AtomicBoolean();
-    Thread blockingThread =
-        new Thread(
-            () -> {
-              try {
-                conditionVariable.block();
-                blockReturned.set(true);
-              } catch (InterruptedException e) {
-                blockWasInterrupted.set(true);
-              }
-            });
-
-    blockingThread.start();
-    Thread.sleep(500);
-    assertThat(blockReturned.get()).isFalse();
-
-    blockingThread.interrupt();
-    blockingThread.join();
-    assertThat(blockWasInterrupted.get()).isTrue();
-    assertThat(conditionVariable.isOpen()).isFalse();
-  }
-
-  @Test
-  public void blockWithMaxTimeout_blocks() throws InterruptedException {
+  public void blockWithMaxTimeout_blocks_thenThrowsWhenInterrupted() throws InterruptedException {
     ConditionVariable conditionVariable = buildTestConditionVariable();
 
     AtomicBoolean blockReturned = new AtomicBoolean();
@@ -103,7 +76,34 @@ public class ConditionVariableTest {
   }
 
   @Test
-  public void open_unblocksBlock() throws InterruptedException {
+  public void block_blocks_thenThrowsWhenInterrupted() throws InterruptedException {
+    ConditionVariable conditionVariable = buildTestConditionVariable();
+
+    AtomicBoolean blockReturned = new AtomicBoolean();
+    AtomicBoolean blockWasInterrupted = new AtomicBoolean();
+    Thread blockingThread =
+        new Thread(
+            () -> {
+              try {
+                conditionVariable.block();
+                blockReturned.set(true);
+              } catch (InterruptedException e) {
+                blockWasInterrupted.set(true);
+              }
+            });
+
+    blockingThread.start();
+    Thread.sleep(500);
+    assertThat(blockReturned.get()).isFalse();
+
+    blockingThread.interrupt();
+    blockingThread.join();
+    assertThat(blockWasInterrupted.get()).isTrue();
+    assertThat(conditionVariable.isOpen()).isFalse();
+  }
+
+  @Test
+  public void block_blocks_thenReturnsWhenOpened() throws InterruptedException {
     ConditionVariable conditionVariable = buildTestConditionVariable();
 
     AtomicBoolean blockReturned = new AtomicBoolean();
@@ -126,6 +126,37 @@ public class ConditionVariableTest {
     conditionVariable.open();
     blockingThread.join();
     assertThat(blockReturned.get()).isTrue();
+    assertThat(conditionVariable.isOpen()).isTrue();
+  }
+
+  @Test
+  public void blockUnterruptible_blocksIfInterrupted_thenUnblocksWhenOpened()
+      throws InterruptedException {
+    ConditionVariable conditionVariable = buildTestConditionVariable();
+
+    AtomicBoolean blockReturned = new AtomicBoolean();
+    AtomicBoolean interruptedStatusSet = new AtomicBoolean();
+    Thread blockingThread =
+        new Thread(
+            () -> {
+              conditionVariable.blockUninterruptible();
+              blockReturned.set(true);
+              interruptedStatusSet.set(Thread.currentThread().isInterrupted());
+            });
+
+    blockingThread.start();
+    Thread.sleep(500);
+    assertThat(blockReturned.get()).isFalse();
+
+    blockingThread.interrupt();
+    Thread.sleep(500);
+    // blockUninterruptible should still be blocked.
+    assertThat(blockReturned.get()).isFalse();
+
+    conditionVariable.open();
+    blockingThread.join();
+    // blockUninterruptible should have set the thread's interrupted status on exit.
+    assertThat(interruptedStatusSet.get()).isTrue();
     assertThat(conditionVariable.isOpen()).isTrue();
   }
 

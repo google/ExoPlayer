@@ -22,12 +22,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
-import static org.robolectric.annotation.LooperMode.Mode.PAUSED;
 
 import android.net.Uri;
 import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -46,11 +46,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link AdsMediaSource}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(PAUSED)
 public final class AdsMediaSourceTest {
 
   private static final long PREROLL_AD_DURATION_US = 10 * C.MICROS_PER_SECOND;
@@ -59,14 +57,21 @@ public final class AdsMediaSourceTest {
           PREROLL_AD_DURATION_US,
           /* isSeekable= */ true,
           /* isDynamic= */ false,
-          /* isLive= */ false);
+          /* isLive= */ false,
+          /* manifest= */ null,
+          MediaItem.fromUri(Uri.EMPTY));
   private static final Object PREROLL_AD_PERIOD_UID =
       PREROLL_AD_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
   private static final long CONTENT_DURATION_US = 30 * C.MICROS_PER_SECOND;
   private static final Timeline CONTENT_TIMELINE =
       new SinglePeriodTimeline(
-          CONTENT_DURATION_US, /* isSeekable= */ true, /* isDynamic= */ false, /* isLive= */ false);
+          CONTENT_DURATION_US,
+          /* isSeekable= */ true,
+          /* isDynamic= */ false,
+          /* isLive= */ false,
+          /* manifest= */ null,
+          MediaItem.fromUri(Uri.EMPTY));
   private static final Object CONTENT_PERIOD_UID =
       CONTENT_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
@@ -92,7 +97,8 @@ public final class AdsMediaSourceTest {
     contentMediaSource = new FakeMediaSource(/* timeline= */ null);
     prerollAdMediaSource = new FakeMediaSource(/* timeline= */ null);
     MediaSourceFactory adMediaSourceFactory = mock(MediaSourceFactory.class);
-    when(adMediaSourceFactory.createMediaSource(any(Uri.class))).thenReturn(prerollAdMediaSource);
+    when(adMediaSourceFactory.createMediaSource(any(MediaItem.class)))
+        .thenReturn(prerollAdMediaSource);
 
     // Prepare the AdsMediaSource and capture its ads loader listener.
     AdsLoader mockAdsLoader = mock(AdsLoader.class);
@@ -114,7 +120,7 @@ public final class AdsMediaSourceTest {
 
   @Test
   public void createPeriod_preparesChildAdMediaSourceAndRefreshesSourceInfo() {
-    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE, null);
+    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE);
     adsMediaSource.createPeriod(
         new MediaPeriodId(
             CONTENT_PERIOD_UID,
@@ -133,7 +139,7 @@ public final class AdsMediaSourceTest {
 
   @Test
   public void createPeriod_preparesChildAdMediaSourceAndRefreshesSourceInfoWithAdMediaSourceInfo() {
-    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE, null);
+    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE);
     adsMediaSource.createPeriod(
         new MediaPeriodId(
             CONTENT_PERIOD_UID,
@@ -142,7 +148,7 @@ public final class AdsMediaSourceTest {
             /* windowSequenceNumber= */ 0),
         mock(Allocator.class),
         /* startPositionUs= */ 0);
-    prerollAdMediaSource.setNewSourceInfo(PREROLL_AD_TIMELINE, null);
+    prerollAdMediaSource.setNewSourceInfo(PREROLL_AD_TIMELINE);
     shadowOf(Looper.getMainLooper()).idle();
 
     verify(mockMediaSourceCaller)
@@ -155,7 +161,7 @@ public final class AdsMediaSourceTest {
 
   @Test
   public void createPeriod_createsChildPrerollAdMediaPeriod() {
-    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE, null);
+    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE);
     adsMediaSource.createPeriod(
         new MediaPeriodId(
             CONTENT_PERIOD_UID,
@@ -164,7 +170,7 @@ public final class AdsMediaSourceTest {
             /* windowSequenceNumber= */ 0),
         mock(Allocator.class),
         /* startPositionUs= */ 0);
-    prerollAdMediaSource.setNewSourceInfo(PREROLL_AD_TIMELINE, null);
+    prerollAdMediaSource.setNewSourceInfo(PREROLL_AD_TIMELINE);
     shadowOf(Looper.getMainLooper()).idle();
 
     prerollAdMediaSource.assertMediaPeriodCreated(
@@ -173,7 +179,7 @@ public final class AdsMediaSourceTest {
 
   @Test
   public void createPeriod_createsChildContentMediaPeriod() {
-    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE, null);
+    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE);
     shadowOf(Looper.getMainLooper()).idle();
     adsMediaSource.createPeriod(
         new MediaPeriodId(CONTENT_PERIOD_UID, /* windowSequenceNumber= */ 0),
@@ -186,7 +192,7 @@ public final class AdsMediaSourceTest {
 
   @Test
   public void releasePeriod_releasesChildMediaPeriodsAndSources() {
-    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE, null);
+    contentMediaSource.setNewSourceInfo(CONTENT_TIMELINE);
     MediaPeriod prerollAdMediaPeriod =
         adsMediaSource.createPeriod(
             new MediaPeriodId(
@@ -196,7 +202,7 @@ public final class AdsMediaSourceTest {
                 /* windowSequenceNumber= */ 0),
             mock(Allocator.class),
             /* startPositionUs= */ 0);
-    prerollAdMediaSource.setNewSourceInfo(PREROLL_AD_TIMELINE, null);
+    prerollAdMediaSource.setNewSourceInfo(PREROLL_AD_TIMELINE);
     shadowOf(Looper.getMainLooper()).idle();
     MediaPeriod contentMediaPeriod =
         adsMediaSource.createPeriod(

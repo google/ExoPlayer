@@ -174,7 +174,7 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   @Override
   public long seekToUs(long positionUs) {
     pendingInitialDiscontinuityPositionUs = C.TIME_UNSET;
-    for (ClippingSampleStream sampleStream : sampleStreams) {
+    for (@Nullable ClippingSampleStream sampleStream : sampleStreams) {
       if (sampleStream != null) {
         sampleStream.clearSentEos();
       }
@@ -258,13 +258,14 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     // negative timestamp, its offset timestamp can jump backwards compared to the last timestamp
     // read in the previous period. Renderer implementations may not allow this, so we signal a
     // discontinuity which resets the renderers before they read the clipping sample stream.
-    // However, for audio-only track selections we assume to have random access seek behaviour and
-    // do not need an initial discontinuity to reset the renderer.
+    // However, for tracks where all samples are sync samples, we assume they have random access
+    // seek behaviour and do not need an initial discontinuity to reset the renderer.
     if (startUs != 0) {
       for (TrackSelection trackSelection : selections) {
         if (trackSelection != null) {
           Format selectedFormat = trackSelection.getSelectedFormat();
-          if (!MimeTypes.isAudio(selectedFormat.sampleMimeType)) {
+          if (!MimeTypes.allSamplesAreSyncSamples(
+              selectedFormat.sampleMimeType, selectedFormat.codecs)) {
             return true;
           }
         }
@@ -310,14 +311,19 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
         buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
         return C.RESULT_BUFFER_READ;
       }
-      int result = childStream.readData(formatHolder, buffer, requireFormat);
+      @ReadDataResult int result = childStream.readData(formatHolder, buffer, requireFormat);
       if (result == C.RESULT_FORMAT_READ) {
         Format format = Assertions.checkNotNull(formatHolder.format);
         if (format.encoderDelay != 0 || format.encoderPadding != 0) {
           // Clear gapless playback metadata if the start/end points don't match the media.
           int encoderDelay = startUs != 0 ? 0 : format.encoderDelay;
           int encoderPadding = endUs != C.TIME_END_OF_SOURCE ? 0 : format.encoderPadding;
-          formatHolder.format = format.copyWithGaplessInfo(encoderDelay, encoderPadding);
+          formatHolder.format =
+              format
+                  .buildUpon()
+                  .setEncoderDelay(encoderDelay)
+                  .setEncoderPadding(encoderPadding)
+                  .build();
         }
         return C.RESULT_FORMAT_READ;
       }

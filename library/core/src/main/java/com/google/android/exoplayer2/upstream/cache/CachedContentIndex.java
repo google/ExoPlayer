@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -45,11 +50,12 @@ import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -58,6 +64,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Maintains the index of cached content. */
 /* package */ class CachedContentIndex {
@@ -152,13 +159,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       @Nullable byte[] legacyStorageSecretKey,
       boolean legacyStorageEncrypt,
       boolean preferLegacyStorage) {
-    Assertions.checkState(databaseProvider != null || legacyStorageDir != null);
+    checkState(databaseProvider != null || legacyStorageDir != null);
     keyToContent = new HashMap<>();
     idToKey = new SparseArray<>();
     removedIds = new SparseBooleanArray();
     newIds = new SparseBooleanArray();
+    @Nullable
     Storage databaseStorage =
         databaseProvider != null ? new DatabaseStorage(databaseProvider) : null;
+    @Nullable
     Storage legacyStorage =
         legacyStorageDir != null
             ? new LegacyStorage(
@@ -167,7 +176,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
                 legacyStorageEncrypt)
             : null;
     if (databaseStorage == null || (legacyStorage != null && preferLegacyStorage)) {
-      storage = legacyStorage;
+      storage = castNonNull(legacyStorage);
       previousStorage = databaseStorage;
     } else {
       storage = databaseStorage;
@@ -223,30 +232,35 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Adds the given key to the index if it isn't there already.
+   * Adds a resource to the index, if it's not there already.
    *
-   * @param key The cache key that uniquely identifies the original stream.
-   * @return A new or existing CachedContent instance with the given key.
+   * @param key The cache key of the resource.
+   * @return The new or existing {@link CachedContent} corresponding to the resource.
    */
   public CachedContent getOrAdd(String key) {
-    CachedContent cachedContent = keyToContent.get(key);
+    @Nullable CachedContent cachedContent = keyToContent.get(key);
     return cachedContent == null ? addNew(key) : cachedContent;
   }
 
-  /** Returns a CachedContent instance with the given key or null if there isn't one. */
+  /**
+   * Returns the {@link CachedContent} for a resource, or {@code null} if the resource is not
+   * present in the index.
+   *
+   * @param key The cache key of the resource.
+   */
+  @Nullable
   public CachedContent get(String key) {
     return keyToContent.get(key);
   }
 
   /**
-   * Returns a Collection of all CachedContent instances in the index. The collection is backed by
-   * the {@code keyToContent} map, so changes to the map are reflected in the collection, and
-   * vice-versa. If the map is modified while an iteration over the collection is in progress
-   * (except through the iterator's own remove operation), the results of the iteration are
-   * undefined.
+   * Returns a read only collection of all {@link CachedContent CachedContents} in the index.
+   *
+   * <p>Subsequent changes to the index are reflected in the returned collection. If the index is
+   * modified whilst iterating over the collection, the result of the iteration is undefined.
    */
   public Collection<CachedContent> getAll() {
-    return keyToContent.values();
+    return Collections.unmodifiableCollection(keyToContent.values());
   }
 
   /** Returns an existing or new id assigned to the given key. */
@@ -254,15 +268,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return getOrAdd(key).id;
   }
 
-  /** Returns the key which has the given id assigned. */
+  /** Returns the key which has the given id assigned, or {@code null} if no such key exists. */
+  @Nullable
   public String getKeyForId(int id) {
     return idToKey.get(id);
   }
 
-  /** Removes {@link CachedContent} with the given key from index if it's empty and not locked. */
+  /**
+   * Removes a resource if its {@link CachedContent} is both empty and unlocked.
+   *
+   * @param key The cache key of the resource.
+   */
   public void maybeRemove(String key) {
-    CachedContent cachedContent = keyToContent.get(key);
-    if (cachedContent != null && cachedContent.isEmpty() && !cachedContent.isLocked()) {
+    @Nullable CachedContent cachedContent = keyToContent.get(key);
+    if (cachedContent != null && cachedContent.isEmpty() && cachedContent.isFullyUnlocked()) {
       keyToContent.remove(key);
       int id = cachedContent.id;
       boolean neverStored = newIds.get(id);
@@ -280,7 +299,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  /** Removes empty and not locked {@link CachedContent} instances from index. */
+  /** Removes all resources whose {@link CachedContent CachedContents} are empty and unlocked. */
   public void removeEmpty() {
     String[] keys = new String[keyToContent.size()];
     keyToContent.keySet().toArray(keys);
@@ -312,7 +331,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /** Returns a {@link ContentMetadata} for the given key. */
   public ContentMetadata getContentMetadata(String key) {
-    CachedContent cachedContent = get(key);
+    @Nullable CachedContent cachedContent = get(key);
     return cachedContent != null ? cachedContent.getMetadata() : DefaultContentMetadata.EMPTY;
   }
 
@@ -345,7 +364,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * returns the smallest unused non-negative integer.
    */
   @VisibleForTesting
-  /* package */ static int getNewId(SparseArray<String> idToKey) {
+  /* package */ static int getNewId(SparseArray<@NullableType String> idToKey) {
     int size = idToKey.size();
     int id = size == 0 ? 0 : (idToKey.keyAt(size - 1) + 1);
     if (id < 0) { // In case if we pass max int value.
@@ -380,13 +399,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       // large) valueSize was read. In such cases the implementation below is expected to throw
       // IOException from one of the readFully calls, due to the end of the input being reached.
       int bytesRead = 0;
-      int nextBytesToRead = Math.min(valueSize, INCREMENTAL_METADATA_READ_LENGTH);
+      int nextBytesToRead = min(valueSize, INCREMENTAL_METADATA_READ_LENGTH);
       byte[] value = Util.EMPTY_BYTE_ARRAY;
       while (bytesRead != valueSize) {
         value = Arrays.copyOf(value, bytesRead + nextBytesToRead);
         input.readFully(value, bytesRead, nextBytesToRead);
         bytesRead += nextBytesToRead;
-        nextBytesToRead = Math.min(valueSize - bytesRead, INCREMENTAL_METADATA_READ_LENGTH);
+        nextBytesToRead = min(valueSize - bytesRead, INCREMENTAL_METADATA_READ_LENGTH);
       }
       metadata.put(name, value);
     }
@@ -492,15 +511,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private final boolean encrypt;
     @Nullable private final Cipher cipher;
     @Nullable private final SecretKeySpec secretKeySpec;
-    @Nullable private final Random random;
+    @Nullable private final SecureRandom random;
     private final AtomicFile atomicFile;
 
     private boolean changed;
     @Nullable private ReusableBufferedOutputStream bufferedOutputStream;
 
     public LegacyStorage(File file, @Nullable byte[] secretKey, boolean encrypt) {
-      Cipher cipher = null;
-      SecretKeySpec secretKeySpec = null;
+      checkState(secretKey != null || !encrypt);
+      @Nullable Cipher cipher = null;
+      @Nullable SecretKeySpec secretKeySpec = null;
       if (secretKey != null) {
         Assertions.checkArgument(secretKey.length == 16);
         try {
@@ -515,7 +535,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       this.encrypt = encrypt;
       this.cipher = cipher;
       this.secretKeySpec = secretKeySpec;
-      random = encrypt ? new Random() : null;
+      random = encrypt ? new SecureRandom() : null;
       atomicFile = new AtomicFile(file);
     }
 
@@ -537,7 +557,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @Override
     public void load(
         HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey) {
-      Assertions.checkState(!changed);
+      checkState(!changed);
       if (!readFile(content, idToKey)) {
         content.clear();
         idToKey.clear();
@@ -575,7 +595,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         return true;
       }
 
-      DataInputStream input = null;
+      @Nullable DataInputStream input = null;
       try {
         InputStream inputStream = new BufferedInputStream(atomicFile.openRead());
         input = new DataInputStream(inputStream);
@@ -593,7 +613,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           input.readFully(initializationVector);
           IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
           try {
-            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+            cipher.init(Cipher.DECRYPT_MODE, castNonNull(secretKeySpec), ivParameterSpec);
           } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
             throw new IllegalStateException(e);
           }
@@ -626,7 +646,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     private void writeFile(HashMap<String, CachedContent> content) throws IOException {
-      DataOutputStream output = null;
+      @Nullable DataOutputStream output = null;
       try {
         OutputStream outputStream = atomicFile.startWrite();
         if (bufferedOutputStream == null) {
@@ -634,6 +654,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         } else {
           bufferedOutputStream.reset(outputStream);
         }
+        ReusableBufferedOutputStream bufferedOutputStream = this.bufferedOutputStream;
         output = new DataOutputStream(bufferedOutputStream);
         output.writeInt(VERSION);
 
@@ -642,11 +663,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
         if (encrypt) {
           byte[] initializationVector = new byte[16];
-          random.nextBytes(initializationVector);
+          castNonNull(random).nextBytes(initializationVector);
           output.write(initializationVector);
           IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
           try {
-            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+            castNonNull(cipher)
+                .init(Cipher.ENCRYPT_MODE, castNonNull(secretKeySpec), ivParameterSpec);
           } catch (InvalidKeyException | InvalidAlgorithmParameterException e) {
             throw new IllegalStateException(e); // Should never happen.
           }
@@ -749,16 +771,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             + " BLOB NOT NULL)";
 
     private final DatabaseProvider databaseProvider;
-    private final SparseArray<CachedContent> pendingUpdates;
+    private final SparseArray<@NullableType CachedContent> pendingUpdates;
 
-    private String hexUid;
-    private String tableName;
+    private @MonotonicNonNull String hexUid;
+    private @MonotonicNonNull String tableName;
 
     public static void delete(DatabaseProvider databaseProvider, long uid)
         throws DatabaseIOException {
       delete(databaseProvider, Long.toHexString(uid));
     }
 
+    @SuppressWarnings("nullness:initialization.fields.uninitialized")
     public DatabaseStorage(DatabaseProvider databaseProvider) {
       this.databaseProvider = databaseProvider;
       pendingUpdates = new SparseArray<>();
@@ -775,26 +798,26 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       return VersionTable.getVersion(
               databaseProvider.getReadableDatabase(),
               VersionTable.FEATURE_CACHE_CONTENT_METADATA,
-              hexUid)
+              checkNotNull(hexUid))
           != VersionTable.VERSION_UNSET;
     }
 
     @Override
     public void delete() throws DatabaseIOException {
-      delete(databaseProvider, hexUid);
+      delete(databaseProvider, checkNotNull(hexUid));
     }
 
     @Override
     public void load(
         HashMap<String, CachedContent> content, SparseArray<@NullableType String> idToKey)
         throws IOException {
-      Assertions.checkState(pendingUpdates.size() == 0);
+      checkState(pendingUpdates.size() == 0);
       try {
         int version =
             VersionTable.getVersion(
                 databaseProvider.getReadableDatabase(),
                 VersionTable.FEATURE_CACHE_CONTENT_METADATA,
-                hexUid);
+                checkNotNull(hexUid));
         if (version != TABLE_VERSION) {
           SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
           writableDatabase.beginTransactionNonExclusive();
@@ -858,7 +881,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         writableDatabase.beginTransactionNonExclusive();
         try {
           for (int i = 0; i < pendingUpdates.size(); i++) {
-            CachedContent cachedContent = pendingUpdates.valueAt(i);
+            @Nullable CachedContent cachedContent = pendingUpdates.valueAt(i);
             if (cachedContent == null) {
               deleteRow(writableDatabase, pendingUpdates.keyAt(i));
             } else {
@@ -893,7 +916,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       return databaseProvider
           .getReadableDatabase()
           .query(
-              tableName,
+              checkNotNull(tableName),
               COLUMNS,
               /* selection= */ null,
               /* selectionArgs= */ null,
@@ -904,13 +927,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     private void initializeTable(SQLiteDatabase writableDatabase) throws DatabaseIOException {
       VersionTable.setVersion(
-          writableDatabase, VersionTable.FEATURE_CACHE_CONTENT_METADATA, hexUid, TABLE_VERSION);
-      dropTable(writableDatabase, tableName);
+          writableDatabase,
+          VersionTable.FEATURE_CACHE_CONTENT_METADATA,
+          checkNotNull(hexUid),
+          TABLE_VERSION);
+      dropTable(writableDatabase, checkNotNull(tableName));
       writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
     }
 
     private void deleteRow(SQLiteDatabase writableDatabase, int key) {
-      writableDatabase.delete(tableName, WHERE_ID_EQUALS, new String[] {Integer.toString(key)});
+      writableDatabase.delete(
+          checkNotNull(tableName), WHERE_ID_EQUALS, new String[] {Integer.toString(key)});
     }
 
     private void addOrUpdateRow(SQLiteDatabase writableDatabase, CachedContent cachedContent)
@@ -923,7 +950,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       values.put(COLUMN_ID, cachedContent.id);
       values.put(COLUMN_KEY, cachedContent.key);
       values.put(COLUMN_METADATA, data);
-      writableDatabase.replaceOrThrow(tableName, /* nullColumnHack= */ null, values);
+      writableDatabase.replaceOrThrow(checkNotNull(tableName), /* nullColumnHack= */ null, values);
     }
 
     private static void delete(DatabaseProvider databaseProvider, String hexUid)

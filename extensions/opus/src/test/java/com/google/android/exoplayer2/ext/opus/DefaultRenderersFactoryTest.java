@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 public final class DefaultRenderersFactoryTest {
 
   @Test
-  public void createRenderers_instantiatesVpxRenderer() {
+  public void createRenderers_instantiatesOpusRenderer() {
     DefaultRenderersFactoryAsserts.assertExtensionRendererCreated(
         LibopusAudioRenderer.class, C.TRACK_TYPE_AUDIO);
   }

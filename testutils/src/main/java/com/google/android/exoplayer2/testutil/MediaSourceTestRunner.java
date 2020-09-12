@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.os.ConditionVariable;
 import android.os.Handler;
@@ -25,13 +26,13 @@ import android.os.Looper;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -43,13 +44,11 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 /** A runner for {@link MediaSource} tests. */
 public class MediaSourceTestRunner {
 
-  public static final int TIMEOUT_MS = 10000;
+  public static final int TIMEOUT_MS = 10_000;
 
   private final MediaSource mediaSource;
   private final MediaSourceListener mediaSourceListener;
@@ -59,8 +58,6 @@ public class MediaSourceTestRunner {
 
   private final LinkedBlockingDeque<Timeline> timelines;
   private final CopyOnWriteArrayList<Pair<Integer, MediaPeriodId>> completedLoads;
-  private final AtomicReference<MediaPeriodId> lastCreatedMediaPeriod;
-  private final AtomicReference<MediaPeriodId> lastReleasedMediaPeriod;
 
   private Timeline timeline;
 
@@ -71,15 +68,13 @@ public class MediaSourceTestRunner {
   public MediaSourceTestRunner(MediaSource mediaSource, Allocator allocator) {
     this.mediaSource = mediaSource;
     this.allocator = allocator;
-    playbackThread = new HandlerThread("PlaybackThread");
+    playbackThread = new HandlerThread("TestHandler");
     playbackThread.start();
     Looper playbackLooper = playbackThread.getLooper();
     playbackHandler = new Handler(playbackLooper);
     mediaSourceListener = new MediaSourceListener();
     timelines = new LinkedBlockingDeque<>();
     completedLoads = new CopyOnWriteArrayList<>();
-    lastCreatedMediaPeriod = new AtomicReference<>();
-    lastReleasedMediaPeriod = new AtomicReference<>();
     mediaSource.addEventListener(playbackHandler, mediaSourceListener);
   }
 
@@ -102,7 +97,7 @@ public class MediaSourceTestRunner {
           }
         });
     try {
-      assertThat(finishedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+      assertThat(finishedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     } catch (InterruptedException e) {
       Util.sneakyThrow(e);
     }
@@ -215,7 +210,7 @@ public class MediaSourceTestRunner {
    * runner was created if neither method has been called).
    */
   public void assertNoTimelineChange() {
-    assertThat(timelines.isEmpty()).isTrue();
+    assertThat(timelines).isEmpty();
   }
 
   /**
@@ -237,7 +232,7 @@ public class MediaSourceTestRunner {
    */
   public Timeline assertTimelineChangeBlocking() {
     try {
-      timeline = timelines.poll(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      timeline = timelines.poll(TIMEOUT_MS, MILLISECONDS);
       assertThat(timeline).isNotNull(); // Null indicates the poll timed out.
       assertNoTimelineChange();
       return timeline;
@@ -270,9 +265,8 @@ public class MediaSourceTestRunner {
   private void assertPrepareAndReleasePeriod(MediaPeriodId mediaPeriodId)
       throws InterruptedException {
     MediaPeriod mediaPeriod = createPeriod(mediaPeriodId);
-    assertThat(lastCreatedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);
     CountDownLatch preparedLatch = preparePeriod(mediaPeriod, 0);
-    assertThat(preparedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(preparedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     // MediaSource is supposed to support multiple calls to createPeriod without an intervening call
     // to releasePeriod.
     MediaPeriodId secondMediaPeriodId =
@@ -282,16 +276,11 @@ public class MediaSourceTestRunner {
             mediaPeriodId.adIndexInAdGroup,
             mediaPeriodId.windowSequenceNumber + 1000);
     MediaPeriod secondMediaPeriod = createPeriod(secondMediaPeriodId);
-    assertThat(lastCreatedMediaPeriod.getAndSet(/* newValue= */ null))
-        .isEqualTo(secondMediaPeriodId);
     CountDownLatch secondPreparedLatch = preparePeriod(secondMediaPeriod, 0);
-    assertThat(secondPreparedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+    assertThat(secondPreparedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     // Release the periods.
     releasePeriod(mediaPeriod);
-    assertThat(lastReleasedMediaPeriod.getAndSet(/* newValue= */ null)).isEqualTo(mediaPeriodId);
     releasePeriod(secondMediaPeriod);
-    assertThat(lastReleasedMediaPeriod.getAndSet(/* newValue= */ null))
-        .isEqualTo(secondMediaPeriodId);
   }
 
   /**
@@ -304,8 +293,10 @@ public class MediaSourceTestRunner {
     List<Integer> expectedWindowIndices = new ArrayList<>(Arrays.asList(windowIndices));
     for (Pair<Integer, MediaPeriodId> windowIndexAndMediaPeriodId : completedLoads) {
       if (windowIndexAndMediaPeriodId.second == null) {
-        boolean loadExpected = expectedWindowIndices.remove(windowIndexAndMediaPeriodId.first);
-        assertThat(loadExpected).isTrue();
+        assertWithMessage("Missing expected load")
+            .that(expectedWindowIndices)
+            .contains(windowIndexAndMediaPeriodId.first);
+        expectedWindowIndices.remove(windowIndexAndMediaPeriodId.first);
       }
     }
     assertWithMessage("Not all expected media source loads have been completed.")
@@ -354,18 +345,6 @@ public class MediaSourceTestRunner {
     // MediaSourceEventListener methods.
 
     @Override
-    public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
-      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
-      lastCreatedMediaPeriod.set(mediaPeriodId);
-    }
-
-    @Override
-    public void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
-      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
-      lastReleasedMediaPeriod.set(mediaPeriodId);
-    }
-
-    @Override
     public void onLoadStarted(
         int windowIndex,
         @Nullable MediaPeriodId mediaPeriodId,
@@ -401,11 +380,6 @@ public class MediaSourceTestRunner {
         MediaLoadData mediaLoadData,
         IOException error,
         boolean wasCanceled) {
-      Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
-    }
-
-    @Override
-    public void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId) {
       Assertions.checkState(Looper.myLooper() == playbackThread.getLooper());
     }
 

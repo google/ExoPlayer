@@ -34,19 +34,19 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class SsaDecoderTest {
 
-  private static final String EMPTY = "ssa/empty";
-  private static final String TYPICAL = "ssa/typical";
-  private static final String TYPICAL_HEADER_ONLY = "ssa/typical_header";
-  private static final String TYPICAL_DIALOGUE_ONLY = "ssa/typical_dialogue";
-  private static final String TYPICAL_FORMAT_ONLY = "ssa/typical_format";
-  private static final String OVERLAPPING_TIMECODES = "ssa/overlapping_timecodes";
-  private static final String POSITIONS = "ssa/positioning";
-  private static final String INVALID_TIMECODES = "ssa/invalid_timecodes";
-  private static final String INVALID_POSITIONS = "ssa/invalid_positioning";
-  private static final String POSITIONS_WITHOUT_PLAYRES = "ssa/positioning_without_playres";
+  private static final String EMPTY = "media/ssa/empty";
+  private static final String TYPICAL = "media/ssa/typical";
+  private static final String TYPICAL_HEADER_ONLY = "media/ssa/typical_header";
+  private static final String TYPICAL_DIALOGUE_ONLY = "media/ssa/typical_dialogue";
+  private static final String TYPICAL_FORMAT_ONLY = "media/ssa/typical_format";
+  private static final String OVERLAPPING_TIMECODES = "media/ssa/overlapping_timecodes";
+  private static final String POSITIONS = "media/ssa/positioning";
+  private static final String INVALID_TIMECODES = "media/ssa/invalid_timecodes";
+  private static final String INVALID_POSITIONS = "media/ssa/invalid_positioning";
+  private static final String POSITIONS_WITHOUT_PLAYRES = "media/ssa/positioning_without_playres";
 
   @Test
-  public void testDecodeEmpty() throws IOException {
+  public void decodeEmpty() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -56,7 +56,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodeTypical() throws IOException {
+  public void decodeTypical() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -70,10 +70,10 @@ public final class SsaDecoderTest {
     assertWithMessage("Cue.positionAnchor")
         .that(firstCue.positionAnchor)
         .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-    assertWithMessage("Cue.position").that(firstCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.lineAnchor").that(firstCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
-    assertWithMessage("Cue.lineType").that(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(firstCue.line).isEqualTo(0.95f);
+    assertThat(firstCue.position).isEqualTo(0.5f);
+    assertThat(firstCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(firstCue.line).isEqualTo(0.95f);
 
     assertTypicalCue1(subtitle, 0);
     assertTypicalCue2(subtitle, 2);
@@ -81,7 +81,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodeTypicalWithInitializationData() throws IOException {
+  public void decodeTypicalWithInitializationData() throws IOException {
     byte[] headerBytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_HEADER_ONLY);
     byte[] formatBytes =
@@ -101,7 +101,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodeOverlappingTimecodes() throws IOException {
+  public void decodeOverlappingTimecodes() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), OVERLAPPING_TIMECODES);
@@ -151,40 +151,40 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void testDecodePositions() throws IOException {
+  public void decodePositions() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), POSITIONS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
     // Check \pos() sets position & line
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
-    assertWithMessage("Cue.position").that(firstCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.lineType").that(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(firstCue.line).isEqualTo(0.25f);
+    assertThat(firstCue.position).isEqualTo(0.5f);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(firstCue.line).isEqualTo(0.25f);
 
     // Check the \pos() doesn't need to be at the start of the line.
     Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
-    assertWithMessage("Cue.position").that(secondCue.position).isEqualTo(0.25f);
-    assertWithMessage("Cue.line").that(secondCue.line).isEqualTo(0.25f);
+    assertThat(secondCue.position).isEqualTo(0.25f);
+    assertThat(secondCue.line).isEqualTo(0.25f);
 
     // Check only the last \pos() value is used.
     Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
-    assertWithMessage("Cue.position").that(thirdCue.position).isEqualTo(0.25f);
+    assertThat(thirdCue.position).isEqualTo(0.25f);
 
     // Check \move() is treated as \pos()
     Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
-    assertWithMessage("Cue.position").that(fourthCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.line").that(fourthCue.line).isEqualTo(0.25f);
+    assertThat(fourthCue.position).isEqualTo(0.5f);
+    assertThat(fourthCue.line).isEqualTo(0.25f);
 
     // Check alignment override in a separate brace (to bottom-center) affects textAlignment and
     // both line & position anchors.
     Cue fifthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(8)));
-    assertWithMessage("Cue.position").that(fifthCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.line").that(fifthCue.line).isEqualTo(0.5f);
+    assertThat(fifthCue.position).isEqualTo(0.5f);
+    assertThat(fifthCue.line).isEqualTo(0.5f);
     assertWithMessage("Cue.positionAnchor")
         .that(fifthCue.positionAnchor)
         .isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
-    assertWithMessage("Cue.lineAnchor").that(fifthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
+    assertThat(fifthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
     assertWithMessage("Cue.textAlignment")
         .that(fifthCue.textAlignment)
         .isEqualTo(Layout.Alignment.ALIGN_CENTER);
@@ -192,19 +192,19 @@ public final class SsaDecoderTest {
     // Check alignment override in the same brace (to top-right) affects textAlignment and both line
     // & position anchors.
     Cue sixthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(10)));
-    assertWithMessage("Cue.position").that(sixthCue.position).isEqualTo(0.5f);
-    assertWithMessage("Cue.line").that(sixthCue.line).isEqualTo(0.5f);
+    assertThat(sixthCue.position).isEqualTo(0.5f);
+    assertThat(sixthCue.line).isEqualTo(0.5f);
     assertWithMessage("Cue.positionAnchor")
         .that(sixthCue.positionAnchor)
         .isEqualTo(Cue.ANCHOR_TYPE_END);
-    assertWithMessage("Cue.lineAnchor").that(sixthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
+    assertThat(sixthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
     assertWithMessage("Cue.textAlignment")
         .that(sixthCue.textAlignment)
         .isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
   }
 
   @Test
-  public void testDecodeInvalidPositions() throws IOException {
+  public void decodeInvalidPositions() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INVALID_POSITIONS);
@@ -212,35 +212,35 @@ public final class SsaDecoderTest {
 
     // Negative parameter to \pos() - fall back to the positions implied by middle-left alignment.
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
-    assertWithMessage("Cue.position").that(firstCue.position).isEqualTo(0.05f);
-    assertWithMessage("Cue.lineType").that(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(firstCue.line).isEqualTo(0.5f);
+    assertThat(firstCue.position).isEqualTo(0.05f);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(firstCue.line).isEqualTo(0.5f);
 
     // Negative parameter to \move() - fall back to the positions implied by middle-left alignment.
     Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
-    assertWithMessage("Cue.position").that(secondCue.position).isEqualTo(0.05f);
-    assertWithMessage("Cue.lineType").that(secondCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(secondCue.line).isEqualTo(0.5f);
+    assertThat(secondCue.position).isEqualTo(0.05f);
+    assertThat(secondCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(secondCue.line).isEqualTo(0.5f);
 
     // Check invalid alignment override (11) is skipped and style-provided one is used (4).
     Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
     assertWithMessage("Cue.positionAnchor")
         .that(thirdCue.positionAnchor)
         .isEqualTo(Cue.ANCHOR_TYPE_START);
-    assertWithMessage("Cue.lineAnchor").that(thirdCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+    assertThat(thirdCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
     assertWithMessage("Cue.textAlignment")
         .that(thirdCue.textAlignment)
         .isEqualTo(Layout.Alignment.ALIGN_NORMAL);
 
     // No braces - fall back to the positions implied by middle-left alignment
     Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
-    assertWithMessage("Cue.position").that(fourthCue.position).isEqualTo(0.05f);
-    assertWithMessage("Cue.lineType").that(fourthCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(fourthCue.line).isEqualTo(0.5f);
+    assertThat(fourthCue.position).isEqualTo(0.05f);
+    assertThat(fourthCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(fourthCue.line).isEqualTo(0.5f);
   }
 
   @Test
-  public void testDecodePositionsWithMissingPlayResY() throws IOException {
+  public void decodePositionsWithMissingPlayResY() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =
         TestUtil.getByteArray(
@@ -250,13 +250,13 @@ public final class SsaDecoderTest {
     // The dialogue line has a valid \pos() override, but it's ignored because PlayResY isn't
     // set (so we don't know the denominator).
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
-    assertWithMessage("Cue.position").that(firstCue.position).isEqualTo(Cue.DIMEN_UNSET);
-    assertWithMessage("Cue.lineType").that(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
-    assertWithMessage("Cue.line").that(firstCue.line).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(firstCue.position).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
+    assertThat(firstCue.line).isEqualTo(Cue.DIMEN_UNSET);
   }
 
   @Test
-  public void testDecodeInvalidTimecodes() throws IOException {
+  public void decodeInvalidTimecodes() throws IOException {
     // Parsing should succeed, parsing the third cue only.
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes =

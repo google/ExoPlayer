@@ -73,8 +73,7 @@ public class ContentMetadataMutations {
   }
 
   /**
-   * Adds a mutation to set a metadata value. Passing {@code null} as {@code name} or {@code value}
-   * isn't allowed.
+   * Adds a mutation to set a metadata value.
    *
    * @param name The name of the metadata value.
    * @param value The value to be set.
@@ -85,7 +84,7 @@ public class ContentMetadataMutations {
   }
 
   /**
-   * Adds a mutation to set a metadata value. Passing {@code null} as {@code name} isn't allowed.
+   * Adds a mutation to set a metadata value.
    *
    * @param name The name of the metadata value.
    * @param value The value to be set.
@@ -96,8 +95,7 @@ public class ContentMetadataMutations {
   }
 
   /**
-   * Adds a mutation to set a metadata value. Passing {@code null} as {@code name} or {@code value}
-   * isn't allowed.
+   * Adds a mutation to set a metadata value.
    *
    * @param name The name of the metadata value.
    * @param value The value to be set.

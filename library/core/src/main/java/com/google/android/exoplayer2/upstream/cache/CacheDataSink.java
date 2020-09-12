@@ -15,6 +15,11 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
+
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -27,6 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Writes data into a cache.
@@ -36,6 +42,78 @@ import java.io.OutputStream;
  * #write(byte[], int, int)} calls are ignored.
  */
 public final class CacheDataSink implements DataSink {
+
+  /** {@link DataSink.Factory} for {@link CacheDataSink} instances. */
+  public static final class Factory implements DataSink.Factory {
+
+    private @MonotonicNonNull Cache cache;
+    private long fragmentSize;
+    private int bufferSize;
+
+    /** Creates an instance. */
+    public Factory() {
+      fragmentSize = CacheDataSink.DEFAULT_FRAGMENT_SIZE;
+      bufferSize = CacheDataSink.DEFAULT_BUFFER_SIZE;
+    }
+
+    /**
+     * Sets the cache to which data will be written.
+     *
+     * <p>Must be called before the factory is used.
+     *
+     * @param cache The cache to which data will be written.
+     * @return This factory.
+     */
+    public Factory setCache(Cache cache) {
+      this.cache = cache;
+      return this;
+    }
+
+    /**
+     * Sets the cache file fragment size. For requests that should be fragmented into multiple cache
+     * files, this is the maximum size of a cache file in bytes. If set to {@link C#LENGTH_UNSET}
+     * then no fragmentation will occur. Using a small value allows for finer-grained cache eviction
+     * policies, at the cost of increased overhead both on the cache implementation and the file
+     * system. Values under {@code (2 * 1024 * 1024)} are not recommended.
+     *
+     * <p>The default value is {@link CacheDataSink#DEFAULT_FRAGMENT_SIZE}.
+     *
+     * @param fragmentSize The fragment size in bytes, or {@link C#LENGTH_UNSET} to disable
+     *     fragmentation.
+     * @return This factory.
+     */
+    public Factory setFragmentSize(long fragmentSize) {
+      this.fragmentSize = fragmentSize;
+      return this;
+    }
+
+    /**
+     * Sets the size of an in-memory buffer used when writing to a cache file. A zero or negative
+     * value disables buffering.
+     *
+     * <p>The default value is {@link CacheDataSink#DEFAULT_BUFFER_SIZE}.
+     *
+     * @param bufferSize The buffer size in bytes.
+     * @return This factory.
+     */
+    public Factory setBufferSize(int bufferSize) {
+      this.bufferSize = bufferSize;
+      return this;
+    }
+
+    @Override
+    public DataSink createDataSink() {
+      return new CacheDataSink(checkNotNull(cache), fragmentSize, bufferSize);
+    }
+  }
+
+  /** Thrown when an {@link IOException} is encountered when writing data to the sink. */
+  public static final class CacheDataSinkException extends CacheException {
+
+    public CacheDataSinkException(IOException cause) {
+      super(cause);
+    }
+  }
 
   /** Default {@code fragmentSize} recommended for caching use cases. */
   public static final long DEFAULT_FRAGMENT_SIZE = 5 * 1024 * 1024;
@@ -49,24 +127,13 @@ public final class CacheDataSink implements DataSink {
   private final long fragmentSize;
   private final int bufferSize;
 
-  private DataSpec dataSpec;
+  @Nullable private DataSpec dataSpec;
   private long dataSpecFragmentSize;
-  private File file;
-  private OutputStream outputStream;
+  @Nullable private File file;
+  @Nullable private OutputStream outputStream;
   private long outputStreamBytesWritten;
   private long dataSpecBytesWritten;
-  private ReusableBufferedOutputStream bufferedOutputStream;
-
-  /**
-   * Thrown when IOException is encountered when writing data into sink.
-   */
-  public static class CacheDataSinkException extends CacheException {
-
-    public CacheDataSinkException(IOException cause) {
-      super(cause);
-    }
-
-  }
+  private @MonotonicNonNull ReusableBufferedOutputStream bufferedOutputStream;
 
   /**
    * Constructs an instance using {@link #DEFAULT_BUFFER_SIZE}.
@@ -103,13 +170,14 @@ public final class CacheDataSink implements DataSink {
               + MIN_RECOMMENDED_FRAGMENT_SIZE
               + ". This may cause poor cache performance.");
     }
-    this.cache = Assertions.checkNotNull(cache);
+    this.cache = checkNotNull(cache);
     this.fragmentSize = fragmentSize == C.LENGTH_UNSET ? Long.MAX_VALUE : fragmentSize;
     this.bufferSize = bufferSize;
   }
 
   @Override
   public void open(DataSpec dataSpec) throws CacheDataSinkException {
+    checkNotNull(dataSpec.key);
     if (dataSpec.length == C.LENGTH_UNSET
         && dataSpec.isFlagSet(DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN)) {
       this.dataSpec = null;
@@ -120,7 +188,7 @@ public final class CacheDataSink implements DataSink {
         dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION) ? fragmentSize : Long.MAX_VALUE;
     dataSpecBytesWritten = 0;
     try {
-      openNextOutputStream();
+      openNextOutputStream(dataSpec);
     } catch (IOException e) {
       throw new CacheDataSinkException(e);
     }
@@ -128,6 +196,7 @@ public final class CacheDataSink implements DataSink {
 
   @Override
   public void write(byte[] buffer, int offset, int length) throws CacheDataSinkException {
+    @Nullable DataSpec dataSpec = this.dataSpec;
     if (dataSpec == null) {
       return;
     }
@@ -136,11 +205,11 @@ public final class CacheDataSink implements DataSink {
       while (bytesWritten < length) {
         if (outputStreamBytesWritten == dataSpecFragmentSize) {
           closeCurrentOutputStream();
-          openNextOutputStream();
+          openNextOutputStream(dataSpec);
         }
         int bytesToWrite =
-            (int) Math.min(length - bytesWritten, dataSpecFragmentSize - outputStreamBytesWritten);
-        outputStream.write(buffer, offset + bytesWritten, bytesToWrite);
+            (int) min(length - bytesWritten, dataSpecFragmentSize - outputStreamBytesWritten);
+        castNonNull(outputStream).write(buffer, offset + bytesWritten, bytesToWrite);
         bytesWritten += bytesToWrite;
         outputStreamBytesWritten += bytesToWrite;
         dataSpecBytesWritten += bytesToWrite;
@@ -162,14 +231,14 @@ public final class CacheDataSink implements DataSink {
     }
   }
 
-  private void openNextOutputStream() throws IOException {
+  private void openNextOutputStream(DataSpec dataSpec) throws IOException {
     long length =
         dataSpec.length == C.LENGTH_UNSET
             ? C.LENGTH_UNSET
-            : Math.min(dataSpec.length - dataSpecBytesWritten, dataSpecFragmentSize);
+            : min(dataSpec.length - dataSpecBytesWritten, dataSpecFragmentSize);
     file =
         cache.startFile(
-            dataSpec.key, dataSpec.absoluteStreamPosition + dataSpecBytesWritten, length);
+            castNonNull(dataSpec.key), dataSpec.position + dataSpecBytesWritten, length);
     FileOutputStream underlyingFileOutputStream = new FileOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {
@@ -197,7 +266,7 @@ public final class CacheDataSink implements DataSink {
     } finally {
       Util.closeQuietly(outputStream);
       outputStream = null;
-      File fileToCommit = file;
+      File fileToCommit = castNonNull(file);
       file = null;
       if (success) {
         cache.commitFile(fileToCommit, outputStreamBytesWritten);

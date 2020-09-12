@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.media.AudioTimestamp;
 import android.media.AudioTrack;
@@ -34,17 +36,26 @@ import java.lang.reflect.Method;
  * Wraps an {@link AudioTrack}, exposing a position based on {@link
  * AudioTrack#getPlaybackHeadPosition()} and {@link AudioTrack#getTimestamp(AudioTimestamp)}.
  *
- * <p>Call {@link #setAudioTrack(AudioTrack, int, int, int)} to set the audio track to wrap. Call
- * {@link #mayHandleBuffer(long)} if there is input data to write to the track. If it returns false,
- * the audio track position is stabilizing and no data may be written. Call {@link #start()}
- * immediately before calling {@link AudioTrack#play()}. Call {@link #pause()} when pausing the
- * track. Call {@link #handleEndOfStream(long)} when no more data will be written to the track. When
- * the audio track will no longer be used, call {@link #reset()}.
+ * <p>Call {@link #setAudioTrack(AudioTrack, boolean, int, int, int)} to set the audio track to
+ * wrap. Call {@link #mayHandleBuffer(long)} if there is input data to write to the track. If it
+ * returns false, the audio track position is stabilizing and no data may be written. Call {@link
+ * #start()} immediately before calling {@link AudioTrack#play()}. Call {@link #pause()} when
+ * pausing the track. Call {@link #handleEndOfStream(long)} when no more data will be written to the
+ * track. When the audio track will no longer be used, call {@link #reset()}.
  */
 /* package */ final class AudioTrackPositionTracker {
 
   /** Listener for position tracker events. */
   public interface Listener {
+
+    /**
+     * Called when the position tracker's position has increased for the first time since it was
+     * last paused or reset.
+     *
+     * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+     *     which playout started.
+     */
+    void onPositionAdvancing(long playoutStartSystemTimeMs);
 
     /**
      * Called when the frame position is too far from the expected frame position.
@@ -129,8 +140,8 @@ import java.lang.reflect.Method;
   private static final long FORCE_RESET_WORKAROUND_TIMEOUT_MS = 200;
 
   private static final int MAX_PLAYHEAD_OFFSET_COUNT = 10;
-  private static final int MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US = 30000;
-  private static final int MIN_LATENCY_SAMPLE_INTERVAL_US = 500000;
+  private static final int MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US = 30_000;
+  private static final int MIN_LATENCY_SAMPLE_INTERVAL_US = 50_0000;
 
   private final Listener listener;
   private final long[] playheadOffsets;
@@ -142,6 +153,8 @@ import java.lang.reflect.Method;
   private int outputSampleRate;
   private boolean needsPassthroughWorkarounds;
   private long bufferSizeUs;
+  private float audioTrackPlaybackSpeed;
+  private boolean notifiedPositionIncreasing;
 
   private long smoothedPlayheadOffsetUs;
   private long lastPlayheadSampleTimeUs;
@@ -193,6 +206,7 @@ import java.lang.reflect.Method;
    * track's position, until the next call to {@link #reset()}.
    *
    * @param audioTrack The audio track to wrap.
+   * @param isPassthrough Whether passthrough mode is being used.
    * @param outputEncoding The encoding of the audio track.
    * @param outputPcmFrameSize For PCM output encodings, the frame size. The value is ignored
    *     otherwise.
@@ -200,6 +214,7 @@ import java.lang.reflect.Method;
    */
   public void setAudioTrack(
       AudioTrack audioTrack,
+      boolean isPassthrough,
       @C.Encoding int outputEncoding,
       int outputPcmFrameSize,
       int bufferSize) {
@@ -208,7 +223,7 @@ import java.lang.reflect.Method;
     this.bufferSize = bufferSize;
     audioTimestampPoller = new AudioTimestampPoller(audioTrack);
     outputSampleRate = audioTrack.getSampleRate();
-    needsPassthroughWorkarounds = needsPassthroughWorkarounds(outputEncoding);
+    needsPassthroughWorkarounds = isPassthrough && needsPassthroughWorkarounds(outputEncoding);
     isOutputPcm = Util.isEncodingLinearPcm(outputEncoding);
     bufferSizeUs = isOutputPcm ? framesToDurationUs(bufferSize / outputPcmFrameSize) : C.TIME_UNSET;
     lastRawPlaybackHeadPosition = 0;
@@ -219,6 +234,16 @@ import java.lang.reflect.Method;
     forceResetWorkaroundTimeMs = C.TIME_UNSET;
     lastLatencySampleTimeUs = 0;
     latencyUs = 0;
+    audioTrackPlaybackSpeed = 1f;
+  }
+
+  public void setAudioTrackPlaybackSpeed(float audioTrackPlaybackSpeed) {
+    this.audioTrackPlaybackSpeed = audioTrackPlaybackSpeed;
+    // Extrapolation from the last audio timestamp relies on the audio rate being constant, so we
+    // reset audio timestamp tracking and wait for a new timestamp.
+    if (audioTimestampPoller != null) {
+      audioTimestampPoller.reset();
+    }
   }
 
   public long getCurrentPositionUs(boolean sourceEnded) {
@@ -237,6 +262,8 @@ import java.lang.reflect.Method;
       long timestampPositionFrames = audioTimestampPoller.getTimestampPositionFrames();
       long timestampPositionUs = framesToDurationUs(timestampPositionFrames);
       long elapsedSinceTimestampUs = systemTimeUs - audioTimestampPoller.getTimestampSystemTimeUs();
+      elapsedSinceTimestampUs =
+          Util.getMediaDurationForPlayoutDuration(elapsedSinceTimestampUs, audioTrackPlaybackSpeed);
       positionUs = timestampPositionUs + elapsedSinceTimestampUs;
     } else {
       if (playheadOffsetCount == 0) {
@@ -249,7 +276,7 @@ import java.lang.reflect.Method;
         positionUs = systemTimeUs + smoothedPlayheadOffsetUs;
       }
       if (!sourceEnded) {
-        positionUs = Math.max(0, positionUs - latencyUs);
+        positionUs = max(0, positionUs - latencyUs);
       }
     }
 
@@ -270,9 +297,21 @@ import java.lang.reflect.Method;
       positionUs /= 1000;
     }
 
+    if (!notifiedPositionIncreasing && positionUs > lastPositionUs) {
+      notifiedPositionIncreasing = true;
+      long mediaDurationSinceLastPositionUs = C.usToMs(positionUs - lastPositionUs);
+      long playoutDurationSinceLastPositionUs =
+          Util.getPlayoutDurationForMediaDuration(
+              mediaDurationSinceLastPositionUs, audioTrackPlaybackSpeed);
+      long playoutStartSystemTimeMs =
+          System.currentTimeMillis() - C.usToMs(playoutDurationSinceLastPositionUs);
+      listener.onPositionAdvancing(playoutStartSystemTimeMs);
+    }
+
     lastSystemTimeUs = systemTimeUs;
     lastPositionUs = positionUs;
     lastSampleUsedGetTimestampMode = useGetTimestampMode;
+
     return positionUs;
   }
 
@@ -314,7 +353,7 @@ import java.lang.reflect.Method;
 
     boolean hadData = hasData;
     hasData = hasPendingData(writtenFrames);
-    if (hadData && !hasData && playState != PLAYSTATE_STOPPED && listener != null) {
+    if (hadData && !hasData && playState != PLAYSTATE_STOPPED) {
       listener.onUnderrun(bufferSize, C.usToMs(bufferSizeUs));
     }
 
@@ -333,6 +372,11 @@ import java.lang.reflect.Method;
   public int getAvailableBufferSize(long writtenBytes) {
     int bytesPending = (int) (writtenBytes - (getPlaybackHeadPosition() * outputPcmFrameSize));
     return bufferSize - bytesPending;
+  }
+
+  /** Returns the duration of audio that is buffered but unplayed. */
+  public long getPendingBufferDurationMs(long writtenFrames) {
+    return C.usToMs(framesToDurationUs(writtenFrames - getPlaybackHeadPosition()));
   }
 
   /** Returns whether the track is in an invalid state and must be recreated. */
@@ -385,7 +429,7 @@ import java.lang.reflect.Method;
 
   /**
    * Resets the position tracker. Should be called when the audio track previously passed to {@link
-   * #setAudioTrack(AudioTrack, int, int, int)} is no longer in use.
+   * #setAudioTrack(AudioTrack, boolean, int, int, int)} is no longer in use.
    */
   public void reset() {
     resetSyncParams();
@@ -430,7 +474,7 @@ import java.lang.reflect.Method;
       return;
     }
 
-    // Perform sanity checks on the timestamp and accept/reject it.
+    // Check the timestamp and accept/reject it.
     long audioTimestampSystemTimeUs = audioTimestampPoller.getTimestampSystemTimeUs();
     long audioTimestampPositionFrames = audioTimestampPoller.getTimestampPositionFrames();
     if (Math.abs(audioTimestampSystemTimeUs - systemTimeUs) > MAX_AUDIO_TIMESTAMP_OFFSET_US) {
@@ -464,9 +508,9 @@ import java.lang.reflect.Method;
             castNonNull((Integer) getLatencyMethod.invoke(Assertions.checkNotNull(audioTrack)))
                     * 1000L
                 - bufferSizeUs;
-        // Sanity check that the latency is non-negative.
-        latencyUs = Math.max(latencyUs, 0);
-        // Sanity check that the latency isn't too large.
+        // Check that the latency is non-negative.
+        latencyUs = max(latencyUs, 0);
+        // Check that the latency isn't too large.
         if (latencyUs > MAX_LATENCY_US) {
           listener.onInvalidLatency(latencyUs);
           latencyUs = 0;
@@ -490,6 +534,7 @@ import java.lang.reflect.Method;
     lastPlayheadSampleTimeUs = 0;
     lastSystemTimeUs = 0;
     previousModeSystemTimeUs = 0;
+    notifiedPositionIncreasing = false;
   }
 
   /**
@@ -530,7 +575,7 @@ import java.lang.reflect.Method;
       // Simulate the playback head position up to the total number of frames submitted.
       long elapsedTimeSinceStopUs = (SystemClock.elapsedRealtime() * 1000) - stopTimestampUs;
       long framesSinceStop = (elapsedTimeSinceStopUs * outputSampleRate) / C.MICROS_PER_SECOND;
-      return Math.min(endPlaybackHeadPosition, stopPlaybackHeadPosition + framesSinceStop);
+      return min(endPlaybackHeadPosition, stopPlaybackHeadPosition + framesSinceStop);
     }
 
     int state = audioTrack.getPlayState();

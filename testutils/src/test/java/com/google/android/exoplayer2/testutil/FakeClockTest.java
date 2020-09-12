@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.os.ConditionVariable;
 import android.os.HandlerThread;
@@ -23,17 +24,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit test for {@link FakeClock}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public final class FakeClockTest {
 
-  private static final long TIMEOUT_MS = 10000;
+  private static final long TIMEOUT_MS = 10_000;
 
   @Test
   public void currentTimeMillis_withoutBootTime() {
@@ -108,7 +106,7 @@ public final class FakeClockTest {
 
   @Test
   public void testPostDelayed() {
-    HandlerThread handlerThread = new HandlerThread("FakeClockTest thread");
+    HandlerThread handlerThread = new HandlerThread("FakeClockTest");
     handlerThread.start();
     FakeClock fakeClock = new FakeClock(0);
     HandlerWrapper handler =
@@ -177,11 +175,11 @@ public final class FakeClockTest {
     }
 
     public boolean waitUntilAsleep(long timeoutMs) throws InterruptedException {
-      return fallAsleepCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+      return fallAsleepCountDownLatch.await(timeoutMs, MILLISECONDS);
     }
 
     public boolean waitUntilAwake(long timeoutMs) throws InterruptedException {
-      return wakeUpCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+      return wakeUpCountDownLatch.await(timeoutMs, MILLISECONDS);
     }
 
     public boolean isSleeping() {

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.dvb;
 
+import static java.lang.Math.min;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -87,7 +89,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ClutDefinition defaultClutDefinition;
   private final SubtitleService subtitleService;
 
-  @MonotonicNonNull private Bitmap bitmap;
+  private @MonotonicNonNull Bitmap bitmap;
 
   /**
    * Construct an instance for the given subtitle and ancillary page ids.
@@ -163,10 +165,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           + displayDefinition.horizontalPositionMinimum;
       int baseVerticalAddress = pageRegion.verticalAddress
           + displayDefinition.verticalPositionMinimum;
-      int clipRight = Math.min(baseHorizontalAddress + regionComposition.width,
-          displayDefinition.horizontalPositionMaximum);
-      int clipBottom = Math.min(baseVerticalAddress + regionComposition.height,
-          displayDefinition.verticalPositionMaximum);
+      int clipRight =
+          min(
+              baseHorizontalAddress + regionComposition.width,
+              displayDefinition.horizontalPositionMaximum);
+      int clipBottom =
+          min(
+              baseVerticalAddress + regionComposition.height,
+              displayDefinition.verticalPositionMaximum);
       canvas.clipRect(baseHorizontalAddress, baseVerticalAddress, clipRight, clipBottom);
       ClutDefinition clutDefinition = subtitleService.cluts.get(regionComposition.clutId);
       if (clutDefinition == null) {
@@ -208,12 +214,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             fillRegionPaint);
       }
 
-      Bitmap cueBitmap = Bitmap.createBitmap(bitmap, baseHorizontalAddress, baseVerticalAddress,
-          regionComposition.width, regionComposition.height);
-      cues.add(new Cue(cueBitmap, (float) baseHorizontalAddress / displayDefinition.width,
-          Cue.ANCHOR_TYPE_START, (float) baseVerticalAddress / displayDefinition.height,
-          Cue.ANCHOR_TYPE_START, (float) regionComposition.width / displayDefinition.width,
-          (float) regionComposition.height / displayDefinition.height));
+      cues.add(
+          new Cue.Builder()
+              .setBitmap(
+                  Bitmap.createBitmap(
+                      bitmap,
+                      baseHorizontalAddress,
+                      baseVerticalAddress,
+                      regionComposition.width,
+                      regionComposition.height))
+              .setPosition((float) baseHorizontalAddress / displayDefinition.width)
+              .setPositionAnchor(Cue.ANCHOR_TYPE_START)
+              .setLine(
+                  (float) baseVerticalAddress / displayDefinition.height, Cue.LINE_TYPE_FRACTION)
+              .setLineAnchor(Cue.ANCHOR_TYPE_START)
+              .setSize((float) regionComposition.width / displayDefinition.width)
+              .setBitmapHeight((float) regionComposition.height / displayDefinition.height)
+              .build());
 
       canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
       // Restore clean clipping state.
@@ -477,8 +494,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean nonModifyingColorFlag = data.readBit();
     data.skipBits(1); // Skip reserved.
 
-    @Nullable byte[] topFieldData = null;
-    @Nullable byte[] bottomFieldData = null;
+    byte[] topFieldData = Util.EMPTY_BYTE_ARRAY;
+    byte[] bottomFieldData = Util.EMPTY_BYTE_ARRAY;
 
     if (objectCodingMethod == OBJECT_CODING_STRING) {
       int numberOfCodes = data.readBits(8);

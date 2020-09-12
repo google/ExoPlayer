@@ -15,26 +15,20 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
+import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.text.Layout;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.style.AbsoluteSizeSpan;
-import android.text.style.AlignmentSpan;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
-import android.text.style.UnderlineSpan;
+import android.text.Spanned;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import java.io.IOException;
 import java.util.List;
@@ -46,59 +40,68 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TtmlDecoderTest {
 
-  private static final String INLINE_ATTRIBUTES_TTML_FILE = "ttml/inline_style_attributes.xml";
-  private static final String INHERIT_STYLE_TTML_FILE = "ttml/inherit_style.xml";
+  private static final String INLINE_ATTRIBUTES_TTML_FILE =
+      "media/ttml/inline_style_attributes.xml";
+  private static final String INHERIT_STYLE_TTML_FILE = "media/ttml/inherit_style.xml";
   private static final String INHERIT_STYLE_OVERRIDE_TTML_FILE =
-      "ttml/inherit_and_override_style.xml";
+      "media/ttml/inherit_and_override_style.xml";
   private static final String INHERIT_GLOBAL_AND_PARENT_TTML_FILE =
-      "ttml/inherit_global_and_parent.xml";
+      "media/ttml/inherit_global_and_parent.xml";
   private static final String INHERIT_MULTIPLE_STYLES_TTML_FILE =
-      "ttml/inherit_multiple_styles.xml";
-  private static final String CHAIN_MULTIPLE_STYLES_TTML_FILE = "ttml/chain_multiple_styles.xml";
-  private static final String MULTIPLE_REGIONS_TTML_FILE = "ttml/multiple_regions.xml";
+      "media/ttml/inherit_multiple_styles.xml";
+  private static final String CHAIN_MULTIPLE_STYLES_TTML_FILE =
+      "media/ttml/chain_multiple_styles.xml";
+  private static final String MULTIPLE_REGIONS_TTML_FILE = "media/ttml/multiple_regions.xml";
   private static final String NO_UNDERLINE_LINETHROUGH_TTML_FILE =
-      "ttml/no_underline_linethrough.xml";
-  private static final String FONT_SIZE_TTML_FILE = "ttml/font_size.xml";
-  private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE = "ttml/font_size_no_unit.xml";
-  private static final String FONT_SIZE_INVALID_TTML_FILE = "ttml/font_size_invalid.xml";
-  private static final String FONT_SIZE_EMPTY_TTML_FILE = "ttml/font_size_empty.xml";
-  private static final String FRAME_RATE_TTML_FILE = "ttml/frame_rate.xml";
-  private static final String BITMAP_REGION_FILE = "ttml/bitmap_percentage_region.xml";
-  private static final String BITMAP_PIXEL_REGION_FILE = "ttml/bitmap_pixel_region.xml";
-  private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
+      "media/ttml/no_underline_linethrough.xml";
+  private static final String FONT_SIZE_TTML_FILE = "media/ttml/font_size.xml";
+  private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE = "media/ttml/font_size_no_unit.xml";
+  private static final String FONT_SIZE_INVALID_TTML_FILE = "media/ttml/font_size_invalid.xml";
+  private static final String FONT_SIZE_EMPTY_TTML_FILE = "media/ttml/font_size_empty.xml";
+  private static final String FRAME_RATE_TTML_FILE = "media/ttml/frame_rate.xml";
+  private static final String BITMAP_REGION_FILE = "media/ttml/bitmap_percentage_region.xml";
+  private static final String BITMAP_PIXEL_REGION_FILE = "media/ttml/bitmap_pixel_region.xml";
+  private static final String BITMAP_UNSUPPORTED_REGION_FILE =
+      "media/ttml/bitmap_unsupported_region.xml";
+  private static final String TEXT_ALIGN_FILE = "media/ttml/text_align.xml";
+  private static final String VERTICAL_TEXT_FILE = "media/ttml/vertical_text.xml";
+  private static final String TEXT_COMBINE_FILE = "media/ttml/text_combine.xml";
+  private static final String RUBIES_FILE = "media/ttml/rubies.xml";
 
   @Test
-  public void testInlineAttributes() throws IOException, SubtitleDecoderException {
+  public void inlineAttributes() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    TtmlNode root = subtitle.getRoot();
-
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode firstDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-    TtmlStyle firstPStyle = queryChildrenForTag(firstDiv, TtmlNode.TAG_P, 0).style;
-    assertThat(firstPStyle.getFontColor()).isEqualTo(ColorParser.parseTtmlColor("yellow"));
-    assertThat(firstPStyle.getBackgroundColor()).isEqualTo(ColorParser.parseTtmlColor("blue"));
-    assertThat(firstPStyle.getFontFamily()).isEqualTo("serif");
-    assertThat(firstPStyle.getStyle()).isEqualTo(TtmlStyle.STYLE_BOLD_ITALIC);
-    assertThat(firstPStyle.isUnderline()).isTrue();
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 1");
+    assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("serif");
+    assertThat(spanned).hasBoldItalicSpanBetween(0, spanned.length());
+    assertThat(spanned).hasUnderlineSpanBetween(0, spanned.length());
+    assertThat(spanned)
+        .hasBackgroundColorSpanBetween(0, spanned.length())
+        .withColor(ColorParser.parseTtmlColor("blue"));
+    assertThat(spanned)
+        .hasForegroundColorSpanBetween(0, spanned.length())
+        .withColor(ColorParser.parseTtmlColor("yellow"));
   }
 
   @Test
-  public void testInheritInlineAttributes() throws IOException, SubtitleDecoderException {
+  public void inheritInlineAttributes() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
-    assertSpans(
-        subtitle,
-        20,
-        "text 2",
-        "sansSerif",
-        TtmlStyle.STYLE_ITALIC,
-        0xFF00FFFF,
-        ColorParser.parseTtmlColor("lime"),
-        false,
-        true,
-        null);
+
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 2");
+    assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("sansSerif");
+    assertThat(spanned).hasItalicSpanBetween(0, spanned.length());
+    assertThat(spanned).hasStrikethroughSpanBetween(0, spanned.length());
+    assertThat(spanned).hasBackgroundColorSpanBetween(0, spanned.length()).withColor(0xFF00FFFF);
+    assertThat(spanned)
+        .hasForegroundColorSpanBetween(0, spanned.length())
+        .withColor(ColorParser.parseTtmlColor("lime"));
   }
 
   /**
@@ -114,155 +117,166 @@ public final class TtmlDecoderTest {
    * @throws IOException thrown if reading subtitle file fails.
    */
   @Test
-  public void testLime() throws IOException, SubtitleDecoderException {
+  public void lime() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
-    assertSpans(
-        subtitle,
-        20,
-        "text 2",
-        "sansSerif",
-        TtmlStyle.STYLE_ITALIC,
-        0xFF00FFFF,
-        0xFF00FF00,
-        false,
-        true,
-        null);
+
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 2");
+    assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("sansSerif");
+    assertThat(spanned).hasItalicSpanBetween(0, spanned.length());
+    assertThat(spanned).hasStrikethroughSpanBetween(0, spanned.length());
+    assertThat(spanned).hasBackgroundColorSpanBetween(0, spanned.length()).withColor(0xFF00FFFF);
+    assertThat(spanned).hasForegroundColorSpanBetween(0, spanned.length()).withColor(0xFF00FF00);
   }
 
   @Test
-  public void testInheritGlobalStyle() throws IOException, SubtitleDecoderException {
+  public void inheritGlobalStyle() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
-    assertSpans(
-        subtitle,
-        10,
-        "text 1",
-        "serif",
-        TtmlStyle.STYLE_BOLD_ITALIC,
-        0xFF0000FF,
-        0xFFFFFF00,
-        true,
-        false,
-        null);
+
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 1");
+    assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("serif");
+    assertThat(spanned).hasBoldItalicSpanBetween(0, spanned.length());
+    assertThat(spanned).hasUnderlineSpanBetween(0, spanned.length());
+    assertThat(spanned).hasBackgroundColorSpanBetween(0, spanned.length()).withColor(0xFF0000FF);
+    assertThat(spanned).hasForegroundColorSpanBetween(0, spanned.length()).withColor(0xFFFFFF00);
   }
 
   @Test
-  public void testInheritGlobalStyleOverriddenByInlineAttributes()
+  public void inheritGlobalStyleOverriddenByInlineAttributes()
       throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_OVERRIDE_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    assertSpans(
-        subtitle,
-        10,
-        "text 1",
-        "serif",
-        TtmlStyle.STYLE_BOLD_ITALIC,
-        0xFF0000FF,
-        0xFFFFFF00,
-        true,
-        false,
-        null);
-    assertSpans(
-        subtitle,
-        20,
-        "text 2",
-        "sansSerif",
-        TtmlStyle.STYLE_ITALIC,
-        0xFFFF0000,
-        0xFFFFFF00,
-        true,
-        false,
-        null);
+    Spanned firstCueText = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCueText.toString()).isEqualTo("text 1");
+    assertThat(firstCueText).hasTypefaceSpanBetween(0, firstCueText.length()).withFamily("serif");
+    assertThat(firstCueText).hasBoldItalicSpanBetween(0, firstCueText.length());
+    assertThat(firstCueText).hasUnderlineSpanBetween(0, firstCueText.length());
+    assertThat(firstCueText)
+        .hasBackgroundColorSpanBetween(0, firstCueText.length())
+        .withColor(0xFF0000FF);
+    assertThat(firstCueText)
+        .hasForegroundColorSpanBetween(0, firstCueText.length())
+        .withColor(0xFFFFFF00);
+
+    Spanned secondCueText = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCueText.toString()).isEqualTo("text 2");
+    assertThat(secondCueText)
+        .hasTypefaceSpanBetween(0, secondCueText.length())
+        .withFamily("sansSerif");
+    assertThat(secondCueText).hasItalicSpanBetween(0, secondCueText.length());
+    assertThat(secondCueText).hasUnderlineSpanBetween(0, secondCueText.length());
+    assertThat(secondCueText)
+        .hasBackgroundColorSpanBetween(0, secondCueText.length())
+        .withColor(0xFFFF0000);
+    assertThat(secondCueText)
+        .hasForegroundColorSpanBetween(0, secondCueText.length())
+        .withColor(0xFFFFFF00);
   }
 
   @Test
-  public void testInheritGlobalAndParent() throws IOException, SubtitleDecoderException {
+  public void inheritGlobalAndParent() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_GLOBAL_AND_PARENT_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    assertSpans(
-        subtitle,
-        10,
-        "text 1",
-        "sansSerif",
-        TtmlStyle.STYLE_NORMAL,
-        0xFFFF0000,
-        ColorParser.parseTtmlColor("lime"),
-        false,
-        true,
-        Layout.Alignment.ALIGN_CENTER);
-    assertSpans(
-        subtitle,
-        20,
-        "text 2",
-        "serif",
-        TtmlStyle.STYLE_BOLD_ITALIC,
-        0xFF0000FF,
-        0xFFFFFF00,
-        true,
-        true,
-        Layout.Alignment.ALIGN_CENTER);
+    Spanned firstCueText = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCueText.toString()).isEqualTo("text 1");
+    assertThat(firstCueText)
+        .hasTypefaceSpanBetween(0, firstCueText.length())
+        .withFamily("sansSerif");
+    assertThat(firstCueText).hasStrikethroughSpanBetween(0, firstCueText.length());
+    assertThat(firstCueText)
+        .hasBackgroundColorSpanBetween(0, firstCueText.length())
+        .withColor(0xFFFF0000);
+    assertThat(firstCueText)
+        .hasForegroundColorSpanBetween(0, firstCueText.length())
+        .withColor(ColorParser.parseTtmlColor("lime"));
+
+    Spanned secondCueText = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCueText.toString()).isEqualTo("text 2");
+    assertThat(secondCueText).hasTypefaceSpanBetween(0, secondCueText.length()).withFamily("serif");
+    assertThat(secondCueText).hasBoldItalicSpanBetween(0, secondCueText.length());
+    assertThat(secondCueText).hasUnderlineSpanBetween(0, secondCueText.length());
+    assertThat(secondCueText).hasStrikethroughSpanBetween(0, secondCueText.length());
+    assertThat(secondCueText)
+        .hasBackgroundColorSpanBetween(0, secondCueText.length())
+        .withColor(0xFF0000FF);
+    assertThat(secondCueText)
+        .hasForegroundColorSpanBetween(0, secondCueText.length())
+        .withColor(0xFFFFFF00);
   }
 
   @Test
-  public void testInheritMultipleStyles() throws IOException, SubtitleDecoderException {
+  public void inheritMultipleStyles() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
-    assertSpans(
-        subtitle,
-        10,
-        "text 1",
-        "sansSerif",
-        TtmlStyle.STYLE_BOLD_ITALIC,
-        0xFF0000FF,
-        0xFFFFFF00,
-        false,
-        true,
-        null);
+
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 1");
+    assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("sansSerif");
+    assertThat(spanned).hasBoldItalicSpanBetween(0, spanned.length());
+    assertThat(spanned).hasStrikethroughSpanBetween(0, spanned.length());
+    assertThat(spanned).hasBackgroundColorSpanBetween(0, spanned.length()).withColor(0xFF0000FF);
+    assertThat(spanned).hasForegroundColorSpanBetween(0, spanned.length()).withColor(0xFFFFFF00);
   }
 
   @Test
-  public void testInheritMultipleStylesWithoutLocalAttributes()
+  public void inheritMultipleStylesWithoutLocalAttributes()
       throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
-    assertSpans(
-        subtitle,
-        20,
-        "text 2",
-        "sansSerif",
-        TtmlStyle.STYLE_BOLD_ITALIC,
-        0xFF0000FF,
-        0xFF000000,
-        false,
-        true,
-        null);
+
+    Spanned secondCueText = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCueText.toString()).isEqualTo("text 2");
+    assertThat(secondCueText)
+        .hasTypefaceSpanBetween(0, secondCueText.length())
+        .withFamily("sansSerif");
+    assertThat(secondCueText).hasBoldItalicSpanBetween(0, secondCueText.length());
+    assertThat(secondCueText).hasStrikethroughSpanBetween(0, secondCueText.length());
+    assertThat(secondCueText)
+        .hasBackgroundColorSpanBetween(0, secondCueText.length())
+        .withColor(0xFF0000FF);
+    assertThat(secondCueText)
+        .hasForegroundColorSpanBetween(0, secondCueText.length())
+        .withColor(0xFF000000);
   }
 
   @Test
-  public void testMergeMultipleStylesWithParentStyle()
-      throws IOException, SubtitleDecoderException {
+  public void mergeMultipleStylesWithParentStyle() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
-    assertSpans(
-        subtitle,
-        30,
-        "text 2.5",
-        "sansSerifInline",
-        TtmlStyle.STYLE_ITALIC,
-        0xFFFF0000,
-        0xFFFFFF00,
-        true,
-        true,
-        null);
+
+    Spanned thirdCueText = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCueText.toString()).isEqualTo("text 2.5");
+    assertThat(thirdCueText)
+        .hasTypefaceSpanBetween(0, thirdCueText.length())
+        .withFamily("sansSerifInline");
+    assertThat(thirdCueText).hasItalicSpanBetween(0, thirdCueText.length());
+    assertThat(thirdCueText).hasUnderlineSpanBetween(0, thirdCueText.length());
+    assertThat(thirdCueText).hasStrikethroughSpanBetween(0, thirdCueText.length());
+    assertThat(thirdCueText)
+        .hasBackgroundColorSpanBetween(0, thirdCueText.length())
+        .withColor(0xFFFF0000);
+    assertThat(thirdCueText)
+        .hasForegroundColorSpanBetween(0, thirdCueText.length())
+        .withColor(0xFFFFFF00);
   }
 
   @Test
-  public void testMultipleRegions() throws IOException, SubtitleDecoderException {
+  public void multipleRegions() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(MULTIPLE_REGIONS_TTML_FILE);
-    List<Cue> cues = subtitle.getCues(1000000);
+
+    List<Cue> cues = subtitle.getCues(1_000_000);
     assertThat(cues).hasSize(2);
     Cue cue = cues.get(0);
     assertThat(cue.text.toString()).isEqualTo("lorem");
@@ -276,17 +290,13 @@ public final class TtmlDecoderTest {
     assertThat(cue.line).isEqualTo(10f / 100f);
     assertThat(cue.size).isEqualTo(20f / 100f);
 
-    cues = subtitle.getCues(5000000);
-    assertThat(cues).hasSize(1);
-    cue = cues.get(0);
+    cue = getOnlyCueAtTimeUs(subtitle, 5_000_000);
     assertThat(cue.text.toString()).isEqualTo("ipsum");
     assertThat(cue.position).isEqualTo(40f / 100f);
     assertThat(cue.line).isEqualTo(40f / 100f);
     assertThat(cue.size).isEqualTo(20f / 100f);
 
-    cues = subtitle.getCues(9000000);
-    assertThat(cues).hasSize(1);
-    cue = cues.get(0);
+    cue = getOnlyCueAtTimeUs(subtitle, 9_000_000);
     assertThat(cue.text.toString()).isEqualTo("dolor");
     assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
     assertThat(cue.line).isEqualTo(Cue.DIMEN_UNSET);
@@ -296,27 +306,25 @@ public final class TtmlDecoderTest {
     // assertEquals(80f / 100f, cue.line);
     // assertEquals(1f, cue.size);
 
-    cues = subtitle.getCues(21000000);
-    assertThat(cues).hasSize(1);
-    cue = cues.get(0);
-    assertThat(cue.text.toString()).isEqualTo("She first said this");
+    cue = getOnlyCueAtTimeUs(subtitle, 21_000_000);
+    assertThat(cue.text.toString()).isEqualTo("They first said this");
     assertThat(cue.position).isEqualTo(45f / 100f);
     assertThat(cue.line).isEqualTo(45f / 100f);
     assertThat(cue.size).isEqualTo(35f / 100f);
-    cues = subtitle.getCues(25000000);
-    cue = cues.get(0);
-    assertThat(cue.text.toString()).isEqualTo("She first said this\nThen this");
-    cues = subtitle.getCues(29000000);
-    assertThat(cues).hasSize(1);
-    cue = cues.get(0);
-    assertThat(cue.text.toString()).isEqualTo("She first said this\nThen this\nFinally this");
+
+    cue = getOnlyCueAtTimeUs(subtitle, 25_000_000);
+    assertThat(cue.text.toString()).isEqualTo("They first said this\nThen this");
+
+    cue = getOnlyCueAtTimeUs(subtitle, 29_000_000);
+    assertThat(cue.text.toString()).isEqualTo("They first said this\nThen this\nFinally this");
     assertThat(cue.position).isEqualTo(45f / 100f);
     assertThat(cue.line).isEqualTo(45f / 100f);
   }
 
   @Test
-  public void testEmptyStyleAttribute() throws IOException, SubtitleDecoderException {
+  public void emptyStyleAttribute() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
 
     TtmlNode root = subtitle.getRoot();
@@ -327,8 +335,9 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testNonexistingStyleId() throws IOException, SubtitleDecoderException {
+  public void nonexistingStyleId() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
 
     TtmlNode root = subtitle.getRoot();
@@ -339,9 +348,10 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testNonExistingAndExistingStyleIdWithRedundantSpaces()
+  public void nonExistingAndExistingStyleIdWithRedundantSpaces()
       throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
 
     TtmlNode root = subtitle.getRoot();
@@ -353,8 +363,9 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testMultipleChaining() throws IOException, SubtitleDecoderException {
+  public void multipleChaining() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(CHAIN_MULTIPLE_STYLES_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
 
     Map<String, TtmlStyle> globalStyles = subtitle.getGlobalStyles();
@@ -376,8 +387,9 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testNoUnderline() throws IOException, SubtitleDecoderException {
+  public void noUnderline() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
     TtmlNode root = subtitle.getRoot();
@@ -391,8 +403,9 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testNoLinethrough() throws IOException, SubtitleDecoderException {
+  public void noLinethrough() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
     TtmlNode root = subtitle.getRoot();
@@ -406,95 +419,82 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testFontSizeSpans() throws IOException, SubtitleDecoderException {
+  public void fontSizeSpans() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(10);
 
-    List<Cue> cues = subtitle.getCues(10 * 1000000);
-    assertThat(cues).hasSize(1);
-    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(spannable)).isEqualTo("text 1");
-    assertAbsoluteFontSize(spannable, 32);
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(String.valueOf(spanned)).isEqualTo("text 1");
+    assertThat(spanned).hasAbsoluteSizeSpanBetween(0, spanned.length()).withAbsoluteSize(32);
 
-    cues = subtitle.getCues(20 * 1000000);
-    assertThat(cues).hasSize(1);
-    spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(cues.get(0).text)).isEqualTo("text 2");
-    assertRelativeFontSize(spannable, 2.2f);
+    spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 2");
+    assertThat(spanned).hasRelativeSizeSpanBetween(0, spanned.length()).withSizeChange(2.2f);
 
-    cues = subtitle.getCues(30 * 1000000);
-    assertThat(cues).hasSize(1);
-    spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(cues.get(0).text)).isEqualTo("text 3");
-    assertRelativeFontSize(spannable, 1.5f);
+    spanned = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 3");
+    assertThat(spanned).hasRelativeSizeSpanBetween(0, spanned.length()).withSizeChange(1.5f);
 
-    cues = subtitle.getCues(40 * 1000000);
-    assertThat(cues).hasSize(1);
-    spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(cues.get(0).text)).isEqualTo("two values");
-    assertAbsoluteFontSize(spannable, 16);
+    spanned = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
+    assertThat(spanned.toString()).isEqualTo("two values");
+    assertThat(spanned).hasAbsoluteSizeSpanBetween(0, spanned.length()).withAbsoluteSize(16);
 
-    cues = subtitle.getCues(50 * 1000000);
-    assertThat(cues).hasSize(1);
-    spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(cues.get(0).text)).isEqualTo("leading dot");
-    assertRelativeFontSize(spannable, 0.5f);
+    spanned = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
+    assertThat(spanned.toString()).isEqualTo("leading dot");
+    assertThat(spanned).hasRelativeSizeSpanBetween(0, spanned.length()).withSizeChange(0.5f);
   }
 
   @Test
-  public void testFontSizeWithMissingUnitIsIgnored() throws IOException, SubtitleDecoderException {
+  public void fontSizeWithMissingUnitIsIgnored() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_MISSING_UNIT_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
-    List<Cue> cues = subtitle.getCues(10 * 1000000);
-    assertThat(cues).hasSize(1);
-    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(spannable)).isEqualTo("no unit");
-    assertThat(spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class)).hasLength(0);
-    assertThat(spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class)).hasLength(0);
+
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(spanned.toString()).isEqualTo("no unit");
+    assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
+    assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
   }
 
   @Test
-  public void testFontSizeWithInvalidValueIsIgnored() throws IOException, SubtitleDecoderException {
+  public void fontSizeWithInvalidValueIsIgnored() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_INVALID_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
 
-    List<Cue> cues = subtitle.getCues(10 * 1000000);
-    assertThat(cues).hasSize(1);
-    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(spannable)).isEqualTo("invalid");
-    assertThat(spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class)).hasLength(0);
-    assertThat(spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class)).hasLength(0);
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(String.valueOf(spanned)).isEqualTo("invalid");
+    assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
+    assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
 
-    cues = subtitle.getCues(20 * 1000000);
-    assertThat(cues).hasSize(1);
-    spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(spannable)).isEqualTo("invalid");
-    assertThat(spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class)).hasLength(0);
-    assertThat(spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class)).hasLength(0);
+    spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(String.valueOf(spanned)).isEqualTo("invalid");
+    assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
+    assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
 
-    cues = subtitle.getCues(30 * 1000000);
-    assertThat(cues).hasSize(1);
-    spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(spannable)).isEqualTo("invalid dot");
-    assertThat(spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class)).hasLength(0);
-    assertThat(spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class)).hasLength(0);
+    spanned = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    assertThat(String.valueOf(spanned)).isEqualTo("invalid dot");
+    assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
+    assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
   }
 
   @Test
-  public void testFontSizeWithEmptyValueIsIgnored() throws IOException, SubtitleDecoderException {
+  public void fontSizeWithEmptyValueIsIgnored() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_EMPTY_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
-    List<Cue> cues = subtitle.getCues(10 * 1000000);
-    assertThat(cues).hasSize(1);
-    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
-    assertThat(String.valueOf(spannable)).isEqualTo("empty");
-    assertThat(spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class)).hasLength(0);
-    assertThat(spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class)).hasLength(0);
+
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(String.valueOf(spanned)).isEqualTo("empty");
+    assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
+    assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
   }
 
   @Test
-  public void testFrameRate() throws IOException, SubtitleDecoderException {
+  public void frameRate() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(FRAME_RATE_TTML_FILE);
+
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
     assertThat(subtitle.getEventTime(0)).isEqualTo(1_000_000);
     assertThat(subtitle.getEventTime(1)).isEqualTo(1_010_000);
@@ -503,12 +503,10 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testBitmapPercentageRegion() throws IOException, SubtitleDecoderException {
+  public void bitmapPercentageRegion() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(BITMAP_REGION_FILE);
 
-    List<Cue> cues = subtitle.getCues(1000000);
-    assertThat(cues).hasSize(1);
-    Cue cue = cues.get(0);
+    Cue cue = getOnlyCueAtTimeUs(subtitle, 1_000_000);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(24f / 100f);
@@ -516,9 +514,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.size).isEqualTo(51f / 100f);
     assertThat(cue.bitmapHeight).isEqualTo(12f / 100f);
 
-    cues = subtitle.getCues(4000000);
-    assertThat(cues).hasSize(1);
-    cue = cues.get(0);
+    cue = getOnlyCueAtTimeUs(subtitle, 4_000_000);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(21f / 100f);
@@ -526,9 +522,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.size).isEqualTo(57f / 100f);
     assertThat(cue.bitmapHeight).isEqualTo(6f / 100f);
 
-    cues = subtitle.getCues(7500000);
-    assertThat(cues).hasSize(1);
-    cue = cues.get(0);
+    cue = getOnlyCueAtTimeUs(subtitle, 7_500_000);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(24f / 100f);
@@ -538,12 +532,10 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testBitmapPixelRegion() throws IOException, SubtitleDecoderException {
+  public void bitmapPixelRegion() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(BITMAP_PIXEL_REGION_FILE);
 
-    List<Cue> cues = subtitle.getCues(1000000);
-    assertThat(cues).hasSize(1);
-    Cue cue = cues.get(0);
+    Cue cue = getOnlyCueAtTimeUs(subtitle, 1_000_000);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(307f / 1280f);
@@ -551,9 +543,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.size).isEqualTo(653f / 1280f);
     assertThat(cue.bitmapHeight).isEqualTo(86f / 720f);
 
-    cues = subtitle.getCues(4000000);
-    assertThat(cues).hasSize(1);
-    cue = cues.get(0);
+    cue = getOnlyCueAtTimeUs(subtitle, 4_000_000);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(269f / 1280f);
@@ -563,12 +553,10 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void testBitmapUnsupportedRegion() throws IOException, SubtitleDecoderException {
+  public void bitmapUnsupportedRegion() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(BITMAP_UNSUPPORTED_REGION_FILE);
 
-    List<Cue> cues = subtitle.getCues(1000000);
-    assertThat(cues).hasSize(1);
-    Cue cue = cues.get(0);
+    Cue cue = getOnlyCueAtTimeUs(subtitle, 1_000_000);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
@@ -576,9 +564,7 @@ public final class TtmlDecoderTest {
     assertThat(cue.size).isEqualTo(Cue.DIMEN_UNSET);
     assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
 
-    cues = subtitle.getCues(4000000);
-    assertThat(cues).hasSize(1);
-    cue = cues.get(0);
+    cue = getOnlyCueAtTimeUs(subtitle, 4_000_000);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
@@ -587,106 +573,120 @@ public final class TtmlDecoderTest {
     assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
   }
 
-  private void assertSpans(
-      TtmlSubtitle subtitle,
-      int second,
-      String text,
-      String font,
-      int fontStyle,
-      int backgroundColor,
-      int color,
-      boolean isUnderline,
-      boolean isLinethrough,
-      Layout.Alignment alignment) {
+  @Test
+  public void textAlign() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(TEXT_ALIGN_FILE);
 
-    long timeUs = second * 1000000L;
+    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue.text.toString()).isEqualTo("Start alignment");
+    assertThat(firstCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue.text.toString()).isEqualTo("Left alignment");
+    assertThat(secondCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue.text.toString()).isEqualTo("Center alignment");
+    assertThat(thirdCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_CENTER);
+
+    Cue fourthCue = getOnlyCueAtTimeUs(subtitle, 40_000_000);
+    assertThat(fourthCue.text.toString()).isEqualTo("Right alignment");
+    assertThat(fourthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
+
+    Cue fifthCue = getOnlyCueAtTimeUs(subtitle, 50_000_000);
+    assertThat(fifthCue.text.toString()).isEqualTo("End alignment");
+    assertThat(fifthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
+
+    Cue sixthCue = getOnlyCueAtTimeUs(subtitle, 60_000_000);
+    assertThat(sixthCue.text.toString()).isEqualTo("Justify alignment (unsupported)");
+    assertThat(sixthCue.textAlignment).isNull();
+
+    Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
+    assertThat(seventhCue.text.toString()).isEqualTo("No textAlign property");
+    assertThat(seventhCue.textAlignment).isNull();
+  }
+
+  @Test
+  public void verticalText() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(VERTICAL_TEXT_FILE);
+
+    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_RL);
+
+    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_LR);
+
+    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
+  }
+
+  @Test
+  public void textCombine() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(TEXT_COMBINE_FILE);
+
+    Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue)
+        .hasHorizontalTextInVerticalContextSpanBetween(
+            "text with ".length(), "text with combined".length());
+
+    Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue)
+        .hasNoHorizontalTextInVerticalContextSpanBetween(
+            "text with ".length(), "text with un-combined".length());
+
+    Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue).hasNoHorizontalTextInVerticalContextSpanBetween(0, thirdCue.length());
+  }
+
+  @Test
+  public void rubies() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(RUBIES_FILE);
+
+    Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(firstCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("1st rubies", RubySpan.POSITION_OVER);
+    assertThat(firstCue)
+        .hasRubySpanBetween("Cue with annotated ".length(), "Cue with annotated text".length())
+        .withTextAndPosition("2nd rubies", RubySpan.POSITION_UNKNOWN);
+
+    Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(secondCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("rubies", RubySpan.POSITION_UNKNOWN);
+
+    Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(thirdCue).hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length());
+
+    Spanned fourthCue = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
+    assertThat(fourthCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(fourthCue).hasNoRubySpanBetween(0, fourthCue.length());
+
+    Spanned fifthCue = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
+    assertThat(fifthCue.toString()).isEqualTo("Cue with text.");
+    assertThat(fifthCue).hasNoRubySpanBetween(0, fifthCue.length());
+
+    Spanned sixthCue = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
+    assertThat(sixthCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(sixthCue).hasNoRubySpanBetween(0, sixthCue.length());
+  }
+
+  private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {
+    Cue cue = getOnlyCueAtTimeUs(subtitle, timeUs);
+    assertThat(cue.text).isInstanceOf(Spanned.class);
+    return (Spanned) Assertions.checkNotNull(cue.text);
+  }
+
+  private static Cue getOnlyCueAtTimeUs(Subtitle subtitle, long timeUs) {
     List<Cue> cues = subtitle.getCues(timeUs);
-
     assertThat(cues).hasSize(1);
-    assertThat(String.valueOf(cues.get(0).text)).isEqualTo(text);
-    assertWithMessage("single cue expected for timeUs: " + timeUs).that(cues.size()).isEqualTo(1);
-    SpannableStringBuilder spannable = (SpannableStringBuilder) cues.get(0).text;
-
-    assertFont(spannable, font);
-    assertStyle(spannable, fontStyle);
-    assertUnderline(spannable, isUnderline);
-    assertStrikethrough(spannable, isLinethrough);
-    assertUnderline(spannable, isUnderline);
-    assertBackground(spannable, backgroundColor);
-    assertForeground(spannable, color);
-    assertAlignment(spannable, alignment);
+    return cues.get(0);
   }
 
-  private void assertAbsoluteFontSize(Spannable spannable, int absoluteFontSize) {
-    AbsoluteSizeSpan[] absoluteSizeSpans =
-        spannable.getSpans(0, spannable.length(), AbsoluteSizeSpan.class);
-    assertThat(absoluteSizeSpans).hasLength(1);
-    assertThat(absoluteSizeSpans[0].getSize()).isEqualTo(absoluteFontSize);
-  }
-
-  private void assertRelativeFontSize(Spannable spannable, float relativeFontSize) {
-    RelativeSizeSpan[] relativeSizeSpans =
-        spannable.getSpans(0, spannable.length(), RelativeSizeSpan.class);
-    assertThat(relativeSizeSpans).hasLength(1);
-    assertThat(relativeSizeSpans[0].getSizeChange()).isEqualTo(relativeFontSize);
-  }
-
-  private void assertFont(Spannable spannable, String font) {
-    TypefaceSpan[] typefaceSpans = spannable.getSpans(0, spannable.length(), TypefaceSpan.class);
-    assertThat(typefaceSpans[typefaceSpans.length - 1].getFamily()).isEqualTo(font);
-  }
-
-  private void assertStyle(Spannable spannable, int fontStyle) {
-    StyleSpan[] styleSpans = spannable.getSpans(0, spannable.length(), StyleSpan.class);
-    assertThat(styleSpans[styleSpans.length - 1].getStyle()).isEqualTo(fontStyle);
-  }
-
-  private void assertUnderline(Spannable spannable, boolean isUnderline) {
-    UnderlineSpan[] underlineSpans = spannable.getSpans(0, spannable.length(), UnderlineSpan.class);
-    assertWithMessage(isUnderline ? "must be underlined" : "must not be underlined")
-        .that(underlineSpans)
-        .hasLength(isUnderline ? 1 : 0);
-  }
-
-  private void assertStrikethrough(Spannable spannable, boolean isStrikethrough) {
-    StrikethroughSpan[] striketroughSpans =
-        spannable.getSpans(0, spannable.length(), StrikethroughSpan.class);
-    assertWithMessage(isStrikethrough ? "must be strikethrough" : "must not be strikethrough")
-        .that(striketroughSpans)
-        .hasLength(isStrikethrough ? 1 : 0);
-  }
-
-  private void assertBackground(Spannable spannable, int backgroundColor) {
-    BackgroundColorSpan[] backgroundColorSpans =
-        spannable.getSpans(0, spannable.length(), BackgroundColorSpan.class);
-    if (backgroundColor != 0) {
-      assertThat(backgroundColorSpans[backgroundColorSpans.length - 1].getBackgroundColor())
-          .isEqualTo(backgroundColor);
-    } else {
-      assertThat(backgroundColorSpans).hasLength(0);
-    }
-  }
-
-  private void assertForeground(Spannable spannable, int foregroundColor) {
-    ForegroundColorSpan[] foregroundColorSpans =
-        spannable.getSpans(0, spannable.length(), ForegroundColorSpan.class);
-    assertThat(foregroundColorSpans[foregroundColorSpans.length - 1].getForegroundColor())
-        .isEqualTo(foregroundColor);
-  }
-
-  private void assertAlignment(Spannable spannable, Layout.Alignment alignment) {
-    if (alignment != null) {
-      AlignmentSpan.Standard[] alignmentSpans =
-          spannable.getSpans(0, spannable.length(), AlignmentSpan.Standard.class);
-      assertThat(alignmentSpans).hasLength(1);
-      assertThat(alignmentSpans[0].getAlignment()).isEqualTo(alignment);
-    } else {
-      assertThat(spannable.getSpans(0, spannable.length(), AlignmentSpan.Standard.class))
-          .hasLength(0);
-    }
-  }
-
-  private TtmlNode queryChildrenForTag(TtmlNode node, String tag, int pos) {
+  private static TtmlNode queryChildrenForTag(TtmlNode node, String tag, int pos) {
     int count = 0;
     for (int i = 0; i < node.getChildCount(); i++) {
       if (tag.equals(node.getChild(i).tag)) {
@@ -698,7 +698,8 @@ public final class TtmlDecoderTest {
     throw new IllegalStateException("tag not found");
   }
 
-  private TtmlSubtitle getSubtitle(String file) throws IOException, SubtitleDecoderException {
+  private static TtmlSubtitle getSubtitle(String file)
+      throws IOException, SubtitleDecoderException {
     TtmlDecoder ttmlDecoder = new TtmlDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), file);
     return (TtmlSubtitle) ttmlDecoder.decode(bytes, bytes.length, false);

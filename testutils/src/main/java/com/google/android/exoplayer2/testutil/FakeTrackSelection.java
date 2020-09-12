@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -109,6 +110,7 @@ public final class FakeTrackSelection implements TrackSelection {
   }
 
   @Override
+  @Nullable
   public Object getSelectionData() {
     return null;
   }
@@ -135,7 +137,7 @@ public final class FakeTrackSelection implements TrackSelection {
   }
 
   @Override
-  public boolean blacklist(int index, long blacklistDurationMs) {
+  public boolean blacklist(int index, long exclusionDurationMs) {
     assertThat(isEnabled).isTrue();
     return false;
   }

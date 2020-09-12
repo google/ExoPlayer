@@ -17,22 +17,12 @@ package com.google.android.exoplayer2.video;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.OutputBuffer;
 import java.nio.ByteBuffer;
 
 /** Video decoder output buffer containing video frame data. */
 public class VideoDecoderOutputBuffer extends OutputBuffer {
-
-  /** Buffer owner. */
-  public interface Owner {
-
-    /**
-     * Releases the buffer.
-     *
-     * @param outputBuffer Output buffer.
-     */
-    void releaseOutputBuffer(VideoDecoderOutputBuffer outputBuffer);
-  }
 
   // LINT.IfChange
   public static final int COLORSPACE_UNKNOWN = 0;
@@ -44,7 +34,7 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
   //     ../../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
   // )
 
-  /** Decoder private data. */
+  /** Decoder private data. Used from native code. */
   public int decoderPrivate;
 
   /** Output mode. */
@@ -54,7 +44,8 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
 
   public int width;
   public int height;
-  @Nullable public ColorInfo colorInfo;
+  /** The format of the input from which this output buffer was decoded. */
+  @Nullable public Format format;
 
   /** YUV planes for YUV mode. */
   @Nullable public ByteBuffer[] yuvPlanes;
@@ -68,14 +59,14 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
    */
   @Nullable public ByteBuffer supplementalData;
 
-  private final Owner owner;
+  private final Owner<VideoDecoderOutputBuffer> owner;
 
   /**
    * Creates VideoDecoderOutputBuffer.
    *
    * @param owner Buffer owner.
    */
-  public VideoDecoderOutputBuffer(Owner owner) {
+  public VideoDecoderOutputBuffer(Owner<VideoDecoderOutputBuffer> owner) {
     this.owner = owner;
   }
 

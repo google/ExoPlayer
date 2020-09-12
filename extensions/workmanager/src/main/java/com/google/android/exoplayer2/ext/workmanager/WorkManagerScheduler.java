@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.workmanager;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import androidx.annotation.RequiresApi;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -35,22 +35,38 @@ import com.google.android.exoplayer2.util.Util;
 /** A {@link Scheduler} that uses {@link WorkManager}. */
 public final class WorkManagerScheduler implements Scheduler {
 
-  private static final boolean DEBUG = false;
   private static final String TAG = "WorkManagerScheduler";
   private static final String KEY_SERVICE_ACTION = "service_action";
   private static final String KEY_SERVICE_PACKAGE = "service_package";
   private static final String KEY_REQUIREMENTS = "requirements";
+  private static final int SUPPORTED_REQUIREMENTS =
+      Requirements.NETWORK
+          | Requirements.NETWORK_UNMETERED
+          | (Util.SDK_INT >= 23 ? Requirements.DEVICE_IDLE : 0)
+          | Requirements.DEVICE_CHARGING
+          | Requirements.DEVICE_STORAGE_NOT_LOW;
 
+  private final WorkManager workManager;
   private final String workName;
 
+  /** @deprecated Call {@link #WorkManagerScheduler(Context, String)} instead. */
+  @Deprecated
+  @SuppressWarnings("deprecation")
+  public WorkManagerScheduler(String workName) {
+    this.workName = workName;
+    workManager = WorkManager.getInstance();
+  }
+
   /**
+   * @param context A context.
    * @param workName A name for work scheduled by this instance. If the same name was used by a
    *     previous instance, anything scheduled by the previous instance will be canceled by this
    *     instance if {@link #schedule(Requirements, String, String)} or {@link #cancel()} are
    *     called.
    */
-  public WorkManagerScheduler(String workName) {
+  public WorkManagerScheduler(Context context, String workName) {
     this.workName = workName;
+    workManager = WorkManager.getInstance(context.getApplicationContext());
   }
 
   @Override
@@ -58,21 +74,31 @@ public final class WorkManagerScheduler implements Scheduler {
     Constraints constraints = buildConstraints(requirements);
     Data inputData = buildInputData(requirements, servicePackage, serviceAction);
     OneTimeWorkRequest workRequest = buildWorkRequest(constraints, inputData);
-    logd("Scheduling work: " + workName);
-    WorkManager.getInstance().enqueueUniqueWork(workName, ExistingWorkPolicy.REPLACE, workRequest);
+    workManager.enqueueUniqueWork(workName, ExistingWorkPolicy.REPLACE, workRequest);
     return true;
   }
 
   @Override
   public boolean cancel() {
-    logd("Canceling work: " + workName);
-    WorkManager.getInstance().cancelUniqueWork(workName);
+    workManager.cancelUniqueWork(workName);
     return true;
   }
 
-  private static Constraints buildConstraints(Requirements requirements) {
-    Constraints.Builder builder = new Constraints.Builder();
+  @Override
+  public Requirements getSupportedRequirements(Requirements requirements) {
+    return requirements.filterRequirements(SUPPORTED_REQUIREMENTS);
+  }
 
+  private static Constraints buildConstraints(Requirements requirements) {
+    Requirements filteredRequirements = requirements.filterRequirements(SUPPORTED_REQUIREMENTS);
+    if (!filteredRequirements.equals(requirements)) {
+      Log.w(
+          TAG,
+          "Ignoring unsupported requirements: "
+              + (filteredRequirements.getRequirements() ^ requirements.getRequirements()));
+    }
+
+    Constraints.Builder builder = new Constraints.Builder();
     if (requirements.isUnmeteredNetworkRequired()) {
       builder.setRequiredNetworkType(NetworkType.UNMETERED);
     } else if (requirements.isNetworkRequired()) {
@@ -80,19 +106,20 @@ public final class WorkManagerScheduler implements Scheduler {
     } else {
       builder.setRequiredNetworkType(NetworkType.NOT_REQUIRED);
     }
-
+    if (Util.SDK_INT >= 23 && requirements.isIdleRequired()) {
+      setRequiresDeviceIdle(builder);
+    }
     if (requirements.isChargingRequired()) {
       builder.setRequiresCharging(true);
     }
-
-    if (requirements.isIdleRequired() && Util.SDK_INT >= 23) {
-      setRequiresDeviceIdle(builder);
+    if (requirements.isStorageNotLowRequired()) {
+      builder.setRequiresStorageNotLow(true);
     }
 
     return builder.build();
   }
 
-  @TargetApi(23)
+  @RequiresApi(23)
   private static void setRequiresDeviceIdle(Constraints.Builder builder) {
     builder.setRequiresDeviceIdle(true);
   }
@@ -117,12 +144,6 @@ public final class WorkManagerScheduler implements Scheduler {
     return builder.build();
   }
 
-  private static void logd(String message) {
-    if (DEBUG) {
-      Log.d(TAG, message);
-    }
-  }
-
   /** A {@link Worker} that starts the target service if the requirements are met. */
   // This class needs to be public so that WorkManager can instantiate it.
   public static final class SchedulerWorker extends Worker {
@@ -138,22 +159,17 @@ public final class WorkManagerScheduler implements Scheduler {
 
     @Override
     public Result doWork() {
-      logd("SchedulerWorker is started");
-      Data inputData = workerParams.getInputData();
-      Assertions.checkNotNull(inputData, "Work started without input data.");
+      Data inputData = Assertions.checkNotNull(workerParams.getInputData());
       Requirements requirements = new Requirements(inputData.getInt(KEY_REQUIREMENTS, 0));
-      if (requirements.checkRequirements(context)) {
-        logd("Requirements are met");
-        String serviceAction = inputData.getString(KEY_SERVICE_ACTION);
-        String servicePackage = inputData.getString(KEY_SERVICE_PACKAGE);
-        Assertions.checkNotNull(serviceAction, "Service action missing.");
-        Assertions.checkNotNull(servicePackage, "Service package missing.");
+      int notMetRequirements = requirements.getNotMetRequirements(context);
+      if (notMetRequirements == 0) {
+        String serviceAction = Assertions.checkNotNull(inputData.getString(KEY_SERVICE_ACTION));
+        String servicePackage = Assertions.checkNotNull(inputData.getString(KEY_SERVICE_PACKAGE));
         Intent intent = new Intent(serviceAction).setPackage(servicePackage);
-        logd("Starting service action: " + serviceAction + " package: " + servicePackage);
         Util.startForegroundService(context, intent);
         return Result.success();
       } else {
-        logd("Requirements are not met");
+        Log.w(TAG, "Requirements not met: " + notMetRequirements);
         return Result.retry();
       }
     }

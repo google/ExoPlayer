@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.util;
 
 import static android.opengl.GLU.gluErrorString;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.opengl.EGL14;
@@ -205,10 +204,9 @@ public final class GlUtil {
   private GlUtil() {}
 
   /**
-   * Returns whether creating a GL context with {@value EXTENSION_PROTECTED_CONTENT} is possible. If
-   * {@code true}, the device supports a protected output path for DRM content when using GL.
+   * Returns whether creating a GL context with {@value #EXTENSION_PROTECTED_CONTENT} is possible.
+   * If {@code true}, the device supports a protected output path for DRM content when using GL.
    */
-  @TargetApi(24)
   public static boolean isProtectedContentExtensionSupported(Context context) {
     if (Util.SDK_INT < 24) {
       return false;
@@ -234,9 +232,8 @@ public final class GlUtil {
   }
 
   /**
-   * Returns whether creating a GL context with {@value EXTENSION_SURFACELESS_CONTEXT} is possible.
+   * Returns whether creating a GL context with {@value #EXTENSION_SURFACELESS_CONTEXT} is possible.
    */
-  @TargetApi(17)
   public static boolean isSurfacelessContextExtensionSupported() {
     if (Util.SDK_INT < 17) {
       return false;

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import androidx.test.core.app.ApplicationProvider;
+import com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport;
+import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -23,6 +26,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** A fake {@link MappingTrackSelector} that returns {@link FakeTrackSelection}s. */
 public class FakeTrackSelector extends DefaultTrackSelector {
@@ -30,7 +34,7 @@ public class FakeTrackSelector extends DefaultTrackSelector {
   private final FakeTrackSelectionFactory fakeTrackSelectionFactory;
 
   public FakeTrackSelector() {
-    this(false);
+    this(/* mayReuseTrackSelection= */ false);
   }
 
   /**
@@ -43,18 +47,19 @@ public class FakeTrackSelector extends DefaultTrackSelector {
   }
 
   private FakeTrackSelector(FakeTrackSelectionFactory fakeTrackSelectionFactory) {
-    super(fakeTrackSelectionFactory);
+    super(ApplicationProvider.getApplicationContext(), fakeTrackSelectionFactory);
     this.fakeTrackSelectionFactory = fakeTrackSelectionFactory;
   }
 
   @Override
-  protected TrackSelection.Definition[] selectAllTracks(
+  protected TrackSelection.@NullableType Definition[] selectAllTracks(
       MappedTrackInfo mappedTrackInfo,
-      int[][][] rendererFormatSupports,
-      int[] rendererMixedMimeTypeAdaptationSupports,
+      @Capabilities int[][][] rendererFormatSupports,
+      @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupports,
       Parameters params) {
     int rendererCount = mappedTrackInfo.getRendererCount();
-    TrackSelection.Definition[] definitions = new TrackSelection.Definition[rendererCount];
+    TrackSelection.@NullableType Definition[] definitions =
+        new TrackSelection.Definition[rendererCount];
     for (int i = 0; i < rendererCount; i++) {
       TrackGroupArray trackGroupArray = mappedTrackInfo.getTrackGroups(i);
       boolean hasTracks = trackGroupArray.length > 0;
@@ -80,7 +85,7 @@ public class FakeTrackSelector extends DefaultTrackSelector {
 
     @Override
     public TrackSelection[] createTrackSelections(
-        TrackSelection.Definition[] definitions, BandwidthMeter bandwidthMeter) {
+        TrackSelection.@NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
       TrackSelection[] selections = new TrackSelection[definitions.length];
       for (int i = 0; i < definitions.length; i++) {
         TrackSelection.Definition definition = definitions[i];
